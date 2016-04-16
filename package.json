@@ -1,0 +1,35 @@
+{
+  "name": "telegraf",
+  "version": "0.0.1",
+  "description": "Telegram bot framework",
+  "main": "lib/app.js",
+  "scripts": {
+    "examples": "DEBUG='telegraf:*' supervisor examples/simple-bot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/telegraf/telegraf.git"
+  },
+  "keywords": [
+    "telegraf",
+    "telegram",
+    "bot",
+    "bot framework"
+  ],
+  "author": "Vitaly Domnikov <dotcypress@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/telegraf/telegraf/issues"
+  },
+  "homepage": "https://github.com/telegraf/telegraf#readme",
+  "dependencies": {
+    "co-ware": "^1.6.0",
+    "debug": "^2.2.0",
+    "form-data": "^1.0.0-rc4",
+    "koa-compose": "^2.4.0",
+    "node-fetch": "^1.5.1"
+  },
+  "devDependencies": {
+    "supervisor": "^0.10.0"
+  }
+}

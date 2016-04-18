@@ -8,6 +8,7 @@ var sayYoMiddleware = function * (next) {
   yield this.reply('yo')
   yield next
 }
+
 // Logger middleware
 app.use(function * (next) {
   var start = new Date
@@ -41,7 +42,7 @@ app.on('text', function * (next) {
 
 // Text messages handling
 app.hears('/answer', sayYoMiddleware, function * () {
-  this.reply('`ⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅡⅡⅡⅡ`\nⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅡⅡⅡⅡ', {parse_mode: 'Markdown'})
+  this.reply('*12*', {parse_mode: 'Markdown'})
 })
 
 // Wow! RegEx

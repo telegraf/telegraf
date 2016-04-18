@@ -23,12 +23,10 @@
     "node": ">=4.0.0"
   },
   "files": [
-    "lib/app.js",
-    "lib/context.js"
+    "lib/app.js"
   ],
   "scripts": {
-    "test": "mocha test --require should",
-    "examples": "DEBUG='telegraf:*' supervisor examples/simple-bot.js"
+    "test": "mocha test --require should"
   },
   "dependencies": {
     "co-ware": "^1.6.0",

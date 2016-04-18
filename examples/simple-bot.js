@@ -1,7 +1,7 @@
 var debug = require('debug')('telegraf:simple-bot')
 var Telegraf = require('../lib/app')
 
-var app = new Telegraf('--BOT TOKEN--')
+var app = new Telegraf(process.env.BOT_TOKEN)
 
 // Sample middleware
 var sayYoMiddleware = function * (next) {
@@ -41,7 +41,7 @@ app.on('text', function * (next) {
 
 // Text messages handling
 app.hears('/answer', sayYoMiddleware, function * () {
-  this.reply('42')
+  this.reply('`ⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅡⅡⅡⅡ`\nⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅢⅡⅡⅡⅡ', {parse_mode: 'Markdown'})
 })
 
 // Wow! RegEx

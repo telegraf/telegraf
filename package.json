@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Telegram bot framework",
   "main": "lib/app.js",
   "repository": {
@@ -26,7 +26,7 @@
     "lib/app.js"
   ],
   "scripts": {
-    "test": "mocha test --require should"
+    "test": "mocha test"
   },
   "dependencies": {
     "co-ware": "^1.6.0",

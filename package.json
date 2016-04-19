@@ -1,11 +1,8 @@
 {
   "name": "telegraf",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Telegram bot framework",
   "main": "lib/app.js",
-  "scripts": {
-    "examples": "DEBUG='telegraf:*' supervisor examples/simple-bot.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/telegraf/telegraf.git"
@@ -22,6 +19,15 @@
     "url": "https://github.com/telegraf/telegraf/issues"
   },
   "homepage": "https://github.com/telegraf/telegraf#readme",
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "files": [
+    "lib/app.js"
+  ],
+  "scripts": {
+    "test": "mocha test"
+  },
   "dependencies": {
     "co-ware": "^1.6.0",
     "debug": "^2.2.0",
@@ -30,6 +36,8 @@
     "node-fetch": "^1.5.1"
   },
   "devDependencies": {
+    "mocha": "^2.4.5",
+    "should": "^8.3.1",
     "supervisor": "^0.10.0"
   }
 }

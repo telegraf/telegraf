@@ -154,7 +154,7 @@ app.onerror = function(err){
 * `Telegraf`
   * [`new Telegraf(token)`](#new)
   * [`.startPolling(timeout)`](#startPolling)
-  * [`.startWebHook(port, path, key, cert)`](#startWebHook)
+  * [`.startWebHook(token, tlsOptions, port, [host])`](#startWebHook)
   * [`.stop()`](#stop)
   * [`.use(function)`](#use)
   * [`.on(messageType, function)`](#on)
@@ -207,16 +207,16 @@ Start poll updates.
 * * *
 
 <a name="startWebHook"></a>
-#### `Telegraf.startWebHook(port, path, key, cert)`
+#### `Telegraf.startWebHook(token, tlsOptions, port, [host])`
 
-Start WebHook.
+Start listening @ `https://host:port/token` for Telegram calls.
 
 | Param | Type | Description |
 | ---  | --- | --- |
+| token | `String` | Token |
+| tlsOptions | `Object` | [tls server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener) |
 | port | `Int` | Port number |
-| path | `String` | Path |
-| key | `String` | Key file path|
-| cert | `String` | Certificate file path |
+| host | `String` | Hostname |
 
 * * *
 

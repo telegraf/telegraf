@@ -11,11 +11,11 @@ var sayYoMiddleware = function * (next) {
 
 // Logger middleware
 app.use(function * (next) {
-  var start = new Date
+  var start = new Date()
   this.state.started = start
   yield next
-  var ms = new Date - start
-  debug('message from: %s, time: %sms', ms)
+  var ms = new Date() - start
+  debug('time: %sms', ms)
 })
 
 // Shared download middleware

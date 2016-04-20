@@ -195,13 +195,14 @@ Initialize new app.
 * * *
 
 <a name="startPolling"></a>
-#### `Telegraf.startPolling(timeout)`
+#### `Telegraf.startPolling(timeout, limit)`
 
 Start poll updates.
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | timeout | `Int` | 0 | Poll timeout |
+| limit | `Int` | 100 | Limits the number of updates to be retrieved |
 
 * * *
 

@@ -55,4 +55,5 @@ app.hears(/reverse (.+)/, function * () {
   this.reply(reverse(this.match[1]))
 })
 
-app.startPolling()
+// Start pooling with 10 seconds timeout
+app.startPolling(10)

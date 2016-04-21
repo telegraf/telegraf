@@ -103,10 +103,11 @@ Context is created per request, and is referenced in middleware as the receiver,
 
 ```js
 app.use(function * (){
-  this.message; // Received message
-  this.inlineQuery; // Received inline query
-  this.chosenInlineResult; // Received inline query result
-  this.callbackQuery; // Received callback query
+  this.eventType          // Event type
+  this.message            // Received message
+  this.inlineQuery        // Received inline query
+  this.chosenInlineResult // Received inline query result
+  this.callbackQuery      // Received callback query
 });
 ```
 

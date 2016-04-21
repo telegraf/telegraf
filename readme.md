@@ -103,7 +103,10 @@ Context is created per request, and is referenced in middleware as the receiver,
 
 ```js
 app.use(function * (){
-  this.msg; // Received message
+  this.message; // Received message
+  this.inlineQuery; // Received inline query
+  this.chosenInlineResult; // Received inline query result
+  this.callbackQuery; // Received callback query
 });
 ```
 
@@ -117,8 +120,8 @@ app.context.db = {
 }
 
 app.on('text', function * (){
-  var scores = this.db.getScores(this.msg.from.username)
-  this.reply(`${this.msg.from.username}: ${score}`)
+  var scores = this.db.getScores(this.message.from.username)
+  this.reply(`${this.message.from.username}: ${score}`)
 })
 ```
 
@@ -130,7 +133,7 @@ The recommended namespace to share information between middlewares.
 var app = Telegraf('BOT TOKEN')
 
 app.use(function * (next) {
-  this.state.role = getUserRole(this.msg) 
+  this.state.role = getUserRole(this.message) 
   yield next
 })
 
@@ -153,7 +156,7 @@ app.onerror = function(err){
 
 * `Telegraf`
   * [`new Telegraf(token)`](#new)
-  * [`.startPolling(timeout)`](#startPolling)
+  * [`.startPolling(timeout, limit)`](#startPolling)
   * [`.startWebHook(token, tlsOptions, port, [host])`](#startWebHook)
   * [`.stop()`](#stop)
   * [`.use(function)`](#use)
@@ -637,20 +640,22 @@ app.on('message', function * () {
 
 ### Shortcuts
 
-Telegraf context have handy shortcuts.
+Telegraf context have many handy shortcuts.
+
+    Note: shortcuts are not available for `inline_query` and `chosen_inline_result` events.
 
 ```js
 var app = Telegraf('BOT TOKEN')
 
 app.on('text', function * (){
   // Simple usage 
-  app.sendMessage(this.msg.chat.id, `Hello ${this.state.role}`)
+  app.sendMessage(this.message.chat.id, `Hello ${this.state.role}`)
   
   // Using shortcut
   this.reply(`Hello ${this.state.role}`)
 
   // If you want to mark message as reply to source message
-  this.reply(`Hello ${this.state.role}`, {reply_to_message_id: this.msg.id })
+  this.reply(`Hello ${this.state.role}`, { reply_to_message_id: this.message.id })
 })
 ```
 

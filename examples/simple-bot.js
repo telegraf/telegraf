@@ -3,12 +3,6 @@ var Telegraf = require('../lib/app')
 
 var app = new Telegraf(process.env.BOT_TOKEN)
 
-// Sample middleware
-var sayYoMiddleware = function * (next) {
-  yield this.reply('yo')
-  yield next
-}
-
 // Logger middleware
 app.use(function * (next) {
   var start = new Date()
@@ -16,19 +10,6 @@ app.use(function * (next) {
   yield next
   var ms = new Date() - start
   debug('time: %sms', ms)
-})
-
-// Shared download middleware
-var downloadMiddleware = function * (next) {
-  debug('Downloading...')
-  this.state.downloaded = true
-  yield next
-  debug('Cleanup downloads...')
-}
-
-// Middlewares, widdlewares everwhere
-app.on('video', downloadMiddleware, function * (next) {
-  debug(this.state)
 })
 
 // Random advice bot!
@@ -40,19 +21,20 @@ app.on('text', function * (next) {
   yield this.replyWithLocation((Math.random() * 180) - 90, (Math.random() * 180) - 90)
 })
 
+// Sample middleware
+var sayYoMiddleware = function * (next) {
+  yield this.reply('yo')
+  yield next
+}
+
 // Text messages handling
 app.hears('/answer', sayYoMiddleware, function * () {
   this.reply('*12*', {parse_mode: 'Markdown'})
 })
 
 // Wow! RegEx
-app.hears(/reverse (.+)/, function * () {
-  // Copy/Pasted from StackOverflow
-  function reverse (s) {
-    for (var i = s.length - 1, o = ''; i >= 0; o += s[i--]) { }
-    return o
-  }
-  this.reply(reverse(this.match[1]))
+app.hears(/reverse (.+)/, sayYoMiddleware, function * () {
+  this.reply(this.match[1].split('').reverse().join(''))
 })
 
 // Start pooling with 10 seconds timeout

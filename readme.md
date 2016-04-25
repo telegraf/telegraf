@@ -15,7 +15,7 @@ $ npm install telegraf
 ```js
 var Telegraf = require('telegraf');
 
-var app = Telegraf(process.env.BOT_TOKEN);
+var app = new Telegraf(process.env.BOT_TOKEN);
 
 // Look ma, middleware!
 var sayYoMiddleware = function * (next) {
@@ -25,23 +25,18 @@ var sayYoMiddleware = function * (next) {
 
 // Text messages handling
 app.hears('/answer', sayYoMiddleware, function * () {
-  this.reply('*12*', { parse_mode: 'Markdown' })
+  this.reply('*42*', { parse_mode: 'Markdown' })
 })
 
 // Wow! RegEx
 app.hears(/reverse (.+)/, function * () {
-  // Copy/Pasted from StackOverflow
-  function reverse (s) {
-    for (var i = s.length - 1, o = ''; i >= 0; o += s[i--]) { }
-    return o
-  }
-  this.reply(reverse(this.match[1]))
+  this.reply(this.match[1].split('').reverse().join(''))
 })
 
 app.startPolling()
 ```
 
-There are some other examples on [examples](https://github.com/telegraf/telegraf/tree/master/examples).
+There are some other [examples](https://github.com/telegraf/telegraf/tree/master/examples).
 
 ## API
 
@@ -49,14 +44,14 @@ There are some other examples on [examples](https://github.com/telegraf/telegraf
 
 A Telegraf application is an object containing an array of middleware generator functions
 which are composed and executed in a stack-like manner upon request. Telegraf is similar to many
-other middleware systems that you may have encountered such as Ruby's Rack, Connect, and so on -
+other middleware systems that you may have encountered such as Koa, Ruby's Rack, Connect, and so on -
 however a key design decision was made to provide high level "sugar" at the otherwise low-level
 middleware layer. This improves interoperability, robustness, and makes writing middleware much
 more enjoyable. 
 
 ```js
 var Telegraf = require('telegraf')
-var app = Telegraf('BOT TOKEN')
+var app = new Telegraf(process.env.BOT_TOKEN)
 
 app.on('text', function * (){
   this.reply('Hello World')
@@ -80,7 +75,7 @@ middleware to execute downstream, the stack will unwind and each middleware is r
 its upstream behaviour.
 
 ```js
-var app = Telegraf('BOT TOKEN')
+var app = new Telegraf(process.env.BOT_TOKEN)
 
 // Logger middleware
 app.use(function * (next){
@@ -114,7 +109,7 @@ app.use(function * (){
 The recommended way to extend application context.
 
 ```js
-var app = Telegraf('BOT TOKEN')
+var app = new Telegraf(process.env.BOT_TOKEN)
 
 app.context.db = {
   getScores: function () { return 42 }
@@ -131,7 +126,7 @@ app.on('text', function * (){
 The recommended namespace to share information between middlewares.
 
 ```js
-var app = Telegraf('BOT TOKEN')
+var app = new Telegraf(process.env.BOT_TOKEN)
 
 app.use(function * (next) {
   this.state.role = getUserRole(this.message) 
@@ -194,7 +189,7 @@ Initialize new app.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| token | `String` | Bot Token |
+| token | `String` | [Bot Token](https://core.telegram.org/bots#3-how-do-i-create-a-bot) |
 
 * * *
 
@@ -632,7 +627,13 @@ Supported events:
 Also, Telegraf will emit `message` event for for all messages except `inline_query`, `chosen_inline_result` and `callback_query`.
 
 ```js
-// Handle all messages
+// Handle all messages except `inline_query`, `chosen_inline_result` and `callback_query`
+
+app.on('sticker', function * () {
+  console.log(this.message)
+  this.reply('Cool sticker!')
+})
+
 app.on('message', function * () {
   this.reply('Hey there!')
 })
@@ -646,7 +647,7 @@ Telegraf context have many handy shortcuts.
     Note: shortcuts are not available for `inline_query` and `chosen_inline_result` events.
 
 ```js
-var app = Telegraf('BOT TOKEN')
+var app = new Telegraf(process.env.BOT_TOKEN)
 
 app.on('text', function * (){
   // Simple usage 

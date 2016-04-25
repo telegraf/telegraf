@@ -36,7 +36,7 @@ app.hears(/reverse (.+)/, function * () {
 app.startPolling()
 ```
 
-There are some other examples on [examples](https://github.com/telegraf/telegraf/tree/master/examples).
+There are some other [examples](https://github.com/telegraf/telegraf/tree/master/examples).
 
 ## API
 

@@ -17,19 +17,19 @@ var Telegraf = require('telegraf');
 
 var app = new Telegraf(process.env.BOT_TOKEN);
 
+// Text messages handling
+app.hears('/answer', function * () {
+  this.reply('*42*', { parse_mode: 'Markdown' })
+})
+
 // Look ma, middleware!
 var sayYoMiddleware = function * (next) {
   yield this.reply('yo')
   yield next
 }
 
-// Text messages handling
-app.hears('/answer', sayYoMiddleware, function * () {
-  this.reply('*42*', { parse_mode: 'Markdown' })
-})
-
 // Wow! RegEx
-app.hears(/reverse (.+)/, function * () {
+app.hears(/reverse (.+)/, sayYoMiddleware, function * () {
   this.reply(this.match[1].split('').reverse().join(''))
 })
 
@@ -139,12 +139,15 @@ app.on('text', function * (){
 ```
 ## Error Handling
 
-By default outputs all errors to stderr.
-To perform custom error-handling logic such as centralized logging you can set `onerror` handler:
+By default Telegraf will print all errors to stderr and rethrow error. 
+To perform custom error-handling logic you can set `onError` handler:
 
 ```js
-app.onerror = function(err){
+app.onError = function(err){
   log.error('server error', err)
+  
+  // If user messages is important for us, we will exit from update loop
+  throw err
 }
 ```
 
@@ -244,7 +247,7 @@ Registers handler for provided [event type](#events).
 
 | Param | Type | Description |
 | --- | --- | --- |
-| eventType | `String` | [Event type](#events) |
+| eventType | `String` or `Array[String]` | [Event type](#events) |
 | handler | `Function` | Handler |
 
 * * *
@@ -627,13 +630,14 @@ Supported events:
 Also, Telegraf will emit `message` event for for all messages except `inline_query`, `chosen_inline_result` and `callback_query`.
 
 ```js
-// Handle all messages except `inline_query`, `chosen_inline_result` and `callback_query`
 
-app.on('sticker', function * () {
+// Handle stickers and photos
+app.on(['sticker', 'photo], function * () {
   console.log(this.message)
-  this.reply('Cool sticker!')
+  this.reply('Cool!')
 })
 
+// Handle all messages except `inline_query`, `chosen_inline_result` and `callback_query`
 app.on('message', function * () {
   this.reply('Hey there!')
 })

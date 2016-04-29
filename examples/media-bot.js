@@ -14,8 +14,7 @@ var downloadPhotoMiddleware = function * (next) {
 
 // Middlewares, widdlewares everwhere
 app.on('photo', downloadPhotoMiddleware, function * (next) {
-  debug(this.state.fileLink)
-  this.reply('This photo is awesome!\nWill show you something')
+  this.reply('Awesome!\n' + this.state.fileLink)
   //this.replyWithPhoto({ source: '/directory/file.jpeg' })
 })
 

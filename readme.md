@@ -632,7 +632,7 @@ Also, Telegraf will emit `message` event for for all messages except `inline_que
 ```js
 
 // Handle stickers and photos
-app.on(['sticker', 'photo], function * () {
+app.on(['sticker', 'photo'], function * () {
   console.log(this.message)
   this.reply('Cool!')
 })

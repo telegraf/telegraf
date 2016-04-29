@@ -3,7 +3,8 @@ var Telegraf = require('../lib/app')
 
 var app = new Telegraf(process.env.BOT_TOKEN)
 
-app.hears('/start', function * () {
+app.on('text', function * () {
+  // Very smart bot ;)
   this.reply('Coke or Pepsi?', {
     reply_markup: {
       inline_keyboard: [[
@@ -15,19 +16,7 @@ app.hears('/start', function * () {
 })
 
 app.on('callback_query', function * () {
-  this.reply(`Oh, ${this.callbackQuery.data}! Great choise\nWhat about smartphones?`, {
-    reply_markup: {
-      one_time_keyboard: true,
-      keyboard: [
-        ['iPhone', 'Android'],
-        ['Blackberry']
-      ]
-    }
-  })
-})
-
-app.hears(/(iPhone)|(Android)|(Blackberry)/, function * () {
-  this.reply(`Yeah, ${this.match[1]} is pretty good.`)
+  this.reply(`Oh, ${this.callbackQuery.data}! Great choise`)
 })
 
 app.startPolling(10)

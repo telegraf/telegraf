@@ -12,28 +12,34 @@ app.use(function * (next) {
   debug('time: %sms', ms)
 })
 
-// Random advice bot!
-app.on('text', function * (next) {
-  if (Math.random() < 0.3) {
-    return
-  }
-  yield this.reply('Highly advised to visit:')
-  yield this.replyWithLocation((Math.random() * 180) - 90, (Math.random() * 180) - 90)
-})
-
 // Sample middleware
 var sayYoMiddleware = function * (next) {
   yield this.reply('yo')
   yield next
 }
 
+// Random advice bot!
+app.on('text', function * () {
+  if (Math.random() > 0.2) {
+    return
+  }
+  yield this.reply('Highly advised to visit:')
+  yield this.replyWithLocation((Math.random() * 180) - 90, (Math.random() * 180) - 90)
+})
+
 // Text messages handling
+app.hears('Hey', sayYoMiddleware, function * () {
+  this.reply('_Hey_', {parse_mode: 'Markdown'})
+})
+
+// Command handling
 app.hears('/answer', sayYoMiddleware, function * () {
-  this.reply('*12*', {parse_mode: 'Markdown'})
+  debug(this.message)
+  this.reply('*42*', {parse_mode: 'Markdown'})
 })
 
 // Wow! RegEx
-app.hears(/reverse (.+)/, sayYoMiddleware, function * () {
+app.hears(/reverse (.+)/, function * () {
   this.reply(this.match[1].split('').reverse().join(''))
 })
 

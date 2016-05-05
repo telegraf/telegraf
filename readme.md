@@ -98,6 +98,7 @@ Context is created per request, and is referenced in middleware as the receiver,
 
 ```js
 app.use(function * (){
+  this.telegraf           // Telegraf instance
   this.eventType          // Event type
   this.message            // Received message
   this.inlineQuery        // Received inline query

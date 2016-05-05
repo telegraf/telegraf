@@ -156,8 +156,9 @@ app.onError = function(err){
 
 * `Telegraf`
   * [`new Telegraf(token)`](#new)
+  * [`.setWebHook(url, cert)`](#setwebhook)
+  * [`.startWebHook(path, tlsOptions, port, [host])`](#startWebHook)
   * [`.startPolling(timeout, limit)`](#startPolling)
-  * [`.startWebHook(token, tlsOptions, port, [host])`](#startWebHook)
   * [`.stop()`](#stop)
   * [`.use(function)`](#use)
   * [`.on(messageType, function)`](#on)
@@ -176,7 +177,6 @@ app.onError = function(err){
   * [`.getUserProfilePhotos(userId, offset, limit)`](#getuserprofilephotos)
   * [`.getFile(fileId)`](#getfile)
   * [`.getFileLink(fileId)`](#getFileLink)
-  * [`.setWebHook(url, cert)`](#setwebhook)
   * [`.removeWebHook()`](#removewebhook)
   * [`.kickChatMember(chatId, userId)`](#kickchatmember)
   * [`.unbanChatMember(chatId, userId)`](#unbanchatmember)
@@ -195,6 +195,34 @@ Initialize new app.
 | --- | --- | --- |
 | token | `String` | [Bot Token](https://core.telegram.org/bots#3-how-do-i-create-a-bot) |
 
+
+* * *
+
+<a name="setwebhook"></a>
+#### `Telegraf.setWebHook(url, [cert])` => `Promise`
+
+Specifies an url to receive incoming updates via an outgoing webHook.
+
+| Param | Type | Description |
+| ---  | --- | --- |
+| url  | `String` | Public url for webhook |
+| cert | [`File`](#file) | SSL public certificate |
+
+[Related Telegram api docs](https://core.telegram.org/bots/api#setwebhook)
+* * *
+
+<a name="startWebHook"></a>
+#### `Telegraf.startWebHook(token, tlsOptions, port, [host])`
+
+Start listening @ `https://host:port/token` for Telegram calls.
+
+| Param | Type | Description |
+| ---  | --- | --- |
+| path | `String` | Url path (see Telegraf.setWebHook) |
+| tlsOptions | `Object` | [tls server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener) |
+| port | `Int` | Port number |
+| host | `String` | Hostname |
+
 * * *
 
 <a name="startPolling"></a>
@@ -206,20 +234,6 @@ Start poll updates.
 | --- | --- | --- | --- |
 | timeout | `Int` | 0 | Poll timeout |
 | limit | `Int` | 100 | Limits the number of updates to be retrieved |
-
-* * *
-
-<a name="startWebHook"></a>
-#### `Telegraf.startWebHook(token, tlsOptions, port, [host])`
-
-Start listening @ `https://host:port/token` for Telegram calls.
-
-| Param | Type | Description |
-| ---  | --- | --- |
-| token | `String` | Token |
-| tlsOptions | `Object` | [tls server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener) |
-| port | `Int` | Port number |
-| host | `String` | Hostname |
 
 * * *
 
@@ -450,19 +464,6 @@ Returns link to file.
 
 
 [Related Telegram api docs](https://core.telegram.org/bots/api#getFileLink)
-* * *
-
-<a name="setwebhook"></a>
-#### `Telegraf.setWebHook(url, [cert])` => `Promise`
-
-Specifies an url to receive incoming updates via an outgoing webHook.
-
-| Param | Type | Description |
-| ---  | --- | --- |
-| url  | `String` | File id |
-| cert | [`File`](#file) | SSL public certificate |
-
-[Related Telegram api docs](https://core.telegram.org/bots/api#setwebhook)
 * * *
 
 <a name="removewebhook"></a>

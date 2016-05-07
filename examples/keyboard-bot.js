@@ -1,9 +1,9 @@
 var debug = require('debug')('telegraf:keyboard-bot')
-var Telegraf = require('../lib/app')
+var Telegraf = require('../lib/telegraf')
 
-var app = new Telegraf(process.env.BOT_TOKEN)
+var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
-app.on('text', function * () {
+telegraf.on('text', function * () {
   // Very smart bot ;)
   this.reply('Coke or Pepsi?', {
     reply_markup: {
@@ -15,8 +15,9 @@ app.on('text', function * () {
   })
 })
 
-app.on('callback_query', function * () {
-  this.reply(`Oh, ${this.callbackQuery.data}! Great choise`)
+telegraf.on('callback_query', function * () {
+  yield telegraf.answerCallbackQuery(this.callbackQuery.id)
+  yield this.reply(`Oh, ${this.callbackQuery.data}! Great choise`)
 })
 
-app.startPolling(10)
+telegraf.startPolling()

@@ -1,4 +1,4 @@
-var Telegraf = require('../lib/app')
+var Telegraf = require('../lib/telegraf')
 var should = require('should')
 
 var baseMessage = {

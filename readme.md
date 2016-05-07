@@ -2,7 +2,7 @@
 [![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 
-Telegram bot framework for node.js
+Modern Telegram bot framework for node.js
 
 ## Installation
 
@@ -15,10 +15,10 @@ $ npm install telegraf
 ```js
 var Telegraf = require('telegraf');
 
-var app = new Telegraf(process.env.BOT_TOKEN);
+var telegraf = new Telegraf(process.env.BOT_TOKEN);
 
 // Text messages handling
-app.hears('/answer', function * () {
+telegraf.hears('/answer', function * () {
   this.reply('*42*', { parse_mode: 'Markdown' })
 })
 
@@ -29,11 +29,11 @@ var sayYoMiddleware = function * (next) {
 }
 
 // Wow! RegEx
-app.hears(/reverse (.+)/, sayYoMiddleware, function * () {
+telegraf.hears(/reverse (.+)/, sayYoMiddleware, function * () {
   this.reply(this.match[1].split('').reverse().join(''))
 })
 
-app.startPolling()
+telegraf.startPolling()
 ```
 
 There are some other [examples](https://github.com/telegraf/telegraf/tree/master/examples).
@@ -51,13 +51,13 @@ more enjoyable.
 
 ```js
 var Telegraf = require('telegraf')
-var app = new Telegraf(process.env.BOT_TOKEN)
+var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
-app.on('text', function * (){
+telegraf.on('text', function * (){
   this.reply('Hello World')
 })
 
-app.startPolling()
+telegraf.startPolling()
 ```
 
 ### Cascading
@@ -75,10 +75,10 @@ middleware to execute downstream, the stack will unwind and each middleware is r
 its upstream behaviour.
 
 ```js
-var app = new Telegraf(process.env.BOT_TOKEN)
+var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
 // Logger middleware
-app.use(function * (next){
+telegraf.use(function * (next){
   var start = new Date
   this.state.started = start
   yield next
@@ -86,7 +86,7 @@ app.use(function * (next){
   debug('response time %sms', ms)
 })
 
-app.on('text', function * (){
+telegraf.on('text', function * (){
   this.reply('Hello World')
 })
 ```
@@ -97,7 +97,7 @@ A Telegraf Context encapsulates telegram message.
 Context is created per request, and is referenced in middleware as the receiver, or the this identifier, as shown in the following snippet:
 
 ```js
-app.use(function * (){
+telegraf.use(function * (){
   this.telegraf           // Telegraf instance
   this.eventType          // Event type
   this.message            // Received message
@@ -127,24 +127,42 @@ app.on('text', function * (){
 The recommended namespace to share information between middlewares.
 
 ```js
-var app = new Telegraf(process.env.BOT_TOKEN)
+var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
-app.use(function * (next) {
+telegraf.use(function * (next) {
   this.state.role = getUserRole(this.message) 
   yield next
 })
 
-app.on('text', function * (){
+telegraf.on('text', function * (){
   this.reply(`Hello ${this.state.role}`)
 })
 ```
+
+## Session
+
+For development you can use `Telegraf.memorySession()`, but session will be lost on app restart.
+For production environment use any [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.
+
+```js
+var telegraf = new Telegraf(process.env.BOT_TOKEN)
+
+telegraf.use(Telegraf.memorySession())
+
+telegraf.on('text', function * (){
+  this.session.counter = this.session.counter || 0
+  this.session.counter++
+  this.reply(`Message counter:${this.session.counter}`)
+})
+```
+
 ## Error Handling
 
 By default Telegraf will print all errors to stderr and rethrow error. 
 To perform custom error-handling logic you can set `onError` handler:
 
 ```js
-app.onError = function(err){
+telegraf.onError = function(err){
   log.error('server error', err)
   
   // If user messages is important for us, we will exit from update loop
@@ -189,7 +207,7 @@ app.onError = function(err){
 <a name="new"></a>
 #### `Telegraf.new(token)`
 
-Initialize new app.
+Initialize new Telegraf app.
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -634,13 +652,13 @@ Also, Telegraf will emit `message` event for for all messages except `inline_que
 ```js
 
 // Handle stickers and photos
-app.on(['sticker', 'photo'], function * () {
+telegraf.on(['sticker', 'photo'], function * () {
   console.log(this.message)
   this.reply('Cool!')
 })
 
 // Handle all messages except `inline_query`, `chosen_inline_result` and `callback_query`
-app.on('message', function * () {
+telegraf.on('message', function * () {
   this.reply('Hey there!')
 })
 ```
@@ -653,11 +671,11 @@ Telegraf context have many handy shortcuts.
     Note: shortcuts are not available for `inline_query` and `chosen_inline_result` events.
 
 ```js
-var app = new Telegraf(process.env.BOT_TOKEN)
+var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
-app.on('text', function * (){
+telegraf.on('text', function * (){
   // Simple usage 
-  app.sendMessage(this.message.chat.id, `Hello ${this.state.role}`)
+  telegraf.sendMessage(this.message.chat.id, `Hello ${this.state.role}`)
   
   // Using shortcut
   this.reply(`Hello ${this.state.role}`)
@@ -667,15 +685,15 @@ app.on('text', function * (){
 })
 ```
 
-* `reply()` -> `app.sendMessage()`
-* `replyWithPhoto()` -> `app.sendPhoto()`
-* `replyWithAudio()` -> `app.sendAudio()`
-* `replyWithDocument()` -> `app.sendDocument()`
-* `replyWithSticker()` -> `app.sendSticker()`
-* `replyWithVideo()` -> `app.sendVideo()`
-* `replyWithVoice()` -> `app.sendVoice()`
-* `replyWithChatAction()` -> `app.sendChatAction()`
-* `replyWithLocation()` -> `app.sendLocation()`
+* `reply()` -> `telegraf.sendMessage()`
+* `replyWithPhoto()` -> `telegraf.sendPhoto()`
+* `replyWithAudio()` -> `telegraf.sendAudio()`
+* `replyWithDocument()` -> `telegraf.sendDocument()`
+* `replyWithSticker()` -> `telegraf.sendSticker()`
+* `replyWithVideo()` -> `telegraf.sendVideo()`
+* `replyWithVoice()` -> `telegraf.sendVoice()`
+* `replyWithChatAction()` -> `telegraf.sendChatAction()`
+* `replyWithLocation()` -> `telegraf.sendLocation()`
 
 ## License
 

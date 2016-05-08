@@ -227,7 +227,7 @@ telegraf.onError = function(err){
   * [`.stop()`](#stop)
   * [`.use(function)`](#use)
   * [`.on(messageType, function)`](#on)
-  * [`.hear(string|ReGex, function)`](#hear)
+  * [`.hears(string|ReGex, function)`](#hears)
   * [`.sendMessage(chatId, text, extra)`](#sendmessage)
   * [`.forwardMessage(chatId, fromChatId, messageId, extra)`](#forwardmessage)
   * [`.sendLocation(chatId, latitude, longitude, extra)`](#sendlocation)
@@ -345,8 +345,8 @@ Registers handler for provided [event type](#events).
 
 * * *
 
-<a name="hear"></a>
-#### `Telegraf.hear(pattern, handler)`
+<a name="hears"></a>
+#### `Telegraf.hears(pattern, handler)`
 
 Registers handler only for `text` events using string pattern or RegEx.
 

@@ -156,6 +156,52 @@ telegraf.on('text', function * (){
 })
 ```
 
+## Telegram WebHook
+
+```js
+
+var telegraf = new Telegraf(process.env.BOT_TOKEN)
+
+// TLS options
+var tlsOptions = {
+  key: fs.readFileSync('server-key.pem'),
+  cert: fs.readFileSync('server-cert.pem'),
+  // This is necessary only if the client uses the self-signed certificate.
+  ca: [ fs.readFileSync('client-cert.pem') ]
+}
+
+// Set telegram webhook
+telegraf.setWebHook('https://server.tld:8443/secret-path', {content: 'server-cert.pem'})
+
+// Start https webhook
+telegraf.startWebHook('/secret-path', tlsOptions, 8443)
+
+
+// Http webhook, for nginx/heroku users.
+telegraf.startWebHook('/secret-path', null, 5000)
+
+
+// Use webHookCallback() if you want attach telegraf to existing http server
+require('http').createServer(telegraf.webHookCallback('/secret-path')).listen(3000);
+require('https').createServer(tlsOptions, telegraf.webHookCallback('/secret-path')).listen(8443);
+
+
+// Connect/Express.js integration
+var express = require('express')
+var app = express()
+
+app.use(telegraf.webHookCallback('/hey'))
+
+app.get('/', function (req, res) {
+  res.send('Hello World!')
+})
+
+app.listen(3000, function () {
+  console.log('Example app listening on port 3000!')
+})
+
+```
+
 ## Error Handling
 
 By default Telegraf will print all errors to stderr and rethrow error. 
@@ -174,8 +220,9 @@ telegraf.onError = function(err){
 
 * `Telegraf`
   * [`new Telegraf(token)`](#new)
+  * [`.webHookCallback(webHookPath)`](#webhookcallback)
   * [`.setWebHook(url, cert)`](#setwebhook)
-  * [`.startWebHook(path, tlsOptions, port, [host])`](#startWebHook)
+  * [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startWebHook)
   * [`.startPolling(timeout, limit)`](#startPolling)
   * [`.stop()`](#stop)
   * [`.use(function)`](#use)
@@ -216,6 +263,18 @@ Initialize new Telegraf app.
 
 * * *
 
+<a name="webhookcallback"></a>
+#### `Telegraf.webHookCallback(webHookPath)` => `Function`
+
+Return a callback function suitable for the http[s].createServer() method to handle a request. 
+You may also use this callback function to mount your telegraf app in a Koa/Connect/Express app.
+
+| Param | Type | Description |
+| ---  | --- | --- |
+| webHookPath | `String` | Webhook url path (see Telegraf.setWebHook) |
+
+* * *
+
 <a name="setwebhook"></a>
 #### `Telegraf.setWebHook(url, [cert])` => `Promise`
 
@@ -227,6 +286,7 @@ Specifies an url to receive incoming updates via an outgoing webHook.
 | cert | [`File`](#file) | SSL public certificate |
 
 [Related Telegram api docs](https://core.telegram.org/bots/api#setwebhook)
+
 * * *
 
 <a name="startWebHook"></a>
@@ -236,8 +296,8 @@ Start listening @ `https://host:port/token` for Telegram calls.
 
 | Param | Type | Description |
 | ---  | --- | --- |
-| path | `String` | Url path (see Telegraf.setWebHook) |
-| tlsOptions | `Object` | [tls server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener) |
+| webHookPath | `String` | Webhook url path (see Telegraf.setWebHook) |
+| tlsOptions | `Object` | (Optional) Pass null to use http [tls server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener) |
 | port | `Int` | Port number |
 | host | `String` | Hostname |
 

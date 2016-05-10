@@ -222,6 +222,7 @@ Telegraf context have many handy shortcuts.
 
     Note: shortcuts are not available for `inline_query` and `chosen_inline_result` events.
 
+
 ```js
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
@@ -246,6 +247,7 @@ telegraf.on('text', function * (){
 * `replyWithVoice()` -> `telegraf.sendVoice()`
 * `replyWithChatAction()` -> `telegraf.sendChatAction()`
 * `replyWithLocation()` -> `telegraf.sendLocation()`
+
 
 ## API reference
 
@@ -328,7 +330,7 @@ Start listening @ `https://host:port/token` for Telegram calls.
 | Param | Type | Description |
 | ---  | --- | --- |
 | webHookPath | `String` | Webhook url path (see Telegraf.setWebHook) |
-| tlsOptions | `[TLS server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener)` | (Optional) Pass null to use http |
+| tlsOptions | [TLS server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener) | (Optional) Pass null to use http |
 | port | `Int` | Port number |
 | host | `String` | Hostname |
 

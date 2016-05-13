@@ -1,5 +1,5 @@
+require('should')
 var Telegraf = require('../lib/telegraf')
-var should = require('should')
 
 var baseMessage = {
   chat: {
@@ -21,22 +21,15 @@ describe('Telegraf', function () {
         var app = new Telegraf()
         app.on(test.type, function * () {
           this.should.have.property(test.prop)
+          this.should.have.property('eventType')
+          this.eventType.should.be.equal(test.type)
           done()
         })
         app.handleUpdate(test.update)
       })
     })
 
-    it('should have update payload for message', function (done) {
-      var app = new Telegraf()
-      app.on('message', function * () {
-        this.should.have.property('message')
-        done()
-      })
-      app.handleUpdate({message: baseMessage})
-    })
-
-    it('should have shortcuts', function (done) {
+    it('should provide shortcuts', function (done) {
       var app = new Telegraf()
       app.on('message', function * () {
         this.should.have.property('reply')
@@ -135,7 +128,7 @@ describe('Telegraf', function () {
           app.on(test, function * () {
             done()
           })
-          var message = baseMessage
+          var message = Object.assign({}, baseMessage)
           message[test] = {}
           app.handleUpdate({message: message})
         })

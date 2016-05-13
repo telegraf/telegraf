@@ -18,8 +18,8 @@ telegraf.on('inline_query', function * () {
           }
         }
       })
-    debug(results)
-    telegraf.answerInlineQuery(this.inlineQuery.id, results)
+      .slice(0, 10)
+    yield this.answerInlineQuery(results)
   }
 })
 

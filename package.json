@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "description": "📢 Modern Telegram bot framework",
   "main": "lib/telegraf.js",
   "repository": {
@@ -16,14 +16,16 @@
     "bot",
     "bot framework"
   ],
-  "author": "Vitaly Domnikov <dotcypress@gmail.com>",
+  "authors": [
+    "Vitaly Domnikov <dotcypress@gmail.com>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/telegraf/telegraf/issues"
   },
   "homepage": "https://github.com/telegraf/telegraf#readme",
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=4.4.4"
   },
   "files": [
     "lib/telegraf.js",
@@ -36,7 +38,6 @@
     "co-ware": "^1.6.0",
     "debug": "^2.2.0",
     "form-data": "^1.0.0-rc4",
-    "koa-compose": "^2.4.0",
     "node-fetch": "^1.5.1"
   },
   "devDependencies": {

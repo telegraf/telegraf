@@ -1,10 +1,15 @@
-var debug = require('debug')('telegraf:keyboard-bot')
+var debug = require('debug')('telegraf:webhook-bot')
 var Telegraf = require('../lib/telegraf')
-
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
+// Set telegram webhook
+// npm install -g localtunnel && lt --port 3000
+telegraf.setWebHook('https://----------.localtunnel.me/secret-path', {content: 'webhook.pem'})
+
+// Start https webhook
+telegraf.startWebHook('/secret-path', null, 3000)
+
 telegraf.on('text', function * () {
-  // Very smart bot ;)
   this.reply('Coke or Pepsi?', {
     reply_markup: {
       inline_keyboard: [[
@@ -19,5 +24,3 @@ telegraf.on('callback_query', function * () {
   yield this.answerCallbackQuery()
   yield this.reply(`Oh, ${this.callbackQuery.data}! Great choise`)
 })
-
-telegraf.startPolling()

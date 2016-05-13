@@ -1,5 +1,8 @@
-[![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
+[![npm](https://img.shields.io/npm/l/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
+[![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
+[![David](https://img.shields.io/david/telegraf/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
+[![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
 
 📢 Modern Telegram bot framework for node.js
 
@@ -98,7 +101,8 @@ Context is created per request, and is referenced in middleware as the receiver,
 ```js
 telegraf.use(function * (){
   this.telegraf           // Telegraf instance
-  this.eventType          // Event type
+  this.eventType          // Event type(message, inline_query, etc.)
+  this.eventSubType       // Event subtype(text, sticker, audio, etc.)
   this.message            // Received message
   this.inlineQuery        // Received inline query
   this.chosenInlineResult // Received inline query result
@@ -110,13 +114,13 @@ telegraf.use(function * (){
 The recommended way to extend application context.
 
 ```js
-var app = new Telegraf(process.env.BOT_TOKEN)
+var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
-app.context.db = {
+telegraf.context.db = {
   getScores: function () { return 42 }
 }
 
-app.on('text', function * (){
+telegraf.on('text', function * (){
   var scores = this.db.getScores(this.message.from.username)
   this.reply(`${this.message.from.username}: ${score}`)
 })
@@ -141,12 +145,10 @@ telegraf.on('text', function * (){
 
 ### Session
 
-For development you can use `Telegraf.memorySession()`, but session will be lost on app restart.
-For production environment use any [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.
-
 ```js
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
+// Session will be lost on app restart
 telegraf.use(Telegraf.memorySession())
 
 telegraf.on('text', function * (){
@@ -155,6 +157,9 @@ telegraf.on('text', function * (){
   this.reply(`Message counter:${this.session.counter}`)
 })
 ```
+
+**Important: For production environment use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
+
 
 ### Telegram WebHook
 
@@ -166,12 +171,15 @@ var telegraf = new Telegraf(process.env.BOT_TOKEN)
 var tlsOptions = {
   key: fs.readFileSync('server-key.pem'),
   cert: fs.readFileSync('server-cert.pem'),
-  // This is necessary only if the client uses the self-signed certificate.
+  // This is necessary only if the client 
+  // uses the self-signed certificate.
   ca: [ fs.readFileSync('client-cert.pem') ]
 }
 
 // Set telegram webhook
-telegraf.setWebHook('https://server.tld:8443/secret-path', {content: 'server-cert.pem'})
+telegraf.setWebHook('https://server.tld:8443/secret-path', {
+  content: 'server-cert.pem'
+})
 
 // Start https webhook
 telegraf.startWebHook('/secret-path', tlsOptions, 8443)
@@ -182,9 +190,13 @@ telegraf.startWebHook('/secret-path', null, 5000)
 
 
 // Use webHookCallback() if you want attach telegraf to existing http server
-require('http').createServer(telegraf.webHookCallback('/secret-path')).listen(3000);
-require('https').createServer(tlsOptions, telegraf.webHookCallback('/secret-path')).listen(8443);
+require('http')
+  .createServer(telegraf.webHookCallback('/secret-path'))
+  .listen(3000)
 
+require('https')
+  .createServer(tlsOptions, telegraf.webHookCallback('/secret-path'))
+  .listen(8443)
 
 // Connect/Express.js integration
 var express = require('express')
@@ -210,8 +222,6 @@ To perform custom error-handling logic you can set `onError` handler:
 ```js
 telegraf.onError = function(err){
   log.error('server error', err)
-  
-  // If user messages is important for us, we will exit from update loop
   throw err
 }
 ```
@@ -220,8 +230,36 @@ telegraf.onError = function(err){
 
 Telegraf context have many handy shortcuts.
 
-    Note: shortcuts are not available for `inline_query` and `chosen_inline_result` events.
+**Available shortcuts for `message` event:**
 
+* `reply() -> telegraf.sendMessage()`
+* `replyWithPhoto() -> telegraf.sendPhoto()`
+* `replyWithAudio() -> telegraf.sendAudio()`
+* `replyWithDocument() -> telegraf.sendDocument()`
+* `replyWithSticker() -> telegraf.sendSticker()`
+* `replyWithVideo() -> telegraf.sendVideo()`
+* `replyWithVoice() -> telegraf.sendVoice()`
+* `replyWithChatAction() -> telegraf.sendChatAction()`
+* `replyWithLocation() -> telegraf.sendLocation()`
+
+**Shortcuts for `callback_query` event:**
+
+* `answerCallbackQuery() -> telegraf.answerCallbackQuery()`
+* `reply() -> telegraf.sendMessage()`
+* `replyWithPhoto() -> telegraf.sendPhoto()`
+* `replyWithAudio() -> telegraf.sendAudio()`
+* `replyWithDocument() -> telegraf.sendDocument()`
+* `replyWithSticker() -> telegraf.sendSticker()`
+* `replyWithVideo() -> telegraf.sendVideo()`
+* `replyWithVoice() -> telegraf.sendVoice()`
+* `replyWithChatAction() -> telegraf.sendChatAction()`
+* `replyWithLocation() -> telegraf.sendLocation()`
+
+**Shortcuts for `inline_query` event:** 
+
+* `answerInlineQuery() -> telegraf.answerInlineQuery()`
+
+#### Examples
 
 ```js
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
@@ -236,18 +274,24 @@ telegraf.on('text', function * (){
   // If you want to mark message as reply to source message
   this.reply(`Hello ${this.state.role}`, { reply_to_message_id: this.message.id })
 })
+
+telegraf.on('callback_query', function * (){
+  // Simple usage 
+  telegraf.answerCallbackQuery(this.callbackQuery.id)
+  
+  // Using shortcut
+  this.answerCallbackQuery()
+})
+
+telegraf.on('inline_query', function * (){
+  var result = []
+  // Simple usage 
+  telegraf.answerInlineQuery(this.inlineQuery.id, result)
+  
+  // Using shortcut
+  this.answerInlineQuery(result)
+})
 ```
-
-* `reply()` -> `telegraf.sendMessage()`
-* `replyWithPhoto()` -> `telegraf.sendPhoto()`
-* `replyWithAudio()` -> `telegraf.sendAudio()`
-* `replyWithDocument()` -> `telegraf.sendDocument()`
-* `replyWithSticker()` -> `telegraf.sendSticker()`
-* `replyWithVideo()` -> `telegraf.sendVideo()`
-* `replyWithVoice()` -> `telegraf.sendVoice()`
-* `replyWithChatAction()` -> `telegraf.sendChatAction()`
-* `replyWithLocation()` -> `telegraf.sendLocation()`
-
 
 ## API reference
 
@@ -255,9 +299,10 @@ telegraf.on('text', function * (){
   * [`new Telegraf(token)`](#new)
   * [`.webHookCallback(webHookPath)`](#webhookcallback)
   * [`.setWebHook(url, cert)`](#setwebhook)
-  * [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startWebHook)
+  * [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
   * [`.startPolling(timeout, limit)`](#startPolling)
   * [`.stop()`](#stop)
+  * [`.handleUpdate(rawUpdate, response)`](#handleupdate)
   * [`.use(function)`](#use)
   * [`.on(messageType, function)`](#on)
   * [`.hears(string|ReGex, function)`](#hears)
@@ -285,7 +330,7 @@ telegraf.on('text', function * (){
   * [`.editMessageReplyMarkup(chatId, messageId, markup, extra)`](#editmessagereplymarkup)
 
 <a name="new"></a>
-### `Telegraf.new(token)`
+##### `Telegraf.new(token)`
 
 Initialize new Telegraf app.
 
@@ -293,11 +338,10 @@ Initialize new Telegraf app.
 | --- | --- | --- |
 | token | `String` | [Bot Token](https://core.telegram.org/bots#3-how-do-i-create-a-bot) |
 
-
 * * *
 
 <a name="webhookcallback"></a>
-### `Telegraf.webHookCallback(webHookPath)` => `Function`
+##### `Telegraf.webHookCallback(webHookPath) => Function`
 
 Return a callback function suitable for the http[s].createServer() method to handle a request. 
 You may also use this callback function to mount your telegraf app in a Koa/Connect/Express app.
@@ -309,9 +353,9 @@ You may also use this callback function to mount your telegraf app in a Koa/Conn
 * * *
 
 <a name="setwebhook"></a>
-### `Telegraf.setWebHook(url, [cert])` => `Promise`
+##### `Telegraf.setWebHook(url, [cert]) => Promise`
 
-Specifies an url to receive incoming updates via an outgoing webHook.
+Specifies an url to receive incoming updates via an outgoing webhook.
 
 | Param | Type | Description |
 | ---  | --- | --- |
@@ -322,22 +366,22 @@ Specifies an url to receive incoming updates via an outgoing webHook.
 
 * * *
 
-<a name="startWebHook"></a>
-### `Telegraf.startWebHook(token, tlsOptions, port, [host])`
+<a name="startwebhook"></a>
+##### `Telegraf.startWebHook(webHookPath, tlsOptions, port, [host])`
 
-Start listening @ `https://host:port/token` for Telegram calls.
+Start listening @ `https://host:port/webHookPath` for Telegram calls.
 
 | Param | Type | Description |
 | ---  | --- | --- |
 | webHookPath | `String` | Webhook url path (see Telegraf.setWebHook) |
 | tlsOptions | [TLS server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener) | (Optional) Pass null to use http |
 | port | `Int` | Port number |
-| host | `String` | Hostname |
+| host | `String` | (Optional) Hostname |
 
 * * *
 
 <a name="startPolling"></a>
-### `Telegraf.startPolling(timeout, limit)`
+##### `Telegraf.startPolling(timeout, limit)`
 
 Start poll updates.
 
@@ -349,14 +393,27 @@ Start poll updates.
 * * *
 
 <a name="stop"></a>
-### `Telegraf.stop()`
+##### `Telegraf.stop()`
 
 Stop WebHook and polling
 
 * * *
 
+<a name="handleupdate"></a>
+##### `Telegraf.handleUpdate(rawUpdate, [webHookResponse])`
+
+Handle raw Telegram update. 
+In case you use centralized webhook server, queue, etc.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| rawUpdate | `Object` | Telegram update payload |
+| webHookResponse | `Object` | (Optional) [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
+
+* * *
+
 <a name="use"></a>
-### `Telegraf.use(middleware)`
+##### `Telegraf.use(middleware)`
 
 Registers a middleware.
 
@@ -367,7 +424,7 @@ Registers a middleware.
 * * *
 
 <a name="on"></a>
-### `Telegraf.on(eventType, handler)`
+##### `Telegraf.on(eventType, handler)`
 
 Registers handler for provided [event type](#events).
 
@@ -379,7 +436,7 @@ Registers handler for provided [event type](#events).
 * * *
 
 <a name="hears"></a>
-### `Telegraf.hears(pattern, handler)`
+##### `Telegraf.hears(pattern, handler)`
 
 Registers handler only for `text` events using string pattern or RegEx.
 
@@ -388,12 +445,10 @@ Registers handler only for `text` events using string pattern or RegEx.
 | pattern | `String`/`RegEx` | Pattern or RegEx |
 | handler | `Function` | Handler |
 
-
-
 * * *
 
 <a name="sendmessage"></a>
-### `Telegraf.sendMessage(chatId, text, extra)` => `Promise`
+##### `Telegraf.sendMessage(chatId, text, extra) => Promise`
 
 Sends text message.
 
@@ -406,7 +461,7 @@ Sends text message.
 * * *
 
 <a name="forwardmessage"></a>
-### `Telegraf.forwardMessage(chatId, fromChatId, messageId, extra)` => `Promise`
+##### `Telegraf.forwardMessage(chatId, fromChatId, messageId, extra) => Promise`
 
 Forwards message.
 
@@ -420,7 +475,7 @@ Forwards message.
 * * *
 
 <a name="sendlocation"></a>
-### `Telegraf.sendLocation(chatId, latitude, longitude, extra)` => `Promise`
+##### `Telegraf.sendLocation(chatId, latitude, longitude, extra) => Promise`
 
 Sends location.
 
@@ -434,7 +489,7 @@ Sends location.
 * * *
 
 <a name="sendphoto"></a>
-### `Telegraf.sendPhoto(chatId, photo, extra)` => `Promise`
+##### `Telegraf.sendPhoto(chatId, photo, extra) => Promise`
 
 Sends photo.
 
@@ -447,7 +502,7 @@ Sends photo.
 * * *
 
 <a name="senddocument"></a>
-### `Telegraf.sendDocument(chatId, doc, extra)` => `Promise`
+##### `Telegraf.sendDocument(chatId, doc, extra) => Promise`
 
 Sends document.
 
@@ -460,7 +515,7 @@ Sends document.
 * * *
 
 <a name="sendaudio"></a>
-### `Telegraf.sendAudio(chatId, audio, extra)` => `Promise`
+##### `Telegraf.sendAudio(chatId, audio, extra) => Promise`
 
 Sends audio.
 
@@ -473,7 +528,7 @@ Sends audio.
 * * *
 
 <a name="sendsticker"></a>
-### `Telegraf.sendSticker(chatId, sticker, extra)` => `Promise`
+##### `Telegraf.sendSticker(chatId, sticker, extra) => Promise`
 
 Sends sticker.
 
@@ -486,7 +541,7 @@ Sends sticker.
 * * *
 
 <a name="sendvideo"></a>
-### `Telegraf.sendVideo(chatId, video, extra)` => `Promise`
+##### `Telegraf.sendVideo(chatId, video, extra) => Promise`
 
 Sends video.
 
@@ -499,7 +554,7 @@ Sends video.
 * * *
 
 <a name="sendvoice"></a>
-### `Telegraf.sendVoice(chatId, voice, extra)` => `Promise`
+##### `Telegraf.sendVoice(chatId, voice, extra) => Promise`
 
 Sends voice.
 
@@ -512,7 +567,7 @@ Sends voice.
 * * *
 
 <a name="sendchataction"></a>
-### `Telegraf.sendChatAction(chatId, action)` => `Promise`
+##### `Telegraf.sendChatAction(chatId, action) => Promise`
 
 Sends chat action.
 
@@ -524,7 +579,7 @@ Sends chat action.
 * * *
 
 <a name="getme"></a>
-### `Telegraf.getMe()` => `Promise`
+##### `Telegraf.getMe() => Promise`
 
 Returns basic information about the bot.
 
@@ -533,7 +588,7 @@ Returns basic information about the bot.
 * * *
 
 <a name="getuserprofilephotos"></a>
-### `Telegraf.getUserProfilePhotos(userId, offset, limit)` => `Promise`
+##### `Telegraf.getUserProfilePhotos(userId, offset, limit) => Promise`
 
 Returns profiles photos for provided user.
 
@@ -548,7 +603,7 @@ Returns profiles photos for provided user.
 * * *
 
 <a name="getfile"></a>
-### `Telegraf.getFile(fileId)` => `Promise`
+##### `Telegraf.getFile(fileId) => Promise`
 
 Returns basic info about a file and prepare it for downloading.
 
@@ -561,7 +616,7 @@ Returns basic info about a file and prepare it for downloading.
 * * *
 
 <a name="getFileLink"></a>
-### `Telegraf.getFileLink(fileId)` => `Promise`
+##### `Telegraf.getFileLink(fileId) => Promise`
 
 Returns link to file.
 
@@ -575,15 +630,16 @@ Returns link to file.
 * * *
 
 <a name="removewebhook"></a>
-### `Telegraf.removeWebHook()` => `Promise`
+##### `Telegraf.removeWebHook() => Promise`
 
 Removes webhook. Shortcut for `Telegraf.setWebHook('')`
 
 [Related Telegram api docs](https://core.telegram.org/bots/api#removewebhook)
 
 * * *
+
 <a name="kickchatmember"></a>
-### `Telegraf.kickChatMember(chatId, userId)` => `Promise`
+##### `Telegraf.kickChatMember(chatId, userId) => Promise`
 
 Use this method to kick a user from a group or a supergroup.
 
@@ -597,7 +653,7 @@ Use this method to kick a user from a group or a supergroup.
 * * *
 
 <a name="unbanchatmember"></a>
-### `Telegraf.unbanChatMember(chatId, userId)` => `Promise`
+##### `Telegraf.unbanChatMember(chatId, userId) => Promise`
 
 Use this method to unban a previously kicked user in a supergroup.
 
@@ -607,10 +663,11 @@ Use this method to unban a previously kicked user in a supergroup.
 | userId | `Integer` | User id |
 
 [Related Telegram api docs](https://core.telegram.org/bots/api#unbanchatmember)
+
 * * *
 
 <a name="answerinlinequery"></a>
-### `Telegraf.answerInlineQuery(inlineQueryId, results, extra)` => `Promise`
+##### `Telegraf.answerInlineQuery(inlineQueryId, results, extra) => Promise`
 
 Use this method to send answers to an inline query.
 
@@ -623,7 +680,7 @@ Use this method to send answers to an inline query.
 * * *
 
 <a name="answercallbackquery"></a>
-### `Telegraf.answerCallbackQuery(callbackQueryId, text, showAlert)` => `Promise`
+##### `Telegraf.answerCallbackQuery(callbackQueryId, text, showAlert) => Promise`
 
 Use this method to send answers to callback queries.
 
@@ -638,7 +695,7 @@ Use this method to send answers to callback queries.
 * * *
 
 <a name="editmessagetext"></a>
-### `Telegraf.editMessageText(chatId, messageId, text, extra)` => `Promise`
+##### `Telegraf.editMessageText(chatId, messageId, text, extra) => Promise`
 
 Use this method to edit text messages sent by the bot or via the bot.
 
@@ -652,7 +709,7 @@ Use this method to edit text messages sent by the bot or via the bot.
 * * *
 
 <a name="editmessagecaption"></a>
-### `Telegraf.editMessageCaption(chatId, messageId, caption, extra)` => `Promise`
+##### `Telegraf.editMessageCaption(chatId, messageId, caption, extra) => Promise`
 
 Use this method to edit captions of messages sent by the bot or via the bot
 
@@ -666,7 +723,7 @@ Use this method to edit captions of messages sent by the bot or via the bot
 * * *
 
 <a name="editmessagereplymarkup"></a>
-### `Telegraf.editMessageReplyMarkup(chatId, messageId, markup, extra)` => `Promise`
+##### `Telegraf.editMessageReplyMarkup(chatId, messageId, markup, extra) => Promise`
 
 Use this method to edit only the reply markup of messages sent by the bot or via the bot.
 
@@ -691,23 +748,30 @@ Supported file sources:
 Example:
 ```js
   // send file
-  app.sendVideo('chatId', {source: '/path/to/video.mp4'}})
+  telegraf.sendVideo('chatId', {source: '/path/to/video.mp4'}})
   
   // send buffer
-  app.sendVoice('chatId', {source: new Buffer(...)})
+  telegraf.sendVoice('chatId', {source: new Buffer(...)})
 
   // send stream
-  app.sendAudio('chatId', {source: fs.createReadStream('/path/to/video.mp4')})
+  telegraf.sendAudio('chatId', {source: fs.createReadStream('/path/to/video.mp4')})
 
   // resend existing file
-  app.sendSticker('chatId', '123123jkbhj6b')
+  telegraf.sendSticker('chatId', '123123jkbhj6b')
 ```
 
 [Related Telegram api docs](https://core.telegram.org/bots/api#file)
 
 ### Events
 
-Supported events:
+Supported event:
+
+* `message`
+* `inline_query`
+* `chosen_inline_result`
+* `callback_query`
+
+Available virtual events:
 
 * `text`
 * `audio`
@@ -730,24 +794,20 @@ Supported events:
 * `migrate_to_chat_id`
 * `migrate_from_chat_id`
 * `pinned_message`
-* `inline_query`
-* `chosen_inline_result`
-* `callback_query`
-
-Also, Telegraf will emit `message` event for for all messages except `inline_query`, `chosen_inline_result` and `callback_query`.
 
 ```js
 
-// Handle stickers and photos
+// Handle all messages
+telegraf.on('message', function * () {
+  this.reply('Hey there!')
+})
+
+// Handle virtual events
 telegraf.on(['sticker', 'photo'], function * () {
   console.log(this.message)
   this.reply('Cool!')
 })
 
-// Handle all messages except `inline_query`, `chosen_inline_result` and `callback_query`
-telegraf.on('message', function * () {
-  this.reply('Hey there!')
-})
 ```
 [Related Telegram api docs](https://core.telegram.org/bots/api#message)
 

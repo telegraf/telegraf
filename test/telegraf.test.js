@@ -21,6 +21,7 @@ describe('Telegraf', function () {
         var app = new Telegraf()
         app.on(test.type, function * () {
           this.should.have.property(test.prop)
+          this.should.have.property('telegraf')
           this.should.have.property('eventType')
           this.eventType.should.be.equal(test.type)
           done()
@@ -29,7 +30,7 @@ describe('Telegraf', function () {
       })
     })
 
-    it('should provide shortcuts', function (done) {
+    it('should provide shortcuts for `message` event', function (done) {
       var app = new Telegraf()
       app.on('message', function * () {
         this.should.have.property('reply')
@@ -46,6 +47,33 @@ describe('Telegraf', function () {
       app.handleUpdate({message: baseMessage})
     })
 
+    it('should provide shortcuts for `callback_query` event', function (done) {
+      var app = new Telegraf()
+      app.on('callback_query', function * () {
+        this.should.have.property('answerCallbackQuery')
+        this.should.have.property('reply')
+        this.should.have.property('replyWithPhoto')
+        this.should.have.property('replyWithAudio')
+        this.should.have.property('replyWithDocument')
+        this.should.have.property('replyWithSticker')
+        this.should.have.property('replyWithVideo')
+        this.should.have.property('replyWithVoice')
+        this.should.have.property('replyWithChatAction')
+        this.should.have.property('replyWithLocation')
+        done()
+      })
+      app.handleUpdate({callback_query: baseMessage})
+    })
+
+    it('should provide shortcuts for `inline_query` event', function (done) {
+      var app = new Telegraf()
+      app.on('inline_query', function * () {
+        this.should.have.property('answerInlineQuery')
+        done()
+      })
+      app.handleUpdate({inline_query: baseMessage})
+    })
+
     it('should share state', function (done) {
       var app = new Telegraf()
       app.on('message', function * (next) {
@@ -60,7 +88,6 @@ describe('Telegraf', function () {
       })
       app.handleUpdate({message: baseMessage})
     })
-
   })
 
   describe('routing', function () {

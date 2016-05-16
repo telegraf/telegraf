@@ -42,6 +42,8 @@ describe('Telegraf', function () {
         this.should.have.property('replyWithVoice')
         this.should.have.property('replyWithChatAction')
         this.should.have.property('replyWithLocation')
+        this.should.have.property('replyWithVenue')
+        this.should.have.property('replyWithContact')
         done()
       })
       app.handleUpdate({message: baseMessage})
@@ -60,6 +62,8 @@ describe('Telegraf', function () {
         this.should.have.property('replyWithVoice')
         this.should.have.property('replyWithChatAction')
         this.should.have.property('replyWithLocation')
+        this.should.have.property('replyWithVenue')
+        this.should.have.property('replyWithContact')
         done()
       })
       app.handleUpdate({callback_query: baseMessage})
@@ -136,8 +140,8 @@ describe('Telegraf', function () {
         'contact',
         'location',
         'venue',
-        'new_chat_participant',
-        'left_chat_participant',
+        'new_chat_member',
+        'left_chat_member',
         'new_chat_title',
         'new_chat_photo',
         'delete_chat_photo',
@@ -146,7 +150,8 @@ describe('Telegraf', function () {
         'channel_chat_created',
         'migrate_to_chat_id',
         'migrate_from_chat_id',
-        'pinned_message'
+        'pinned_message',
+        'entities'
       ]
 
       tests.forEach(function (test) {

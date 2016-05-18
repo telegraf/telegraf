@@ -15,7 +15,7 @@ var downloadPhotoMiddleware = function * (next) {
 // Middlewares, widdlewares everwhere
 telegraf.on('photo', downloadPhotoMiddleware, function * (next) {
   yield this.reply('Awesome!\n' + this.state.fileLink)
-  //this.replyWithPhoto({ source: '/directory/file.jpeg' })
+  // this.replyWithPhoto({ source: '/directory/file.jpeg' })
 })
 
 telegraf.startPolling()

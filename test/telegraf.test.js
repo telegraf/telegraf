@@ -10,10 +10,10 @@ var baseMessage = {
 describe('Telegraf', function () {
   describe('core', function () {
     var updateTypes = [
-      { type: 'message', prop: 'message', update: { message: baseMessage }},
-      { type: 'callback_query', prop: 'callbackQuery', update: { callback_query: { message: baseMessage }}},
-      { type: 'inline_query', prop: 'inlineQuery', update: { inline_query: {}}},
-      { type: 'chosen_inline_result', prop: 'chosenInlineResult', update: { chosen_inline_result: {} }}
+      { type: 'message', prop: 'message', update: { message: baseMessage } },
+      { type: 'callback_query', prop: 'callbackQuery', update: { callback_query: { message: baseMessage } } },
+      { type: 'inline_query', prop: 'inlineQuery', update: { inline_query: {} } },
+      { type: 'chosen_inline_result', prop: 'chosenInlineResult', update: { chosen_inline_result: {} } }
     ]
 
     updateTypes.forEach(function (test) {
@@ -96,10 +96,10 @@ describe('Telegraf', function () {
 
   describe('routing', function () {
     var updateTypes = [
-      { type: 'message', update: { message: baseMessage }},
-      { type: 'callback_query', update: { callback_query: { message: baseMessage }}},
-      { type: 'inline_query', update: { inline_query: {}}},
-      { type: 'chosen_inline_result', update: { chosen_inline_result: {} }}
+      { type: 'message', update: { message: baseMessage } },
+      { type: 'callback_query', update: { callback_query: { message: baseMessage } } },
+      { type: 'inline_query', update: { inline_query: {} } },
+      { type: 'chosen_inline_result', update: { chosen_inline_result: {} } }
     ]
 
     updateTypes.forEach(function (test) {

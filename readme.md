@@ -353,8 +353,8 @@ Use this method to send answers to callback queries.
 | Param | Type | Description |
 | --- | --- | --- |
 | callbackQueryId | `string` | Query id |
-| text | `string` | Notification text |
-| showAlert | `bool` | Show alert instead of notification |
+| [text] | `string` | Notification text |
+| [showAlert] | `bool` | Show alert instead of notification |
 
 <sub>[Related Telegram api docs](https://core.telegram.org/bots/api#answercallbackquery)</sub>
 
@@ -369,7 +369,7 @@ Use this method to send answers to an inline query.
 | --- | --- | --- |
 | inlineQueryId | `string` | Query id |
 | results | `object[]` | Results |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#answerinlinequery)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#answerinlinequery)|
 
 * * *
 
@@ -383,7 +383,7 @@ Use this method to edit captions of messages sent by the bot or via the bot
 | chatId | `number`\|`string` | Chat id |
 | messageId | `string` | Message id |
 | caption | `string` | Caption |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#editmessagecaption)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagecaption)|
 
 * * *
 
@@ -397,7 +397,7 @@ Use this method to edit only the reply markup of messages sent by the bot or via
 | chatId | `number`\|`string` | Chat id |
 | messageId | `string` | Message id |
 | markup | `object` | Keyboard markup |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#editmessagereplymarkup)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagereplymarkup)|
 
 * * *
 
@@ -411,7 +411,7 @@ Use this method to edit text messages sent by the bot or via the bot.
 | chatId | `number`\|`string` | Chat id |
 | messageId | `string` | Message id |
 | text | `string` | Message |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#editmessagetext)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagetext)|
 
 * * *
 
@@ -425,7 +425,7 @@ Forwards message.
 | chatId | `number`\|`string` | Source Chat id |
 | fromChatId | `number`\|`string` | Target Chat id |
 | messageId | `number` | Message id |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#forwardmessage)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#forwardmessage)|
 
 * * *
 
@@ -488,7 +488,7 @@ In case you use centralized webhook server, queue, etc.
 | Param | Type | Description |
 | --- | --- | --- |
 | rawUpdate | `object` | Telegram update payload |
-| webHookResponse | `object` | (Optional) [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
+| [webHookResponse] | `object` | (Optional) [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
 
 * * *
 
@@ -547,7 +547,7 @@ Sends audio.
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | audio | [`File`](#file) | Document |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#sendaudio)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendaudio)|
 
 * * *
 
@@ -573,7 +573,7 @@ Sends document.
 | chatId | `number`\|`string` | Chat id |
 | phoneNumber | `string` | Contact phone number |
 | firstName | `string` | Contact first name |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#sendcontact)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendcontact)|
 
 * * *
 
@@ -586,7 +586,7 @@ Sends document.
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | doc | [`File`](#file) | Document |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#senddocument)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#senddocument)|
 
 * * *
 
@@ -600,7 +600,7 @@ Sends location.
 | chatId | `number`\|`string` | Chat id |
 | latitude | `number` | Latitude |
 | longitude | `number` | Longitude |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#sendlocation)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendlocation)|
 
 * * *
 
@@ -613,7 +613,7 @@ Sends text message.
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | text | `string` | Message |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#sendmessage)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
 
 * * *
 
@@ -626,7 +626,7 @@ Sends photo.
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | photo | [`File`](#file) | Photo |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#sendphoto)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendphoto)|
 
 * * *
 
@@ -639,7 +639,7 @@ Sends sticker.
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | sticker | [`File`](#file) | Document |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#sendsticker)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendsticker)|
 
 * * *
 
@@ -655,7 +655,7 @@ Sends venue information.
 | longitude | `number` | Longitude |
 | title | `string` | Venue title |
 | address | `string` | Venue address |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#sendvenue)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvenue)|
 
 * * *
 
@@ -668,7 +668,7 @@ Sends video.
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | video | [`File`](#file) | Document |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#sendvideo)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideo)|
 
 * * *
 
@@ -681,7 +681,7 @@ Sends voice.
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | voice | [`File`](#file) | Document |
-| extra | `object` | [Optional parameters](https://core.telegram.org/bots/api#sendvoice)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
 
 * * *
 
@@ -693,7 +693,7 @@ Specifies an url to receive incoming updates via an outgoing webhook.
 | Param | Type | Description |
 | ---  | --- | --- |
 | url  | `string` | Public url for webhook |
-| cert | [`File`](#file) | SSL public certificate |
+| [cert] | [`File`](#file) | SSL public certificate |
 
 <sub>[Related Telegram api docs](https://core.telegram.org/bots/api#setwebhook)</sub>
 
@@ -709,7 +709,7 @@ Start listening @ `https://host:port/webHookPath` for Telegram calls.
 | webHookPath | `string` | Webhook url path (see Telegraf.setWebHook) |
 | tlsOptions | `object` | (Optional) [TLS server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener). Pass null to use http |
 | port | `number` | Port number |
-| host | `string` | (Optional) Hostname |
+| [host] | `string` | (Optional) Hostname |
 
 * * *
 
@@ -816,8 +816,8 @@ Available virtual events:
 * `contact`
 * `location`
 * `venue`
-* `new_chat_participant`
-* `left_chat_participant`
+* `new_chat_member`
+* `left_chat_member`
 * `new_chat_title`
 * `new_chat_photo`
 * `delete_chat_photo`

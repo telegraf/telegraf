@@ -150,8 +150,7 @@ describe('Telegraf', function () {
         'channel_chat_created',
         'migrate_to_chat_id',
         'migrate_from_chat_id',
-        'pinned_message',
-        'entities'
+        'pinned_message'
       ]
 
       tests.forEach(function (test) {

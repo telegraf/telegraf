@@ -7,6 +7,15 @@
 
 📢 Modern Telegram bot framework for node.js.
 
+## Features
+
+- Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support;
+- [Inline mode](https://core.telegram.org/bots/api#inline-mode);
+- Middleware support([Community middlewares on npm](https://www.npmjs.com/search?q=telegraf-));
+- HTTP/HTTPS webhooks;
+- Connect/express.js webhooks;
+- Reply via webhook connection;
+
 ## Installation
 
 ```js
@@ -19,8 +28,8 @@ $ npm install telegraf
 var Telegraf = require('telegraf');
 var telegraf = new Telegraf(process.env.BOT_TOKEN);
 
-// Text messages handling
-telegraf.hears('/answer', function * () {
+// Message handling
+telegraf.on('message', function * () {
   this.reply('*42*', { parse_mode: 'Markdown' })
 })
 
@@ -38,6 +47,11 @@ var sayYoMiddleware = function * (next) {
   yield this.reply('yo')
   yield next
 }
+
+// Command handling
+telegraf.hears('/command', sayYoMiddleware, function * () {
+  this.reply('Sure')
+})
 
 // Wow! RegEx
 telegraf.hears(/reverse (.+)/, sayYoMiddleware, function * () {
@@ -112,6 +126,7 @@ telegraf.use(function * (){
   this.eventType          // Event type(message, inline_query, etc.)
   this.eventSubType       // Event subtype(text, sticker, audio, etc.)
   this.message            // Received message
+  this.editedMessage      // Edited message
   this.inlineQuery        // Received inline query
   this.chosenInlineResult // Received inline query result
   this.callbackQuery      // Received callback query
@@ -156,7 +171,7 @@ telegraf.on('text', function * (){
 ```js
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
-// Session will be lost on app restart
+// Session state will be lost on app restart
 telegraf.use(Telegraf.memorySession())
 
 telegraf.on('text', function * (){
@@ -238,31 +253,46 @@ telegraf.onError = function(err){
 
 Telegraf context shortcuts:
 
-**Available shortcuts**
+Available shortcuts:
 
-- `message` event
-  - `reply() -> telegraf.sendMessage()`
-  - `replyWithPhoto() -> telegraf.sendPhoto()`
-  - `replyWithAudio() -> telegraf.sendAudio()`
-  - `replyWithDocument() -> telegraf.sendDocument()`
-  - `replyWithSticker() -> telegraf.sendSticker()`
-  - `replyWithVideo() -> telegraf.sendVideo()`
-  - `replyWithVoice() -> telegraf.sendVoice()`
-  - `replyWithChatAction() -> telegraf.sendChatAction()`
-  - `replyWithLocation() -> telegraf.sendLocation()`
-- `callback_query` event
-  - `answerCallbackQuery() -> telegraf.answerCallbackQuery()`
-  - `reply() -> telegraf.sendMessage()`
-  - `replyWithPhoto() -> telegraf.sendPhoto()`
-  - `replyWithAudio() -> telegraf.sendAudio()`
-  - `replyWithDocument() -> telegraf.sendDocument()`
-  - `replyWithSticker() -> telegraf.sendSticker()`
-  - `replyWithVideo() -> telegraf.sendVideo()`
-  - `replyWithVoice() -> telegraf.sendVoice()`
-  - `replyWithChatAction() -> telegraf.sendChatAction()`
-  - `replyWithLocation() -> telegraf.sendLocation()`
-- `inline_query` event
-  - `answerInlineQuery() -> telegraf.answerInlineQuery()`
+**message** event:
+
+- `getChat() -> `[`telegraf.getChat()`](#getchat)
+- `getChatAdministrators() -> `[`telegraf.getChatAdministrators()`](#getchatadministrators)
+- `getChatMember() -> `[`telegraf.getChatMember()`](#getchatmember)
+- `getChatMembersCount() -> `[`telegraf.getChatMembersCount()`](#getchatmemberscount)
+- `leaveChat() -> `[`telegraf.leaveChat()`](#leavechat)
+- `reply() -> `[`telegraf.sendMessage()`](#sendmessage)
+- `replyWithAudio() -> `[`telegraf.sendAudio()`](#sendaudio)
+- `replyWithChatAction() -> `[`telegraf.sendChatAction()`](#sendchataction)
+- `replyWithDocument() -> `[`telegraf.sendDocument()`](#senddocument)
+- `replyWithLocation() -> `[`telegraf.sendLocation()`](#sendlocation)
+- `replyWithPhoto() -> `[`telegraf.sendPhoto()`](#sendphoto)
+- `replyWithSticker() -> `[`telegraf.sendSticker()`](#sendsticker)
+- `replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
+- `replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
+
+**callback_query** event:
+
+- `answerCallbackQuery() -> `[`telegraf.answerCallbackQuery()`](#answercallbackquery)
+- `getChat() -> `[`telegraf.getChat()`](#getchat)
+- `getChatAdministrators() -> `[`telegraf.getChatAdministrators()`](#getchatadministrators)
+- `getChatMember() -> `[`telegraf.getChatMember()`](#getchatmember)
+- `getChatMembersCount() -> `[`telegraf.getChatMembersCount()`](#getchatmemberscount)
+- `leaveChat() -> `[`telegraf.leaveChat()`](#leavechat)
+- `reply() -> `[`telegraf.sendMessage()`](#sendmessage)
+- `replyWithAudio() -> `[`telegraf.sendAudio()`](#sendaudio)
+- `replyWithChatAction() -> `[`telegraf.sendChatAction()`](#sendchataction)
+- `replyWithDocument() -> `[`telegraf.sendDocument()`](#senddocument)
+- `replyWithLocation() -> `[`telegraf.sendLocation()`](#sendlocation)
+- `replyWithPhoto() -> `[`telegraf.sendPhoto()`](#sendphoto)
+- `replyWithSticker() -> `[`telegraf.sendSticker()`](#sendsticker)
+- `replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
+- `replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
+
+**inline_query** event:
+
+- `answerInlineQuery() -> `[`telegraf.answerInlineQuery()`](#answerinlinequery)
 
 #### Examples
 
@@ -278,6 +308,14 @@ telegraf.on('text', function * (){
 
   // If you want to mark message as reply to source message
   this.reply(`Hello ${this.state.role}`, { reply_to_message_id: this.message.id })
+})
+
+telegraf.on('/quit', function * (){
+  // Simple usage 
+  telegraf.leaveChat(this.message.chat.id)
+  
+  // Using shortcut
+  this.leaveChat()
 })
 
 telegraf.on('callback_query', function * (){
@@ -301,7 +339,7 @@ telegraf.on('inline_query', function * (){
 ## API reference
 
 - [`Telegraf.handler(messageType, handler, [handler...])`](#handler)
-- [`Telegraf.compose(middleware)`](#compose)
+- [`Telegraf.compose(handlers)`](#compose)
 - [`new Telegraf(token)`](#new)
   - [`.answerCallbackQuery(callbackQueryId, text, showAlert)`](#answercallbackquery)
   - [`.answerInlineQuery(inlineQueryId, results, extra)`](#answerinlinequery)
@@ -309,6 +347,10 @@ telegraf.on('inline_query', function * (){
   - [`.editMessageReplyMarkup(chatId, messageId, markup, extra)`](#editmessagereplymarkup)
   - [`.editMessageText(chatId, messageId, text, extra)`](#editmessagetext)
   - [`.forwardMessage(chatId, fromChatId, messageId, extra)`](#forwardmessage)
+  - [`.getChat(chatId)`](#getchat)
+  - [`.getChatAdministrators(chatId)`](#getchatadministrators)
+  - [`.getChatMember(chatId, userId)`](#getchatmember)
+  - [`.getChatMembersCount(chatId)`](#getchatmemberscount)
   - [`.getFile(fileId)`](#getfile)
   - [`.getFileLink(fileId)`](#getFileLink)
   - [`.getMe()`](#getme)
@@ -316,6 +358,7 @@ telegraf.on('inline_query', function * (){
   - [`.handleUpdate(rawUpdate, response)`](#handleupdate)
   - [`.hears(string|ReGex, handler, [handler...])`](#hears)
   - [`.kickChatMember(chatId, userId)`](#kickchatmember)
+  - [`.leaveChat(chatId)`](#leavechat)
   - [`.on(messageType, handler, [handler...])`](#on)
   - [`.removeWebHook()`](#removewebhook)
   - [`.sendAudio(chatId, audio, extra)`](#sendaudio)
@@ -458,6 +501,57 @@ Forwards message.
 
 * * *
 
+<a name="getchat"></a>
+##### `.getChat(chatId) => Promise`
+
+Use this method to get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.).
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#getchat)</sub>
+
+* * *
+
+<a name="getchatadministrators"></a>
+##### `.getChatAdministrators(chatId) => Promise`
+
+Use this method to get a list of administrators in a chat. On success, returns an Array of ChatMember objects that contains information about all chat administrators except other bots. If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#getchatadministrators)</sub>
+
+* * *
+
+<a name="getchatmember"></a>
+##### `.getChatMember(chatId) => Promise`
+
+Use this method to get information about a member of a chat.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#getchatmember)</sub>
+
+
+<a name="getchatmemberscount"></a>
+##### `.getChatMembersCount(chatId) => Promise`
+
+Use this method to get the number of members in a chat.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#getchatmemberscount)</sub>
+
+* * *
+
 <a name="getfile"></a>
 ##### `.getFile(fileId) => Promise`
 
@@ -544,6 +638,20 @@ Use this method to kick a user from a group or a supergroup.
 | userId | `number` | User id |
 
 <sub>[Related Telegram api docs](https://core.telegram.org/bots/api#kickchatmember)</sub>
+
+
+* * *
+
+<a name="leavechat"></a>
+##### `.leaveChat(chatId) => Promise`
+
+Use this method for your bot to leave a group, supergroup or channel.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#leavechat)</sub>
 
 * * *
 

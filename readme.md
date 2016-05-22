@@ -340,7 +340,7 @@ telegraf.on('inline_query', function * (){
 ***
 
 <a name="handler"></a>
-##### `Telegraf.handler(eventType, handler, [handler...])`
+##### `Telegraf.handler(eventType, handler, [handler...]) => GeneratorFunction`
 
 Generates middleware for handling provided [event type](#events).
 
@@ -352,7 +352,7 @@ Generates middleware for handling provided [event type](#events).
 * * *
 
 <a name="compose"></a>
-##### `Telegraf.compose(middleware)`
+##### `Telegraf.compose(middleware) => GeneratorFunction`
 
 Compose `middleware` returning a fully valid middleware comprised of all those which are passed.
 

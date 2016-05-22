@@ -121,17 +121,19 @@ A Telegraf Context encapsulates telegram message.
 Context is created per request, and is referenced in middleware as the receiver, or the this identifier, as shown in the following snippet:
 
 ```js
-telegraf.use(function * (){
-  this.telegraf           // Telegraf instance
-  this.eventType          // Event type(message, inline_query, etc.)
-  this.eventSubType       // Event subtype(text, sticker, audio, etc.)
-  this.message            // Received message
-  this.editedMessage      // Edited message
-  this.inlineQuery        // Received inline query
-  this.chosenInlineResult // Received inline query result
-  this.callbackQuery      // Received callback query
-  this.match              // Regex match (available only for `hears` handler)
-});
+telegraf.use(function * () {
+  this.telegraf             // Telegraf instance
+  this.updateType           // Update type(message, inline_query, etc.)
+  [this.updateSubType]      // Update subtype(text, sticker, audio, etc.)
+  [this.message]            // Received message
+  [this.editedMessage]      // Edited message
+  [this.inlineQuery]        // Received inline query
+  [this.chosenInlineResult] // Received inline query result
+  [this.callbackQuery]      // Received callback query
+  [this.chat]               // Current chat info
+  [this.from]               // Sender info
+  [this.match]              // Regex match (available only for `hears` handler)
+})
 ```
 
 The recommended way to extend application context.
@@ -148,6 +150,56 @@ telegraf.on('text', function * (){
   this.reply(`${this.message.from.username}: ${score}`)
 })
 ```
+
+### Update types
+
+Supported update types:
+
+- `message`
+- `edited_message`
+- `inline_query`
+- `chosen_inline_result`
+- `callback_query`
+
+Available update sub-types:
+
+- `text`
+- `audio`
+- `document`
+- `photo`
+- `sticker`
+- `video`
+- `voice`
+- `contact`
+- `location`
+- `venue`
+- `new_chat_member`
+- `left_chat_member`
+- `new_chat_title`
+- `new_chat_photo`
+- `delete_chat_photo`
+- `group_chat_created`
+- `supergroup_chat_created`
+- `channel_chat_created`
+- `migrate_to_chat_id`
+- `migrate_from_chat_id`
+- `pinned_message`
+
+```js
+
+// Handle message update
+telegraf.on('message', function * () {
+  this.reply('Hey there!')
+})
+
+// Handle sticker update
+telegraf.on(['sticker', 'photo'], function * () {
+  console.log(this.message)
+  this.reply('Cool!')
+})
+
+```
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#message)</sub>
 
 ### State
 
@@ -255,7 +307,7 @@ Telegraf context shortcuts:
 
 Available shortcuts:
 
-**message** event:
+**message** update:
 
 - `getChat() -> `[`telegraf.getChat()`](#getchat)
 - `getChatAdministrators() -> `[`telegraf.getChatAdministrators()`](#getchatadministrators)
@@ -272,7 +324,7 @@ Available shortcuts:
 - `replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
 - `replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
 
-**callback_query** event:
+**callback_query** update:
 
 - `answerCallbackQuery() -> `[`telegraf.answerCallbackQuery()`](#answercallbackquery)
 - `getChat() -> `[`telegraf.getChat()`](#getchat)
@@ -290,7 +342,7 @@ Available shortcuts:
 - `replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
 - `replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
 
-**inline_query** event:
+**inline_query** update:
 
 - `answerInlineQuery() -> `[`telegraf.answerInlineQuery()`](#answerinlinequery)
 
@@ -383,13 +435,13 @@ telegraf.on('inline_query', function * (){
 ***
 
 <a name="handler"></a>
-##### `Telegraf.handler(eventType, handler, [handler...]) => GeneratorFunction`
+##### `Telegraf.handler(updateType, handler, [handler...]) => GeneratorFunction`
 
-Generates middleware for handling provided [event type](#events).
+Generates middleware for handling provided [update type](#update-types).
 
 | Param | Type | Description |
 | --- | --- | --- |
-| eventType | `string`\|`string[]` | [Event type](#events) |
+| updateType | `string`\|`string[]` | [update type](#update-types) |
 | handler | `GeneratorFunction` | Handler |
 
 * * *
@@ -618,7 +670,7 @@ In case you use centralized webhook server, queue, etc.
 <a name="hears"></a>
 ##### `.hears(pattern, handler, [handler...])`
 
-Registers handler only for `text` events using string pattern or RegEx.
+Registers handler only for `text` updates using string pattern or RegEx.
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -656,13 +708,13 @@ Use this method for your bot to leave a group, supergroup or channel.
 * * *
 
 <a name="on"></a>
-##### `.on(eventType, handler, [handler...])`
+##### `.on(updateType, handler, [handler...])`
 
-Registers handler for provided [event type](#events).
+Registers handler for provided [update type](#update-types).
 
 | Param | Type | Description |
 | --- | --- | --- |
-| eventType | `string`\|`string[]` | [Event type](#events) |
+| updateType | `string`\|`string[]` | [update type](#update-types) |
 | handler | `GeneratorFunction` | Handler |
 
 * * *
@@ -931,55 +983,6 @@ Example:
 ```
 
 <sub>[Related Telegram api docs](https://core.telegram.org/bots/api#file)</sub>
-
-### Events
-
-Supported event:
-
-- `message`
-- `inline_query`
-- `chosen_inline_result`
-- `callback_query`
-
-Available virtual events:
-
-- `text`
-- `audio`
-- `document`
-- `photo`
-- `sticker`
-- `video`
-- `voice`
-- `contact`
-- `location`
-- `venue`
-- `new_chat_member`
-- `left_chat_member`
-- `new_chat_title`
-- `new_chat_photo`
-- `delete_chat_photo`
-- `group_chat_created`
-- `supergroup_chat_created`
-- `channel_chat_created`
-- `migrate_to_chat_id`
-- `migrate_from_chat_id`
-- `pinned_message`
-
-```js
-
-// Handle all messages
-telegraf.on('message', function * () {
-  this.reply('Hey there!')
-})
-
-// Handle virtual events
-telegraf.on(['sticker', 'photo'], function * () {
-  console.log(this.message)
-  this.reply('Cool!')
-})
-
-```
-<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#message)</sub>
 
 ## License
 

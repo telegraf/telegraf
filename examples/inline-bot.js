@@ -4,11 +4,9 @@ var Telegraf = require('../lib/telegraf')
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
 telegraf.on('inline_query', function * () {
-  if (!this.inlineQuery.query) {
-    return
-  }
+  var query = this.inlineQuery.query || ''
   var results = countries
-    .filter((country) => country.name.toLowerCase().indexOf(this.inlineQuery.query.toLowerCase()) !== -1)
+    .filter((country) => country.name.toLowerCase().indexOf(query.toLowerCase()) !== -1)
     .map((country) => {
       return {
         id: country.code,

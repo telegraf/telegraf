@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "📢 Modern Telegram bot framework",
   "main": "lib/telegraf.js",
   "repository": {

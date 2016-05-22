@@ -1,3 +1,7 @@
 {
-  "extends": ["standard", "standard-react"]
+  "extends": ["standard"],
+  "plugins": ["mocha"],
+  "env": {
+    "mocha": true
+  }
 }

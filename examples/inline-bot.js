@@ -25,7 +25,7 @@ telegraf.on('inline_query', function * () {
 
 telegraf.startPolling()
 
-var countries  = [
+var countries = [
   {name: 'Afghanistan', code: 'AF'},
   {name: 'Åland Islands', code: 'AX'},
   {name: 'Albania', code: 'AL'},

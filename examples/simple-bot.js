@@ -6,13 +6,15 @@ var telegraf = new Telegraf(process.env.BOT_TOKEN)
 telegraf.use(Telegraf.memorySession())
 
 // Logger middleware
-telegraf.use(function * (next) {
+var loggerMiddleware = Telegraf.only(['message']) function * (next) {
   var start = new Date()
   this.state.started = start
   yield next
   var ms = new Date() - start
   debug('time: %sms', ms)
-})
+}
+
+telegraf.use(loggerMiddleware)
 
 // Sample middleware
 var sayYoMiddleware = function * (next) {

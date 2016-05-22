@@ -2,9 +2,10 @@
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![David](https://img.shields.io/david/telegraf/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com/)
 [![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
 
-📢 Modern Telegram bot framework for node.js
+📢 Modern Telegram bot framework for node.js.
 
 ## Installation
 
@@ -16,13 +17,21 @@ $ npm install telegraf
   
 ```js
 var Telegraf = require('telegraf');
-
 var telegraf = new Telegraf(process.env.BOT_TOKEN);
 
 // Text messages handling
 telegraf.hears('/answer', function * () {
   this.reply('*42*', { parse_mode: 'Markdown' })
 })
+
+telegraf.startPolling()
+```
+
+### One more example
+
+```js
+var Telegraf = require('telegraf');
+var telegraf = new Telegraf(process.env.BOT_TOKEN);
 
 // Look ma, middleware!
 var sayYoMiddleware = function * (next) {
@@ -52,7 +61,6 @@ middleware layer. This improves interoperability, robustness, and makes writing 
 more enjoyable. 
 
 ```js
-var Telegraf = require('telegraf')
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
 telegraf.on('text', function * (){
@@ -228,36 +236,33 @@ telegraf.onError = function(err){
 
 ### Shortcuts
 
-Telegraf context have many handy shortcuts.
+Telegraf context shortcuts:
 
-**Available shortcuts for `message` event:**
+**Available shortcuts**
 
-* `reply() -> telegraf.sendMessage()`
-* `replyWithPhoto() -> telegraf.sendPhoto()`
-* `replyWithAudio() -> telegraf.sendAudio()`
-* `replyWithDocument() -> telegraf.sendDocument()`
-* `replyWithSticker() -> telegraf.sendSticker()`
-* `replyWithVideo() -> telegraf.sendVideo()`
-* `replyWithVoice() -> telegraf.sendVoice()`
-* `replyWithChatAction() -> telegraf.sendChatAction()`
-* `replyWithLocation() -> telegraf.sendLocation()`
-
-**Shortcuts for `callback_query` event:**
-
-* `answerCallbackQuery() -> telegraf.answerCallbackQuery()`
-* `reply() -> telegraf.sendMessage()`
-* `replyWithPhoto() -> telegraf.sendPhoto()`
-* `replyWithAudio() -> telegraf.sendAudio()`
-* `replyWithDocument() -> telegraf.sendDocument()`
-* `replyWithSticker() -> telegraf.sendSticker()`
-* `replyWithVideo() -> telegraf.sendVideo()`
-* `replyWithVoice() -> telegraf.sendVoice()`
-* `replyWithChatAction() -> telegraf.sendChatAction()`
-* `replyWithLocation() -> telegraf.sendLocation()`
-
-**Shortcuts for `inline_query` event:** 
-
-* `answerInlineQuery() -> telegraf.answerInlineQuery()`
+- `message` event
+  - `reply() -> telegraf.sendMessage()`
+  - `replyWithPhoto() -> telegraf.sendPhoto()`
+  - `replyWithAudio() -> telegraf.sendAudio()`
+  - `replyWithDocument() -> telegraf.sendDocument()`
+  - `replyWithSticker() -> telegraf.sendSticker()`
+  - `replyWithVideo() -> telegraf.sendVideo()`
+  - `replyWithVoice() -> telegraf.sendVoice()`
+  - `replyWithChatAction() -> telegraf.sendChatAction()`
+  - `replyWithLocation() -> telegraf.sendLocation()`
+- `callback_query` event
+  - `answerCallbackQuery() -> telegraf.answerCallbackQuery()`
+  - `reply() -> telegraf.sendMessage()`
+  - `replyWithPhoto() -> telegraf.sendPhoto()`
+  - `replyWithAudio() -> telegraf.sendAudio()`
+  - `replyWithDocument() -> telegraf.sendDocument()`
+  - `replyWithSticker() -> telegraf.sendSticker()`
+  - `replyWithVideo() -> telegraf.sendVideo()`
+  - `replyWithVoice() -> telegraf.sendVoice()`
+  - `replyWithChatAction() -> telegraf.sendChatAction()`
+  - `replyWithLocation() -> telegraf.sendLocation()`
+- `inline_query` event
+  - `answerInlineQuery() -> telegraf.answerInlineQuery()`
 
 #### Examples
 
@@ -295,444 +300,501 @@ telegraf.on('inline_query', function * (){
 
 ## API reference
 
-* `Telegraf`
-  * [`new Telegraf(token)`](#new)
-  * [`.webHookCallback(webHookPath)`](#webhookcallback)
-  * [`.setWebHook(url, cert)`](#setwebhook)
-  * [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
-  * [`.startPolling(timeout, limit)`](#startPolling)
-  * [`.stop()`](#stop)
-  * [`.handleUpdate(rawUpdate, response)`](#handleupdate)
-  * [`.use(function)`](#use)
-  * [`.on(messageType, function)`](#on)
-  * [`.hears(string|ReGex, function)`](#hears)
-  * [`.sendMessage(chatId, text, extra)`](#sendmessage)
-  * [`.forwardMessage(chatId, fromChatId, messageId, extra)`](#forwardmessage)
-  * [`.sendLocation(chatId, latitude, longitude, extra)`](#sendlocation)
-  * [`.sendPhoto(chatId, photo, extra)`](#sendphoto)
-  * [`.sendDocument(chatId, doc, extra)`](#senddocument)
-  * [`.sendAudio(chatId, audio, extra)`](#sendaudio)
-  * [`.sendSticker(chatId, sticker, extra)`](#sendsticker)
-  * [`.sendVideo(chatId, video, extra)`](#sendvideo)
-  * [`.sendVoice(chatId, voice, extra)`](#sendvoice)
-  * [`.sendChatAction(chatId, action)`](#sendchataction)
-  * [`.getMe()`](#getme)
-  * [`.getUserProfilePhotos(userId, offset, limit)`](#getuserprofilephotos)
-  * [`.getFile(fileId)`](#getfile)
-  * [`.getFileLink(fileId)`](#getFileLink)
-  * [`.removeWebHook()`](#removewebhook)
-  * [`.kickChatMember(chatId, userId)`](#kickchatmember)
-  * [`.unbanChatMember(chatId, userId)`](#unbanchatmember)
-  * [`.answerInlineQuery(inlineQueryId, results, extra)`](#answerinlinequery)
-  * [`.answerCallbackQuery(callbackQueryId, text, showAlert)`](#answercallbackquery)
-  * [`.editMessageText(chatId, messageId, text, extra)`](#editmessagetext)
-  * [`.editMessageCaption(chatId, messageId, caption, extra)`](#editmessagecaption)
-  * [`.editMessageReplyMarkup(chatId, messageId, markup, extra)`](#editmessagereplymarkup)
+- [`Telegraf.optional(messageType, handler, [handler...])`](#optional)
+- [`Telegraf.compose(middleware)`](#compose)
+- [`new Telegraf(token)`](#new)
+  - [`.answerCallbackQuery(callbackQueryId, text, showAlert)`](#answercallbackquery)
+  - [`.answerInlineQuery(inlineQueryId, results, extra)`](#answerinlinequery)
+  - [`.editMessageCaption(chatId, messageId, caption, extra)`](#editmessagecaption)
+  - [`.editMessageReplyMarkup(chatId, messageId, markup, extra)`](#editmessagereplymarkup)
+  - [`.editMessageText(chatId, messageId, text, extra)`](#editmessagetext)
+  - [`.forwardMessage(chatId, fromChatId, messageId, extra)`](#forwardmessage)
+  - [`.getFile(fileId)`](#getfile)
+  - [`.getFileLink(fileId)`](#getFileLink)
+  - [`.getMe()`](#getme)
+  - [`.getUserProfilePhotos(userId, offset, limit)`](#getuserprofilephotos)
+  - [`.handleUpdate(rawUpdate, response)`](#handleupdate)
+  - [`.hears(string|ReGex, handler, [handler...])`](#hears)
+  - [`.kickChatMember(chatId, userId)`](#kickchatmember)
+  - [`.on(messageType, handler, [handler...])`](#on)
+  - [`.removeWebHook()`](#removewebhook)
+  - [`.sendAudio(chatId, audio, extra)`](#sendaudio)
+  - [`.sendChatAction(chatId, action)`](#sendchataction)
+  - [`.sendContact(chatId, phoneNumber, firstName, extra)`](#sendcontact)
+  - [`.sendDocument(chatId, doc, extra)`](#senddocument)
+  - [`.sendLocation(chatId, latitude, longitude, extra)`](#sendlocation)
+  - [`.sendMessage(chatId, text, extra)`](#sendmessage)
+  - [`.sendPhoto(chatId, photo, extra)`](#sendphoto)
+  - [`.sendSticker(chatId, sticker, extra)`](#sendsticker)
+  - [`.sendVenue(chatId, latitude, longitude, title, address, extra)`](#sendvenue)
+  - [`.sendVideo(chatId, video, extra)`](#sendvideo)
+  - [`.sendVoice(chatId, voice, extra)`](#sendvoice)
+  - [`.setWebHook(url, cert)`](#setwebhook)
+  - [`.startPolling(timeout, limit)`](#startPolling)
+  - [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
+  - [`.stop()`](#stop)
+  - [`.unbanChatMember(chatId, userId)`](#unbanchatmember)
+  - [`.use(function)`](#use)
+  - [`.webHookCallback(webHookPath)`](#webhookcallback)
+
+***
+
+<a name="optional"></a>
+##### `Telegraf.optional(eventType, handler, [handler...])`
+
+Generates middleware for handling provided [event type](#events).
+
+| Param | Type | Description |
+| --- | --- | --- |
+| eventType | `string`\|`string[]` | [Event type](#events) |
+| handler | `GeneratorFunction` | Handler |
+
+* * *
+
+<a name="compose"></a>
+##### `Telegraf.compose(middleware)`
+
+Compose `middleware` returning a fully valid middleware comprised of all those which are passed.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| handler | `GeneratorFunction[]` | middleware |
+
+* * *
+
 
 <a name="new"></a>
-##### `Telegraf.new(token)`
+##### `new Telegraf(token)`
 
 Initialize new Telegraf app.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| token | `String` | [Bot Token](https://core.telegram.org/bots#3-how-do-i-create-a-bot) |
+| token | `string` | [Bot Token](https://core.telegram.org/bots#3-how-do-i-create-a-bot) |
 
 * * *
 
-<a name="webhookcallback"></a>
-##### `Telegraf.webHookCallback(webHookPath) => Function`
+<a name="answercallbackquery"></a>
+##### `.answerCallbackQuery(callbackQueryId, text, showAlert) => Promise`
 
-Return a callback function suitable for the http[s].createServer() method to handle a request. 
-You may also use this callback function to mount your telegraf app in a Koa/Connect/Express app.
+Use this method to send answers to callback queries.
 
 | Param | Type | Description |
-| ---  | --- | --- |
-| webHookPath | `String` | Webhook url path (see Telegraf.setWebHook) |
+| --- | --- | --- |
+| callbackQueryId | `string` | Query id |
+| [text] | `string` | Notification text |
+| [showAlert] | `bool` | Show alert instead of notification |
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#answercallbackquery)</sub>
 
 * * *
 
-<a name="setwebhook"></a>
-##### `Telegraf.setWebHook(url, [cert]) => Promise`
+<a name="answerinlinequery"></a>
+##### `.answerInlineQuery(inlineQueryId, results, extra) => Promise`
 
-Specifies an url to receive incoming updates via an outgoing webhook.
+Use this method to send answers to an inline query.
 
 | Param | Type | Description |
-| ---  | --- | --- |
-| url  | `String` | Public url for webhook |
-| cert | [`File`](#file) | SSL public certificate |
-
-[Related Telegram api docs](https://core.telegram.org/bots/api#setwebhook)
+| --- | --- | --- |
+| inlineQueryId | `string` | Query id |
+| results | `object[]` | Results |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#answerinlinequery)|
 
 * * *
 
-<a name="startwebhook"></a>
-##### `Telegraf.startWebHook(webHookPath, tlsOptions, port, [host])`
+<a name="editmessagecaption"></a>
+##### `.editMessageCaption(chatId, messageId, caption, extra) => Promise`
 
-Start listening @ `https://host:port/webHookPath` for Telegram calls.
+Use this method to edit captions of messages sent by the bot or via the bot
 
 | Param | Type | Description |
-| ---  | --- | --- |
-| webHookPath | `String` | Webhook url path (see Telegraf.setWebHook) |
-| tlsOptions | [TLS server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener) | (Optional) Pass null to use http |
-| port | `Int` | Port number |
-| host | `String` | (Optional) Hostname |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| messageId | `string` | Message id |
+| caption | `string` | Caption |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagecaption)|
 
 * * *
 
-<a name="startPolling"></a>
-##### `Telegraf.startPolling(timeout, limit)`
+<a name="editmessagereplymarkup"></a>
+##### `.editMessageReplyMarkup(chatId, messageId, markup, extra) => Promise`
 
-Start poll updates.
+Use this method to edit only the reply markup of messages sent by the bot or via the bot.
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| timeout | `Int` | 0 | Poll timeout |
-| limit | `Int` | 100 | Limits the number of updates to be retrieved |
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| messageId | `string` | Message id |
+| markup | `object` | Keyboard markup |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagereplymarkup)|
 
 * * *
 
-<a name="stop"></a>
-##### `Telegraf.stop()`
+<a name="editmessagetext"></a>
+##### `.editMessageText(chatId, messageId, text, extra) => Promise`
 
-Stop WebHook and polling
+Use this method to edit text messages sent by the bot or via the bot.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| messageId | `string` | Message id |
+| text | `string` | Message |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagetext)|
+
+* * *
+
+<a name="forwardmessage"></a>
+##### `.forwardMessage(chatId, fromChatId, messageId, extra) => Promise`
+
+Forwards message.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Source Chat id |
+| fromChatId | `number`\|`string` | Target Chat id |
+| messageId | `number` | Message id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#forwardmessage)|
+
+* * *
+
+<a name="getfile"></a>
+##### `.getFile(fileId) => Promise`
+
+Returns basic info about a file and prepare it for downloading.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| fileId | `string` | File id |
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#getfile)</sub>
+
+* * *
+
+<a name="getFileLink"></a>
+##### `.getFileLink(fileId) => Promise`
+
+Returns link to file.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| fileId | `string` | File id |
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#getFileLink)</sub>
+
+* * *
+
+<a name="getme"></a>
+##### `.getMe() => Promise`
+
+Returns basic information about the bot.
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#getme)</sub>
+
+* * *
+
+<a name="getuserprofilephotos"></a>
+##### `.getUserProfilePhotos(userId, offset, limit) => Promise`
+
+Returns profiles photos for provided user.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| userId | `number` | Chat id |
+| offset | `number` | Offset |
+| limit | `number` | Limit |
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#getuserprofilephotos)</sub>
 
 * * *
 
 <a name="handleupdate"></a>
-##### `Telegraf.handleUpdate(rawUpdate, [webHookResponse])`
+##### `.handleUpdate(rawUpdate, [webHookResponse])`
 
 Handle raw Telegram update. 
 In case you use centralized webhook server, queue, etc.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| rawUpdate | `Object` | Telegram update payload |
-| webHookResponse | `Object` | (Optional) [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
-
-* * *
-
-<a name="use"></a>
-##### `Telegraf.use(middleware)`
-
-Registers a middleware.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| middleware | `Function` | Middleware function |
-
-* * *
-
-<a name="on"></a>
-##### `Telegraf.on(eventType, handler)`
-
-Registers handler for provided [event type](#events).
-
-| Param | Type | Description |
-| --- | --- | --- |
-| eventType | `String` or `Array[String]` | [Event type](#events) |
-| handler | `Function` | Handler |
+| rawUpdate | `object` | Telegram update payload |
+| [webHookResponse] | `object` | (Optional) [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
 
 * * *
 
 <a name="hears"></a>
-##### `Telegraf.hears(pattern, handler)`
+##### `.hears(pattern, handler, [handler...])`
 
 Registers handler only for `text` events using string pattern or RegEx.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| pattern | `String`/`RegEx` | Pattern or RegEx |
-| handler | `Function` | Handler |
-
-* * *
-
-<a name="sendmessage"></a>
-##### `Telegraf.sendMessage(chatId, text, extra) => Promise`
-
-Sends text message.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| text | `String` | Message |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#sendmessage)|
-
-* * *
-
-<a name="forwardmessage"></a>
-##### `Telegraf.forwardMessage(chatId, fromChatId, messageId, extra) => Promise`
-
-Forwards message.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Source Chat id |
-| fromChatId | `Integer`/`String` | Target Chat id |
-| messageId | `Integer` | Message id |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#forwardmessage)|
-
-* * *
-
-<a name="sendlocation"></a>
-##### `Telegraf.sendLocation(chatId, latitude, longitude, extra) => Promise`
-
-Sends location.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| latitude | `Integer` | Latitude |
-| longitude | `Integer` | Longitude |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#sendlocation)|
-
-* * *
-
-<a name="sendphoto"></a>
-##### `Telegraf.sendPhoto(chatId, photo, extra) => Promise`
-
-Sends photo.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| photo | [`File`](#file) | Photo |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#sendphoto)|
-
-* * *
-
-<a name="senddocument"></a>
-##### `Telegraf.sendDocument(chatId, doc, extra) => Promise`
-
-Sends document.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| doc | [`File`](#file) | Document |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#senddocument)|
-
-* * *
-
-<a name="sendaudio"></a>
-##### `Telegraf.sendAudio(chatId, audio, extra) => Promise`
-
-Sends audio.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| audio | [`File`](#file) | Document |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#sendaudio)|
-
-* * *
-
-<a name="sendsticker"></a>
-##### `Telegraf.sendSticker(chatId, sticker, extra) => Promise`
-
-Sends sticker.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| sticker | [`File`](#file) | Document |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#sendsticker)|
-
-* * *
-
-<a name="sendvideo"></a>
-##### `Telegraf.sendVideo(chatId, video, extra) => Promise`
-
-Sends video.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| video | [`File`](#file) | Document |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#sendvideo)|
-
-* * *
-
-<a name="sendvoice"></a>
-##### `Telegraf.sendVoice(chatId, voice, extra) => Promise`
-
-Sends voice.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| voice | [`File`](#file) | Document |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#sendvoice)|
-
-* * *
-
-<a name="sendchataction"></a>
-##### `Telegraf.sendChatAction(chatId, action) => Promise`
-
-Sends chat action.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| action | `String` | [Chat action](https://core.telegram.org/bots/api#sendchataction) |
-
-* * *
-
-<a name="getme"></a>
-##### `Telegraf.getMe() => Promise`
-
-Returns basic information about the bot.
-
-[Related Telegram api docs](https://core.telegram.org/bots/api#getme)
-
-* * *
-
-<a name="getuserprofilephotos"></a>
-##### `Telegraf.getUserProfilePhotos(userId, offset, limit) => Promise`
-
-Returns profiles photos for provided user.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| userId | `Integer` | Chat id |
-| offset | `Integer` | Offset |
-| userId | `limit` | Limit |
-
-[Related Telegram api docs](https://core.telegram.org/bots/api#getuserprofilephotos)
-
-* * *
-
-<a name="getfile"></a>
-##### `Telegraf.getFile(fileId) => Promise`
-
-Returns basic info about a file and prepare it for downloading.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| fileId | `String` | File id |
-
-[Related Telegram api docs](https://core.telegram.org/bots/api#getfile)
-
-* * *
-
-<a name="getFileLink"></a>
-##### `Telegraf.getFileLink(fileId) => Promise`
-
-Returns link to file.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| fileId | `String` | File id |
-
-
-[Related Telegram api docs](https://core.telegram.org/bots/api#getFileLink)
-
-* * *
-
-<a name="removewebhook"></a>
-##### `Telegraf.removeWebHook() => Promise`
-
-Removes webhook. Shortcut for `Telegraf.setWebHook('')`
-
-[Related Telegram api docs](https://core.telegram.org/bots/api#removewebhook)
+| pattern | `string`\|`RegEx` | Pattern or RegEx |
+| handler | `GeneratorFunction` | Handler |
 
 * * *
 
 <a name="kickchatmember"></a>
-##### `Telegraf.kickChatMember(chatId, userId) => Promise`
+##### `.kickChatMember(chatId, userId) => Promise`
 
 Use this method to kick a user from a group or a supergroup.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| userId | `Integer` | User id |
+| chatId | `number`\|`string` | Chat id |
+| userId | `number` | User id |
 
-[Related Telegram api docs](https://core.telegram.org/bots/api#kickchatmember)
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#kickchatmember)</sub>
+
+* * *
+
+<a name="on"></a>
+##### `.on(eventType, handler, [handler...])`
+
+Registers handler for provided [event type](#events).
+
+| Param | Type | Description |
+| --- | --- | --- |
+| eventType | `string`\|`string[]` | [Event type](#events) |
+| handler | `GeneratorFunction` | Handler |
+
+* * *
+
+<a name="removewebhook"></a>
+##### `.removeWebHook() => Promise`
+
+Removes webhook. Shortcut for `Telegraf.setWebHook('')`
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#removewebhook)</sub>
+* * *
+
+<a name="sendaudio"></a>
+##### `.sendAudio(chatId, audio, extra) => Promise`
+
+Sends audio.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| audio | [`File`](#file) | Document |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendaudio)|
+
+* * *
+
+<a name="sendchataction"></a>
+##### `.sendChatAction(chatId, action) => Promise`
+
+Sends chat action.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| action | `string` | [Chat action](https://core.telegram.org/bots/api#sendchataction) |
+
+* * *
+
+<a name="sendcontact"></a>
+##### `.sendContact(chatId, phoneNumber, firstName, extra) => Promise`
+
+Sends document.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| phoneNumber | `string` | Contact phone number |
+| firstName | `string` | Contact first name |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendcontact)|
+
+* * *
+
+<a name="senddocument"></a>
+##### `.sendDocument(chatId, doc, extra) => Promise`
+
+Sends document.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| doc | [`File`](#file) | Document |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#senddocument)|
+
+* * *
+
+<a name="sendlocation"></a>
+##### `.sendLocation(chatId, latitude, longitude, extra) => Promise`
+
+Sends location.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| latitude | `number` | Latitude |
+| longitude | `number` | Longitude |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendlocation)|
+
+* * *
+
+<a name="sendmessage"></a>
+##### `.sendMessage(chatId, text, extra) => Promise`
+
+Sends text message.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| text | `string` | Message |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
+
+* * *
+
+<a name="sendphoto"></a>
+##### `.sendPhoto(chatId, photo, extra) => Promise`
+
+Sends photo.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| photo | [`File`](#file) | Photo |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendphoto)|
+
+* * *
+
+<a name="sendsticker"></a>
+##### `.sendSticker(chatId, sticker, extra) => Promise`
+
+Sends sticker.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| sticker | [`File`](#file) | Document |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendsticker)|
+
+* * *
+
+<a name="sendvenue"></a>
+##### `.sendVenue(chatId, latitude, longitude, title, address, extra) => Promise`
+
+Sends venue information.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| latitude | `number` | Latitude |
+| longitude | `number` | Longitude |
+| title | `string` | Venue title |
+| address | `string` | Venue address |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvenue)|
+
+* * *
+
+<a name="sendvideo"></a>
+##### `.sendVideo(chatId, video, extra) => Promise`
+
+Sends video.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| video | [`File`](#file) | Document |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideo)|
+
+* * *
+
+<a name="sendvoice"></a>
+##### `.sendVoice(chatId, voice, extra) => Promise`
+
+Sends voice.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| voice | [`File`](#file) | Document |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
+
+* * *
+
+<a name="setwebhook"></a>
+##### `.setWebHook(url, [cert]) => Promise`
+
+Specifies an url to receive incoming updates via an outgoing webhook.
+
+| Param | Type | Description |
+| ---  | --- | --- |
+| url  | `string` | Public url for webhook |
+| [cert] | [`File`](#file) | SSL public certificate |
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#setwebhook)</sub>
+
+* * *
+
+<a name="startwebhook"></a>
+##### `.startWebHook(webHookPath, tlsOptions, port, [host])`
+
+Start listening @ `https://host:port/webHookPath` for Telegram calls.
+
+| Param | Type | Description |
+| ---  | --- | --- |
+| webHookPath | `string` | Webhook url path (see Telegraf.setWebHook) |
+| tlsOptions | `object` | (Optional) [TLS server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener). Pass null to use http |
+| port | `number` | Port number |
+| [host] | `string` | (Optional) Hostname |
+
+* * *
+
+<a name="startPolling"></a>
+##### `.startPolling(timeout, limit)`
+
+Start poll updates.
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| timeout | `number` | 0 | Poll timeout |
+| limit | `number` | 100 | Limits the number of updates to be retrieved |
+
+* * *
+
+<a name="stop"></a>
+##### `.stop()`
+
+Stop WebHook and polling
 
 * * *
 
 <a name="unbanchatmember"></a>
-##### `Telegraf.unbanChatMember(chatId, userId) => Promise`
+##### `.unbanChatMember(chatId, userId) => Promise`
 
 Use this method to unban a previously kicked user in a supergroup.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| userId | `Integer` | User id |
+| chatId | `number`\|`string` | Chat id |
+| userId | `number` | User id |
 
-[Related Telegram api docs](https://core.telegram.org/bots/api#unbanchatmember)
-
-* * *
-
-<a name="answerinlinequery"></a>
-##### `Telegraf.answerInlineQuery(inlineQueryId, results, extra) => Promise`
-
-Use this method to send answers to an inline query.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| inlineQueryId | `String` | Query id |
-| results | `Array` | Results |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#answerinlinequery)|
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#unbanchatmember)</sub>
 
 * * *
 
-<a name="answercallbackquery"></a>
-##### `Telegraf.answerCallbackQuery(callbackQueryId, text, showAlert) => Promise`
+<a name="use"></a>
+##### `.use(middleware)`
 
-Use this method to send answers to callback queries.
+Registers a middleware.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| callbackQueryId | `String` | Query id |
-| text | `String` | Notification text |
-| showAlert | `Bool` | Show alert instead of notification |
-
-[Related Telegram api docs](https://core.telegram.org/bots/api#answercallbackquery)
+| middleware | `function` | Middleware function |
 
 * * *
 
-<a name="editmessagetext"></a>
-##### `Telegraf.editMessageText(chatId, messageId, text, extra) => Promise`
+<a name="webhookcallback"></a>
+##### `.webHookCallback(webHookPath) => Function`
 
-Use this method to edit text messages sent by the bot or via the bot.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| messageId | `String` | Message id |
-| text | `String` | Message |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#editmessagetext)|
-
-* * *
-
-<a name="editmessagecaption"></a>
-##### `Telegraf.editMessageCaption(chatId, messageId, caption, extra) => Promise`
-
-Use this method to edit captions of messages sent by the bot or via the bot
+Return a callback function suitable for the http[s].createServer() method to handle a request. 
+You may also use this callback function to mount your telegraf app in a Koa/Connect/Express app.
 
 | Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| messageId | `String` | Message id |
-| caption | `String` | Caption |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#editmessagecaption)|
-
-* * *
-
-<a name="editmessagereplymarkup"></a>
-##### `Telegraf.editMessageReplyMarkup(chatId, messageId, markup, extra) => Promise`
-
-Use this method to edit only the reply markup of messages sent by the bot or via the bot.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| chatId | `Integer`/`String` | Chat id |
-| messageId | `String` | Message id |
-| markup | `Object` | Keyboard markup |
-| extra | `Object` | [Optional parameters](https://core.telegram.org/bots/api#editmessagereplymarkup)|
+| ---  | --- | --- |
+| webHookPath | `string` | Webhook url path (see Telegraf.setWebHook) |
 
 ### File
 
@@ -740,10 +802,10 @@ This object represents the contents of a file to be uploaded.
 
 Supported file sources:
 
-* `File path`
-* `Buffer`
-* `ReadStream`
-* `Existing file_id`
+- `File path`
+- `Buffer`
+- `ReadStream`
+- `Existing file_id`
 
 Example:
 ```js
@@ -760,40 +822,40 @@ Example:
   telegraf.sendSticker('chatId', '123123jkbhj6b')
 ```
 
-[Related Telegram api docs](https://core.telegram.org/bots/api#file)
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#file)</sub>
 
 ### Events
 
 Supported event:
 
-* `message`
-* `inline_query`
-* `chosen_inline_result`
-* `callback_query`
+- `message`
+- `inline_query`
+- `chosen_inline_result`
+- `callback_query`
 
 Available virtual events:
 
-* `text`
-* `audio`
-* `document`
-* `photo`
-* `sticker`
-* `video`
-* `voice`
-* `contact`
-* `location`
-* `venue`
-* `new_chat_participant`
-* `left_chat_participant`
-* `new_chat_title`
-* `new_chat_photo`
-* `delete_chat_photo`
-* `group_chat_created`
-* `supergroup_chat_created`
-* `channel_chat_created`
-* `migrate_to_chat_id`
-* `migrate_from_chat_id`
-* `pinned_message`
+- `text`
+- `audio`
+- `document`
+- `photo`
+- `sticker`
+- `video`
+- `voice`
+- `contact`
+- `location`
+- `venue`
+- `new_chat_member`
+- `left_chat_member`
+- `new_chat_title`
+- `new_chat_photo`
+- `delete_chat_photo`
+- `group_chat_created`
+- `supergroup_chat_created`
+- `channel_chat_created`
+- `migrate_to_chat_id`
+- `migrate_from_chat_id`
+- `pinned_message`
 
 ```js
 
@@ -809,7 +871,7 @@ telegraf.on(['sticker', 'photo'], function * () {
 })
 
 ```
-[Related Telegram api docs](https://core.telegram.org/bots/api#message)
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#message)</sub>
 
 ## License
 

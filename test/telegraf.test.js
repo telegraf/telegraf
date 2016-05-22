@@ -11,6 +11,7 @@ describe('Telegraf', function () {
   describe('core', function () {
     var updateTypes = [
       { type: 'message', prop: 'message', update: { message: baseMessage } },
+      { type: 'edited_message', prop: 'editedMessage', update: { edited_message: baseMessage } },
       { type: 'callback_query', prop: 'callbackQuery', update: { callback_query: { message: baseMessage } } },
       { type: 'inline_query', prop: 'inlineQuery', update: { inline_query: {} } },
       { type: 'chosen_inline_result', prop: 'chosenInlineResult', update: { chosen_inline_result: {} } }
@@ -44,6 +45,11 @@ describe('Telegraf', function () {
         this.should.have.property('replyWithLocation')
         this.should.have.property('replyWithVenue')
         this.should.have.property('replyWithContact')
+        this.should.have.property('getChat')
+        this.should.have.property('leaveChat')
+        this.should.have.property('getChatAdministrators')
+        this.should.have.property('getChatMember')
+        this.should.have.property('getChatMembersCount')
         done()
       })
       app.handleUpdate({message: baseMessage})
@@ -64,6 +70,11 @@ describe('Telegraf', function () {
         this.should.have.property('replyWithLocation')
         this.should.have.property('replyWithVenue')
         this.should.have.property('replyWithContact')
+        this.should.have.property('getChat')
+        this.should.have.property('leaveChat')
+        this.should.have.property('getChatAdministrators')
+        this.should.have.property('getChatMember')
+        this.should.have.property('getChatMembersCount')
         done()
       })
       app.handleUpdate({callback_query: baseMessage})

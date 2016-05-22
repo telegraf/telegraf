@@ -17,13 +17,21 @@ $ npm install telegraf
   
 ```js
 var Telegraf = require('telegraf');
-
 var telegraf = new Telegraf(process.env.BOT_TOKEN);
 
 // Text messages handling
 telegraf.hears('/answer', function * () {
   this.reply('*42*', { parse_mode: 'Markdown' })
 })
+
+telegraf.startPolling()
+```
+
+### One more example
+
+```js
+var Telegraf = require('telegraf');
+var telegraf = new Telegraf(process.env.BOT_TOKEN);
 
 // Look ma, middleware!
 var sayYoMiddleware = function * (next) {
@@ -53,7 +61,6 @@ middleware layer. This improves interoperability, robustness, and makes writing 
 more enjoyable. 
 
 ```js
-var Telegraf = require('telegraf')
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
 telegraf.on('text', function * (){
@@ -231,34 +238,31 @@ telegraf.onError = function(err){
 
 Telegraf context shortcuts:
 
-**Available shortcuts for `message` event:**
+**Available shortcuts**
 
-* `reply() -> telegraf.sendMessage()`
-* `replyWithPhoto() -> telegraf.sendPhoto()`
-* `replyWithAudio() -> telegraf.sendAudio()`
-* `replyWithDocument() -> telegraf.sendDocument()`
-* `replyWithSticker() -> telegraf.sendSticker()`
-* `replyWithVideo() -> telegraf.sendVideo()`
-* `replyWithVoice() -> telegraf.sendVoice()`
-* `replyWithChatAction() -> telegraf.sendChatAction()`
-* `replyWithLocation() -> telegraf.sendLocation()`
-
-**Shortcuts for `callback_query` event:**
-
-* `answerCallbackQuery() -> telegraf.answerCallbackQuery()`
-* `reply() -> telegraf.sendMessage()`
-* `replyWithPhoto() -> telegraf.sendPhoto()`
-* `replyWithAudio() -> telegraf.sendAudio()`
-* `replyWithDocument() -> telegraf.sendDocument()`
-* `replyWithSticker() -> telegraf.sendSticker()`
-* `replyWithVideo() -> telegraf.sendVideo()`
-* `replyWithVoice() -> telegraf.sendVoice()`
-* `replyWithChatAction() -> telegraf.sendChatAction()`
-* `replyWithLocation() -> telegraf.sendLocation()`
-
-**Shortcuts for `inline_query` event:** 
-
-* `answerInlineQuery() -> telegraf.answerInlineQuery()`
+- `message` event
+  - `reply() -> telegraf.sendMessage()`
+  - `replyWithPhoto() -> telegraf.sendPhoto()`
+  - `replyWithAudio() -> telegraf.sendAudio()`
+  - `replyWithDocument() -> telegraf.sendDocument()`
+  - `replyWithSticker() -> telegraf.sendSticker()`
+  - `replyWithVideo() -> telegraf.sendVideo()`
+  - `replyWithVoice() -> telegraf.sendVoice()`
+  - `replyWithChatAction() -> telegraf.sendChatAction()`
+  - `replyWithLocation() -> telegraf.sendLocation()`
+- `callback_query` event
+  - `answerCallbackQuery() -> telegraf.answerCallbackQuery()`
+  - `reply() -> telegraf.sendMessage()`
+  - `replyWithPhoto() -> telegraf.sendPhoto()`
+  - `replyWithAudio() -> telegraf.sendAudio()`
+  - `replyWithDocument() -> telegraf.sendDocument()`
+  - `replyWithSticker() -> telegraf.sendSticker()`
+  - `replyWithVideo() -> telegraf.sendVideo()`
+  - `replyWithVoice() -> telegraf.sendVoice()`
+  - `replyWithChatAction() -> telegraf.sendChatAction()`
+  - `replyWithLocation() -> telegraf.sendLocation()`
+- `inline_query` event
+  - `answerInlineQuery() -> telegraf.answerInlineQuery()`
 
 #### Examples
 
@@ -296,46 +300,71 @@ telegraf.on('inline_query', function * (){
 
 ## API reference
 
-* `Telegraf`
-  * [`new Telegraf(token)`](#new)
-  * [`.answerCallbackQuery(callbackQueryId, text, showAlert)`](#answercallbackquery)
-  * [`.answerInlineQuery(inlineQueryId, results, extra)`](#answerinlinequery)
-  * [`.editMessageCaption(chatId, messageId, caption, extra)`](#editmessagecaption)
-  * [`.editMessageReplyMarkup(chatId, messageId, markup, extra)`](#editmessagereplymarkup)
-  * [`.editMessageText(chatId, messageId, text, extra)`](#editmessagetext)
-  * [`.forwardMessage(chatId, fromChatId, messageId, extra)`](#forwardmessage)
-  * [`.getFile(fileId)`](#getfile)
-  * [`.getFileLink(fileId)`](#getFileLink)
-  * [`.getMe()`](#getme)
-  * [`.getUserProfilePhotos(userId, offset, limit)`](#getuserprofilephotos)
-  * [`.handleUpdate(rawUpdate, response)`](#handleupdate)
-  * [`.hears(string|ReGex, function)`](#hears)
-  * [`.kickChatMember(chatId, userId)`](#kickchatmember)
-  * [`.on(messageType, function)`](#on)
-  * [`.removeWebHook()`](#removewebhook)
-  * [`.sendAudio(chatId, audio, extra)`](#sendaudio)
-  * [`.sendChatAction(chatId, action)`](#sendchataction)
-  * [`.sendContact(chatId, phoneNumber, firstName, extra)`](#sendcontact)
-  * [`.sendDocument(chatId, doc, extra)`](#senddocument)
-  * [`.sendLocation(chatId, latitude, longitude, extra)`](#sendlocation)
-  * [`.sendMessage(chatId, text, extra)`](#sendmessage)
-  * [`.sendPhoto(chatId, photo, extra)`](#sendphoto)
-  * [`.sendSticker(chatId, sticker, extra)`](#sendsticker)
-  * [`.sendVenue(chatId, latitude, longitude, title, address, extra)`](#sendvenue)
-  * [`.sendVideo(chatId, video, extra)`](#sendvideo)
-  * [`.sendVoice(chatId, voice, extra)`](#sendvoice)
-  * [`.setWebHook(url, cert)`](#setwebhook)
-  * [`.startPolling(timeout, limit)`](#startPolling)
-  * [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
-  * [`.stop()`](#stop)
-  * [`.unbanChatMember(chatId, userId)`](#unbanchatmember)
-  * [`.use(function)`](#use)
-  * [`.webHookCallback(webHookPath)`](#webhookcallback)
+- [`Telegraf.optional(messageType, handler, [handler...])`](#optional)
+- [`Telegraf.compose(middleware)`](#compose)
+- [`new Telegraf(token)`](#new)
+  - [`.answerCallbackQuery(callbackQueryId, text, showAlert)`](#answercallbackquery)
+  - [`.answerInlineQuery(inlineQueryId, results, extra)`](#answerinlinequery)
+  - [`.editMessageCaption(chatId, messageId, caption, extra)`](#editmessagecaption)
+  - [`.editMessageReplyMarkup(chatId, messageId, markup, extra)`](#editmessagereplymarkup)
+  - [`.editMessageText(chatId, messageId, text, extra)`](#editmessagetext)
+  - [`.forwardMessage(chatId, fromChatId, messageId, extra)`](#forwardmessage)
+  - [`.getFile(fileId)`](#getfile)
+  - [`.getFileLink(fileId)`](#getFileLink)
+  - [`.getMe()`](#getme)
+  - [`.getUserProfilePhotos(userId, offset, limit)`](#getuserprofilephotos)
+  - [`.handleUpdate(rawUpdate, response)`](#handleupdate)
+  - [`.hears(string|ReGex, handler, [handler...])`](#hears)
+  - [`.kickChatMember(chatId, userId)`](#kickchatmember)
+  - [`.on(messageType, handler, [handler...])`](#on)
+  - [`.removeWebHook()`](#removewebhook)
+  - [`.sendAudio(chatId, audio, extra)`](#sendaudio)
+  - [`.sendChatAction(chatId, action)`](#sendchataction)
+  - [`.sendContact(chatId, phoneNumber, firstName, extra)`](#sendcontact)
+  - [`.sendDocument(chatId, doc, extra)`](#senddocument)
+  - [`.sendLocation(chatId, latitude, longitude, extra)`](#sendlocation)
+  - [`.sendMessage(chatId, text, extra)`](#sendmessage)
+  - [`.sendPhoto(chatId, photo, extra)`](#sendphoto)
+  - [`.sendSticker(chatId, sticker, extra)`](#sendsticker)
+  - [`.sendVenue(chatId, latitude, longitude, title, address, extra)`](#sendvenue)
+  - [`.sendVideo(chatId, video, extra)`](#sendvideo)
+  - [`.sendVoice(chatId, voice, extra)`](#sendvoice)
+  - [`.setWebHook(url, cert)`](#setwebhook)
+  - [`.startPolling(timeout, limit)`](#startPolling)
+  - [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
+  - [`.stop()`](#stop)
+  - [`.unbanChatMember(chatId, userId)`](#unbanchatmember)
+  - [`.use(function)`](#use)
+  - [`.webHookCallback(webHookPath)`](#webhookcallback)
 
 ***
 
+<a name="optional"></a>
+##### `Telegraf.optional(eventType, handler, [handler...])`
+
+Generates middleware for handling provided [event type](#events).
+
+| Param | Type | Description |
+| --- | --- | --- |
+| eventType | `string`\|`string[]` | [Event type](#events) |
+| handler | `GeneratorFunction` | Handler |
+
+* * *
+
+<a name="compose"></a>
+##### `Telegraf.compose(middleware)`
+
+Compose `middleware` returning a fully valid middleware comprised of all those which are passed.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| handler | `GeneratorFunction[]` | middleware |
+
+* * *
+
+
 <a name="new"></a>
-##### `Telegraf.new(token)`
+##### `new Telegraf(token)`
 
 Initialize new Telegraf app.
 
@@ -346,7 +375,7 @@ Initialize new Telegraf app.
 * * *
 
 <a name="answercallbackquery"></a>
-##### `Telegraf.answerCallbackQuery(callbackQueryId, text, showAlert) => Promise`
+##### `.answerCallbackQuery(callbackQueryId, text, showAlert) => Promise`
 
 Use this method to send answers to callback queries.
 
@@ -361,7 +390,7 @@ Use this method to send answers to callback queries.
 * * *
 
 <a name="answerinlinequery"></a>
-##### `Telegraf.answerInlineQuery(inlineQueryId, results, extra) => Promise`
+##### `.answerInlineQuery(inlineQueryId, results, extra) => Promise`
 
 Use this method to send answers to an inline query.
 
@@ -374,7 +403,7 @@ Use this method to send answers to an inline query.
 * * *
 
 <a name="editmessagecaption"></a>
-##### `Telegraf.editMessageCaption(chatId, messageId, caption, extra) => Promise`
+##### `.editMessageCaption(chatId, messageId, caption, extra) => Promise`
 
 Use this method to edit captions of messages sent by the bot or via the bot
 
@@ -388,7 +417,7 @@ Use this method to edit captions of messages sent by the bot or via the bot
 * * *
 
 <a name="editmessagereplymarkup"></a>
-##### `Telegraf.editMessageReplyMarkup(chatId, messageId, markup, extra) => Promise`
+##### `.editMessageReplyMarkup(chatId, messageId, markup, extra) => Promise`
 
 Use this method to edit only the reply markup of messages sent by the bot or via the bot.
 
@@ -402,7 +431,7 @@ Use this method to edit only the reply markup of messages sent by the bot or via
 * * *
 
 <a name="editmessagetext"></a>
-##### `Telegraf.editMessageText(chatId, messageId, text, extra) => Promise`
+##### `.editMessageText(chatId, messageId, text, extra) => Promise`
 
 Use this method to edit text messages sent by the bot or via the bot.
 
@@ -416,7 +445,7 @@ Use this method to edit text messages sent by the bot or via the bot.
 * * *
 
 <a name="forwardmessage"></a>
-##### `Telegraf.forwardMessage(chatId, fromChatId, messageId, extra) => Promise`
+##### `.forwardMessage(chatId, fromChatId, messageId, extra) => Promise`
 
 Forwards message.
 
@@ -430,7 +459,7 @@ Forwards message.
 * * *
 
 <a name="getfile"></a>
-##### `Telegraf.getFile(fileId) => Promise`
+##### `.getFile(fileId) => Promise`
 
 Returns basic info about a file and prepare it for downloading.
 
@@ -443,7 +472,7 @@ Returns basic info about a file and prepare it for downloading.
 * * *
 
 <a name="getFileLink"></a>
-##### `Telegraf.getFileLink(fileId) => Promise`
+##### `.getFileLink(fileId) => Promise`
 
 Returns link to file.
 
@@ -456,7 +485,7 @@ Returns link to file.
 * * *
 
 <a name="getme"></a>
-##### `Telegraf.getMe() => Promise`
+##### `.getMe() => Promise`
 
 Returns basic information about the bot.
 
@@ -465,7 +494,7 @@ Returns basic information about the bot.
 * * *
 
 <a name="getuserprofilephotos"></a>
-##### `Telegraf.getUserProfilePhotos(userId, offset, limit) => Promise`
+##### `.getUserProfilePhotos(userId, offset, limit) => Promise`
 
 Returns profiles photos for provided user.
 
@@ -480,7 +509,7 @@ Returns profiles photos for provided user.
 * * *
 
 <a name="handleupdate"></a>
-##### `Telegraf.handleUpdate(rawUpdate, [webHookResponse])`
+##### `.handleUpdate(rawUpdate, [webHookResponse])`
 
 Handle raw Telegram update. 
 In case you use centralized webhook server, queue, etc.  
@@ -493,19 +522,19 @@ In case you use centralized webhook server, queue, etc.
 * * *
 
 <a name="hears"></a>
-##### `Telegraf.hears(pattern, handler)`
+##### `.hears(pattern, handler, [handler...])`
 
 Registers handler only for `text` events using string pattern or RegEx.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | pattern | `string`\|`RegEx` | Pattern or RegEx |
-| handler | `function` | Handler |
+| handler | `GeneratorFunction` | Handler |
 
 * * *
 
 <a name="kickchatmember"></a>
-##### `Telegraf.kickChatMember(chatId, userId) => Promise`
+##### `.kickChatMember(chatId, userId) => Promise`
 
 Use this method to kick a user from a group or a supergroup.
 
@@ -519,19 +548,19 @@ Use this method to kick a user from a group or a supergroup.
 * * *
 
 <a name="on"></a>
-##### `Telegraf.on(eventType, handler)`
+##### `.on(eventType, handler, [handler...])`
 
 Registers handler for provided [event type](#events).
 
 | Param | Type | Description |
 | --- | --- | --- |
 | eventType | `string`\|`string[]` | [Event type](#events) |
-| handler | `function` | Handler |
+| handler | `GeneratorFunction` | Handler |
 
 * * *
 
 <a name="removewebhook"></a>
-##### `Telegraf.removeWebHook() => Promise`
+##### `.removeWebHook() => Promise`
 
 Removes webhook. Shortcut for `Telegraf.setWebHook('')`
 
@@ -539,7 +568,7 @@ Removes webhook. Shortcut for `Telegraf.setWebHook('')`
 * * *
 
 <a name="sendaudio"></a>
-##### `Telegraf.sendAudio(chatId, audio, extra) => Promise`
+##### `.sendAudio(chatId, audio, extra) => Promise`
 
 Sends audio.
 
@@ -552,7 +581,7 @@ Sends audio.
 * * *
 
 <a name="sendchataction"></a>
-##### `Telegraf.sendChatAction(chatId, action) => Promise`
+##### `.sendChatAction(chatId, action) => Promise`
 
 Sends chat action.
 
@@ -564,7 +593,7 @@ Sends chat action.
 * * *
 
 <a name="sendcontact"></a>
-##### `Telegraf.sendContact(chatId, phoneNumber, firstName, extra) => Promise`
+##### `.sendContact(chatId, phoneNumber, firstName, extra) => Promise`
 
 Sends document.
 
@@ -578,7 +607,7 @@ Sends document.
 * * *
 
 <a name="senddocument"></a>
-##### `Telegraf.sendDocument(chatId, doc, extra) => Promise`
+##### `.sendDocument(chatId, doc, extra) => Promise`
 
 Sends document.
 
@@ -591,7 +620,7 @@ Sends document.
 * * *
 
 <a name="sendlocation"></a>
-##### `Telegraf.sendLocation(chatId, latitude, longitude, extra) => Promise`
+##### `.sendLocation(chatId, latitude, longitude, extra) => Promise`
 
 Sends location.
 
@@ -605,7 +634,7 @@ Sends location.
 * * *
 
 <a name="sendmessage"></a>
-##### `Telegraf.sendMessage(chatId, text, extra) => Promise`
+##### `.sendMessage(chatId, text, extra) => Promise`
 
 Sends text message.
 
@@ -618,7 +647,7 @@ Sends text message.
 * * *
 
 <a name="sendphoto"></a>
-##### `Telegraf.sendPhoto(chatId, photo, extra) => Promise`
+##### `.sendPhoto(chatId, photo, extra) => Promise`
 
 Sends photo.
 
@@ -631,7 +660,7 @@ Sends photo.
 * * *
 
 <a name="sendsticker"></a>
-##### `Telegraf.sendSticker(chatId, sticker, extra) => Promise`
+##### `.sendSticker(chatId, sticker, extra) => Promise`
 
 Sends sticker.
 
@@ -644,7 +673,7 @@ Sends sticker.
 * * *
 
 <a name="sendvenue"></a>
-##### `Telegraf.sendVenue(chatId, latitude, longitude, title, address, extra) => Promise`
+##### `.sendVenue(chatId, latitude, longitude, title, address, extra) => Promise`
 
 Sends venue information.
 
@@ -660,7 +689,7 @@ Sends venue information.
 * * *
 
 <a name="sendvideo"></a>
-##### `Telegraf.sendVideo(chatId, video, extra) => Promise`
+##### `.sendVideo(chatId, video, extra) => Promise`
 
 Sends video.
 
@@ -673,7 +702,7 @@ Sends video.
 * * *
 
 <a name="sendvoice"></a>
-##### `Telegraf.sendVoice(chatId, voice, extra) => Promise`
+##### `.sendVoice(chatId, voice, extra) => Promise`
 
 Sends voice.
 
@@ -686,7 +715,7 @@ Sends voice.
 * * *
 
 <a name="setwebhook"></a>
-##### `Telegraf.setWebHook(url, [cert]) => Promise`
+##### `.setWebHook(url, [cert]) => Promise`
 
 Specifies an url to receive incoming updates via an outgoing webhook.
 
@@ -700,7 +729,7 @@ Specifies an url to receive incoming updates via an outgoing webhook.
 * * *
 
 <a name="startwebhook"></a>
-##### `Telegraf.startWebHook(webHookPath, tlsOptions, port, [host])`
+##### `.startWebHook(webHookPath, tlsOptions, port, [host])`
 
 Start listening @ `https://host:port/webHookPath` for Telegram calls.
 
@@ -714,7 +743,7 @@ Start listening @ `https://host:port/webHookPath` for Telegram calls.
 * * *
 
 <a name="startPolling"></a>
-##### `Telegraf.startPolling(timeout, limit)`
+##### `.startPolling(timeout, limit)`
 
 Start poll updates.
 
@@ -726,14 +755,14 @@ Start poll updates.
 * * *
 
 <a name="stop"></a>
-##### `Telegraf.stop()`
+##### `.stop()`
 
 Stop WebHook and polling
 
 * * *
 
 <a name="unbanchatmember"></a>
-##### `Telegraf.unbanChatMember(chatId, userId) => Promise`
+##### `.unbanChatMember(chatId, userId) => Promise`
 
 Use this method to unban a previously kicked user in a supergroup.
 
@@ -747,7 +776,7 @@ Use this method to unban a previously kicked user in a supergroup.
 * * *
 
 <a name="use"></a>
-##### `Telegraf.use(middleware)`
+##### `.use(middleware)`
 
 Registers a middleware.
 
@@ -758,7 +787,7 @@ Registers a middleware.
 * * *
 
 <a name="webhookcallback"></a>
-##### `Telegraf.webHookCallback(webHookPath) => Function`
+##### `.webHookCallback(webHookPath) => Function`
 
 Return a callback function suitable for the http[s].createServer() method to handle a request. 
 You may also use this callback function to mount your telegraf app in a Koa/Connect/Express app.
@@ -773,10 +802,10 @@ This object represents the contents of a file to be uploaded.
 
 Supported file sources:
 
-* `File path`
-* `Buffer`
-* `ReadStream`
-* `Existing file_id`
+- `File path`
+- `Buffer`
+- `ReadStream`
+- `Existing file_id`
 
 Example:
 ```js
@@ -799,34 +828,34 @@ Example:
 
 Supported event:
 
-* `message`
-* `inline_query`
-* `chosen_inline_result`
-* `callback_query`
+- `message`
+- `inline_query`
+- `chosen_inline_result`
+- `callback_query`
 
 Available virtual events:
 
-* `text`
-* `audio`
-* `document`
-* `photo`
-* `sticker`
-* `video`
-* `voice`
-* `contact`
-* `location`
-* `venue`
-* `new_chat_member`
-* `left_chat_member`
-* `new_chat_title`
-* `new_chat_photo`
-* `delete_chat_photo`
-* `group_chat_created`
-* `supergroup_chat_created`
-* `channel_chat_created`
-* `migrate_to_chat_id`
-* `migrate_from_chat_id`
-* `pinned_message`
+- `text`
+- `audio`
+- `document`
+- `photo`
+- `sticker`
+- `video`
+- `voice`
+- `contact`
+- `location`
+- `venue`
+- `new_chat_member`
+- `left_chat_member`
+- `new_chat_title`
+- `new_chat_photo`
+- `delete_chat_photo`
+- `group_chat_created`
+- `supergroup_chat_created`
+- `channel_chat_created`
+- `migrate_to_chat_id`
+- `migrate_from_chat_id`
+- `pinned_message`
 
 ```js
 

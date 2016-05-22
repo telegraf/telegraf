@@ -117,15 +117,17 @@ describe('Telegraf', function () {
       app.on(['chosen_inline_result', 'message'], function * () {
         done()
       })
+      app.handleUpdate({inline_query: baseMessage})
       app.handleUpdate({message: baseMessage})
     })
 
     it('should route sub types', function (done) {
       var app = new Telegraf()
-      app.on(['text'], function * () {
+      app.on('text', function * () {
         done()
       })
-      app.handleUpdate({message: Object.assign(baseMessage, {text: 'hello'})})
+      app.handleUpdate({message: Object.assign({voice: {}}, baseMessage)})
+      app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
     })
 
     describe('subtypes', function () {
@@ -173,16 +175,18 @@ describe('Telegraf', function () {
       app.hears('hello world', function * () {
         done()
       })
-      app.handleUpdate({message: Object.assign(baseMessage, {text: 'hello world'})})
+      app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
     })
 
     it('should handle regex triggers', function (done) {
       var app = new Telegraf()
+      app.hears('hi', function * () {})
       app.hears(/hello (.+)/, function * () {
         this.match[1].should.be.equal('world')
         done()
       })
-      app.handleUpdate({message: Object.assign(baseMessage, {text: 'hello world'})})
+      app.handleUpdate({message: Object.assign({text: 'Ola!'}, baseMessage)})
+      app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
     })
   })
 })

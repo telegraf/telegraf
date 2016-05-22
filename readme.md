@@ -301,7 +301,7 @@ telegraf.on('inline_query', function * (){
 ## API reference
 
 - [`Telegraf.handler(messageType, handler, [handler...])`](#handler)
-- [`Telegraf.compose(middleware)`](#compose)
+- [`Telegraf.compose(handlers)`](#compose)
 - [`new Telegraf(token)`](#new)
   - [`.answerCallbackQuery(callbackQueryId, text, showAlert)`](#answercallbackquery)
   - [`.answerInlineQuery(inlineQueryId, results, extra)`](#answerinlinequery)

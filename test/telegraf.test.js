@@ -136,6 +136,16 @@ describe('Telegraf', function () {
       app.handleUpdate({message: baseMessage})
     })
 
+    it('should provide chat and sender info', function (done) {
+      var app = new Telegraf()
+      app.on(['text', 'message'], function * () {
+        this.from.id.should.be.equal(42)
+        this.chat.id.should.be.equal(1)
+        done()
+      })
+      app.handleUpdate({message: Object.assign({from: {id: 42}}, baseMessage)})
+    })
+
     it('should route sub types', function (done) {
       var app = new Telegraf()
       app.on('text', function * () {

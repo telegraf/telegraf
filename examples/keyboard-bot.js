@@ -5,7 +5,6 @@ var telegraf = new Telegraf(process.env.BOT_TOKEN)
 telegraf.use(Telegraf.memorySession())
 
 telegraf.on('text', function * () {
-  // Very smart bot ;)
   this.reply('Coke or Pepsi?', {
     reply_markup: {
       inline_keyboard: [[

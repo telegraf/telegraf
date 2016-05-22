@@ -352,13 +352,13 @@ Generates middleware for handling provided [event type](#events).
 * * *
 
 <a name="compose"></a>
-##### `Telegraf.compose(middleware) => GeneratorFunction`
+##### `Telegraf.compose(handlers) => GeneratorFunction`
 
 Compose `middleware` returning a fully valid middleware comprised of all those which are passed.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| handler | `GeneratorFunction[]` | middleware |
+| handlers | `GeneratorFunction[]` | Array of handlers |
 
 * * *
 

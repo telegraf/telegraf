@@ -300,7 +300,7 @@ telegraf.on('inline_query', function * (){
 
 ## API reference
 
-- [`Telegraf.optional(messageType, handler, [handler...])`](#optional)
+- [`Telegraf.handler(messageType, handler, [handler...])`](#handler)
 - [`Telegraf.compose(middleware)`](#compose)
 - [`new Telegraf(token)`](#new)
   - [`.answerCallbackQuery(callbackQueryId, text, showAlert)`](#answercallbackquery)
@@ -339,8 +339,8 @@ telegraf.on('inline_query', function * (){
 
 ***
 
-<a name="optional"></a>
-##### `Telegraf.optional(eventType, handler, [handler...])`
+<a name="handler"></a>
+##### `Telegraf.handler(eventType, handler, [handler...])`
 
 Generates middleware for handling provided [event type](#events).
 

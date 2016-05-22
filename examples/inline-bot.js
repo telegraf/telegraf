@@ -4,23 +4,24 @@ var Telegraf = require('../lib/telegraf')
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
 telegraf.on('inline_query', function * () {
-  if (this.inlineQuery.query) {
-    var results = countries
-      .filter((country) => country.name.toLowerCase().indexOf(this.inlineQuery.query.toLowerCase()) !== -1)
-      .map((country) => {
-        return {
-          id: country.code,
-          title: country.name,
-          type: 'article',
-          input_message_content: {
-            message_text: `${country.name}\nCountry code: *${country.code}*`,
-            parse_mode: 'Markdown'
-          }
-        }
-      })
-      .slice(0, 10)
-    yield this.answerInlineQuery(results)
+  if (!this.inlineQuery.query) {
+    return
   }
+  var results = countries
+    .filter((country) => country.name.toLowerCase().indexOf(this.inlineQuery.query.toLowerCase()) !== -1)
+    .map((country) => {
+      return {
+        id: country.code,
+        title: country.name,
+        type: 'article',
+        input_message_content: {
+          message_text: `${country.name} code: *${country.code}*`,
+          parse_mode: 'Markdown'
+        }
+      }
+    })
+    .slice(0, 10)
+  yield this.answerInlineQuery(results)
 })
 
 telegraf.startPolling()
@@ -79,7 +80,7 @@ var countries = [
   {name: 'Congo, The Democratic Republic of the', code: 'CD'},
   {name: 'Cook Islands', code: 'CK'},
   {name: 'Costa Rica', code: 'CR'},
-  {name: 'Cote D\'Ivoire', code: 'CI'},
+  {name: "Cote D'Ivoire", code: 'CI'},
   {name: 'Croatia', code: 'HR'},
   {name: 'Cuba', code: 'CU'},
   {name: 'Cyprus', code: 'CY'},
@@ -141,11 +142,11 @@ var countries = [
   {name: 'Kazakhstan', code: 'KZ'},
   {name: 'Kenya', code: 'KE'},
   {name: 'Kiribati', code: 'KI'},
-  {name: 'Korea, Democratic People\'S Republic of', code: 'KP'},
+  {name: "Korea, Democratic People'S Republic of", code: 'KP'},
   {name: 'Korea, Republic of', code: 'KR'},
   {name: 'Kuwait', code: 'KW'},
   {name: 'Kyrgyzstan', code: 'KG'},
-  {name: 'Lao People\'S Democratic Republic', code: 'LA'},
+  {name: "Lao People'S Democratic Republic", code: 'LA'},
   {name: 'Latvia', code: 'LV'},
   {name: 'Lebanon', code: 'LB'},
   {name: 'Lesotho', code: 'LS'},

@@ -694,6 +694,9 @@ Supported file sources:
 - `Buffer`
 - `ReadStream`
 
+Also you can provide optional name of file as `filename`. 
+FYI: Telegram servers detect content type using file extension(May 2016).
+
 Example:
 ```js
 
@@ -708,7 +711,7 @@ Example:
    // send stream
   telegraf.sendVideo('chatId', {
     source: fs.createReadStream('/path/to/video.mp4'),
-    extension: 'mp4'
+    filename: 'kitten.mp4'
   })
   
   // send buffer

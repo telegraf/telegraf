@@ -1,91 +1,12 @@
-# Telegraf API reference
+# API reference
 
-## Shortcuts
-
-Available shortcuts for **message** update:
-
-- `this.getChat() -> `[`telegraf.getChat()`](#getchat)
-- `this.getChatAdministrators() -> `[`telegraf.getChatAdministrators()`](#getchatadministrators)
-- `this.getChatMember() -> `[`telegraf.getChatMember()`](#getchatmember)
-- `this.getChatMembersCount() -> `[`telegraf.getChatMembersCount()`](#getchatmemberscount)
-- `this.leaveChat() -> `[`telegraf.leaveChat()`](#leavechat)
-- `this.reply() -> `[`telegraf.sendMessage()`](#sendmessage)
-- `this.replyWithAudio() -> `[`telegraf.sendAudio()`](#sendaudio)
-- `this.replyWithChatAction() -> `[`telegraf.sendChatAction()`](#sendchataction)
-- `this.replyWithDocument() -> `[`telegraf.sendDocument()`](#senddocument)
-- `this.replyWithLocation() -> `[`telegraf.sendLocation()`](#sendlocation)
-- `this.replyWithPhoto() -> `[`telegraf.sendPhoto()`](#sendphoto)
-- `this.replyWithSticker() -> `[`telegraf.sendSticker()`](#sendsticker)
-- `this.replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
-- `this.replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
-
-Available shortcuts for **callback_query** update:
-
-- `this.answerCallbackQuery() -> `[`telegraf.answerCallbackQuery()`](#answercallbackquery)
-- `this.getChat() -> `[`telegraf.getChat()`](#getchat)
-- `this.getChatAdministrators() -> `[`telegraf.getChatAdministrators()`](#getchatadministrators)
-- `this.getChatMember() -> `[`telegraf.getChatMember()`](#getchatmember)
-- `this.getChatMembersCount() -> `[`telegraf.getChatMembersCount()`](#getchatmemberscount)
-- `this.leaveChat() -> `[`telegraf.leaveChat()`](#leavechat)
-- `this.reply() -> `[`telegraf.sendMessage()`](#sendmessage)
-- `this.replyWithAudio() -> `[`telegraf.sendAudio()`](#sendaudio)
-- `this.replyWithChatAction() -> `[`telegraf.sendChatAction()`](#sendchataction)
-- `this.replyWithDocument() -> `[`telegraf.sendDocument()`](#senddocument)
-- `this.replyWithLocation() -> `[`telegraf.sendLocation()`](#sendlocation)
-- `this.replyWithPhoto() -> `[`telegraf.sendPhoto()`](#sendphoto)
-- `this.replyWithSticker() -> `[`telegraf.sendSticker()`](#sendsticker)
-- `this.replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
-- `this.replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
-
-Available shortcuts for **inline_query** update:
-
-- `this.answerInlineQuery() -> `[`telegraf.answerInlineQuery()`](#answerinlinequery)
-
-### Examples
-
-```js
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
-
-telegraf.on('text', function * (){
-  // Simple usage 
-  telegraf.sendMessage(this.message.chat.id, `Hello ${this.state.role}`)
-  
-  // Using shortcut
-  this.reply(`Hello ${this.state.role}`)
-
-  // If you want to mark message as reply to source message
-  this.reply(`Hello ${this.state.role}`, { reply_to_message_id: this.message.id })
-})
-
-telegraf.on('/quit', function * (){
-  // Simple usage 
-  telegraf.leaveChat(this.message.chat.id)
-  
-  // Using shortcut
-  this.leaveChat()
-})
-
-telegraf.on('callback_query', function * (){
-  // Simple usage 
-  telegraf.answerCallbackQuery(this.callbackQuery.id)
-  
-  // Using shortcut
-  this.answerCallbackQuery()
-})
-
-telegraf.on('inline_query', function * (){
-  var result = []
-  // Simple usage 
-  telegraf.answerInlineQuery(this.inlineQuery.id, result)
-  
-  // Using shortcut
-  this.answerInlineQuery(result)
-})
-```
+- [Telegraf-API](#telegraf-api)
+- [Uploading files](#file)
+- [Shortcuts](#shortcuts)
 
 ## Telegraf API
 
-- [`Telegraf.handler(messageType, handler, [handler...])`](#handler)
+- [`Telegraf.mount(messageType, handler, [handler...])`](#mount)
 - [`Telegraf.compose(handlers)`](#compose)
 - [`new Telegraf(token)`](#new)
   - [`.answerCallbackQuery(callbackQueryId, text, showAlert)`](#answercallbackquery)
@@ -129,8 +50,8 @@ telegraf.on('inline_query', function * (){
 
 ***
 
-<a name="handler"></a>
-#### `Telegraf.handler(updateType, handler, [handler...]) => GeneratorFunction`
+<a name="mount"></a>
+#### `Telegraf.mount(updateType, handler, [handler...]) => GeneratorFunction`
 
 Generates middleware for handling provided [update type](#update-types).
 
@@ -151,7 +72,6 @@ Compose `middleware` returning a fully valid middleware comprised of all those w
 | handlers | `GeneratorFunction[]` | Array of handlers |
 
 * * *
-
 
 <a name="new"></a>
 #### `new Telegraf(token)`
@@ -682,7 +602,7 @@ telegraf.on(['sticker', 'photo'], function * () {
 ```
 <sub>[Related Telegram api docs](https://core.telegram.org/bots/api#message)</sub>
 
-### File
+## File
 
 This object represents the contents of a file to be uploaded.
 
@@ -695,7 +615,8 @@ Supported file sources:
 - `ReadStream`
 
 Also you can provide optional name of file as `filename`. 
-FYI: Telegram servers detect content type using file extension(May 2016).
+
+*FYI: Telegram servers detect content type using file extension(May 2016).*
 
 Example:
 ```js
@@ -723,7 +644,89 @@ Example:
   telegraf.sendAudio('chatId', {
     url: 'http://lorempixel.com/image_output/cats-q-c-640-480-7.jpg'
   })
-
 ```
 
 <sub>[Related Telegram api docs](https://core.telegram.org/bots/api#file)</sub>
+
+## Shortcuts
+
+Available shortcuts for **message** update:
+
+- `this.getChat() -> `[`telegraf.getChat()`](#getchat)
+- `this.getChatAdministrators() -> `[`telegraf.getChatAdministrators()`](#getchatadministrators)
+- `this.getChatMember() -> `[`telegraf.getChatMember()`](#getchatmember)
+- `this.getChatMembersCount() -> `[`telegraf.getChatMembersCount()`](#getchatmemberscount)
+- `this.leaveChat() -> `[`telegraf.leaveChat()`](#leavechat)
+- `this.reply() -> `[`telegraf.sendMessage()`](#sendmessage)
+- `this.replyWithAudio() -> `[`telegraf.sendAudio()`](#sendaudio)
+- `this.replyWithChatAction() -> `[`telegraf.sendChatAction()`](#sendchataction)
+- `this.replyWithDocument() -> `[`telegraf.sendDocument()`](#senddocument)
+- `this.replyWithLocation() -> `[`telegraf.sendLocation()`](#sendlocation)
+- `this.replyWithPhoto() -> `[`telegraf.sendPhoto()`](#sendphoto)
+- `this.replyWithSticker() -> `[`telegraf.sendSticker()`](#sendsticker)
+- `this.replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
+- `this.replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
+
+Available shortcuts for **callback_query** update:
+
+- `this.answerCallbackQuery() -> `[`telegraf.answerCallbackQuery()`](#answercallbackquery)
+- `this.getChat() -> `[`telegraf.getChat()`](#getchat)
+- `this.getChatAdministrators() -> `[`telegraf.getChatAdministrators()`](#getchatadministrators)
+- `this.getChatMember() -> `[`telegraf.getChatMember()`](#getchatmember)
+- `this.getChatMembersCount() -> `[`telegraf.getChatMembersCount()`](#getchatmemberscount)
+- `this.leaveChat() -> `[`telegraf.leaveChat()`](#leavechat)
+- `this.reply() -> `[`telegraf.sendMessage()`](#sendmessage)
+- `this.replyWithAudio() -> `[`telegraf.sendAudio()`](#sendaudio)
+- `this.replyWithChatAction() -> `[`telegraf.sendChatAction()`](#sendchataction)
+- `this.replyWithDocument() -> `[`telegraf.sendDocument()`](#senddocument)
+- `this.replyWithLocation() -> `[`telegraf.sendLocation()`](#sendlocation)
+- `this.replyWithPhoto() -> `[`telegraf.sendPhoto()`](#sendphoto)
+- `this.replyWithSticker() -> `[`telegraf.sendSticker()`](#sendsticker)
+- `this.replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
+- `this.replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
+
+Available shortcuts for **inline_query** update:
+
+- `this.answerInlineQuery() -> `[`telegraf.answerInlineQuery()`](#answerinlinequery)
+
+### Examples
+
+```js
+var telegraf = new Telegraf(process.env.BOT_TOKEN)
+
+telegraf.on('text', function * (){
+  // Simple usage 
+  telegraf.sendMessage(this.message.chat.id, `Hello ${this.state.role}`)
+  
+  // Using shortcut
+  this.reply(`Hello ${this.state.role}`)
+
+  // If you want to mark message as reply to source message
+  this.reply(`Hello ${this.state.role}`, { reply_to_message_id: this.message.id })
+})
+
+telegraf.on('/quit', function * (){
+  // Simple usage 
+  telegraf.leaveChat(this.message.chat.id)
+  
+  // Using shortcut
+  this.leaveChat()
+})
+
+telegraf.on('callback_query', function * (){
+  // Simple usage 
+  telegraf.answerCallbackQuery(this.callbackQuery.id)
+  
+  // Using shortcut
+  this.answerCallbackQuery()
+})
+
+telegraf.on('inline_query', function * (){
+  var result = []
+  // Simple usage 
+  telegraf.answerInlineQuery(this.inlineQuery.id, result)
+  
+  // Using shortcut
+  this.answerInlineQuery(result)
+})
+```

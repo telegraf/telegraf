@@ -1,4 +1,3 @@
-var debug = require('debug')('telegraf:webhook-bot')
 var Telegraf = require('../lib/telegraf')
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 

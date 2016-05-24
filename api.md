@@ -631,8 +631,7 @@ Example:
 
    // send stream
   telegraf.sendVideo('chatId', {
-    source: fs.createReadStream('/path/to/video.mp4'),
-    filename: 'kitten.mp4'
+    source: fs.createReadStream('/path/to/video.mp4')
   })
   
   // send buffer
@@ -642,7 +641,8 @@ Example:
 
   // send url
   telegraf.sendPhoto('chatId', {
-    url: 'http://lorempixel.com/image_output/cats-q-c-640-480-7.jpg'
+    url: 'http://lorempixel.com/400/200/cats/',
+    filename: 'kitten.jpg'
   })
 ```
 

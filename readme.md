@@ -60,7 +60,7 @@ telegraf.hears(/reverse (.+)/, sayYoMiddleware, function * () {
 telegraf.startPolling()
 ```
 
-There are some other [examples](https://github.com/telegraf/telegraf/tree/master/examples).
+There are some other [examples](/examples).
 
 ## API
 
@@ -252,7 +252,7 @@ telegraf.onError = function(err){
 
 ## API reference
 
-[Telegraf API reference](https://github.com/telegraf/telegraf/tree/master/api.md)
+[Telegraf API reference](/api.md)
 
 ## License
 

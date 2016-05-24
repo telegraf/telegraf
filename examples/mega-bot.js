@@ -1,4 +1,3 @@
-var debug = require('debug')('telegraf:simple-bot')
 var Telegraf = require('../lib/telegraf')
 
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
@@ -6,12 +5,12 @@ var telegraf = new Telegraf(process.env.BOT_TOKEN)
 telegraf.use(Telegraf.memorySession())
 
 // Logger middleware
-var loggerMiddleware = Telegraf.only(['message']) function * (next) {
+var loggerMiddleware = function * (next) {
   var start = new Date()
   this.state.started = start
   yield next
   var ms = new Date() - start
-  debug('time: %sms', ms)
+  console.log('time: %sms', ms)
 }
 
 telegraf.use(loggerMiddleware)
@@ -22,7 +21,7 @@ var sayYoMiddleware = function * (next) {
   yield next
 }
 
-// Random advice bot!
+// Random advice on some text messages
 telegraf.on('text', function * (next) {
   if (Math.random() > 0.5) {
     yield this.reply('Highly advised to visit:')
@@ -35,12 +34,12 @@ telegraf.on('text', function * (next) {
 telegraf.hears('Hey', sayYoMiddleware, function * () {
   this.session.heyCounter = this.session.heyCounter || 0
   this.session.heyCounter++
-  this.reply(`${this.session.heyCounter} _Hey_`, {parse_mode: 'Markdown'})
+  this.reply(`_Hey counter:_ ${this.session.heyCounter}`, {parse_mode: 'Markdown'})
 })
 
 // Command handling
 telegraf.hears('/answer', sayYoMiddleware, function * () {
-  debug(this.message)
+  console.log(this.message)
   this.reply('*42*', {parse_mode: 'Markdown'})
 })
 

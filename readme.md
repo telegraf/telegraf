@@ -962,24 +962,39 @@ This object represents the contents of a file to be uploaded.
 
 Supported file sources:
 
+- `Existing file_id`
 - `File path`
+- `Url`
 - `Buffer`
 - `ReadStream`
-- `Existing file_id`
 
 Example:
 ```js
+
+  // resend existing file by file_id
+  telegraf.sendSticker('chatId', '123123jkbhj6b')
+
   // send file
-  telegraf.sendVideo('chatId', {source: '/path/to/video.mp4'}})
+  telegraf.sendVideo('chatId', {
+    source: '/path/to/video.mp4'
+  })
+
+   // send stream
+  telegraf.sendVideo('chatId', {
+    source: fs.createReadStream('/path/to/video.mp4'),
+    extension: 'mp4'
+  })
   
   // send buffer
-  telegraf.sendVoice('chatId', {source: new Buffer(...)})
+  telegraf.sendVoice('chatId', {
+    source: new Buffer()
+  })
 
-  // send stream
-  telegraf.sendAudio('chatId', {source: fs.createReadStream('/path/to/video.mp4')})
+  // send url
+  telegraf.sendAudio('chatId', {
+    url: 'http://lorempixel.com/image_output/cats-q-c-640-480-7.jpg'
+  })
 
-  // resend existing file
-  telegraf.sendSticker('chatId', '123123jkbhj6b')
 ```
 
 <sub>[Related Telegram api docs](https://core.telegram.org/bots/api#file)</sub>

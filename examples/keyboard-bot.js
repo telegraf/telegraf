@@ -11,6 +11,9 @@ telegraf.on('text', function * () {
       ]]
     }
   })
+   yield this.replyWithPhoto({
+    source: '/Users/dotcypress/projects/github/telegraf/test.jpeg'
+  })
 })
 
 telegraf.on('callback_query', function * () {

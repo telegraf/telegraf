@@ -641,7 +641,7 @@ Example:
   })
 
   // send url
-  telegraf.sendAudio('chatId', {
+  telegraf.sendPhoto('chatId', {
     url: 'http://lorempixel.com/image_output/cats-q-c-640-480-7.jpg'
   })
 ```

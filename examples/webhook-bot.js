@@ -6,6 +6,7 @@ var telegraf = new Telegraf(process.env.BOT_TOKEN)
 telegraf.setWebHook('https://--------.localtunnel.me/secret-path', {content: 'webhook.pem'})
 
 // Start https webhook
+// FYI: First non-file reply will be served via webhook response
 telegraf.startWebHook('/secret-path', null, 3000)
 
 telegraf.on('text', function * () {
@@ -20,6 +21,9 @@ telegraf.on('text', function * () {
 })
 
 telegraf.on('callback_query', function * () {
+  // Will be sent via webhook, cause this is first reply
   yield this.answerCallbackQuery()
+
+  // Will be sent via api request
   yield this.reply(`Oh, ${this.callbackQuery.data}! Great choise`)
 })

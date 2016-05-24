@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "description": "📢 Modern Telegram bot framework",
   "main": "lib/telegraf.js",
   "repository": {
@@ -28,7 +28,9 @@
     "node": ">=4.4.4"
   },
   "files": [
+    "api.md",
     "lib/telegraf.js",
+    "lib/telegram-api.js",
     "lib/constants.js",
     "lib/memory-session.js"
   ],
@@ -36,6 +38,7 @@
     "test": "mocha test"
   },
   "dependencies": {
+    "bluebird": "^3.4.0",
     "co-ware": "^1.6.0",
     "debug": "^2.2.0",
     "is-stream": "^1.1.0",

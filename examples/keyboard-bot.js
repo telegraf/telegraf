@@ -1,5 +1,4 @@
 var Telegraf = require('../lib/telegraf')
-
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
 telegraf.on('text', function * () {

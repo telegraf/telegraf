@@ -3,15 +3,15 @@ var Telegraf = require('../lib/telegraf')
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
 telegraf.on('text', function * () {
-  yield this.reply('Coke or Pepsi?', {
-    reply_markup: {
-      inline_keyboard: [[
-        { text: 'Coke', callback_data: 'Coke' },
-        { text: 'Pepsi', callback_data: 'Pepsi' }
-      ]]
-    }
-  })
-   yield this.replyWithPhoto({
+  // yield this.reply('Coke or Pepsi?', {
+  //   reply_markup: {
+  //     inline_keyboard: [[
+  //       { text: 'Coke', callback_data: 'Coke' },
+  //       { text: 'Pepsi', callback_data: 'Pepsi' }
+  //     ]]
+  //   }
+  // })
+  yield this.replyWithPhoto({
     source: '/Users/dotcypress/projects/github/telegraf/test.jpeg'
   })
 })

@@ -11,10 +11,9 @@
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
-- Middleware support([Community middlewares on npm](https://www.npmjs.com/search?q=telegraf-))
-- HTTP/HTTPS webhooks
-- Connect/express.js webhooks
-- Reply via webhook connection
+- [Middlewares](https://www.npmjs.com/search?q=telegraf-)
+- http/https/Connect/express.js webhooks
+- Reply via webhook
 
 ## Installation
 

@@ -11,7 +11,7 @@
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
-- [Middlewares](https://www.npmjs.com/search?q=telegraf-)
+- [Middlewares, middlewares everywhere](https://www.npmjs.com/search?q=telegraf-)
 - http/https/Connect/express.js webhooks
 - Reply via webhook
 
@@ -184,7 +184,6 @@ telegraf.on('text', function * (){
 
 **Important: For production environment use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
 
-
 ### Telegram WebHook
 
 ```js
@@ -193,11 +192,12 @@ var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
 // TLS options
 var tlsOptions = {
-  key: fs.readFileSync('server-key.pem'),
+  key:  fs.readFileSync('server-key.pem'),
   cert: fs.readFileSync('server-cert.pem'),
-  // This is necessary only if the client 
-  // uses the self-signed certificate.
-  ca: [ fs.readFileSync('client-cert.pem') ]
+  ca: [ 
+    // This is necessary only if the client uses the self-signed certificate.
+    fs.readFileSync('client-cert.pem') 
+  ]
 }
 
 // Set telegram webhook

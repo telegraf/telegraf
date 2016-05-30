@@ -15,6 +15,7 @@
   - [`.editMessageReplyMarkup(chatId, messageId, markup, extra)`](#editmessagereplymarkup)
   - [`.editMessageText(chatId, messageId, text, extra)`](#editmessagetext)
   - [`.forwardMessage(chatId, fromChatId, messageId, extra)`](#forwardmessage)
+  - [`.sendCopy(chatId, message, extra)`](#sendcopy)
   - [`.getChat(chatId)`](#getchat)
   - [`.getChatAdministrators(chatId)`](#getchatadministrators)
   - [`.getChatMember(chatId, userId)`](#getchatmember)
@@ -161,10 +162,24 @@ Forwards message.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number`\|`string` | Source Chat id |
-| fromChatId | `number`\|`string` | Target Chat id |
+| chatId | `number`\|`string` | Target Chat id |
+| fromChatId | `number`\|`string` | Source Chat id |
 | messageId | `number` | Message id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#forwardmessage)|
+
+
+* * *
+
+<a name="sendcopy"></a>
+#### `telegraf.sendCopy(chatId, message, extra) => Promise`
+
+Sends message copy.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Target Chat id |
+| message | `object` | Message |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
 
 * * *
 
@@ -631,8 +646,7 @@ Example:
 
    // send stream
   telegraf.sendVideo('chatId', {
-    source: fs.createReadStream('/path/to/video.mp4'),
-    filename: 'kitten.mp4'
+    source: fs.createReadStream('/path/to/video.mp4')
   })
   
   // send buffer
@@ -641,8 +655,9 @@ Example:
   })
 
   // send url
-  telegraf.sendAudio('chatId', {
-    url: 'http://lorempixel.com/image_output/cats-q-c-640-480-7.jpg'
+  telegraf.sendPhoto('chatId', {
+    url: 'http://lorempixel.com/400/200/cats/',
+    filename: 'kitten.jpg'
   })
 ```
 

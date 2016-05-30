@@ -3,6 +3,7 @@ var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
 telegraf.on('text', function * () {
   yield this.reply('Coke or Pepsi?', {
+    parse_mode: 'HTML',
     reply_markup: {
       inline_keyboard: [[
         { text: 'Coke', callback_data: 'Coke' },
@@ -13,8 +14,7 @@ telegraf.on('text', function * () {
 })
 
 telegraf.on('callback_query', function * () {
-  yield this.answerCallbackQuery()
-  yield this.reply(`Oh, ${this.callbackQuery.data}! Great choise`)
+  yield this.answerCallbackQuery(`Oh, ${this.callbackQuery.data}! Great choise`, true)
 })
 
 telegraf.startPolling()

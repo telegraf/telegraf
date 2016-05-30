@@ -42,6 +42,7 @@
     "co-ware": "^1.6.0",
     "debug": "^2.2.0",
     "is-stream": "^1.1.0",
+    "lodash": "^4.13.1",
     "multipart-stream": "^2.0.1",
     "node-fetch": "^1.5.1"
   },

@@ -31,7 +31,7 @@
     "api.md",
     "lib/telegraf.js",
     "lib/telegram-api.js",
-    "lib/constants.js",
+    "lib/platform.js",
     "lib/memory-session.js"
   ],
   "scripts": {

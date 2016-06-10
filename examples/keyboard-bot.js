@@ -2,8 +2,7 @@ var Telegraf = require('../lib/telegraf')
 var telegraf = new Telegraf(process.env.BOT_TOKEN)
 
 telegraf.on('text', function * () {
-  yield this.reply('Coke or Pepsi?', {
-    parse_mode: 'HTML',
+  yield this.replyWithHTML('<b>Coke</b> or <i>Pepsi?</i>', {
     reply_markup: {
       inline_keyboard: [[
         { text: 'Coke', callback_data: 'Coke' },

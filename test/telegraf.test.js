@@ -40,6 +40,8 @@ describe('Telegraf', function () {
       app.on('message', function * () {
         this.should.have.property('reply')
         this.should.have.property('replyWithPhoto')
+        this.should.have.property('replyWithMarkdown')
+        this.should.have.property('replyWithHTML')
         this.should.have.property('replyWithAudio')
         this.should.have.property('replyWithDocument')
         this.should.have.property('replyWithSticker')
@@ -64,6 +66,8 @@ describe('Telegraf', function () {
       app.on('callback_query', function * () {
         this.should.have.property('answerCallbackQuery')
         this.should.have.property('reply')
+        this.should.have.property('replyWithMarkdown')
+        this.should.have.property('replyWithHTML')
         this.should.have.property('replyWithPhoto')
         this.should.have.property('replyWithAudio')
         this.should.have.property('replyWithDocument')

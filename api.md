@@ -52,25 +52,25 @@
 ***
 
 <a name="mount"></a>
-#### `Telegraf.mount(updateType, handler, [handler...]) => GeneratorFunction`
+#### `Telegraf.mount(updateType, handler, [handler...]) => function`
 
 Generates middleware for handling provided [update type](#update-types).
 
 | Param | Type | Description |
 | --- | --- | --- |
 | updateType | `string`\|`string[]` | [update type](#update-types) |
-| handler | `GeneratorFunction` | Handler |
+| handler | `function` | Handler |
 
 * * *
 
 <a name="compose"></a>
-#### `Telegraf.compose(handlers) => GeneratorFunction`
+#### `Telegraf.compose(handlers) => function`
 
 Compose `middleware` returning a fully valid middleware comprised of all those which are passed.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| handlers | `GeneratorFunction[]` | Array of handlers |
+| handlers | `function[]` | Array of handlers |
 
 * * *
 
@@ -305,7 +305,7 @@ Registers handler only for `text` updates using string pattern or RegEx.
 | Param | Type | Description |
 | --- | --- | --- |
 | pattern | `string`\|`RegEx` | Pattern or RegEx |
-| handler | `GeneratorFunction` | Handler |
+| handler | `function` | Handler |
 
 * * *
 
@@ -345,7 +345,7 @@ Registers handler for provided [update type](#update-types).
 | Param | Type | Description |
 | --- | --- | --- |
 | updateType | `string`\|`string[]` | [update type](#update-types) |
-| handler | `GeneratorFunction` | Handler |
+| handler | `function` | Handler |
 
 * * *
 
@@ -604,14 +604,14 @@ Available update sub-types:
 ```js
 
 // Handle message update
-telegraf.on('message', function * () {
-  this.reply('Hey there!')
+telegraf.on('message', (ctx) =>  {
+  return ctx.reply('Hey there!')
 })
 
 // Handle sticker update
-telegraf.on(['sticker', 'photo'], function * () {
-  console.log(this.message)
-  this.reply('Cool!')
+telegraf.on(['sticker', 'photo'], (ctx) =>  {
+  console.log(ctx.message)
+  return ctx.reply('Cool!')
 })
 
 ```
@@ -631,7 +631,7 @@ Supported file sources:
 
 Also you can provide optional name of file as `filename`. 
 
-*FYI: Telegram servers detect content type using file extension(May 2016).*
+*FYI: Telegram servers detect content type using file extension (May 2016).*
 
 Example:
 ```js
@@ -667,85 +667,85 @@ Example:
 
 Available shortcuts for **message** update:
 
-- `this.getChat() -> `[`telegraf.getChat()`](#getchat)
-- `this.getChatAdministrators() -> `[`telegraf.getChatAdministrators()`](#getchatadministrators)
-- `this.getChatMember() -> `[`telegraf.getChatMember()`](#getchatmember)
-- `this.getChatMembersCount() -> `[`telegraf.getChatMembersCount()`](#getchatmemberscount)
-- `this.leaveChat() -> `[`telegraf.leaveChat()`](#leavechat)
-- `this.reply() -> `[`telegraf.sendMessage()`](#sendmessage)
-- `this.replyWithMarkdown() -> `[`telegraf.sendMessage()`](#sendmessage)
-- `this.replyWithHTML() -> `[`telegraf.sendMessage()`](#sendmessage)
-- `this.replyWithAudio() -> `[`telegraf.sendAudio()`](#sendaudio)
-- `this.replyWithChatAction() -> `[`telegraf.sendChatAction()`](#sendchataction)
-- `this.replyWithDocument() -> `[`telegraf.sendDocument()`](#senddocument)
-- `this.replyWithLocation() -> `[`telegraf.sendLocation()`](#sendlocation)
-- `this.replyWithPhoto() -> `[`telegraf.sendPhoto()`](#sendphoto)
-- `this.replyWithSticker() -> `[`telegraf.sendSticker()`](#sendsticker)
-- `this.replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
-- `this.replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
+- `ctx.getChat() -> `[`telegraf.getChat()`](#getchat)
+- `ctx.getChatAdministrators() -> `[`telegraf.getChatAdministrators()`](#getchatadministrators)
+- `ctx.getChatMember() -> `[`telegraf.getChatMember()`](#getchatmember)
+- `ctx.getChatMembersCount() -> `[`telegraf.getChatMembersCount()`](#getchatmemberscount)
+- `ctx.leaveChat() -> `[`telegraf.leaveChat()`](#leavechat)
+- `ctx.reply() -> `[`telegraf.sendMessage()`](#sendmessage)
+- `ctx.replyWithMarkdown() -> `[`telegraf.sendMessage()`](#sendmessage)
+- `ctx.replyWithHTML() -> `[`telegraf.sendMessage()`](#sendmessage)
+- `ctx.replyWithAudio() -> `[`telegraf.sendAudio()`](#sendaudio)
+- `ctx.replyWithChatAction() -> `[`telegraf.sendChatAction()`](#sendchataction)
+- `ctx.replyWithDocument() -> `[`telegraf.sendDocument()`](#senddocument)
+- `ctx.replyWithLocation() -> `[`telegraf.sendLocation()`](#sendlocation)
+- `ctx.replyWithPhoto() -> `[`telegraf.sendPhoto()`](#sendphoto)
+- `ctx.replyWithSticker() -> `[`telegraf.sendSticker()`](#sendsticker)
+- `ctx.replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
+- `ctx.replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
 
 Available shortcuts for **callback_query** update:
 
-- `this.answerCallbackQuery() -> `[`telegraf.answerCallbackQuery()`](#answercallbackquery)
-- `this.getChat() -> `[`telegraf.getChat()`](#getchat)
-- `this.getChatAdministrators() -> `[`telegraf.getChatAdministrators()`](#getchatadministrators)
-- `this.getChatMember() -> `[`telegraf.getChatMember()`](#getchatmember)
-- `this.getChatMembersCount() -> `[`telegraf.getChatMembersCount()`](#getchatmemberscount)
-- `this.leaveChat() -> `[`telegraf.leaveChat()`](#leavechat)
-- `this.reply() -> `[`telegraf.sendMessage()`](#sendmessage)
-- `this.replyWithMarkdown() -> `[`telegraf.sendMessage()`](#sendmessage)
-- `this.replyWithHTML() -> `[`telegraf.sendMessage()`](#sendmessage)
-- `this.replyWithAudio() -> `[`telegraf.sendAudio()`](#sendaudio)
-- `this.replyWithChatAction() -> `[`telegraf.sendChatAction()`](#sendchataction)
-- `this.replyWithDocument() -> `[`telegraf.sendDocument()`](#senddocument)
-- `this.replyWithLocation() -> `[`telegraf.sendLocation()`](#sendlocation)
-- `this.replyWithPhoto() -> `[`telegraf.sendPhoto()`](#sendphoto)
-- `this.replyWithSticker() -> `[`telegraf.sendSticker()`](#sendsticker)
-- `this.replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
-- `this.replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
+- `ctx.answerCallbackQuery() -> `[`telegraf.answerCallbackQuery()`](#answercallbackquery)
+- `ctx.getChat() -> `[`telegraf.getChat()`](#getchat)
+- `ctx.getChatAdministrators() -> `[`telegraf.getChatAdministrators()`](#getchatadministrators)
+- `ctx.getChatMember() -> `[`telegraf.getChatMember()`](#getchatmember)
+- `ctx.getChatMembersCount() -> `[`telegraf.getChatMembersCount()`](#getchatmemberscount)
+- `ctx.leaveChat() -> `[`telegraf.leaveChat()`](#leavechat)
+- `ctx.reply() -> `[`telegraf.sendMessage()`](#sendmessage)
+- `ctx.replyWithMarkdown() -> `[`telegraf.sendMessage()`](#sendmessage)
+- `ctx.replyWithHTML() -> `[`telegraf.sendMessage()`](#sendmessage)
+- `ctx.replyWithAudio() -> `[`telegraf.sendAudio()`](#sendaudio)
+- `ctx.replyWithChatAction() -> `[`telegraf.sendChatAction()`](#sendchataction)
+- `ctx.replyWithDocument() -> `[`telegraf.sendDocument()`](#senddocument)
+- `ctx.replyWithLocation() -> `[`telegraf.sendLocation()`](#sendlocation)
+- `ctx.replyWithPhoto() -> `[`telegraf.sendPhoto()`](#sendphoto)
+- `ctx.replyWithSticker() -> `[`telegraf.sendSticker()`](#sendsticker)
+- `ctx.replyWithVideo() -> `[`telegraf.sendVideo()`](#sendvideo)
+- `ctx.replyWithVoice() -> `[`telegraf.sendVoice()`](#sendvoice)
 
 Available shortcuts for **inline_query** update:
 
-- `this.answerInlineQuery() -> `[`telegraf.answerInlineQuery()`](#answerinlinequery)
+- `ctx.answerInlineQuery() -> `[`telegraf.answerInlineQuery()`](#answerinlinequery)
 
 ### Examples
 
 ```js
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
+var bot = new Telegraf(process.env.BOT_TOKEN)
 
-telegraf.on('text', function * (){
+bot.on('text', (ctx) => {
   // Simple usage 
-  telegraf.sendMessage(this.message.chat.id, `Hello ${this.state.role}`)
+  bot.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`)
   
   // Using shortcut
-  this.reply(`Hello ${this.state.role}`)
+  ctx.reply(`Hello ${ctx.state.role}`)
 
   // If you want to mark message as reply to source message
-  this.reply(`Hello ${this.state.role}`, { reply_to_message_id: this.message.id })
+  ctx.reply(`Hello ${ctx.state.role}`, { reply_to_message_id: ctx.message.id })
 })
 
-telegraf.on('/quit', function * (){
+bot.on('/quit', (ctx) => {
   // Simple usage 
-  telegraf.leaveChat(this.message.chat.id)
+  bot.leaveChat(ctx.message.chat.id)
   
   // Using shortcut
-  this.leaveChat()
+  ctx.leaveChat()
 })
 
-telegraf.on('callback_query', function * (){
+bot.on('callback_query', (ctx) => {
   // Simple usage 
-  telegraf.answerCallbackQuery(this.callbackQuery.id)
+  bot.answerCallbackQuery(ctx.callbackQuery.id)
   
   // Using shortcut
-  this.answerCallbackQuery()
+  ctx.answerCallbackQuery()
 })
 
-telegraf.on('inline_query', function * (){
+bot.on('inline_query', (ctx) => {
   var result = []
   // Simple usage 
-  telegraf.answerInlineQuery(this.inlineQuery.id, result)
+  bot.answerInlineQuery(ctx.inlineQuery.id, result)
   
   // Using shortcut
-  this.answerInlineQuery(result)
+  ctx.answerInlineQuery(result)
 })
 ```

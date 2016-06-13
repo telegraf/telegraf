@@ -1,12 +1,12 @@
-var Telegraf = require('../lib/telegraf')
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
+const Telegraf = require('../lib/telegraf')
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
-telegraf.on('message', function * () {
-  yield this.telegraf.sendCopy(this.from.id, this.message, {
+bot.on('message', (ctx) => {
+  return ctx.telegraf.sendCopy(ctx.from.id, ctx.message, {
     reply_markup: {
       inline_keyboard: [[{text: '❤️', url: 'http://telegraf.js.org'}]]
     }
   })
 })
 
-telegraf.startPolling()
+bot.startPolling()

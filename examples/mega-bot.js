@@ -1,52 +1,53 @@
-var Telegraf = require('../lib/telegraf')
+const Telegraf = require('../lib/telegraf')
 
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
-telegraf.use(Telegraf.memorySession())
+bot.use(Telegraf.memorySession())
 
 // Logger middleware
-var loggerMiddleware = function * (next) {
-  var start = new Date()
-  this.state.started = start
-  yield next
-  var ms = new Date() - start
-  console.log('time: %sms', ms)
-}
+bot.use((ctx, next) => {
+  const start = new Date()
+  return next().then(() => {
+    const ms = new Date() - start
+    console.log('response time %sms', ms)
+  })
+})
 
-telegraf.use(loggerMiddleware)
-
-// Sample middleware
-var sayYoMiddleware = function * (next) {
-  yield this.reply('yo')
-  yield next
+const sayYoMiddleware = (ctx, next) => {
+  return ctx.reply('yo').then(() => {
+    return next()
+  })
 }
 
 // Random advice on some text messages
-telegraf.on('text', function * (next) {
+bot.on('text', (ctx, next) => {
   if (Math.random() > 0.5) {
-    yield this.reply('Highly advised to visit:')
-    yield this.replyWithLocation((Math.random() * 180) - 90, (Math.random() * 180) - 90)
+    return Promise.all([
+      ctx.reply('Highly advised to visit:'),
+      ctx.replyWithLocation((Math.random() * 180) - 90, (Math.random() * 180) - 90),
+      next()
+    ])
   }
-  yield next
+  return next()
 })
 
 // Text messages handling
-telegraf.hears('Hey', sayYoMiddleware, function * () {
-  this.session.heyCounter = this.session.heyCounter || 0
-  this.session.heyCounter++
-  this.reply(`_Hey counter:_ ${this.session.heyCounter}`, {parse_mode: 'Markdown'})
+bot.hears('Hey', sayYoMiddleware, (ctx) => {
+  ctx.session.heyCounter = ctx.session.heyCounter || 0
+  ctx.session.heyCounter++
+  return ctx.reply(`_Hey counter:_ ${ctx.session.heyCounter}`, {parse_mode: 'Markdown'})
 })
 
 // Command handling
-telegraf.hears('/answer', sayYoMiddleware, function * () {
-  console.log(this.message)
-  this.reply('*42*', {parse_mode: 'Markdown'})
+bot.hears('/answer', sayYoMiddleware, (ctx) => {
+  console.log(ctx.message)
+  return ctx.reply('*42*', {parse_mode: 'Markdown'})
 })
 
 // Wow! RegEx
-telegraf.hears(/reverse (.+)/, function * () {
-  this.reply(this.match[1].split('').reverse().join(''))
+bot.hears(/reverse (.+)/, (ctx) => {
+  return ctx.reply(ctx.match[1].split('').reverse().join(''))
 })
 
 // Start polling
-telegraf.startPolling()
+bot.startPolling()

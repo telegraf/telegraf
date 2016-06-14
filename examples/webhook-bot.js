@@ -1,16 +1,16 @@
-var Telegraf = require('../lib/telegraf')
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
+const Telegraf = require('../lib/telegraf')
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
 // Set telegram webhook
 // npm install -g localtunnel && lt --port 3000
-telegraf.setWebHook('https://--------.localtunnel.me/secret-path', {content: 'webhook.pem'})
+bot.setWebHook('https://--------.localtunnel.me/secret-path', {content: 'webhook.pem'})
 
 // Start https webhook
 // FYI: First non-file reply will be served via webhook response
-telegraf.startWebHook('/secret-path', null, 3000)
+bot.startWebHook('/secret-path', null, 3000)
 
-telegraf.on('text', function * () {
-  this.reply('Coke or Pepsi?', {
+bot.on('text', (ctx) => {
+  return ctx.reply('Coke or Pepsi?', {
     reply_markup: {
       inline_keyboard: [[
         { text: 'Coke', callback_data: 'Coke' },
@@ -20,10 +20,10 @@ telegraf.on('text', function * () {
   })
 })
 
-telegraf.on('callback_query', function * () {
+bot.on('callback_query', (ctx) => {
   // Will be sent via webhook, cause this is first reply
-  yield this.answerCallbackQuery()
+  ctx.answerCallbackQuery()
 
   // Will be sent via api request
-  yield this.reply(`Oh, ${this.callbackQuery.data}! Great choise`)
+  return ctx.reply(`Oh, ${ctx.callbackQuery.data}! Great choise`)
 })

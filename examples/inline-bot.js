@@ -3,7 +3,7 @@ const Telegraf = require('../lib/telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.on('inline_query', (ctx) => {
-  const query = this.inlineQuery.query || ''
+  const query = ctx.inlineQuery.query || ''
   const results = countries
     .filter((country) => country.name.toLowerCase().indexOf(query.toLowerCase()) !== -1)
     .map((country) => {

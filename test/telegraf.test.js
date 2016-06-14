@@ -22,7 +22,6 @@ describe('Telegraf', function () {
         var app = new Telegraf()
         app.on(test.type, (ctx) => {
           ctx.should.have.property(test.prop)
-          ctx.should.have.property('telegraf')
           ctx.should.have.property('updateType')
           ctx.should.have.property('updateSubType')
           ctx.should.have.property('chat')

@@ -24,40 +24,40 @@ $ npm install telegraf
 ## Example
   
 ```js
-var Telegraf = require('telegraf');
-var telegraf = new Telegraf(process.env.BOT_TOKEN);
+const Telegraf = require('telegraf')
+const app = new Telegraf(process.env.BOT_TOKEN)
 
 // Message handling
-telegraf.on('message', function * () {
-  this.reply('*42*', { parse_mode: 'Markdown' })
+app.on('message', (ctx) => {
+  return ctx.reply('*42*', { parse_mode: 'Markdown' })
 })
 
-telegraf.startPolling()
+app.startPolling()
 ```
 
 ### One more example
 
 ```js
-var Telegraf = require('telegraf');
-var telegraf = new Telegraf(process.env.BOT_TOKEN);
+const Telegraf = require('telegraf')
+
+const app = new Telegraf(process.env.BOT_TOKEN)
 
 // Look ma, middleware!
-var sayYoMiddleware = function * (next) {
-  yield this.reply('yo')
-  yield next
+const sayYoMiddleware = (ctx, next) => {
+  return ctx.reply('yo').then(next)
 }
 
 // Command handling
-telegraf.hears('/command', sayYoMiddleware, function * () {
-  this.reply('Sure')
+app.hears('/command', sayYoMiddleware, (ctx) => {
+  return ctx.reply('Sure')
 })
 
 // Wow! RegEx
-telegraf.hears(/reverse (.+)/, sayYoMiddleware, function * () {
-  this.reply(this.match[1].split('').reverse().join(''))
+app.hears(/reverse (.+)/, sayYoMiddleware, (ctx) => {
+  return ctx.reply(ctx.match[1].split('').reverse().join(''))
 })
 
-telegraf.startPolling()
+app.startPolling()
 ```
 
 There are some other [examples](/examples).
@@ -66,87 +66,62 @@ There are some other [examples](/examples).
 
 ### Application
 
-A Telegraf application is an object containing an array of middleware generator functions
-which are composed and executed in a stack-like manner upon request. Telegraf is similar to many
-other middleware systems that you may have encountered such as Koa, Ruby's Rack, Connect, and so on -
-however a key design decision was made to provide high level "sugar" at the otherwise low-level
-middleware layer. This improves interoperability, robustness, and makes writing middleware much
-more enjoyable. 
+A Telegraf application is an object containing an array of middlewares which are composed 
+and executed in a stack-like manner upon request. Is similar to many other middleware systems 
+that you may have encountered such as Koa, Ruby's Rack, Connect.
 
 ```js
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
+const app = new Telegraf(process.env.BOT_TOKEN)
 
-telegraf.on('text', function * (){
-  this.reply('Hello World')
+app.on('text', (ctx) => {
+  return ctx.reply('Hello World')
 })
 
-telegraf.startPolling()
-```
-
-### Cascading
-
-Telegraf middleware cascade in a more traditional way as you may be used to with similar tools -
-this was previously difficult to make user friendly with node's use of callbacks.
-However with generators we can achieve "true" middleware. Contrasting Connect's implementation which
-simply passes control through series of functions until one returns, Telegraf yields "downstream", then
-control flows back "upstream".
-
-The following example bot will reply with "Hello World", however first the message flows through
-the `logger` middleware to mark when the message has been received. When a middleware invokes `yield next`
-the function suspends and passes control to the next middleware defined. After there are no more
-middleware to execute downstream, the stack will unwind and each middleware is resumed to perform
-its upstream behaviour.
-
-```js
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
-
-// Logger middleware
-telegraf.use(function * (next){
-  var start = new Date
-  this.state.started = start
-  yield next
-  var ms = new Date - start
-  debug('response time %sms', ms)
-})
-
-telegraf.on('text', function * (){
-  this.reply('Hello World')
-})
+app.startPolling()
 ```
 
 ### Context
 
 A Telegraf Context encapsulates telegram message.
-Context is created per request, and is referenced in middleware as the receiver, or the this identifier, as shown in the following snippet:
+Context is created per request and contains following props:
 
 ```js
-telegraf.use(function * () {
-  this.telegraf             // Telegraf instance
-  this.updateType           // Update type(message, inline_query, etc.)
-  [this.updateSubType]      // Update subtype(text, sticker, audio, etc.)
-  [this.message]            // Received message
-  [this.editedMessage]      // Edited message
-  [this.inlineQuery]        // Received inline query
-  [this.chosenInlineResult] // Received inline query result
-  [this.callbackQuery]      // Received callback query
-  [this.chat]               // Current chat info
-  [this.from]               // Sender info
-  [this.match]              // Regex match (available only for `hears` handler)
+app.use((ctx) => {
+  ctx.telegram             // Telegram instance
+  ctx.updateType           // Update type(message, inline_query, etc.)
+  [ctx.updateSubType]      // Update subtype(text, sticker, audio, etc.)
+  [ctx.message]            // Received message
+  [ctx.editedMessage]      // Edited message
+  [ctx.inlineQuery]        // Received inline query
+  [ctx.chosenInlineResult] // Received inline query result
+  [ctx.callbackQuery]      // Received callback query
+  [ctx.chat]               // Current chat info
+  [ctx.from]               // Sender info
+  [ctx.match]              // Regex match (available only for `hears` handler)
 })
 ```
+[Context api docs](/api.md#context)
 
-The recommended way to extend application context.
+### Cascading
+
+Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram message,
+`next` is a function that is invoked to execute the downstream middleware. 
+It returns a Promise with a then function for running code after completion.
 
 ```js
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
+const app = new Telegraf(process.env.BOT_TOKEN)
 
-telegraf.context.db = {
-  getScores: function () { return 42 }
-}
+// Logger middleware
+app.use((ctx, next) => {
+  const start = new Date()
+  return next().then(() => {
+    const ms = new Date() - start
+    console.log('response time %sms', ms)
+  })
+})
 
-telegraf.on('text', function * (){
-  var scores = this.db.getScores(this.message.from.username)
-  this.reply(`${this.message.from.username}: ${score}`)
+app.on('text', (ctx) => {
+  return ctx.reply('Hello World')
 })
 ```
 
@@ -155,30 +130,30 @@ telegraf.on('text', function * (){
 The recommended namespace to share information between middlewares.
 
 ```js
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
+const app = new Telegraf(process.env.BOT_TOKEN)
 
-telegraf.use(function * (next) {
-  this.state.role = getUserRole(this.message) 
-  yield next
+app.use((ctx, next) => {
+  ctx.state.role = getUserRole(ctx.message) 
+  return next()
 })
 
-telegraf.on('text', function * (){
-  this.reply(`Hello ${this.state.role}`)
+app.on('text', (ctx) => {
+  return ctx.reply(`Hello ${ctx.state.role}`)
 })
 ```
 
 ### Session
 
 ```js
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
+const app = new Telegraf(process.env.BOT_TOKEN)
 
 // Session state will be lost on app restart
-telegraf.use(Telegraf.memorySession())
+app.use(Telegraf.memorySession())
 
-telegraf.on('text', function * (){
-  this.session.counter = this.session.counter || 0
-  this.session.counter++
-  this.reply(`Message counter:${this.session.counter}`)
+app.on('text', () => {
+  ctx.session.counter = ctx.session.counter || 0
+  ctx.session.counter++
+  return ctx.reply(`Message counter:${ctx.session.counter}`)
 })
 ```
 
@@ -188,10 +163,10 @@ telegraf.on('text', function * (){
 
 ```js
 
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
+const app = new Telegraf(process.env.BOT_TOKEN)
 
 // TLS options
-var tlsOptions = {
+const tlsOptions = {
   key:  fs.readFileSync('server-key.pem'),
   cert: fs.readFileSync('server-cert.pem'),
   ca: [ 
@@ -201,38 +176,38 @@ var tlsOptions = {
 }
 
 // Set telegram webhook
-telegraf.setWebHook('https://server.tld:8443/secret-path', {
+app.telegram.setWebHook('https://server.tld:8443/secret-path', {
   content: 'server-cert.pem'
 })
 
 // Start https webhook
-telegraf.startWebHook('/secret-path', tlsOptions, 8443)
+app.startWebHook('/secret-path', tlsOptions, 8443)
 
 
 // Http webhook, for nginx/heroku users.
-telegraf.startWebHook('/secret-path', null, 5000)
+app.startWebHook('/secret-path', null, 5000)
 
 
 // Use webHookCallback() if you want attach telegraf to existing http server
 require('http')
-  .createServer(telegraf.webHookCallback('/secret-path'))
+  .createServer(app.webHookCallback('/secret-path'))
   .listen(3000)
 
 require('https')
-  .createServer(tlsOptions, telegraf.webHookCallback('/secret-path'))
+  .createServer(tlsOptions, app.webHookCallback('/secret-path'))
   .listen(8443)
 
 // Connect/Express.js integration
-var express = require('express')
-var app = express()
+const express = require('express')
+const expressApp = express()
 
-app.use(telegraf.webHookCallback('/secret-path'))
+expressApp.use(app.webHookCallback('/secret-path'))
 
-app.get('/', function (req, res) {
+expressApp.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-app.listen(3000, function () {
+expressApp.listen(3000, () => {
   console.log('Example app listening on port 3000!')
 })
 
@@ -244,7 +219,7 @@ By default Telegraf will print all errors to stderr and rethrow error.
 To perform custom error-handling logic you can set `onError` handler:
 
 ```js
-telegraf.onError = function(err){
+telegraf.onError = (err) => {
   log.error('server error', err)
   throw err
 }

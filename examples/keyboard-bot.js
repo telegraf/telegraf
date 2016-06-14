@@ -1,8 +1,8 @@
-var Telegraf = require('../lib/telegraf')
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
+const Telegraf = require('../lib/telegraf')
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
-telegraf.on('text', function * () {
-  yield this.replyWithHTML('<b>Coke</b> or <i>Pepsi?</i>', {
+bot.on('text', (ctx) => {
+  return ctx.replyWithHTML('<b>Coke</b> or <i>Pepsi?</i>', {
     reply_markup: {
       inline_keyboard: [[
         { text: 'Coke', callback_data: 'Coke' },
@@ -12,8 +12,8 @@ telegraf.on('text', function * () {
   })
 })
 
-telegraf.on('callback_query', function * () {
-  yield this.answerCallbackQuery(`Oh, ${this.callbackQuery.data}! Great choise`, true)
+bot.on('callback_query', (ctx) => {
+  return ctx.answerCallbackQuery(`Oh, ${ctx.callbackQuery.data}! Great choise`, true)
 })
 
-telegraf.startPolling()
+bot.startPolling()

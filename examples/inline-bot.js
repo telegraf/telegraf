@@ -1,10 +1,10 @@
-var Telegraf = require('../lib/telegraf')
+const Telegraf = require('../lib/telegraf')
 
-var telegraf = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
-telegraf.on('inline_query', function * () {
-  var query = this.inlineQuery.query || ''
-  var results = countries
+bot.on('inline_query', (ctx) => {
+  const query = ctx.inlineQuery.query || ''
+  const results = countries
     .filter((country) => country.name.toLowerCase().indexOf(query.toLowerCase()) !== -1)
     .map((country) => {
       return {
@@ -18,12 +18,12 @@ telegraf.on('inline_query', function * () {
       }
     })
     .slice(0, 10)
-  yield this.answerInlineQuery(results)
+  return ctx.answerInlineQuery(results)
 })
 
-telegraf.startPolling()
+bot.startPolling()
 
-var countries = [
+const countries = [
   {name: 'Afghanistan', code: 'AF'},
   {name: 'Åland Islands', code: 'AX'},
   {name: 'Albania', code: 'AL'},

@@ -24,41 +24,40 @@ $ npm install telegraf
 ## Example
   
 ```js
-const Telegraf = require('telegraf');
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const Telegraf = require('telegraf')
+const app = new Telegraf(process.env.BOT_TOKEN)
 
 // Message handling
-bot.on('message', (ctx) => {
+app.on('message', (ctx) => {
   return ctx.reply('*42*', { parse_mode: 'Markdown' })
 })
 
-bot.startPolling()
+app.startPolling()
 ```
 
 ### One more example
 
 ```js
-const Telegraf = require('telegraf');
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const Telegraf = require('telegraf')
+
+const app = new Telegraf(process.env.BOT_TOKEN)
 
 // Look ma, middleware!
 const sayYoMiddleware = (ctx, next) => {
-  return ctx.reply('yo').then(() => {
-    return next()
-  })
+  return ctx.reply('yo').then(next)
 }
 
 // Command handling
-bot.hears('/command', sayYoMiddleware, (ctx) => {
+app.hears('/command', sayYoMiddleware, (ctx) => {
   return ctx.reply('Sure')
 })
 
 // Wow! RegEx
-bot.hears(/reverse (.+)/, sayYoMiddleware, (ctx) => {
+app.hears(/reverse (.+)/, sayYoMiddleware, (ctx) => {
   return ctx.reply(ctx.match[1].split('').reverse().join(''))
 })
 
-bot.startPolling()
+app.startPolling()
 ```
 
 There are some other [examples](/examples).
@@ -72,36 +71,13 @@ and executed in a stack-like manner upon request. Is similar to many other middl
 that you may have encountered such as Koa, Ruby's Rack, Connect.
 
 ```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const app = new Telegraf(process.env.BOT_TOKEN)
 
-bot.on('text', (ctx) => {
+app.on('text', (ctx) => {
   return ctx.reply('Hello World')
 })
 
-bot.startPolling()
-```
-
-### Cascading
-
-Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram message,
-`next` is a function that is invoked to execute the downstream middleware. 
-It returns a Promise with a then function for running code after completion.
-
-```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
-
-// Logger middleware
-bot.use((ctx, next) => {
-  const start = new Date()
-  return next().then(() => {
-    const ms = new Date() - start
-    console.log('response time %sms', ms)
-  })
-})
-
-bot.on('text', (ctx) => {
-  return ctx.reply('Hello World')
-})
+app.startPolling()
 ```
 
 ### Context
@@ -110,8 +86,8 @@ A Telegraf Context encapsulates telegram message.
 Context is created per request and contains following props:
 
 ```js
-bot.use((ctx) => {
-  ctx.telegraf             // Telegraf instance
+app.use((ctx) => {
+  ctx.telegram             // Telegram instance
   ctx.updateType           // Update type(message, inline_query, etc.)
   [ctx.updateSubType]      // Update subtype(text, sticker, audio, etc.)
   [ctx.message]            // Received message
@@ -124,19 +100,28 @@ bot.use((ctx) => {
   [ctx.match]              // Regex match (available only for `hears` handler)
 })
 ```
+[Context api docs](/api.md#context)
 
-The recommended way to extend application context.
+### Cascading
+
+Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram message,
+`next` is a function that is invoked to execute the downstream middleware. 
+It returns a Promise with a then function for running code after completion.
 
 ```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const app = new Telegraf(process.env.BOT_TOKEN)
 
-bot.context.db = {
-  getScores: () => { return 42 }
-}
+// Logger middleware
+app.use((ctx, next) => {
+  const start = new Date()
+  return next().then(() => {
+    const ms = new Date() - start
+    console.log('response time %sms', ms)
+  })
+})
 
-bot.on('text', (ctx) => {
-  const scores = ctx.db.getScores(ctx.message.from.username)
-  return ctx.reply(`${ctx.message.from.username}: ${score}`)
+app.on('text', (ctx) => {
+  return ctx.reply('Hello World')
 })
 ```
 
@@ -145,14 +130,14 @@ bot.on('text', (ctx) => {
 The recommended namespace to share information between middlewares.
 
 ```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const app = new Telegraf(process.env.BOT_TOKEN)
 
-bot.use((ctx, next) => {
+app.use((ctx, next) => {
   ctx.state.role = getUserRole(ctx.message) 
   return next()
 })
 
-bot.on('text', (ctx) => {
+app.on('text', (ctx) => {
   return ctx.reply(`Hello ${ctx.state.role}`)
 })
 ```
@@ -160,12 +145,12 @@ bot.on('text', (ctx) => {
 ### Session
 
 ```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const app = new Telegraf(process.env.BOT_TOKEN)
 
 // Session state will be lost on app restart
-bot.use(Telegraf.memorySession())
+app.use(Telegraf.memorySession())
 
-bot.on('text', () => {
+app.on('text', () => {
   ctx.session.counter = ctx.session.counter || 0
   ctx.session.counter++
   return ctx.reply(`Message counter:${ctx.session.counter}`)
@@ -178,7 +163,7 @@ bot.on('text', () => {
 
 ```js
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const app = new Telegraf(process.env.BOT_TOKEN)
 
 // TLS options
 const tlsOptions = {
@@ -191,38 +176,38 @@ const tlsOptions = {
 }
 
 // Set telegram webhook
-bot.setWebHook('https://server.tld:8443/secret-path', {
+app.telegram.setWebHook('https://server.tld:8443/secret-path', {
   content: 'server-cert.pem'
 })
 
 // Start https webhook
-bot.startWebHook('/secret-path', tlsOptions, 8443)
+app.startWebHook('/secret-path', tlsOptions, 8443)
 
 
 // Http webhook, for nginx/heroku users.
-bot.startWebHook('/secret-path', null, 5000)
+app.startWebHook('/secret-path', null, 5000)
 
 
 // Use webHookCallback() if you want attach telegraf to existing http server
 require('http')
-  .createServer(bot.webHookCallback('/secret-path'))
+  .createServer(app.webHookCallback('/secret-path'))
   .listen(3000)
 
 require('https')
-  .createServer(tlsOptions, bot.webHookCallback('/secret-path'))
+  .createServer(tlsOptions, app.webHookCallback('/secret-path'))
   .listen(8443)
 
 // Connect/Express.js integration
 const express = require('express')
-const app = express()
+const expressApp = express()
 
-app.use(bot.webHookCallback('/secret-path'))
+expressApp.use(app.webHookCallback('/secret-path'))
 
-app.get('/', (req, res) => {
+expressApp.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-app.listen(3000, () => {
+expressApp.listen(3000, () => {
   console.log('Example app listening on port 3000!')
 })
 

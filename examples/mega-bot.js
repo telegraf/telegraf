@@ -14,9 +14,7 @@ bot.use((ctx, next) => {
 })
 
 const sayYoMiddleware = (ctx, next) => {
-  return ctx.reply('yo').then(() => {
-    return next()
-  })
+  return ctx.reply('yo').then(next)
 }
 
 // Random advice on some text messages

@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/telegraf/telegraf#readme",
   "engines": {
-    "node": ">=4.4.4"
+    "node": ">=6.2.0"
   },
   "files": [
     "api.md",

@@ -111,6 +111,31 @@ describe('Telegraf', function () {
       })
       app.handleUpdate({message: baseMessage})
     })
+
+    it('should use context extensions', function (done) {
+      var app = new Telegraf()
+      app.context.db = {
+        getUser: () => undefined
+      }
+      app.on('message', (ctx) => {
+        ctx.should.have.property('db')
+        ctx.db.should.have.property('getUser')
+        done()
+      })
+      app.handleUpdate({message: baseMessage})
+    })
+
+    it('should handle webhook response', function (done) {
+      var app = new Telegraf()
+      app.on('message', (ctx) => {
+        ctx.reply(':)')
+      })
+      const res = {
+        setHeader: () => done(),
+        end: () => undefined
+      }
+      app.handleUpdate({message: baseMessage}, res)
+    })
   })
 
   describe('routing', function () {

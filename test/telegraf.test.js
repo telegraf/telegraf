@@ -101,10 +101,10 @@ describe('Telegraf', function () {
       var app = new Telegraf()
       app.on('message', (ctx, next) => {
         ctx.state.answer = 41
-        return next
+        return next()
       }, (ctx, next) => {
         ctx.state.answer++
-        return next
+        return next()
       }, (ctx) => {
         ctx.state.answer.should.be.equal(42)
         done()

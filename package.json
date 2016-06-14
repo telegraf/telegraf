@@ -31,6 +31,7 @@
     "api.md",
     "lib/telegraf.js",
     "lib/telegram-api.js",
+    "lib/context.js",
     "lib/platform.js",
     "lib/memory-session.js"
   ],

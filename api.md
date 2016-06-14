@@ -6,7 +6,7 @@
 
 ## Telegraf API
 
-- [`Telegraf.mount(messageType, handler, [handler...])`](#mount)
+- [`Telegraf.mount(messageType, handler)`](#mount)
 - [`Telegraf.compose(handlers)`](#compose)
 - [`new Telegraf(token)`](#new)
   - [`.answerCallbackQuery(callbackQueryId, text, showAlert)`](#answercallbackquery)
@@ -52,7 +52,7 @@
 ***
 
 <a name="mount"></a>
-#### `Telegraf.mount(updateType, handler, [handler...]) => function`
+#### `Telegraf.mount(updateType, handler) => function`
 
 Generates middleware for handling provided [update type](#update-types).
 

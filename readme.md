@@ -48,7 +48,7 @@ const sayYoMiddleware = (ctx, next) => {
 }
 
 // Command handling
-app.hears('/command', sayYoMiddleware, (ctx) => {
+app.command('/command', sayYoMiddleware, (ctx) => {
   return ctx.reply('Sure')
 })
 

@@ -132,12 +132,14 @@ bot.on('inline_query', (ctx) => {
 const Telegraf = require('telegraf')
 ```
 
-- [`Telegraf.mount(messageType, handler)`](#mount)
-- [`Telegraf.compose(handlers)`](#compose)
+- [`Telegraf.compose(middlewares)`](#compose)
+- [`Telegraf.mount(updateTypes, middleware)`](#mount)
+- [`Telegraf.hears(triggers, middleware)`](#hears-generator)
 - [`new Telegraf(token)`](#new-telegraf)
-  - [`.use(function)`](#use)
-  - [`.on(messageType, handler, [handler...])`](#on)
-  - [`.hears(string|ReGex, handler, [handler...])`](#hears)
+  - [`.use(middleware)`](#use)
+  - [`.on(updateTypes, middleware, [middleware...])`](#on)
+  - [`.hears(triggers, middleware, [middleware...])`](#hears)
+  - [`.command(commands, middleware, [middleware...])`](#command)
   - [`.startPolling(timeout, limit)`](#startPolling)
   - [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
   - [`.stop()`](#stop)
@@ -146,26 +148,37 @@ const Telegraf = require('telegraf')
 
 * * *
 
-<a name="mount"></a>
-#### `Telegraf.mount(updateType, handler) => function`
+<a name="compose"></a>
+#### `Telegraf.compose(middlewares) => function`
 
-Generates middleware for handling provided [update type](#update-types).
+Compose `middlewares` returning a fully valid middleware comprised of all those which are passed.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| updateType | `string`\|`string[]` | [update type](#update-types) |
-| handler | `function` | Handler |
+| middlewares | `function[]` | Array of middlewares |
+* * *
+
+<a name="mount"></a>
+#### `Telegraf.mount(updateTypes, middleware) => function`
+
+Generates middleware for handling provided [update types](#update-types).
+
+| Param | Type | Description |
+| --- | --- | --- |
+| updateTypes | `string`\|`string[]` | [update type](#update-types) |
+| middleware | `function` | middleware |
 
 * * *
 
-<a name="compose"></a>
-#### `Telegraf.compose(handlers) => function`
+<a name="hears-generator"></a>
+#### `Telegraf.hears(triggers, middleware) => function`
 
-Compose `middleware` returning a fully valid middleware comprised of all those which are passed.
+Generates middleware for handling `text` messages with regular expressions.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| handlers | `function[]` | Array of handlers |
+| triggers | `string[]`\|`RegEx[]` | Triggers |
+| handler | `function` | Handler |
 
 * * *
 
@@ -192,26 +205,33 @@ Registers a middleware.
 * * *
 
 <a name="on"></a>
-#### `telegraf.on(updateType, handler, [handler...])`
+#### `telegraf.on(updateTypes, middleware, [middleware...])`
 
-Registers handler for provided [update type](#update-types).
+Registers middleware for provided [update type](#update-types).
 
 | Param | Type | Description |
 | --- | --- | --- |
-| updateType | `string`\|`string[]` | [update type](#update-types) |
-| handler | `function` | Handler |
+| updateTypes | `string`\|`string[]` | [update type](#update-types) |
+| middleware | `function` | Middleware |
 
 * * *
 
 <a name="hears"></a>
-#### `telegraf.hears(pattern, handler, [handler...])`
+#### `telegraf.hears(triggers, middleware, [middleware...])`
 
-Registers handler only for `text` updates using string pattern or RegEx.
+Registers middleware for handling `text` messages with regular expressions.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| pattern | `string`\|`RegEx` | Pattern or RegEx |
-| handler | `function` | Handler |
+| triggers | `string[]`\|`RegEx[]` | Triggers |
+| middleware | `function` | Middleware |
+
+* * *
+
+<a name="command"></a>
+#### `telegraf.command(commands, middleware, [middleware...])`
+
+Shortcut for [`hears`](#hears)
 
 * * *
 

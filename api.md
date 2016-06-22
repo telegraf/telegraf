@@ -135,7 +135,7 @@ const Telegraf = require('telegraf')
 - [`Telegraf.compose(middlewares)`](#compose)
 - [`Telegraf.mount(updateTypes, middleware)`](#mount)
 - [`Telegraf.hears(triggers, middleware)`](#hears-generator)
-- [`new Telegraf(token)`](#new-telegraf)
+- [`new Telegraf(token, [options])`](#new-telegraf)
   - [`.use(middleware)`](#use)
   - [`.on(updateTypes, middleware, [middleware...])`](#on)
   - [`.hears(triggers, middleware, [middleware...])`](#hears)
@@ -183,13 +183,14 @@ Generates middleware for handling `text` messages with regular expressions.
 * * *
 
 <a name="new-telegraf"></a>
-#### `new Telegraf(token)`
+#### `new Telegraf(token, options)`
 
 Initialize new Telegraf app.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | token | `string` | [Bot Token](https://core.telegram.org/bots#3-how-do-i-create-a-bot) |
+| options | `object` | Options
 
 * * *
 
@@ -340,7 +341,7 @@ Initialize new Telegraf app.
 | Param | Type | Description |
 | --- | --- | --- |
 | token | `string` | [Bot Token](https://core.telegram.org/bots#3-how-do-i-create-a-bot) |
-| token | `object` | Options |
+| options | `object` | Options |
 
  
 * * *

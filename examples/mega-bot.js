@@ -37,7 +37,7 @@ bot.hears('Hey', sayYoMiddleware, (ctx) => {
 })
 
 // Command handling
-bot.hears('/answer', sayYoMiddleware, (ctx) => {
+bot.command('/answer', sayYoMiddleware, (ctx) => {
   console.log(ctx.message)
   return ctx.reply('*42*', {parse_mode: 'Markdown'})
 })

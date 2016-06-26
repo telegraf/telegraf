@@ -1,7 +1,9 @@
 require('should')
-var Telegraf = require('../lib/telegraf')
+const Telegraf = require('../lib/telegraf')
+const SendOptions = Telegraf.SendOptions
+const ReplyMarkup = SendOptions.ReplyMarkup
 
-var baseMessage = {
+const baseMessage = {
   chat: {
     id: 1
   }
@@ -141,6 +143,7 @@ describe('Telegraf', function () {
   describe('routing', function () {
     var updateTypes = [
       { type: 'message', update: { message: baseMessage } },
+      { type: 'edited_message', update: { edited_message: baseMessage } },
       { type: 'callback_query', update: { callback_query: { message: baseMessage } } },
       { type: 'inline_query', update: { inline_query: {} } },
       { type: 'chosen_inline_result', update: { chosen_inline_result: {} } }
@@ -242,6 +245,159 @@ describe('Telegraf', function () {
       })
       app.handleUpdate({message: Object.assign({text: 'Ola!'}, baseMessage)})
       app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+    })
+  })
+
+  describe('Send options', function () {
+    it('should generate default options', function (done) {
+      var markup = Object.assign({}, SendOptions.load({parse_mode: 'LaTeX'}))
+      markup.should.deepEqual({parse_mode: 'LaTeX'})
+      done()
+    })
+
+    it('should generate inReplyTo options', function (done) {
+      var markup = Object.assign({}, SendOptions.inReplyTo(42))
+      markup.should.deepEqual({reply_to_message_id: 42})
+      done()
+    })
+
+    it('should generate HTML options', function (done) {
+      var markup = Object.assign({}, SendOptions.HTML())
+      markup.should.deepEqual({parse_mode: 'HTML'})
+      done()
+    })
+
+    it('should generate Markdown options', function (done) {
+      var markup = Object.assign({}, SendOptions.markdown())
+      markup.should.deepEqual({parse_mode: 'Markdown'})
+      done()
+    })
+
+    it('should generate notifications options', function (done) {
+      var markup = Object.assign({}, SendOptions.notifications(false))
+      markup.should.deepEqual({disable_notification: true})
+      done()
+    })
+
+    it('should generate web preview options', function (done) {
+      var markup = Object.assign({}, SendOptions.webPreview(false))
+      markup.should.deepEqual({disable_web_page_preview: true})
+      done()
+    })
+
+    it('should generate markup options', function (done) {
+      var markup = Object.assign({}, SendOptions.markdown().markup(ReplyMarkup.hideKeyboard()))
+      markup.should.deepEqual({parse_mode: 'Markdown', reply_markup: {hide_keyboard: true}})
+      done()
+    })
+
+    describe('Reply markup', function () {
+      it('should generate hideKeyboard markup', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.hideKeyboard())
+        markup.should.deepEqual({hide_keyboard: true})
+        done()
+      })
+
+      it('should generate forceReply markup', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.forceReply())
+        markup.should.deepEqual({force_reply: true})
+        done()
+      })
+
+      it('should generate resizeKeyboard markup', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.keyboard([]).resize())
+        markup.should.deepEqual({keyboard: [], resize_keyboard: true})
+        done()
+      })
+
+      it('should generate oneTimeKeyboard markup', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.keyboard([]).oneTime())
+        markup.should.deepEqual({keyboard: [], one_time_keyboard: true})
+        done()
+      })
+
+      it('should generate selective hide markup', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.hideKeyboard().selective())
+        markup.should.deepEqual({hide_keyboard: true, selective: true})
+        done()
+      })
+
+      it('should generate selective one time keyboard markup', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.keyboard().selective().oneTime())
+        markup.should.deepEqual({keyboard: [], selective: true, one_time_keyboard: true})
+        done()
+      })
+
+      it('should generate keyboard markup', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.keyboard([['one'], ['two', 'three']]))
+        markup.should.deepEqual({
+          keyboard: [
+            ['one'],
+            ['two', 'three']
+          ]
+        })
+        done()
+      })
+
+      it('should generate keyboard markup with default setting', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.keyboard(['one', 'two', 'three']))
+        markup.should.deepEqual({
+          keyboard: [
+            ['one'],
+            ['two'],
+            ['three']
+          ]
+        })
+        done()
+      })
+
+      it('should generate keyboard markup with options', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.keyboard(['one', 'two', 'three'], {columns: 3}))
+        markup.should.deepEqual({
+          keyboard: [
+            ['one', 'two', 'three']
+          ]
+        })
+        done()
+      })
+
+      it('should generate keyboard markup with custom columns', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.keyboard(['one', 'two', 'three', 'four'], {columns: 3}))
+        markup.should.deepEqual({
+          keyboard: [
+            ['one', 'two', 'three'],
+            ['four']
+          ]
+        })
+        done()
+      })
+
+      it('should generate keyboard markup with custom wrap fn', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.keyboard(['one', 'two', 'three', 'four'], {
+          wrap: (btn, index, currentRow) => index % 2 !== 0
+        }))
+        markup.should.deepEqual({
+          keyboard: [
+            ['one'],
+            ['two', 'three'],
+            ['four']
+          ]
+        })
+        done()
+      })
+
+      it('should generate keyboard markup with default setting', function (done) {
+        var markup = Object.assign({}, ReplyMarkup.inlineKeyboard(['one', 'two', 'three', 'four']))
+        markup.should.deepEqual({
+          inline_keyboard: [[
+            'one',
+            'two',
+            'three',
+            'four'
+          ]]
+        })
+        done()
+      })
     })
   })
 })

@@ -1,23 +1,23 @@
 const https = require('https')
 const Telegraf = require('../lib/telegraf')
 
-const bot = new Telegraf(process.env.BOT_TOKEN, {
+const replyOptions = {
+  reply_markup: {
+    inline_keyboard: [[{text: '❤️', url: 'http://telegraf.js.org'}]]
+  }
+}
+
+const telegrafOptions = {
   telegram: {
     agent: new https.Agent({
       keepAlive: true, // ✨ Magic here!
       keepAliveMsecs: 5000
     })
   }
-})
+}
 
-bot.telegram.removeWebHook()
+const bot = new Telegraf(process.env.BOT_TOKEN, telegrafOptions)
 
-bot.on(['text', 'sticker'], (ctx) => {
-  return ctx.telegram.sendCopy(ctx.from.id, ctx.message, {
-    reply_markup: {
-      inline_keyboard: [[{text: '❤️', url: 'http://telegraf.js.org'}]]
-    }
-  })
-})
+bot.on('message', (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message, replyOptions))
 
-bot.startPolling(10, 50, 50)
+bot.startPolling()

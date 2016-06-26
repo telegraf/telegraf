@@ -21,21 +21,16 @@
 $ npm install telegraf
 ```
 
-## Example
+## Examples
   
 ```js
 const Telegraf = require('telegraf')
-const app = new Telegraf(process.env.BOT_TOKEN)
 
-// Message handling
-app.on('message', (ctx) => {
-  return ctx.reply('*42*', { parse_mode: 'Markdown' })
-})
+const app = new Telegraf(process.env.BOT_TOKEN)
+app.on('message', (ctx) => ctx.replyWithMarkdown('*42*'))
 
 app.startPolling()
 ```
-
-### One more example
 
 ```js
 const Telegraf = require('telegraf')
@@ -69,16 +64,6 @@ There are some other [examples](/examples).
 A Telegraf application is an object containing an array of middlewares which are composed 
 and executed in a stack-like manner upon request. Is similar to many other middleware systems 
 that you may have encountered such as Koa, Ruby's Rack, Connect.
-
-```js
-const app = new Telegraf(process.env.BOT_TOKEN)
-
-app.on('text', (ctx) => {
-  return ctx.reply('Hello World')
-})
-
-app.startPolling()
-```
 
 ### Context
 

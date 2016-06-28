@@ -1,7 +1,7 @@
 require('should')
 const Telegraf = require('../lib/telegraf')
-const SendOptions = Telegraf.SendOptions
-const ReplyMarkup = SendOptions.ReplyMarkup
+const Extra = Telegraf.Extra
+const Markup = Extra.Markup
 
 const baseMessage = {
   chat: {
@@ -250,86 +250,92 @@ describe('Telegraf', function () {
 
   describe('Send options', function () {
     it('should generate default options', function (done) {
-      var markup = Object.assign({}, SendOptions.load({parse_mode: 'LaTeX'}))
+      var markup = Object.assign({}, Extra.load({parse_mode: 'LaTeX'}))
       markup.should.deepEqual({parse_mode: 'LaTeX'})
       done()
     })
 
     it('should generate inReplyTo options', function (done) {
-      var markup = Object.assign({}, SendOptions.inReplyTo(42))
+      var markup = Object.assign({}, Extra.inReplyTo(42))
       markup.should.deepEqual({reply_to_message_id: 42})
       done()
     })
 
     it('should generate HTML options', function (done) {
-      var markup = Object.assign({}, SendOptions.HTML())
+      var markup = Object.assign({}, Extra.HTML())
       markup.should.deepEqual({parse_mode: 'HTML'})
       done()
     })
 
     it('should generate Markdown options', function (done) {
-      var markup = Object.assign({}, SendOptions.markdown())
+      var markup = Object.assign({}, Extra.markdown())
       markup.should.deepEqual({parse_mode: 'Markdown'})
       done()
     })
 
     it('should generate notifications options', function (done) {
-      var markup = Object.assign({}, SendOptions.notifications(false))
+      var markup = Object.assign({}, Extra.notifications(false))
       markup.should.deepEqual({disable_notification: true})
       done()
     })
 
     it('should generate web preview options', function (done) {
-      var markup = Object.assign({}, SendOptions.webPreview(false))
+      var markup = Object.assign({}, Extra.webPreview(false))
       markup.should.deepEqual({disable_web_page_preview: true})
       done()
     })
 
     it('should generate markup options', function (done) {
-      var markup = Object.assign({}, SendOptions.markdown().markup(ReplyMarkup.hideKeyboard()))
+      var markup = Object.assign({}, Extra.markdown().markup(Markup.hideKeyboard()))
+      markup.should.deepEqual({parse_mode: 'Markdown', reply_markup: {hide_keyboard: true}})
+      done()
+    })
+
+    it('should generate markup options in functional style', function (done) {
+      var markup = Object.assign({}, Extra.markdown().markup((markup) => markup.hideKeyboard()))
       markup.should.deepEqual({parse_mode: 'Markdown', reply_markup: {hide_keyboard: true}})
       done()
     })
 
     describe('Reply markup', function () {
       it('should generate hideKeyboard markup', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.hideKeyboard())
+        var markup = Object.assign({}, Markup.hideKeyboard())
         markup.should.deepEqual({hide_keyboard: true})
         done()
       })
 
       it('should generate forceReply markup', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.forceReply())
+        var markup = Object.assign({}, Markup.forceReply())
         markup.should.deepEqual({force_reply: true})
         done()
       })
 
       it('should generate resizeKeyboard markup', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.keyboard([]).resize())
+        var markup = Object.assign({}, Markup.keyboard([]).resize())
         markup.should.deepEqual({resize_keyboard: true})
         done()
       })
 
       it('should generate oneTimeKeyboard markup', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.keyboard([]).oneTime())
+        var markup = Object.assign({}, Markup.keyboard([]).oneTime())
         markup.should.deepEqual({one_time_keyboard: true})
         done()
       })
 
       it('should generate selective hide markup', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.hideKeyboard().selective())
+        var markup = Object.assign({}, Markup.hideKeyboard().selective())
         markup.should.deepEqual({hide_keyboard: true, selective: true})
         done()
       })
 
       it('should generate selective one time keyboard markup', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.keyboard().selective().oneTime())
+        var markup = Object.assign({}, Markup.keyboard().selective().oneTime())
         markup.should.deepEqual({selective: true, one_time_keyboard: true})
         done()
       })
 
       it('should generate keyboard markup', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.keyboard([['one'], ['two', 'three']]))
+        var markup = Object.assign({}, Markup.keyboard([['one'], ['two', 'three']]))
         markup.should.deepEqual({
           keyboard: [
             ['one'],
@@ -340,7 +346,7 @@ describe('Telegraf', function () {
       })
 
       it('should generate keyboard markup with default setting', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.keyboard(['one', 'two', 'three']))
+        var markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three']))
         markup.should.deepEqual({
           keyboard: [
             ['one'],
@@ -352,7 +358,7 @@ describe('Telegraf', function () {
       })
 
       it('should generate keyboard markup with options', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.keyboard(['one', 'two', 'three'], {columns: 3}))
+        var markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three'], {columns: 3}))
         markup.should.deepEqual({
           keyboard: [
             ['one', 'two', 'three']
@@ -362,7 +368,7 @@ describe('Telegraf', function () {
       })
 
       it('should generate keyboard markup with custom columns', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.keyboard(['one', 'two', 'three', 'four'], {columns: 3}))
+        var markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three', 'four'], {columns: 3}))
         markup.should.deepEqual({
           keyboard: [
             ['one', 'two', 'three'],
@@ -373,7 +379,7 @@ describe('Telegraf', function () {
       })
 
       it('should generate keyboard markup with custom wrap fn', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.keyboard(['one', 'two', 'three', 'four'], {
+        var markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three', 'four'], {
           wrap: (btn, index, currentRow) => index % 2 !== 0
         }))
         markup.should.deepEqual({
@@ -387,7 +393,7 @@ describe('Telegraf', function () {
       })
 
       it('should generate keyboard markup with default setting', function (done) {
-        var markup = Object.assign({}, ReplyMarkup.inlineKeyboard(['one', 'two', 'three', 'four']))
+        var markup = Object.assign({}, Markup.inlineKeyboard(['one', 'two', 'three', 'four']))
         markup.should.deepEqual({
           inline_keyboard: [[
             'one',

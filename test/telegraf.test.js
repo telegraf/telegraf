@@ -306,13 +306,13 @@ describe('Telegraf', function () {
 
       it('should generate resizeKeyboard markup', function (done) {
         var markup = Object.assign({}, ReplyMarkup.keyboard([]).resize())
-        markup.should.deepEqual({keyboard: [], resize_keyboard: true})
+        markup.should.deepEqual({resize_keyboard: true})
         done()
       })
 
       it('should generate oneTimeKeyboard markup', function (done) {
         var markup = Object.assign({}, ReplyMarkup.keyboard([]).oneTime())
-        markup.should.deepEqual({keyboard: [], one_time_keyboard: true})
+        markup.should.deepEqual({one_time_keyboard: true})
         done()
       })
 
@@ -324,7 +324,7 @@ describe('Telegraf', function () {
 
       it('should generate selective one time keyboard markup', function (done) {
         var markup = Object.assign({}, ReplyMarkup.keyboard().selective().oneTime())
-        markup.should.deepEqual({keyboard: [], selective: true, one_time_keyboard: true})
+        markup.should.deepEqual({selective: true, one_time_keyboard: true})
         done()
       })
 

@@ -1,11 +1,6 @@
 const https = require('https')
 const Telegraf = require('../lib/telegraf')
-
-const replyOptions = {
-  reply_markup: {
-    inline_keyboard: [[{text: '❤️', url: 'http://telegraf.js.org'}]]
-  }
-}
+const Extra = Telegraf.Extra
 
 const telegrafOptions = {
   telegram: {
@@ -17,7 +12,7 @@ const telegrafOptions = {
 }
 
 const bot = new Telegraf(process.env.BOT_TOKEN, telegrafOptions)
+const replyOptions = Extra.markup((m) => m.inlineKeyboard([{text: '❤️', url: 'http://telegraf.js.org'}]))
 
 bot.on('message', (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message, replyOptions))
-
 bot.startPolling()

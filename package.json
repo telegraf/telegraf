@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "2.3.3",
+  "version": "2.4.0",
   "description": "📢 Modern Telegram bot framework",
   "main": "lib/telegraf.js",
   "repository": {
@@ -30,13 +30,14 @@
   },
   "files": [
     "api.md",
-    "lib/telegraf.js",
-    "lib/telegram.js",
     "lib/context.js",
-    "lib/platform.js",
     "lib/extra.js",
+    "lib/memory-session.js",
+    "lib/platform.js",
     "lib/reply-markup.js",
-    "lib/memory-session.js"
+    "lib/router.js",
+    "lib/telegraf.js",
+    "lib/telegram.js"
   ],
   "scripts": {
     "test": "mocha test"

@@ -177,7 +177,7 @@ Generates middleware for handling `text` messages with regular expressions.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string[]`\|`RegEx[]` | Triggers |
+| triggers | `string[]`\|`RegEx[]`\|`Function[]` | Triggers |
 | handler | `function` | Handler |
 
 * * *

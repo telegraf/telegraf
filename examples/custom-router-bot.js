@@ -1,6 +1,5 @@
-const Telegraf = require('../lib/telegraf')
-const Router = Telegraf.Router
-const Extra = Telegraf.Extra
+const Telegraf = require('../')
+const { Router, Extra, memorySession } = require('../')
 
 const callbackRouter = new Router((ctx) => {
   if (!ctx.callbackQuery.data) {
@@ -16,27 +15,25 @@ const callbackRouter = new Router((ctx) => {
 })
 
 const defaultMarkup = Extra.HTML().markup((markup) => markup.inlineKeyboard([
-  { text: 'Add 1', callback_data: 'add:1' },
-  { text: 'Add 10', callback_data: 'add:10' },
-  { text: 'Add 100', callback_data: 'add:100' },
-  { text: 'Substract 1', callback_data: 'sub:1' },
-  { text: 'Substract 10', callback_data: 'sub:10' },
-  { text: 'Substract 100', callback_data: 'sub:100' },
-  { text: 'Clear', callback_data: 'clear' }
+  markup.callbackButton('Add 1', 'add:1'),
+  markup.callbackButton('Add 10', 'add:10'),
+  markup.callbackButton('Add 100', 'add:100'),
+  markup.callbackButton('Substract 1', 'sub:1'),
+  markup.callbackButton('Substract 10', 'sub:10'),
+  markup.callbackButton('Substract 100', 'sub:100'),
+  markup.callbackButton('Clear', 'clear')
 ], {columns: 3}))
 
 function editText (ctx) {
-  const chatId = ctx.callbackQuery.message.chat.id
-  const messageId = ctx.callbackQuery.message.message_id
   if (ctx.session.value !== 42) {
-    return ctx.telegram.editMessageText(chatId, messageId, `Value: <b>${ctx.session.value}</b>`, defaultMarkup)
+    return ctx.editMessageText(`Value: <b>${ctx.session.value}</b>`, defaultMarkup).catch(() => undefined)
   }
-  return ctx.answerCallbackQuery('🎉', true).then(() => ctx.telegram.editMessageText(chatId, messageId, `🎉 ${ctx.session.value} 🎉`))
+  return ctx.answerCallbackQuery('🎉', true).then(() => ctx.editMessageText(`🎉 ${ctx.session.value} 🎉`))
 }
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.use(Telegraf.memorySession())
+bot.use(memorySession())
 
 bot.on('callback_query', callbackRouter.middleware())
 

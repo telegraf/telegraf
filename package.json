@@ -1,8 +1,8 @@
 {
   "name": "telegraf",
   "version": "2.4.3",
-  "description": "📢 Modern Telegram bot framework",
-  "main": "lib/telegraf.js",
+  "description": "📢 Telegram bot framework for Node.js",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/telegraf/telegraf.git"
@@ -30,6 +30,8 @@
   },
   "files": [
     "api.md",
+    "index.js",
+    "lib/utils.js",
     "lib/context.js",
     "lib/extra.js",
     "lib/memory-session.js",

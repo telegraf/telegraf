@@ -1,8 +1,9 @@
-const Telegraf = require('../lib/telegraf')
+const Telegraf = require('../')
+const { memorySession } = require('../')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.use(Telegraf.memorySession())
+bot.use(memorySession())
 
 // Logger middleware
 bot.use((ctx, next) => {

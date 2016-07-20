@@ -1,23 +1,29 @@
-const Telegraf = require('../lib/telegraf')
-const Extra = Telegraf.Extra
-const Markup = Telegraf.Extra.Markup
+const Telegraf = require('../')
+const { Extra, Markup } = require('../')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.on('callback_query', (ctx) => {
-  return ctx.answerCallbackQuery(`Oh, ${ctx.callbackQuery.data}! Great choise`, true)
+  return ctx.answerCallbackQuery(`Oh, ${ctx.callbackQuery.data}! Great choise`)
 })
 
 bot.command('/onetime', (ctx) => {
-  return ctx.reply('<b>Coke</b> or <i>Pepsi?</i>', Extra
-    .HTML()
-    .markup((markup) => markup.keyboard(['Coke', 'Pepsi']).resize().oneTime())
-  )
+  return ctx.reply('One time keyboard', Extra.markup((markup) => {
+    return markup.resize()
+      .oneTime()
+      .keyboard([
+        '/pyramid',
+        markup.contactRequestButton('Send contact'),
+        markup.locationRequestButton('Send location')
+      ])
+  }))
 })
 
 bot.command(/\/wrap (\d+)/, (ctx) => {
   return ctx.reply('Keyboard wrap', Extra.markup(
-    Markup.keyboard(['one', 'two', 'three', 'four', 'five', 'six'], {columns: parseInt(ctx.match[1])})
+    Markup.keyboard(['one', 'two', 'three', 'four', 'five', 'six'], {
+      columns: parseInt(ctx.match[1])
+    })
   ))
 })
 
@@ -38,8 +44,17 @@ bot.command('/simple', (ctx) => {
 bot.command('/inline', (ctx) => {
   return ctx.reply('<b>Coke</b> or <i>Pepsi?</i>', Extra.HTML().markup(
     Markup.inlineKeyboard([
-      { text: 'Coke', callback_data: 'Coke' },
-      { text: 'Pepsi', callback_data: 'Pepsi' }
+      Markup.callbackButton('Coke', 'Coke'),
+      Markup.callbackButton('Pepsi', 'Pepsi')
+    ])))
+})
+
+bot.command('/random', (ctx) => {
+  return ctx.reply('random example', Extra.markup(
+    Markup.inlineKeyboard([
+      Markup.callbackButton('Coke', 'Coke'),
+      Markup.callbackButton('Dr Pepper', 'Dr Pepper', undefined, Math.random() > 0.5),
+      Markup.callbackButton('Pepsi', 'Pepsi')
     ])))
 })
 

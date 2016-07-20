@@ -1,19 +1,33 @@
 [![npm](https://img.shields.io/npm/l/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
+[![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
 [![David](https://img.shields.io/david/telegraf/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com/)
-[![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
 
-📢 Modern Telegram bot framework for node.js.
+📢 Telegram bot framework for Node.js
 
 ## Features
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
-- [Middlewares, middlewares everywhere](https://www.npmjs.com/search?q=telegraf-)
+- Incredibly fast
+- Easy to extend
+- [Middlewares, middlewares everywhere](#middlewares)
 - http/https/Connect/express.js webhooks
 - Reply via webhook
+
+## Middlewares
+
+- [Internationalization](https://github.com/telegraf/telegraf-i18n)
+- [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
+- [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
+- [Micro dialog engine](https://github.com/telegraf/telegraf-quiz)
+- [Chat flow engine](https://github.com/telegraf/telegraf-flow)
+- [Mixpanel integration](https://github.com/telegraf/telegraf-mixpanel)
+- [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)
+- [statsd integration](https://github.com/telegraf/telegraf-statsd)
+- [and more...](https://www.npmjs.com/search?q=telegraf-)
 
 ## Installation
 
@@ -32,32 +46,11 @@ app.on('message', (ctx) => ctx.replyWithMarkdown('*42*'))
 app.startPolling()
 ```
 
-```js
-const Telegraf = require('telegraf')
-
-const app = new Telegraf(process.env.BOT_TOKEN)
-
-// Look ma, middleware!
-const sayYoMiddleware = (ctx, next) => {
-  return ctx.reply('yo').then(next)
-}
-
-// Command handling
-app.command('/command', sayYoMiddleware, (ctx) => {
-  return ctx.reply('Sure')
-})
-
-// Wow! RegEx
-app.hears(/reverse (.+)/, sayYoMiddleware, (ctx) => {
-  return ctx.reply(ctx.match[1].split('').reverse().join(''))
-})
-
-app.startPolling()
-```
-
 There are some other [examples](/examples).
 
 ## API
+
+[Telegraf API reference](/api.md)
 
 ### Application
 
@@ -209,10 +202,6 @@ telegraf.onError = (err) => {
   throw err
 }
 ```
-
-## API reference
-
-[Telegraf API reference](/api.md)
 
 ## License
 

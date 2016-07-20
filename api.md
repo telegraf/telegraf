@@ -63,6 +63,9 @@ Context shortcuts for **message** update:
 Context shortcuts for **callback_query** update:
 
 - `ctx.answerCallbackQuery() -> `[`ctx.telegram.answerCallbackQuery()`](#answercallbackquery)
+- `ctx.editMessageText() -> `[`ctx.telegram.editMessageText()`](#editmessagetext)
+- `ctx.editMessageCaption() -> `[`ctx.telegram.editMessageCaption()`](#editmessagecaption)
+- `ctx.editMessageReplyMarkup() -> `[`ctx.telegram.editMessageReplyMarkup()`](#editmessagereplymarkup)
 - `ctx.getChat() -> `[`ctx.telegram.getChat()`](#getchat)
 - `ctx.getChatAdministrators() -> `[`ctx.telegram.getChatAdministrators()`](#getchatadministrators)
 - `ctx.getChatMember() -> `[`ctx.telegram.getChatMember()`](#getchatmember)
@@ -87,7 +90,7 @@ Context shortcuts for **inline_query** update:
 ### Examples
 
 ```js
-var bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.on('text', (ctx) => {
   // Simple usage 
@@ -95,9 +98,6 @@ bot.on('text', (ctx) => {
   
   // Using shortcut
   ctx.reply(`Hello ${ctx.state.role}`)
-
-  // If you want to mark message as reply to source message
-  ctx.reply(`Hello ${ctx.state.role}`, { reply_to_message_id: ctx.message.id })
 })
 
 bot.on('/quit', (ctx) => {
@@ -117,7 +117,7 @@ bot.on('callback_query', (ctx) => {
 })
 
 bot.on('inline_query', (ctx) => {
-  var result = []
+  const result = []
   // Simple usage 
   ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result)
   
@@ -301,9 +301,9 @@ const Telegram = require('telegraf').Telegram
 - [`new Telegram(token)`](#new-telegram)
   - [`.answerCallbackQuery(callbackQueryId, text, showAlert)`](#answercallbackquery)
   - [`.answerInlineQuery(inlineQueryId, results, extra)`](#answerinlinequery)
-  - [`.editMessageCaption(chatId, messageId, caption, extra)`](#editmessagecaption)
-  - [`.editMessageReplyMarkup(chatId, messageId, markup, extra)`](#editmessagereplymarkup)
-  - [`.editMessageText(chatId, messageId, text, extra)`](#editmessagetext)
+  - [`.editMessageCaption(chatId, messageId, inlineMessageId, caption, extra)`](#editmessagecaption)
+  - [`.editMessageReplyMarkup(chatId, messageId, inlineMessageId, markup, extra)`](#editmessagereplymarkup)
+  - [`.editMessageText(chatId, messageId, inlineMessageId, text, extra)`](#editmessagetext)
   - [`.forwardMessage(chatId, fromChatId, messageId, extra)`](#forwardmessage)
   - [`.sendCopy(chatId, message, extra)`](#sendcopy)
   - [`.getChat(chatId)`](#getchat)
@@ -375,7 +375,7 @@ Use this method to send answers to an inline query.
 * * *
 
 <a name="editmessagecaption"></a>
-#### `telegram.editMessageCaption(chatId, messageId, caption, extra) => Promise`
+#### `telegram.editMessageCaption(chatId, messageId, inlineMessageId, caption, extra) => Promise`
 
 Use this method to edit captions of messages sent by the bot or via the bot
 
@@ -383,13 +383,14 @@ Use this method to edit captions of messages sent by the bot or via the bot
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | messageId | `string` | Message id |
+| inlineMessageId | `string` | Inline message id |
 | caption | `string` | Caption |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagecaption)|
 
 * * *
 
 <a name="editmessagereplymarkup"></a>
-#### `telegram.editMessageReplyMarkup(chatId, messageId, markup, extra) => Promise`
+#### `telegram.editMessageReplyMarkup(chatId, messageId, inlineMessageId, markup, extra) => Promise`
 
 Use this method to edit only the reply markup of messages sent by the bot or via the bot.
 
@@ -397,13 +398,14 @@ Use this method to edit only the reply markup of messages sent by the bot or via
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | messageId | `string` | Message id |
+| inlineMessageId | `string` | Inline message id |
 | markup | `object` | Keyboard markup |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagereplymarkup)|
 
 * * *
 
 <a name="editmessagetext"></a>
-#### `telegram.editMessageText(chatId, messageId, text, extra) => Promise`
+#### `telegram.editMessageText(chatId, messageId, inlineMessageId, text, extra) => Promise`
 
 Use this method to edit text messages sent by the bot or via the bot.
 
@@ -411,6 +413,7 @@ Use this method to edit text messages sent by the bot or via the bot.
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | messageId | `string` | Message id |
+| inlineMessageId | `string` | Inline message id |
 | text | `string` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagetext)|
 
@@ -763,9 +766,9 @@ Supported update types:
 
 - `message`
 - `edited_message`
+- `callback_query`
 - `inline_query`
 - `chosen_inline_result`
-- `callback_query`
 
 Available update sub-types:
 `text`, `audio`, `document`, `photo`, `sticker`, `video`, `voice`, `contact`, `location`, `venue`, `new_chat_member`, `left_chat_member`, `new_chat_title`, `new_chat_photo`, `delete_chat_photo`, `group_chat_created`, `supergroup_chat_created`, `channel_chat_created`, `migrate_to_chat_id`, `migrate_from_chat_id`, `pinned_message`.

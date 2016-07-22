@@ -58,4 +58,4 @@ bot.command('/random', (ctx) => {
     ])))
 })
 
-bot.startPolling()
+bot.startPolling(30)

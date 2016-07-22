@@ -1,130 +1,9 @@
-# API reference
+# Telegraf reference
 
-- [Context](#context)
 - [Telegraf](#telegraf-api)
+- [Context](#context)
 - [Telegram](#telegram-api)
 - [Uploading files](#file)
-
-## Context
-
-A Telegraf Context encapsulates telegram message.
-Context is created per request and contains following props:
-
-```js
-app.use((ctx) => {
-  ctx.telegram             // Telegram instance
-  ctx.updateType           // Update type(message, inline_query, etc.)
-  [ctx.updateSubType]      // Update subtype(text, sticker, audio, etc.)
-  [ctx.message]            // Received message
-  [ctx.editedMessage]      // Edited message
-  [ctx.inlineQuery]        // Received inline query
-  [ctx.chosenInlineResult] // Received inline query result
-  [ctx.callbackQuery]      // Received callback query
-  [ctx.chat]               // Current chat info
-  [ctx.from]               // Sender info
-  [ctx.match]              // Regex match (available only for `hears` handler)
-})
-```
-
-The recommended way to extend application context.
-
-```js
-const app = new Telegraf(process.env.BOT_TOKEN)
-
-app.context.db = {
-  getScores: () => { return 42 }
-}
-
-app.on('text', (ctx) => {
-  const scores = ctx.db.getScores(ctx.message.from.username)
-  return ctx.reply(`${ctx.message.from.username}: ${score}`)
-})
-```
-
-Context shortcuts for **message** update:
-
-- `ctx.getChat() -> `[`ctx.telegram.getChat()`](#getchat)
-- `ctx.getChatAdministrators() -> `[`ctx.telegram.getChatAdministrators()`](#getchatadministrators)
-- `ctx.getChatMember() -> `[`ctx.telegram.getChatMember()`](#getchatmember)
-- `ctx.getChatMembersCount() -> `[`ctx.telegram.getChatMembersCount()`](#getchatmemberscount)
-- `ctx.leaveChat() -> `[`ctx.telegram.leaveChat()`](#leavechat)
-- `ctx.reply() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
-- `ctx.replyWithMarkdown() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
-- `ctx.replyWithHTML() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
-- `ctx.replyWithAudio() -> `[`ctx.telegram.sendAudio()`](#sendaudio)
-- `ctx.replyWithChatAction() -> `[`ctx.telegram.sendChatAction()`](#sendchataction)
-- `ctx.replyWithDocument() -> `[`ctx.telegram.sendDocument()`](#senddocument)
-- `ctx.replyWithLocation() -> `[`ctx.telegram.sendLocation()`](#sendlocation)
-- `ctx.replyWithPhoto() -> `[`ctx.telegram.sendPhoto()`](#sendphoto)
-- `ctx.replyWithSticker() -> `[`ctx.telegram.sendSticker()`](#sendsticker)
-- `ctx.replyWithVideo() -> `[`ctx.telegram.sendVideo()`](#sendvideo)
-- `ctx.replyWithVoice() -> `[`ctx.telegram.sendVoice()`](#sendvoice)
-
-Context shortcuts for **callback_query** update:
-
-- `ctx.answerCallbackQuery() -> `[`ctx.telegram.answerCallbackQuery()`](#answercallbackquery)
-- `ctx.editMessageText() -> `[`ctx.telegram.editMessageText()`](#editmessagetext)
-- `ctx.editMessageCaption() -> `[`ctx.telegram.editMessageCaption()`](#editmessagecaption)
-- `ctx.editMessageReplyMarkup() -> `[`ctx.telegram.editMessageReplyMarkup()`](#editmessagereplymarkup)
-- `ctx.getChat() -> `[`ctx.telegram.getChat()`](#getchat)
-- `ctx.getChatAdministrators() -> `[`ctx.telegram.getChatAdministrators()`](#getchatadministrators)
-- `ctx.getChatMember() -> `[`ctx.telegram.getChatMember()`](#getchatmember)
-- `ctx.getChatMembersCount() -> `[`ctx.telegram.getChatMembersCount()`](#getchatmemberscount)
-- `ctx.leaveChat() -> `[`ctx.telegram.leaveChat()`](#leavechat)
-- `ctx.reply() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
-- `ctx.replyWithMarkdown() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
-- `ctx.replyWithHTML() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
-- `ctx.replyWithAudio() -> `[`ctx.telegram.sendAudio()`](#sendaudio)
-- `ctx.replyWithChatAction() -> `[`ctx.telegram.sendChatAction()`](#sendchataction)
-- `ctx.replyWithDocument() -> `[`ctx.telegram.sendDocument()`](#senddocument)
-- `ctx.replyWithLocation() -> `[`ctx.telegram.sendLocation()`](#sendlocation)
-- `ctx.replyWithPhoto() -> `[`ctx.telegram.sendPhoto()`](#sendphoto)
-- `ctx.replyWithSticker() -> `[`ctx.telegram.sendSticker()`](#sendsticker)
-- `ctx.replyWithVideo() -> `[`ctx.telegram.sendVideo()`](#sendvideo)
-- `ctx.replyWithVoice() -> `[`ctx.telegram.sendVoice()`](#sendvoice)
-
-Context shortcuts for **inline_query** update:
-
-- `ctx.answerInlineQuery() -> `[`ctx.telegram.answerInlineQuery()`](#answerinlinequery)
-
-### Examples
-
-```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
-
-bot.on('text', (ctx) => {
-  // Simple usage 
-  ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`)
-  
-  // Using shortcut
-  ctx.reply(`Hello ${ctx.state.role}`)
-})
-
-bot.on('/quit', (ctx) => {
-  // Simple usage 
-  ctx.telegram.leaveChat(ctx.message.chat.id)
-  
-  // Using shortcut
-  ctx.leaveChat()
-})
-
-bot.on('callback_query', (ctx) => {
-  // Simple usage 
-  ctx.telegram.answerCallbackQuery(ctx.callbackQuery.id)
-  
-  // Using shortcut
-  ctx.answerCallbackQuery()
-})
-
-bot.on('inline_query', (ctx) => {
-  const result = []
-  // Simple usage 
-  ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result)
-  
-  // Using shortcut
-  ctx.answerInlineQuery(result)
-})
-```
 
 ## Telegraf API
 
@@ -291,6 +170,129 @@ In case you use centralized webhook server, queue, etc.
 | --- | --- | --- |
 | rawUpdate | `object` | Telegram update payload |
 | [webHookResponse] | `object` | (Optional) [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
+
+## Context
+
+A Telegraf Context encapsulates telegram message.
+Context is created per request and contains following props:
+
+```js
+app.use((ctx) => {
+  ctx.telegram             // Telegram instance
+  ctx.updateType           // Update type(message, inline_query, etc.)
+  [ctx.updateSubType]      // Update subtype(text, sticker, audio, etc.)
+  [ctx.message]            // Received message
+  [ctx.editedMessage]      // Edited message
+  [ctx.inlineQuery]        // Received inline query
+  [ctx.chosenInlineResult] // Received inline query result
+  [ctx.callbackQuery]      // Received callback query
+  [ctx.chat]               // Current chat info
+  [ctx.from]               // Sender info
+  [ctx.match]              // Regex match (available only for `hears` handler)
+})
+```
+
+### How to extend context
+
+The recommended way to extend application context:
+
+```js
+const app = new Telegraf(process.env.BOT_TOKEN)
+
+app.context.db = {
+  getScores: () => { return 42 }
+}
+
+app.on('text', (ctx) => {
+  const scores = ctx.db.getScores(ctx.message.from.username)
+  return ctx.reply(`${ctx.message.from.username}: ${score}`)
+})
+```
+
+Context shortcuts for **message** update:
+
+- `ctx.getChat() -> `[`ctx.telegram.getChat()`](#getchat)
+- `ctx.getChatAdministrators() -> `[`ctx.telegram.getChatAdministrators()`](#getchatadministrators)
+- `ctx.getChatMember() -> `[`ctx.telegram.getChatMember()`](#getchatmember)
+- `ctx.getChatMembersCount() -> `[`ctx.telegram.getChatMembersCount()`](#getchatmemberscount)
+- `ctx.leaveChat() -> `[`ctx.telegram.leaveChat()`](#leavechat)
+- `ctx.reply() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
+- `ctx.replyWithMarkdown() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
+- `ctx.replyWithHTML() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
+- `ctx.replyWithAudio() -> `[`ctx.telegram.sendAudio()`](#sendaudio)
+- `ctx.replyWithChatAction() -> `[`ctx.telegram.sendChatAction()`](#sendchataction)
+- `ctx.replyWithDocument() -> `[`ctx.telegram.sendDocument()`](#senddocument)
+- `ctx.replyWithLocation() -> `[`ctx.telegram.sendLocation()`](#sendlocation)
+- `ctx.replyWithPhoto() -> `[`ctx.telegram.sendPhoto()`](#sendphoto)
+- `ctx.replyWithSticker() -> `[`ctx.telegram.sendSticker()`](#sendsticker)
+- `ctx.replyWithVideo() -> `[`ctx.telegram.sendVideo()`](#sendvideo)
+- `ctx.replyWithVoice() -> `[`ctx.telegram.sendVoice()`](#sendvoice)
+
+Context shortcuts for **callback_query** update:
+
+- `ctx.answerCallbackQuery() -> `[`ctx.telegram.answerCallbackQuery()`](#answercallbackquery)
+- `ctx.editMessageText() -> `[`ctx.telegram.editMessageText()`](#editmessagetext)
+- `ctx.editMessageCaption() -> `[`ctx.telegram.editMessageCaption()`](#editmessagecaption)
+- `ctx.editMessageReplyMarkup() -> `[`ctx.telegram.editMessageReplyMarkup()`](#editmessagereplymarkup)
+- `ctx.getChat() -> `[`ctx.telegram.getChat()`](#getchat)
+- `ctx.getChatAdministrators() -> `[`ctx.telegram.getChatAdministrators()`](#getchatadministrators)
+- `ctx.getChatMember() -> `[`ctx.telegram.getChatMember()`](#getchatmember)
+- `ctx.getChatMembersCount() -> `[`ctx.telegram.getChatMembersCount()`](#getchatmemberscount)
+- `ctx.leaveChat() -> `[`ctx.telegram.leaveChat()`](#leavechat)
+- `ctx.reply() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
+- `ctx.replyWithMarkdown() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
+- `ctx.replyWithHTML() -> `[`ctx.telegram.sendMessage()`](#sendmessage)
+- `ctx.replyWithAudio() -> `[`ctx.telegram.sendAudio()`](#sendaudio)
+- `ctx.replyWithChatAction() -> `[`ctx.telegram.sendChatAction()`](#sendchataction)
+- `ctx.replyWithDocument() -> `[`ctx.telegram.sendDocument()`](#senddocument)
+- `ctx.replyWithLocation() -> `[`ctx.telegram.sendLocation()`](#sendlocation)
+- `ctx.replyWithPhoto() -> `[`ctx.telegram.sendPhoto()`](#sendphoto)
+- `ctx.replyWithSticker() -> `[`ctx.telegram.sendSticker()`](#sendsticker)
+- `ctx.replyWithVideo() -> `[`ctx.telegram.sendVideo()`](#sendvideo)
+- `ctx.replyWithVoice() -> `[`ctx.telegram.sendVoice()`](#sendvoice)
+
+Context shortcuts for **inline_query** update:
+
+- `ctx.answerInlineQuery() -> `[`ctx.telegram.answerInlineQuery()`](#answerinlinequery)
+
+### Example shortcuts using
+
+```js
+const bot = new Telegraf(process.env.BOT_TOKEN)
+
+bot.on('text', (ctx) => {
+  // Simple usage 
+  ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`)
+  
+  // Using shortcut
+  ctx.reply(`Hello ${ctx.state.role}`)
+})
+
+bot.on('/quit', (ctx) => {
+  // Simple usage 
+  ctx.telegram.leaveChat(ctx.message.chat.id)
+  
+  // Using shortcut
+  ctx.leaveChat()
+})
+
+bot.on('callback_query', (ctx) => {
+  // Simple usage 
+  ctx.telegram.answerCallbackQuery(ctx.callbackQuery.id)
+  
+  // Using shortcut
+  ctx.answerCallbackQuery()
+})
+
+bot.on('inline_query', (ctx) => {
+  const result = []
+  // Simple usage 
+  ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result)
+  
+  // Using shortcut
+  ctx.answerInlineQuery(result)
+})
+```
 
 ## Telegram API
 

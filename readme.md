@@ -50,7 +50,7 @@ There are some other [examples](/examples).
 
 ## API
 
-[Telegraf API reference](/api.md)
+[Telegraf API reference](/docs/api.md)
 
 ### Application
 

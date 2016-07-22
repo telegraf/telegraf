@@ -29,8 +29,8 @@
     "node": ">=6.2.0"
   },
   "files": [
-    "api.md",
     "index.js",
+    "docs/api.md",
     "lib/utils.js",
     "lib/context.js",
     "lib/extra.js",

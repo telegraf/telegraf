@@ -47,8 +47,8 @@
   "dependencies": {
     "bluebird": "^3.4.0",
     "debug": "^2.2.0",
-    "multipart-stream": "^2.0.1",
-    "node-fetch": "^1.5.1"
+    "node-fetch": "^1.5.1",
+    "sandwich-stream": "^1.0.0"
   },
   "devDependencies": {
     "eslint": "^3.1.1",

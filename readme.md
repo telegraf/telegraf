@@ -10,10 +10,11 @@
 ## Features
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
-- [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
+- Minimum dependencies
 - Easy to extend
 - [Middlewares, middlewares everywhere](#middlewares)
+- [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - http/https/Connect/express.js webhooks
 - Reply via webhook
 
@@ -39,10 +40,8 @@ $ npm install telegraf
   
 ```js
 const Telegraf = require('telegraf')
-
 const app = new Telegraf(process.env.BOT_TOKEN)
-app.on('message', (ctx) => ctx.replyWithMarkdown('*42*'))
-
+app.on('message', (ctx) => ctx.reply('42'))
 app.startPolling()
 ```
 

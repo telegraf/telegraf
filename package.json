@@ -39,7 +39,7 @@
     "lib/telegraf.js",
     "lib/telegram.js",
     "lib/utils.js",
-    "docs/api.md",
+    "docs/api.md"
   ],
   "scripts": {
     "test": "mocha test"

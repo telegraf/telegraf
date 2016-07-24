@@ -11,11 +11,11 @@
     "telegraf",
     "telegram",
     "telegram bot",
-    "telegram api",
+    "telegram botapi",
     "telegram bot api",
     "bot",
-    "bot framework",
-    "telegram bot framework"
+    "botapi",
+    "bot framework"
   ],
   "authors": [
     "Vitaly Domnikov <dotcypress@gmail.com>"
@@ -30,8 +30,6 @@
   },
   "files": [
     "index.js",
-    "docs/api.md",
-    "lib/utils.js",
     "lib/context.js",
     "lib/extra.js",
     "lib/memory-session.js",
@@ -39,7 +37,9 @@
     "lib/reply-markup.js",
     "lib/router.js",
     "lib/telegraf.js",
-    "lib/telegram.js"
+    "lib/telegram.js",
+    "lib/utils.js",
+    "docs/api.md",
   ],
   "scripts": {
     "test": "mocha test"

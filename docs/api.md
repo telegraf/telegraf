@@ -4,6 +4,7 @@
 - [Context](#context)
 - [Telegram](#telegram-api)
 - [Uploading files](#file)
+- [Webhooks](#webhooks)
 
 ## Telegraf API
 
@@ -836,3 +837,57 @@ Example:
 ```
 
 <sub>[Related Telegram api docs](https://core.telegram.org/bots/api#file)</sub>
+
+### Webhooks
+
+```js
+
+const app = new Telegraf(process.env.BOT_TOKEN)
+
+// TLS options
+const tlsOptions = {
+  key:  fs.readFileSync('server-key.pem'),
+  cert: fs.readFileSync('server-cert.pem'),
+  ca: [ 
+    // This is necessary only if the client uses the self-signed certificate.
+    fs.readFileSync('client-cert.pem') 
+  ]
+}
+
+// Set telegram webhook
+app.telegram.setWebHook('https://server.tld:8443/secret-path', {
+  content: 'server-cert.pem'
+})
+
+// Start https webhook
+app.startWebHook('/secret-path', tlsOptions, 8443)
+
+
+// Http webhook, for nginx/heroku users.
+app.startWebHook('/secret-path', null, 5000)
+
+
+// Use webHookCallback() if you want attach telegraf to existing http server
+require('http')
+  .createServer(app.webHookCallback('/secret-path'))
+  .listen(3000)
+
+require('https')
+  .createServer(tlsOptions, app.webHookCallback('/secret-path'))
+  .listen(8443)
+
+// Connect/Express.js integration
+const express = require('express')
+const expressApp = express()
+
+expressApp.use(app.webHookCallback('/secret-path'))
+
+expressApp.get('/', (req, res) => {
+  res.send('Hello World!')
+})
+
+expressApp.listen(3000, () => {
+  console.log('Example app listening on port 3000!')
+})
+
+```

@@ -25,9 +25,10 @@
 - [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
 - [Micro dialog engine](https://github.com/telegraf/telegraf-quiz)
 - [Chat flow engine](https://github.com/telegraf/telegraf-flow)
-- [Mixpanel integration](https://github.com/telegraf/telegraf-mixpanel)
+- [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
 - [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)
 - [statsd integration](https://github.com/telegraf/telegraf-statsd)
+- [Natural language processing via recast.ai](https://github.com/telegraf/telegraf-recast)
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
 
 ## Installation
@@ -40,6 +41,7 @@ $ npm install telegraf
   
 ```js
 const Telegraf = require('telegraf')
+
 const app = new Telegraf(process.env.BOT_TOKEN)
 app.on('message', (ctx) => ctx.reply('42'))
 app.startPolling()
@@ -48,8 +50,6 @@ app.startPolling()
 There are some other [examples](/examples).
 
 ## API
-
-[Telegraf API reference](/docs/api.md)
 
 ### Application
 
@@ -63,7 +63,7 @@ A Telegraf Context encapsulates telegram message.
 Context is created per request and contains following props:
 
 ```js
-app.use((ctx) => {
+app.on('message', (ctx) => {
   ctx.telegram             // Telegram instance
   ctx.updateType           // Update type(message, inline_query, etc.)
   [ctx.updateSubType]      // Update subtype(text, sticker, audio, etc.)
@@ -77,7 +77,6 @@ app.use((ctx) => {
   [ctx.match]              // Regex match (available only for `hears` handler)
 })
 ```
-[Context api docs](/api.md#context)
 
 ### Cascading
 
@@ -97,9 +96,7 @@ app.use((ctx, next) => {
   })
 })
 
-app.on('text', (ctx) => {
-  return ctx.reply('Hello World')
-})
+app.on('text', (ctx) => ctx.reply('Hello World'))
 ```
 
 ### State
@@ -124,7 +121,7 @@ app.on('text', (ctx) => {
 ```js
 const app = new Telegraf(process.env.BOT_TOKEN)
 
-// Session state will be lost on app restart
+// FYI: Session state will be lost on app restart
 app.use(Telegraf.memorySession())
 
 app.on('text', () => {
@@ -134,61 +131,7 @@ app.on('text', () => {
 })
 ```
 
-**Important: For production environment use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
-
-### Telegram WebHook
-
-```js
-
-const app = new Telegraf(process.env.BOT_TOKEN)
-
-// TLS options
-const tlsOptions = {
-  key:  fs.readFileSync('server-key.pem'),
-  cert: fs.readFileSync('server-cert.pem'),
-  ca: [ 
-    // This is necessary only if the client uses the self-signed certificate.
-    fs.readFileSync('client-cert.pem') 
-  ]
-}
-
-// Set telegram webhook
-app.telegram.setWebHook('https://server.tld:8443/secret-path', {
-  content: 'server-cert.pem'
-})
-
-// Start https webhook
-app.startWebHook('/secret-path', tlsOptions, 8443)
-
-
-// Http webhook, for nginx/heroku users.
-app.startWebHook('/secret-path', null, 5000)
-
-
-// Use webHookCallback() if you want attach telegraf to existing http server
-require('http')
-  .createServer(app.webHookCallback('/secret-path'))
-  .listen(3000)
-
-require('https')
-  .createServer(tlsOptions, app.webHookCallback('/secret-path'))
-  .listen(8443)
-
-// Connect/Express.js integration
-const express = require('express')
-const expressApp = express()
-
-expressApp.use(app.webHookCallback('/secret-path'))
-
-expressApp.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
-expressApp.listen(3000, () => {
-  console.log('Example app listening on port 3000!')
-})
-
-```
+**Note: For persistent sessions you can use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
 
 ### Error Handling
 
@@ -197,10 +140,14 @@ To perform custom error-handling logic you can set `onError` handler:
 
 ```js
 telegraf.onError = (err) => {
-  log.error('server error', err)
+  log.error('Ooops', err)
   throw err
 }
 ```
+
+### Developer docs
+
+[Telegraf API docs](/docs/api.md)
 
 ## License
 

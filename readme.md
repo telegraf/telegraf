@@ -23,7 +23,6 @@
 - [Internationalization](https://github.com/telegraf/telegraf-i18n)
 - [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
 - [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
-- [Micro dialog engine](https://github.com/telegraf/telegraf-quiz)
 - [Chat flow engine](https://github.com/telegraf/telegraf-flow)
 - [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
 - [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)

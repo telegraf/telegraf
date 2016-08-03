@@ -31,6 +31,7 @@
   "files": [
     "index.js",
     "lib/context.js",
+    "lib/composer.js",
     "lib/extra.js",
     "lib/memory-session.js",
     "lib/platform.js",

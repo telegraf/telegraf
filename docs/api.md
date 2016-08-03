@@ -12,53 +12,28 @@
 const Telegraf = require('telegraf')
 ```
 
+- [`new Telegraf(token, [options])`](#new-telegraf)
+ - [`.use(middleware)`](#use)
+ - [`.on(updateTypes, middleware, [middleware...])`](#on)
+ - [`.hears(triggers, middleware, [middleware...])`](#hears)
+ - [`.command(commands, middleware, [middleware...])`](#command)
+ - [`.startPolling(timeout, limit)`](#startPolling)
+ - [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
+ - [`.stop()`](#stop)
+ - [`.webHookCallback(webHookPath)`](#webhookcallback)
+ - [`.handleUpdate(rawUpdate, response)`](#handleupdate)
+
+- [`Telegraf.Telegram`](#telegram-api)
+- [`Telegraf.Router`](#router)
+- [`Telegraf.Extra`](#extra)
+- [`Telegraf.Markup`](#markup)
+- [`Telegraf.Composer`](#composer)
 - [`Telegraf.compose(middlewares)`](#compose)
 - [`Telegraf.mount(updateTypes, middleware)`](#mount)
 - [`Telegraf.hears(triggers, middleware)`](#hears-generator)
-- [`new Telegraf(token, [options])`](#new-telegraf)
-  - [`.use(middleware)`](#use)
-  - [`.on(updateTypes, middleware, [middleware...])`](#on)
-  - [`.hears(triggers, middleware, [middleware...])`](#hears)
-  - [`.command(commands, middleware, [middleware...])`](#command)
-  - [`.startPolling(timeout, limit)`](#startPolling)
-  - [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
-  - [`.stop()`](#stop)
-  - [`.webHookCallback(webHookPath)`](#webhookcallback)
-  - [`.handleUpdate(rawUpdate, response)`](#handleupdate)
-
-* * *
-
-<a name="compose"></a>
-#### `Telegraf.compose(middlewares) => function`
-
-Compose `middlewares` returning a fully valid middleware comprised of all those which are passed.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| middlewares | `function[]` | Array of middlewares |
-* * *
-
-<a name="mount"></a>
-#### `Telegraf.mount(updateTypes, middleware) => function`
-
-Generates middleware for handling provided [update types](#update-types).
-
-| Param | Type | Description |
-| --- | --- | --- |
-| updateTypes | `string`\|`string[]` | [update type](#update-types) |
-| middleware | `function` | middleware |
-
-* * *
-
-<a name="hears-generator"></a>
-#### `Telegraf.hears(triggers, middleware) => function`
-
-Generates middleware for handling `text` messages with regular expressions.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| triggers | `string[]`\|`RegEx[]`\|`Function[]` | Triggers |
-| handler | `function` | Handler |
+- [`Telegraf.passThru()`](#passthru-generator)
+- [`Telegraf.optional(test, middleware)`](#optional-generator)
+- [`Telegraf.branch(test, trueMiddleware, falseMiddleware)`](#branch-generator)
 
 * * *
 
@@ -171,6 +146,101 @@ In case you use centralized webhook server, queue, etc.
 | --- | --- | --- |
 | rawUpdate | `object` | Telegram update payload |
 | [webHookResponse] | `object` | (Optional) [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
+
+* * *
+
+<a name="router"></a>
+#### `Telegraf.Router`
+
+Base router, [see example](../examples/custom-router-bot.js)
+
+* * *
+
+<a name="extra"></a>
+#### `Telegraf.Extra`
+
+Telegram message options helper, [see examples](../examples/)
+
+* * *
+
+<a name="markup"></a>
+#### `Telegraf.Markup`
+
+Telegram markup helper, [see examples](../examples/)
+
+* * *
+
+<a name="composer"></a>
+#### `Telegraf.Composer`
+
+Base composer
+
+* * *
+
+<a name="compose"></a>
+#### `Telegraf.compose(middlewares) => function`
+
+Compose `middlewares` returning a fully valid middleware comprised of all those which are passed.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| middlewares | `function[]` | Array of middlewares |
+
+* * *
+
+<a name="mount"></a>
+#### `Telegraf.mount(updateTypes, middleware) => function`
+
+Generates middleware for handling provided [update types](#update-types).
+
+| Param | Type | Description |
+| --- | --- | --- |
+| updateTypes | `string`\|`string[]` | [update type](#update-types) |
+| middleware | `function` | middleware |
+
+* * *
+
+<a name="hears-generator"></a>
+#### `Telegraf.hears(triggers, middleware) => function`
+
+Generates middleware for handling `text` messages with regular expressions.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string[]`\|`RegEx[]`\|`Function[]` | Triggers |
+| handler | `function` | Handler |
+
+* * *
+
+<a name="passthru-generator"></a>
+#### `Telegraf.passThru() => function`
+
+Generates pass thru middleware.
+
+* * *
+
+<a name="optional-generator"></a>
+#### `Telegraf.optional(test, middleware) => function`
+
+Generates optional middleware.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| test | `truthy`\|`function` | Value or predicate `(ctx) => bool` |
+| middleware | `function` | middleware |
+
+* * *
+
+<a name="branch-generator"></a>
+#### `Telegraf.branch(test, trueMiddleware, falseMiddleware) => function`
+
+Generates branch middleware.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| test | `truthy`\|`function` | Value or predicate `(ctx) => bool` |
+| trueMiddleware | `function` | true action  middleware |
+| falseMiddleware | `function` | false action middleware |
 
 ## Context
 
@@ -298,7 +368,7 @@ bot.on('inline_query', (ctx) => {
 ## Telegram API
 
 ```js
-const Telegram = require('telegraf').Telegram
+const { Telegram } = require('telegraf')
 ```
 
 - [`new Telegram(token)`](#new-telegram)

@@ -12,7 +12,17 @@ bot.command('/onetime', (ctx) => {
     return markup.resize()
       .oneTime()
       .keyboard([
-        '/pyramid',
+        '/simple',
+        '/inline',
+        '/pyramid'
+      ])
+  }))
+})
+
+bot.command('/special', (ctx) => {
+  return ctx.reply('Special buttons keyboard', Extra.markup((markup) => {
+    return markup.resize()
+      .keyboard([
         markup.contactRequestButton('Send contact'),
         markup.locationRequestButton('Send location')
       ])

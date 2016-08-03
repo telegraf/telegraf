@@ -16,4 +16,4 @@ const bot = new Telegraf(process.env.BOT_TOKEN, telegrafOptions)
 const replyOptions = Extra.markup((m) => m.inlineKeyboard([m.urlButton('❤️', 'http://telegraf.js.org')]))
 bot.on('message', (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message, replyOptions))
 
-bot.startPolling()
+bot.startPolling(60)

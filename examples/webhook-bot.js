@@ -4,7 +4,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 
 // Set telegram webhook
 // npm install -g localtunnel && lt --port 3000
-bot.setWebHook('https://--------.localtunnel.me/secret-path', {content: 'webhook.pem'})
+bot.telegram.setWebHook('https://--------.localtunnel.me/secret-path')
 
 // Start https webhook
 // FYI: First non-file reply will be served via webhook response

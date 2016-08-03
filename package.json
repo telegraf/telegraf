@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "2.5.2",
+  "version": "2.6.0",
   "description": "📢 Telegram bot framework for Node.js",
   "main": "index.js",
   "repository": {
@@ -31,6 +31,7 @@
   "files": [
     "index.js",
     "lib/context.js",
+    "lib/composer.js",
     "lib/extra.js",
     "lib/memory-session.js",
     "lib/platform.js",
@@ -56,7 +57,7 @@
     "eslint-plugin-mocha": "^4.0.0",
     "eslint-plugin-promise": "^2.0.0",
     "eslint-plugin-standard": "^2.0.0",
-    "mocha": "^2.4.5",
+    "mocha": "^3.0.0",
     "should": "^10.0.0",
     "supervisor": "^0.11.0"
   }

@@ -4,6 +4,7 @@
 - [Context](#context)
 - [Telegram](#telegram-api)
 - [Uploading files](#file)
+- [Webhooks](#webhooks)
 
 ## Telegraf API
 
@@ -11,53 +12,28 @@
 const Telegraf = require('telegraf')
 ```
 
+- [`new Telegraf(token, [options])`](#new-telegraf)
+ - [`.use(middleware)`](#use)
+ - [`.on(updateTypes, middleware, [middleware...])`](#on)
+ - [`.hears(triggers, middleware, [middleware...])`](#hears)
+ - [`.command(commands, middleware, [middleware...])`](#command)
+ - [`.startPolling(timeout, limit)`](#startPolling)
+ - [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
+ - [`.stop()`](#stop)
+ - [`.webHookCallback(webHookPath)`](#webhookcallback)
+ - [`.handleUpdate(rawUpdate, response)`](#handleupdate)
+
+- [`Telegraf.Telegram`](#telegram-api)
+- [`Telegraf.Router`](#router)
+- [`Telegraf.Extra`](#extra)
+- [`Telegraf.Markup`](#markup)
+- [`Telegraf.Composer`](#composer)
 - [`Telegraf.compose(middlewares)`](#compose)
 - [`Telegraf.mount(updateTypes, middleware)`](#mount)
 - [`Telegraf.hears(triggers, middleware)`](#hears-generator)
-- [`new Telegraf(token, [options])`](#new-telegraf)
-  - [`.use(middleware)`](#use)
-  - [`.on(updateTypes, middleware, [middleware...])`](#on)
-  - [`.hears(triggers, middleware, [middleware...])`](#hears)
-  - [`.command(commands, middleware, [middleware...])`](#command)
-  - [`.startPolling(timeout, limit)`](#startPolling)
-  - [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
-  - [`.stop()`](#stop)
-  - [`.webHookCallback(webHookPath)`](#webhookcallback)
-  - [`.handleUpdate(rawUpdate, response)`](#handleupdate)
-
-* * *
-
-<a name="compose"></a>
-#### `Telegraf.compose(middlewares) => function`
-
-Compose `middlewares` returning a fully valid middleware comprised of all those which are passed.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| middlewares | `function[]` | Array of middlewares |
-* * *
-
-<a name="mount"></a>
-#### `Telegraf.mount(updateTypes, middleware) => function`
-
-Generates middleware for handling provided [update types](#update-types).
-
-| Param | Type | Description |
-| --- | --- | --- |
-| updateTypes | `string`\|`string[]` | [update type](#update-types) |
-| middleware | `function` | middleware |
-
-* * *
-
-<a name="hears-generator"></a>
-#### `Telegraf.hears(triggers, middleware) => function`
-
-Generates middleware for handling `text` messages with regular expressions.
-
-| Param | Type | Description |
-| --- | --- | --- |
-| triggers | `string[]`\|`RegEx[]`\|`Function[]` | Triggers |
-| handler | `function` | Handler |
+- [`Telegraf.passThru()`](#passthru-generator)
+- [`Telegraf.optional(test, middleware)`](#optional-generator)
+- [`Telegraf.branch(test, trueMiddleware, falseMiddleware)`](#branch-generator)
 
 * * *
 
@@ -170,6 +146,101 @@ In case you use centralized webhook server, queue, etc.
 | --- | --- | --- |
 | rawUpdate | `object` | Telegram update payload |
 | [webHookResponse] | `object` | (Optional) [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
+
+* * *
+
+<a name="router"></a>
+#### `Telegraf.Router`
+
+Base router, [see example](../examples/custom-router-bot.js)
+
+* * *
+
+<a name="extra"></a>
+#### `Telegraf.Extra`
+
+Telegram message options helper, [see examples](../examples/)
+
+* * *
+
+<a name="markup"></a>
+#### `Telegraf.Markup`
+
+Telegram markup helper, [see examples](../examples/)
+
+* * *
+
+<a name="composer"></a>
+#### `Telegraf.Composer`
+
+Base composer
+
+* * *
+
+<a name="compose"></a>
+#### `Telegraf.compose(middlewares) => function`
+
+Compose `middlewares` returning a fully valid middleware comprised of all those which are passed.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| middlewares | `function[]` | Array of middlewares |
+
+* * *
+
+<a name="mount"></a>
+#### `Telegraf.mount(updateTypes, middleware) => function`
+
+Generates middleware for handling provided [update types](#update-types).
+
+| Param | Type | Description |
+| --- | --- | --- |
+| updateTypes | `string`\|`string[]` | [update type](#update-types) |
+| middleware | `function` | middleware |
+
+* * *
+
+<a name="hears-generator"></a>
+#### `Telegraf.hears(triggers, middleware) => function`
+
+Generates middleware for handling `text` messages with regular expressions.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string[]`\|`RegEx[]`\|`Function[]` | Triggers |
+| handler | `function` | Handler |
+
+* * *
+
+<a name="passthru-generator"></a>
+#### `Telegraf.passThru() => function`
+
+Generates pass thru middleware.
+
+* * *
+
+<a name="optional-generator"></a>
+#### `Telegraf.optional(test, middleware) => function`
+
+Generates optional middleware.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| test | `truthy`\|`function` | Value or predicate `(ctx) => bool` |
+| middleware | `function` | middleware |
+
+* * *
+
+<a name="branch-generator"></a>
+#### `Telegraf.branch(test, trueMiddleware, falseMiddleware) => function`
+
+Generates branch middleware.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| test | `truthy`\|`function` | Value or predicate `(ctx) => bool` |
+| trueMiddleware | `function` | true action  middleware |
+| falseMiddleware | `function` | false action middleware |
 
 ## Context
 
@@ -297,7 +368,7 @@ bot.on('inline_query', (ctx) => {
 ## Telegram API
 
 ```js
-const Telegram = require('telegraf').Telegram
+const { Telegram } = require('telegraf')
 ```
 
 - [`new Telegram(token)`](#new-telegram)
@@ -836,3 +907,57 @@ Example:
 ```
 
 <sub>[Related Telegram api docs](https://core.telegram.org/bots/api#file)</sub>
+
+### Webhooks
+
+```js
+
+const app = new Telegraf(process.env.BOT_TOKEN)
+
+// TLS options
+const tlsOptions = {
+  key:  fs.readFileSync('server-key.pem'),
+  cert: fs.readFileSync('server-cert.pem'),
+  ca: [ 
+    // This is necessary only if the client uses the self-signed certificate.
+    fs.readFileSync('client-cert.pem') 
+  ]
+}
+
+// Set telegram webhook
+app.telegram.setWebHook('https://server.tld:8443/secret-path', {
+  content: 'server-cert.pem'
+})
+
+// Start https webhook
+app.startWebHook('/secret-path', tlsOptions, 8443)
+
+
+// Http webhook, for nginx/heroku users.
+app.startWebHook('/secret-path', null, 5000)
+
+
+// Use webHookCallback() if you want attach telegraf to existing http server
+require('http')
+  .createServer(app.webHookCallback('/secret-path'))
+  .listen(3000)
+
+require('https')
+  .createServer(tlsOptions, app.webHookCallback('/secret-path'))
+  .listen(8443)
+
+// Connect/Express.js integration
+const express = require('express')
+const expressApp = express()
+
+expressApp.use(app.webHookCallback('/secret-path'))
+
+expressApp.get('/', (req, res) => {
+  res.send('Hello World!')
+})
+
+expressApp.listen(3000, () => {
+  console.log('Example app listening on port 3000!')
+})
+
+```

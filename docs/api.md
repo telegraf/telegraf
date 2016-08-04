@@ -152,28 +152,31 @@ In case you use centralized webhook server, queue, etc.
 <a name="router"></a>
 #### `Telegraf.Router`
 
-Base router, [see example](../examples/custom-router-bot.js)
+Base router, [see example](../examples/custom-router-bot.js).
+[Example usage](https://github.com/telegraf/telegraf-recast/blob/master/lib/telegraf-recast.js)
 
 * * *
 
 <a name="extra"></a>
 #### `Telegraf.Extra`
 
-Telegram message options helper, [see examples](../examples/)
+Telegram message options helper, [see examples](../examples/).
 
 * * *
 
 <a name="markup"></a>
 #### `Telegraf.Markup`
 
-Telegram markup helper, [see examples](../examples/)
+Telegram markup helper, [see examples](../examples/).
 
 * * *
 
 <a name="composer"></a>
 #### `Telegraf.Composer`
 
-Base composer
+Base composer.
+
+[Example usage](https://github.com/telegraf/telegraf-flow/blob/master/lib/flows/default.js)
 
 * * *
 

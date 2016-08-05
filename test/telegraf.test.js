@@ -236,8 +236,6 @@ describe('Telegraf', function () {
 
     it('should handle regex triggers', function (done) {
       var app = new Telegraf()
-      app.hears('hi', (ctx) => {
-      })
       app.hears(/hello (.+)/, (ctx) => {
         ctx.match[1].should.be.equal('world')
         done()

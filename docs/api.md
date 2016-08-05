@@ -17,6 +17,7 @@ const Telegraf = require('telegraf')
  - [`.on(updateTypes, middleware, [middleware...])`](#on)
  - [`.hears(triggers, middleware, [middleware...])`](#hears)
  - [`.command(commands, middleware, [middleware...])`](#command)
+ - [`.action(triggers, middleware, [middleware...])`](#action)
  - [`.startPolling(timeout, limit)`](#startPolling)
  - [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
  - [`.stop()`](#stop)
@@ -31,6 +32,7 @@ const Telegraf = require('telegraf')
 - [`Telegraf.compose(middlewares)`](#compose)
 - [`Telegraf.mount(updateTypes, middleware)`](#mount)
 - [`Telegraf.hears(triggers, middleware)`](#hears-generator)
+- [`Telegraf.action(triggers, middleware)`](#action-generator)
 - [`Telegraf.passThru()`](#passthru-generator)
 - [`Telegraf.optional(test, middleware)`](#optional-generator)
 - [`Telegraf.branch(test, trueMiddleware, falseMiddleware)`](#branch-generator)
@@ -88,6 +90,18 @@ Registers middleware for handling `text` messages with regular expressions.
 #### `telegraf.command(commands, middleware, [middleware...])`
 
 Shortcut for [`hears`](#hears)
+
+* * *
+
+<a name="action"></a>
+#### `telegraf.action(triggers, middleware, [middleware...])`
+
+Registers middleware for handling `callback_data` actions with regular expressions.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string[]`\|`RegEx[]` | Triggers |
+| middleware | `function` | Middleware |
 
 * * *
 
@@ -215,6 +229,18 @@ Generates middleware for handling `text` messages with regular expressions.
 
 * * *
 
+<a name="action-generator"></a>
+#### `Telegraf.action(triggers, middleware) => function`
+
+Generates middleware for handling `callbackQuery` data with regular expressions.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string[]`\|`RegEx[]`\|`Function[]` | Triggers |
+| handler | `function` | Handler |
+
+* * *
+
 <a name="passthru-generator"></a>
 #### `Telegraf.passThru() => function`
 
@@ -262,7 +288,7 @@ app.use((ctx) => {
   [ctx.callbackQuery]      // Received callback query
   [ctx.chat]               // Current chat info
   [ctx.from]               // Sender info
-  [ctx.match]              // Regex match (available only for `hears` handler)
+  [ctx.match]              // Regex match (available only for `hears`, `command`, `action` handlers)
 })
 ```
 
@@ -940,7 +966,7 @@ app.startWebHook('/secret-path', tlsOptions, 8443)
 app.startWebHook('/secret-path', null, 5000)
 
 
-// Use webHookCallback() if you want attach telegraf to existing http server
+// Use webHookCallback() if you want to attach telegraf to existing http server
 require('http')
   .createServer(app.webHookCallback('/secret-path'))
   .listen(3000)

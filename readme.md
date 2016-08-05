@@ -11,8 +11,8 @@
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
 - Incredibly fast
-- Minimum dependencies
 - Easy to extend
+- Minimum dependencies
 - [Middlewares, middlewares everywhere](#middlewares)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - http/https/Connect/express.js webhooks
@@ -67,15 +67,12 @@ app.on('message', (ctx) => {
   ctx.updateType           // Update type(message, inline_query, etc.)
   [ctx.updateSubType]      // Update subtype(text, sticker, audio, etc.)
   [ctx.message]            // Received message
-  [ctx.editedMessage]      // Edited message
   [ctx.inlineQuery]        // Received inline query
-  [ctx.chosenInlineResult] // Received inline query result
-  [ctx.callbackQuery]      // Received callback query
-  [ctx.chat]               // Current chat info
-  [ctx.from]               // Sender info
-  [ctx.match]              // Regex match (available only for `hears` handler)
+  ...
 })
 ```
+
+[Context API docs](/docs/api.md#context)
 
 ### Cascading
 
@@ -119,11 +116,8 @@ app.on('text', (ctx) => {
 
 ```js
 const app = new Telegraf(process.env.BOT_TOKEN)
-
-// FYI: Session state will be lost on app restart
 app.use(Telegraf.memorySession())
-
-app.on('text', () => {
+app.on('text', (ctx) => {
   ctx.session.counter = ctx.session.counter || 0
   ctx.session.counter++
   return ctx.reply(`Message counter:${ctx.session.counter}`)

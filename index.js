@@ -1,8 +1,13 @@
-module.exports = Object.assign(require('./lib/telegraf'), require('./lib/utils'))
-module.exports.Telegram = require('./lib/telegram')
-module.exports.Router = require('./lib/router')
-module.exports.Extra = require('./lib/extra')
-module.exports.Markup = require('./lib/reply-markup')
-module.exports.memorySession = require('./lib/memory-session')
-module.exports.platform = require('./lib/platform')
-module.exports.Composer = require('./lib/composer')
+module.exports = Object.assign(
+  require('./lib/telegraf'),
+  require('./lib/utils'),
+  {
+    Composer: require('./lib/composer'),
+    Extra: require('./lib/extra'),
+    Markup: require('./lib/reply-markup'),
+    memorySession: require('./lib/memory-session'),
+    platform: require('./lib/platform'),
+    Router: require('./lib/router'),
+    Telegram: require('./lib/telegram')
+  }
+)

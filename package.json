@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "📢 Telegram bot framework for Node.js",
   "main": "index.js",
   "repository": {

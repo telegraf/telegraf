@@ -39,7 +39,6 @@
     "lib/router.js",
     "lib/telegraf.js",
     "lib/telegram.js",
-    "lib/utils.js",
     "docs/api.md"
   ],
   "scripts": {

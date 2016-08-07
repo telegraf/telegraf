@@ -1,6 +1,6 @@
 require('should')
 const Telegraf = require('../')
-const { Extra, Markup } = require('../')
+const { Extra, Markup } = Telegraf
 
 const baseMessage = {
   chat: {

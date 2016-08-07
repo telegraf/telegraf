@@ -5,7 +5,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.use(memorySession())
 
-// Logger middleware
+// Register logger middleware
 bot.use((ctx, next) => {
   const start = new Date()
   return next().then(() => {
@@ -21,13 +21,13 @@ const sayYoMiddleware = (ctx, next) => {
 // Random advice on some text messages
 bot.on('text', (ctx, next) => {
   if (Math.random() > 0.5) {
-    return Promise.all([
-      ctx.reply('Highly advised to visit:'),
-      ctx.replyWithLocation((Math.random() * 180) - 90, (Math.random() * 180) - 90),
-      next()
-    ])
+    return next()
   }
-  return next()
+  return Promise.all([
+    ctx.reply('Highly advised to visit:'),
+    ctx.replyWithLocation((Math.random() * 180) - 90, (Math.random() * 180) - 90),
+    next()
+  ])
 })
 
 // Text messages handling

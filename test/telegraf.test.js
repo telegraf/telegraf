@@ -10,7 +10,7 @@ const baseMessage = {
 
 describe('Telegraf', function () {
   describe('core', function () {
-    var updateTypes = [
+    const updateTypes = [
       { type: 'message', prop: 'message', update: { message: baseMessage } },
       { type: 'edited_message', prop: 'editedMessage', update: { edited_message: baseMessage } },
       { type: 'callback_query', prop: 'callbackQuery', update: { callback_query: { message: baseMessage } } },
@@ -20,7 +20,7 @@ describe('Telegraf', function () {
 
     updateTypes.forEach(function (test) {
       it('should provide update payload for ' + test.type, function (done) {
-        var app = new Telegraf()
+        const app = new Telegraf()
         app.on(test.type, (ctx) => {
           ctx.should.have.property(test.prop)
           ctx.should.have.property('telegram')
@@ -37,7 +37,7 @@ describe('Telegraf', function () {
     })
 
     it('should provide shortcuts for `message` event', function (done) {
-      var app = new Telegraf()
+      const app = new Telegraf()
       app.on('message', (ctx) => {
         ctx.should.have.property('reply')
         ctx.should.have.property('replyWithPhoto')
@@ -63,7 +63,7 @@ describe('Telegraf', function () {
     })
 
     it('should provide shortcuts for `callback_query` event', function (done) {
-      var app = new Telegraf()
+      const app = new Telegraf()
       app.on('callback_query', (ctx) => {
         ctx.should.have.property('answerCallbackQuery')
         ctx.should.have.property('reply')
@@ -90,7 +90,7 @@ describe('Telegraf', function () {
     })
 
     it('should provide shortcuts for `inline_query` event', function (done) {
-      var app = new Telegraf()
+      const app = new Telegraf()
       app.on('inline_query', (ctx) => {
         ctx.should.have.property('answerInlineQuery')
         done()
@@ -99,7 +99,7 @@ describe('Telegraf', function () {
     })
 
     it('should share state', function (done) {
-      var app = new Telegraf()
+      const app = new Telegraf()
       app.on('message', (ctx, next) => {
         ctx.state.answer = 41
         return next()
@@ -114,7 +114,7 @@ describe('Telegraf', function () {
     })
 
     it('should use context extensions', function (done) {
-      var app = new Telegraf()
+      const app = new Telegraf()
       app.context.db = {
         getUser: () => undefined
       }
@@ -127,7 +127,7 @@ describe('Telegraf', function () {
     })
 
     it('should handle webhook response', function (done) {
-      var app = new Telegraf()
+      const app = new Telegraf()
       app.on('message', (ctx) => {
         ctx.reply(':)')
       })
@@ -140,7 +140,7 @@ describe('Telegraf', function () {
   })
 
   describe('routing', function () {
-    var updateTypes = [
+    const updateTypes = [
       { type: 'message', update: { message: baseMessage } },
       { type: 'edited_message', update: { edited_message: baseMessage } },
       { type: 'callback_query', update: { callback_query: { message: baseMessage } } },
@@ -150,7 +150,7 @@ describe('Telegraf', function () {
 
     updateTypes.forEach(function (test) {
       it('should route ' + test.type, function (done) {
-        var app = new Telegraf()
+        const app = new Telegraf()
         app.on(test.type, (ctx) => {
           done()
         })
@@ -159,7 +159,7 @@ describe('Telegraf', function () {
     })
 
     it('should route many types', function (done) {
-      var app = new Telegraf()
+      const app = new Telegraf()
       app.on(['chosen_inline_result', 'message'], (ctx) => {
         done()
       })
@@ -168,7 +168,7 @@ describe('Telegraf', function () {
     })
 
     it('should provide chat and sender info', function (done) {
-      var app = new Telegraf()
+      const app = new Telegraf()
       app.on(['text', 'message'], (ctx) => {
         ctx.from.id.should.be.equal(42)
         ctx.chat.id.should.be.equal(1)
@@ -178,7 +178,7 @@ describe('Telegraf', function () {
     })
 
     it('should route sub types', function (done) {
-      var app = new Telegraf()
+      const app = new Telegraf()
       app.on('text', (ctx) => {
         done()
       })
@@ -186,8 +186,16 @@ describe('Telegraf', function () {
       app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
     })
 
+    it('should handle tap', function (done) {
+      const app = new Telegraf()
+      app.use(Telegraf.tap(() => {
+        done()
+      }))
+      app.handleUpdate({message: Object.assign({voice: {}}, baseMessage)})
+    })
+
     describe('subtypes', function () {
-      var tests = [
+      const tests = [
         'text',
         'audio',
         'document',
@@ -213,11 +221,11 @@ describe('Telegraf', function () {
 
       tests.forEach(function (test) {
         it('should route ' + test, function (done) {
-          var app = new Telegraf()
+          const app = new Telegraf()
           app.on(test, (ctx) => {
             done()
           })
-          var message = Object.assign({}, baseMessage)
+          const message = Object.assign({}, baseMessage)
           message[test] = {}
           app.handleUpdate({message: message})
         })
@@ -227,7 +235,7 @@ describe('Telegraf', function () {
 
   describe('text handling', function () {
     it('should handle text triggers', function (done) {
-      var app = new Telegraf()
+      const app = new Telegraf()
       app.hears('hello world', (ctx) => {
         done()
       })
@@ -235,7 +243,7 @@ describe('Telegraf', function () {
     })
 
     it('should handle regex triggers', function (done) {
-      var app = new Telegraf()
+      const app = new Telegraf()
       app.hears(/hello (.+)/, (ctx) => {
         ctx.match[1].should.be.equal('world')
         done()
@@ -247,92 +255,92 @@ describe('Telegraf', function () {
 
   describe('Send options', function () {
     it('should generate default options', function (done) {
-      var markup = Object.assign({}, Extra.load({parse_mode: 'LaTeX'}))
+      const markup = Object.assign({}, Extra.load({parse_mode: 'LaTeX'}))
       markup.should.deepEqual({parse_mode: 'LaTeX'})
       done()
     })
 
     it('should generate inReplyTo options', function (done) {
-      var markup = Object.assign({}, Extra.inReplyTo(42))
+      const markup = Object.assign({}, Extra.inReplyTo(42))
       markup.should.deepEqual({reply_to_message_id: 42})
       done()
     })
 
     it('should generate HTML options', function (done) {
-      var markup = Object.assign({}, Extra.HTML())
+      const markup = Object.assign({}, Extra.HTML())
       markup.should.deepEqual({parse_mode: 'HTML'})
       done()
     })
 
     it('should generate Markdown options', function (done) {
-      var markup = Object.assign({}, Extra.markdown())
+      const markup = Object.assign({}, Extra.markdown())
       markup.should.deepEqual({parse_mode: 'Markdown'})
       done()
     })
 
     it('should generate notifications options', function (done) {
-      var markup = Object.assign({}, Extra.notifications(false))
+      const markup = Object.assign({}, Extra.notifications(false))
       markup.should.deepEqual({disable_notification: true})
       done()
     })
 
     it('should generate web preview options', function (done) {
-      var markup = Object.assign({}, Extra.webPreview(false))
+      const markup = Object.assign({}, Extra.webPreview(false))
       markup.should.deepEqual({disable_web_page_preview: true})
       done()
     })
 
     it('should generate markup options', function (done) {
-      var markup = Object.assign({}, Extra.markdown().markup(Markup.hideKeyboard()))
+      const markup = Object.assign({}, Extra.markdown().markup(Markup.hideKeyboard()))
       markup.should.deepEqual({parse_mode: 'Markdown', reply_markup: {hide_keyboard: true}})
       done()
     })
 
     it('should generate markup options in functional style', function (done) {
-      var markup = Object.assign({}, Extra.markdown().markup((markup) => markup.hideKeyboard()))
+      const markup = Object.assign({}, Extra.markdown().markup((markup) => markup.hideKeyboard()))
       markup.should.deepEqual({parse_mode: 'Markdown', reply_markup: {hide_keyboard: true}})
       done()
     })
 
     describe('Reply markup', function () {
       it('should generate hideKeyboard markup', function (done) {
-        var markup = Object.assign({}, Markup.hideKeyboard())
+        const markup = Object.assign({}, Markup.hideKeyboard())
         markup.should.deepEqual({hide_keyboard: true})
         done()
       })
 
       it('should generate forceReply markup', function (done) {
-        var markup = Object.assign({}, Markup.forceReply())
+        const markup = Object.assign({}, Markup.forceReply())
         markup.should.deepEqual({force_reply: true})
         done()
       })
 
       it('should generate resizeKeyboard markup', function (done) {
-        var markup = Object.assign({}, Markup.keyboard([]).resize())
+        const markup = Object.assign({}, Markup.keyboard([]).resize())
         markup.should.deepEqual({resize_keyboard: true})
         done()
       })
 
       it('should generate oneTimeKeyboard markup', function (done) {
-        var markup = Object.assign({}, Markup.keyboard([]).oneTime())
+        const markup = Object.assign({}, Markup.keyboard([]).oneTime())
         markup.should.deepEqual({one_time_keyboard: true})
         done()
       })
 
       it('should generate selective hide markup', function (done) {
-        var markup = Object.assign({}, Markup.hideKeyboard().selective())
+        const markup = Object.assign({}, Markup.hideKeyboard().selective())
         markup.should.deepEqual({hide_keyboard: true, selective: true})
         done()
       })
 
       it('should generate selective one time keyboard markup', function (done) {
-        var markup = Object.assign({}, Markup.keyboard().selective().oneTime())
+        const markup = Object.assign({}, Markup.keyboard().selective().oneTime())
         markup.should.deepEqual({selective: true, one_time_keyboard: true})
         done()
       })
 
       it('should generate keyboard markup', function (done) {
-        var markup = Object.assign({}, Markup.keyboard([['one'], ['two', 'three']]))
+        const markup = Object.assign({}, Markup.keyboard([['one'], ['two', 'three']]))
         markup.should.deepEqual({
           keyboard: [
             ['one'],
@@ -343,7 +351,7 @@ describe('Telegraf', function () {
       })
 
       it('should generate keyboard markup with default setting', function (done) {
-        var markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three']))
+        const markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three']))
         markup.should.deepEqual({
           keyboard: [
             ['one'],
@@ -355,7 +363,7 @@ describe('Telegraf', function () {
       })
 
       it('should generate keyboard markup with options', function (done) {
-        var markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three'], {columns: 3}))
+        const markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three'], {columns: 3}))
         markup.should.deepEqual({
           keyboard: [
             ['one', 'two', 'three']
@@ -365,7 +373,7 @@ describe('Telegraf', function () {
       })
 
       it('should generate keyboard markup with custom columns', function (done) {
-        var markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three', 'four'], {columns: 3}))
+        const markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three', 'four'], {columns: 3}))
         markup.should.deepEqual({
           keyboard: [
             ['one', 'two', 'three'],
@@ -376,7 +384,7 @@ describe('Telegraf', function () {
       })
 
       it('should generate keyboard markup with custom wrap fn', function (done) {
-        var markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three', 'four'], {
+        const markup = Object.assign({}, Markup.keyboard(['one', 'two', 'three', 'four'], {
           wrap: (btn, index, currentRow) => index % 2 !== 0
         }))
         markup.should.deepEqual({
@@ -390,7 +398,7 @@ describe('Telegraf', function () {
       })
 
       it('should generate keyboard markup with default setting', function (done) {
-        var markup = Object.assign({}, Markup.inlineKeyboard(['one', 'two', 'three', 'four']))
+        const markup = Object.assign({}, Markup.inlineKeyboard(['one', 'two', 'three', 'four']))
         markup.should.deepEqual({
           inline_keyboard: [[
             'one',

@@ -8,14 +8,13 @@
     "url": "git+ssh://git@github.com/telegraf/telegraf.git"
   },
   "keywords": [
-    "telegraf",
     "telegram",
-    "telegram bot",
-    "telegram botapi",
-    "telegram bot api",
+    "telegraf",
     "bot",
-    "botapi",
-    "bot framework"
+    "bot framework",
+    "telegram bot",
+    "telegram bot api",
+    "botapi"
   ],
   "authors": [
     "Vitaly Domnikov <dotcypress@gmail.com>"
@@ -42,7 +41,8 @@
     "docs/api.md"
   ],
   "scripts": {
-    "test": "mocha test"
+    "test": "mocha test",
+    "lint": "eslint ."
   },
   "dependencies": {
     "bluebird": "^3.4.0",

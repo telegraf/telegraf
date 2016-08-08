@@ -84,16 +84,26 @@ It returns a Promise with a then function for running code after completion.
 ```js
 const app = new Telegraf(process.env.BOT_TOKEN)
 
-// Logger middleware
 app.use((ctx, next) => {
   const start = new Date()
   return next().then(() => {
     const ms = new Date() - start
-    console.log('response time %sms', ms)
+    console.log('Response time %sms', ms)
   })
 })
 
 app.on('text', (ctx) => ctx.reply('Hello World'))
+```
+
+#### Cascading with async functions (Babel required)
+
+```js
+app.use(async (ctx, next) => {
+  const start = new Date()
+  await next()
+  const ms = new Date() - start
+  console.log('Response time %sms', ms)
+})
 ```
 
 ### State

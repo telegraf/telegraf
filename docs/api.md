@@ -18,7 +18,7 @@ const Telegraf = require('telegraf')
  - [`.hears(triggers, middleware, [middleware...])`](#hears)
  - [`.command(commands, middleware, [middleware...])`](#command)
  - [`.action(triggers, middleware, [middleware...])`](#action)
- - [`.startPolling(timeout, limit)`](#startPolling)
+ - [`.startPolling(timeout, limit, concurrency)`](#startPolling)
  - [`.startWebHook(webHookPath, tlsOptions, port, [host])`](#startwebhook)
  - [`.stop()`](#stop)
  - [`.webHookCallback(webHookPath)`](#webhookcallback)
@@ -106,7 +106,7 @@ Registers middleware for handling `callback_data` actions with regular expressio
 * * *
 
 <a name="startPolling"></a>
-#### `telegraf.startPolling(timeout, limit)`
+#### `telegraf.startPolling(timeout, limit, concurrency)`
 
 Start poll updates.
 
@@ -114,6 +114,7 @@ Start poll updates.
 | --- | --- | --- | --- |
 | timeout | `number` | 0 | Poll timeout |
 | limit | `number` | 100 | Limits the number of updates to be retrieved |
+| concurrency | `number` | 100 | Number of workers |
 
 * * *
 

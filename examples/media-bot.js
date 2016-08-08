@@ -3,20 +3,18 @@ const Telegraf = require('../')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-// Download middleware
 const downloadPhotoMiddleware = (ctx, next) => {
-  return bot.getFileLink(ctx.message.photo[0].file_id).then((link) => {
-    ctx.state.fileLink = link
-    return next()
-  })
+  return bot.getFileLink(ctx.message.photo[0].file_id)
+    .then((link) => {
+      ctx.state.fileLink = link
+      return next()
+    })
 }
 
-// Middlewares, widdlewares everwhere
 bot.on('photo', downloadPhotoMiddleware, (ctx, next) => {
   return ctx.replyWithPhoto({ source: '/directory/file.jpeg' })
 })
 
-// Answer with cats
 bot.on('text', (ctx) => {
   return Promise.all([
     // file

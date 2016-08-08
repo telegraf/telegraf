@@ -1,6 +1,5 @@
 module.exports = Object.assign(
   require('./lib/telegraf'),
-  require('./lib/utils'),
   {
     Composer: require('./lib/composer'),
     Extra: require('./lib/extra'),

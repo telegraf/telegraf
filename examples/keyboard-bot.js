@@ -4,15 +4,16 @@ const { Extra, Markup } = require('../')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.command('/onetime', (ctx) => {
-  return ctx.reply('One time keyboard', Extra.markup((markup) => {
-    return markup.resize()
-      .oneTime()
-      .keyboard([
-        '/simple',
-        '/inline',
-        '/pyramid'
-      ])
-  }))
+  return ctx.reply('One time keyboard', Markup
+    .keyboard([
+      '/simple',
+      '/inline',
+      '/pyramid'
+    ])
+    .oneTime()
+    .resize()
+    .extra()
+  )
 })
 
 bot.command('/special', (ctx) => {
@@ -56,12 +57,13 @@ bot.command('/inline', (ctx) => {
 })
 
 bot.command('/random', (ctx) => {
-  return ctx.reply('random example', Extra.markup(
+  return ctx.reply('random example',
     Markup.inlineKeyboard([
       Markup.callbackButton('Coke', 'Coke'),
       Markup.callbackButton('Dr Pepper', 'Dr Pepper', undefined, Math.random() > 0.5),
       Markup.callbackButton('Pepsi', 'Pepsi')
-    ])))
+    ]).extra()
+  )
 })
 
 bot.action('Dr Pepper', (ctx, next) => {
@@ -72,4 +74,4 @@ bot.action(/.+/, (ctx) => {
   return ctx.answerCallbackQuery(`Oh, ${ctx.match[0]}! Great choise`)
 })
 
-bot.startPolling(30)
+bot.startPolling(0)

@@ -22,12 +22,13 @@
 
 - [Internationalization](https://github.com/telegraf/telegraf-i18n)
 - [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
-- [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
 - [Stateful chatbots engine](https://github.com/telegraf/telegraf-flow)
-- [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
-- [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)
-- [statsd integration](https://github.com/telegraf/telegraf-statsd)
+- [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
+- [Natural language processing via wit.ai](https://github.com/telegraf/telegraf-wit)
 - [Natural language processing via recast.ai](https://github.com/telegraf/telegraf-recast)
+- [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)
+- [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
+- [statsd integration](https://github.com/telegraf/telegraf-statsd)
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
 
 ## Installation

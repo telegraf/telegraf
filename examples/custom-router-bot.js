@@ -25,10 +25,9 @@ const defaultMarkup = Extra.HTML().markup((markup) => markup.inlineKeyboard([
 ], {columns: 3}))
 
 function editText (ctx) {
-  if (ctx.session.value !== 42) {
-    return ctx.editMessageText(`Value: <b>${ctx.session.value}</b>`, defaultMarkup).catch(() => undefined)
-  }
-  return ctx.answerCallbackQuery('🎉', true).then(() => ctx.editMessageText(`🎉 ${ctx.session.value} 🎉`))
+  return ctx.session.value !== 42
+    ? ctx.editMessageText(`Value: <b>${ctx.session.value}</b>`, defaultMarkup).catch(() => undefined)
+    : ctx.answerCallbackQuery('🎉', true).then(() => ctx.editMessageText(`🎉 ${ctx.session.value} 🎉`))
 }
 
 const bot = new Telegraf(process.env.BOT_TOKEN)

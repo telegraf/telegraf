@@ -41,8 +41,7 @@
     "docs/api.md"
   ],
   "scripts": {
-    "test": "mocha test",
-    "lint": "eslint ."
+    "test": "eslint . && mocha test"
   },
   "dependencies": {
     "bluebird": "^3.4.0",

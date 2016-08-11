@@ -106,7 +106,7 @@ Registers middleware for handling `callback_data` actions with regular expressio
 * * *
 
 <a name="startPolling"></a>
-#### `telegraf.startPolling(timeout, limit, concurrency)`
+#### `telegraf.startPolling(timeout, limit)`
 
 Start poll updates.
 
@@ -114,7 +114,6 @@ Start poll updates.
 | --- | --- | --- | --- |
 | timeout | `number` | 0 | Poll timeout |
 | limit | `number` | 100 | Limits the number of updates to be retrieved |
-| concurrency | `number` | 100 | Number of workers |
 
 * * *
 

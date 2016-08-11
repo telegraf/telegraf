@@ -11,25 +11,11 @@
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
 - Incredibly fast
-- Easy to extend
+- [Easy to extend](#middleware)
 - Minimum dependencies
-- [Middlewares, middlewares everywhere](#middlewares)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - http/https/Connect/express.js webhooks
 - Reply via webhook
-
-## Middlewares
-
-- [Internationalization](https://github.com/telegraf/telegraf-i18n)
-- [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
-- [Stateful chatbots engine](https://github.com/telegraf/telegraf-flow)
-- [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
-- [Natural language processing via wit.ai](https://github.com/telegraf/telegraf-wit)
-- [Natural language processing via recast.ai](https://github.com/telegraf/telegraf-recast)
-- [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)
-- [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
-- [statsd integration](https://github.com/telegraf/telegraf-statsd)
-- [and more...](https://www.npmjs.com/search?q=telegraf-)
 
 ## Installation
 
@@ -64,12 +50,11 @@ Context is created per request and contains following props:
 
 ```js
 app.on('message', (ctx) => {
-  ctx.telegram             // Telegram instance
-  ctx.updateType           // Update type(message, inline_query, etc.)
-  [ctx.updateSubType]      // Update subtype(text, sticker, audio, etc.)
-  [ctx.message]            // Received message
-  [ctx.inlineQuery]        // Received inline query
-  ...
+  ctx.telegram           // Telegram wrapper instance
+  ctx.updateType         // Update type(message, inline_query, etc.)
+  [ctx.message]          // Received message
+  [ctx.inlineQuery]      // Received inline query
+  [...]                  // See api.doc
 })
 ```
 
@@ -84,17 +69,41 @@ It returns a Promise with a then function for running code after completion.
 ```js
 const app = new Telegraf(process.env.BOT_TOKEN)
 
-// Logger middleware
 app.use((ctx, next) => {
   const start = new Date()
   return next().then(() => {
     const ms = new Date() - start
-    console.log('response time %sms', ms)
+    console.log('Response time %sms', ms)
   })
 })
 
 app.on('text', (ctx) => ctx.reply('Hello World'))
 ```
+
+#### Cascading with async functions (Babel required)
+
+```js
+app.use(async (ctx, next) => {
+  const start = new Date()
+  await next()
+  const ms = new Date() - start
+  console.log('Response time %sms', ms)
+})
+```
+
+<a name="middleware"></a>
+#### Known middleware
+
+- [Internationalization](https://github.com/telegraf/telegraf-i18n)
+- [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
+- [Stateful chatbots engine](https://github.com/telegraf/telegraf-flow)
+- [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
+- [Natural language processing via wit.ai](https://github.com/telegraf/telegraf-wit)
+- [Natural language processing via recast.ai](https://github.com/telegraf/telegraf-recast)
+- [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)
+- [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
+- [statsd integration](https://github.com/telegraf/telegraf-statsd)
+- [and more...](https://www.npmjs.com/search?q=telegraf-)
 
 ### State
 

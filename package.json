@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "2.6.2",
+  "version": "2.6.3",
   "description": "📢 Telegram bot framework",
   "main": "index.js",
   "repository": {
@@ -41,11 +41,9 @@
     "docs/api.md"
   ],
   "scripts": {
-    "test": "mocha test",
-    "lint": "eslint ."
+    "test": "eslint . && mocha test"
   },
   "dependencies": {
-    "bluebird": "^3.4.0",
     "debug": "^2.2.0",
     "node-fetch": "^1.5.1",
     "sandwich-stream": "^1.0.0"

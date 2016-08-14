@@ -47,8 +47,17 @@ Initialize new Telegraf app.
 | Param | Type | Description |
 | --- | --- | --- |
 | token | `string` | [Bot Token](https://core.telegram.org/bots#3-how-do-i-create-a-bot) |
-| options | `object` | Options
+| options | `object` | Telegraf options |
 
+Telegraf options:
+
+```js
+{
+  telegram: {      // Telegram options
+    agent: null    // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+  }  
+}
+```
 * * *
 
 <a name="use"></a>
@@ -400,7 +409,7 @@ bot.on('inline_query', (ctx) => {
 const { Telegram } = require('telegraf')
 ```
 
-- [`new Telegram(token)`](#new-telegram)
+- [`new Telegram(token, options)`](#new-telegram)
   - [`.answerCallbackQuery(callbackQueryId, text, showAlert)`](#answercallbackquery)
   - [`.answerInlineQuery(inlineQueryId, results, extra)`](#answerinlinequery)
   - [`.editMessageCaption(chatId, messageId, inlineMessageId, caption, extra)`](#editmessagecaption)
@@ -443,8 +452,15 @@ Initialize new Telegraf app.
 | Param | Type | Description |
 | --- | --- | --- |
 | token | `string` | [Bot Token](https://core.telegram.org/bots#3-how-do-i-create-a-bot) |
-| options | `object` | Options |
+| options | `object` | Telegram options |
 
+Telegram options:
+
+```js
+{
+  agent: null // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+}
+```
  
 * * *
 

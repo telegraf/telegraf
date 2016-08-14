@@ -121,7 +121,7 @@ Start poll updates.
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| timeout | `number` | 0 | Poll timeout |
+| timeout | `number` | 30 | Poll timeout in seconds |
 | limit | `number` | 100 | Limits the number of updates to be retrieved |
 
 * * *

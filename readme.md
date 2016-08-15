@@ -142,7 +142,9 @@ By default Telegraf will print all errors to stderr and rethrow error.
 To perform custom error-handling logic see following snippet:
 
 ```js
-telegraf.catch((err) => {
+const app = new Telegraf(process.env.BOT_TOKEN)
+
+app.catch((err) => {
   log.error('Ooops', err)
   throw err
 })

@@ -1,4 +1,4 @@
-# Telegraf reference
+# Telegraf API reference
 
 - [Telegraf](#telegraf-api)
 - [Context](#context)
@@ -6,7 +6,7 @@
 - [Uploading files](#file)
 - [Webhooks](#webhooks)
 
-## Telegraf API
+## Telegraf
 
 ```js
 const Telegraf = require('telegraf')
@@ -403,7 +403,7 @@ bot.on('inline_query', (ctx) => {
 })
 ```
 
-## Telegram API
+## Telegram
 
 ```js
 const { Telegram } = require('telegraf')

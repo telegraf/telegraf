@@ -139,13 +139,13 @@ app.on('text', (ctx) => {
 ### Error Handling
 
 By default Telegraf will print all errors to stderr and rethrow error. 
-To perform custom error-handling logic you can set `onError` handler:
+To perform custom error-handling logic see following snippet:
 
 ```js
-telegraf.onError = (err) => {
+telegraf.catch((err) => {
   log.error('Ooops', err)
   throw err
-}
+})
 ```
 
 ### Developer docs

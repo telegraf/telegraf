@@ -24,7 +24,6 @@ bot.on('text', (ctx, next) => {
     return next()
   }
   return Promise.all([
-    ctx.reply('Highly advised to visit:'),
     ctx.replyWithLocation((Math.random() * 180) - 90, (Math.random() * 180) - 90),
     next()
   ])
@@ -41,6 +40,12 @@ bot.hears('Hey', sayYoMiddleware, (ctx) => {
 bot.command('/answer', sayYoMiddleware, (ctx) => {
   console.log(ctx.message)
   return ctx.reply('*42*', {parse_mode: 'Markdown'})
+})
+
+bot.command('/cat', (ctx) => {
+  return ctx.replyWithPhoto({
+    url: 'http://lorempixel.com/400/200/cats/'
+  })
 })
 
 // Wow! RegEx

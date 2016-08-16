@@ -28,17 +28,17 @@
     "node": ">=6.2.0"
   },
   "files": [
-    "index.js",
+    "docs/api.md",
+    "lib/shared/composer.js",
+    "lib/shared/memory-session.js",
+    "lib/shared/router.js",
+    "lib/telegram/client.js",
+    "lib/telegram/extra.js",
+    "lib/telegram/platform.js",
+    "lib/telegram/reply-markup.js",
     "lib/context.js",
-    "lib/composer.js",
-    "lib/extra.js",
-    "lib/memory-session.js",
-    "lib/platform.js",
-    "lib/reply-markup.js",
-    "lib/router.js",
     "lib/telegraf.js",
-    "lib/telegram.js",
-    "docs/api.md"
+    "index.js"
   ],
   "scripts": {
     "test": "eslint . && mocha test"

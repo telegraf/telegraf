@@ -1,6 +1,6 @@
 require('should')
 const Telegraf = require('../')
-const { Extra, Markup } = Telegraf
+const { Extra, Markup, Composer } = Telegraf
 
 const baseMessage = {
   chat: {
@@ -250,6 +250,32 @@ describe('Telegraf', function () {
       })
       app.handleUpdate({message: Object.assign({text: 'Ola!'}, baseMessage)})
       app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+    })
+  })
+
+  describe('Composer', function () {
+    it('should support Composer instance as middleware', function (done) {
+      const app = new Telegraf()
+      const composer = new Composer()
+      composer.on('text', (ctx) => {
+        ctx.state.foo.should.be.equal('bar')
+        done()
+      })
+      app.use((ctx, next) => {
+        ctx.state.foo = 'bar'
+        return next()
+      }, composer)
+      app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
+    })
+
+    it('should support Composer instance as handler', function (done) {
+      const app = new Telegraf()
+      const composer = new Composer()
+      composer.on('text', (ctx) => {
+        done()
+      })
+      app.on('text', composer)
+      app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
     })
   })
 

@@ -253,6 +253,24 @@ describe('Telegraf', function () {
     })
   })
 
+  describe('command handling', function () {
+    it('should handle command', function (done) {
+      const app = new Telegraf()
+      app.command('/start', (ctx) => {
+        done()
+      })
+      app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
+    })
+
+    it('should handle short command', function (done) {
+      const app = new Telegraf()
+      app.command('start', (ctx) => {
+        done()
+      })
+      app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
+    })
+  })
+
   describe('Composer', function () {
     it('should support Composer instance as middleware', function (done) {
       const app = new Telegraf()

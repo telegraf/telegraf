@@ -36,7 +36,9 @@ bot.use(memorySession())
 
 bot.on('callback_query', callbackRouter.middleware())
 
-bot.command('/start', (ctx) => {
+bot.use(Telegraf.log())
+
+bot.command('start', (ctx) => {
   ctx.session.value = 0
   return ctx.reply(`Value: <b>${ctx.session.value}</b>`, defaultMarkup)
 })

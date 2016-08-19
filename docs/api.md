@@ -98,7 +98,12 @@ Registers middleware for handling `text` messages with regular expressions.
 <a name="command"></a>
 #### `telegraf.command(commands, middleware, [middleware...])`
 
-Shortcut for [`hears`](#hears)
+Command handling.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string[]` | Commands |
+| middleware | `function` | Middleware |
 
 * * *
 

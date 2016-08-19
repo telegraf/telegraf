@@ -26,14 +26,6 @@ bot.command('special', (ctx) => {
   }))
 })
 
-bot.command(/\/wrap (\d+)/, (ctx) => {
-  return ctx.reply('Keyboard wrap', Extra.markup(
-    Markup.keyboard(['one', 'two', 'three', 'four', 'five', 'six'], {
-      columns: parseInt(ctx.match[1])
-    })
-  ))
-})
-
 bot.command('pyramid', (ctx) => {
   return ctx.reply('Keyboard wrap', Extra.markup(
     Markup.keyboard(['one', 'two', 'three', 'four', 'five', 'six'], {
@@ -64,6 +56,14 @@ bot.command('random', (ctx) => {
       Markup.callbackButton('Pepsi', 'Pepsi')
     ]).extra()
   )
+})
+
+bot.hears(/\/wrap (\d+)/, (ctx) => {
+  return ctx.reply('Keyboard wrap', Extra.markup(
+    Markup.keyboard(['one', 'two', 'three', 'four', 'five', 'six'], {
+      columns: parseInt(ctx.match[1])
+    })
+  ))
 })
 
 bot.action('Dr Pepper', (ctx, next) => {

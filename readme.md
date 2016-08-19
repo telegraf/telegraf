@@ -11,7 +11,8 @@
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
 - Incredibly fast
-- [Easy to extend](#middleware)
+- Easy to extend
+- [Community middleware](#middleware)
 - Minimum dependencies
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - http/https/Connect/express.js webhooks

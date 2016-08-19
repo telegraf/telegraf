@@ -37,12 +37,12 @@ bot.hears('Hey', sayYoMiddleware, (ctx) => {
 })
 
 // Command handling
-bot.command('/answer', sayYoMiddleware, (ctx) => {
+bot.command('answer', sayYoMiddleware, (ctx) => {
   console.log(ctx.message)
   return ctx.reply('*42*', {parse_mode: 'Markdown'})
 })
 
-bot.command('/cat', (ctx) => {
+bot.command('cat', (ctx) => {
   return ctx.replyWithPhoto({
     url: 'http://lorempixel.com/400/200/cats/'
   })

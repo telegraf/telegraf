@@ -33,6 +33,8 @@
     "lib/shared/memory-session.js",
     "lib/shared/router.js",
     "lib/telegram/client.js",
+    "lib/telegram/error.js",
+    "lib/telegram/multipart-stream.js",
     "lib/telegram/extra.js",
     "lib/telegram/platform.js",
     "lib/telegram/reply-markup.js",

@@ -43,7 +43,7 @@
     "index.js"
   ],
   "scripts": {
-    "test": "eslint . && mocha test"
+    "test": "eslint . && ava test"
   },
   "dependencies": {
     "debug": "^2.2.0",
@@ -51,12 +51,13 @@
     "sandwich-stream": "^1.0.0"
   },
   "devDependencies": {
+    "ava": "^0.16.0",
     "eslint": "^3.1.1",
     "eslint-config-standard": "^6.0.0",
+    "eslint-plugin-ava": "^3.0.0",
     "eslint-plugin-mocha": "^4.0.0",
     "eslint-plugin-promise": "^2.0.0",
     "eslint-plugin-standard": "^2.0.0",
-    "mocha": "^3.0.0",
     "should": "^11.1.0",
     "supervisor": "^0.11.0"
   }

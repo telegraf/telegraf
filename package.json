@@ -2,30 +2,15 @@
   "name": "telegraf",
   "version": "2.7.2",
   "description": "📢 Telegram bot framework",
-  "main": "index.js",
+  "license": "MIT",
+  "author": "Vitaly Domnikov <dotcypress@gmail.com>",
+  "homepage": "https://github.com/telegraf/telegraf#readme",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/telegraf/telegraf.git"
   },
-  "keywords": [
-    "telegram",
-    "telegraf",
-    "bot",
-    "bot framework",
-    "telegram bot",
-    "telegram bot api",
-    "botapi"
-  ],
-  "authors": [
-    "Vitaly Domnikov <dotcypress@gmail.com>"
-  ],
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/telegraf/telegraf/issues"
-  },
-  "homepage": "https://github.com/telegraf/telegraf#readme",
-  "engines": {
-    "node": ">=6.2.0"
   },
   "files": [
     "docs/api.md",
@@ -42,8 +27,12 @@
     "lib/telegraf.js",
     "index.js"
   ],
+  "main": "index.js",
   "scripts": {
     "test": "eslint . && ava test"
+  },
+  "engines": {
+    "node": ">=6.2.0"
   },
   "dependencies": {
     "debug": "^2.2.0",
@@ -58,7 +47,15 @@
     "eslint-plugin-mocha": "^4.0.0",
     "eslint-plugin-promise": "^2.0.0",
     "eslint-plugin-standard": "^2.0.0",
-    "should": "^11.1.0",
-    "supervisor": "^0.11.0"
-  }
+    "should": "^11.1.0"
+  },
+  "keywords": [
+    "telegram",
+    "telegraf",
+    "bot",
+    "bot framework",
+    "telegram bot",
+    "telegram bot api",
+    "botapi"
+  ]
 }

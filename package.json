@@ -13,19 +13,19 @@
     "url": "https://github.com/telegraf/telegraf/issues"
   },
   "files": [
+    "index.js",
     "docs/api.md",
-    "lib/shared/composer.js",
-    "lib/shared/memory-session.js",
-    "lib/shared/router.js",
+    "lib/composer.js",
+    "lib/context.js",
+    "lib/memory-session.js",
+    "lib/router.js",
+    "lib/telegraf.js",
     "lib/telegram/client.js",
     "lib/telegram/error.js",
-    "lib/telegram/multipart-stream.js",
     "lib/telegram/extra.js",
+    "lib/telegram/multipart-stream.js",
     "lib/telegram/platform.js",
-    "lib/telegram/reply-markup.js",
-    "lib/context.js",
-    "lib/telegraf.js",
-    "index.js"
+    "lib/telegram/reply-markup.js"
   ],
   "main": "index.js",
   "scripts": {

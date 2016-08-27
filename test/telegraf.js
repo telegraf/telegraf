@@ -169,3 +169,28 @@ test.cb('should handle short command', (t) => {
   })
   app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
 })
+
+test.cb('should handle short command with offset', (t) => {
+  const app = new Telegraf()
+  app.command('start', (ctx) => {
+    t.end()
+  })
+  app.handleUpdate({message: Object.assign({text: 'Hey /start', entities: [{type: 'bot_command', offset: 4, length: 6}]}, baseMessage)})
+})
+
+test.cb('should handle command in group', (t) => {
+  const app = new Telegraf('---', {username: 'bot'})
+  app.command('start', (ctx) => {
+    t.end()
+  })
+  app.handleUpdate({message: {text: '/start@bot', entities: [{type: 'bot_command', offset: 0, length: 10}], chat: {id: 2, type: 'group'}}})
+})
+
+test.cb('should handle command in supergroup', (t) => {
+  const app = new Telegraf()
+  app.options.username = 'bot'
+  app.command('start', (ctx) => {
+    t.end()
+  })
+  app.handleUpdate({message: {text: '/start@bot', entities: [{type: 'bot_command', offset: 0, length: 10}], chat: {id: 2, type: 'supergroup'}}})
+})

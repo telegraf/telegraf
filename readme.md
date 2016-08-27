@@ -52,7 +52,7 @@ Context is created per request and contains following props:
 ```js
 app.on('message', (ctx) => {
   ctx.telegram           // Telegram wrapper instance
-  ctx.updateType         // Update type(message, inline_query, etc.)
+  ctx.updateType         // Update type (message, inline_query, etc.)
   [ctx.message]          // Received message
   [ctx.inlineQuery]      // Received inline query
   [...]                  // See api.doc

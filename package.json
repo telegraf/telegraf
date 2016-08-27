@@ -29,7 +29,7 @@
   ],
   "main": "index.js",
   "scripts": {
-    "test": "eslint . && ava test"
+    "test": "eslint . && ava test --timeout=1s"
   },
   "engines": {
     "node": ">=6.2.0"

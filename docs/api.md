@@ -55,7 +55,8 @@ Telegraf options:
 {
   telegram: {      // Telegram options
     agent: null    // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
-  }  
+  },
+  username: ''     // Bot username (optional)  
 }
 ```
 * * *
@@ -293,8 +294,9 @@ Context is created per request and contains following props:
 ```js
 app.use((ctx) => {
   ctx.telegram             // Telegram instance
-  ctx.updateType           // Update type(message, inline_query, etc.)
-  [ctx.updateSubType]      // Update subtype(text, sticker, audio, etc.)
+  ctx.updateType           // Update type (message, inline_query, etc.)
+  [ctx.updateSubType]      // Update subtype (text, sticker, audio, etc.)
+  [ctx.me]                 // Bot username
   [ctx.message]            // Received message
   [ctx.editedMessage]      // Edited message
   [ctx.inlineQuery]        // Received inline query
@@ -406,6 +408,26 @@ bot.on('inline_query', (ctx) => {
   // Using shortcut
   ctx.answerInlineQuery(result)
 })
+```
+
+### Command handling in groups/supergroups
+
+For handling group/supergroup commands (/start@your_bot) you need to provide bot username.
+
+```js
+
+// Provide with options
+const app = new Telegraf(process.env.BOT_TOKEN, {username: 'your_bot'})
+
+// Or you can get username from Telegram server
+const app = new Telegraf(process.env.BOT_TOKEN)
+
+app.telegram.getMe().then((botInfo) => {
+  this.options.username = botInfo.username
+})
+
+
+app.command('start', (ctx) => ctx.reply('Hello World'))
 ```
 
 ## Telegram

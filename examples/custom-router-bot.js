@@ -50,7 +50,6 @@ callbackRouter.on('clear', (ctx) => {
 
 bot.startPolling(30)
 
-
 function editText (ctx) {
   return ctx.session.value !== 42
     ? ctx.editMessageText(`Value: <b>${ctx.session.value}</b>`, defaultMarkup).catch(() => undefined)

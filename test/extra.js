@@ -3,6 +3,11 @@ const test = require('ava')
 const Telegraf = require('../')
 const { Extra, Markup } = Telegraf
 
+test('should generate default options from contructor', (t) => {
+  const markup = Object.assign({}, new Extra({parse_mode: 'LaTeX'}))
+  markup.should.deepEqual({parse_mode: 'LaTeX'})
+})
+
 test('should generate default options', (t) => {
   const markup = Object.assign({}, Extra.load({parse_mode: 'LaTeX'}))
   markup.should.deepEqual({parse_mode: 'LaTeX'})

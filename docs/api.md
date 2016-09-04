@@ -410,6 +410,23 @@ bot.on('inline_query', (ctx) => {
 })
 ```
 
+### State
+
+The recommended namespace to share information between middlewares.
+
+```js
+const app = new Telegraf(process.env.BOT_TOKEN)
+
+app.use((ctx, next) => {
+  ctx.state.role = getUserRole(ctx.message) 
+  return next()
+})
+
+app.on('text', (ctx) => {
+  return ctx.reply(`Hello ${ctx.state.role}`)
+})
+```
+
 ### Command handling in groups/supergroups
 
 For handling group/supergroup commands (/start@your_bot) you need to provide bot username.

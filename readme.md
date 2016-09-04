@@ -12,6 +12,7 @@
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
 - Incredibly fast
 - Easy to extend
+- Keyboard helpers
 - [Community middleware](#middleware)
 - Minimum dependencies
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -93,7 +94,7 @@ app.use(async (ctx, next) => {
 ```
 
 <a name="middleware"></a>
-#### Known middleware
+#### Middleware
 
 - [Internationalization](https://github.com/telegraf/telegraf-i18n)
 - [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
@@ -127,7 +128,9 @@ app.on('text', (ctx) => {
 
 ```js
 const app = new Telegraf(process.env.BOT_TOKEN)
+
 app.use(Telegraf.memorySession())
+
 app.on('text', (ctx) => {
   ctx.session.counter = ctx.session.counter || 0
   ctx.session.counter++

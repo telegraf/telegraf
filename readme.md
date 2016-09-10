@@ -1,11 +1,15 @@
-[![License](https://img.shields.io/npm/l/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
+[![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![bitHound](https://img.shields.io/bithound/code/github/telegraf/telegraf.svg?style=flat-square)](https://www.bithound.io/github/telegraf/telegraf)
 [![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
-[![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com/)
 
-📣 Telegram bot framework for Node.js
+# Telegraf
+> 📣 Modern Telegram bot framework for Node.js
+
+Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
+Users can interact with bots by sending them command messages in private or group chats. 
+These accounts serve as an interface for code running somewhere on your server.
 
 ## Features
 
@@ -20,10 +24,19 @@
 ## Installation
 
 ```js
-$ npm install telegraf
+$ npm install telegraf --save
 ```
 
-## Example bot
+## Telegram token
+
+To use the [Telegram Bot API](https://core.telegram.org/bots/api), 
+you first have to [get a bot account](https://core.telegram.org/bots) 
+by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
+
+BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
+With the token in hand, you can start using telepot to access the bot account.
+
+## Example
   
 ```js
 const Telegraf = require('telegraf')
@@ -39,8 +52,3 @@ There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/ex
 
 [Telegraf developer docs](http://telegraf.js.org)
 
-## License
-
-The MIT License (MIT)
-
-Copyright (c) 2016 Telegraf

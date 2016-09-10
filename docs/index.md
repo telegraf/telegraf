@@ -1,6 +1,12 @@
 # Telegraf
 <!--{h1:.massive-header.-with-tagline}-->
-> Telegram bot framework for Node.js
+> Modern Telegram bot framework for Node.js
+
+Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
+Users can interact with bots by sending them command messages in private or group chats. 
+These accounts serve as an interface for code running somewhere on your server.
+
+### Features
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -15,6 +21,15 @@
 ```js
 $ npm install telegraf --save
 ```
+
+## Telegram token
+
+To use the [Telegram Bot API](https://core.telegram.org/bots/api), 
+you first have to [get a bot account](https://core.telegram.org/bots) 
+by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
+
+BotFather will give you a **token**, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
+With the token in hand, you can start using telepot to access the bot account.
 
 ### Example
   

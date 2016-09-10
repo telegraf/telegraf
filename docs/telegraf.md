@@ -204,3 +204,47 @@ Generates branch middleware.
 | test | `truthy`\|`function` | Value or predicate `(ctx) => bool` |
 | trueMiddleware | `function` | true action  middleware |
 | falseMiddleware | `function` | false action middleware |
+
+### Working with files
+
+Supported file sources:
+
+- `Existing file_id`
+- `File path`
+- `Url`
+- `Buffer`
+- `ReadStream`
+
+Also you can provide optional name of file as `filename`.
+
+```js
+
+  // resend existing file by file_id
+  telegram.sendSticker('chatId', '123123jkbhj6b')
+
+  // send file
+  telegram.sendVideo('chatId', {
+    source: '/path/to/video.mp4'
+  })
+
+   // send stream
+  telegram.sendVideo('chatId', {
+    source: fs.createReadStream('/path/to/video.mp4')
+  })
+  
+  // send buffer
+  telegram.sendVoice('chatId', {
+    source: new Buffer()
+  })
+
+  // send url
+  telegram.sendPhoto('chatId', {
+    url: 'http://lorempixel.com/400/200/cats/',
+    filename: 'kitten.jpg'
+  })
+```
+
+*FYI: Telegram servers detect content type using file extension (May 2016).*
+
+<sub>[Related Telegram api docs](https://core.telegram.org/bots/api#file)</sub>
+

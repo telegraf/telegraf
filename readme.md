@@ -10,14 +10,12 @@
 ## Features
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
+- [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
+- Minimum dependencies
 - Easy to extend
 - Keyboard helpers
-- [Community middleware](#middleware)
-- Minimum dependencies
-- [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - http/https/Connect/express.js webhooks
-- Reply via webhook
 
 ## Installation
 
@@ -35,9 +33,9 @@ app.on('message', (ctx) => ctx.reply('42'))
 app.startPolling()
 ```
 
-There are some other [examples](https://github.com/telegraf/telegraf/tree/master/examples).
+There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/examples).
 
-### Developer docs
+## Documentation
 
 [Telegraf developer docs](http://telegraf.js.org)
 

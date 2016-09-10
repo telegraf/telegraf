@@ -2,9 +2,10 @@ Documentation
 =============
 
 * Telegraf
-  * [Quick start](index.md)
+  * [Home](index.md)
   * [Introduction](introduction.md)
-  * [Advanced usage](routing.md)
+  * [ctx](context.md)
+  * [Advanced usage](advanced.md)
 * API Reference
   * [Telegraf](telegraf.md)
   * [Telegram](telegram.md)

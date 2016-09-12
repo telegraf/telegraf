@@ -1,24 +1,19 @@
-[![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
-[![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
-[![bitHound](https://img.shields.io/bithound/code/github/telegraf/telegraf.svg?style=flat-square)](https://www.bithound.io/github/telegraf/telegraf)
-[![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com/)
-
 # Telegraf
-> 📣 Modern Telegram bot framework for Node.js
+<!--{h1:.massive-header.-with-tagline}-->
+> Modern Telegram bot framework for Node.js
 
 Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
 Users can interact with bots by sending them command messages in private or group chats. 
 These accounts serve as an interface for code running somewhere on your server.
 
-## Features
+### Features
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
-- Minimum dependencies
 - Easy to extend
 - Keyboard helpers
+- Minimum dependencies
 - http/https/Connect/express.js webhooks
 
 ## Installation
@@ -33,10 +28,10 @@ To use the [Telegram Bot API](https://core.telegram.org/bots/api),
 you first have to [get a bot account](https://core.telegram.org/bots) 
 by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
-BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
+BotFather will give you a **token**, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
 With the token in hand, you can start developing your bot.
 
-## Example
+### Example
   
 ```js
 const Telegraf = require('telegraf')
@@ -47,9 +42,4 @@ app.on('sticker', (ctx) => ctx.reply('👍'))
 app.startPolling()
 ```
 
-There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/examples).
-
-## Documentation
-
-[Telegraf developer docs](http://telegraf.js.org)
-
+There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/examples)

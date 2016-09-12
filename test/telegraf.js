@@ -87,6 +87,16 @@ test.cb('should provide shortcuts for `callback_query` event', (t) => {
   app.handleUpdate({callback_query: baseMessage})
 })
 
+test.cb('should provide chat and sender info', (t) => {
+  const app = new Telegraf()
+  app.on(['text', 'message'], (ctx) => {
+    ctx.from.id.should.be.equal(42)
+    ctx.chat.id.should.be.equal(1)
+    t.end()
+  })
+  app.handleUpdate({message: Object.assign({from: {id: 42}}, baseMessage)})
+})
+
 test.cb('should provide shortcuts for `inline_query` event', (t) => {
   const app = new Telegraf()
   app.on('inline_query', (ctx) => {
@@ -134,63 +144,4 @@ test.cb('should handle webhook response', (t) => {
     end: () => undefined
   }
   app.handleUpdate({message: baseMessage}, res)
-})
-
-test.cb('should handle text triggers', (t) => {
-  const app = new Telegraf()
-  app.hears('hello world', (ctx) => {
-    t.end()
-  })
-  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
-})
-
-test.cb('should handle regex triggers', (t) => {
-  const app = new Telegraf()
-  app.hears(/hello (.+)/, (ctx) => {
-    ctx.match[1].should.be.equal('world')
-    t.end()
-  })
-  app.handleUpdate({message: Object.assign({text: 'Ola!'}, baseMessage)})
-  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
-})
-
-test.cb('should handle command', (t) => {
-  const app = new Telegraf()
-  app.command('/start', (ctx) => {
-    t.end()
-  })
-  app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
-})
-
-test.cb('should handle short command', (t) => {
-  const app = new Telegraf()
-  app.command('start', (ctx) => {
-    t.end()
-  })
-  app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
-})
-
-test.cb('should handle short command with offset', (t) => {
-  const app = new Telegraf()
-  app.command('start', (ctx) => {
-    t.end()
-  })
-  app.handleUpdate({message: Object.assign({text: 'Hey /start', entities: [{type: 'bot_command', offset: 4, length: 6}]}, baseMessage)})
-})
-
-test.cb('should handle command in group', (t) => {
-  const app = new Telegraf('---', {username: 'bot'})
-  app.command('start', (ctx) => {
-    t.end()
-  })
-  app.handleUpdate({message: {text: '/start@bot', entities: [{type: 'bot_command', offset: 0, length: 10}], chat: {id: 2, type: 'group'}}})
-})
-
-test.cb('should handle command in supergroup', (t) => {
-  const app = new Telegraf()
-  app.options.username = 'bot'
-  app.command('start', (ctx) => {
-    t.end()
-  })
-  app.handleUpdate({message: {text: '/start@bot', entities: [{type: 'bot_command', offset: 0, length: 10}], chat: {id: 2, type: 'supergroup'}}})
 })

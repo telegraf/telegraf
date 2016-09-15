@@ -6,7 +6,7 @@ Bots are special [Telegram](https://telegram.org) accounts designed to handle me
 Users can interact with bots by sending them command messages in private or group chats. 
 These accounts serve as an interface for code running somewhere on your server.
 
-### Features
+## Features
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -31,7 +31,7 @@ by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 BotFather will give you a **token**, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
 With the token in hand, you can start developing your bot.
 
-### Example
+## Example
   
 ```js
 const Telegraf = require('telegraf')

@@ -85,11 +85,12 @@ updateTypes.forEach((update) => {
   })
 })
 
-test('should throw error then called with invalid middleware', (t) => {
+test.cb('should throw error then called with invalid middleware', (t) => {
   const app = new Telegraf()
-  t.throws(() => {
-    app.on('text', 'foo')
+  app.catch((e) => {
+    t.end()
   })
+  app.on('text', 'foo')
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
 })
 
@@ -109,13 +110,6 @@ test('should throw error then called with undefined trigger', (t) => {
   const app = new Telegraf()
   t.throws(() => {
     app.hears(['foo', null])
-  })
-})
-
-test('should throw error then called without middleware', (t) => {
-  const app = new Telegraf()
-  t.throws(() => {
-    app.hears('foo')
   })
 })
 
@@ -275,7 +269,6 @@ test.cb('Composer.dispatch should work with async fn', (t) => {
         t.end()
       }
     ]))
-  app.use(() => t.end())
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 

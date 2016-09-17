@@ -85,11 +85,12 @@ updateTypes.forEach((update) => {
   })
 })
 
-test('should throw error then called with invalid middleware', (t) => {
+test.cb('should throw error then called with invalid middleware', (t) => {
   const app = new Telegraf()
-  t.throws(() => {
-    app.on('text', 'foo')
+  app.catch((e) => {
+    t.end()
   })
+  app.on('text', 'foo')
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
 })
 
@@ -109,13 +110,6 @@ test('should throw error then called with undefined trigger', (t) => {
   const app = new Telegraf()
   t.throws(() => {
     app.hears(['foo', null])
-  })
-})
-
-test('should throw error then called without middleware', (t) => {
-  const app = new Telegraf()
-  t.throws(() => {
-    app.hears('foo')
   })
 })
 
@@ -167,7 +161,28 @@ test.cb('Composer.branch should work with fn', (t) => {
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
-test.cb('Composer.optional should work with value', (t) => {
+test.cb('Composer.branch should work with async fn', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.branch(
+    (ctx) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(false)
+        }, 100)
+      })
+    },
+    () => {
+      t.fail()
+      t.end()
+    },
+    () => {
+      t.end()
+    })
+  )
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.optional should work with truthy value', (t) => {
   const app = new Telegraf()
   app.use(Composer.optional(true, () => {
     t.end()
@@ -175,17 +190,91 @@ test.cb('Composer.optional should work with value', (t) => {
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
-test.cb('Composer.log should just work', (t) => {
+test.cb('Composer.optional should work with false value', (t) => {
   const app = new Telegraf()
-  app.use(Composer.log(() => {
+  app.use(Composer.optional(false, () => {
+    t.fail()
     t.end()
   }))
+  app.use(() => t.end())
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
 test.cb('Composer.optional should work with fn', (t) => {
   const app = new Telegraf()
   app.use(Composer.optional((ctx) => true, () => {
+    t.end()
+  }))
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.optional should work with async fn', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.optional(
+    (ctx) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(false)
+        }, 100)
+      })
+    },
+    () => {
+      t.fail()
+      t.end()
+    }
+  ))
+  app.use(() => t.end())
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.dispatch should work with handlers array', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.dispatch(1, [
+    () => {
+      t.fail()
+      t.end()
+    },
+    () => {
+      t.end()
+    }
+  ]))
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.dispatch should work', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.dispatch('b', {
+    b: () => {
+      t.end()
+    }
+  }))
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.dispatch should work with async fn', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.dispatch(
+    (ctx) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(1)
+        }, 100)
+      })
+    }, [
+      () => {
+        t.fail()
+        t.end()
+      },
+      () => {
+        t.end()
+      }
+    ]))
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.log should just work', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.log(() => {
     t.end()
   }))
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})

@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "2.8.1",
+  "version": "2.9.0",
   "description": "📣 Modern Telegram bot framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <dotcypress@gmail.com>",
@@ -36,7 +36,8 @@
   "scripts": {
     "test": "eslint . && ava test --timeout=5s",
     "docs:serve": "docpress s",
-    "docs:build": "docpress b"
+    "docs:build": "docpress b",
+    "benchmark": "matcha benchmark.js"
   },
   "engines": {
     "node": ">=6.2.0"
@@ -54,6 +55,7 @@
     "eslint-plugin-ava": "^3.0.0",
     "eslint-plugin-promise": "^2.0.0",
     "eslint-plugin-standard": "^2.0.0",
+    "matcha": "^0.7.0",
     "should": "^11.1.0"
   },
   "keywords": [

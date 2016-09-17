@@ -1,3 +1,5 @@
+# Introduction
+
 ## Application
 
 A Telegraf application is an object containing an array of middlewares which are composed 
@@ -6,7 +8,13 @@ that you may have encountered such as Koa, Ruby's Rack, Connect.
 
 ## Middleware
 
-Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram message,
+Middleware is an essential part of any modern framework.
+It allows you to modify requests and responses as they pass between the Telegram and your bot.
+
+You can imagine middleware as a chain of logic connection your bot to the Telegram request.
+
+Middleware normally takes two parameters (ctx, next), 
+`ctx` is the context for one Telegram message,
 `next` is a function that is invoked to execute the downstream middleware. 
 It returns a Promise with a then function for running code after completion.
 
@@ -58,7 +66,9 @@ To perform custom error-handling logic see following snippet:
 ```js
 const app = new Telegraf(process.env.BOT_TOKEN)
 
-app.catch((err) => console.log('Ooops', err))
+app.catch((err) => {
+  console.log('Ooops', err)
+})
 ```
 
 ## Context
@@ -66,12 +76,15 @@ app.catch((err) => console.log('Ooops', err))
 A Telegraf context encapsulates telegram update.
 
 ```js
-app.use((ctx) => ctx.reply('Hey there!'))
+app.on('sticker', (ctx) => { 
+  console.log(ctx.message.sticker)
+  return ctx.reply('Hey there!')
+})
 ```
 
 [Context documentation](context.md)
 
-### State
+## State
 
 The recommended namespace to share information between middlewares.
 
@@ -89,7 +102,7 @@ app.on('text', (ctx) => {
 })
 ```
 
-### Session
+## Session
 
 ```js
 const app = new Telegraf(process.env.BOT_TOKEN)
@@ -105,7 +118,7 @@ app.on('text', (ctx) => {
 
 **Note: For persistent sessions you can use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
 
-### Update types
+## Update types
 
 Supported update types:
 
@@ -134,7 +147,7 @@ telegraf.on(['sticker', 'photo'], (ctx) =>  {
 ```
 <sub>[Related Telegram api docs](https://core.telegram.org/bots/api#message)</sub>
 
-### Webhooks
+## Webhooks
 
 ```js
 

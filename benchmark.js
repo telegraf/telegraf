@@ -1,4 +1,4 @@
-/* global suite, bench, set */
+/* global suite, bench */
 global.Promise = require('bluebird')
 
 const Telegraf = require('./')

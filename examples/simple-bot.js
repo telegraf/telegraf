@@ -18,9 +18,9 @@ const sayYoMiddleware = (ctx, next) => {
   return ctx.reply('yo').then(next)
 }
 
-// Random advice on some text messages
+// Random location on some text messages
 bot.on('text', (ctx, next) => {
-  if (Math.random() > 0.5) {
+  if (Math.random() > 0.2) {
     return next()
   }
   return Promise.all([

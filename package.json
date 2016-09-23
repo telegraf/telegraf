@@ -51,7 +51,7 @@
     "ava": "^0.16.0",
     "bluebird": "^3.4.6",
     "docpress": "0.6.13",
-    "eslint": "^3.4.0",
+    "eslint": "^3.6.0",
     "eslint-config-standard": "^6.0.0",
     "eslint-plugin-ava": "^3.0.0",
     "eslint-plugin-promise": "^2.0.0",

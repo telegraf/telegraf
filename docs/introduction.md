@@ -13,8 +13,7 @@ It allows you to modify requests and responses as they pass between the Telegram
 
 You can imagine middleware as a chain of logic connection your bot to the Telegram request.
 
-Middleware normally takes two parameters (ctx, next), 
-`ctx` is the context for one Telegram message,
+Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram message, 
 `next` is a function that is invoked to execute the downstream middleware. 
 It returns a Promise with a then function for running code after completion.
 
@@ -61,7 +60,7 @@ app.use(async (ctx, next) => {
 
 By default Telegraf will print all errors to stderr and rethrow error.
 
-To perform custom error-handling logic see following snippet:
+To perform custom error-handling logic use following snippet:
 
 ```js
 const app = new Telegraf(process.env.BOT_TOKEN)
@@ -129,7 +128,10 @@ Supported update types:
 - `chosen_inline_result`
 
 Available update sub-types:
-`text`, `audio`, `document`, `photo`, `sticker`, `video`, `voice`, `contact`, `location`, `venue`, `new_chat_member`, `left_chat_member`, `new_chat_title`, `new_chat_photo`, `delete_chat_photo`, `group_chat_created`, `supergroup_chat_created`, `channel_chat_created`, `migrate_to_chat_id`, `migrate_from_chat_id`, `pinned_message`.
+`text`, `audio`, `document`, `photo`, `sticker`, `video`, `voice`, `contact`, `location`, 
+`venue`, `new_chat_member`, `left_chat_member`, `new_chat_title`, `new_chat_photo`, 
+`delete_chat_photo`, `group_chat_created`, `supergroup_chat_created`, `channel_chat_created`, 
+`migrate_to_chat_id`, `migrate_from_chat_id`, `pinned_message`.
 
 ```js
 
@@ -138,7 +140,7 @@ telegraf.on('message', (ctx) =>  {
   return ctx.reply('Hey there!')
 })
 
-// Handle sticker update
+// Handle sticker or photo update
 telegraf.on(['sticker', 'photo'], (ctx) =>  {
   console.log(ctx.message)
   return ctx.reply('Cool!')

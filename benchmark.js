@@ -1,5 +1,8 @@
 /* global suite, bench */
+global.Promise = require('bluebird')
+
 const Telegraf = require('./')
+const { passThru } = Telegraf
 const baseMessage = { chat: { id: 1 } }
 
 const textUpdate = {
@@ -17,55 +20,49 @@ const commandUpdate = {
   message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)
 }
 
-function wrap (fn) {
-  return () => Promise.resolve().then(fn)
-}
+suite('raw', () => {
+  const app = new Telegraf()
+  bench('⚡️', (next) => app.handleUpdate(textUpdate).then(next))
+})
 
-suite('Telegraf', () => {
-  bench('handle update', (next) => {
-    const app = new Telegraf()
-    app.handleUpdate(textUpdate).then(next)
-  })
+suite('use', () => {
+  const app = new Telegraf()
+  app.use(passThru)
+  bench('️⚡️', (next) => app.handleUpdate(textUpdate).then(next))
+})
 
-  bench('use', (next) => {
-    const app = new Telegraf()
-    app.use(wrap(next))
-    app.handleUpdate(textUpdate)
-  })
+suite('on', () => {
+  const app = new Telegraf()
+  app.on('message', passThru)
+  bench('️️⚡️', (next) => app.handleUpdate(textUpdate).then(next))
+})
 
-  bench('on', (next) => {
-    const app = new Telegraf()
-    app.on('message', wrap(next))
-    app.handleUpdate(textUpdate)
-  })
+suite('on subtype', () => {
+  const app = new Telegraf()
+  app.on('text', passThru)
+  bench('️️⚡️', (next) => app.handleUpdate(textUpdate).then(next))
+})
 
-  bench('on [subtype]', (next) => {
-    const app = new Telegraf()
-    app.on('text', wrap(next))
-    app.handleUpdate(textUpdate)
-  })
+suite('command', () => {
+  const app = new Telegraf()
+  app.command('start', passThru)
+  bench('️️⚡️', (next) => app.handleUpdate(commandUpdate).then(next))
+})
 
-  bench('command', (next) => {
-    const app = new Telegraf()
-    app.command('start', wrap(next))
-    app.handleUpdate(commandUpdate)
-  })
+suite('hears', () => {
+  const app = new Telegraf()
+  app.hears('hello world', passThru)
+  bench('️️⚡️', (next) => app.handleUpdate(textUpdate).then(next))
+})
 
-  bench('hears', (next) => {
-    const app = new Telegraf()
-    app.hears('hello world', wrap(next))
-    app.handleUpdate(textUpdate)
-  })
+suite('hears regex', () => {
+  const app = new Telegraf()
+  app.hears(/hello/, passThru)
+  bench('️️⚡️', (next) => app.handleUpdate(textUpdate).then(next))
+})
 
-  bench('hears RegEx', (next) => {
-    const app = new Telegraf()
-    app.hears(/hello/, wrap(next))
-    app.handleUpdate(textUpdate)
-  })
-
-  bench('action', (next) => {
-    const app = new Telegraf()
-    app.action('foo', wrap(next))
-    app.handleUpdate(cbQueryUpdate)
-  })
+suite('action', () => {
+  const app = new Telegraf()
+  app.action('foo', passThru)
+  bench('️️⚡️', (next) => app.handleUpdate(cbQueryUpdate).then(next))
 })

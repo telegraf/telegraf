@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "2.9.0",
+  "version": "2.9.1",
   "description": "📣 Modern Telegram bot framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <dotcypress@gmail.com>",
@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "ava": "^0.16.0",
+    "bluebird": "^3.4.6",
     "docpress": "0.6.13",
     "eslint": "^3.4.0",
     "eslint-config-standard": "^6.0.0",

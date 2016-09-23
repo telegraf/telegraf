@@ -51,13 +51,13 @@ Registers middleware for provided update type.
 
 ### hears
 
-Registers middleware for handling `text` messages with regular expressions.
+Registers middleware for handling `text` messages.
 
 `telegraf.hears(triggers, middleware, [middleware...])`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string[]`\|`RegEx[]` | Triggers |
+| triggers | `string[]`\|`RegEx[]|Function` | Triggers |
 | middleware | `function` | Middleware |
 
 ### command
@@ -147,7 +147,7 @@ Compose `middlewares` returning a fully valid middleware comprised of all those 
 
 ### Telegraf.mount
 
-Generates middleware for handling provided [pdate types.
+Generates middleware for handling provided update types.
 
 `Telegraf.mount(updateTypes, middleware) => function`
 

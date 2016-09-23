@@ -5,7 +5,7 @@ const { Markup } = require('../')
 const config = {
   telegram: {
     agent: new https.Agent({
-      keepAlive: true, // ✨ Perfomance magic here!
+      keepAlive: true, // ✨ Perfomance magic!
       keepAliveMsecs: 5000
     })
   }

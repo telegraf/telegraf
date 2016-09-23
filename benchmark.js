@@ -1,4 +1,4 @@
-/* global suite, bench */
+/* global suite, bench, set */
 global.Promise = require('bluebird')
 
 const Telegraf = require('./')
@@ -34,6 +34,12 @@ suite('use', () => {
 suite('on', () => {
   const app = new Telegraf()
   app.on('message', passThru)
+  bench('️️⚡️', (next) => app.handleUpdate(textUpdate).then(next))
+})
+
+suite('on *', () => {
+  const app = new Telegraf()
+  app.on(['message', 'text'], passThru)
   bench('️️⚡️', (next) => app.handleUpdate(textUpdate).then(next))
 })
 

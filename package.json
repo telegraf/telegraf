@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "debug": "^2.2.0",
-    "node-fetch": "^1.5.1",
+    "node-fetch": "^1.6.3",
     "sandwich-stream": "^1.0.0"
   },
   "devDependencies": {

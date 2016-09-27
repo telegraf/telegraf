@@ -174,13 +174,6 @@ html .toc-menu .hlink.-active {
   box-shadow: inset -2px 0 #FF3D00 /*accent*/;
 }
 
-/*
- * Pull box (.pull-box)
- *
- *     That's great. [link →](#)
- *     <!-- {p:.pull-box} -->
- */
-
 html .markdown-body .pull-box {
   border-top: solid 2px #eee;
   padding-top: 24px;

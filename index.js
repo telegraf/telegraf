@@ -4,7 +4,7 @@ Object.assign(module.exports, {
   TelegramError: require('./lib/telegram/error'),
   Extra: require('./lib/telegram/extra'),
   Markup: require('./lib/telegram/reply-markup'),
-  memorySession: require('./lib/memory-session'),
+  memorySession: require('./lib/session'),
   Composer: require('./lib/composer'),
   Router: require('./lib/router')
 })

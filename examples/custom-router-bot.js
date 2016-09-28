@@ -1,17 +1,19 @@
 const Telegraf = require('../')
 const { Router, Extra, memorySession } = require('../')
 
-const defaultMarkup = Extra.HTML().markup((markup) => markup.inlineKeyboard([
-  markup.callbackButton('Add 1', 'add:1'),
-  markup.callbackButton('Add 10', 'add:10'),
-  markup.callbackButton('Add 100', 'add:100'),
-  markup.callbackButton('Substract 1', 'sub:1'),
-  markup.callbackButton('Substract 10', 'sub:10'),
-  markup.callbackButton('Substract 100', 'sub:100'),
-  markup.callbackButton('Clear', 'clear')
-], {columns: 3}))
+const defaultMarkup = Extra
+  .HTML()
+  .markup((m) => m.inlineKeyboard([
+    m.cbButton('Add 1', 'add:1'),
+    m.cbButton('Add 10', 'add:10'),
+    m.cbButton('Add 100', 'add:100'),
+    m.cbButton('Substract 1', 'sub:1'),
+    m.cbButton('Substract 10', 'sub:10'),
+    m.cbButton('Substract 100', 'sub:100'),
+    m.cbButton('Clear', 'clear')
+  ], {columns: 3}))
 
-const callbackRouter = new Router((ctx) => {
+const simpleRouter = new Router((ctx) => {
   if (!ctx.callbackQuery.data) {
     return Promise.resolve()
   }
@@ -26,24 +28,24 @@ const callbackRouter = new Router((ctx) => {
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(memorySession())
-bot.on('callback_query', callbackRouter.middleware())
+bot.on('callback_query', simpleRouter.middleware())
 
 bot.command('start', (ctx) => {
   ctx.session.value = 0
   return ctx.reply(`Value: <b>${ctx.session.value}</b>`, defaultMarkup)
 })
 
-callbackRouter.on('add', (ctx) => {
+simpleRouter.on('add', (ctx) => {
   ctx.session.value = (ctx.session.value || 0) + ctx.state.amount
   return editText(ctx)
 })
 
-callbackRouter.on('sub', (ctx) => {
+simpleRouter.on('sub', (ctx) => {
   ctx.session.value = (ctx.session.value || 0) - ctx.state.amount
   return editText(ctx)
 })
 
-callbackRouter.on('clear', (ctx) => {
+simpleRouter.on('clear', (ctx) => {
   ctx.session.value = 0
   return editText(ctx)
 })
@@ -55,4 +57,3 @@ function editText (ctx) {
     ? ctx.editMessageText(`Value: <b>${ctx.session.value}</b>`, defaultMarkup).catch(() => undefined)
     : ctx.answerCallbackQuery('🎉', true).then(() => ctx.editMessageText(`🎉 ${ctx.session.value} 🎉`))
 }
-

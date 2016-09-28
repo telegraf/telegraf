@@ -121,7 +121,7 @@ test.cb('should share state', (t) => {
   app.handleUpdate({message: baseMessage})
 })
 
-test.cb('should use context extensions', (t) => {
+test.cb('should work with context extensions', (t) => {
   const app = new Telegraf()
   app.context.db = {
     getUser: () => undefined

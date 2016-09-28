@@ -41,9 +41,9 @@ test.cb('should route sub types', (t) => {
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
 })
 
-test.cb('should handle tap', (t) => {
+test.cb('should handle fork', (t) => {
   const app = new Telegraf()
-  app.use(Telegraf.tap(() => {
+  app.use(Telegraf.fork(() => {
     t.end()
   }))
   app.handleUpdate({message: Object.assign({voice: {}}, baseMessage)})

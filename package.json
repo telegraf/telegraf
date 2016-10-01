@@ -30,6 +30,7 @@
     "lib/telegram/extra.js",
     "lib/telegram/multipart-stream.js",
     "lib/telegram/replicators.js",
+    "lib/telegram/telegram.js",
     "lib/telegram/reply-markup.js"
   ],
   "main": "index.js",

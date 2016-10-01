@@ -166,11 +166,7 @@ test.cb('Composer.branch should work with async fn', (t) => {
   const app = new Telegraf()
   app.use(Composer.branch(
     (ctx) => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(false)
-        }, 100)
-      })
+      return new Promise((resolve) => setTimeout(resolve, 100, false))
     },
     () => {
       t.fail()

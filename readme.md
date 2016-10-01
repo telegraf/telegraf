@@ -15,12 +15,10 @@ These accounts serve as an interface for code running somewhere on your server.
 
 - Full [Telegram Bot API 2.1](https://core.telegram.org/bots/api) support
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
-- AWS λ/now/dokku/Heroku ready
-- Incredibly fast
-- Minimum dependencies
-- Easy to extend
-- Keyboard helpers
+- AWS **λ**/now/dokku/Heroku ready
 - http/https/Connect/express.js webhooks
+- Incredibly fast
+- Easy to extend
 
 ## Installation
 

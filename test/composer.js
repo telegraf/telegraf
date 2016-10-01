@@ -70,7 +70,8 @@ const updateTypes = [
   'channel_chat_created',
   'migrate_to_chat_id',
   'migrate_from_chat_id',
-  'pinned_message'
+  'pinned_message',
+  'game'
 ]
 
 updateTypes.forEach((update) => {

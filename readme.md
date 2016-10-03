@@ -42,8 +42,11 @@ With the token in hand, you can start developing your bot.
 const Telegraf = require('telegraf')
 
 const app = new Telegraf(process.env.BOT_TOKEN)
+
 app.command('start', (ctx) => ctx.reply('Hey'))
+app.hears('hi', (ctx) => ctx.reply('Hey there!'))
 app.on('sticker', (ctx) => ctx.reply('👍'))
+
 app.startPolling()
 ```
 

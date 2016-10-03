@@ -50,6 +50,7 @@ test.cb('should provide shortcuts for `message` event', (t) => {
     ctx.should.have.property('replyWithLocation')
     ctx.should.have.property('replyWithVenue')
     ctx.should.have.property('replyWithContact')
+    ctx.should.have.property('replyWithGame')
     ctx.should.have.property('getChat')
     ctx.should.have.property('leaveChat')
     ctx.should.have.property('getChatAdministrators')
@@ -121,7 +122,7 @@ test.cb('should share state', (t) => {
   app.handleUpdate({message: baseMessage})
 })
 
-test.cb('should use context extensions', (t) => {
+test.cb('should work with context extensions', (t) => {
   const app = new Telegraf()
   app.context.db = {
     getUser: () => undefined

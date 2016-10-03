@@ -8,10 +8,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/*
- * Update fonts
- */
-
 html .markdown-body {
   font-family: 'Source Sans Pro', sans-serif;
 }
@@ -21,10 +17,6 @@ html .footer-nav,
 html .toc-menu {
   font-family: 'Lekton', sans-serif;
 }
-
-/*
- * Update look of 'code' elements
- */
 
 html .markdown-body code {
   background: linear-gradient(to bottom, transparent 15%, rgba(47, 167, 143, 0.03) 15%, rgba(47, 167, 143, 0.03) 85%, transparent 85%);
@@ -138,10 +130,6 @@ html .markdown-body h4 {
   }
 }
 
-/*
- * Recolor
- */
-
 html #nprogress .bar {
   background: #FF3D00 /*accent*/;
 }
@@ -194,7 +182,6 @@ html .markdown-body .pull-box:before {
   content: '';
   font-size: 32px;
   font-weight: 400;
-  /* @include ion-icon('ios-checkmark-outline', 32px); */
   vertical-align: middle;
   color: #FF3D00 /*accent*/;
   margin-right: 16px;

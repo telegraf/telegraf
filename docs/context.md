@@ -58,6 +58,7 @@ ctx.replyWithPhoto() -> ctx.telegram.sendPhoto()
 ctx.replyWithSticker() -> ctx.telegram.sendSticker()
 ctx.replyWithVideo() -> ctx.telegram.sendVideo()
 ctx.replyWithVoice() -> ctx.telegram.sendVoice()
+ctx.replyWithGame() -> ctx.telegram.sendGame()
 ```
 
 Context shortcuts for **callback_query** update:
@@ -83,6 +84,7 @@ ctx.replyWithPhoto() -> ctx.telegram.sendPhoto()
 ctx.replyWithSticker() -> ctx.telegram.sendSticker()
 ctx.replyWithVideo() -> ctx.telegram.sendVideo()
 ctx.replyWithVoice() -> ctx.telegram.sendVoice()
+ctx.replyWithGame() -> ctx.telegram.sendGame()
 ```
 
 Context shortcuts for **inline_query** update:

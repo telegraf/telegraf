@@ -41,9 +41,9 @@ test.cb('should route sub types', (t) => {
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
 })
 
-test.cb('should handle tap', (t) => {
+test.cb('should handle fork', (t) => {
   const app = new Telegraf()
-  app.use(Telegraf.tap(() => {
+  app.use(Telegraf.fork(() => {
     t.end()
   }))
   app.handleUpdate({message: Object.assign({voice: {}}, baseMessage)})
@@ -70,7 +70,8 @@ const updateTypes = [
   'channel_chat_created',
   'migrate_to_chat_id',
   'migrate_from_chat_id',
-  'pinned_message'
+  'pinned_message',
+  'game'
 ]
 
 updateTypes.forEach((update) => {
@@ -165,11 +166,7 @@ test.cb('Composer.branch should work with async fn', (t) => {
   const app = new Telegraf()
   app.use(Composer.branch(
     (ctx) => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(false)
-        }, 100)
-      })
+      return new Promise((resolve) => setTimeout(resolve, 100, false))
     },
     () => {
       t.fail()
@@ -304,6 +301,14 @@ test.cb('should handle command', (t) => {
     t.end()
   })
   app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
+})
+
+test.cb('should handle game query', (t) => {
+  const app = new Telegraf()
+  app.gameQuery((ctx) => {
+    t.end()
+  })
+  app.handleUpdate({callback_query: {game_short_name: 'foo'}})
 })
 
 test.cb('should handle action', (t) => {

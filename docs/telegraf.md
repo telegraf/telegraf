@@ -82,6 +82,17 @@ Registers middleware for handling `callback_data` actions with regular expressio
 | triggers | `string[]`\|`RegEx[]` | Triggers |
 | middleware | `function` | Middleware |
 
+
+### gameQuery
+
+Registers middleware for handling `callback_data` actions with game query.
+
+`telegraf.gameQuery(middleware, [middleware...])`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| middleware | `function` | Middleware |
+
 ### startPolling
 
 Start poll updates.

@@ -142,3 +142,17 @@ test('should generate keyboard markup with default setting', (t) => {
     ]]
   })
 })
+
+test('should generate extra from keyboard markup', (t) => {
+  const markup = Object.assign({}, Markup.inlineKeyboard(['one', 'two', 'three', 'four']).extra())
+  markup.should.deepEqual({
+    reply_markup: {
+      inline_keyboard: [[
+        'one',
+        'two',
+        'three',
+        'four'
+      ]]
+    }
+  })
+})

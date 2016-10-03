@@ -29,12 +29,13 @@ Telegram options:
 
 Use this method to send answers to callback queries.
 
-`telegram.answerCallbackQuery(callbackQueryId, text, showAlert) => Promise`
+`telegram.answerCallbackQuery(callbackQueryId, text, url showAlert) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | callbackQueryId | `string` | Query id |
 | [text] | `string` | Notification text |
+| [url] | `string` | Notification text |
 | [showAlert] | `bool` | Show alert instead of notification |
 
 <sub>[See Telegram api docs](https://core.telegram.org/bots/api#answercallbackquery)</sub>
@@ -119,6 +120,12 @@ Sends message copy.
 | message | `object` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
 
+### getWebhookInfo
+
+Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty.
+
+`telegram.getWebhookInfo() => Promise`
+
 ### getChat
 
 Use this method to get up to date information about the chat (current name of the user for one-on-one conversatio
@@ -143,6 +150,39 @@ Use this method to get a list of administrators in a chat. On success, returns a
 | chatId | `number`\|`string` | Chat id |
 
 <sub>[See Telegram api docs](https://core.telegram.org/bots/api#getchatadministrators)</sub>
+
+
+### setGameScore
+
+Use this method to set the score of the specified user in a game. On success, if the message was sent by the bot, returns the edited Message, otherwise returns True. Returns an error, if the new score is not greater than the user's current score in the chat.
+
+`telegram.setGameScore(userId, score, inlineMessageId, chatId, messageId, editMessage) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| userId | `number`\ | Target User id |
+| score | `number`\ | Target User id |
+| inlineMessageId | `string` | Inline message id(optional) |
+| chatId | `number`\|`string` | Target Chat id(optional) |
+| messageId | `number`\|`string` | Message id(optional) |
+| editMessage | `boolean` | edit target message(optional) |
+
+<sub>[See Telegram api docs](https://core.telegram.org/bots/api#setgamescore)</sub>
+
+### getGameHighScores
+
+Use this method to get data for high score tables. Will return the score of the specified user and several of his neighbors in a game. On success, returns an Array of GameHighScore objects.
+
+`telegram.getGameHighScores(userId, inlineMessageId, chatId, messageId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| userId | `number`\ | Target User id |
+| inlineMessageId | `string` | Inline message id(optional) |
+| chatId | `number`\|`string` | Target Chat id(optional) |
+| messageId | `number`\|`string` | Message id(optional) |
+
+<sub>[See Telegram api docs](https://core.telegram.org/bots/api#getgamehighscores)</sub>
 
 ### getChatMember
 
@@ -259,6 +299,19 @@ Sends audio.
 | chatId | `number`\|`string` | Chat id |
 | audio | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendaudio)|
+
+
+### sendGame
+
+Sends game.
+
+`telegram.sendGame(chatId, gameName, extra) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| gameName | `String` | Game short name |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendgame)|
 
 ### sendChatAction
 

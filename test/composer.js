@@ -303,6 +303,14 @@ test.cb('should handle command', (t) => {
   app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
 })
 
+test.cb('should handle game query', (t) => {
+  const app = new Telegraf()
+  app.gameQuery((ctx) => {
+    t.end()
+  })
+  app.handleUpdate({callback_query: {game_short_name: 'foo'}})
+})
+
 test.cb('should handle action', (t) => {
   const app = new Telegraf()
   app.action('foo', (ctx) => {

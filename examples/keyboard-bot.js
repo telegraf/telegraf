@@ -3,6 +3,8 @@ const { Extra, Markup } = require('../')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
+bot.use(Telegraf.log())
+
 bot.command('onetime', (ctx) => {
   return ctx.reply('One time keyboard', Markup
     .keyboard([

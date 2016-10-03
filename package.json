@@ -26,6 +26,7 @@
     "lib/router.js",
     "lib/telegraf.js",
     "lib/telegram/client.js",
+    "lib/telegram/constants.js",
     "lib/telegram/error.js",
     "lib/telegram/extra.js",
     "lib/telegram/multipart-stream.js",

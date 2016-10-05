@@ -14,8 +14,8 @@ These accounts serve as an interface for code running somewhere on your server.
 ## Features
 
 - Full [Telegram Bot API](https://core.telegram.org/bots/api) support
+- [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
-- [Games](https://core.telegram.org/bots/api#games)
 - AWS **λ**/now/dokku/Heroku ready
 - http/https/Connect/express.js webhooks
 - Incredibly fast

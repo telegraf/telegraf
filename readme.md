@@ -14,8 +14,8 @@ These accounts serve as an interface for code running somewhere on your server.
 ## Features
 
 - Full [Telegram Bot API](https://core.telegram.org/bots/api) support
+- [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
-- [Games](https://core.telegram.org/bots/api#games)
 - AWS **λ**/now/dokku/Heroku ready
 - http/https/Connect/express.js webhooks
 - Incredibly fast
@@ -42,8 +42,11 @@ With the token in hand, you can start developing your bot.
 const Telegraf = require('telegraf')
 
 const app = new Telegraf(process.env.BOT_TOKEN)
+
 app.command('start', (ctx) => ctx.reply('Hey'))
+app.hears('hi', (ctx) => ctx.reply('Hey there!'))
 app.on('sticker', (ctx) => ctx.reply('👍'))
+
 app.startPolling()
 ```
 

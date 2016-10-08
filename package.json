@@ -14,25 +14,8 @@
   },
   "files": [
     "index.js",
-    "docs/introduction.md",
-    "docs/extra.md",
-    "docs/context.md",
-    "docs/advanced.md",
-    "docs/telegraf.md",
-    "docs/telegram.md",
-    "lib/composer.js",
-    "lib/context.js",
-    "lib/session.js",
-    "lib/router.js",
-    "lib/telegraf.js",
-    "lib/telegram/client.js",
-    "lib/telegram/constants.js",
-    "lib/telegram/error.js",
-    "lib/telegram/extra.js",
-    "lib/telegram/multipart-stream.js",
-    "lib/telegram/replicators.js",
-    "lib/telegram/telegram.js",
-    "lib/telegram/reply-markup.js"
+    "docs",
+    "lib"
   ],
   "main": "index.js",
   "scripts": {
@@ -56,13 +39,11 @@
     "should": "^11.1.0"
   },
   "keywords": [
-    "telegram",
     "telegraf",
-    "bot",
-    "chatbot",
-    "bot framework",
+    "telegram",
     "telegram bot",
     "telegram bot api",
-    "botapi"
+    "botapi",
+    "bot framework"
   ]
 }

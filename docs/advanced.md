@@ -13,7 +13,7 @@ const app = new Telegraf(process.env.BOT_TOKEN, {username: 'your_bot'})
 const app = new Telegraf(process.env.BOT_TOKEN)
 
 app.telegram.getMe().then((botInfo) => {
-  this.options.username = botInfo.username
+  app.options.username = botInfo.username
 })
 
 app.command('start', (ctx) => ctx.reply('Hello World'))

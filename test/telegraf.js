@@ -141,8 +141,8 @@ test.cb('should handle webhook response', (t) => {
     ctx.reply(':)')
   })
   const res = {
-    setHeader: () => t.end(),
-    end: () => undefined
+    setHeader: () => undefined,
+    end: () => t.end()
   }
   app.handleUpdate({message: baseMessage}, res)
 })

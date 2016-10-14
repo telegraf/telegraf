@@ -4,6 +4,7 @@ const Telegraf = require('../')
 const { Composer } = Telegraf
 
 const baseMessage = { chat: { id: 1 } }
+const baseGroupMessage = { chat: { id: 1, type: 'group' } }
 
 const topLevelUpdates = [
   { type: 'message', update: { message: baseMessage } },
@@ -301,6 +302,22 @@ test.cb('should handle command', (t) => {
     t.end()
   })
   app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
+})
+
+test.cb('should handle short command', (t) => {
+  const app = new Telegraf()
+  app.command('start', (ctx) => {
+    t.end()
+  })
+  app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
+})
+
+test.cb('should handle group command', (t) => {
+  const app = new Telegraf(null, {username: 'bot'})
+  app.command('start', (ctx) => {
+    t.end()
+  })
+  app.handleUpdate({message: Object.assign({text: '/start@bot', entities: [{type: 'bot_command', offset: 0, length: 10}]}, baseGroupMessage)})
 })
 
 test.cb('should handle game query', (t) => {

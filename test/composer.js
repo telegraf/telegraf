@@ -87,6 +87,13 @@ updateTypes.forEach((update) => {
   })
 })
 
+test('should throw error then called with invalid middleware', (t) => {
+  const composer = new Composer()
+  t.throws(() => {
+    composer.compose(() => undefined)
+  })
+})
+
 test.cb('should throw error then called with invalid middleware', (t) => {
   const app = new Telegraf()
   app.catch((e) => {
@@ -256,7 +263,7 @@ test.cb('Composer.dispatch should work with async fn', (t) => {
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve(1)
-        }, 100)
+        }, 300)
       })
     }, [
       () => {

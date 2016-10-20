@@ -4,13 +4,13 @@ const { Router, Extra, memorySession } = require('../')
 const defaultMarkup = Extra
   .HTML()
   .markup((m) => m.inlineKeyboard([
-    m.cbButton('Add 1', 'add:1'),
-    m.cbButton('Add 10', 'add:10'),
-    m.cbButton('Add 100', 'add:100'),
-    m.cbButton('Substract 1', 'sub:1'),
-    m.cbButton('Substract 10', 'sub:10'),
-    m.cbButton('Substract 100', 'sub:100'),
-    m.cbButton('Clear', 'clear')
+    m.callbackButton('Add 1', 'add:1'),
+    m.callbackButton('Add 10', 'add:10'),
+    m.callbackButton('Add 100', 'add:100'),
+    m.callbackButton('Substract 1', 'sub:1'),
+    m.callbackButton('Substract 10', 'sub:10'),
+    m.callbackButton('Substract 100', 'sub:100'),
+    m.callbackButton('Clear', 'clear')
   ], {columns: 3}))
 
 const simpleRouter = new Router((ctx) => {

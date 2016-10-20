@@ -54,7 +54,7 @@ bot.command('random', (ctx) => {
   return ctx.reply('random example',
     Markup.inlineKeyboard([
       Markup.callbackButton('Coke', 'Coke'),
-      Markup.callbackButton('Dr Pepper', 'Dr Pepper', undefined, Math.random() > 0.5),
+      Markup.callbackButton('Dr Pepper', 'Dr Pepper', Math.random() > 0.5),
       Markup.callbackButton('Pepsi', 'Pepsi')
     ]).extra()
   )

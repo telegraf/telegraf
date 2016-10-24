@@ -232,6 +232,19 @@ test.cb('Composer.optional should work with async fn', (t) => {
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
+test.cb('Composer.lazy should work with fn', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.lazy((ctx) => () => t.end()))
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.lazy should work with fn', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.lazy((ctx) => (_, next) => next()))
+  app.use((ctx) => t.end())
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
 test.cb('Composer.dispatch should work with handlers array', (t) => {
   const app = new Telegraf()
   app.use(Composer.dispatch(1, [

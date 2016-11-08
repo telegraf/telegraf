@@ -1,5 +1,5 @@
 const Telegraf = require('../')
-const { memorySession } = require('../')
+const { memorySession, reply } = require('../')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
@@ -14,9 +14,7 @@ bot.use((ctx, next) => {
   })
 })
 
-const sayYoMiddleware = (ctx, next) => {
-  return ctx.reply('yo').then(next)
-}
+const sayYoMiddleware = (ctx, next) => ctx.reply('yo').then(next)
 
 // Random location on some text messages
 bot.on('text', (ctx, next) => {
@@ -47,6 +45,8 @@ bot.command('cat', (ctx) => {
     url: 'http://lorempixel.com/400/200/cats/'
   })
 })
+
+bot.command('foo', reply('bar'))
 
 // Wow! RegEx
 bot.hears(/reverse (.+)/, (ctx) => {

@@ -22,11 +22,9 @@ bot.command('custom', (ctx) => {
   return ctx.reply('Custom buttons keyboard', Markup
     .keyboard(
       [
-        [
           ['🔍 Search', '😎 Popular'], // Row1 with 2 button
           ['☸ Setting', '📞 Feedback'], // Row2 with 2 button
           ['📢 Ads', '⭐️ Rate us', '👥 Share'] // Row3 with 3 button
-        ]
       ]
     )
     .oneTime()

@@ -18,6 +18,19 @@ bot.command('onetime', (ctx) => {
   )
 })
 
+bot.command('custom', (ctx) => {
+  return ctx.reply('Custom buttons keyboard', Markup
+    .keyboard([
+      ['🔍 Search', '😎 Popular'], // Row1 with 2 button
+      ['☸ Setting', '📞 Feedback'], // Row2 with 2 button
+      ['📢 Ads', '⭐️ Rate us', '👥 Share'] // Row3 with 3 button
+    ])
+    .oneTime()
+    .resize()
+    .extra()
+  )
+})
+
 bot.command('special', (ctx) => {
   return ctx.reply('Special buttons keyboard', Extra.markup((markup) => {
     return markup.resize()

@@ -7,7 +7,7 @@ var BotController = class {
     return ctx.reply('What can i do for you?', Extra.markup(
       Markup.keyboard([
         ['Search', 'Contact'],
-        ['Rate us', 'Ads', 'Share'],
+        ['Rate us', 'Ads', 'Share']
       ])
       .resize()
     ))
@@ -19,7 +19,7 @@ var BotController = class {
     // Reply with markdown format
     ctx.reply(StartMessage, {parse_mode: 'Markdown'}).then(() => {
       // Calling main menu keyboard
-      this.MainMenuHandler (ctx)
+      this.MainMenuHandler(ctx)
     })
   }
 

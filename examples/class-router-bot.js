@@ -15,7 +15,6 @@ var BotController = class {
 	}
 
 	static StartHandler (ctx) {
-
 		const StartMessage = `Hey buddy, Welcome to our bot.`
 
 		// Reply with markdown format

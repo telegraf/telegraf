@@ -3,32 +3,32 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 
 var BotController = class {
 
-    static MainMenuHandler(ctx) {
-        return ctx.reply('What can i do for you?', Extra.markup( 
-            Markup.keyboard([
-                ['Search', 'Contact'],
-                ['Rate us', 'Ads', 'Share'],
-            ])
-            .resize()
-        ))
-    }
+	static MainMenuHandler(ctx) {
+		return ctx.reply('What can i do for you?', Extra.markup( 
+			Markup.keyboard([
+				['Search', 'Contact'],
+				['Rate us', 'Ads', 'Share'],
+			])
+			.resize()
+		))
+	}
 
-    static StartHandler(ctx) {
+	static StartHandler(ctx) {
 
-        const start_message = `Hey buddy, Welcome to our bot.`
+		const start_message = `Hey buddy, Welcome to our bot.`
 
-        // Reply with markdown format
-        ctx.reply(start_message, {parse_mode: 'Markdown'}).then(() => {
-        
-            // Calling main menu keyboard
-            this.MainMenuHandler(ctx)
-            
-        })
-    }
+		// Reply with markdown format
+		ctx.reply(start_message, {parse_mode: 'Markdown'}).then(() => {
+		
+			// Calling main menu keyboard
+			this.MainMenuHandler(ctx)
+			
+		})
+	}
 
-    static StopHandler(ctx) {
-        ctx.reply('Stop operation')
-    }
+	static StopHandler(ctx) {
+		ctx.reply('Stop operation')
+	}
 
 }
 

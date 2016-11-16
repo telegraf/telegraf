@@ -3,7 +3,7 @@ const test = require('ava')
 const Telegraf = require('../')
 const { Composer } = Telegraf
 
-const baseMessage = { chat: { id: 1 } }
+const baseMessage = { chat: { id: 1 }, from: { id: 42, username: 'telegraf' } }
 const baseGroupMessage = { chat: { id: 1, type: 'group' } }
 
 const topLevelUpdates = [
@@ -40,14 +40,6 @@ test.cb('should route sub types', (t) => {
   })
   app.handleUpdate({message: Object.assign({voice: {}}, baseMessage)})
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
-})
-
-test.cb('should handle fork', (t) => {
-  const app = new Telegraf()
-  app.use(Telegraf.fork(() => {
-    t.end()
-  }))
-  app.handleUpdate({message: Object.assign({voice: {}}, baseMessage)})
 })
 
 const updateTypes = [
@@ -154,6 +146,14 @@ test.cb('should handle text triggers', (t) => {
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
+test.cb('should handle fork', (t) => {
+  const app = new Telegraf()
+  app.use(Telegraf.fork(() => {
+    t.end()
+  }))
+  app.handleUpdate({message: Object.assign({voice: {}}, baseMessage)})
+})
+
 test.cb('Composer.branch should work with value', (t) => {
   const app = new Telegraf()
   app.use(Composer.branch(true, () => {
@@ -184,6 +184,44 @@ test.cb('Composer.branch should work with async fn', (t) => {
       t.end()
     })
   )
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.acl should work with user id', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.acl(42, () => t.end()))
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.acl should work with user id', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.acl(42, Composer.passThru()))
+  app.use(() => t.end())
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.acl should work with user id', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.acl(999, () => t.fail()))
+  app.use(() => t.end())
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.acl should work with user ids', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.acl([42, 43], () => t.end()))
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.acl should work with fn', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.acl((ctx) => ctx.from.username === 'telegraf', () => t.end()))
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.acl should work with async fn', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.acl((ctx) => new Promise((resolve) => setTimeout(resolve, 100, true)), () => t.end()))
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 

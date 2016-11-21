@@ -25,7 +25,6 @@ updateTypes.forEach((update) => {
       ctx.should.have.property(update.prop)
       ctx.should.have.property('telegram')
       ctx.should.have.property('updateType')
-      ctx.should.have.property('updateSubType')
       ctx.should.have.property('chat')
       ctx.should.have.property('from')
       ctx.should.have.property('state')
@@ -34,6 +33,21 @@ updateTypes.forEach((update) => {
     })
     app.handleUpdate(update.update)
   })
+})
+
+test.cb('should provide update payload for text', (t) => {
+  const app = new Telegraf()
+  app.on('text', (ctx) => {
+    ctx.should.have.property('telegram')
+    ctx.should.have.property('updateType')
+    ctx.should.have.property('updateSubType')
+    ctx.should.have.property('chat')
+    ctx.should.have.property('from')
+    ctx.should.have.property('state')
+    ctx.updateType.should.be.equal('message')
+    t.end()
+  })
+  app.handleUpdate({message: Object.assign({text: 'foo'}, baseMessage)})
 })
 
 test.cb('should provide shortcuts for `message` event', (t) => {

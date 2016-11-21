@@ -89,4 +89,4 @@ bot.action(/.+/, (ctx) => {
   return ctx.answerCallbackQuery(`Oh, ${ctx.match[0]}! Great choise`)
 })
 
-bot.startPolling(0)
+bot.startPolling()

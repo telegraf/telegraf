@@ -17,7 +17,7 @@
     "docs",
     "lib"
   ],
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "eslint . && ava test --timeout=5s"
   },

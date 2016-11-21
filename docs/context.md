@@ -14,13 +14,15 @@ app.use((ctx) => {
   [ctx.inlineQuery]        // Received inline query
   [ctx.chosenInlineResult] // Received inline query result
   [ctx.callbackQuery]      // Received callback query
+  [ctx.channelPost]        // New incoming channel post of any kind — text, photo, sticker, etc.
+  [ctx.editedChannelPost]  // New version of a channel post that is known to the bot and was edited
   [ctx.chat]               // Current chat info
   [ctx.from]               // Sender info
   [ctx.match]              // Regex match (available only for `hears`, `command`, `action` handlers)
 })
 ```
 
-#### How to extend context
+## How to extend context
 
 The recommended way to extend application context:
 
@@ -37,7 +39,7 @@ app.on('text', (ctx) => {
 })
 ```
 
-#### Shortcuts
+## Shortcuts
 
 Context shortcuts for **message** update:
 

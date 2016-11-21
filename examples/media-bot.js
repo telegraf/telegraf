@@ -35,7 +35,10 @@ bot.on('text', (ctx) => {
     // url
     ctx.replyWithPhoto({
       url: 'http://lorempixel.com/400/200/cats/'
-    })
+    }),
+
+    // url via Telegram servers
+    ctx.replyWithPhoto('http://lorempixel.com/400/200/cats/')
   ])
 })
 

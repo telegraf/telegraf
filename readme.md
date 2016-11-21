@@ -16,9 +16,9 @@ These accounts serve as an interface for code running somewhere on your server.
 - Full [Telegram Bot API](https://core.telegram.org/bots/api) support
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
-- AWS **λ**/now/dokku/Heroku ready
-- http/https/Connect/express.js webhooks
 - Incredibly fast
+- AWS **λ**/now/dokku/Heroku ready
+- `http`/`https`/`Connect.js`/`express.js` compatible webhooks
 - Easy to extend
 
 ## Installation
@@ -43,7 +43,11 @@ const Telegraf = require('telegraf')
 
 const app = new Telegraf(process.env.BOT_TOKEN)
 
-app.command('start', (ctx) => ctx.reply('Welcome!'))
+app.command('start', (ctx) => {
+  console.log('start', ctx.from)
+  ctx.reply('Welcome!')
+})
+
 app.hears('hi', (ctx) => ctx.reply('Hey there!'))
 app.on('sticker', (ctx) => ctx.reply('👍'))
 

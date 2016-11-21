@@ -13,6 +13,8 @@ const updateTypes = [
   { type: 'edited_message', prop: 'editedMessage', update: { edited_message: baseMessage } },
   { type: 'callback_query', prop: 'callbackQuery', update: { callback_query: { message: baseMessage } } },
   { type: 'inline_query', prop: 'inlineQuery', update: { inline_query: {} } },
+  { type: 'channel_post', prop: 'channelPost', update: { channel_post: {} } },
+  { type: 'edited_channel_post', prop: 'editedChannelPost', update: { edited_channel_post: {} } },
   { type: 'chosen_inline_result', prop: 'chosenInlineResult', update: { chosen_inline_result: {} } }
 ]
 
@@ -23,7 +25,6 @@ updateTypes.forEach((update) => {
       ctx.should.have.property(update.prop)
       ctx.should.have.property('telegram')
       ctx.should.have.property('updateType')
-      ctx.should.have.property('updateSubType')
       ctx.should.have.property('chat')
       ctx.should.have.property('from')
       ctx.should.have.property('state')
@@ -32,6 +33,21 @@ updateTypes.forEach((update) => {
     })
     app.handleUpdate(update.update)
   })
+})
+
+test.cb('should provide update payload for text', (t) => {
+  const app = new Telegraf()
+  app.on('text', (ctx) => {
+    ctx.should.have.property('telegram')
+    ctx.should.have.property('updateType')
+    ctx.should.have.property('updateSubType')
+    ctx.should.have.property('chat')
+    ctx.should.have.property('from')
+    ctx.should.have.property('state')
+    ctx.updateType.should.be.equal('message')
+    t.end()
+  })
+  app.handleUpdate({message: Object.assign({text: 'foo'}, baseMessage)})
 })
 
 test.cb('should provide shortcuts for `message` event', (t) => {

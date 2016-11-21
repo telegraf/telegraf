@@ -1,5 +1,5 @@
-module.exports = require('./lib/telegraf')
-Object.assign(module.exports, {
+const Telegraf = require('./lib/telegraf')
+Object.assign(Telegraf, {
   Telegram: require('./lib/telegram'),
   TelegramError: require('./lib/network/error'),
   Extra: require('./lib/helpers/extra'),
@@ -8,3 +8,4 @@ Object.assign(module.exports, {
   Composer: require('./lib/core/composer'),
   Router: require('./lib/core/router')
 })
+module.exports = Telegraf

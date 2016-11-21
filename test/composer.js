@@ -11,6 +11,8 @@ const topLevelUpdates = [
   { type: 'edited_message', update: { edited_message: baseMessage } },
   { type: 'callback_query', update: { callback_query: { message: baseMessage } } },
   { type: 'inline_query', update: { inline_query: {} } },
+  { type: 'channel_post', update: { channel_post: {} } },
+  { type: 'edited_channel_post', update: { edited_channel_post: {} } },
   { type: 'chosen_inline_result', update: { chosen_inline_result: {} } }
 ]
 

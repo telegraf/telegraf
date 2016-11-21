@@ -103,27 +103,29 @@ html .markdown-body h4 {
     padding-bottom: 29vh;
     border-bottom: 0;
     margin-bottom: .2em;
-    font-size: 5em;
+    font-size: 4em;
     font-family: 'Lekton', sans-serif;
     font-weight: 200;
-    color: #795548 /*accent2*/;
+    color: #ff3d00 /*accent*/;
     line-height: 1.2;
   }
 
   html .markdown-body h1.massive-header.-with-tagline {
     margin-top: 0;
-    padding-top: 20vh;
-    padding-bottom: 0;
+    padding: 1rem 0 0 8rem;
     margin-bottom: 0;
+    background-image: url(telegraf.png);
+    background-repeat: no-repeat;
+    background-size: contain;
   }
 
   html .markdown-body h1.massive-header.-with-tagline + blockquote {
     border-left: 0;
-    padding-left: 0;
+    padding-left: 8rem;
     padding-top: 0;
     margin-top: 0;
     margin-bottom: 0;
-    padding-bottom: 21vh;
+    padding-bottom: 10vh;
     font-size: 1.5em;
     color: #5f5f5f;
     padding-right: 10%;

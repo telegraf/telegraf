@@ -3,9 +3,19 @@ const test = require('ava')
 const Telegraf = require('../')
 const { Markup } = Telegraf
 
-test('should generate hideKeyboard markup', (t) => {
+test('should generate hideKeyboard markup (Deprecated)', (t) => {
   const markup = Object.assign({}, Markup.hideKeyboard())
-  markup.should.deepEqual({hide_keyboard: true})
+  markup.should.deepEqual({remove_keyboard: true})
+})
+
+test('should generate hideKeyboard markup (Deprecated)', (t) => {
+  const markup = Object.assign({}, new Markup().hideKeyboard())
+  markup.should.deepEqual({remove_keyboard: true})
+})
+
+test('should generate removeKeyboard markup', (t) => {
+  const markup = Object.assign({}, Markup.removeKeyboard())
+  markup.should.deepEqual({remove_keyboard: true})
 })
 
 test('should generate forceReply markup', (t) => {
@@ -24,8 +34,8 @@ test('should generate oneTimeKeyboard markup', (t) => {
 })
 
 test('should generate selective hide markup', (t) => {
-  const markup = Object.assign({}, Markup.hideKeyboard().selective())
-  markup.should.deepEqual({hide_keyboard: true, selective: true})
+  const markup = Object.assign({}, Markup.removeKeyboard().selective())
+  markup.should.deepEqual({remove_keyboard: true, selective: true})
 })
 
 test('should generate selective one time keyboard markup', (t) => {

@@ -115,7 +115,7 @@ app.on('text', (ctx) => {
 })
 ```
 
-**Note: For persistent sessions you can use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
+**Note: For persistent sessions you might use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
 
 ## Update types
 
@@ -126,6 +126,8 @@ Supported update types:
 - `callback_query`
 - `inline_query`
 - `chosen_inline_result`
+- `channel_post`
+- `edited_channel_post`
 
 Available update sub-types:
 `text`, `audio`, `document`, `photo`, `sticker`, `video`, `voice`, `contact`, `location`, 

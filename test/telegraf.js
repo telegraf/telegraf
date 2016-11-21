@@ -13,6 +13,8 @@ const updateTypes = [
   { type: 'edited_message', prop: 'editedMessage', update: { edited_message: baseMessage } },
   { type: 'callback_query', prop: 'callbackQuery', update: { callback_query: { message: baseMessage } } },
   { type: 'inline_query', prop: 'inlineQuery', update: { inline_query: {} } },
+  { type: 'channel_post', prop: 'channelPost', update: { channel_post: {} } },
+  { type: 'edited_channel_post', prop: 'editedChannelPost', update: { edited_channel_post: {} } },
   { type: 'chosen_inline_result', prop: 'chosenInlineResult', update: { chosen_inline_result: {} } }
 ]
 

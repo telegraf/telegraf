@@ -1,10 +1,9 @@
 Documentation
 =============
 
-* Telegraf
-  * [Home](index.md)
+* [Telegraf](index.md)
   * [Introduction](introduction.md)
-  * [ctx](context.md)
+  * [Context](context.md)
   * [Advanced usage](advanced.md)
 * API Reference
   * [Telegraf](telegraf.md)

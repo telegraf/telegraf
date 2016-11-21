@@ -29,7 +29,7 @@ Telegram options:
 
 Use this method to send answers to callback queries.
 
-`telegram.answerCallbackQuery(callbackQueryId, text, url showAlert) => Promise`
+`telegram.answerCallbackQuery(callbackQueryId, text, url, showAlert, cacheTime) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -37,6 +37,7 @@ Use this method to send answers to callback queries.
 | [text] | `string` | Notification text |
 | [url] | `string` | Notification text |
 | [showAlert] | `bool` | Show alert instead of notification |
+| [cacheTime] | `number` | The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0. |
 
 <sub>[See Telegram api docs](https://core.telegram.org/bots/api#answercallbackquery)</sub>
 
@@ -156,7 +157,7 @@ Use this method to get a list of administrators in a chat. On success, returns a
 
 Use this method to set the score of the specified user in a game. On success, if the message was sent by the bot, returns the edited Message, otherwise returns True. Returns an error, if the new score is not greater than the user's current score in the chat.
 
-`telegram.setGameScore(userId, score, inlineMessageId, chatId, messageId, editMessage) => Promise`
+`telegram.setGameScore(userId, score, inlineMessageId, chatId, messageId, editMessage, force) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -165,7 +166,8 @@ Use this method to set the score of the specified user in a game. On success, if
 | inlineMessageId | `string` | Inline message id(optional) |
 | chatId | `number`\|`string` | Target Chat id(optional) |
 | messageId | `number`\|`string` | Message id(optional) |
-| editMessage | `boolean` | edit target message(optional) |
+| editMessage | `boolean` | edit target message, default value is True |
+| force | `boolean` | Pass True, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters(optional) |
 
 <sub>[See Telegram api docs](https://core.telegram.org/bots/api#setgamescore)</sub>
 

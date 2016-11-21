@@ -39,11 +39,11 @@ test('should generate web preview options', (t) => {
 })
 
 test('should generate markup options', (t) => {
-  const markup = Object.assign({}, Extra.markup(Markup.hideKeyboard()))
-  markup.should.deepEqual({reply_markup: {hide_keyboard: true}})
+  const markup = Object.assign({}, Extra.markup(Markup.removeKeyboard()))
+  markup.should.deepEqual({reply_markup: {remove_keyboard: true}})
 })
 
 test('should generate markup options in functional style', (t) => {
-  const markup = Object.assign({}, Extra.markdown().markup((markup) => markup.hideKeyboard()))
-  markup.should.deepEqual({parse_mode: 'Markdown', reply_markup: {hide_keyboard: true}})
+  const markup = Object.assign({}, Extra.markdown().markup((markup) => markup.removeKeyboard()))
+  markup.should.deepEqual({parse_mode: 'Markdown', reply_markup: {remove_keyboard: true}})
 })

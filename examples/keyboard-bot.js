@@ -66,6 +66,7 @@ bot.command('inline', (ctx) => {
 bot.command('random', (ctx) => {
   return ctx.reply('random example',
     Markup.inlineKeyboard([
+      Markup.urlButton('Coke', 'https://www.buzzfeed.com/chrisgeidner/conservative-lawyers-take-up-the-unexpected-opportunity-of-t'),
       Markup.callbackButton('Coke', 'Coke'),
       Markup.callbackButton('Dr Pepper', 'Dr Pepper', Math.random() > 0.5),
       Markup.callbackButton('Pepsi', 'Pepsi')

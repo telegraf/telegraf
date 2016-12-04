@@ -97,54 +97,55 @@ Registers middleware for handling `callback_data` actions with game query.
 
 Start poll updates.
 
-`telegraf.startPolling(timeout, limit)`
+`telegraf.startPolling(timeout, limit, allowedUpdates)`
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | timeout | `number` | 30 | Poll timeout in seconds |
 | limit | `number` | 100 | Limits the number of updates to be retrieved |
+| allowedUpdates | `string[]` | null | List the types of updates you want your bot to receive |
 
-### startWebHook
+### startWebhook
 
-Start listening @ `https://host:port/webHookPath` for Telegram calls.
+Start listening @ `https://host:port/webhookPath` for Telegram calls.
 
-`telegraf.startWebHook(webHookPath, tlsOptions, port, [host])`
+`telegraf.startWebhook(webhookPath, tlsOptions, port, [host])`
 
 | Param | Type | Description |
 | ---  | --- | --- |
-| webHookPath | `string` | Webhook url path (see Telegraf.setWebHook) |
+| webhookPath | `string` | Webhook url path (see Telegraf.setWebhook) |
 | tlsOptions | `object` | (Optional) [TLS server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener). Pass null to use http |
 | port | `number` | Port number |
 | [host] | `string` | (Optional) Hostname |
 
 ### stop
 
-Stop WebHook and polling
+Stop Webhook and polling
 
 `telegraf.stop()`
 
-### webHookCallback
+### webhookCallback
 
 Return a callback function suitable for the http[s].createServer() method to handle a request. 
 You may also use this callback function to mount your telegraf app in a Koa/Connect/Express app.
 
-`telegraf.webHookCallback(webHookPath) => Function`
+`telegraf.webhookCallback(webhookPath) => Function`
 
 | Param | Type | Description |
 | ---  | --- | --- |
-| webHookPath | `string` | Webhook url path (see Telegraf.setWebHook) |
+| webhookPath | `string` | Webhook url path (see Telegraf.setWebhook) |
 
 ### handleUpdate
 
 Handle raw Telegram update. 
 In case you use centralized webhook server, queue, etc.  
 
-`telegraf.handleUpdate(rawUpdate, [webHookResponse])`
+`telegraf.handleUpdate(rawUpdate, [webhookResponse])`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | rawUpdate | `object` | Telegram update payload |
-| [webHookResponse] | `object` | (Optional) [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
+| [webhookResponse] | `object` | (Optional) [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
 
 ### Telegraf.compose
 

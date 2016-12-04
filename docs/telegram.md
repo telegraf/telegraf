@@ -282,13 +282,13 @@ Use this method for your bot to leave a group, supergroup or channel.
 
 <sub>[See Telegram api docs](https://core.telegram.org/bots/api#leavechat)</sub>
 
-### removeWebHook
+### deleteWebhook
 
-Removes webhook. Shortcut for `setWebHook('')`
+Removes webhook integration.
 
-`telegram.removeWebHook() => Promise`
+`telegram.deleteWebhook() => Promise`
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#removewebhook)</sub>
+<sub>[See Telegram api docs](https://core.telegram.org/bots/api#deletewebhook)</sub>
 
 ### sendAudio
 
@@ -439,17 +439,18 @@ Sends voice.
 | voice | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
 
-### setWebHook
+### setWebhook
 
 Specifies an url to receive incoming updates via an outgoing webhook.
 
-`telegram.setWebHook(url, [cert]) => Promise`
+`telegram.setWebhook(url, [cert], [maxConnections], [allowedUpdates]) => Promise`
 
 | Param | Type | Description |
 | ---  | --- | --- |
 | url  | `string` | Public url for webhook |
 | [cert] | `File` | SSL public certificate |
-
+| [maxConnections] | `number` | User id |
+| [allowedUpdates] | `string[]` | List the types of updates you want your bot to receive |
 <sub>[See Telegram api docs](https://core.telegram.org/bots/api#setwebhook)</sub>
 
 ### unbanChatMember

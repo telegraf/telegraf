@@ -21,7 +21,7 @@ app.command('start', (ctx) => ctx.reply('Hello World'))
 
 ## Composer
 
-[Example](https://github.com/telegraf/telegraf-flow/blob/master/lib/flows/default.js)
+[Example](https://github.com/telegraf/telegraf-flow/blob/master/lib/flow.js)
 
 ## Router
 

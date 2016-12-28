@@ -21,10 +21,11 @@ Telegraf options:
 
 ```js
 {
-  telegram: {      // Telegram options
-    agent: null    // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+  telegram: {           // Telegram options
+    agent: null,        // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+    webhookReply: true  // Reply via webhook
   },
-  username: ''     // Bot username (optional)  
+  username: ''          // Bot username (optional)  
 }
 ```
 

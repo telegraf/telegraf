@@ -21,9 +21,16 @@ Telegram options:
 
 ```js
 {
-  agent: null // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+  agent: null,        // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+  webhookReply: true  // Reply via webhook
 }
 ```
+
+### webhookReply
+
+Use this property to control `reple via webhook` feature.
+
+`telegram.webhookReply = [bool]`
 
 ### answerCallbackQuery
 

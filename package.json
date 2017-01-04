@@ -39,6 +39,10 @@
     "husky": "^0.12.0",
     "should": "^11.1.0"
   },
+  "docpress": {
+    "css": "docs/docs.css",
+    "github": "telegraf/telegraf"
+  },
   "keywords": [
     "telegraf",
     "telegram",

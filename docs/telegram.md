@@ -240,8 +240,6 @@ Returns link to file.
 | --- | --- | --- |
 | fileId | `string` | File id |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#getFileLink)</sub>
-
 ### getMe
 
 Returns basic information about the bot.

@@ -25,7 +25,7 @@
     "node": ">=6.2.0"
   },
   "dependencies": {
-    "debug": "^2.2.0",
+    "debug": "^2.4.1",
     "node-fetch": "^1.6.3",
     "sandwich-stream": "^1.0.0"
   },

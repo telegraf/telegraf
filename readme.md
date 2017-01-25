@@ -52,6 +52,7 @@ app.command('start', (ctx) => {
 })
 
 app.hears('hi', (ctx) => ctx.reply('Hey there!'))
+
 app.on('sticker', (ctx) => ctx.reply('👍'))
 
 app.startPolling()

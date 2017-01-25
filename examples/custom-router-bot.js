@@ -50,10 +50,10 @@ simpleRouter.on('clear', (ctx) => {
   return editText(ctx)
 })
 
-bot.startPolling(30)
+bot.startPolling()
 
 function editText (ctx) {
   return ctx.session.value !== 42
     ? ctx.editMessageText(`Value: <b>${ctx.session.value}</b>`, defaultMarkup).catch(() => undefined)
-    : ctx.answerCallbackQuery('🎉', true).then(() => ctx.editMessageText(`🎉 ${ctx.session.value} 🎉`))
+    : ctx.answerCallbackQuery('🎉', undefined, true).then(() => ctx.editMessageText(`🎉 ${ctx.session.value} 🎉`))
 }

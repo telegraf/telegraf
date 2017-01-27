@@ -1,6 +1,4 @@
-# Telegraf
-<!--{h1:.massive-header.-with-tagline}-->
-> Modern Telegram bot framework for Node.js
+![Telegraf](header.png)
 
 Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
 Users can interact with bots by sending them command messages in private or group chats. 

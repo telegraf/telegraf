@@ -21,8 +21,8 @@ bot.command('onetime', (ctx) => {
 bot.command('custom', (ctx) => {
   return ctx.reply('Custom buttons keyboard', Markup
     .keyboard([
-      ['🔍 Search', '😎 Popular'], // Row1 with 2 button
-      ['☸ Setting', '📞 Feedback'], // Row2 with 2 button
+      ['🔍 Search', '😎 Popular'],         // Row1 with 2 button
+      ['☸ Setting', '📞 Feedback'],       // Row2 with 2 button
       ['📢 Ads', '⭐️ Rate us', '👥 Share'] // Row3 with 3 button
     ])
     .oneTime()
@@ -56,10 +56,10 @@ bot.command('simple', (ctx) => {
 })
 
 bot.command('inline', (ctx) => {
-  return ctx.reply('<b>Coke</b> or <i>Pepsi?</i>', Extra.HTML().markup(
-    Markup.inlineKeyboard([
-      Markup.callbackButton('Coke', 'Coke'),
-      Markup.callbackButton('Pepsi', 'Pepsi')
+  return ctx.reply('<b>Coke</b> or <i>Pepsi?</i>', Extra.HTML().markup((m) =>
+    m.inlineKeyboard([
+      m.callbackButton('Coke', 'Coke'),
+      m.callbackButton('Pepsi', 'Pepsi')
     ])))
 })
 

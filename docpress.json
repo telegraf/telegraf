@@ -1,9 +1,0 @@
-{
-  "css": "docs/docs.css",
-  "github": "telegraf/telegraf",
-  "markdown": {
-    "plugins": {
-      "decorate": {}
-    }
-  }
-}

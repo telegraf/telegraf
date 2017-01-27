@@ -6,14 +6,14 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 const downloadPhotoMiddleware = (ctx, next) => {
   return bot.telegram.getFileLink(ctx.message.photo[0])
     .then((link) => {
-      console.log(link)
       ctx.state.fileLink = link
       return next()
     })
 }
 
 bot.on('photo', downloadPhotoMiddleware, (ctx, next) => {
-  // return ctx.replyWithPhoto({ source: '/directory/file.jpeg' })
+  console.log('Photo url:', ctx.state.fileLink)
+  return ctx.replyWithPhoto({ source: '/directory/file.jpeg' })
 })
 
 bot.on('text', (ctx) => {

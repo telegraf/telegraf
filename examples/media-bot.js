@@ -4,7 +4,7 @@ const Telegraf = require('../')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const downloadPhotoMiddleware = (ctx, next) => {
-  return bot.telegram.getFileLink(ctx.message.photo[0].file_id)
+  return bot.telegram.getFileLink(ctx.message.photo[0])
     .then((link) => {
       ctx.state.fileLink = link
       return next()
@@ -12,6 +12,7 @@ const downloadPhotoMiddleware = (ctx, next) => {
 }
 
 bot.on('photo', downloadPhotoMiddleware, (ctx, next) => {
+  console.log('Photo url:', ctx.state.fileLink)
   return ctx.replyWithPhoto({ source: '/directory/file.jpeg' })
 })
 

@@ -16,7 +16,7 @@ These accounts serve as an interface for code running somewhere on your server.
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
-- AWS **λ**/now/dokku/Heroku ready
+- AWS **λ**/[now](https://github.com/telegraf/micro-bot#deployment-to-now)/dokku/[Heroku](https://github.com/telegraf/micro-bot#deployment-to-heroku) ready
 - `http`/`https`/`Connect.js`/`express.js` compatible webhooks
 - Easy to extend
 
@@ -33,7 +33,12 @@ you first have to [get a bot account](https://core.telegram.org/bots)
 by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
 BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
-With the token in hand, you can start developing your bot.
+With the token you can start developing your bot.
+
+
+## Quick start
+
+[Step-by-step instructions](https://github.com/telegraf/micro-bot) for building and deploying basic bot with [🤖 micro-bot](https://github.com/telegraf/micro-bot) (Telegraf high level wrapper).
 
 ## Documentation
 

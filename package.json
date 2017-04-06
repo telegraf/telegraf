@@ -18,8 +18,9 @@
   ],
   "main": "lib/index.js",
   "scripts": {
-    "test": "eslint . && ava test --timeout=5s",
-    "prepush": "npm test"
+    "lint": "eslint .",
+    "test": "ava test",
+    "precommit": "npm run lint && npm test"
   },
   "engines": {
     "node": ">=6.2.0"
@@ -30,14 +31,15 @@
     "sandwich-stream": "^1.0.0"
   },
   "devDependencies": {
-    "ava": "^0.18.1",
-    "eslint": "^3.9.1",
-    "eslint-config-standard": "^7.0.0",
+    "ava": "^0.19.0",
+    "eslint": "^3.19.0",
+    "eslint-config-standard": "^10.2.0",
     "eslint-plugin-ava": "^4.0.0",
-    "eslint-plugin-promise": "^3.3.1",
-    "eslint-plugin-standard": "^2.0.1",
-    "husky": "^0.13.1",
-    "should": "^11.1.0"
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-node": "^4.2.2",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "husky": "^0.13.1"
   },
   "docpress": {
     "css": "docs/docs.css",

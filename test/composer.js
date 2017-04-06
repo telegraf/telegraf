@@ -1,4 +1,3 @@
-require('should')
 const test = require('ava')
 const Telegraf = require('../')
 const { Composer } = Telegraf
@@ -120,7 +119,7 @@ test.cb('should support Composer instance as middleware', (t) => {
   const app = new Telegraf()
   const composer = new Composer()
   composer.on('text', (ctx) => {
-    ctx.state.foo.should.be.equal('bar')
+    t.is('bar', ctx.state.foo)
     t.end()
   })
   app.use((ctx, next) => {
@@ -349,7 +348,7 @@ test.cb('should handle text triggers via functions', (t) => {
 test.cb('should handle regex triggers', (t) => {
   const app = new Telegraf()
   app.hears(/hello (.+)/, (ctx) => {
-    ctx.match[1].should.be.equal('world')
+    t.is('world', ctx.match[1])
     t.end()
   })
   app.handleUpdate({message: Object.assign({text: 'Ola!'}, baseMessage)})
@@ -399,8 +398,8 @@ test.cb('should handle action', (t) => {
 test.cb('should handle regex action', (t) => {
   const app = new Telegraf()
   app.action(/foo (\d+)/, (ctx) => {
-    ctx.should.have.property('match')
-    ctx.match[1].should.be.equal('42')
+    t.true('match' in ctx)
+    t.is('42', ctx.match[1])
     t.end()
   })
   app.handleUpdate({callback_query: {data: 'foo 42'}})

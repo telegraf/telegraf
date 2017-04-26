@@ -64,3 +64,9 @@ app.startPolling()
 ```
 
 There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/examples).
+
+### Community bots
+
+* [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
+* Send PR to add link to your bot
+

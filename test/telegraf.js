@@ -161,3 +161,17 @@ test.cb('should handle webhook response', (t) => {
   }
   app.handleUpdate({message: baseMessage}, res)
 })
+
+test.cb('should respect webhookReply option', (t) => {
+  const app = new Telegraf()
+  app.telegram.webhookReply = false
+  app.on('message', (ctx) => {
+    ctx.reply(':)')
+  })
+  const res = {
+    setHeader: () => undefined,
+    end: () => undefined
+  }
+  t.throws(app.handleUpdate({message: baseMessage}, res))
+    .then(() => t.end())
+})

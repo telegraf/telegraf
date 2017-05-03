@@ -28,7 +28,7 @@ Telegram options:
 
 ### webhookReply
 
-Use this property to control `reple via webhook` feature.
+Use this property to control `reply via webhook` feature.
 
 `telegram.webhookReply = [bool]`
 

@@ -29,6 +29,19 @@ Telegraf options:
 }
 ```
 
+### token
+
+Use this property to get/set bot token.
+
+`telegraf.token = [string]`
+
+### webhookReply
+
+Use this property to control `reply via webhook` feature.
+
+`telegraf.webhookReply = [bool]`
+
+
 ### use
 
 Registers a middleware.

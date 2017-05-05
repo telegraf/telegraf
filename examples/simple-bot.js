@@ -14,6 +14,8 @@ bot.use((ctx, next) => {
   })
 })
 
+bot.hears(/test/ig, (ctx) => ctx.reply('test'))
+
 const sayYoMiddleware = (ctx, next) => ctx.reply('yo').then(next)
 
 // Random location on some text messages

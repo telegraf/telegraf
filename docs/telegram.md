@@ -60,6 +60,17 @@ Use this method to send answers to an inline query.
 | results | `object[]` | Results |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#answerinlinequery)|
 
+### deleteMessage
+
+Use this method to delete bot messages
+
+`telegram.deleteMessage(chatId, messageId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| messageId | `string` | Message id |
+
 ### editMessageCaption
 
 Use this method to edit captions of messages sent by the bot or via the bot

@@ -67,6 +67,7 @@ Context shortcuts for **callback_query** update:
 
 ```js
 ctx.answerCallbackQuery() -> ctx.telegram.answerCallbackQuery()
+ctx.answerGameQuery() -> ctx.telegram.answerGameQuery()
 ctx.deleteMessage() -> ctx.telegram.deleteMessage()
 ctx.editMessageText() -> ctx.telegram.editMessageText()
 ctx.editMessageCaption() -> ctx.telegram.editMessageCaption()

@@ -210,6 +210,13 @@ Generates pass thru middleware.
 
 `Telegraf.passThru() => function`
 
+### Telegraf.safePassThru
+
+Generates safe version of pass thru middleware.
+
+`Telegraf.safePassThru() => function`
+
+
 ### Telegraf.optional
 
 Generates optional middleware.

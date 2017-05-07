@@ -31,7 +31,9 @@ app.use((ctx, next) => {
 app.on('text', (ctx) => ctx.reply('Hello World'))
 ```
 
-#### Cascading with async functions (Babel required)
+#### Cascading with async functions
+
+You might need Babel(or `node >=v.7.x` with harmony flags) for running following example.
 
 ```js
 app.use(async (ctx, next) => {

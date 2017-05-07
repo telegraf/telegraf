@@ -98,6 +98,7 @@ test.cb('should provide shortcuts for `callback_query` event', (t) => {
     t.true('getChatAdministrators' in ctx)
     t.true('getChatMember' in ctx)
     t.true('getChatMembersCount' in ctx)
+    t.true('deleteMessage' in ctx)
     t.end()
   })
   app.handleUpdate({callback_query: baseMessage})

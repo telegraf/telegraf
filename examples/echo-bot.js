@@ -7,8 +7,6 @@ const replyOptions = Markup.inlineKeyboard([
 ]).extra()
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
-
-bot.on('message', async (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message, replyOptions))
+bot.on('message', (ctx) => ctx.telegram.sendCopy(ctx.from.id, ctx.message, replyOptions))
 bot.action('delete', (ctx) => ctx.deleteMessage())
-
 bot.startPolling()

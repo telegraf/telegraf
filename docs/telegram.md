@@ -454,6 +454,19 @@ Sends video.
 | video | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideo)|
 
+### sendVideoNote
+
+Sends video.
+
+`telegram.sendVideoNote(chatId, video, length, extra) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| video | `File` | Video note id |
+| length | `int` | Video length |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideonote)|
+
 ### sendVoice
 
 Sends voice.

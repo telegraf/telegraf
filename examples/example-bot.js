@@ -40,7 +40,7 @@ bot.command('answer', sayYoMiddleware, (ctx) => {
   return ctx.reply('*42*', Extra.markdown())
 })
 
-// Streaming photo, in case Telegram does't accept your yrld directly
+// Streaming photo, in case Telegram does't accept your url directly
 bot.command('cat', (ctx) => {
   return ctx.replyWithPhoto({
     url: 'http://lorempixel.com/400/200/cats/'

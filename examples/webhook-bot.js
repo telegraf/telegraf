@@ -10,4 +10,4 @@ bot.telegram.setWebhook('https://--------.localtunnel.me/secret-path')
 // FYI: First non-file reply will be served via webhook response
 bot.startWebhook('/secret-path', null, 3000)
 
-bot.on('text', (ctx) => ctx.reply('Hey there!'))
+bot.on('text', ({ reply }) => reply('Hey there!'))

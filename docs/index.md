@@ -33,23 +33,30 @@ by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
 BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
 
-## Example
+## Examples
   
 ```js
 const Telegraf = require('telegraf')
 
 const app = new Telegraf(process.env.BOT_TOKEN)
-
-app.command('start', (ctx) => {
-  console.log('start', ctx.from)
-  ctx.reply('Welcome!')
+app.command('start', ({ from, reply }) => {
+  console.log('start', from)
+  return reply('Welcome!')
 })
-
 app.hears('hi', (ctx) => ctx.reply('Hey there!'))
-
 app.on('sticker', (ctx) => ctx.reply('👍'))
-
 app.startPolling()
+```
+
+```js
+const Telegraf = require('telegraf')
+const { reply } = Telegraf
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.command('/oldschool', (ctx) => ctx.reply('Hello'))
+bot.command('/modern', ({ reply }) => reply('Yo'))
+bot.command('/hipster', reply('λ'))
+bot.startPolling()
 ```
 
 There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/examples).

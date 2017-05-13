@@ -14,15 +14,15 @@ bot.use((ctx, next) => {
   })
 })
 
-const sayYoMiddleware = (ctx, next) => ctx.reply('yo').then(next)
+const sayYoMiddleware = ({ reply }, next) => reply('yo').then(next)
 
 // Random location on some text messages
-bot.on('text', (ctx, next) => {
+bot.on('text', ({ replyWithLocation }, next) => {
   if (Math.random() > 0.2) {
     return next()
   }
   return Promise.all([
-    ctx.replyWithLocation((Math.random() * 180) - 90, (Math.random() * 180) - 90),
+    replyWithLocation((Math.random() * 180) - 90, (Math.random() * 180) - 90),
     next()
   ])
 })
@@ -40,18 +40,18 @@ bot.command('answer', sayYoMiddleware, (ctx) => {
   return ctx.reply('*42*', Extra.markdown())
 })
 
-// Streaming photo, in case Telegram does't accept your url directly
-bot.command('cat', (ctx) => {
-  return ctx.replyWithPhoto({
-    url: 'http://lorempixel.com/400/200/cats/'
-  })
-})
+const catPhoto = 'http://lorempixel.com/400/200/cats/'
+bot.command('cat', ({ replyWithPhoto }) => replyWithPhoto(catPhoto))
 
+// Streaming photo, in case Telegram does't accept url directly
+bot.command('cat2', ({ replyWithPhoto }) => replyWithPhoto({ url: catPhoto }))
+
+// Look ma, reply middleware factory
 bot.command('foo', reply('http://coub.com/view/9cjmt'))
 
 // Wow! RegEx
-bot.hears(/reverse (.+)/, (ctx) => {
-  return ctx.reply(ctx.match[1].split('').reverse().join(''))
+bot.hears(/reverse (.+)/, ({ match, reply }) => {
+  return reply(match[1].split('').reverse().join(''))
 })
 
 // Start polling

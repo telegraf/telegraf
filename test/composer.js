@@ -122,8 +122,8 @@ test.cb('should support Composer instance as middleware', (t) => {
     t.is('bar', ctx.state.foo)
     t.end()
   })
-  app.use((ctx, next) => {
-    ctx.state.foo = 'bar'
+  app.use(({ state }, next) => {
+    state.foo = 'bar'
     return next()
   }, composer)
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})

@@ -155,8 +155,8 @@ test.cb('should work with context extensions', (t) => {
 
 test.cb('should handle webhook response', (t) => {
   const app = new Telegraf()
-  app.on('message', (ctx) => {
-    ctx.reply(':)')
+  app.on('message', ({reply}) => {
+    reply(':)')
   })
   const res = {
     setHeader: () => undefined,
@@ -173,7 +173,7 @@ const resStub = {
 test.cb('should respect webhookReply option', (t) => {
   const app = new Telegraf(null, {telegram: {webhookReply: false}})
   app.catch((err) => { throw err }) // Disable log
-  app.on('message', (ctx) => ctx.reply(':)'))
+  app.on('message', ({ reply }) => reply(':)'))
   t.throws(app.handleUpdate({message: baseMessage}, resStub)).then(() => t.end())
 })
 

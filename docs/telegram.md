@@ -1,6 +1,6 @@
 # Telegram
 
-Telegram API wrapper reference
+Telegram wrapper API reference.
 
 ```js
 const { Telegram } = require('telegraf')
@@ -42,11 +42,48 @@ Use this method to send answers to callback queries.
 | --- | --- | --- |
 | callbackQueryId | `string` | Query id |
 | [text] | `string` | Notification text |
-| [url] | `string` | Notification text |
+| [url] | `string` | Game url |
 | [showAlert] | `bool` | Show alert instead of notification |
 | [cacheTime] | `number` | The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0. |
 
 <sub>[See Telegram api docs](https://core.telegram.org/bots/api#answercallbackquery)</sub>
+
+### answerGameQuery
+
+Use this method to send answers to game query.
+
+`telegram.answerGameQuery(callbackQueryId, url) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| callbackQueryId | `string` | Query id |
+| url | `string` | Notification text |
+
+
+### answerShippingQuery
+
+Use this method to send answers to shipping query.
+
+`telegram.answerShippingQuery(shippingQueryId, ok, shippingOptions, errorMessage) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| shippingQueryId | `string` | Shipping Query id |
+| ok | `bool` | Specify True if delivery to the specified address is possible |
+| shippingOptions | `bool` | [Shipping Options](https://core.telegram.org/bots/api#answershippingquery) |
+| errorMessage | `bool` | Error message in human readable form  |
+
+### answerPreCheckoutQuery
+
+Use this method to send answers to shipping query.
+
+`telegram.answerPreCheckoutQuery(preCheckoutQueryId, ok, errorMessage) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| preCheckoutQueryId | `string` | Shipping Query id |
+| ok | `bool` | Specify True if everything is alright (goods are available, etc.) |
+| errorMessage | `bool` | Error message in human readable form  |
 
 ### answerInlineQuery
 
@@ -59,6 +96,17 @@ Use this method to send answers to an inline query.
 | inlineQueryId | `string` | Query id |
 | results | `object[]` | Results |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#answerinlinequery)|
+
+### deleteMessage
+
+Use this method to delete bot messages
+
+`telegram.deleteMessage(chatId, messageId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| messageId | `string` | Message id |
 
 ### editMessageCaption
 
@@ -420,6 +468,17 @@ Sends venue information.
 | address | `string` | Venue address |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvenue)|
 
+### sendInvoice
+
+Sends invoice.
+
+`telegram.sendInvoice(chatId, invoice) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| invoice | `File` | [Invoice object](https://core.telegram.org/bots/api#sendinvoice) |
+
 ### sendVideo
 
 Sends video.
@@ -431,6 +490,18 @@ Sends video.
 | chatId | `number`\|`string` | Chat id |
 | video | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideo)|
+
+### sendVideoNote
+
+Sends round video.
+
+`telegram.sendVideoNote(chatId, video, extra) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| video | `File` | Video note file |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideonote)|
 
 ### sendVoice
 

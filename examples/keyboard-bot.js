@@ -5,25 +5,21 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.use(Telegraf.log())
 
-bot.command('onetime', (ctx) => {
-  return ctx.reply('One time keyboard', Markup
-    .keyboard([
-      '/simple',
-      '/inline',
-      '/pyramid'
-    ])
+bot.command('onetime', ({ reply }) =>
+  reply('One time keyboard', Markup
+    .keyboard(['/simple', '/inline', '/pyramid'])
     .oneTime()
     .resize()
     .extra()
   )
-})
+)
 
-bot.command('custom', (ctx) => {
-  return ctx.reply('Custom buttons keyboard', Markup
+bot.command('custom', ({ reply }) => {
+  return reply('Custom buttons keyboard', Markup
     .keyboard([
-      ['🔍 Search', '😎 Popular'],         // Row1 with 2 button
-      ['☸ Setting', '📞 Feedback'],       // Row2 with 2 button
-      ['📢 Ads', '⭐️ Rate us', '👥 Share'] // Row3 with 3 button
+      ['🔍 Search', '😎 Popular'],         // Row1 with 2 buttons
+      ['☸ Setting', '📞 Feedback'],       // Row2 with 2 buttons
+      ['📢 Ads', '⭐️ Rate us', '👥 Share'] // Row3 with 3 buttons
     ])
     .oneTime()
     .resize()

@@ -8,11 +8,13 @@ const baseMessage = {
 }
 
 const updateTypes = [
+  { type: 'shipping_query', prop: 'shippingQuery', update: { shipping_query: {} } },
   { type: 'message', prop: 'message', update: { message: baseMessage } },
   { type: 'edited_message', prop: 'editedMessage', update: { edited_message: baseMessage } },
   { type: 'callback_query', prop: 'callbackQuery', update: { callback_query: { message: baseMessage } } },
   { type: 'inline_query', prop: 'inlineQuery', update: { inline_query: {} } },
   { type: 'channel_post', prop: 'channelPost', update: { channel_post: {} } },
+  { type: 'pre_checkout_query', prop: 'preCheckoutQuery', update: { pre_checkout_query: {} } },
   { type: 'edited_channel_post', prop: 'editedChannelPost', update: { edited_channel_post: {} } },
   { type: 'chosen_inline_result', prop: 'chosenInlineResult', update: { chosen_inline_result: {} } }
 ]
@@ -58,8 +60,10 @@ test.cb('should provide shortcuts for `message` event', (t) => {
     t.true('replyWithHTML' in ctx)
     t.true('replyWithAudio' in ctx)
     t.true('replyWithDocument' in ctx)
+    t.true('replyWithInvoice' in ctx)
     t.true('replyWithSticker' in ctx)
     t.true('replyWithVideo' in ctx)
+    t.true('replyWithVideoNote' in ctx)
     t.true('replyWithVoice' in ctx)
     t.true('replyWithChatAction' in ctx)
     t.true('replyWithLocation' in ctx)
@@ -86,8 +90,10 @@ test.cb('should provide shortcuts for `callback_query` event', (t) => {
     t.true('replyWithPhoto' in ctx)
     t.true('replyWithAudio' in ctx)
     t.true('replyWithDocument' in ctx)
+    t.true('replyWithInvoice' in ctx)
     t.true('replyWithSticker' in ctx)
     t.true('replyWithVideo' in ctx)
+    t.true('replyWithVideoNote' in ctx)
     t.true('replyWithVoice' in ctx)
     t.true('replyWithChatAction' in ctx)
     t.true('replyWithLocation' in ctx)
@@ -98,9 +104,28 @@ test.cb('should provide shortcuts for `callback_query` event', (t) => {
     t.true('getChatAdministrators' in ctx)
     t.true('getChatMember' in ctx)
     t.true('getChatMembersCount' in ctx)
+    t.true('deleteMessage' in ctx)
     t.end()
   })
   app.handleUpdate({callback_query: baseMessage})
+})
+
+test.cb('should provide shortcuts for `shipping_query` event', (t) => {
+  const app = new Telegraf()
+  app.on('shipping_query', (ctx) => {
+    t.true('answerShippingQuery' in ctx)
+    t.end()
+  })
+  app.handleUpdate({shipping_query: baseMessage})
+})
+
+test.cb('should provide shortcuts for `pre_checkout_query` event', (t) => {
+  const app = new Telegraf()
+  app.on('pre_checkout_query', (ctx) => {
+    t.true('answerPreCheckoutQuery' in ctx)
+    t.end()
+  })
+  app.handleUpdate({pre_checkout_query: baseMessage})
 })
 
 test.cb('should provide chat and sender info', (t) => {
@@ -152,8 +177,8 @@ test.cb('should work with context extensions', (t) => {
 
 test.cb('should handle webhook response', (t) => {
   const app = new Telegraf()
-  app.on('message', (ctx) => {
-    ctx.reply(':)')
+  app.on('message', ({reply}) => {
+    reply(':)')
   })
   const res = {
     setHeader: () => undefined,
@@ -170,7 +195,7 @@ const resStub = {
 test.cb('should respect webhookReply option', (t) => {
   const app = new Telegraf(null, {telegram: {webhookReply: false}})
   app.catch((err) => { throw err }) // Disable log
-  app.on('message', (ctx) => ctx.reply(':)'))
+  app.on('message', ({ reply }) => reply(':)'))
   t.throws(app.handleUpdate({message: baseMessage}, resStub)).then(() => t.end())
 })
 

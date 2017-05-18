@@ -14,6 +14,8 @@ app.use((ctx) => {
   [ctx.inlineQuery]        // Received inline query
   [ctx.chosenInlineResult] // Received inline query result
   [ctx.callbackQuery]      // Received callback query
+  [ctx.shippingQuery]      // Shipping query
+  [ctx.preCheckoutQuery]   // Precheckout query
   [ctx.channelPost]        // New incoming channel post of any kind — text, photo, sticker, etc.
   [ctx.editedChannelPost]  // New version of a channel post that is known to the bot and was edited
   [ctx.chat]               // Current chat info
@@ -50,48 +52,64 @@ ctx.getChatMember() -> ctx.telegram.getChatMember()
 ctx.getChatMembersCount() -> ctx.telegram.getChatMembersCount()
 ctx.leaveChat() -> ctx.telegram.leaveChat()
 ctx.reply() -> ctx.telegram.sendMessage()
-ctx.replyWithMarkdown() -> ctx.telegram.sendMessage()
-ctx.replyWithHTML() -> ctx.telegram.sendMessage()
 ctx.replyWithAudio() -> ctx.telegram.sendAudio()
 ctx.replyWithChatAction() -> ctx.telegram.sendChatAction()
 ctx.replyWithDocument() -> ctx.telegram.sendDocument()
+ctx.replyWithGame() -> ctx.telegram.sendGame()
+ctx.replyWithHTML() -> ctx.telegram.sendMessage()
+ctx.replyWithInvoice() -> ctx.telegram.sendInvoice()
 ctx.replyWithLocation() -> ctx.telegram.sendLocation()
+ctx.replyWithMarkdown() -> ctx.telegram.sendMessage()
 ctx.replyWithPhoto() -> ctx.telegram.sendPhoto()
 ctx.replyWithSticker() -> ctx.telegram.sendSticker()
 ctx.replyWithVideo() -> ctx.telegram.sendVideo()
+ctx.replyWithVideoNote() -> ctx.telegram.sendVideoNote()
 ctx.replyWithVoice() -> ctx.telegram.sendVoice()
-ctx.replyWithGame() -> ctx.telegram.sendGame()
 ```
 
 Context shortcuts for **callback_query** update:
 
 ```js
 ctx.answerCallbackQuery() -> ctx.telegram.answerCallbackQuery()
-ctx.editMessageText() -> ctx.telegram.editMessageText()
+ctx.answerGameQuery() -> ctx.telegram.answerGameQuery()
+ctx.deleteMessage() -> ctx.telegram.deleteMessage()
 ctx.editMessageCaption() -> ctx.telegram.editMessageCaption()
 ctx.editMessageReplyMarkup() -> ctx.telegram.editMessageReplyMarkup()
+ctx.editMessageText() -> ctx.telegram.editMessageText()
 ctx.getChat() -> ctx.telegram.getChat()
 ctx.getChatAdministrators() -> ctx.telegram.getChatAdministrators()
 ctx.getChatMember() -> ctx.telegram.getChatMember()
 ctx.getChatMembersCount() -> ctx.telegram.getChatMembersCount()
 ctx.leaveChat() -> ctx.telegram.leaveChat()
 ctx.reply() -> ctx.telegram.sendMessage()
-ctx.replyWithMarkdown() -> ctx.telegram.sendMessage()
-ctx.replyWithHTML() -> ctx.telegram.sendMessage()
 ctx.replyWithAudio() -> ctx.telegram.sendAudio()
 ctx.replyWithChatAction() -> ctx.telegram.sendChatAction()
 ctx.replyWithDocument() -> ctx.telegram.sendDocument()
+ctx.replyWithGame() -> ctx.telegram.sendGame()
+ctx.replyWithHTML() -> ctx.telegram.sendMessage()
+ctx.replyWithInvoice() -> ctx.telegram.sendInvoice()
 ctx.replyWithLocation() -> ctx.telegram.sendLocation()
+ctx.replyWithMarkdown() -> ctx.telegram.sendMessage()
 ctx.replyWithPhoto() -> ctx.telegram.sendPhoto()
 ctx.replyWithSticker() -> ctx.telegram.sendSticker()
 ctx.replyWithVideo() -> ctx.telegram.sendVideo()
+ctx.replyWithVideoNote() -> ctx.telegram.sendVideoNote()
 ctx.replyWithVoice() -> ctx.telegram.sendVoice()
-ctx.replyWithGame() -> ctx.telegram.sendGame()
 ```
 
 Context shortcuts for **inline_query** update:
 ```js
 ctx.answerInlineQuery() -> ctx.telegram.answerInlineQuery()
+```
+
+Context shortcuts for **shipping_query** update:
+```js
+ctx.answerShippingQuery() -> ctx.telegram.answerShippingQuery()
+```
+
+Context shortcuts for **pre_checkout_query** update:
+```js
+ctx.answerPreCheckoutQuery() -> ctx.telegram.answerPreCheckoutQuery()
 ```
 
 #### Example

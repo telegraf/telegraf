@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "3.6.10",
+  "version": "3.7.0",
   "description": "📡 Modern Telegram bot framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <dotcypress@gmail.com>",
@@ -26,6 +26,7 @@
     "node": ">=6.2.0"
   },
   "dependencies": {
+    "auto-bind": "^1.1.0",
     "debug": "^2.6.0",
     "node-fetch": "^1.6.3",
     "sandwich-stream": "^1.0.0"

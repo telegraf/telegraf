@@ -1,5 +1,5 @@
 ![Telegraf](docs/header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v2.3.1-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.0-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![bitHound](https://img.shields.io/bithound/code/github/telegraf/telegraf.svg?style=flat-square)](https://www.bithound.io/github/telegraf/telegraf)
@@ -12,7 +12,8 @@ These accounts serve as an interface for code running somewhere on your server.
 
 ## Features
 
-- Full [Telegram Bot API](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 3.0](https://core.telegram.org/bots/api) support
+- [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
@@ -22,8 +23,13 @@ These accounts serve as an interface for code running somewhere on your server.
 
 ## Installation
 
-```js
+```
 $ npm install telegraf --save
+```
+
+Using `yarn`
+```
+$ yarn add telegraf
 ```
 
 ## Telegram token
@@ -33,8 +39,6 @@ you first have to [get a bot account](https://core.telegram.org/bots)
 by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
 BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
-With the token you can start developing your bot.
-
 
 ## Quick start
 
@@ -44,23 +48,30 @@ With the token you can start developing your bot.
 
 [Telegraf developer docs](http://telegraf.js.org)
 
-## Example
+## Examples
   
 ```js
 const Telegraf = require('telegraf')
 
 const app = new Telegraf(process.env.BOT_TOKEN)
-
-app.command('start', (ctx) => {
-  console.log('start', ctx.from)
-  ctx.reply('Welcome!')
+app.command('start', ({ from, reply }) => {
+  console.log('start', from)
+  return reply('Welcome!')
 })
-
 app.hears('hi', (ctx) => ctx.reply('Hey there!'))
-
 app.on('sticker', (ctx) => ctx.reply('👍'))
-
 app.startPolling()
+```
+
+```js
+const Telegraf = require('telegraf')
+const { reply } = Telegraf
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.command('/oldschool', (ctx) => ctx.reply('Hello'))
+bot.command('/modern', ({ reply }) => reply('Yo'))
+bot.command('/hipster', reply('λ'))
+bot.startPolling()
 ```
 
 There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/examples).

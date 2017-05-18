@@ -8,11 +8,13 @@ const baseMessage = {
 }
 
 const updateTypes = [
+  { type: 'shipping_query', prop: 'shippingQuery', update: { shipping_query: {} } },
   { type: 'message', prop: 'message', update: { message: baseMessage } },
   { type: 'edited_message', prop: 'editedMessage', update: { edited_message: baseMessage } },
   { type: 'callback_query', prop: 'callbackQuery', update: { callback_query: { message: baseMessage } } },
   { type: 'inline_query', prop: 'inlineQuery', update: { inline_query: {} } },
   { type: 'channel_post', prop: 'channelPost', update: { channel_post: {} } },
+  { type: 'pre_checkout_query', prop: 'preCheckoutQuery', update: { pre_checkout_query: {} } },
   { type: 'edited_channel_post', prop: 'editedChannelPost', update: { edited_channel_post: {} } },
   { type: 'chosen_inline_result', prop: 'chosenInlineResult', update: { chosen_inline_result: {} } }
 ]
@@ -106,6 +108,24 @@ test.cb('should provide shortcuts for `callback_query` event', (t) => {
     t.end()
   })
   app.handleUpdate({callback_query: baseMessage})
+})
+
+test.cb('should provide shortcuts for `shipping_query` event', (t) => {
+  const app = new Telegraf()
+  app.on('shipping_query', (ctx) => {
+    t.true('answerShippingQuery' in ctx)
+    t.end()
+  })
+  app.handleUpdate({shipping_query: baseMessage})
+})
+
+test.cb('should provide shortcuts for `pre_checkout_query` event', (t) => {
+  const app = new Telegraf()
+  app.on('pre_checkout_query', (ctx) => {
+    t.true('answerPreCheckoutQuery' in ctx)
+    t.end()
+  })
+  app.handleUpdate({pre_checkout_query: baseMessage})
 })
 
 test.cb('should provide chat and sender info', (t) => {

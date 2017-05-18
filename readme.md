@@ -1,5 +1,5 @@
 ![Telegraf](docs/header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v2.3.1-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.0-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![bitHound](https://img.shields.io/bithound/code/github/telegraf/telegraf.svg?style=flat-square)](https://www.bithound.io/github/telegraf/telegraf)
@@ -12,7 +12,8 @@ These accounts serve as an interface for code running somewhere on your server.
 
 ## Features
 
-- Full [Telegram Bot API](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 3.0](https://core.telegram.org/bots/api) support
+- [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast

@@ -59,6 +59,32 @@ Use this method to send answers to game query.
 | callbackQueryId | `string` | Query id |
 | url | `string` | Notification text |
 
+
+### answerShippingQuery
+
+Use this method to send answers to shipping query.
+
+`telegram.answerShippingQuery(shippingQueryId, ok, shippingOptions, errorMessage) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| shippingQueryId | `string` | Shipping Query id |
+| ok | `bool` | Specify True if delivery to the specified address is possible |
+| shippingOptions | `bool` | [Shipping Options](https://core.telegram.org/bots/api#answershippingquery) |
+| errorMessage | `bool` | Error message in human readable form  |
+
+### answerPreCheckoutQuery
+
+Use this method to send answers to shipping query.
+
+`telegram.answerPreCheckoutQuery(preCheckoutQueryId, ok, errorMessage) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| preCheckoutQueryId | `string` | Shipping Query id |
+| ok | `bool` | Specify True if everything is alright (goods are available, etc.) |
+| errorMessage | `bool` | Error message in human readable form  |
+
 ### answerInlineQuery
 
 Use this method to send answers to an inline query.
@@ -451,7 +477,7 @@ Sends invoice.
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
-| invoice | `File` | [Invoice hash](https://core.telegram.org/bots/api#sendinvoice) |
+| invoice | `File` | [Invoice object](https://core.telegram.org/bots/api#sendinvoice) |
 
 ### sendVideo
 
@@ -469,13 +495,12 @@ Sends video.
 
 Sends round video.
 
-`telegram.sendVideoNote(chatId, video, length, extra) => Promise`
+`telegram.sendVideoNote(chatId, video, extra) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | video | `File` | Video note file |
-| length | `int` | Video length |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideonote)|
 
 ### sendVoice

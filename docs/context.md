@@ -14,6 +14,8 @@ app.use((ctx) => {
   [ctx.inlineQuery]        // Received inline query
   [ctx.chosenInlineResult] // Received inline query result
   [ctx.callbackQuery]      // Received callback query
+  [ctx.shippingQuery]      // Shipping query
+  [ctx.preCheckoutQuery]   // Precheckout query
   [ctx.channelPost]        // New incoming channel post of any kind — text, photo, sticker, etc.
   [ctx.editedChannelPost]  // New version of a channel post that is known to the bot and was edited
   [ctx.chat]               // Current chat info
@@ -98,6 +100,16 @@ ctx.replyWithVoice() -> ctx.telegram.sendVoice()
 Context shortcuts for **inline_query** update:
 ```js
 ctx.answerInlineQuery() -> ctx.telegram.answerInlineQuery()
+```
+
+Context shortcuts for **shipping_query** update:
+```js
+ctx.answerShippingQuery() -> ctx.telegram.answerShippingQuery()
+```
+
+Context shortcuts for **pre_checkout_query** update:
+```js
+ctx.answerPreCheckoutQuery() -> ctx.telegram.answerPreCheckoutQuery()
 ```
 
 #### Example

@@ -442,6 +442,17 @@ Sends venue information.
 | address | `string` | Venue address |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvenue)|
 
+### sendInvoice
+
+Sends invoice.
+
+`telegram.sendInvoice(chatId, invoice) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| invoice | `File` | [Invoice hash](https://core.telegram.org/bots/api#sendinvoice) |
+
 ### sendVideo
 
 Sends video.
@@ -456,14 +467,14 @@ Sends video.
 
 ### sendVideoNote
 
-Sends video.
+Sends round video.
 
 `telegram.sendVideoNote(chatId, video, length, extra) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
-| video | `File` | Video note id |
+| video | `File` | Video note file |
 | length | `int` | Video length |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideonote)|
 

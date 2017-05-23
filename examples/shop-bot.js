@@ -32,7 +32,7 @@ const shippingOptions = [
 ]
 
 const replyOptions = Markup.inlineKeyboard([
-  Markup.payButton('💸 Byu'),
+  Markup.payButton('💸 Buy'),
   Markup.urlButton('❤️', 'http://telegraf.js.org')
 ]).extra()
 

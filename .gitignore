@@ -34,3 +34,5 @@ node_modules
 .nyc_output
 coverage
 _docpress
+
+.idea

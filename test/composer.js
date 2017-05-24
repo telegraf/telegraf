@@ -15,6 +15,15 @@ const topLevelUpdates = [
   { type: 'chosen_inline_result', update: { chosen_inline_result: {} } }
 ]
 
+function getOnceCallback () {
+  function callback () {
+    callback.callCount += 1
+  }
+
+  callback.callCount = 0
+  return callback
+}
+
 topLevelUpdates.forEach((update) => {
   test.cb('should route ' + update.type, (t) => {
     const app = new Telegraf()
@@ -23,6 +32,23 @@ topLevelUpdates.forEach((update) => {
     })
     app.handleUpdate(update.update)
   })
+})
+
+test.cb('Single event', t => {
+  const app = new Telegraf()
+  const callback = getOnceCallback()
+  app.once('message', callback)
+  Promise.all([
+    app.handleUpdate({message: baseMessage}),
+    app.handleUpdate({message: baseMessage})
+  ])
+    .then(() => {
+      if (callback.callCount > 1 || callback.callCount === 0) {
+        t.fail()
+      } else {
+        t.end()
+      }
+    })
 })
 
 test.cb('should route many types', (t) => {

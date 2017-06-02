@@ -14,6 +14,9 @@ bot.use((ctx, next) => {
   })
 })
 
+// Drop all short text messages
+bot.filter(({ message }) => !message || message.text.length > 2)
+
 const sayYoMiddleware = ({ reply }, next) => reply('yo').then(next)
 
 // Random location on some text messages

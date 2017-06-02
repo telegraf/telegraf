@@ -227,6 +227,16 @@ Generates optional middleware.
 | test | `truthy`\|`function` | Value or predicate `(ctx) => bool` |
 | middleware | `function` | middleware |
 
+### Telegraf.filter
+
+Generates filter middleware.
+
+`Telegraf.filter(test) => function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| test | `truthy`\|`function` | Value or predicate `(ctx) => bool` |
+
 ### Telegraf.branch
 
 Generates branch middleware.

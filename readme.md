@@ -79,5 +79,6 @@ There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/ex
 ### Community bots
 
 * [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
+* [Counter Bot](https://github.com/leodj/telegram-counter-bot)
 * Send PR to add link to your bot
 

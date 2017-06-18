@@ -7,9 +7,9 @@ const defaultMarkup = Extra
     m.callbackButton('Add 1', 'add:1'),
     m.callbackButton('Add 10', 'add:10'),
     m.callbackButton('Add 100', 'add:100'),
-    m.callbackButton('Substract 1', 'sub:1'),
-    m.callbackButton('Substract 10', 'sub:10'),
-    m.callbackButton('Substract 100', 'sub:100'),
+    m.callbackButton('Subtract 1', 'sub:1'),
+    m.callbackButton('Subtract 10', 'sub:10'),
+    m.callbackButton('Subtract 100', 'sub:100'),
     m.callbackButton('Clear', 'clear')
   ], {columns: 3}))
 

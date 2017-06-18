@@ -80,6 +80,15 @@ updateTypes.forEach((update) => {
   })
 })
 
+test.cb('should route venue', (t) => {
+  const app = new Telegraf()
+  app.on('venue', (ctx) => {
+    t.end()
+  })
+  const message = Object.assign({location: {}, venue: {title: 'location', address: 'n/a'}}, baseMessage)
+  app.handleUpdate({message: message})
+})
+
 test('should throw error then called with invalid middleware', (t) => {
   const composer = new Composer()
   t.throws(() => {

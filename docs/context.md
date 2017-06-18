@@ -7,7 +7,7 @@ Context is created per request and contains following props:
 app.use((ctx) => {
   ctx.telegram             // Telegram instance
   ctx.updateType           // Update type (message, inline_query, etc.)
-  [ctx.updateSubType]      // Update subtype (text, sticker, audio, etc.)
+  [ctx.updateSubTypes]      // Update subtypes (text, sticker, audio, etc.)
   [ctx.me]                 // Bot username
   [ctx.message]            // Received message
   [ctx.editedMessage]      // Edited message
@@ -118,34 +118,34 @@ ctx.answerPreCheckoutQuery() -> ctx.telegram.answerPreCheckoutQuery()
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.on('text', (ctx) => {
-  // Simple usage 
+  // Simple usage
   ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`)
-  
+
   // Using shortcut
   ctx.reply(`Hello ${ctx.state.role}`)
 })
 
 bot.on('/quit', (ctx) => {
-  // Simple usage 
+  // Simple usage
   ctx.telegram.leaveChat(ctx.message.chat.id)
-  
+
   // Using shortcut
   ctx.leaveChat()
 })
 
 bot.on('callback_query', (ctx) => {
-  // Simple usage 
+  // Simple usage
   ctx.telegram.answerCallbackQuery(ctx.callbackQuery.id)
-  
+
   // Using shortcut
   ctx.answerCallbackQuery()
 })
 
 bot.on('inline_query', (ctx) => {
   const result = []
-  // Simple usage 
+  // Simple usage
   ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result)
-  
+
   // Using shortcut
   ctx.answerInlineQuery(result)
 })

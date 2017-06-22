@@ -206,20 +206,3 @@ test.cb('should respect webhookReply runtime change', (t) => {
   app.on('message', (ctx) => ctx.reply(':)'))
   t.throws(app.handleUpdate({message: baseMessage}, resStub)).then(() => t.end())
 })
-
-test.cb('should route \'venue\' message with location property', (t) => {
-  const app = new Telegraf()
-  app.on('venue', (ctx) => {
-    t.true('message' in ctx)
-    t.true('telegram' in ctx)
-    t.true('updateType' in ctx)
-    t.true('updateSubTypes' in ctx)
-    t.true('from' in ctx)
-    t.true('state' in ctx)
-    t.is(ctx.updateType, 'message')
-    t.true(ctx.updateSubTypes.includes('venue'))
-    t.true(ctx.updateSubTypes.includes('location'))
-    t.end()
-  })
-  app.handleUpdate({ type: 'message', message: { venue: {}, location: {} } })
-})

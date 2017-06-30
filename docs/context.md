@@ -46,11 +46,14 @@ app.on('text', (ctx) => {
 Context shortcuts for **message** update:
 
 ```js
+ctx.deleteChatPhoto() -> ctx.telegram.deleteChatPhoto()
+ctx.exportChatInviteLink() -> ctx.telegram.exportChatInviteLink()
 ctx.getChat() -> ctx.telegram.getChat()
 ctx.getChatAdministrators() -> ctx.telegram.getChatAdministrators()
 ctx.getChatMember() -> ctx.telegram.getChatMember()
 ctx.getChatMembersCount() -> ctx.telegram.getChatMembersCount()
 ctx.leaveChat() -> ctx.telegram.leaveChat()
+ctx.pinChatMessage() -> ctx.telegram.pinChatMessage()
 ctx.reply() -> ctx.telegram.sendMessage()
 ctx.replyWithAudio() -> ctx.telegram.sendAudio()
 ctx.replyWithChatAction() -> ctx.telegram.sendChatAction()
@@ -65,6 +68,10 @@ ctx.replyWithSticker() -> ctx.telegram.sendSticker()
 ctx.replyWithVideo() -> ctx.telegram.sendVideo()
 ctx.replyWithVideoNote() -> ctx.telegram.sendVideoNote()
 ctx.replyWithVoice() -> ctx.telegram.sendVoice()
+ctx.setChatDescription() -> ctx.telegram.setChatDescription()
+ctx.setChatPhoto() -> ctx.telegram.setChatPhoto()
+ctx.setChatTitle() -> ctx.telegram.setChatTitle()
+ctx.unpinChatMessage() -> ctx.telegram.unpinChatMessage()
 ```
 
 Context shortcuts for **callback_query** update:
@@ -72,15 +79,18 @@ Context shortcuts for **callback_query** update:
 ```js
 ctx.answerCallbackQuery() -> ctx.telegram.answerCallbackQuery()
 ctx.answerGameQuery() -> ctx.telegram.answerGameQuery()
+ctx.deleteChatPhoto() -> ctx.telegram.deleteChatPhoto()
 ctx.deleteMessage() -> ctx.telegram.deleteMessage()
 ctx.editMessageCaption() -> ctx.telegram.editMessageCaption()
 ctx.editMessageReplyMarkup() -> ctx.telegram.editMessageReplyMarkup()
 ctx.editMessageText() -> ctx.telegram.editMessageText()
+ctx.exportChatInviteLink() -> ctx.telegram.exportChatInviteLink()
 ctx.getChat() -> ctx.telegram.getChat()
 ctx.getChatAdministrators() -> ctx.telegram.getChatAdministrators()
 ctx.getChatMember() -> ctx.telegram.getChatMember()
 ctx.getChatMembersCount() -> ctx.telegram.getChatMembersCount()
 ctx.leaveChat() -> ctx.telegram.leaveChat()
+ctx.pinChatMessage() -> ctx.telegram.pinChatMessage()
 ctx.reply() -> ctx.telegram.sendMessage()
 ctx.replyWithAudio() -> ctx.telegram.sendAudio()
 ctx.replyWithChatAction() -> ctx.telegram.sendChatAction()
@@ -95,6 +105,10 @@ ctx.replyWithSticker() -> ctx.telegram.sendSticker()
 ctx.replyWithVideo() -> ctx.telegram.sendVideo()
 ctx.replyWithVideoNote() -> ctx.telegram.sendVideoNote()
 ctx.replyWithVoice() -> ctx.telegram.sendVoice()
+ctx.setChatDescription() -> ctx.telegram.setChatDescription()
+ctx.setChatPhoto() -> ctx.telegram.setChatPhoto()
+ctx.setChatTitle() -> ctx.telegram.setChatTitle()
+ctx.unpinChatMessage() -> ctx.telegram.unpinChatMessage()
 ```
 
 Context shortcuts for **inline_query** update:

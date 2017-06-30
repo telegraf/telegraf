@@ -89,6 +89,17 @@ test.cb('should route venue', (t) => {
   app.handleUpdate({message: message})
 })
 
+test.cb('should route venue/location', (t) => {
+  const app = new Telegraf()
+  app.on('venue', (ctx) => {
+    t.true(ctx.updateSubTypes.includes('venue'))
+    t.true(ctx.updateSubTypes.includes('location'))
+    t.end()
+  })
+  const message = Object.assign({location: {}, venue: {title: 'location', address: 'n/a'}}, baseMessage)
+  app.handleUpdate({message: message})
+})
+
 test('should throw error then called with invalid middleware', (t) => {
   const composer = new Composer()
   t.throws(() => {

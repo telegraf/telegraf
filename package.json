@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "3.7.4",
+  "version": "3.8.0",
   "description": "📡 Modern Telegram bot framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <dotcypress@gmail.com>",
@@ -32,15 +32,15 @@
     "sandwich-stream": "^1.0.0"
   },
   "devDependencies": {
-    "ava": "^0.19.0",
-    "eslint": "^3.19.0",
+    "ava": "^0.20.0",
+    "eslint": "^4.1.1",
     "eslint-config-standard": "^10.2.0",
     "eslint-plugin-ava": "^4.0.0",
     "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-node": "^4.2.2",
+    "eslint-plugin-node": "^5.1.0",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
-    "husky": "^0.13.1"
+    "husky": "^0.14.1"
   },
   "docpress": {
     "css": "docs/docs.css",

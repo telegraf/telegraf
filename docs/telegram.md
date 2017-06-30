@@ -46,7 +46,7 @@ Use this method to send answers to callback queries.
 | [showAlert] | `bool` | Show alert instead of notification |
 | [cacheTime] | `number` | The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0. |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#answercallbackquery)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#answercallbackquery)</sub>
 
 ### answerGameQuery
 
@@ -193,7 +193,7 @@ ns, current username of a user, group or channel, etc.).
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#getchat)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#getchat)</sub>
 
 ### getChatAdministrators
 
@@ -205,7 +205,7 @@ Use this method to get a list of administrators in a chat. On success, returns a
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#getchatadministrators)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#getchatadministrators)</sub>
 
 
 ### setGameScore
@@ -224,7 +224,7 @@ Use this method to set the score of the specified user in a game. On success, if
 | editMessage | `boolean` | edit target message, default value is True |
 | force | `boolean` | Pass True, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters(optional) |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#setgamescore)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#setgamescore)</sub>
 
 ### getGameHighScores
 
@@ -239,7 +239,7 @@ Use this method to get data for high score tables. Will return the score of the 
 | chatId | `number`\|`string` | Target Chat id(optional) |
 | messageId | `number`\|`string` | Message id(optional) |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#getgamehighscores)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#getgamehighscores)</sub>
 
 ### getChatMember
 
@@ -251,7 +251,7 @@ Use this method to get information about a member of a chat.
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#getchatmember)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#getchatmember)</sub>
 
 
 ### getChatMembersCount
@@ -264,7 +264,7 @@ Use this method to get the number of members in a chat.
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#getchatmemberscount)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#getchatmemberscount)</sub>
 
 ### getFile
 
@@ -276,7 +276,7 @@ Returns basic info about a file and prepare it for downloading.
 | --- | --- | --- |
 | fileId | `string` | File id |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#getfile)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#getfile)</sub>
 
 ### getFileLink
 
@@ -294,7 +294,7 @@ Returns basic information about the bot.
 
 `telegram.getMe() => Promise`
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#getme)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#getme)</sub>
 
 ### getUserProfilePhotos
 
@@ -308,20 +308,136 @@ Returns profiles photos for provided user.
 | offset | `number` | Offset |
 | limit | `number` | Limit |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#getuserprofilephotos)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#getuserprofilephotos)</sub>
 
 ### kickChatMember
 
 Use this method to kick a user from a group or a supergroup.
 
-`telegram.kickChatMember(chatId, userId) => Promise`
+`telegram.kickChatMember(chatId, userId, extra) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 | userId | `number` | User id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#kickchatmember)|
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#kickchatmember)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#kickchatmember)</sub>
+
+### restrictChatMember
+
+Use this method to restrict a user in a supergroup. 
+
+`telegram.restrictChatMember(chatId, userId, extra) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| userId | `number` | User id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#restrictchatmember)|
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#restrictchatmember)</sub>
+
+### promoteChatMember
+
+Use this method to promote or demote a user in a supergroup or a channel.
+
+`telegram.promoteChatMember(chatId, userId, extra) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| userId | `number` | User id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#promotechatmember)|
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#promotechatmember)</sub>
+
+### exportChatInviteLink
+
+Use this method to export an invite link to a supergroup or a channel.
+
+`telegram.exportChatInviteLink(chatId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#exportchatinvitelink)</sub>
+
+### setChatPhoto
+
+Use this method to set a new profile photo for the chat.
+
+`telegram.setChatPhoto(chatId, photo) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| photo | `File` | New chat photo |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#setchatphoto)</sub>
+
+### deleteChatPhoto
+
+Use this method to delete a chat photo.
+
+`telegram.deleteChatPhoto(chatId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#deletechatphoto)</sub>
+
+### setChatTitle
+
+Use this method to change the title of a chat.
+
+`telegram.setChatTitle(chatId, title) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| title | `string` | New chat title, 1-255 characters |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#setchattitle)</sub>
+
+### setChatDescription
+
+Use this method to change the description of a supergroup or a channel.
+
+`telegram.setChatDescription(chatId, description) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| description | `string` | New chat description, 0-255 characters |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#setchattitle)</sub>
+
+### pinChatMessage
+
+Use this method to pin a message in a supergroup.
+
+`telegram.pinChatMessage(chatId, messageId, extra) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| messageId | `number` | Message id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#pinchatmessage)|
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#pinchatmessage)</sub>
+
+### unpinChatMessage
+
+Use this method to unpin a message in a supergroup chat.
+
+`telegram.unpinChatMessage(chatId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#unpinchatmessage)</sub>
 
 ### leaveChat
 
@@ -333,7 +449,7 @@ Use this method for your bot to leave a group, supergroup or channel.
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#leavechat)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#leavechat)</sub>
 
 ### deleteWebhook
 
@@ -341,7 +457,7 @@ Removes webhook integration.
 
 `telegram.deleteWebhook() => Promise`
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#deletewebhook)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#deletewebhook)</sub>
 
 ### sendAudio
 
@@ -527,7 +643,7 @@ Specifies an url to receive incoming updates via an outgoing webhook.
 | [cert] | `File` | SSL public certificate |
 | [maxConnections] | `number` | User id |
 | [allowedUpdates] | `string[]` | List the types of updates you want your bot to receive |
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#setwebhook)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#setwebhook)</sub>
 
 ### unbanChatMember
 
@@ -540,4 +656,4 @@ Use this method to unban a previously kicked user in a supergroup.
 | chatId | `number`\|`string` | Chat id |
 | userId | `number` | User id |
 
-<sub>[See Telegram api docs](https://core.telegram.org/bots/api#unbanchatmember)</sub>
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#unbanchatmember)</sub>

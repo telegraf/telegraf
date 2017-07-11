@@ -184,8 +184,11 @@ app.startWebhook('/secret-path', tlsOptions, 8443)
 // Http webhook, for nginx/heroku users.
 app.startWebhook('/secret-path', null, 5000)
 
+```
 
-// Use webhookCallback() if you want to attach telegraf to existing http server
+Use webhookCallback() if you want to attach telegraf to existing http server
+```js
+
 require('http')
   .createServer(app.webhookCallback('/secret-path'))
   .listen(3000)
@@ -194,7 +197,11 @@ require('https')
   .createServer(tlsOptions, app.webhookCallback('/secret-path'))
   .listen(8443)
 
-// Connect/Express.js integration
+```
+
+Connect/Express.js integration
+
+```js
 const express = require('express')
 const expressApp = express()
 

@@ -40,7 +40,7 @@ bot.on('text', (ctx) => {
 
     // url via Telegram servers
     ctx.replyWithPhoto('http://lorempixel.com/400/200/cats/'),
-    
+
     // with caption
     ctx.replyWithPhoto('http://lorempixel.com/400/200/cats/', {caption: 'cute kitty'})
   ])

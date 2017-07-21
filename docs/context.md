@@ -46,12 +46,16 @@ app.on('text', (ctx) => {
 Context shortcuts for **message** update:
 
 ```js
+ctx.addStickerToSet() -> ctx.telegram.addStickerToSet()
+ctx.createNewStickerSet() -> ctx.telegram.createNewStickerSet()
 ctx.deleteChatPhoto() -> ctx.telegram.deleteChatPhoto()
+ctx.deleteStickerFromSet() -> ctx.telegram.deleteStickerFromSet()
 ctx.exportChatInviteLink() -> ctx.telegram.exportChatInviteLink()
 ctx.getChat() -> ctx.telegram.getChat()
 ctx.getChatAdministrators() -> ctx.telegram.getChatAdministrators()
 ctx.getChatMember() -> ctx.telegram.getChatMember()
 ctx.getChatMembersCount() -> ctx.telegram.getChatMembersCount()
+ctx.getStickerSet() -> ctx.telegram.getStickerSet()
 ctx.leaveChat() -> ctx.telegram.leaveChat()
 ctx.pinChatMessage() -> ctx.telegram.pinChatMessage()
 ctx.reply() -> ctx.telegram.sendMessage()
@@ -71,16 +75,21 @@ ctx.replyWithVoice() -> ctx.telegram.sendVoice()
 ctx.setChatDescription() -> ctx.telegram.setChatDescription()
 ctx.setChatPhoto() -> ctx.telegram.setChatPhoto()
 ctx.setChatTitle() -> ctx.telegram.setChatTitle()
+ctx.setStickerPositionInSet() -> ctx.telegram.setStickerPositionInSet()
 ctx.unpinChatMessage() -> ctx.telegram.unpinChatMessage()
+ctx.uploadStickerFile() -> ctx.telegram.uploadStickerFile()
 ```
 
 Context shortcuts for **callback_query** update:
 
 ```js
+ctx.addStickerToSet() -> ctx.telegram.addStickerToSet()
 ctx.answerCallbackQuery() -> ctx.telegram.answerCallbackQuery()
 ctx.answerGameQuery() -> ctx.telegram.answerGameQuery()
+ctx.createNewStickerSet() -> ctx.telegram.createNewStickerSet()
 ctx.deleteChatPhoto() -> ctx.telegram.deleteChatPhoto()
 ctx.deleteMessage() -> ctx.telegram.deleteMessage()
+ctx.deleteStickerFromSet() -> ctx.telegram.deleteStickerFromSet()
 ctx.editMessageCaption() -> ctx.telegram.editMessageCaption()
 ctx.editMessageReplyMarkup() -> ctx.telegram.editMessageReplyMarkup()
 ctx.editMessageText() -> ctx.telegram.editMessageText()
@@ -89,6 +98,7 @@ ctx.getChat() -> ctx.telegram.getChat()
 ctx.getChatAdministrators() -> ctx.telegram.getChatAdministrators()
 ctx.getChatMember() -> ctx.telegram.getChatMember()
 ctx.getChatMembersCount() -> ctx.telegram.getChatMembersCount()
+ctx.getStickerSet() -> ctx.telegram.getStickerSet()
 ctx.leaveChat() -> ctx.telegram.leaveChat()
 ctx.pinChatMessage() -> ctx.telegram.pinChatMessage()
 ctx.reply() -> ctx.telegram.sendMessage()
@@ -108,7 +118,9 @@ ctx.replyWithVoice() -> ctx.telegram.sendVoice()
 ctx.setChatDescription() -> ctx.telegram.setChatDescription()
 ctx.setChatPhoto() -> ctx.telegram.setChatPhoto()
 ctx.setChatTitle() -> ctx.telegram.setChatTitle()
+ctx.setStickerPositionInSet() -> ctx.telegram.setStickerPositionInSet()
 ctx.unpinChatMessage() -> ctx.telegram.unpinChatMessage()
+ctx.uploadStickerFile() -> ctx.telegram.uploadStickerFile()
 ```
 
 Context shortcuts for **inline_query** update:

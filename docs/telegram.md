@@ -32,6 +32,20 @@ Use this property to control `reply via webhook` feature.
 
 `telegram.webhookReply = [bool]`
 
+### addStickerToSet
+
+Use this method to add a new sticker to a set created by the bot.
+
+`telegram.addStickerToSet(ownerId, name, stickerData) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ownerId | `string` | User identifier of sticker set owner |
+| name | `string` | Sticker set name |
+| stickerData | `Object` | Sticker data({png_sticker: 'stiker file', emojis: '😉', mask__position: '' }) |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#addstickertoset)</sub>
+
 ### answerCallbackQuery
 
 Use this method to send answers to callback queries.
@@ -97,9 +111,25 @@ Use this method to send answers to an inline query.
 | results | `object[]` | Results |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#answerinlinequery)|
 
+### createNewStickerSet
+
+Use this method to create new sticker set owned by a user.
+
+`telegram.createNewStickerSet(ownerId, name, title, stickerData, isMasks) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ownerId | `string` | User identifier of sticker set owner |
+| name | `string` | Sticker set name |
+| title | `string` | Sticker set title |
+| stickerData | `Object` | Sticker data({png_sticker: 'stiker file', emojis: '😉', mask__position: '' }) |
+| [isMasks] | `bool` | Pass True, if a set of mask stickers should be created |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#createnewstickerset)</sub>
+
 ### deleteMessage
 
-Use this method to delete bot messages
+Use this method to delete bot messages.
 
 `telegram.deleteMessage(chatId, messageId) => Promise`
 
@@ -108,9 +138,19 @@ Use this method to delete bot messages
 | chatId | `number`\|`string` | Chat id |
 | messageId | `string` | Message id |
 
+### deleteStickerFromSet
+
+Use this method to delete a sticker from a set created by the bot.
+
+`telegram.deleteStickerFromSet(stickerId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| stickerId | |`string` | File identifier of the sticker |
+
 ### editMessageCaption
 
-Use this method to edit captions of messages sent by the bot or via the bot
+Use this method to edit captions of messages sent by the bot or via the bot.
 
 `telegram.editMessageCaption(chatId, messageId, inlineMessageId, caption, extra) => Promise`
 
@@ -295,6 +335,18 @@ Returns basic information about the bot.
 `telegram.getMe() => Promise`
 
 <sub>[Telegram api docs](https://core.telegram.org/bots/api#getme)</sub>
+
+### getStickerSet
+
+Use this method to get a sticker set.
+
+`telegram.getStickerSet(name) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | `string` | Short name of the sticker set |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#getstickerset)</sub>
 
 ### getUserProfilePhotos
 
@@ -569,6 +621,17 @@ Sends sticker.
 | sticker | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendsticker)|
 
+### setStickerPositionInSet
+
+Use this method to move a sticker in a set created by the bot to a specific position.
+
+`telegram.setStickerPositionInSet(sticker, position) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| sticker | `string` | File identifier of the sticker |
+| position | `number` | New sticker position in the set, zero-based |
+
 ### sendVenue
 
 Sends venue information.
@@ -630,6 +693,18 @@ Sends voice.
 | chatId | `number`\|`string` | Chat id |
 | voice | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
+
+
+### uploadStickerFile
+
+Use this method to upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods.
+
+`telegram.uploadStickerFile(ownerId, stickerFile) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ownerId | `string` | User identifier of sticker file owner |
+| png_sticker | `File` | Png image with the sticker |
 
 ### setWebhook
 

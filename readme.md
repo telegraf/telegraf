@@ -77,8 +77,10 @@ bot.startPolling()
 There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/examples).
 
 ### Community bots
-
+* [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
 * [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
 * [Counter Bot](https://github.com/leodj/telegram-counter-bot)
 * Send PR to add link to your bot
 
+### Community quickstarts
+* [telegram-telegraf-bot](https://github.com/Finalgalaxy/telegram-telegraf-bot)

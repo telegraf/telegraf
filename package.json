@@ -13,6 +13,7 @@
     "url": "https://github.com/telegraf/telegraf/issues"
   },
   "main": "telegraf.js",
+  "typings": "typings/telegraf.d.ts",
   "scripts": {
     "lint": "eslint .",
     "test": "ava test",

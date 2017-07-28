@@ -1,64 +1,7 @@
 import { Agent, IncomingMessage, ServerResponse } from 'https'
 import { TlsOptions } from 'tls'
 
-
-export type UpdateType =
-  'callback_query' |
-  'channel_post' |
-  'chosen_inline_result' |
-  'edited_channel_post' |
-  'edited_message' |
-  'inline_query' |
-  'shipping_query' |
-  'pre_checkout_query' |
-  'message'
-
-export type UpdateSubType =
-  'voice' |
-  'video_note' |
-  'video' |
-  'venue' |
-  'text' |
-  'supergroup_chat_created' |
-  'successful_payment' |
-  'sticker' |
-  'pinned_message' |
-  'photo' |
-  'new_chat_title' |
-  'new_chat_photo' |
-  'new_chat_member' |
-  'migrate_to_chat_id' |
-  'migrate_from_chat_id' |
-  'location' |
-  'left_chat_member' |
-  'invoice' |
-  'group_chat_created' |
-  'game' |
-  'document' |
-  'delete_chat_photo' |
-  'contact' |
-  'channel_chat_created' |
-  'audio'
-
-export interface Update {
-  update_id: number
-  message?: Message
-  edited_message?: Message
-  channel_post?: Message
-  edited_channel_post?: Message
-  inline_query?: InlineQuery
-}
-
-export interface Context {
-  telegram: Telegram
-  me?: string
-  message: Message
-
-}
-
-export type Middleware = (ctx: Context) => void
-
-export type HearsTriggers = string[] | string | RegExp | RegExp[] | Function
+/// ====================================================== ///
 
 interface Query {
   id: string
@@ -70,9 +13,45 @@ export interface InlineQuery extends Query {
   query: string
   offset: string
 }
+
 export interface ShippingQuery extends Query {
   invoice_payload: string
   shipping_address: ShippingAddress
+}
+
+export interface PreCheckoutQuery extends Query {
+  currency: string
+  total_amount: number
+  invoice_payload: string
+  shipping_option_id?: string
+  order_info?: OrderInfo
+}
+
+export interface CallbackQuery extends Query {
+  /**
+   * Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
+   */
+  chat_instance: string
+
+  /**
+   * Message with the callback button that originated the query. Note that message content and message date will not be available if the message is too old
+   */
+  message?: Message
+
+  /**
+   * Identifier of the message sent via the bot in inline mode, that originated the query.
+   */
+  inline_message_id?: string
+
+  /**
+   * Data associated with the callback button. Be aware that a bad client can send arbitrary data in this field.
+   */
+  data?: string
+
+  /**
+   * Short name of a Game to be returned, serves as the unique identifier for the game
+   */
+  game_short_name?: string
 }
 
 export interface ChosenInlineResult {
@@ -82,9 +61,9 @@ export interface ChosenInlineResult {
   location?: Location
   inline_message_id?: string
 }
-export interface SuccessfulPayment {}
-export interface Invoice {}
-export interface PhotoSize {}
+export interface SuccessfulPayment { }
+export interface Invoice { }
+export interface PhotoSize { }
 
 export interface User {
   id: number
@@ -93,19 +72,37 @@ export interface User {
   username?: string
   language_code?: string
 }
-export interface ShippingAddress {}
-export interface Venue {}
-export interface Location {}
-export interface Contact {}
-export interface VideoNote {}
-export interface Voice {}
-export interface Video {}
-export interface Sticker {}
-export interface Game {}
-export interface Document {}
-export interface Audio {}
-export interface MessageEntity {}
-export interface Chat {}
+export interface ShippingAddress { }
+export interface Venue { }
+export interface Location { }
+export interface Contact { }
+export interface VideoNote { }
+export interface Voice { }
+export interface Video { }
+export interface Sticker { }
+export interface StickerSet { }
+export interface Game { }
+export interface Document { }
+export interface Audio { }
+export interface MessageEntity { }
+export interface Chat { }
+
+export interface File {
+  /**
+   * Unique identifier for this file
+   */
+  file_id: string
+
+  /**
+   * File size, if known
+   */
+  file_size?: number
+
+  /**
+   * File path. Use https://api.telegram.org/file/bot<token>/<file_path> to get the file.
+   */
+  file_path?: string
+}
 
 export interface Message {
   message_id: number
@@ -151,20 +148,6 @@ export interface Message {
   successful_payment?: SuccessfulPayment
 }
 
-export interface TelegramUpdate {}
-
-export interface TelegramOptions {
-  /**
-   * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
-   */
-  agent?: Agent
-
-  /**
-   * Reply via webhook
-  */
-  webhookReply?: boolean
-}
-
 export interface MaskPosition {
   point: string
   x_shift: number
@@ -172,15 +155,6 @@ export interface MaskPosition {
   scale: number
 }
 
-export interface StickerData {
-  png_sticker: string | Buffer
-  emojis: string
-  mask_position: MaskPosition
-}
-
-/**
- * This object represents a portion of the price for goods or services.
- */
 export interface LabeledPrice {
   /**
    * Portion label
@@ -195,9 +169,6 @@ export interface LabeledPrice {
   amount: number
 }
 
-/**
- * This object represents one shipping option.
- */
 export interface ShippingOption {
   /**
    * Shipping option identifier
@@ -215,14 +186,268 @@ export interface ShippingOption {
   prices: LabeledPrice[]
 }
 
-export interface InlineQueryResultCachedAudio {}
-export interface InlineQueryResultCachedDocument {}
-export interface InlineQueryResultCachedGif {}
+export interface OrderInfo {
+  /**
+   * User name
+   */
+  name?: string
+
+  /**
+   * User's phone number
+   */
+  phone_number?: string
+
+  /**
+   * User email
+   */
+  email?: string
+
+  /**
+   * User shipping address
+   */
+  shipping_address?: ShippingAddress
+}
+
+export interface InlineQueryResultCachedAudio { }
+export interface InlineQueryResultCachedDocument { }
+export interface InlineQueryResultCachedGif { }
 
 export type InlineQueryResult =
   InlineQueryResultCachedAudio |
   InlineQueryResultCachedDocument |
   InlineQueryResultCachedGif
+
+export interface InlineKeyboardButton {
+  // https://core.telegram.org/bots/api#inlinekeyboardbutton
+}
+
+export interface InlineKeyboardMarkup {
+  /**
+   * Array of button rows, each represented by an Array of InlineKeyboardButton objects
+   */
+  inline_keyboard: InlineKeyboardButton[][]
+}
+
+export interface StickerData {
+  png_sticker: string | Buffer
+  emojis: string
+  mask_position: MaskPosition
+}
+
+export interface InputFile {}
+
+/// ====================================================== ///
+
+export type ParseMode = 'Markdown' | 'HTML'
+
+export type UpdateType =
+  'callback_query' |
+  'channel_post' |
+  'chosen_inline_result' |
+  'edited_channel_post' |
+  'edited_message' |
+  'inline_query' |
+  'message' |
+  'pre_checkout_query' |
+  'shipping_query'
+
+export type UpdateSubType =
+  'audio' |
+  'channel_chat_created' |
+  'contact' |
+  'delete_chat_photo' |
+  'document' |
+  'game' |
+  'group_chat_created' |
+  'invoice' |
+  'left_chat_member' |
+  'location' |
+  'migrate_from_chat_id' |
+  'migrate_to_chat_id' |
+  'new_chat_member' |
+  'new_chat_photo' |
+  'new_chat_title' |
+  'photo' |
+  'pinned_message' |
+  'sticker' |
+  'successful_payment' |
+  'supergroup_chat_created' |
+  'text' |
+  'venue' |
+  'video' |
+  'video_note' |
+  'voice'
+
+export interface Update {
+  update_id: number
+  channel_post?: Message
+  edited_channel_post?: Message
+  edited_message?: Message
+  inline_query?: InlineQuery
+  message?: Message
+}
+
+export interface Context<S extends {}> {
+  telegram: Telegram
+  state: S
+  callbackQuery?:CallbackQuery
+  channelPost?: Message
+  chat?: Chat
+  chosenInlineResult?: ChosenInlineResult
+  editedChannelPost?: Message
+  editedMessage?: Message
+  from?: User
+  inlineQuery?: InlineQuery
+  me?: string
+  message?: Message
+  preCheckoutQuery?: PreCheckoutQuery
+  shippingQuery?: ShippingQuery
+
+  /**
+   * Use this method to send answers to an inline query. On success, True is returned.
+   * No more than 50 results per query are allowed.
+   * @param results Array of results for the inline query
+   * @param extra Extra optional parameters
+   */
+  answerInlineQuery(results: InlineQueryResult[], extra?: AnswerInlineQueryExtra): Promise<boolean>
+
+  /**
+   * Use this method to send answers to callback queries.
+   * @param text Notification text
+   * @param url Game url
+   * @param showAlert Show alert instead of notification
+   * @param cacheTime The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0.
+   */
+  answerCallbackQuery(text?: string, url?: string, showAlert?: boolean, cacheTime?: number): Promise<boolean>
+
+  /**
+   * Use this method to send answers to game query.
+   * @param url Notification text
+   */
+  answerGameQuery(url: string): Promise<boolean>
+
+  /**
+   * If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned.
+   * @param ok 	Specify True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible)
+   * @param shippingOptions Required if ok is True. A JSON-serialized array of available shipping options.
+   * @param errorMessage Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable'). Telegram will display this message to the user.
+   */
+  answerShippingQuery(ok: boolean, shippingOptions: ShippingOption[], errorMessage: string): Promise<boolean>
+
+  /**
+   * Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent.
+   * @param ok 	Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems.
+   * @param errorMessage Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user.
+   */
+  answerPreCheckoutQuery(ok: boolean, errorMessage?: string): Promise<boolean>
+
+  /**
+   * Use this method to send answers to an inline query.
+   * No more than 50 results per query are allowed.
+   * @returns On success, True is returned.
+   * @param results Array of results for the inline query
+   * @param extra Extra optional parameters
+   */
+  answerInlineQuery(results: InlineQueryResult[], extra?: AnswerInlineQueryExtra): Promise<boolean>
+
+  /**
+   * Use this method to edit text and game messages sent by the bot or via the bot (for inline bots).
+   * @returns On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param text New text of the message
+   * @param extra Extra params
+   */
+  editMessageText(text: string, extra?: EditMessageTextExtra): Promise<boolean>
+
+  /**
+   * Use this method to edit captions of messages sent by the bot or via the bot (for inline bots).
+   * On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param caption New caption of the message
+   * @param markup Markup of inline keyboard
+   */
+  editMessageCaption(caption?: string, markup?: InlineKeyboardMarkup): Promise<Message | boolean>
+
+  /**
+   * Use this method to edit only the reply markup of messages sent by the bot or via the bot (for inline bots).
+   * @returns On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param markup Markup of inline keyboard
+   */
+  editMessageReplyMarkup(markup?: InlineKeyboardMarkup): Promise<Message | boolean>
+
+  /**
+   * Use this method to delete a message, including service messages, with the following limitations:
+   * - A message can only be deleted if it was sent less than 48 hours ago.
+   * - Bots can delete outgoing messages in groups and supergroups.
+   * - Bots granted can_post_messages permissions can delete outgoing messages in channels.
+   * - If the bot is an administrator of a group, it can delete any message there.
+   * - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
+   * @returns Returns True on success.
+   */
+  deleteMessage(): Promise<boolean>
+
+  /**
+   * Use this method to get a sticker set
+   * @param setName Name of the sticker set
+   * @returns On success, a StickerSet object is returned.
+   */
+  getStickerSet(setName: string): Promise<StickerSet>
+
+  /**
+   * Use this method to upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods (can be used multiple times)
+   * https://core.telegram.org/bots/api#sending-files
+   * @param ownerId User identifier of sticker file owner
+   * @param stickerFile Png image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px.
+   * @returns Returns the uploaded File on success
+   */
+  uploadStickerFile(ownerId: number, stickerFile: InputFile): Promise<File>
+
+  /**
+   * Use this method to create new sticker set owned by a user. The bot will be able to edit the created sticker set
+   * @param ownerId User identifier of created sticker set owner
+   * @param name Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals). Can contain only english letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in “_by_<bot username>”. <bot_username> is case insensitive. 1-64 characters.
+   * @param title Sticker set title, 1-64 characters
+   * @param stickerData Sticker object
+   * @returns Returns True on success.
+   */
+  createNewStickerSet(ownerId: number, name: string, title: string, stickerData: StickerData): Promise<boolean>
+
+  /**
+   * Use this method to add a new sticker to a set created by the bot
+   * @param ownerId User identifier of sticker set owner
+   * @param name Sticker set name
+   * @param stickerData Sticker object
+   * @param isMasks https://github.com/telegraf/telegraf/blob/87882c42f6c2496576fdb57ca622690205c3e35e/lib/telegram.js#L304
+   * @returns Returns True on success.
+   */
+  addStickerToSet(ownerId: number, name: string, stickerData: StickerData, isMasks: boolean): Promise<boolean>
+
+  /**
+   * Use this method to move a sticker in a set created by the bot to a specific position
+   * @param sticker File identifier of the sticker
+   * @param position New sticker position in the set, zero-based
+   * @returns Returns True on success.
+   */
+  setStickerPositionInSet(sticker: string, position: number): Promise<boolean>
+}
+
+export interface Middleware<S = {}> {
+  (ctx: Context<S>): any
+  (ctx: Context<S>, next: () => Promise<any>): Promise<any>
+}
+
+export type HearsTriggers = string[] | string | RegExp | RegExp[] | Function
+
+
+export interface TelegramOptions {
+  /**
+   * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+   */
+  agent?: Agent
+
+  /**
+   * Reply via webhook
+  */
+  webhookReply?: boolean
+}
 
 export interface AnswerInlineQueryExtra {
   /**
@@ -251,6 +476,32 @@ export interface AnswerInlineQueryExtra {
   switch_pm_parameter?: string
 }
 
+interface BaseEditMessageTextExtra {
+  /**
+   * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
+   */
+  parse_mode?: ParseMode
+
+  /**
+   * Disables link previews for links in this message
+   */
+  disable_web_page_preview?: boolean
+}
+
+export interface TelegramEditMessageTextExtra extends BaseEditMessageTextExtra {
+  /**
+   * JSON serialized object for an InlineKeyboardMarkup
+   */
+  reply_markup?: string
+}
+
+export interface EditMessageTextExtra extends BaseEditMessageTextExtra {
+  /**
+   * Markup of inline keyboard
+   */
+  reply_markup?: InlineKeyboardMarkup
+}
+
 export class Telegram {
   /**
    * Use this property to control reply via webhook feature.
@@ -264,13 +515,7 @@ export class Telegram {
    */
   constructor(token: string, options: TelegramOptions)
 
-  /**
-   * Use this method to add a new sticker to a set created by the bot.
-   * @param ownerId User identifier of sticker set owner
-   * @param name Sticker set name
-   * @param stickerData Sticker data
-   */
-  addStickerToSet(ownerId: string | number, name: string, stickerData: StickerData): Promise<boolean>
+
 
   /**
    * Use this method to send answers to callback queries.
@@ -290,7 +535,10 @@ export class Telegram {
   answerGameQuery(callbackQueryId: string, url: string): Promise<boolean>
 
   /**
-   * If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned.
+   * If you sent an invoice requesting a shipping address and the parameter is_flexible was specified,
+   * the Bot API will send an Update with a shipping_query field to the bot.
+   * Use this method to reply to shipping queries.
+   * On success, True is returned.
    * @param shippingQueryId Unique identifier for the query to be answered
    * @param ok 	Specify True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible)
    * @param shippingOptions Required if ok is True. A JSON-serialized array of available shipping options.
@@ -299,7 +547,9 @@ export class Telegram {
   answerShippingQuery(shippingQueryId: string, ok: boolean, shippingOptions: ShippingOption[], errorMessage: string): Promise<boolean>
 
   /**
-   *
+   * Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query.
+   * Use this method to respond to such pre-checkout queries. On success, True is returned.
+   * Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent.
    * @param preCheckoutQueryId 	Unique identifier for the query to be answered
    * @param ok 	Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems.
    * @param errorMessage Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user.
@@ -314,6 +564,95 @@ export class Telegram {
    * @param extra Extra optional parameters
    */
   answerInlineQuery(inlineQueryId: string, results: InlineQueryResult[], extra?: AnswerInlineQueryExtra): Promise<boolean>
+
+  /**
+   * Use this method to edit text and game messages sent by the bot or via the bot (for inline bots).
+   * On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param chatId Required if inlineMessageId is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param text New text of the message
+   * @param extra Extra params
+   */
+  editMessageText(chatId: number | string | void, messageId: number | void, inlineMessageId: string | void, text: string, extra?: TelegramEditMessageTextExtra): Promise<Message | boolean>
+
+  /**
+   * Use this method to edit captions of messages sent by the bot or via the bot (for inline bots).
+   * On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param chatId Required if inlineMessageId is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param caption New caption of the message
+   * @param markup A JSON-serialized object for an inline keyboard.
+   */
+  editMessageCaption(chatId?: number | string, messageId?: number, inlineMessageId?: string, caption?: string, markup?: string): Promise<Message | boolean>
+
+  /**
+   * Use this method to edit only the reply markup of messages sent by the bot or via the bot (for inline bots).
+   * On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param chatId Required if inlineMessageId is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param markup A JSON-serialized object for an inline keyboard.
+   */
+  editMessageReplyMarkup(chatId?: number | string, messageId?: number, inlineMessageId?: string, markup?: string): Promise<Message | boolean>
+
+  /**
+   * Use this method to delete a message, including service messages, with the following limitations:
+   * - A message can only be deleted if it was sent less than 48 hours ago.
+   * - Bots can delete outgoing messages in groups and supergroups.
+   * - Bots granted can_post_messages permissions can delete outgoing messages in channels.
+   * - If the bot is an administrator of a group, it can delete any message there.
+   * - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Identifier of the message to delete
+   * @returns Returns True on success.
+   */
+  deleteMessage(chatId: number | string, messageId: number): Promise<boolean>
+
+  /**
+   * Use this method to get a sticker set
+   * @param setName Name of the sticker set
+   * @returns On success, a StickerSet object is returned.
+   */
+  getStickerSet(setName: string): Promise<StickerSet>
+
+  /**
+   * Use this method to upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods (can be used multiple times)
+   * https://core.telegram.org/bots/api#sending-files
+   * @param ownerId User identifier of sticker file owner
+   * @param stickerFile Png image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px.
+   * @returns Returns the uploaded File on success
+   */
+  uploadStickerFile(ownerId: number, stickerFile: InputFile): Promise<File>
+
+  /**
+   * Use this method to create new sticker set owned by a user. The bot will be able to edit the created sticker set
+   * @param ownerId User identifier of created sticker set owner
+   * @param name Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals). Can contain only english letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in “_by_<bot username>”. <bot_username> is case insensitive. 1-64 characters.
+   * @param title Sticker set title, 1-64 characters
+   * @param stickerData Sticker object
+   * @returns Returns True on success.
+   */
+  createNewStickerSet(ownerId: number, name: string, title: string, stickerData: StickerData): Promise<boolean>
+
+  /**
+   * Use this method to add a new sticker to a set created by the bot
+   * @param ownerId User identifier of sticker set owner
+   * @param name Sticker set name
+   * @param stickerData Sticker object
+   * @param isMasks https://github.com/telegraf/telegraf/blob/87882c42f6c2496576fdb57ca622690205c3e35e/lib/telegram.js#L304
+   * @returns Returns True on success.
+   */
+  addStickerToSet(ownerId: number, name: string, stickerData: StickerData, isMasks: boolean): Promise<boolean>
+
+  /**
+   * Use this method to move a sticker in a set created by the bot to a specific position
+   * @param sticker File identifier of the sticker
+   * @param position New sticker position in the set, zero-based
+   * @returns Returns True on success.
+   */
+  setStickerPositionInSet(sticker: string, position: number): Promise<boolean>
 }
 
 export interface TelegrafOptions {

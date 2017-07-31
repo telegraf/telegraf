@@ -152,6 +152,7 @@ export interface Message {
 export interface MessageAudio extends Message { audio: Audio }
 export interface MessageDocument extends Message { document: Document }
 export interface MessageGame extends Message { game: Game }
+export interface MessageInvoice extends Message { invoice: Invoice }
 
 export interface MaskPosition {
   point: string
@@ -470,6 +471,14 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    */
   replyWithHTML(html: string, extra?: ExtraEditMessage): Promise<Message>
 
+  /**
+   * Use this method to send invoices
+   * @param invoice Object with new invoice params
+   * @param extra Additional params for send invoice
+   * @returns a Message on success
+   */
+  replyWithInvoice(invoice: NewInvoiceParams, extra?: ExtraInvoice): Promise<MessageInvoice>
+
 
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
@@ -686,6 +695,95 @@ export interface ExtraDocument extends ExtraReplyMessage {
 export interface ExtraGame extends ExtraReplyMessage {
   // no specified game props
   // https://core.telegram.org/bots/api#sendgame
+}
+
+export interface ExtraInvoice extends ExtraReplyMessage {
+  // no specified invoice props
+  // https://core.telegram.org/bots/api#sendinvoice
+}
+
+export interface NewInvoiceParams {
+  /**
+   * Product name, 1-32 characters
+   */
+  title: string
+
+  /**
+   * Product description, 1-255 characters
+   */
+  description: string
+
+  /**
+   * Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.
+   */
+  payload: string
+
+  /**
+   * Payments provider token, obtained via Botfather
+   */
+  provider_token: string
+
+  /**
+   * Unique deep-linking parameter that can be used to generate this invoice when used as a start parameter
+   */
+  start_parameter: string
+
+  /**
+   * Three-letter ISO 4217 currency code, see more on currencies
+   */
+  currency: string
+
+  /**
+   * Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
+   */
+  prices: LabeledPrice[]
+
+
+  /**
+   * URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for.
+   */
+  photo_url?: string
+
+  /**
+   * Photo size
+   */
+  photo_size?: number
+
+  /**
+   * Photo width
+   */
+  photo_width?: number
+
+  /**
+   * Photo height
+   */
+  photo_height?: number
+
+
+  /**
+   * Pass True, if you require the user's full name to complete the order
+   */
+  need_name?: true
+
+  /**
+   * Pass True, if you require the user's phone number to complete the order
+   */
+  need_phone_number?: true
+
+  /**
+   * Pass True, if you require the user's email to complete the order
+   */
+  need_email?: true
+
+  /**
+   * Pass True, if you require the user's shipping address to complete the order
+   */
+  need_shipping_address?: true
+
+  /**
+   * Pass True, if the final price depends on the shipping method
+   */
+  is_flexible?: true
 }
 
 export class Telegram {
@@ -969,6 +1067,15 @@ export class Telegram {
    * @returns a Message on success
    */
   sendGame(chatId: number | string, gameShortName: string, extra?: ExtraGame): Promise<MessageGame>
+
+  /**
+   * Use this method to send invoices
+   * @param chatId Unique identifier for the target private chat
+   * @param invoice Object with new invoice params
+   * @param extra Additional params for send invoice
+   * @returns a Message on success
+   */
+  sendInvoice(chatId: number, invoice: NewInvoiceParams, extra?: ExtraInvoice): Promise<MessageInvoice>
 }
 
 

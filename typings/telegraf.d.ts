@@ -796,6 +796,10 @@ export interface MessagePhoto extends Message {
   photo: PhotoSize[]
 }
 
+export interface MessageSticker extends Message {
+  sticker: Sticker
+}
+
 export interface MaskPosition {
   point: string
   x_shift: number
@@ -1316,7 +1320,7 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @param extra Additional params for send document
    * @returns a Message on success
    */
-  replyWithDocument(document: InputFile | string, extra?: ExtraDocument): Promise<MessageDocument>
+  replyWithDocument(document: InputFile, extra?: ExtraDocument): Promise<MessageDocument>
 
   /**
    * Use this method to send a game
@@ -1365,7 +1369,15 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @param extra Additional params to send photo
    * @returns a Message on success
    */
-  replyWithPhoto(photo: InputFile | string, extra?: ExtraPhoto): Promise<MessagePhoto>
+  replyWithPhoto(photo: InputFile, extra?: ExtraPhoto): Promise<MessagePhoto>
+
+  /**
+   * Use this method to send .webp stickers
+   * @param sticker Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .webp file from the Internet, or upload a new one using multipart/form-data
+   * @param extra Additional params to send sticker
+   * @returns a Message on success
+   */
+  replyWithSticker(sticker: InputFile, extra?: ExtraSticker): Promise<MessageSticker>
 
 
   // ------------------------------------------------------------------------------------------ //
@@ -1601,6 +1613,11 @@ export interface ExtraPhoto extends ExtraReplyMessage {
    * Photo caption (may also be used when resending photos by file_id), 0-200 characters
    */
   caption?: string
+}
+
+export interface ExtraSticker extends ExtraReplyMessage {
+  // no specified sticker props
+  // https://core.telegram.org/bots/api#sendsticker
 }
 
 export interface NewInvoiceParams {
@@ -1931,7 +1948,7 @@ export class Telegram {
    * @param extra Audio extra parameters
    * @returns On success, the sent Message is returned.
    */
-  sendAudio(chatId: number | string, audio: InputFile | string, extra?: ExtraAudio): Promise<MessageAudio>
+  sendAudio(chatId: number | string, audio: InputFile, extra?: ExtraAudio): Promise<MessageAudio>
 
   /**
    * Use this method when you need to tell the user that something is happening on the bot's side.
@@ -1957,7 +1974,7 @@ export class Telegram {
    * @param extra Additional params for send document
    * @returns a Message on success
    */
-  sendDocument(chatId: number | string, document: InputFile | string, extra?: ExtraDocument): Promise<MessageDocument>
+  sendDocument(chatId: number | string, document: InputFile, extra?: ExtraDocument): Promise<MessageDocument>
 
   /**
    * Use this method to send a game
@@ -1994,7 +2011,16 @@ export class Telegram {
    * @param extra Additional params to send photo
    * @returns a Message on success
    */
-  sendPhoto(chatId: number | string, photo: InputFile | string, extra?: ExtraPhoto): Promise<MessagePhoto>
+  sendPhoto(chatId: number | string, photo: InputFile, extra?: ExtraPhoto): Promise<MessagePhoto>
+
+  /**
+   * Use this method to send .webp stickers
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param sticker Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .webp file from the Internet, or upload a new one using multipart/form-data
+   * @param extra Additional params to send sticker
+   * @returns a Message on success
+   */
+  sendSticker(chatId: number | string, sticker: InputFile, extra?: ExtraSticker): Promise<MessageSticker>
 }
 
 

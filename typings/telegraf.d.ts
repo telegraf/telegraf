@@ -800,6 +800,10 @@ export interface MessageSticker extends Message {
   sticker: Sticker
 }
 
+export interface MessageVideo extends Message {
+  video: Video
+}
+
 export interface MaskPosition {
   point: string
   x_shift: number
@@ -1379,6 +1383,15 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    */
   replyWithSticker(sticker: InputFile, extra?: ExtraSticker): Promise<MessageSticker>
 
+  /**
+   * Use this method to send video files, Telegram clients support mp4 videos (other formats may be sent as Document)
+   * Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
+   * @param video video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data
+   * @param extra Additional params to send video
+   * @returns a Message on success
+   */
+  replyWithVideo(video: InputFile, extra?: ExtraVideo): Promise<MessageVideo>
+
 
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
@@ -1620,6 +1633,11 @@ export interface ExtraSticker extends ExtraReplyMessage {
   // https://core.telegram.org/bots/api#sendsticker
 }
 
+export interface ExtraVideo extends ExtraReplyMessage {
+  // no specified video props
+  // https://core.telegram.org/bots/api#sendvideo
+}
+
 export interface NewInvoiceParams {
   /**
    * Product name, 1-32 characters
@@ -1702,6 +1720,28 @@ export interface NewInvoiceParams {
    * Pass True, if the final price depends on the shipping method
    */
   is_flexible?: true
+}
+
+export interface NewVideoParams {
+  /**
+   * Duration of sent video in seconds
+   */
+  duration?: number
+
+  /**
+   * Video width
+   */
+  width?: number
+
+  /**
+   * Video height
+   */
+  height?: number
+
+  /**
+   * Video caption (may also be used when resending videos by file_id), 0-200 characters
+   */
+  caption?: string
 }
 
 export class Telegram {
@@ -2021,6 +2061,16 @@ export class Telegram {
    * @returns a Message on success
    */
   sendSticker(chatId: number | string, sticker: InputFile, extra?: ExtraSticker): Promise<MessageSticker>
+
+  /**
+   * Use this method to send video files, Telegram clients support mp4 videos (other formats may be sent as Document)
+   * Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param video video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data
+   * @param extra Additional params to send video
+   * @returns a Message on success
+   */
+  sendVideo(chatId: number | string, video: InputFile, extra?: ExtraVideo): Promise<MessageVideo>
 }
 
 

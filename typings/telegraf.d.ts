@@ -465,7 +465,7 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
   replyWithGame(gameShortName: string, extra?: ExtraGame): Promise<MessageGame>
 
   /**
-   * The Bot API supports basic formatting for messages. You can use either markdown-style or HTML-style formatting.
+   * The Bot API supports basic formatting for messages
    * @param html You can use bold and italic text, as well as inline links and pre-formatted code in your bots' messages.
    * @param extra Additional params to send message
    * @returns a Message on success
@@ -488,6 +488,14 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @returns a Message on success
    */
   replyWithLocation(latitude: number, longitude: number, extra?: ExtraLocation): Promise<MessageLocation>
+
+  /**
+   * The Bot API supports basic formatting for messages
+   * @param markdown You can use bold and italic text, as well as inline links and pre-formatted code in your bots' messages.
+   * @param extra Additional params to send message
+   * @returns a Message on success
+   */
+  replyWithMarkdown(markdown: string, extra?: ExtraEditMessage): Promise<Message>
 
 
   // ------------------------------------------------------------------------------------------ //

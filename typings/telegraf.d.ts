@@ -150,6 +150,7 @@ export interface Message {
 }
 
 export interface MessageAudio extends Message { audio: Audio }
+export interface MessageDocument extends Message { document: Document }
 
 export interface MaskPosition {
   point: string
@@ -416,7 +417,7 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @param extra SendMessage additional params
    * @returns sent Message if Success
    */
-  reply(text: string, extra?: ReplyMessageExtra): Promise<Message>
+  reply(text: string, extra?: ExtraReplyMessage): Promise<Message>
 
   /**
    * Use this method to send audio files to the same chat, if you want Telegram clients to display them in the music player.
@@ -426,7 +427,7 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @param extra Audio extra parameters
    * @returns On success, the sent Message is returned.
    */
-  replyWithAudio(audio: InputFile, extra?: AudioExtra): Promise<MessageAudio>
+  replyWithAudio(audio: InputFile, extra?: ExtraAudio): Promise<MessageAudio>
 
   /**
    * Use this method when you need to tell the user that something is happening on the bot's side.
@@ -444,6 +445,14 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    */
   replyWithChatAction(action: ChatAction): Promise<boolean>
 
+  /**
+   * Use this method to send general files. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
+   * @param document File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data
+   * @param extra Additional params for send document
+   * @returns a Message on success
+   */
+  replyWithDocument(document: InputFile | string, extra?: ExtraDocument): Promise<MessageDocument>
+
 
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
@@ -456,7 +465,7 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @param results Array of results for the inline query
    * @param extra Extra optional parameters
    */
-  answerInlineQuery(results: InlineQueryResult[], extra?: AnswerInlineQueryExtra): Promise<boolean>
+  answerInlineQuery(results: InlineQueryResult[], extra?: ExtraAnswerInlineQuery): Promise<boolean>
 
   /**
    * Use this method to send answers to callback queries.
@@ -495,7 +504,7 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @param results Array of results for the inline query
    * @param extra Extra optional parameters
    */
-  answerInlineQuery(results: InlineQueryResult[], extra?: AnswerInlineQueryExtra): Promise<boolean>
+  answerInlineQuery(results: InlineQueryResult[], extra?: ExtraAnswerInlineQuery): Promise<boolean>
 
   /**
    * Use this method to edit text and game messages sent by the bot or via the bot (for inline bots).
@@ -503,7 +512,7 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @param text New text of the message
    * @param extra Extra params
    */
-  editMessageText(text: string, extra?: EditMessageExtra): Promise<boolean>
+  editMessageText(text: string, extra?: ExtraEditMessage): Promise<boolean>
 
   /**
    * Use this method to edit captions of messages sent by the bot or via the bot (for inline bots).
@@ -570,7 +579,7 @@ export interface TelegramOptions {
   webhookReply?: boolean
 }
 
-export interface AnswerInlineQueryExtra {
+export interface ExtraAnswerInlineQuery {
   /**
    * The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300.
    */
@@ -597,7 +606,7 @@ export interface AnswerInlineQueryExtra {
   switch_pm_parameter?: string
 }
 
-export interface ReplyMessageExtra {
+export interface ExtraReplyMessage {
 
   /**
    * Sends the message silently. Users will receive a notification with no sound.
@@ -615,7 +624,7 @@ export interface ReplyMessageExtra {
   reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
 }
 
-interface EditMessageExtra extends ReplyMessageExtra {
+interface ExtraEditMessage extends ExtraReplyMessage {
   /**
    * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
    */
@@ -628,7 +637,7 @@ interface EditMessageExtra extends ReplyMessageExtra {
 
 }
 
-export interface AudioExtra extends ReplyMessageExtra {
+export interface ExtraAudio extends ExtraReplyMessage {
   /**
    * Audio caption, 0-200 characters
    */
@@ -648,8 +657,13 @@ export interface AudioExtra extends ReplyMessageExtra {
    * Track name
    */
   title?: string
+}
 
-
+export interface ExtraDocument extends ExtraReplyMessage {
+  /**
+   * Document caption (may also be used when resending documents by file_id), 0-200 characters
+   */
+  caption?: string
 }
 
 export class Telegram {
@@ -713,7 +727,7 @@ export class Telegram {
    * @param results Array of results for the inline query
    * @param extra Extra optional parameters
    */
-  answerInlineQuery(inlineQueryId: string, results: InlineQueryResult[], extra?: AnswerInlineQueryExtra): Promise<boolean>
+  answerInlineQuery(inlineQueryId: string, results: InlineQueryResult[], extra?: ExtraAnswerInlineQuery): Promise<boolean>
 
   /**
    * Use this method to edit text and game messages sent by the bot or via the bot (for inline bots).
@@ -724,7 +738,7 @@ export class Telegram {
    * @param text New text of the message
    * @param extra Extra params
    */
-  editMessageText(chatId: number | string | void, messageId: number | void, inlineMessageId: string | void, text: string, extra?: EditMessageExtra): Promise<Message | boolean>
+  editMessageText(chatId: number | string | void, messageId: number | void, inlineMessageId: string | void, text: string, extra?: ExtraEditMessage): Promise<Message | boolean>
 
   /**
    * Use this method to edit captions of messages sent by the bot or via the bot (for inline bots).
@@ -886,7 +900,7 @@ export class Telegram {
    * @param extra SendMessage additional params
    * @returns sent Message if Success
    */
-  sendMessage(chatId: number | string, text: string, extra?: ReplyMessageExtra): Promise<Message>
+  sendMessage(chatId: number | string, text: string, extra?: ExtraReplyMessage): Promise<Message>
 
   /**
    * Use this method to send audio files, if you want Telegram clients to display them in the music player.
@@ -897,7 +911,7 @@ export class Telegram {
    * @param extra Audio extra parameters
    * @returns On success, the sent Message is returned.
    */
-  sendAudio(chatId: number | string, audio: InputFile, extra?: AudioExtra): Promise<MessageAudio>
+  sendAudio(chatId: number | string, audio: InputFile | string, extra?: ExtraAudio): Promise<MessageAudio>
 
   /**
    * Use this method when you need to tell the user that something is happening on the bot's side.
@@ -915,7 +929,17 @@ export class Telegram {
    * @returns True on success
    */
   sendChatAction(chatId: number | string, action: ChatAction): Promise<boolean>
+
+  /**
+   * Use this method to send general files. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param document File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data
+   * @param extra Additional params for send document
+   * @returns a Message on success
+   */
+  sendDocument(chatId: number | string, document: InputFile | string, extra?: ExtraDocument): Promise<MessageDocument>
 }
+
 
 export interface TelegrafOptions {
   /**

@@ -86,6 +86,7 @@ export interface Document { }
 export interface Audio { }
 export interface MessageEntity { }
 export interface Chat { }
+export interface ChatMember { }
 
 export interface File {
   /**
@@ -228,6 +229,10 @@ export interface InlineKeyboardMarkup {
   inline_keyboard: InlineKeyboardButton[][]
 }
 
+export interface ReplyKeyboardMarkup { }
+export interface ReplyKeyboardRemove { }
+export interface ForceReply { }
+
 export interface StickerData {
   png_sticker: string | Buffer
   emojis: string
@@ -302,6 +307,108 @@ export interface Context<S extends {}> {
   message?: Message
   preCheckoutQuery?: PreCheckoutQuery
   shippingQuery?: ShippingQuery
+}
+
+export interface ContextMessageUpdate<S extends {}> extends Context<S> {
+
+  /**
+   * Use this method to add a new sticker to a set created by the bot
+   * @param ownerId User identifier of sticker set owner
+   * @param name Sticker set name
+   * @param stickerData Sticker object
+   * @param isMasks https://github.com/telegraf/telegraf/blob/87882c42f6c2496576fdb57ca622690205c3e35e/lib/telegram.js#L304
+   * @returns Returns True on success.
+   */
+  addStickerToSet(ownerId: number, name: string, stickerData: StickerData, isMasks: boolean): Promise<boolean>
+
+  /**
+   * Use this method to create new sticker set owned by a user. The bot will be able to edit the created sticker set
+   * @param ownerId User identifier of created sticker set owner
+   * @param name Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals). Can contain only english letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in “_by_<bot username>”. <bot_username> is case insensitive. 1-64 characters.
+   * @param title Sticker set title, 1-64 characters
+   * @param stickerData Sticker object
+   * @returns Returns True on success.
+   */
+  createNewStickerSet(ownerId: number, name: string, title: string, stickerData: StickerData): Promise<boolean>
+
+  /**
+   * Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
+   * @returns True on success
+   */
+  deleteChatPhoto(): Promise<boolean>
+
+  /**
+   * Use this method to delete a sticker from a set created by the bot.
+   * @param sticker File identifier of the sticker
+   * @returns Returns True on success
+   */
+  deleteStickerFromSet(sticker: string): Promise<boolean>
+
+  /**
+   * Use this method to export an invite link to a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
+   * @returns exported invite link as String on success.
+   */
+  exportChatInviteLink(): Promise<string>
+
+  /**
+   * Use this method to get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.)
+   * @returns a Chat object on success.
+   */
+  getChat(): Promise<Chat>
+
+  /**
+   * Use this method to get a list of administrators in a chat.
+   * @returns On success, returns an Array of ChatMember objects that contains information about all chat administrators except other bots. If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
+   */
+  getChatAdministrators(): Promise<Array<ChatMember>>
+
+  /**
+   * Use this method to get information about a member of a chat.
+   * @param userId Unique identifier of the target user
+   * @returns a ChatMember object on success
+   */
+  getChatMember(userId: number): Promise<ChatMember>
+
+  /**
+   * Use this method to get the number of members in a chat
+   * @returns Number on success
+   */
+  getChatMembersCount(): Promise<number>
+
+  /**
+   * Use this method to get a sticker set
+   * @param setName Name of the sticker set
+   * @returns On success, a StickerSet object is returned.
+   */
+  getStickerSet(setName: string): Promise<StickerSet>
+
+  /**
+   * Use this method for your bot to leave a group, supergroup or channel
+   * @returns True on success
+   */
+  leaveChat(): Promise<boolean>
+
+  /**
+   * Use this method to pin a message in a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param messageId Identifier of a message to pin
+   * @param extra Pass `{ disable_notification: true }`, if it is not necessary to send a notification to all group members about the new pinned message
+   * @returns True on success
+   */
+  pinChatMessage(messageId: number, extra?: { disable_notification?: boolean }): Promise<boolean>
+
+  /**
+   * Use this method to reply on messages in the same chat.
+   * @param text Text of the message to be sent
+   * @param extra SendMessage additional params
+   * @returns sent Message if Success
+   */
+  reply(text: string, extra?: SendMessageExtra): Promise<Message>
+
+
+  // ------------------------------------------------------------------------------------------ //
+  // ------------------------------------------------------------------------------------------ //
+  // ------------------------------------------------------------------------------------------ //
+
 
   /**
    * Use this method to send answers to an inline query. On success, True is returned.
@@ -385,13 +492,6 @@ export interface Context<S extends {}> {
   deleteMessage(): Promise<boolean>
 
   /**
-   * Use this method to get a sticker set
-   * @param setName Name of the sticker set
-   * @returns On success, a StickerSet object is returned.
-   */
-  getStickerSet(setName: string): Promise<StickerSet>
-
-  /**
    * Use this method to upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods (can be used multiple times)
    * https://core.telegram.org/bots/api#sending-files
    * @param ownerId User identifier of sticker file owner
@@ -401,32 +501,13 @@ export interface Context<S extends {}> {
   uploadStickerFile(ownerId: number, stickerFile: InputFile): Promise<File>
 
   /**
-   * Use this method to create new sticker set owned by a user. The bot will be able to edit the created sticker set
-   * @param ownerId User identifier of created sticker set owner
-   * @param name Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals). Can contain only english letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in “_by_<bot username>”. <bot_username> is case insensitive. 1-64 characters.
-   * @param title Sticker set title, 1-64 characters
-   * @param stickerData Sticker object
-   * @returns Returns True on success.
-   */
-  createNewStickerSet(ownerId: number, name: string, title: string, stickerData: StickerData): Promise<boolean>
-
-  /**
-   * Use this method to add a new sticker to a set created by the bot
-   * @param ownerId User identifier of sticker set owner
-   * @param name Sticker set name
-   * @param stickerData Sticker object
-   * @param isMasks https://github.com/telegraf/telegraf/blob/87882c42f6c2496576fdb57ca622690205c3e35e/lib/telegram.js#L304
-   * @returns Returns True on success.
-   */
-  addStickerToSet(ownerId: number, name: string, stickerData: StickerData, isMasks: boolean): Promise<boolean>
-
-  /**
    * Use this method to move a sticker in a set created by the bot to a specific position
    * @param sticker File identifier of the sticker
    * @param position New sticker position in the set, zero-based
    * @returns Returns True on success.
    */
   setStickerPositionInSet(sticker: string, position: number): Promise<boolean>
+
 }
 
 export interface Middleware<S = {}> {
@@ -476,7 +557,7 @@ export interface AnswerInlineQueryExtra {
   switch_pm_parameter?: string
 }
 
-interface BaseEditMessageTextExtra {
+interface BaseMessageExtra {
   /**
    * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
    */
@@ -488,18 +569,35 @@ interface BaseEditMessageTextExtra {
   disable_web_page_preview?: boolean
 }
 
-export interface TelegramEditMessageTextExtra extends BaseEditMessageTextExtra {
+export interface TelegramEditMessageTextExtra extends BaseMessageExtra {
   /**
    * JSON serialized object for an InlineKeyboardMarkup
    */
   reply_markup?: string
 }
 
-export interface EditMessageTextExtra extends BaseEditMessageTextExtra {
+export interface EditMessageTextExtra extends BaseMessageExtra {
   /**
    * Markup of inline keyboard
    */
   reply_markup?: InlineKeyboardMarkup
+}
+
+export interface SendMessageExtra extends BaseMessageExtra {
+  /**
+   * Sends the message silently. Users will receive a notification with no sound.
+   */
+  disable_notification?: boolean
+
+  /**
+   * If the message is a reply, ID of the original message
+   */
+  reply_to_message_id?: number
+
+  /**
+   * Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+   */
+  reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
 }
 
 export class Telegram {
@@ -653,6 +751,90 @@ export class Telegram {
    * @returns Returns True on success.
    */
   setStickerPositionInSet(sticker: string, position: number): Promise<boolean>
+
+  /**
+   * Use this method to delete a sticker from a set created by the bot.
+   * @param sticker File identifier of the sticker
+   * @returns Returns True on success
+   */
+  deleteStickerFromSet(sticker: string): Promise<boolean>
+
+  /**
+   * Use this method to send copy of exists message.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param message Received message object
+   * @param extra Specified params for message
+   * @returns On success, the sent Message is returned.
+   */
+  sendCopy(chatId: number | string, message?: Message, extra?: object): Promise<Message>
+
+  /**
+   * Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @returns True on success
+   */
+  deleteChatPhoto(chatId: number | string): Promise<boolean>
+
+  /**
+   * Use this method to export an invite link to a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @returns exported invite link as String on success.
+   */
+  exportChatInviteLink(chatId: number | string): Promise<string>
+
+  /**
+   * Use this method to get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.)
+   * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
+   * @returns a Chat object on success.
+   */
+  getChat(chatId: number | string): Promise<Chat>
+
+  /**
+   * Use this method to get a list of administrators in a chat.
+   * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
+   * @returns On success, returns an Array of ChatMember objects that contains information about all chat administrators except other bots. If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
+   */
+  getChatAdministrators(chatId: number | string): Promise<Array<ChatMember>>
+
+  /**
+   * Use this method to get information about a member of a chat.
+   * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
+   * @param userId Unique identifier of the target user
+   * @returns a ChatMember object on success
+   */
+  getChatMember(chatId: string | number, userId: number): Promise<ChatMember>
+
+  /**
+   * Use this method to get the number of members in a chat
+   * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
+   * @returns Number on success
+   */
+  getChatMembersCount(chatId: string | number): Promise<number>
+
+  /**
+   * Use this method for your bot to leave a group, supergroup or channel
+   * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
+   * @returns True on success
+   */
+  leaveChat(chatId: number | string): Promise<boolean>
+
+  /**
+   * Use this method to pin a message in a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param chatId Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   * @param messageId Identifier of a message to pin
+   * @param extra Pass `{ disable_notification: true }`, if it is not necessary to send a notification to all group members about the new pinned message
+   * @returns True on success
+   */
+  pinChatMessage(chatId: number | string, messageId: number, extra?: { disable_notification?: boolean }): Promise<boolean>
+
+  /**
+   * Use this method to send text messages
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param text Text of the message to be sent
+   * @param extra SendMessage additional params
+   * @returns sent Message if Success
+   */
+  sendMessage(chatId: number | string, text: string, extra?: SendMessageExtra): Promise<Message>
 }
 
 export interface TelegrafOptions {

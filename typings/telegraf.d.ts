@@ -153,6 +153,7 @@ export interface MessageAudio extends Message { audio: Audio }
 export interface MessageDocument extends Message { document: Document }
 export interface MessageGame extends Message { game: Game }
 export interface MessageInvoice extends Message { invoice: Invoice }
+export interface MessageLocation extends Message { location: Location }
 
 export interface MaskPosition {
   point: string
@@ -479,6 +480,15 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    */
   replyWithInvoice(invoice: NewInvoiceParams, extra?: ExtraInvoice): Promise<MessageInvoice>
 
+  /**
+   * Use this method to send point on the map
+   * @param latitude Latitude of location
+   * @param longitude Longitude of location
+   * @param extra Additional params for send location
+   * @returns a Message on success
+   */
+  replyWithLocation(latitude: number, longitude: number, extra?: ExtraLocation): Promise<MessageLocation>
+
 
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
@@ -700,6 +710,11 @@ export interface ExtraGame extends ExtraReplyMessage {
 export interface ExtraInvoice extends ExtraReplyMessage {
   // no specified invoice props
   // https://core.telegram.org/bots/api#sendinvoice
+}
+
+export interface ExtraLocation extends ExtraReplyMessage {
+  // no specified location props
+  // https://core.telegram.org/bots/api#sendlocation
 }
 
 export interface NewInvoiceParams {
@@ -1076,6 +1091,16 @@ export class Telegram {
    * @returns a Message on success
    */
   sendInvoice(chatId: number, invoice: NewInvoiceParams, extra?: ExtraInvoice): Promise<MessageInvoice>
+
+  /**
+   * Use this method to send point on the map
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param latitude Latitude of location
+   * @param longitude Longitude of location
+   * @param extra Additional params for send location
+   * @returns a Message on success
+   */
+  sendLocation(chatId: number | string, latitude: number, longitude: number, extra?: ExtraLocation): Promise<MessageLocation>
 }
 
 

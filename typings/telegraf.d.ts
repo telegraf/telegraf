@@ -462,6 +462,14 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    */
   replyWithGame(gameShortName: string, extra?: ExtraGame): Promise<MessageGame>
 
+  /**
+   * The Bot API supports basic formatting for messages. You can use either markdown-style or HTML-style formatting.
+   * @param html You can use bold and italic text, as well as inline links and pre-formatted code in your bots' messages.
+   * @param extra Additional params to send message
+   * @returns a Message on success
+   */
+  replyWithHTML(html: string, extra?: ExtraEditMessage): Promise<Message>
+
 
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //

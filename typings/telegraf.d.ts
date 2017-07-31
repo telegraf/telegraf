@@ -131,7 +131,9 @@ export interface Message {
   channel_chat_created?: true
   migrate_to_chat_id?: number
   migrate_from_chat_id?: number
+}
 
+export interface IncomingMessage extends Message {
   audio?: Audio
   entities?: MessageEntity[]
   caption?: string
@@ -154,6 +156,7 @@ export interface MessageDocument extends Message { document: Document }
 export interface MessageGame extends Message { game: Game }
 export interface MessageInvoice extends Message { invoice: Invoice }
 export interface MessageLocation extends Message { location: Location }
+export interface MessagePhoto extends Message { photo: PhotoSize[] }
 
 export interface MaskPosition {
   point: string
@@ -322,7 +325,7 @@ export interface Context<S extends {}> {
   from?: User
   inlineQuery?: InlineQuery
   me?: string
-  message?: Message
+  message?: IncomingMessage
   preCheckoutQuery?: PreCheckoutQuery
   shippingQuery?: ShippingQuery
 }
@@ -496,6 +499,14 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @returns a Message on success
    */
   replyWithMarkdown(markdown: string, extra?: ExtraEditMessage): Promise<Message>
+
+  /**
+   * Use this method to send photos
+   * @param photo Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data
+   * @param extra Additional params to send photo
+   * @returns a Message on success
+   */
+  replyWithPhoto(photo: InputFile | string, extra?: ExtraPhoto): Promise<MessagePhoto>
 
 
   // ------------------------------------------------------------------------------------------ //
@@ -723,6 +734,13 @@ export interface ExtraInvoice extends ExtraReplyMessage {
 export interface ExtraLocation extends ExtraReplyMessage {
   // no specified location props
   // https://core.telegram.org/bots/api#sendlocation
+}
+
+export interface ExtraPhoto extends ExtraReplyMessage {
+  /**
+   * Photo caption (may also be used when resending photos by file_id), 0-200 characters
+   */
+  caption?: string
 }
 
 export interface NewInvoiceParams {
@@ -1109,6 +1127,15 @@ export class Telegram {
    * @returns a Message on success
    */
   sendLocation(chatId: number | string, latitude: number, longitude: number, extra?: ExtraLocation): Promise<MessageLocation>
+
+  /**
+   * Use this method to send photos
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param photo Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data
+   * @param extra Additional params to send photo
+   * @returns a Message on success
+   */
+  sendPhoto(chatId: number | string, photo: InputFile | string, extra?: ExtraPhoto): Promise<MessagePhoto>
 }
 
 

@@ -29,12 +29,14 @@ export interface PreCheckoutQuery extends Query {
 
 export interface CallbackQuery extends Query {
   /**
-   * Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
+   * Global identifier, uniquely corresponding to the chat to which the message with
+   * the callback button was sent. Useful for high scores in games.
    */
   chat_instance: string
 
   /**
-   * Message with the callback button that originated the query. Note that message content and message date will not be available if the message is too old
+   * Message with the callback button that originated the query.
+   * Note that message content and message date will not be available if the message is too old
    */
   message?: Message
 
@@ -44,7 +46,8 @@ export interface CallbackQuery extends Query {
   inline_message_id?: string
 
   /**
-   * Data associated with the callback button. Be aware that a bad client can send arbitrary data in this field.
+   * Data associated with the callback button.
+   * Be aware that a bad client can send arbitrary data in this field.
    */
   data?: string
 
@@ -61,9 +64,97 @@ export interface ChosenInlineResult {
   location?: Location
   inline_message_id?: string
 }
-export interface SuccessfulPayment { }
-export interface Invoice { }
-export interface PhotoSize { }
+
+export interface SuccessfulPayment {
+  /**
+   * Three-letter ISO 4217 currency code
+   */
+  currency: string
+
+  /**
+   * Total price in the smallest units of the currency (integer, not float/double).
+   * For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json,
+   * it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
+   */
+  total_amount: number
+
+  /**
+   * Bot specified invoice payload
+   */
+  invoice_payload: string
+
+  /**
+   * Identifier of the shipping option chosen by the user
+   */
+  shipping_option_id?: string
+
+  /**
+   * Order info provided by the user
+   */
+  order_info?: OrderInfo
+
+  /**
+   * Telegram payment identifier
+   */
+  telegram_payment_charge_id: string
+
+  /**
+   * Provider payment identifier
+   */
+  provider_payment_charge_id: string
+}
+
+export interface Invoice {
+  /**
+   * Product name
+   */
+  title: string
+
+  /**
+   * Product description
+   */
+  description: string
+
+  /**
+   * Unique bot deep-linking parameter that can be used to generate this invoice
+   */
+  start_parameter: string
+
+  /**
+   * Three-letter ISO 4217 currency code
+   */
+  currency: string
+
+  /**
+   * Total price in the smallest units of the currency (integer, not float/double).
+   * For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json,
+   * it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
+   */
+  total_amount: number
+
+}
+
+export interface PhotoSize {
+  /**
+   * Unique identifier for this file
+   */
+  file_id: string
+
+  /**
+   * Photo width
+   */
+  width: number
+
+  /**
+   * Photo height
+   */
+  height: number
+
+  /**
+   * File size
+   */
+  file_size?: number
+}
 
 export interface User {
   id: number
@@ -72,21 +163,551 @@ export interface User {
   username?: string
   language_code?: string
 }
-export interface ShippingAddress { }
-export interface Venue { }
-export interface Location { }
-export interface Contact { }
-export interface VideoNote { }
-export interface Voice { }
-export interface Video { }
-export interface Sticker { }
-export interface StickerSet { }
-export interface Game { }
-export interface Document { }
-export interface Audio { }
-export interface MessageEntity { }
-export interface Chat { }
-export interface ChatMember { }
+
+export interface ShippingAddress {
+  /**
+   * ISO 3166-1 alpha-2 country code
+   */
+  country_code: string
+
+  /**
+   * State, if applicable
+   */
+  state: string
+
+  /**
+   * City
+   */
+  city: string
+
+  /**
+   * First line for the address
+   */
+  street_line1: string
+
+  /**
+   * Second line for the address
+   */
+  street_line2: string
+
+  /**
+   * Address post code
+   */
+  post_code: string
+}
+
+export interface Venue {
+  /**
+   * Venue location
+   */
+  location: Location
+
+  /**
+   * Name of the venue
+   */
+  title: string
+
+  /**
+   * Address of the venue
+   */
+  address: string
+
+  /**
+   * Foursquare identifier of the venue
+   */
+  foursquare_id?: string
+}
+
+export interface Location {
+  /**
+   * Longitude as defined by sender
+   */
+  longitude: number
+
+  /**
+   * Latitude as defined by sender
+   */
+  latitude: number
+}
+
+export interface Contact {
+  /**
+   *  Contact's phone number
+   */
+  phone_number: string
+
+  /**
+   * Contact's first name
+   */
+  first_name: string
+
+  /**
+   * Contact's last name
+   */
+  last_name?: string
+
+  /**
+   * Contact's user identifier in Telegram
+   */
+  user_id?: number
+}
+
+export interface VideoNote {
+  /**
+   * Unique identifier for this file
+   */
+  file_id: string
+
+  /**
+   * Video width and height as defined by sender
+   */
+  length: number
+
+  /**
+   * Duration of the video in seconds as defined by sender
+   */
+  duration: number
+
+  /**
+   * Video thumbnail
+   */
+  thumb?: PhotoSize
+
+  /**
+   * File size
+   */
+  file_size?: number
+}
+
+export interface Voice {
+  /**
+   * Unique identifier for this file
+   */
+  file_id: string
+
+  /**
+   * Duration of the audio in seconds as defined by sender
+   */
+  duration: number
+
+  /**
+   * MIME type of the file as defined by sender
+   */
+  mime_type?: string
+
+  /**
+   * File size
+   */
+  file_size?: number
+}
+
+export interface Video {
+  /**
+   * Unique identifier for this file
+   */
+  file_id: string
+
+  /**
+   * Video width as defined by sender
+   */
+  width: number
+
+  /**
+   * Video height as defined by sender
+   */
+  height: number
+
+  /**
+   * Duration of the video in seconds as defined by sender
+   */
+  duration: number
+
+  /**
+   * Video thumbnail
+   */
+  thumb?: PhotoSize
+
+  /**
+   * Mime type of a file as defined by sender
+   */
+  mime_type?: string
+
+  /**
+   * File size
+   */
+  file_size?: number
+}
+
+export interface Sticker {
+  /**
+   * Unique identifier for this file
+   */
+  file_id: string
+
+  /**
+   * Sticker width
+   */
+  width: number
+
+  /**
+   * Sticker height
+   */
+  height: number
+
+  /**
+   * Sticker thumbnail in the .webp or .jpg format
+   */
+  thumb?: PhotoSize
+
+  /**
+   * Emoji associated with the sticker
+   */
+  emoji?: string
+
+  /**
+   * Name of the sticker set to which the sticker belongs
+   */
+  set_name?: string
+
+  /**
+   * For mask stickers, the position where the mask should be placed
+   */
+  mask_position?: MaskPosition
+
+  /**
+   * File size
+   */
+  file_size?: number
+}
+
+export interface StickerSet {
+  /**
+   * Sticker set name
+   */
+  name: string
+
+  /**
+   * Sticker set title
+   */
+  title: string
+
+  /**
+   * True, if the sticker set contains masks
+   */
+  contains_masks: boolean
+
+  /**
+   * List of all set stickers
+   */
+  stickers: Array<Sticker>
+}
+
+export interface Animation {
+  /**
+   * Unique file identifier
+   */
+  file_id: string
+
+  /**
+   * Animation thumbnail as defined by sender
+   */
+  thumb?: PhotoSize
+
+  /**
+   * Original animation filename as defined by sender
+   */
+  file_name?: string
+
+  /**
+   * MIME type of the file as defined by sender
+   */
+  mime_type?: string
+
+  /**
+   * File size
+   */
+  file_size?: number
+}
+
+export interface Game {
+  /**
+   * Title of the game
+   */
+  title: string
+
+  /**
+   * Description of the game
+   */
+  description: string
+
+  /**
+   * Photo that will be displayed in the game message in chats.
+   */
+  photo: Array<PhotoSize>
+
+  /**
+   * Brief description of the game or high scores included in the game message.
+   * Can be automatically edited to include current high scores for the game when the bot calls
+   * setGameScore, or manually edited using editMessageText. 0-4096 characters.
+   */
+  text?: string
+
+  /**
+   * Special entities that appear in text, such as usernames, URLs, bot commands, etc.
+   */
+  text_entities?: Array<MessageEntity>
+
+  /**
+   * Animation that will be displayed in the game message in chats. Upload via BotFather
+   */
+  animation?: Animation
+}
+
+export interface Document {
+  /**
+   * Unique file identifier
+   */
+  file_id: string
+
+  /**
+   * Document thumbnail as defined by sender
+   */
+  thumb?: PhotoSize
+
+  /**
+   * Original filename as defined by sender
+   */
+  file_name?: string
+
+  /**
+   * MIME type of the file as defined by sender
+   */
+  mime_type?: string
+
+  /**
+   * File size
+   */
+  file_size?: number
+}
+
+export interface Audio {
+  /**
+   * Unique identifier for this file
+   */
+  file_id: string
+
+  /**
+   * Duration of the audio in seconds as defined by sender
+   */
+  duration: number
+
+  /**
+   * Performer of the audio as defined by sender or by audio tags
+   */
+  performer?: string
+
+  /**
+   * Title of the audio as defined by sender or by audio tags
+   */
+  title?: string
+
+  /**
+   * MIME type of the file as defined by sender
+   */
+  mime_type?: string
+
+  /**
+   * File size
+   */
+  file_size?: number
+}
+
+export interface MessageEntity {
+  /**
+   * Type of the entity. Can be mention (@username), hashtag, bot_command, url, email,
+   * bold (bold text), italic (italic text), code (monowidth string), pre (monowidth block),
+   * text_link (forclickable text URLs), text_mention (for users without usernames)
+   */
+  type: string
+
+  /**
+   * Offset in UTF-16 code units to the start of the entity
+   */
+  offset: number
+
+  /**
+   * Length of the entity in UTF-16 code units
+   */
+  length: number
+
+  /**
+   * For “text_link” only, url that will be opened after user taps on the text
+   */
+  url?: string
+
+  /**
+   * For “text_mention” only, the mentioned user
+   */
+  user?: User
+}
+
+export interface ChatPhoto {
+  /**
+   * Unique file identifier of small (160x160) chat photo.
+   * This file_id can be used only for photo download.
+   */
+  small_file_id: string
+
+  /**
+   * Unique file identifier of big (640x640) chat photo.
+   * This file_id can be used only for photodownload.
+   */
+  big_file_id: string
+}
+
+export interface Chat {
+  /**
+   * Unique identifier for this chat.
+   * This number may be greater than 32 bits and some programming languages may have
+   * difficulty/silent defects in interpreting it. But it is smaller than 52 bits,
+   * so a signed 64 bit integer or double-precision float type are safe for storing this identifier.
+   */
+  id: number
+
+  /**
+   * Type of chat, can be either “private”, “group”, “supergroup” or “channel”
+   */
+  type: string
+
+  /**
+   * Title, for supergroups, channels and group chats
+   */
+  title?: string
+
+  /**
+   * Username, for private chats, supergroups and channels if available
+   */
+  username?: string
+
+  /**
+   * First name of the other party in a private chat
+   */
+  first_name?: string
+
+  /**
+   * Last name of the other party in a private chat
+   */
+  last_name?: string
+
+  /**
+   * True if a group has ‘All Members Are Admins’ enabled.
+   */
+  all_members_are_administrators?: boolean
+
+  /**
+   * Chat photo. Returned only in getChat.
+   */
+  photo?: ChatPhoto
+
+  /**
+   * Description, for supergroups and channel chats.
+   * Returned only in getChat.
+   */
+  description?: string
+
+  /**
+   * Chat invite link, for supergroups and channel chats.
+   * Returned only in getChat.
+   */
+  invite_link?: string
+}
+
+export interface ChatMember {
+  /**
+   * Information about the user
+   */
+  user: User
+
+  /**
+   * The member's status in the chat. Can be “creator”, “administrator”, “member”, “restricted”, “left” or “kicked”
+   */
+  status: string
+
+  /**
+   * Restictred and kicked only. Date when restrictions will be lifted for this user, unix time
+   */
+  until_date?: number
+
+  /**
+   * Administrators only. True, if the bot is allowed to edit administrator privileges of that user
+   */
+  can_be_edited?: boolean
+
+  /**
+   * Administrators only. True, if the administrator can change the chat title, photo and other settings
+   */
+  can_change_info?: boolean
+
+  /**
+   * Administrators only. True, if the administrator can post in the channel, channels only
+   */
+  can_post_messages?: boolean
+
+  /**
+   * Administrators only. True, if the administrator can edit messages of other users, channels only
+   */
+  can_edit_messages?: boolean
+
+  /**
+   * Administrators only. True, if the administrator can delete messages of other users
+   */
+  can_delete_messages?: boolean
+
+  /**
+   * Administrators only. True, if the administrator can invite new users to the chat
+   */
+  can_invite_users?: boolean
+
+  /**
+   * Administrators only. True, if the administrator can restrict, ban or unban chat members
+   */
+  can_restrict_members?: boolean
+
+  /**
+   * Administrators only. True, if the administrator can pin messages, supergroups only
+   */
+  can_pin_messages?: boolean
+
+  /**
+   * Administrators only. True, if the administrator can add new administrators
+   * with a subset of his own privileges or demote administrators that he has promoted,
+   * directly or indirectly (promoted by administrators that were appointed by the user)
+   */
+  can_promote_members?: boolean
+
+  /**
+   * Restricted only. True, if the user can send text messages, contacts, locations and venues
+   */
+  can_send_messages?: boolean
+
+  /**
+   * Restricted only. True, if the user can send audios, documents, photos, videos,
+   * video notes and voice notes, implies can_send_messages
+   */
+  can_send_media_messages?: boolean
+
+  /**
+   * Restricted only. True, if the user can send animations, games, stickers and use inline bots,
+   * implies can_send_media_messages
+   */
+  can_send_other_messages?: boolean
+
+  /**
+   * Restricted only. True, if user may add web page previews to his messages,
+   * implies can_send_media_messages
+   */
+  can_add_web_page_previews?: boolean
+}
 
 export interface File {
   /**
@@ -151,12 +772,29 @@ export interface IncomingMessage extends Message {
   successful_payment?: SuccessfulPayment
 }
 
-export interface MessageAudio extends Message { audio: Audio }
-export interface MessageDocument extends Message { document: Document }
-export interface MessageGame extends Message { game: Game }
-export interface MessageInvoice extends Message { invoice: Invoice }
-export interface MessageLocation extends Message { location: Location }
-export interface MessagePhoto extends Message { photo: PhotoSize[] }
+export interface MessageAudio extends Message {
+  audio: Audio
+}
+
+export interface MessageDocument extends Message {
+  document: Document
+}
+
+export interface MessageGame extends Message {
+  game: Game
+}
+
+export interface MessageInvoice extends Message {
+  invoice: Invoice
+}
+
+export interface MessageLocation extends Message {
+  location: Location
+}
+
+export interface MessagePhoto extends Message {
+  photo: PhotoSize[]
+}
 
 export interface MaskPosition {
   point: string
@@ -174,7 +812,8 @@ export interface LabeledPrice {
   /**
    * Price of the product in the smallest units of the currency (integer, not float/double).
    * For example, for a price of US$ 1.45 pass amount = 145.
-   * See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
+   * See the exp parameter in currencies.json, it shows
+   * the number of digits past the decimal point for each currency (2 for the majority of currencies).
    */
   amount: number
 }
@@ -186,12 +825,12 @@ export interface ShippingOption {
   id: string
 
   /**
-   * 	Option title
+   *  Option title
    */
   title: string
 
   /**
-   * 	List of price portions
+   *  List of price portions
    */
   prices: LabeledPrice[]
 }
@@ -218,9 +857,200 @@ export interface OrderInfo {
   shipping_address?: ShippingAddress
 }
 
-export interface InlineQueryResultCachedAudio { }
-export interface InlineQueryResultCachedDocument { }
-export interface InlineQueryResultCachedGif { }
+
+export type InputMessageContent =
+  InputTextMessageContent |
+  InputLocationMessageContent |
+  InputVenueMessageContent |
+  InputContactMessageContent
+
+export interface InputTextMessageContent {
+  /**
+   * Text of the message to be sent, 1-4096 characters
+   */
+  message_text: string
+
+  /**
+   * Send Markdown or HTML, if you want Telegram apps to show bold,
+   * italic, fixed-width text or inline URLs in your bot's message.
+   */
+  parse_mode?: string
+
+  /**
+   * Disables link previews for links in the sent message
+   */
+  disable_web_page_preview?: boolean
+}
+
+export interface InputLocationMessageContent {
+  /**
+   * Latitude of the location in degrees
+   */
+  latitude: number
+
+  /**
+   * Longitude of the location in degrees
+   */
+  longitude: number
+}
+
+export interface InputVenueMessageContent {
+  /**
+   * Latitude of the venue in degrees
+   */
+  latitude: number
+
+  /**
+   * Longitude of the venue in degrees
+   */
+  longitude: number
+
+  /**
+   * Name of the venue
+   */
+  title: string
+
+  /**
+   * Address of the venue
+   */
+  address: string
+
+  /**
+   * Foursquare identifier of the venue, if known
+   */
+  foursquare_id?: string
+}
+
+export interface InputContactMessageContent {
+  /**
+   * Contact's phone number
+   */
+  phone_number: string
+
+  /**
+   * Contact's first name
+   */
+  first_name: string
+
+  /**
+   * Contact's last name
+   */
+  last_name?: string
+}
+
+
+export interface InlineQueryResultCachedAudio {
+  /**
+   * Type of the result, must be audio
+   */
+  type: string
+
+  /**
+   * Unique identifier for this result, 1-64 bytes
+   */
+  id: string
+
+  /**
+   * A valid file identifier for the audio file
+   */
+  audio_file_id: string
+
+  /**
+   * Caption, 0-200 characters
+   */
+  caption?: string
+
+  /**
+   * Inline keyboard attached to the message
+   */
+  reply_markup?: InlineKeyboardMarkup
+
+  /**
+   * Content of the message to be sent instead of the audio
+   */
+  input_message_content?: InputMessageContent
+}
+
+export interface InlineQueryResultCachedDocument {
+  /**
+   * Type of the result, must be document
+   */
+  type: string
+
+  /**
+   * Unique identifier for this result, 1-64 bytes
+   */
+  id: string
+
+  /**
+   * Title for the result
+   */
+  title: string
+
+  /**
+   * A valid file identifier for the file
+   */
+  document_file_id: string
+
+  /**
+   * Short description of the result
+   */
+  description?: string
+
+  /**
+   * Caption of the document to be sent, 0-200 characters
+   */
+  caption?: string
+
+  /**
+   * Inline keyboard attached to the message
+   */
+  reply_markup?: InlineKeyboardMarkup
+
+  /**
+   * Content of the message to be sent instead of the file
+   */
+  input_message_content?: InputMessageContent
+
+}
+
+export interface InlineQueryResultCachedGif {
+  /**
+   * Type of the result, must be gif
+   */
+  type: string
+
+  /**
+   * Unique identifier for this result, 1-64 bytes
+   */
+  id: string
+
+  /**
+   * A valid file identifier for the GIF file
+   */
+  gif_file_id: string
+
+  /**
+   * Title for the result
+   */
+  title?: string
+
+  /**
+   * Caption of the GIF file to be sent, 0-200 characters
+   */
+  caption?: string
+
+  /**
+   * Inline keyboard attached to the message
+   */
+  reply_markup?: InlineKeyboardMarkup
+
+  /**
+   * Content of the message to be sent instead of the GIF animation
+   */
+  input_message_content?: InputMessageContent
+
+}
 
 export type InlineQueryResult =
   InlineQueryResultCachedAudio |
@@ -238,9 +1068,14 @@ export interface InlineKeyboardMarkup {
   inline_keyboard: InlineKeyboardButton[][]
 }
 
-export interface ReplyKeyboardMarkup { }
-export interface ReplyKeyboardRemove { }
-export interface ForceReply { }
+export interface ReplyKeyboardMarkup {
+}
+
+export interface ReplyKeyboardRemove {
+}
+
+export interface ForceReply {
+}
 
 export interface StickerData {
   png_sticker: string | Buffer
@@ -248,7 +1083,31 @@ export interface StickerData {
   mask_position: MaskPosition
 }
 
-export interface InputFile {}
+type FileId = string
+
+interface InputFileByPath {
+  source: string
+}
+
+interface InputFileByReadableStream {
+  source: ReadableStream
+}
+
+interface InputFileByBuffer {
+  source: Buffer
+}
+
+interface InputFileByURL {
+  url: string
+  filename: string
+}
+
+export type InputFile =
+  FileId |
+  InputFileByPath |
+  InputFileByReadableStream |
+  InputFileByBuffer |
+  InputFileByURL
 
 /// ====================================================== ///
 
@@ -316,7 +1175,7 @@ export interface Update {
 export interface Context<S extends {}> {
   telegram: Telegram
   state: S
-  callbackQuery?:CallbackQuery
+  callbackQuery?: CallbackQuery
   channelPost?: Message
   chat?: Chat
   chosenInlineResult?: ChosenInlineResult
@@ -539,7 +1398,7 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
 
   /**
    * If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned.
-   * @param ok 	Specify True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible)
+   * @param ok  Specify True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible)
    * @param shippingOptions Required if ok is True. A JSON-serialized array of available shipping options.
    * @param errorMessage Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable'). Telegram will display this message to the user.
    */
@@ -547,7 +1406,7 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
 
   /**
    * Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent.
-   * @param ok 	Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems.
+   * @param ok  Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems.
    * @param errorMessage Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user.
    */
   answerPreCheckoutQuery(ok: boolean, errorMessage?: string): Promise<boolean>
@@ -616,6 +1475,7 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
 
 export interface Middleware<S = {}> {
   (ctx: Context<S>): any
+
   (ctx: Context<S>, next: () => Promise<any>): Promise<any>
 }
 
@@ -630,7 +1490,7 @@ export interface TelegramOptions {
 
   /**
    * Reply via webhook
-  */
+   */
   webhookReply?: boolean
 }
 
@@ -841,7 +1701,6 @@ export class Telegram {
   constructor(token: string, options: TelegramOptions)
 
 
-
   /**
    * Use this method to send answers to callback queries.
    * @param callbackQueryId Query id
@@ -865,7 +1724,7 @@ export class Telegram {
    * Use this method to reply to shipping queries.
    * On success, True is returned.
    * @param shippingQueryId Unique identifier for the query to be answered
-   * @param ok 	Specify True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible)
+   * @param ok  Specify True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible)
    * @param shippingOptions Required if ok is True. A JSON-serialized array of available shipping options.
    * @param errorMessage Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable'). Telegram will display this message to the user.
    */
@@ -875,8 +1734,8 @@ export class Telegram {
    * Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query.
    * Use this method to respond to such pre-checkout queries. On success, True is returned.
    * Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent.
-   * @param preCheckoutQueryId 	Unique identifier for the query to be answered
-   * @param ok 	Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems.
+   * @param preCheckoutQueryId  Unique identifier for the query to be answered
+   * @param ok  Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems.
    * @param errorMessage Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user.
    */
   answerPreCheckoutQuery(preCheckoutQueryId: string, ok: boolean, errorMessage?: string): Promise<boolean>
@@ -1286,7 +2145,7 @@ export class Telegraf {
 
   /**
    * Generates filter middleware.
-   * @param test 	Value or predicate (ctx) => bool
+   * @param test  Value or predicate (ctx) => bool
    */
   static filter(test: boolean | ((ctx: Context) => boolean)): Middleware
 

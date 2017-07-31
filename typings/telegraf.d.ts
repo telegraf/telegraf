@@ -285,6 +285,18 @@ export type UpdateSubType =
   'video_note' |
   'voice'
 
+export type ChatAction =
+  'typing' |
+  'upload_photo' |
+  'record_video' |
+  'upload_video' |
+  'record_audio' |
+  'upload_audio' |
+  'upload_document' |
+  'find_location' |
+  'record_video_note' |
+  'upload_video_note'
+
 export interface Update {
   update_id: number
   channel_post?: Message
@@ -415,6 +427,22 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @returns On success, the sent Message is returned.
    */
   replyWithAudio(audio: InputFile, extra?: AudioExtra): Promise<MessageAudio>
+
+  /**
+   * Use this method when you need to tell the user that something is happening on the bot's side.
+   * The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status).
+   * Choose one, depending on what the user is about to receive:
+   * - typing for text messages,
+   * - upload_photo for photos,
+   * - record_video or upload_video for videos,
+   * - record_audio or upload_audio for audio files,
+   * - upload_document for general files,
+   * - find_location for location data,
+   * - record_video_note or upload_video_note for video notes.
+   * @param action Type of action to broadcast.
+   * @returns True on success
+   */
+  replyWithChatAction(action: ChatAction): Promise<boolean>
 
 
   // ------------------------------------------------------------------------------------------ //
@@ -870,6 +898,23 @@ export class Telegram {
    * @returns On success, the sent Message is returned.
    */
   sendAudio(chatId: number | string, audio: InputFile, extra?: AudioExtra): Promise<MessageAudio>
+
+  /**
+   * Use this method when you need to tell the user that something is happening on the bot's side.
+   * The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status).
+   * Choose one, depending on what the user is about to receive:
+   * - typing for text messages,
+   * - upload_photo for photos,
+   * - record_video or upload_video for videos,
+   * - record_audio or upload_audio for audio files,
+   * - upload_document for general files,
+   * - find_location for location data,
+   * - record_video_note or upload_video_note for video notes.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param action Type of action to broadcast.
+   * @returns True on success
+   */
+  sendChatAction(chatId: number | string, action: ChatAction): Promise<boolean>
 }
 
 export interface TelegrafOptions {

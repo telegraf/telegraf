@@ -149,6 +149,8 @@ export interface Message {
   successful_payment?: SuccessfulPayment
 }
 
+export interface MessageAudio extends Message { audio: Audio }
+
 export interface MaskPosition {
   point: string
   x_shift: number
@@ -402,7 +404,17 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @param extra SendMessage additional params
    * @returns sent Message if Success
    */
-  reply(text: string, extra?: SendMessageExtra): Promise<Message>
+  reply(text: string, extra?: ReplyMessageExtra): Promise<Message>
+
+  /**
+   * Use this method to send audio files to the same chat, if you want Telegram clients to display them in the music player.
+   * Your audio must be in the .mp3 format.
+   * Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
+   * @param audio Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data
+   * @param extra Audio extra parameters
+   * @returns On success, the sent Message is returned.
+   */
+  replyWithAudio(audio: InputFile, extra?: AudioExtra): Promise<MessageAudio>
 
 
   // ------------------------------------------------------------------------------------------ //
@@ -463,7 +475,7 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    * @param text New text of the message
    * @param extra Extra params
    */
-  editMessageText(text: string, extra?: EditMessageTextExtra): Promise<boolean>
+  editMessageText(text: string, extra?: EditMessageExtra): Promise<boolean>
 
   /**
    * Use this method to edit captions of messages sent by the bot or via the bot (for inline bots).
@@ -557,33 +569,8 @@ export interface AnswerInlineQueryExtra {
   switch_pm_parameter?: string
 }
 
-interface BaseMessageExtra {
-  /**
-   * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
-   */
-  parse_mode?: ParseMode
+export interface ReplyMessageExtra {
 
-  /**
-   * Disables link previews for links in this message
-   */
-  disable_web_page_preview?: boolean
-}
-
-export interface TelegramEditMessageTextExtra extends BaseMessageExtra {
-  /**
-   * JSON serialized object for an InlineKeyboardMarkup
-   */
-  reply_markup?: string
-}
-
-export interface EditMessageTextExtra extends BaseMessageExtra {
-  /**
-   * Markup of inline keyboard
-   */
-  reply_markup?: InlineKeyboardMarkup
-}
-
-export interface SendMessageExtra extends BaseMessageExtra {
   /**
    * Sends the message silently. Users will receive a notification with no sound.
    */
@@ -598,6 +585,43 @@ export interface SendMessageExtra extends BaseMessageExtra {
    * Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
    */
   reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
+}
+
+interface EditMessageExtra extends ReplyMessageExtra {
+  /**
+   * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
+   */
+  parse_mode?: ParseMode
+
+  /**
+   * Disables link previews for links in this message
+   */
+  disable_web_page_preview?: boolean
+
+}
+
+export interface AudioExtra extends ReplyMessageExtra {
+  /**
+   * Audio caption, 0-200 characters
+   */
+  caption?: string
+
+  /**
+   * Duration of the audio in seconds
+   */
+  duration?: number
+
+  /**
+   * Performer
+   */
+  performer?: string
+
+  /**
+   * Track name
+   */
+  title?: string
+
+
 }
 
 export class Telegram {
@@ -672,7 +696,7 @@ export class Telegram {
    * @param text New text of the message
    * @param extra Extra params
    */
-  editMessageText(chatId: number | string | void, messageId: number | void, inlineMessageId: string | void, text: string, extra?: TelegramEditMessageTextExtra): Promise<Message | boolean>
+  editMessageText(chatId: number | string | void, messageId: number | void, inlineMessageId: string | void, text: string, extra?: EditMessageExtra): Promise<Message | boolean>
 
   /**
    * Use this method to edit captions of messages sent by the bot or via the bot (for inline bots).
@@ -834,7 +858,18 @@ export class Telegram {
    * @param extra SendMessage additional params
    * @returns sent Message if Success
    */
-  sendMessage(chatId: number | string, text: string, extra?: SendMessageExtra): Promise<Message>
+  sendMessage(chatId: number | string, text: string, extra?: ReplyMessageExtra): Promise<Message>
+
+  /**
+   * Use this method to send audio files, if you want Telegram clients to display them in the music player.
+   * Your audio must be in the .mp3 format.
+   * Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param audio Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data
+   * @param extra Audio extra parameters
+   * @returns On success, the sent Message is returned.
+   */
+  sendAudio(chatId: number | string, audio: InputFile, extra?: AudioExtra): Promise<MessageAudio>
 }
 
 export interface TelegrafOptions {

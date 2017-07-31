@@ -151,6 +151,7 @@ export interface Message {
 
 export interface MessageAudio extends Message { audio: Audio }
 export interface MessageDocument extends Message { document: Document }
+export interface MessageGame extends Message { game: Game }
 
 export interface MaskPosition {
   point: string
@@ -453,6 +454,14 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
    */
   replyWithDocument(document: InputFile | string, extra?: ExtraDocument): Promise<MessageDocument>
 
+  /**
+   * Use this method to send a game
+   * @param gameShortName Short name of the game, serves as the unique identifier for the game. Set up your games via Botfather.
+   * @param extra Additional params for send game
+   * @returns a Message on success
+   */
+  replyWithGame(gameShortName: string, extra?: ExtraGame): Promise<MessageGame>
+
 
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
@@ -664,6 +673,11 @@ export interface ExtraDocument extends ExtraReplyMessage {
    * Document caption (may also be used when resending documents by file_id), 0-200 characters
    */
   caption?: string
+}
+
+export interface ExtraGame extends ExtraReplyMessage {
+  // no specified game props
+  // https://core.telegram.org/bots/api#sendgame
 }
 
 export class Telegram {
@@ -938,6 +952,15 @@ export class Telegram {
    * @returns a Message on success
    */
   sendDocument(chatId: number | string, document: InputFile | string, extra?: ExtraDocument): Promise<MessageDocument>
+
+  /**
+   * Use this method to send a game
+   * @param chatId Unique identifier for the target chat
+   * @param gameShortName Short name of the game, serves as the unique identifier for the game. Set up your games via Botfather.
+   * @param extra Additional params for send game
+   * @returns a Message on success
+   */
+  sendGame(chatId: number | string, gameShortName: string, extra?: ExtraGame): Promise<MessageGame>
 }
 
 

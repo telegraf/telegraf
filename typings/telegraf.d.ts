@@ -602,7 +602,7 @@ export interface Chat {
   /**
    * True if a group has ‘All Members Are Admins’ enabled.
    */
-  all_members_are_administrators?: boolean
+  all_members_are_administrators?: true
 
   /**
    * Chat photo. Returned only in getChat.
@@ -641,72 +641,72 @@ export interface ChatMember {
   /**
    * Administrators only. True, if the bot is allowed to edit administrator privileges of that user
    */
-  can_be_edited?: boolean
+  can_be_edited?: true
 
   /**
    * Administrators only. True, if the administrator can change the chat title, photo and other settings
    */
-  can_change_info?: boolean
+  can_change_info?: true
 
   /**
    * Administrators only. True, if the administrator can post in the channel, channels only
    */
-  can_post_messages?: boolean
+  can_post_messages?: true
 
   /**
    * Administrators only. True, if the administrator can edit messages of other users, channels only
    */
-  can_edit_messages?: boolean
+  can_edit_messages?: true
 
   /**
    * Administrators only. True, if the administrator can delete messages of other users
    */
-  can_delete_messages?: boolean
+  can_delete_messages?: true
 
   /**
    * Administrators only. True, if the administrator can invite new users to the chat
    */
-  can_invite_users?: boolean
+  can_invite_users?: true
 
   /**
    * Administrators only. True, if the administrator can restrict, ban or unban chat members
    */
-  can_restrict_members?: boolean
+  can_restrict_members?: true
 
   /**
    * Administrators only. True, if the administrator can pin messages, supergroups only
    */
-  can_pin_messages?: boolean
+  can_pin_messages?: true
 
   /**
    * Administrators only. True, if the administrator can add new administrators
    * with a subset of his own privileges or demote administrators that he has promoted,
    * directly or indirectly (promoted by administrators that were appointed by the user)
    */
-  can_promote_members?: boolean
+  can_promote_members?: true
 
   /**
    * Restricted only. True, if the user can send text messages, contacts, locations and venues
    */
-  can_send_messages?: boolean
+  can_send_messages?: true
 
   /**
    * Restricted only. True, if the user can send audios, documents, photos, videos,
    * video notes and voice notes, implies can_send_messages
    */
-  can_send_media_messages?: boolean
+  can_send_media_messages?: true
 
   /**
    * Restricted only. True, if the user can send animations, games, stickers and use inline bots,
    * implies can_send_media_messages
    */
-  can_send_other_messages?: boolean
+  can_send_other_messages?: true
 
   /**
    * Restricted only. True, if user may add web page previews to his messages,
    * implies can_send_media_messages
    */
-  can_add_web_page_previews?: boolean
+  can_add_web_page_previews?: true
 }
 
 export interface File {
@@ -887,7 +887,7 @@ export interface InputTextMessageContent {
   /**
    * Disables link previews for links in the sent message
    */
-  disable_web_page_preview?: boolean
+  disable_web_page_preview?: true
 }
 
 export interface InputLocationMessageContent {
@@ -1057,7 +1057,12 @@ export interface InlineQueryResultCachedGif {
    * Content of the message to be sent instead of the GIF animation
    */
   input_message_content?: InputMessageContent
+}
 
+/**
+ * A placeholder, currently holds no information. Use BotFather to set up your game.
+ */
+export interface CallbackGame {
 }
 
 export type InlineQueryResult =
@@ -1066,23 +1071,142 @@ export type InlineQueryResult =
   InlineQueryResultCachedGif
 
 export interface InlineKeyboardButton {
-  // https://core.telegram.org/bots/api#inlinekeyboardbutton
+  /**
+   * Label text on the button
+   */
+  text: string
+
+  /**
+   * HTTP url to be opened when button is pressed
+   */
+  url?: string
+
+  /**
+   * Data to be sent in a callback query to the bot when button is pressed, 1-64 bytes
+   */
+  callback_data?: string
+
+  /**
+   * If set, pressing the button will prompt the user to select one of their chats,
+   * open that chat and insert the bot‘s username and the specified inline query in the input field.
+   * Can be empty, in which case just the bot’s username will be inserted.
+   * Note: This offers an easy way for users to start using your bot in inline mode when they are currently
+   * in a private chat with it. Especially useful when combined with switch_pm… actions – in this case
+   * the user will be automatically returned to the chat they switched from, skipping the chat selection screen.
+   */
+  switch_inline_query?: string
+
+  /**
+   * If set, pressing the button will insert the bot‘s username and the specified inline query in the
+   * current chat's input field. Can be empty, in which case only the bot’s username will be inserted.
+   * This offers a quick way for the user to open your bot in inlinemode in the same chat –
+   * good for selecting something from multiple options.
+   */
+  switch_inline_query_current_chat?: string
+
+  /**
+   * Description of the game that will be launched when the user presses the button.
+   * NOTE: This type of button must always be the first button in the first row.
+   */
+  callback_game?: CallbackGame
+
+  /**
+   * Specify True, to send a Pay button.
+   * NOTE: This type of button must always be the first button in the first row.
+   */
+  pay?: true
 }
 
 export interface InlineKeyboardMarkup {
   /**
    * Array of button rows, each represented by an Array of InlineKeyboardButton objects
    */
-  inline_keyboard: InlineKeyboardButton[][]
+  inline_keyboard: Array<Array<InlineKeyboardButton>>
+}
+
+export interface KeyboardButton {
+  /**
+   * Text of the button. If none of the optional fields are used,
+   * it will be sent to the bot as a message when the button is pressed
+   */
+  text: string
+
+  /**
+   * If True, the user's phone number will be sent as a contact when the button is pressed.
+   * Available in private chats only
+   */
+  request_contact?: true
+
+  /**
+   * If True, the user's current location will be sent when the button is pressed.
+   * Available in private chats only
+   */
+  request_location?: true
 }
 
 export interface ReplyKeyboardMarkup {
+  /**
+   * Array of button rows, each represented by an Array of KeyboardButton objects
+   */
+  keyboard: Array<Array<KeyboardButton>>
+
+  /**
+   * Requests clients to resize the keyboard vertically for optimal fit (e.g., make the keyboard smaller if there are just two rows of buttons). Defaults to false, in which case the custom keyboard is always of the same height as the app's standard keyboard.
+   */
+  resize_keyboard?: true
+
+  /**
+   * Requests clients to hide the keyboard as soon as it's been used. The keyboard will still be available,
+   * but clients will automatically display the usual
+   * letter-keyboard in the chat – the user can press a special button
+   * in the input field to see the custom keyboard again. Defaults to false.
+   */
+  one_time_keyboard?: true
+
+  /**
+   * Use this parameter if you want to show the keyboard to specific users only.
+   * Targets:
+   * 1) users that are @mentioned in the text of the Message object;
+   * 2) if the bot's message is a reply (has reply_to_message_id), sender of the original message.
+   * Example:
+   * A user requests to change the bot‘s language, bot replies to the request with a keyboard
+   * to select the new language. Other users in the group don’t see the keyboard.
+   */
+  selective?: true
 }
 
 export interface ReplyKeyboardRemove {
+  /**
+   * Requests clients to remove the custom keyboard
+   * (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it
+   * accessible, use one_time_keyboard in ReplyKeyboardMarkup)
+   */
+  remove_keyboard: true
+
+  /**
+   * Use this parameter if you want to remove the keyboard for specific users only.
+   * Targets:
+   * 1) users that are @mentioned in the text of the Message object;
+   * 2) if the bot's message is a reply (has reply_to_message_id), sender of the original message.
+   * Example: A u ser votes in a poll, bot returns confirmation message in reply to the vote and removes
+   * the keyboard for that user, while still showing the keyboard with poll options to users who haven't voted yet.
+   */
+  selective?: true
 }
 
 export interface ForceReply {
+  /**
+   * Shows reply interface to the user, as if they manually selected the bot‘s message and tapped ’Reply'
+   */
+  force_reply: true
+
+  /**
+   * Use this parameter if you want to force reply from specific users only.
+   * Targets:
+   * 1) users that are @mentioned in the text of the Message object;
+   * 2) if the bot's message is a reply (has reply_to_message_id), sender of the original message.
+   */
+  selective?: true
 }
 
 export interface StickerData {

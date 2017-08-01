@@ -28,6 +28,7 @@
     "sandwich-stream": "^1.0.0"
   },
   "devDependencies": {
+    "@types/node": "^8.0.17",
     "ava": "^0.23.0",
     "eslint": "^4.1.1",
     "eslint-config-standard": "^10.2.0",

@@ -11,7 +11,7 @@ These accounts serve as an interface for code running somewhere on your server.
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
-- AWS **λ**/[now](https://github.com/telegraf/micro-bot#deployment-to-now)/dokku/[Heroku](https://github.com/telegraf/micro-bot#deployment-to-heroku) ready
+- AWS **λ**/now/Heroku/Firebase ready
 - `http`/`https`/`Connect.js`/`express.js` compatible webhooks
 - Easy to extend
 
@@ -61,3 +61,16 @@ bot.startPolling()
 ```
 
 There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/examples).
+
+## Quick start
+
+[Step-by-step instructions](https://github.com/telegraf/micro-bot) for building and deploying basic bot with [🤖 micro-bot](https://github.com/telegraf/micro-bot) (Telegraf high level wrapper).
+
+### Community bots
+* [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
+* [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
+* [Counter Bot](https://github.com/leodj/telegram-counter-bot)
+* Send PR to add link to your bot
+
+### Community quickstarts
+* [telegram-telegraf-bot](https://github.com/Finalgalaxy/telegram-telegraf-bot)

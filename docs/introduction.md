@@ -48,6 +48,7 @@ app.use(async (ctx, next) => {
 
 - [Internationalization](https://github.com/telegraf/telegraf-i18n)
 - [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
+- [Local powered session (via lowdb)](https://github.com/RealSpeaker/telegraf-session-local) - Supports in-memory/(a)sync files/... & JSON/YAML/XML/...
 - [Stateful chatbots engine](https://github.com/telegraf/telegraf-flow)
 - [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
 - [Natural language processing via wit.ai](https://github.com/telegraf/telegraf-wit)

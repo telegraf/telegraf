@@ -70,6 +70,7 @@ There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/ex
 * [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
 * [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
 * [Counter Bot](https://github.com/leodj/telegram-counter-bot)
+* [GNU/Linux Indonesia Bot](https://github.com/bgli/bglibot-js)
 * Send PR to add link to your bot
 
 ### Community quickstarts

@@ -38,3 +38,4 @@ node_modules
 .nyc_output
 coverage
 _docpress
+package-lock.json

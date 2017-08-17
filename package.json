@@ -27,12 +27,12 @@
   },
   "dependencies": {
     "auto-bind": "^1.1.0",
-    "debug": "^2.6.0",
+    "debug": "^3.0.0",
     "node-fetch": "^1.6.3",
     "sandwich-stream": "^1.0.0"
   },
   "devDependencies": {
-    "ava": "^0.21.0",
+    "ava": "^0.22.0",
     "eslint": "^4.1.1",
     "eslint-config-standard": "^10.2.0",
     "eslint-plugin-ava": "^4.0.0",

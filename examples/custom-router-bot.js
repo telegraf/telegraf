@@ -1,7 +1,7 @@
 const Telegraf = require('../')
 const { Router, Extra, memorySession } = require('../')
 
-const defaultMarkup = Extra
+const markup = Extra
   .HTML()
   .markup((m) => m.inlineKeyboard([
     m.callbackButton('Add 1', 'add:1'),
@@ -13,7 +13,7 @@ const defaultMarkup = Extra
     m.callbackButton('Clear', 'clear')
   ], {columns: 3}))
 
-const simpleRouter = new Router((ctx) => {
+const calculator = new Router((ctx) => {
   if (!ctx.callbackQuery.data) {
     return Promise.resolve()
   }
@@ -28,24 +28,24 @@ const simpleRouter = new Router((ctx) => {
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(memorySession())
-bot.on('callback_query', simpleRouter.middleware())
+bot.on('callback_query', calculator.middleware())
 
 bot.command('start', (ctx) => {
   ctx.session.value = 0
-  return ctx.reply(`Value: <b>${ctx.session.value}</b>`, defaultMarkup)
+  return ctx.reply(`Value: <b>${ctx.session.value}</b>`, markup)
 })
 
-simpleRouter.on('add', (ctx) => {
+calculator.on('add', (ctx) => {
   ctx.session.value = (ctx.session.value || 0) + ctx.state.amount
   return editText(ctx)
 })
 
-simpleRouter.on('sub', (ctx) => {
+calculator.on('sub', (ctx) => {
   ctx.session.value = (ctx.session.value || 0) - ctx.state.amount
   return editText(ctx)
 })
 
-simpleRouter.on('clear', (ctx) => {
+calculator.on('clear', (ctx) => {
   ctx.session.value = 0
   return editText(ctx)
 })
@@ -54,6 +54,6 @@ bot.startPolling()
 
 function editText (ctx) {
   return ctx.session.value !== 42
-    ? ctx.editMessageText(`Value: <b>${ctx.session.value}</b>`, defaultMarkup).catch(() => undefined)
+    ? ctx.editMessageText(`Value: <b>${ctx.session.value}</b>`, markup).catch(() => undefined)
     : ctx.answerCallbackQuery('🎉', undefined, true).then(() => ctx.editMessageText(`🎉 ${ctx.session.value} 🎉`))
 }

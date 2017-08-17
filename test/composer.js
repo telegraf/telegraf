@@ -293,15 +293,39 @@ test.cb('Composer.optional should work with async fn', (t) => {
 
 test.cb('Composer.filter should work with fn', (t) => {
   const app = new Telegraf()
-  app.filter(({ message }) => message.text.length > 2)
+  app.filter(({ message }) => message.text.length < 2)
   app.use(() => t.end())
   app.handleUpdate({message: Object.assign({text: '-'}, baseMessage)})
-  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+  app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
+  app.handleUpdate({message: Object.assign({text: 'hello world '}, baseMessage)})
 })
 
 test.cb('Composer.filter should work with async fn', (t) => {
   const app = new Telegraf()
   app.filter(({ message }) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(message.text.length < 2)
+      }, 100)
+    })
+  })
+  app.use(() => t.end())
+  app.handleUpdate({message: Object.assign({text: '-'}, baseMessage)})
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.drop should work with fn', (t) => {
+  const app = new Telegraf()
+  app.drop(({ message }) => message.text.length > 2)
+  app.use(() => t.end())
+  app.handleUpdate({message: Object.assign({text: '-'}, baseMessage)})
+  app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
+  app.handleUpdate({message: Object.assign({text: 'hello world '}, baseMessage)})
+})
+
+test.cb('Composer.drop should work with async fn', (t) => {
+  const app = new Telegraf()
+  app.drop(({ message }) => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(message.text.length > 2)

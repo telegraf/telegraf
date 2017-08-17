@@ -26,7 +26,6 @@
     "node": ">=6.2.0"
   },
   "dependencies": {
-    "auto-bind": "^1.1.0",
     "debug": "^3.0.0",
     "node-fetch": "^1.6.3",
     "sandwich-stream": "^1.0.0"

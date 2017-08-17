@@ -128,6 +128,16 @@ test.cb('should throw error then "next()" called twice', (t) => {
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
 })
 
+test.cb('should throw error then "next()" called with wrong context', (t) => {
+  const app = new Telegraf()
+  app.catch((e) => {
+    t.end()
+  })
+  app.use((ctx, next) => next('bad context'))
+  app.hears('hello', () => t.fail())
+  app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
+})
+
 test('should throw error then called with undefined trigger', (t) => {
   const app = new Telegraf()
   t.throws(() => {
@@ -473,7 +483,7 @@ test.cb('should handle regex action', (t) => {
 
 test.cb('should handle action', (t) => {
   const app = new Telegraf()
-  app.action('bar', (ctx, next) => {
+  app.action('bar', (ctx) => {
     t.fail()
   })
   app.use((ctx) => {

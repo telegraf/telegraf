@@ -2,6 +2,7 @@ const test = require('ava')
 const Telegraf = require('../')
 
 const baseMessage = {
+  id: 1337,
   chat: {
     id: 1
   }
@@ -43,6 +44,7 @@ test.cb('should provide update payload for text', (t) => {
     t.true('updateType' in ctx)
     t.true('updateSubTypes' in ctx)
     t.true('chat' in ctx)
+    t.true('message' in ctx)
     t.true('from' in ctx)
     t.true('state' in ctx)
     t.is(ctx.updateType, 'message')
@@ -167,6 +169,24 @@ test.cb('should provide chat and sender info', (t) => {
     t.end()
   })
   app.handleUpdate({message: Object.assign({from: {id: 42}}, baseMessage)})
+})
+
+test.cb('should provide message info from message', (t) => {
+  const app = new Telegraf()
+  app.on(['text', 'message'], (ctx) => {
+    t.is(ctx.message.id, 1337)
+    t.end()
+  })
+  app.handleUpdate({message: baseMessage})
+})
+
+test.cb('should provide message info from callback_query', (t) => {
+  const app = new Telegraf()
+  app.on('callback_query', (ctx) => {
+    t.is(ctx.message.id, 1337)
+    t.end()
+  })
+  app.handleUpdate({ callback_query: { message: baseMessage } })
 })
 
 test.cb('should provide shortcuts for `inline_query` event', (t) => {

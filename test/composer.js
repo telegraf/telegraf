@@ -44,27 +44,31 @@ test.cb('should route sub types', (t) => {
 })
 
 const updateTypes = [
-  'text',
-  'audio',
-  'document',
-  'photo',
-  'sticker',
-  'video',
   'voice',
-  'contact',
-  'location',
+  'video_note',
+  'video',
   'venue',
-  'left_chat_members',
+  'text',
+  'supergroup_chat_created',
+  'successful_payment',
+  'sticker',
+  'pinned_message',
+  'photo',
   'new_chat_title',
   'new_chat_photo',
-  'delete_chat_photo',
-  'group_chat_created',
-  'supergroup_chat_created',
-  'channel_chat_created',
+  'new_chat_members',
   'migrate_to_chat_id',
   'migrate_from_chat_id',
-  'pinned_message',
-  'game'
+  'location',
+  'left_chat_member',
+  'invoice',
+  'group_chat_created',
+  'game',
+  'document',
+  'delete_chat_photo',
+  'contact',
+  'channel_chat_created',
+  'audio'
 ]
 
 updateTypes.forEach((update) => {

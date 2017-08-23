@@ -44,28 +44,31 @@ test.cb('should route sub types', (t) => {
 })
 
 const updateTypes = [
-  'text',
-  'audio',
-  'document',
-  'photo',
-  'sticker',
-  'video',
   'voice',
-  'contact',
-  'location',
+  'video_note',
+  'video',
   'venue',
-  'new_chat_member',
-  'left_chat_member',
+  'text',
+  'supergroup_chat_created',
+  'successful_payment',
+  'sticker',
+  'pinned_message',
+  'photo',
   'new_chat_title',
   'new_chat_photo',
-  'delete_chat_photo',
-  'group_chat_created',
-  'supergroup_chat_created',
-  'channel_chat_created',
+  'new_chat_members',
   'migrate_to_chat_id',
   'migrate_from_chat_id',
-  'pinned_message',
-  'game'
+  'location',
+  'left_chat_member',
+  'invoice',
+  'group_chat_created',
+  'game',
+  'document',
+  'delete_chat_photo',
+  'contact',
+  'channel_chat_created',
+  'audio'
 ]
 
 updateTypes.forEach((update) => {
@@ -125,6 +128,16 @@ test.cb('should throw error then "next()" called twice', (t) => {
     next()
     return next()
   })
+  app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
+})
+
+test.cb('should throw error then "next()" called with wrong context', (t) => {
+  const app = new Telegraf()
+  app.catch((e) => {
+    t.end()
+  })
+  app.use((ctx, next) => next('bad context'))
+  app.hears('hello', () => t.fail())
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
 })
 
@@ -293,15 +306,39 @@ test.cb('Composer.optional should work with async fn', (t) => {
 
 test.cb('Composer.filter should work with fn', (t) => {
   const app = new Telegraf()
-  app.filter(({ message }) => message.text.length > 2)
+  app.filter(({ message }) => message.text.length < 2)
   app.use(() => t.end())
   app.handleUpdate({message: Object.assign({text: '-'}, baseMessage)})
-  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+  app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
+  app.handleUpdate({message: Object.assign({text: 'hello world '}, baseMessage)})
 })
 
 test.cb('Composer.filter should work with async fn', (t) => {
   const app = new Telegraf()
   app.filter(({ message }) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(message.text.length < 2)
+      }, 100)
+    })
+  })
+  app.use(() => t.end())
+  app.handleUpdate({message: Object.assign({text: '-'}, baseMessage)})
+  app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.drop should work with fn', (t) => {
+  const app = new Telegraf()
+  app.drop(({ message }) => message.text.length > 2)
+  app.use(() => t.end())
+  app.handleUpdate({message: Object.assign({text: '-'}, baseMessage)})
+  app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
+  app.handleUpdate({message: Object.assign({text: 'hello world '}, baseMessage)})
+})
+
+test.cb('Composer.drop should work with async fn', (t) => {
+  const app = new Telegraf()
+  app.drop(({ message }) => {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(message.text.length > 2)
@@ -449,7 +486,7 @@ test.cb('should handle regex action', (t) => {
 
 test.cb('should handle action', (t) => {
   const app = new Telegraf()
-  app.action('bar', (ctx, next) => {
+  app.action('bar', (ctx) => {
     t.fail()
   })
   app.use((ctx) => {

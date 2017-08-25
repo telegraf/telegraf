@@ -285,11 +285,12 @@ Use this method to get data for high score tables. Will return the score of the 
 
 Use this method to get information about a member of a chat.
 
-`telegram.getChatMember(chatId) => Promise`
+`telegram.getChatMember(chatId, userId) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number`\|`string` | Chat id |
+| userId | `number` |	User identifier |
 
 <sub>[Telegram api docs](https://core.telegram.org/bots/api#getchatmember)</sub>
 

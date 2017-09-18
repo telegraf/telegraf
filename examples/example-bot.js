@@ -14,7 +14,7 @@ bot.use((ctx, next) => {
   })
 })
 
-const sayYoMiddleware = ({ reply }, next) => reply('yo').then(next)
+const sayYoMiddleware = ({ reply }, next) => reply('yo').then(() => next())
 
 // Random location on some text messages
 bot.on('text', ({ replyWithLocation }, next) => {

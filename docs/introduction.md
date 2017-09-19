@@ -144,12 +144,12 @@ Available update sub-types:
 ```js
 
 // Handle message update
-telegraf.on('message', (ctx) =>  {
+bot.on('message', (ctx) =>  {
   return ctx.reply('Hey there!')
 })
 
 // Handle sticker or photo update
-telegraf.on(['sticker', 'photo'], (ctx) =>  {
+bot.on(['sticker', 'photo'], (ctx) =>  {
   console.log(ctx.message)
   return ctx.reply('Cool!')
 })
@@ -216,4 +216,43 @@ expressApp.listen(3000, () => {
   console.log('Example app listening on port 3000!')
 })
 
+```
+
+## Working with files
+
+Supported file sources:
+
+- `Existing file_id`
+- `File path`
+- `Url`
+- `Buffer`
+- `ReadStream`
+
+Also you can provide optional name of file as `filename`.
+
+```js
+
+  bot.on(['sticker', 'photo'], (ctx) =>  {
+    // resend existing file by file_id
+    ctx.answerWithSticker('123123jkbhj6b')
+
+    // send file
+    ctx.answerWithVideo({ source: '/path/to/video.mp4' })
+
+    // send stream
+    ctx.answerWithVideo({
+      source: fs.createReadStream('/path/to/video.mp4')
+    })
+    
+    // send buffer
+    ctx.answerWithVoice({
+      source: new Buffer()
+    })
+
+    // send url
+    ctx.answerWithPhoto({
+      url: 'http://lorempixel.com/400/200/cats/',
+      filename: 'kitten.jpg'
+    })
+  })
 ```

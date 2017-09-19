@@ -26,15 +26,6 @@ const calculator = new Router((ctx) => {
   })
 })
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.use(memorySession())
-bot.on('callback_query', calculator.middleware())
-
-bot.command('start', (ctx) => {
-  ctx.session.value = 0
-  return ctx.reply(`Value: <b>${ctx.session.value}</b>`, markup)
-})
-
 calculator.on('add', (ctx) => {
   ctx.session.value = (ctx.session.value || 0) + ctx.state.amount
   return editText(ctx)
@@ -50,10 +41,17 @@ calculator.on('clear', (ctx) => {
   return editText(ctx)
 })
 
-bot.startPolling()
-
 function editText (ctx) {
   return ctx.session.value !== 42
     ? ctx.editMessageText(`Value: <b>${ctx.session.value}</b>`, markup).catch(() => undefined)
     : ctx.answerCallbackQuery('🎉', undefined, true).then(() => ctx.editMessageText(`🎉 ${ctx.session.value} 🎉`))
 }
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.use(memorySession({ttl: 10}))
+bot.on('callback_query', calculator.middleware())
+bot.command('start', (ctx) => {
+  ctx.session.value = 0
+  return ctx.reply(`Value: <b>${ctx.session.value}</b>`, markup)
+})
+bot.startPolling()

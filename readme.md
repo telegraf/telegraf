@@ -17,7 +17,7 @@ These accounts serve as an interface for code running somewhere on your server.
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
-- AWS **λ**/now/Heroku/Firebase ready
+- AWS **λ**/now/Heroku/Firebase/Glitch ready
 - `http`/`https`/`Connect.js`/`express.js` compatible webhooks
 - Easy to extend
 

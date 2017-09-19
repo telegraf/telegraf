@@ -39,3 +39,4 @@ node_modules
 coverage
 _docpress
 package-lock.json
+.env

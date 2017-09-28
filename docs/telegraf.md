@@ -111,7 +111,7 @@ Mention handling.
 
 Hashtag handling.
 
-`telegraf.hashtag(entity, ands, ...middleware)`
+`telegraf.hashtag(hashtag, ands, ...middleware)`
 
 | Param | Type | Description |
 | --- | --- | --- |

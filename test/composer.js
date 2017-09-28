@@ -18,27 +18,21 @@ const topLevelUpdates = [
 topLevelUpdates.forEach((update) => {
   test.cb('should route ' + update.type, (t) => {
     const app = new Telegraf()
-    app.on(update.type, (ctx) => {
-      t.end()
-    })
+    app.on(update.type, (ctx) => t.end())
     app.handleUpdate(update.update)
   })
 })
 
 test.cb('should route many types', (t) => {
   const app = new Telegraf()
-  app.on(['chosen_inline_result', 'message'], (ctx) => {
-    t.end()
-  })
+  app.on(['chosen_inline_result', 'message'], (ctx) => t.end())
   app.handleUpdate({inline_query: baseMessage})
   app.handleUpdate({message: baseMessage})
 })
 
 test.cb('should route sub types', (t) => {
   const app = new Telegraf()
-  app.on('text', (ctx) => {
-    t.end()
-  })
+  app.on('text', (ctx) => t.end())
   app.handleUpdate({message: Object.assign({voice: {}}, baseMessage)})
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
 })
@@ -85,9 +79,7 @@ updateTypes.forEach((update) => {
 
 test.cb('should route venue', (t) => {
   const app = new Telegraf()
-  app.on('venue', (ctx) => {
-    t.end()
-  })
+  app.on('venue', (ctx) => t.end())
   const message = Object.assign({location: {}, venue: {title: 'location', address: 'n/a'}}, baseMessage)
   app.handleUpdate({message: message})
 })
@@ -112,18 +104,14 @@ test('should throw error then called with invalid middleware', (t) => {
 
 test.cb('should throw error then called with invalid middleware', (t) => {
   const app = new Telegraf()
-  app.catch((e) => {
-    t.end()
-  })
+  app.catch((e) => t.end())
   app.on('text', 'foo')
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
 })
 
 test.cb('should throw error then "next()" called twice', (t) => {
   const app = new Telegraf()
-  app.catch((e) => {
-    t.end()
-  })
+  app.catch((e) => t.end())
   app.use((ctx, next) => {
     next()
     return next()
@@ -133,9 +121,7 @@ test.cb('should throw error then "next()" called twice', (t) => {
 
 test.cb('should throw error then "next()" called with wrong context', (t) => {
   const app = new Telegraf()
-  app.catch((e) => {
-    t.end()
-  })
+  app.catch((e) => t.end())
   app.use((ctx, next) => next('bad context'))
   app.hears('hello', () => t.fail())
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
@@ -165,42 +151,32 @@ test.cb('should support Composer instance as middleware', (t) => {
 test.cb('should support Composer instance as handler', (t) => {
   const app = new Telegraf()
   const composer = new Composer()
-  composer.on('text', (ctx) => {
-    t.end()
-  })
+  composer.on('text', (ctx) => t.end())
   app.on('text', composer)
   app.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
 })
 
 test.cb('should handle text triggers', (t) => {
   const app = new Telegraf()
-  app.hears('hello world', (ctx) => {
-    t.end()
-  })
+  app.hears('hello world', (ctx) => t.end())
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
 test.cb('should handle fork', (t) => {
   const app = new Telegraf()
-  app.use(Telegraf.fork(() => {
-    t.end()
-  }))
+  app.use(Telegraf.fork(() => t.end()))
   app.handleUpdate({message: Object.assign({voice: {}}, baseMessage)})
 })
 
 test.cb('Composer.branch should work with value', (t) => {
   const app = new Telegraf()
-  app.use(Composer.branch(true, () => {
-    t.end()
-  }))
+  app.use(Composer.branch(true, () => t.end()))
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
 test.cb('Composer.branch should work with fn', (t) => {
   const app = new Telegraf()
-  app.use(Composer.branch((ctx) => false, null, () => {
-    t.end()
-  }))
+  app.use(Composer.branch((ctx) => false, null, () => t.end()))
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
@@ -214,9 +190,7 @@ test.cb('Composer.branch should work with async fn', (t) => {
       t.fail()
       t.end()
     },
-    () => {
-      t.end()
-    })
+    () => t.end())
   )
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
@@ -261,9 +235,7 @@ test.cb('Composer.acl should work with async fn', (t) => {
 
 test.cb('Composer.optional should work with truthy value', (t) => {
   const app = new Telegraf()
-  app.use(Composer.optional(true, () => {
-    t.end()
-  }))
+  app.use(Composer.optional(true, () => t.end()))
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
@@ -279,9 +251,7 @@ test.cb('Composer.optional should work with false value', (t) => {
 
 test.cb('Composer.optional should work with fn', (t) => {
   const app = new Telegraf()
-  app.use(Composer.optional((ctx) => true, () => {
-    t.end()
-  }))
+  app.use(Composer.optional((ctx) => true, () => t.end()))
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
@@ -370,9 +340,7 @@ test.cb('Composer.dispatch should work with handlers array', (t) => {
       t.fail()
       t.end()
     },
-    () => {
-      t.end()
-    }
+    () => t.end()
   ]))
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
@@ -380,9 +348,7 @@ test.cb('Composer.dispatch should work with handlers array', (t) => {
 test.cb('Composer.dispatch should work', (t) => {
   const app = new Telegraf()
   app.use(Composer.dispatch('b', {
-    b: () => {
-      t.end()
-    }
+    b: () => t.end()
   }))
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
@@ -401,26 +367,81 @@ test.cb('Composer.dispatch should work with async fn', (t) => {
         t.fail()
         t.end()
       },
-      () => {
-        t.end()
-      }
+      () => t.end()
     ]))
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
 test.cb('Composer.log should just work', (t) => {
   const app = new Telegraf()
-  app.use(Composer.log(() => {
-    t.end()
-  }))
+  app.use(Composer.log(() => t.end()))
   app.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
+})
+
+test.cb('Composer.entity should work', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.entity('hashtag', () => t.end()))
+  app.handleUpdate({message: {text: '#foo', entities: [{type: 'hashtag', offset: 0, length: 4}]}})
+})
+
+test.cb('Composer.entity should not infer', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.entity('command', () => t.end()))
+  app.use(() => t.end())
+  app.handleUpdate({message: {text: '#foo', entities: [{type: 'hashtag', offset: 0, length: 4}]}})
+})
+
+test.cb('Composer.entity should work with arrays', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.entity(['command', 'hashtag'], () => t.end()))
+  app.handleUpdate({message: {text: '#foo', entities: [{type: 'hashtag', offset: 0, length: 4}]}})
+})
+
+test.cb('Composer.entity should work with predicate', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.entity((entity, value) => entity.type === 'hashtag' && value === '#foo', () => t.end()))
+  app.handleUpdate({message: {text: '#foo', entities: [{type: 'hashtag', offset: 0, length: 4}]}})
+})
+
+test.cb('Composer.mention should work', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.mention(() => t.end()))
+  app.handleUpdate({message: {text: 'bar @foo', entities: [{type: 'mention', offset: 4, length: 4}]}})
+})
+
+test.cb('Composer.mention should work with pattern', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.mention('foo', () => t.end()))
+  app.handleUpdate({message: {text: 'bar @foo', entities: [{type: 'mention', offset: 4, length: 4}]}})
+})
+
+test.cb('Composer.hashtag should work', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.hashtag(() => t.end()))
+  app.handleUpdate({message: {text: '#foo', entities: [{type: 'hashtag', offset: 0, length: 4}]}})
+})
+
+test.cb('Composer.hashtag should work with pattern', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.hashtag('foo', () => t.end()))
+  app.handleUpdate({message: {text: 'bar #foo', entities: [{type: 'hashtag', offset: 4, length: 4}]}})
+})
+
+test.cb('Composer.hashtag should work with pattern', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.hashtag('#foo', () => t.end()))
+  app.handleUpdate({message: {text: 'bar #foo', entities: [{type: 'hashtag', offset: 4, length: 4}]}})
+})
+
+test.cb('Composer.hashtag should work with patterns array', (t) => {
+  const app = new Telegraf()
+  app.use(Composer.hashtag(['news', 'foo'], () => t.end()))
+  app.handleUpdate({message: {text: 'bar #foo', entities: [{type: 'hashtag', offset: 4, length: 4}]}})
 })
 
 test.cb('should handle text triggers via functions', (t) => {
   const app = new Telegraf()
-  app.hears((text) => text.startsWith('Hi'), (ctx) => {
-    t.end()
-  })
+  app.hears((text) => text.startsWith('Hi'), (ctx) => t.end())
   app.handleUpdate({message: Object.assign({text: 'Hi there!'}, baseMessage)})
 })
 
@@ -436,41 +457,31 @@ test.cb('should handle regex triggers', (t) => {
 
 test.cb('should handle command', (t) => {
   const app = new Telegraf()
-  app.command('/start', (ctx) => {
-    t.end()
-  })
+  app.command('/start', (ctx) => t.end())
   app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
 })
 
 test.cb('should handle short command', (t) => {
   const app = new Telegraf()
-  app.command('start', (ctx) => {
-    t.end()
-  })
+  app.command('start', (ctx) => t.end())
   app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
 })
 
 test.cb('should handle group command', (t) => {
   const app = new Telegraf(null, {username: 'bot'})
-  app.command('start', (ctx) => {
-    t.end()
-  })
+  app.command('start', (ctx) => t.end())
   app.handleUpdate({message: Object.assign({text: '/start@bot', entities: [{type: 'bot_command', offset: 0, length: 10}]}, baseGroupMessage)})
 })
 
 test.cb('should handle game query', (t) => {
   const app = new Telegraf()
-  app.gameQuery((ctx) => {
-    t.end()
-  })
+  app.gameQuery((ctx) => t.end())
   app.handleUpdate({callback_query: {game_short_name: 'foo'}})
 })
 
 test.cb('should handle action', (t) => {
   const app = new Telegraf()
-  app.action('foo', (ctx) => {
-    t.end()
-  })
+  app.action('foo', (ctx) => t.end())
   app.handleUpdate({callback_query: {data: 'foo'}})
 })
 
@@ -489,33 +500,25 @@ test.cb('should handle action', (t) => {
   app.action('bar', (ctx) => {
     t.fail()
   })
-  app.use((ctx) => {
-    t.end()
-  })
+  app.use((ctx) => t.end())
   app.handleUpdate({callback_query: {data: 'foo'}})
 })
 
 test.cb('should handle short command', (t) => {
   const app = new Telegraf()
-  app.command('start', (ctx) => {
-    t.end()
-  })
+  app.command('start', (ctx) => t.end())
   app.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
 })
 
 test.cb('should handle command in group', (t) => {
   const app = new Telegraf('---', {username: 'bot'})
-  app.command('start', (ctx) => {
-    t.end()
-  })
+  app.command('start', (ctx) => t.end())
   app.handleUpdate({message: {text: '/start@bot', entities: [{type: 'bot_command', offset: 0, length: 10}], chat: {id: 2, type: 'group'}}})
 })
 
 test.cb('should handle command in supergroup', (t) => {
   const app = new Telegraf()
   app.options.username = 'bot'
-  app.command('start', (ctx) => {
-    t.end()
-  })
+  app.command('start', (ctx) => t.end())
   app.handleUpdate({message: {text: '/start@bot', entities: [{type: 'bot_command', offset: 0, length: 10}], chat: {id: 2, type: 'supergroup'}}})
 })

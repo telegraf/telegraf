@@ -46,7 +46,7 @@ Use this property to control `reply via webhook` feature.
 
 Registers a middleware.
 
-`telegraf.use(middleware)`
+`telegraf.use(...middleware)`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -56,7 +56,7 @@ Registers a middleware.
 
 Registers middleware for provided update type.
 
-`telegraf.on(updateTypes, middleware, [middleware...])`
+`telegraf.on(updateTypes, ...middleware)`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -67,7 +67,7 @@ Registers middleware for provided update type.
 
 Registers middleware for handling `text` messages.
 
-`telegraf.hears(triggers, middleware, [middleware...])`
+`telegraf.hears(triggers, ...middleware)`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -78,18 +78,51 @@ Registers middleware for handling `text` messages.
 
 Command handling.
 
-`telegraf.command(commands, middleware, [middleware...])`
+`telegraf.command(commands, ...middleware)`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string[]` | Commands |
+| commands | `string`/`string[]` | Commands |
+| middleware | `function` | Middleware |
+
+### entity
+
+Entity handling.
+
+`telegraf.entity(entity, ands, ...middleware)`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| entity | `string`/`string[]`/`function` | Entity name |
+| middleware | `function` | Middleware |
+
+### mention
+
+Mention handling.
+
+`telegraf.mention(username, ands, ...middleware)`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| username | `string`/`string[]` | Username |
+| middleware | `function` | Middleware |
+
+### hashtag
+
+Hashtag handling.
+
+`telegraf.hashtag(entity, ands, ...middleware)`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| hashtag | `string`/`string[]` | Hashtag |
 | middleware | `function` | Middleware |
 
 ### action
 
 Registers middleware for handling `callback_data` actions with regular expressions.
 
-`telegraf.action(triggers, middleware, [middleware...])`
+`telegraf.action(triggers, ...middleware)`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -101,7 +134,7 @@ Registers middleware for handling `callback_data` actions with regular expressio
 
 Registers middleware for handling `callback_data` actions with game query.
 
-`telegraf.gameQuery(middleware, [middleware...])`
+`telegraf.gameQuery(...middleware)`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -175,7 +208,7 @@ Compose `middlewares` returning a fully valid middleware comprised of all those 
 
 Generates middleware for handling provided update types.
 
-`Telegraf.mount(updateTypes, middleware) => function`
+`Telegraf.mount(updateTypes, ...middleware) => function`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -186,7 +219,7 @@ Generates middleware for handling provided update types.
 
 Generates middleware for handling `text` messages with regular expressions.
 
-`Telegraf.hears(triggers, middleware) => function`
+`Telegraf.hears(triggers, ...middleware) => function`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -197,7 +230,7 @@ Generates middleware for handling `text` messages with regular expressions.
 
 Generates middleware for handling `callbackQuery` data with regular expressions.
 
-`Telegraf.action(triggers, middleware) => function`
+`Telegraf.action(triggers, ...middleware) => function`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -220,7 +253,7 @@ Generates safe version of pass thru middleware.
 
 Generates optional middleware.
 
-`Telegraf.optional(test, middleware) => function`
+`Telegraf.optional(test, ...middleware) => function`
 
 | Param | Type | Description |
 | --- | --- | --- |

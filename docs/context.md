@@ -49,6 +49,7 @@ Context shortcuts for **message** update:
 ctx.addStickerToSet() -> ctx.telegram.addStickerToSet()
 ctx.createNewStickerSet() -> ctx.telegram.createNewStickerSet()
 ctx.deleteChatPhoto() -> ctx.telegram.deleteChatPhoto()
+ctx.deleteMessage() -> ctx.telegram.deleteMessage()
 ctx.deleteStickerFromSet() -> ctx.telegram.deleteStickerFromSet()
 ctx.exportChatInviteLink() -> ctx.telegram.exportChatInviteLink()
 ctx.getChat() -> ctx.telegram.getChat()

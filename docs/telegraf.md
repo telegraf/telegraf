@@ -169,7 +169,7 @@ Start listening @ `https://host:port/webhookPath` for Telegram calls.
 
 Stop Webhook and polling
 
-`telegraf.stop()`
+`telegraf.stop([callback])`
 
 ### webhookCallback
 

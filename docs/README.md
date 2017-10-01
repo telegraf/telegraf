@@ -4,6 +4,7 @@ Documentation
 * [Telegraf](index.md)
   * [Introduction](introduction.md)
   * [Context](context.md)
+  * [Control flow](flow.md)
   * [Advanced usage](advanced.md)
 * API Reference
   * [Telegraf](telegraf.md)

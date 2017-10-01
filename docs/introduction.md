@@ -234,7 +234,7 @@ Also you can provide optional name of file as `filename`.
 
   bot.on(['sticker', 'photo'], (ctx) =>  {
     // resend existing file by file_id
-    ctx.answerWithSticker('123123jkbhj6b')
+    ctx.answerWithSticker('CgADBAADyiIAAoMaZAc5KzlGoLARtAI')
 
     // send file
     ctx.answerWithVideo({ source: '/path/to/video.mp4' })

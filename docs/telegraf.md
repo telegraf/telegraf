@@ -307,7 +307,7 @@ Also you can provide optional name of file as `filename`.
 ```js
 
   // resend existing file by file_id
-  telegram.sendSticker('chatId', '123123jkbhj6b')
+  telegram.sendSticker('chatId', 'CgADBAADyiIAAoMaZAc5KzlGoLARtAI')
 
   // send file
   telegram.sendVideo('chatId', {

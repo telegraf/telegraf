@@ -3,7 +3,7 @@ const { Markup } = require('../')
 
 const replyOptions = Markup.inlineKeyboard([
   Markup.urlButton('❤️', 'http://telegraf.js.org'),
-  Markup.callbackButton('Delele', 'delete')
+  Markup.callbackButton('Delete', 'delete')
 ]).extra()
 
 const bot = new Telegraf(process.env.BOT_TOKEN)

@@ -81,6 +81,7 @@ There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/ex
 * [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
 * [Counter Bot](https://github.com/leodj/telegram-counter-bot)
 * [GNU/Linux Indonesia Bot](https://github.com/bgli/bglibot-js)
+* [The Guard Bot](https://github.com/TheDevs-Network/the-guard-bot)
 * Send PR to add link to your bot
 
 ### Community quickstarts

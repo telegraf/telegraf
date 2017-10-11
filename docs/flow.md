@@ -1,5 +1,6 @@
 # Control flow
 
+Simple scene-based control flow with Telegraf.
 
 ## Example
   

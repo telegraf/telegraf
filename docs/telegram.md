@@ -127,6 +127,18 @@ Use this method to create new sticker set owned by a user.
 
 <sub>[Telegram api docs](https://core.telegram.org/bots/api#createnewstickerset)</sub>
 
+### deleteChatStickerSet
+
+Use this method to delete a group sticker set from a supergroup.
+
+`telegram.deleteChatStickerSet(chatId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#deletechatstickerset)</sub>
+
 ### deleteMessage
 
 Use this method to delete bot messages.
@@ -138,6 +150,8 @@ Use this method to delete bot messages.
 | chatId | `number`\|`string` | Chat id |
 | messageId | `string` | Message id |
 
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#deletemessage)</sub>
+
 ### deleteStickerFromSet
 
 Use this method to delete a sticker from a set created by the bot.
@@ -147,6 +161,8 @@ Use this method to delete a sticker from a set created by the bot.
 | Param | Type | Description |
 | --- | --- | --- |
 | stickerId | |`string` | File identifier of the sticker |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#deletestickerfromset)</sub>
 
 ### editMessageCaption
 
@@ -160,7 +176,24 @@ Use this method to edit captions of messages sent by the bot or via the bot.
 | messageId | `string` | Message id |
 | inlineMessageId | `string` | Inline message id |
 | caption | `string` | Caption |
-| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagecaption)|
+| extra | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagecaption)|
+
+### editMessageLiveLocation
+
+Use this method to edit live location messages sent by the bot or via the bot.
+
+`telegram.editMessageLiveLocation(latitude, longitude, chatId, messageId, inlineMessageId, markup) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| latitude | `string` | Latitude of new location |
+| longitude | `string` | Longitude of new location |
+| chatId | `number`\|`string` | Chat id |
+| messageId | `string` | Message id |
+| inlineMessageId | `string` | Inline message id |
+| markup | `object` | Keyboard markup |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#editmessagelivelocation)</sub>
 
 ### editMessageReplyMarkup
 
@@ -468,6 +501,19 @@ Use this method to change the description of a supergroup or a channel.
 
 <sub>[Telegram api docs](https://core.telegram.org/bots/api#setchattitle)</sub>
 
+### setChatStickerSet
+
+Use this method to set a new group sticker set for a supergroup. 
+
+`telegram.setChatStickerSet(chatId, setName) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| setName | `string` | Name of the sticker set |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#setchatstickerset)</sub>
+
 ### pinChatMessage
 
 Use this method to pin a message in a supergroup.
@@ -695,6 +741,20 @@ Sends voice.
 | voice | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
 
+### stopMessageLiveLocation
+
+Use this method to stop updating a live location message sent by the bot or via the bot (for inline bots) before live_period expires.
+
+`telegram.stopMessageLiveLocation(chatId, messageId, inlineMessageId, markup) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number`\|`string` | Chat id |
+| messageId | `string` | Message id |
+| inlineMessageId | `string` | Inline message id |
+| markup | `object` | Keyboard markup |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#stopmessagelivelocation)</sub>
 
 ### uploadStickerFile
 
@@ -706,6 +766,8 @@ Use this method to upload a .png file with a sticker for later use in createNewS
 | --- | --- | --- |
 | ownerId | `string` | User identifier of sticker file owner |
 | png_sticker | `File` | Png image with the sticker |
+
+<sub>[Telegram api docs](https://core.telegram.org/bots/api#uploadstickerfile)</sub>
 
 ### setWebhook
 
@@ -719,6 +781,7 @@ Specifies an url to receive incoming updates via an outgoing webhook.
 | [cert] | `File` | SSL public certificate |
 | [maxConnections] | `number` | User id |
 | [allowedUpdates] | `string[]` | List the types of updates you want your bot to receive |
+
 <sub>[Telegram api docs](https://core.telegram.org/bots/api#setwebhook)</sub>
 
 ### unbanChatMember

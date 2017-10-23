@@ -83,6 +83,7 @@ There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/ex
 * [GNU/Linux Indonesia Bot](https://github.com/bgli/bglibot-js)
 * [The Guard Bot](https://github.com/TheDevs-Network/the-guard-bot)
 * [Chat Linker Bot](https://github.com/jt3k/chat-linker)
+* [Spyfall Game Bot](https://github.com/verget/telegram-spy-game)
 * Send PR to add link to your bot
 
 ### Community quickstarts

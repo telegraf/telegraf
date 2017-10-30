@@ -27,6 +27,9 @@ bot.command('custom', ({ reply }) => {
   )
 })
 
+bot.hears('🔍 Search', ctx => ctx.reply('Yay!'))
+bot.hears('📢 Ads', ctx => ctx.reply('Free hugs. Call now!'))
+
 bot.command('special', (ctx) => {
   return ctx.reply('Special buttons keyboard', Extra.markup((markup) => {
     return markup.resize()

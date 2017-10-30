@@ -6,7 +6,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 ## Features
 
-- Full [Telegram Bot API 3.3](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 3.4](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -71,6 +71,8 @@ There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/ex
 * [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
 * [Counter Bot](https://github.com/leodj/telegram-counter-bot)
 * [GNU/Linux Indonesia Bot](https://github.com/bgli/bglibot-js)
+* [The Guard Bot](https://github.com/TheDevs-Network/the-guard-bot)
+* [Chat Linker Bot](https://github.com/jt3k/chat-linker)
 * Send PR to add link to your bot
 
 ### Community quickstarts

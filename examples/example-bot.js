@@ -43,7 +43,7 @@ bot.command('answer', sayYoMiddleware, (ctx) => {
 const catPhoto = 'http://lorempixel.com/400/200/cats/'
 bot.command('cat', ({ replyWithPhoto }) => replyWithPhoto(catPhoto))
 
-// Streaming photo, in case Telegram does't accept url directly
+// Streaming photo, in case Telegram doesn't accept direct URL
 bot.command('cat2', ({ replyWithPhoto }) => replyWithPhoto({ url: catPhoto }))
 
 // Look ma, reply middleware factory

@@ -49,17 +49,17 @@ BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsT
 ```js
 const Telegraf = require('telegraf')
 
-const app = new Telegraf(process.env.BOT_TOKEN)
-app.start((ctx) => {
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.start((ctx) => {
   console.log('started:', ctx.from.id)
   return ctx.reply('Welcome!')
 })
-app.command('help', (ctx) => ctx.reply('Try send a sticker!'))
-app.hears('hi', (ctx) => ctx.reply('Hey there!'))
-app.hears(/buy/i, (ctx) => ctx.reply('Buy-buy!'))
-app.on('sticker', (ctx) => ctx.reply('👍'))
+bot.command('help', (ctx) => ctx.reply('Try send a sticker!'))
+bot.hears('hi', (ctx) => ctx.reply('Hey there!'))
+bot.hears(/buy/i, (ctx) => ctx.reply('Buy-buy!'))
+bot.on('sticker', (ctx) => ctx.reply('👍'))
 
-app.startPolling()
+bot.startPolling()
 ```
 
 ```js
@@ -77,7 +77,7 @@ There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/ex
 
 ## Quick start
 
-[Step-by-step instructions](https://github.com/telegraf/micro-bot) for building and deploying basic bot with [🤖 micro-bot](https://github.com/telegraf/micro-bot) (Telegraf high level wrapper).
+[Step-by-step instructions](https://github.com/telegraf/micro-bot) for building and deploying basic bot with [🤖 micro-bot](https://github.com/telegraf/micro-bot) (Telegraf high level wrboter).
 
 ### Community bots
 * [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)

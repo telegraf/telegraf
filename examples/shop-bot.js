@@ -37,7 +37,7 @@ const replyOptions = Markup.inlineKeyboard([
 ]).extra()
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.command('start', ({ replyWithInvoice }) => replyWithInvoice(invoice))
+bot.start(({ replyWithInvoice }) => replyWithInvoice(invoice))
 bot.command('/buy', ({ replyWithInvoice }) => replyWithInvoice(invoice, replyOptions))
 bot.on('shipping_query', ({ answerShippingQuery }) => answerShippingQuery(true, shippingOptions))
 bot.on('pre_checkout_query', ({ answerPreCheckoutQuery }) => answerPreCheckoutQuery(true))

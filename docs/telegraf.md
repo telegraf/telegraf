@@ -85,6 +85,16 @@ Command handling.
 | commands | `string`/`string[]` | Commands |
 | middleware | `function` | Middleware |
 
+### start
+
+Tiny wrapper for /start command.
+
+`telegraf.start(...middleware)`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| middleware | `function` | Middleware |
+
 ### entity
 
 Entity handling.

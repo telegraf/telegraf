@@ -40,12 +40,15 @@ BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsT
 const Telegraf = require('telegraf')
 
 const app = new Telegraf(process.env.BOT_TOKEN)
-app.command('start', ({ from, reply }) => {
-  console.log('start', from)
-  return reply('Welcome!')
+app.start((ctx) => {
+  console.log('started:', ctx.from.id)
+  return ctx.reply('Welcome!')
 })
+app.command('help', (ctx) => ctx.reply('Try send a sticker!'))
 app.hears('hi', (ctx) => ctx.reply('Hey there!'))
+app.hears(/buy/i, (ctx) => ctx.reply('Buy-buy!'))
 app.on('sticker', (ctx) => ctx.reply('👍'))
+
 app.startPolling()
 ```
 

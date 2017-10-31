@@ -49,9 +49,9 @@ function editText (ctx) {
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(memorySession({ttl: 10}))
-bot.on('callback_query', calculator.middleware())
-bot.command('start', (ctx) => {
+bot.start((ctx) => {
   ctx.session.value = 0
   return ctx.reply(`Value: <b>${ctx.session.value}</b>`, markup)
 })
+bot.on('callback_query', calculator)
 bot.startPolling()

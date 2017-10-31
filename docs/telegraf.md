@@ -85,11 +85,21 @@ Command handling.
 | commands | `string`/`string[]` | Commands |
 | middleware | `function` | Middleware |
 
+### start
+
+Tiny wrapper for /start command.
+
+`telegraf.start(...middleware)`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| middleware | `function` | Middleware |
+
 ### entity
 
 Entity handling.
 
-`telegraf.entity(entity, ands, ...middleware)`
+`telegraf.entity(entity, ...middleware)`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -100,7 +110,7 @@ Entity handling.
 
 Mention handling.
 
-`telegraf.mention(username, ands, ...middleware)`
+`telegraf.mention(username, ...middleware)`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -111,7 +121,7 @@ Mention handling.
 
 Hashtag handling.
 
-`telegraf.hashtag(hashtag, ands, ...middleware)`
+`telegraf.hashtag(hashtag, ...middleware)`
 
 | Param | Type | Description |
 | --- | --- | --- |

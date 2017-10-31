@@ -16,7 +16,7 @@ app.telegram.getMe().then((botInfo) => {
   app.options.username = botInfo.username
 })
 
-app.command('start', (ctx) => ctx.reply('Hello World'))
+app.command('foo', (ctx) => ctx.reply('Hello World'))
 ```
 
 ## Composer

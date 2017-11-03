@@ -1,5 +1,5 @@
 const debug = require('debug')('telegraf:flow')
-const Composer = require('../core/composer.js')
+const Composer = require('../composer.js')
 const { compose, optional, lazy, safePassThru } = Composer
 
 const noop = () => Promise.resolve()

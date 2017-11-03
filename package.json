@@ -12,11 +12,7 @@
   "bugs": {
     "url": "https://github.com/telegraf/telegraf/issues"
   },
-  "files": [
-    "docs",
-    "lib"
-  ],
-  "main": "lib/index.js",
+  "main": "index.js",
   "scripts": {
     "lint": "eslint .",
     "test": "ava test",
@@ -40,10 +36,6 @@
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
     "husky": "^0.14.1"
-  },
-  "docpress": {
-    "css": "docs/docs.css",
-    "github": "telegraf/telegraf"
   },
   "keywords": [
     "telegraf",

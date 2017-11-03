@@ -1,8 +1,8 @@
 const debug = require('debug')('telegraf:core')
 const Telegram = require('./telegram')
-const generateCallback = require('./network/webhook')
-const Composer = require('./core/composer')
+const Composer = require('./composer')
 const Context = require('./core/context')
+const generateCallback = require('./network/webhook')
 
 const DefaultOptions = {
   retryAfter: 1,

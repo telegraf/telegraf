@@ -1,4 +1,4 @@
-const Composer = require('../../core/composer')
+const Composer = require('../../composer')
 
 class GenericScene extends Composer {
   constructor (id, options) {

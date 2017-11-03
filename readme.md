@@ -62,4 +62,4 @@ There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/ex
 
 ### Documentation
 
-[Telegraf developer docs](https://telegraf.js.org)
+[Telegraf developer docs](http://telegraf.js.org)

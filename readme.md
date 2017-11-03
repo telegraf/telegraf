@@ -1,4 +1,4 @@
-![Telegraf](docs/header.png)
+![Telegraf](https://github.com/telegraf/telegraf/raw/master/docs/header.png)
 [![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.2-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)

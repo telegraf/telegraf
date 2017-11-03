@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "3.14.0",
+  "version": "3.14.3",
   "description": "📡 Modern Telegram bot framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <dotcypress@gmail.com>",
@@ -31,7 +31,7 @@
     "sandwich-stream": "^1.0.0"
   },
   "devDependencies": {
-    "ava": "^0.22.0",
+    "ava": "^0.23.0",
     "eslint": "^4.1.1",
     "eslint-config-standard": "^10.2.0",
     "eslint-plugin-ava": "^4.0.0",

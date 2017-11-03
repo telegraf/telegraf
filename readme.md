@@ -10,7 +10,7 @@ Bots are special [Telegram](https://telegram.org) accounts designed to handle me
 Users can interact with bots by sending them command messages in private or group chats. 
 These accounts serve as an interface for code running somewhere on your server.
 
-## Features
+### Features
 
 - Full [Telegram Bot API 3.4](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
@@ -21,45 +21,30 @@ These accounts serve as an interface for code running somewhere on your server.
 - `http`/`https`/`Connect.js`/`express.js` compatible webhooks
 - Easy to extend
 
-## Installation
+### Installation
 
 ```
-$ npm install telegraf --save
-```
+$ npm install telegraf
 
-Using `yarn`
-```
 $ yarn add telegraf
 ```
 
-## Telegram token
-
-To use the [Telegram Bot API](https://core.telegram.org/bots/api), 
-you first have to [get a bot account](https://core.telegram.org/bots) 
-by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
-
-BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
-
-## Documentation
-
-[Telegraf developer docs](http://telegraf.js.org)
-
-## Examples
+### Examples
   
 ```js
 const Telegraf = require('telegraf')
 
-const app = new Telegraf(process.env.BOT_TOKEN)
-app.start((ctx) => {
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.start((ctx) => {
   console.log('started:', ctx.from.id)
   return ctx.reply('Welcome!')
 })
-app.command('help', (ctx) => ctx.reply('Try send a sticker!'))
-app.hears('hi', (ctx) => ctx.reply('Hey there!'))
-app.hears(/buy/i, (ctx) => ctx.reply('Buy-buy!'))
-app.on('sticker', (ctx) => ctx.reply('👍'))
+bot.command('help', (ctx) => ctx.reply('Try send a sticker!'))
+bot.hears('hi', (ctx) => ctx.reply('Hey there!'))
+bot.hears(/buy/i, (ctx) => ctx.reply('Buy-buy!'))
+bot.on('sticker', (ctx) => ctx.reply('👍'))
 
-app.startPolling()
+bot.startPolling()
 ```
 
 ```js
@@ -75,19 +60,6 @@ bot.startPolling()
 
 There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/examples).
 
-## Quick start
+### Documentation
 
-[Step-by-step instructions](https://github.com/telegraf/micro-bot) for building and deploying basic bot with [🤖 micro-bot](https://github.com/telegraf/micro-bot) (Telegraf high level wrapper).
-
-### Community bots
-* [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
-* [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
-* [Counter Bot](https://github.com/leodj/telegram-counter-bot)
-* [GNU/Linux Indonesia Bot](https://github.com/bgli/bglibot-js)
-* [The Guard Bot](https://github.com/TheDevs-Network/the-guard-bot)
-* [Chat Linker Bot](https://github.com/jt3k/chat-linker)
-* [Spyfall Game Bot](https://github.com/verget/telegram-spy-game)
-* Send PR to add link to your bot
-
-### Community quickstarts
-* [telegram-telegraf-bot](https://github.com/Finalgalaxy/telegram-telegraf-bot)
+[Telegraf developer docs](https://telegraf.js.org)

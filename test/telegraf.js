@@ -103,7 +103,7 @@ test.cb('should provide shortcuts for `message` event', (t) => {
 test.cb('should provide shortcuts for `callback_query` event', (t) => {
   const app = new Telegraf()
   app.on('callback_query', (ctx) => {
-    t.true('answerCallbackQuery' in ctx)
+    t.true('answerCbQuery' in ctx)
     t.true('reply' in ctx)
     t.true('replyWithMarkdown' in ctx)
     t.true('replyWithHTML' in ctx)

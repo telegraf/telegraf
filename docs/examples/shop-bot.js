@@ -1,5 +1,5 @@
-const Telegraf = require('../')
-const { Markup } = Telegraf
+const Telegraf = require('telegraf')
+const Markup = require('telegraf/markup')
 
 const invoice = {
   provider_token: process.env.PROVIDER_TOKEN,

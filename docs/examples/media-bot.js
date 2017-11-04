@@ -1,5 +1,5 @@
 const fs = require('fs')
-const Telegraf = require('../')
+const Telegraf = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 

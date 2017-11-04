@@ -1,5 +1,5 @@
-const Telegraf = require('../')
-const { Extra, memorySession, reply } = require('../')
+const Telegraf = require('telegraf')
+const { Extra, memorySession, reply } = Telegraf
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 

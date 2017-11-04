@@ -1,5 +1,5 @@
-const Telegraf = require('../')
-const { Router, Extra, memorySession } = require('../')
+const Telegraf = require('telegraf')
+const { Router, Extra, session } = require('telegraf')
 
 const markup = Extra
   .HTML()
@@ -48,7 +48,7 @@ function editText (ctx) {
 }
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.use(memorySession({ttl: 10}))
+bot.use(session({ttl: 10}))
 bot.start((ctx) => {
   ctx.session.value = 0
   return ctx.reply(`Value: <b>${ctx.session.value}</b>`, markup)

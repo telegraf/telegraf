@@ -58,7 +58,7 @@ bot.command('/hipster', reply('λ'))
 bot.startPolling()
 ```
 
-There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/examples).
+There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/docs/examples).
 
 ### Documentation
 

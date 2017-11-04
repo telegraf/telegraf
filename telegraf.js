@@ -1,8 +1,14 @@
 const debug = require('debug')('telegraf:core')
+const util = require('util')
 const Telegram = require('./telegram')
+const Extra = require('./extra')
+const Scenes = require('./scenes/')
 const Composer = require('./composer')
+const Markup = require('./markup')
+const session = require('./session')
+const Router = require('./router')
 const Context = require('./core/context')
-const generateCallback = require('./network/webhook')
+const generateCallback = require('./core/network/webhook')
 
 const DefaultOptions = {
   retryAfter: 1,
@@ -141,4 +147,13 @@ class Telegraf extends Composer {
   }
 }
 
-module.exports = Telegraf
+module.exports = Object.assign(Telegraf, {
+  Composer,
+  Extra,
+  Scenes,
+  Markup,
+  Router,
+  Telegram,
+  session,
+  memorySession: util.deprecate(session, 'Telegraf: memorySession() is deprecated, use session() instead')
+})

@@ -1,6 +1,7 @@
-const Telegraf = require('../')
-const { Flow } = Telegraf
-const { Scene, enter, leave } = Flow
+const Telegraf = require('../../')
+const session = require('../../session')
+const RotatingStage = require('../../scenes')
+const { Scene, enter, leave } = require('../..//scenes')
 
 // Greeter scene
 const greeterScene = new Scene('greeter')
@@ -18,9 +19,9 @@ echoScene.on('text', (ctx) => ctx.reply(ctx.message.text))
 echoScene.on('message', (ctx) => ctx.reply('Only text messages please'))
 
 const app = new Telegraf(process.env.BOT_TOKEN)
-const flow = new Flow([greeterScene, echoScene], { ttl: 10 })
-app.use(Telegraf.memorySession())
-app.use(flow.middleware())
+const stage = new RotatingStage([greeterScene, echoScene], { ttl: 10 })
+app.use(session())
+app.use(stage)
 app.command('greeter', enter('greeter'))
 app.command('echo', enter('echo'))
 app.on('message', (ctx) => ctx.reply('Try /echo or /greeter'))

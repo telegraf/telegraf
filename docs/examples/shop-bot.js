@@ -1,4 +1,4 @@
-const Telegraf = require('../')
+const Telegraf = require('telegraf')
 const { Markup } = Telegraf
 
 const invoice = {

@@ -1,35 +1,36 @@
-const Telegraf = require('../')
-const { Flow } = Telegraf
-const { WizardScene } = Flow
+const Telegraf = require('telegraf')
+const session = require('telegraf/session')
+const RotatingStage = require('telegraf/scenes')
+const WizardScene = require('telegraf/scenes/wizard')
 
 const superWizard = new WizardScene('super-wizard',
   (ctx) => {
     ctx.reply('Step 1')
-    ctx.flow.wizard.next()
+    ctx.wizard.next()
   },
   (ctx) => {
     if (ctx.message && ctx.message.text !== 'ok') {
       return ctx.replyWithMarkdown('Send `ok`')
     }
     ctx.reply('Step 2 ')
-    ctx.flow.wizard.next()
+    ctx.wizard.next()
   },
   (ctx) => {
     ctx.reply('Step 3')
-    ctx.flow.wizard.next()
+    ctx.wizard.next()
   },
   (ctx) => {
     ctx.reply('Step 4')
-    ctx.flow.wizard.next()
+    ctx.wizard.next()
   },
   (ctx) => {
     ctx.reply('Done')
-    ctx.flow.leave()
+    ctx.scene.leave()
   }
 )
 
 const app = new Telegraf(process.env.BOT_TOKEN)
-const flow = new Flow([superWizard], {defaultScene: 'super-wizard'})
-app.use(Telegraf.memorySession())
-app.use(flow.middleware())
+const stage = new RotatingStage([superWizard], {defaultScene: 'super-wizard'})
+app.use(session())
+app.use(stage)
 app.startPolling()

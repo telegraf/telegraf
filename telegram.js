@@ -1,5 +1,5 @@
 const replicators = require('./core/replicators')
-const ApiClient = require('./network/client')
+const ApiClient = require('./core/network/client')
 
 class Telegram extends ApiClient {
   getMe () {

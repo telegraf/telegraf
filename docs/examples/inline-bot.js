@@ -1,4 +1,4 @@
-const Telegraf = require('../')
+const Telegraf = require('telegraf')
 const fetch = require('node-fetch')
 
 // async/await example.

@@ -1,6 +1,6 @@
-const Composer = require('../../composer')
+const Composer = require('../composer')
 
-class GenericScene extends Composer {
+class BaseScene extends Composer {
   constructor (id, options) {
     const opts = Object.assign({
       handlers: [],
@@ -37,4 +37,4 @@ class GenericScene extends Composer {
   }
 }
 
-module.exports = GenericScene
+module.exports = BaseScene

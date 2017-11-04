@@ -2,8 +2,8 @@ class WizardContext {
   constructor (ctx, steps) {
     this.ctx = ctx
     this.steps = steps
-    this.state = ctx.flow.state
-    this.cursor = this.ctx.flow.session.cursor || 0
+    this.state = ctx.scene.state
+    this.cursor = ctx.scene.session.cursor || 0
   }
 
   get step () {
@@ -12,7 +12,7 @@ class WizardContext {
 
   selectStep (index) {
     this.cursor = index
-    this.ctx.flow.session.cursor = index
+    this.ctx.scene.session.cursor = index
     return this
   }
 
@@ -36,9 +36,9 @@ class WizardScene {
       const wizard = new WizardContext(ctx, this.steps)
       if (!wizard.step) {
         wizard.selectStep(0)
-        return ctx.flow.leave()
+        return ctx.scene.leave()
       }
-      ctx.flow.wizard = wizard
+      ctx.wizard = wizard
       return wizard.step(ctx, next)
     }
   }

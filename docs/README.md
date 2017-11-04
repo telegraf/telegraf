@@ -53,7 +53,7 @@ bot.on('sticker', (ctx) => ctx.reply('👍'))
 bot.startPolling()
 ```
 
-For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/examples) folder.
+For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
 
 <p class="tip">
   Also, checkout our [step-by-step instructions](https://github.com/telegraf/micro-bot) for building and deploying basic bot with [🤖 micro-bot](https://github.com/telegraf/micro-bot)(Telegraf high level wrapper)
@@ -131,7 +131,6 @@ bot.use(async (ctx, next) => {
 - [Internationalization](https://github.com/telegraf/telegraf-i18n)
 - [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
 - [Local powered session (via lowdb)](https://github.com/RealSpeaker/telegraf-session-local) - Supports in-memory/(a)sync files/... & JSON/YAML/XML/...
-- [Stateful chatbots engine](https://github.com/telegraf/telegraf-flow)
 - [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
 - [Natural language processing via wit.ai](https://github.com/telegraf/telegraf-wit)
 - [Natural language processing via recast.ai](https://github.com/telegraf/telegraf-recast)
@@ -358,7 +357,7 @@ bot.on('text', (ctx) => {
 ```js
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.use(Telegraf.memorySession())
+bot.use(Telegraf.session())
 
 bot.on('text', (ctx) => {
   ctx.session.counter = ctx.session.counter || 0
@@ -1643,6 +1642,46 @@ bot.telegram.getMe().then((botInfo) => {
 })
 
 bot.command('foo', (ctx) => ctx.reply('Hello World'))
+```
+
+##### Rotating Stage
+
+Simple scene-based control flow with Telegraf.
+  
+```js
+const Telegraf = require('telegraf')
+const session = require('telegraf/session')
+const RotatingStage = require('telegraf/scenes')
+const Scene = require('telegraf/scenes/base')
+
+// Greeter scene
+const greeter = new Scene('greeter')
+greeter.enter((ctx) => ctx.reply('Hi'))
+greeter.leave((ctx) => ctx.reply('Buy'))
+greeter.hears(/hi/gi, leave())
+greeter.on('message', (ctx) => ctx.reply('Send `hi`'))
+
+// Cfreate scene manager
+const stage = new RotatingStage()
+// Scene registration
+stage.register(greeter)
+
+const app = new Telegraf(process.env.BOT_TOKEN)
+app.use(session())
+app.use(stage)
+app.command('greeter', (ctx) => ctx.scene.enter('greeter'))
+app.startPolling()
+```
+
+Scenes related context props and functions:
+
+```js
+app.on('...', (ctx) => {
+  ctx.scene.state                                    // Current scene sstate (persistent)
+  ctx.scene.enter(sceneId, [defaultState, silent])   // Enter scenes
+  ctx.scene.reenter()                                // Reenter currenst scene
+  ctx.scene.leave()                                  // Leave scene s
+});
 ```
 
 <p class="warning">

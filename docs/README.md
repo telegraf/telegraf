@@ -863,7 +863,7 @@ Use this method to add a new sticker to a set created by the bot.
 
 Use this method to send answers to callback queries.
 
-`telegram.answerCbQuery(callbackQueryId, text, [showAlert], [cacheTime]) => Promise`
+`telegram.answerCbQuery(callbackQueryId, text, [showAlert], [extra]) => Promise`
 [Telegram official docs](https://core.telegram.org/bots/api#answercallbackquery)
 
 | Param | Type | Description |
@@ -871,7 +871,7 @@ Use this method to send answers to callback queries.
 | callbackQueryId | `string` | Query id |
 | [text] | `string` | Notification text |
 | [showAlert] | `bool` | Show alert instead of notification |
-| [cacheTime] | `number` | The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0. |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#answercallbackquery) |
 
 ##### answerGameQuery
 

@@ -220,13 +220,12 @@ class Telegram extends ApiClient {
     })
   }
 
-  answerCbQuery (callbackQueryId, text, showAlert, cacheTime) {
-    return this.callApi('answerCallbackQuery', {
+  answerCbQuery (callbackQueryId, text, showAlert, extra) {
+    return this.callApi('answerCallbackQuery', Object.assign({
       callback_query_id: callbackQueryId,
       text: text,
-      show_alert: showAlert,
-      cache_time: cacheTime
-    })
+      show_alert: showAlert
+    }, extra))
   }
 
   answerGameQuery (callbackQueryId, url) {

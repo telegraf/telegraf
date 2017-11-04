@@ -1625,6 +1625,10 @@ Telegram markup helper, [see examples](https://github.com/telegraf/telegraf/tree
 
 ## Recipes
 
+<p class="tip">
+  Feel free to send PR with additional recipes.
+</p>
+
 ##### Command handling in group
 
 For handling group/supergroup commands(`/start@your_bot`) you need to provide bot username.
@@ -1647,7 +1651,7 @@ bot.command('foo', (ctx) => ctx.reply('Hello World'))
 ##### Rotating Stage
 
 Simple scene-based control flow with Telegraf.
-  
+
 ```js
 const Telegraf = require('telegraf')
 const session = require('telegraf/session')
@@ -1661,7 +1665,7 @@ greeter.leave((ctx) => ctx.reply('Buy'))
 greeter.hears(/hi/gi, leave())
 greeter.on('message', (ctx) => ctx.reply('Send `hi`'))
 
-// Cfreate scene manager
+// Create scene manager
 const stage = new RotatingStage()
 // Scene registration
 stage.register(greeter)
@@ -1683,7 +1687,3 @@ app.on('...', (ctx) => {
   ctx.scene.leave()                                  // Leave scene s
 });
 ```
-
-<p class="warning">
-  Feel free to send PR with additional recipes.
-</p>

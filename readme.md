@@ -25,7 +25,9 @@ These accounts serve as an interface for code running somewhere on your server.
 
 ```
 $ npm install telegraf
-
+```
+or using `yarn`:
+```
 $ yarn add telegraf
 ```
 

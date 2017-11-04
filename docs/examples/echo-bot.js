@@ -1,5 +1,5 @@
 const Telegraf = require('telegraf')
-const { Markup } = require('telegraf')
+const { Markup } = Telegraf
 
 const replyOptions = Markup.inlineKeyboard([
   Markup.urlButton('❤️', 'http://telegraf.js.org'),

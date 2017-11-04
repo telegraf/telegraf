@@ -1,5 +1,5 @@
 const Telegraf = require('telegraf')
-const { Extra, Markup } = require('telegraf')
+const { Extra, Markup } = Telegraf
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 

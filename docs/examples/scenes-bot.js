@@ -1,7 +1,8 @@
-const Telegraf = require('../../')
-const session = require('../../session')
-const RotatingStage = require('../../scenes')
-const { Scene, enter, leave } = require('../..//scenes')
+const Telegraf = require('telegraf')
+const session = require('telegraf/session')
+const RotatingStage = require('telegraf/scenes')
+const Scene = require('telegraf/scenes/base')
+const { enter, leave } = RotatingStage
 
 // Greeter scene
 const greeterScene = new Scene('greeter')

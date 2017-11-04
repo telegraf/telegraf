@@ -1,5 +1,5 @@
 const Telegraf = require('telegraf')
-const { Router, Extra, session } = require('telegraf')
+const { Router, Extra, session } = Telegraf
 
 const markup = Extra
   .HTML()

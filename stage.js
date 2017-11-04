@@ -1,17 +1,15 @@
-const SceneContext = require('./context.js')
-const Composer = require('../composer.js')
+const SceneContext = require('./scenes/context')
+const Composer = require('./composer')
 const { compose, optional, lazy, safePassThru } = Composer
 
-class RotatingStage extends Composer {
-  constructor (scenes, options) {
+class Stage extends Composer {
+  constructor (scenes = [], options) {
     super()
     this.options = Object.assign({
       sessionName: 'session'
     }, options)
     this.scenes = new Map()
-    if (scenes) {
-      scenes.forEach((scene) => this.register(scene))
-    }
+    scenes.forEach((scene) => this.register(scene))
   }
 
   register (...scenes) {
@@ -49,4 +47,4 @@ class RotatingStage extends Composer {
   }
 }
 
-module.exports = RotatingStage
+module.exports = Stage

@@ -130,214 +130,219 @@ class TelegrafContext {
     this.contextState = Object.assign({}, val)
   }
 
-  assertShortcut (value, method) {
+  assert (value, method) {
     if (!value) {
-      throw new Error(`${method} is not available for "${this.updateType}::${this.updateSubTypes}"`)
+      throw new Error(`Telegraf: "${method}" is't available for "${this.updateType}::${this.updateSubTypes}"`)
     }
   }
 
   answerInlineQuery (...args) {
-    this.assertShortcut(this.inlineQuery, 'answerInlineQuery')
+    this.assert(this.inlineQuery, 'answerInlineQuery')
     return this.telegram.answerInlineQuery(this.inlineQuery.id, ...args)
   }
 
   answerCallbackQuery (...args) {
-    this.assertShortcut(this.callbackQuery, 'answerCallbackQuery')
+    this.assert(this.callbackQuery, 'answerCallbackQuery')
     return this.telegram.answerCallbackQuery(this.callbackQuery.id, ...args)
   }
 
+  answerCbQuery (...args) {
+    this.assert(this.callbackQuery, 'answerCbQuery')
+    return this.telegram.answerCbQuery(this.callbackQuery.id, ...args)
+  }
+
   answerGameQuery (...args) {
-    this.assertShortcut(this.callbackQuery, 'answerGameQuery')
+    this.assert(this.callbackQuery, 'answerGameQuery')
     return this.telegram.answerGameQuery(this.callbackQuery.id, ...args)
   }
 
   answerShippingQuery (...args) {
-    this.assertShortcut(this.shippingQuery, 'answerShippingQuery')
+    this.assert(this.shippingQuery, 'answerShippingQuery')
     return this.telegram.answerShippingQuery(this.shippingQuery.id, ...args)
   }
 
   answerPreCheckoutQuery (...args) {
-    this.assertShortcut(this.preCheckoutQuery, 'answerPreCheckoutQuery')
+    this.assert(this.preCheckoutQuery, 'answerPreCheckoutQuery')
     return this.telegram.answerPreCheckoutQuery(this.preCheckoutQuery.id, ...args)
   }
 
   editMessageText (text, extra) {
-    this.assertShortcut(this.callbackQuery, 'editMessageText')
+    this.assert(this.callbackQuery, 'editMessageText')
     return this.callbackQuery.inline_message_id
       ? this.telegram.editMessageText(undefined, undefined, this.callbackQuery.inline_message_id, text, extra)
       : this.telegram.editMessageText(this.chat.id, this.callbackQuery.message.message_id, undefined, text, extra)
   }
 
   editMessageCaption (caption, markup) {
-    this.assertShortcut(this.callbackQuery, 'editMessageCaption')
+    this.assert(this.callbackQuery, 'editMessageCaption')
     return this.callbackQuery.inline_message_id
       ? this.telegram.editMessageCaption(undefined, undefined, this.callbackQuery.inline_message_id, caption, markup)
       : this.telegram.editMessageCaption(this.chat.id, this.callbackQuery.message.message_id, undefined, caption, markup)
   }
 
   editMessageReplyMarkup (markup) {
-    this.assertShortcut(this.callbackQuery, 'editMessageReplyMarkup')
+    this.assert(this.callbackQuery, 'editMessageReplyMarkup')
     return this.callbackQuery.inline_message_id
       ? this.telegram.editMessageReplyMarkup(undefined, undefined, this.callbackQuery.inline_message_id, markup)
       : this.telegram.editMessageReplyMarkup(this.chat.id, this.callbackQuery.message.message_id, undefined, markup)
   }
 
   editMessageLiveLocation (latitude, longitude, markup) {
-    this.assertShortcut(this.callbackQuery, 'editMessageLiveLocation')
+    this.assert(this.callbackQuery, 'editMessageLiveLocation')
     return this.callbackQuery.inline_message_id
       ? this.telegram.editMessageLiveLocation(latitude, longitude, undefined, undefined, this.callbackQuery.inline_message_id, markup)
       : this.telegram.editMessageLiveLocation(latitude, longitude, this.chat.id, this.callbackQuery.message.message_id, undefined, markup)
   }
 
   stopMessageLiveLocation (markup) {
-    this.assertShortcut(this.callbackQuery, 'stopMessageLiveLocation')
+    this.assert(this.callbackQuery, 'stopMessageLiveLocation')
     return this.callbackQuery.inline_message_id
       ? this.telegram.stopMessageLiveLocation(undefined, undefined, this.callbackQuery.inline_message_id, markup)
       : this.telegram.stopMessageLiveLocation(this.chat.id, this.callbackQuery.message.message_id, undefined, markup)
   }
 
   reply (...args) {
-    this.assertShortcut(this.chat, 'reply')
+    this.assert(this.chat, 'reply')
     return this.telegram.sendMessage(this.chat.id, ...args)
   }
 
   getChat (...args) {
-    this.assertShortcut(this.chat, 'getChat')
+    this.assert(this.chat, 'getChat')
     return this.telegram.getChat(this.chat.id, ...args)
   }
 
   exportChatInviteLink (...args) {
-    this.assertShortcut(this.chat, 'exportChatInviteLink')
+    this.assert(this.chat, 'exportChatInviteLink')
     return this.telegram.exportChatInviteLink(this.chat.id, ...args)
   }
 
   kickChatMember (...args) {
-    this.assertShortcut(this.chat, 'kickChatMember')
+    this.assert(this.chat, 'kickChatMember')
     return this.telegram.kickChatMember(this.chat.id, ...args)
   }
 
   restrictChatMember (...args) {
-    this.assertShortcut(this.chat, 'restrictChatMember')
+    this.assert(this.chat, 'restrictChatMember')
     return this.telegram.restrictChatMember(this.chat.id, ...args)
   }
 
   promoteChatMember (...args) {
-    this.assertShortcut(this.chat, 'promoteChatMember')
+    this.assert(this.chat, 'promoteChatMember')
     return this.telegram.promoteChatMember(this.chat.id, ...args)
   }
 
   setChatPhoto (...args) {
-    this.assertShortcut(this.chat, 'setChatPhoto')
+    this.assert(this.chat, 'setChatPhoto')
     return this.telegram.setChatPhoto(this.chat.id, ...args)
   }
 
   deleteChatPhoto (...args) {
-    this.assertShortcut(this.chat, 'deleteChatPhoto')
+    this.assert(this.chat, 'deleteChatPhoto')
     return this.telegram.deleteChatPhoto(this.chat.id, ...args)
   }
 
   setChatTitle (...args) {
-    this.assertShortcut(this.chat, 'setChatTitle')
+    this.assert(this.chat, 'setChatTitle')
     return this.telegram.setChatTitle(this.chat.id, ...args)
   }
 
   setChatDescription (...args) {
-    this.assertShortcut(this.chat, 'setChatDescription')
+    this.assert(this.chat, 'setChatDescription')
     return this.telegram.setChatDescription(this.chat.id, ...args)
   }
 
   pinChatMessage (...args) {
-    this.assertShortcut(this.chat, 'pinChatMessage')
+    this.assert(this.chat, 'pinChatMessage')
     return this.telegram.pinChatMessage(this.chat.id, ...args)
   }
 
   unpinChatMessage (...args) {
-    this.assertShortcut(this.chat, 'unpinChatMessage')
+    this.assert(this.chat, 'unpinChatMessage')
     return this.telegram.unpinChatMessage(this.chat.id, ...args)
   }
 
   leaveChat (...args) {
-    this.assertShortcut(this.chat, 'leaveChat')
+    this.assert(this.chat, 'leaveChat')
     return this.telegram.leaveChat(this.chat.id, ...args)
   }
 
   getChatAdministrators (...args) {
-    this.assertShortcut(this.chat, 'getChatAdministrators')
+    this.assert(this.chat, 'getChatAdministrators')
     return this.telegram.getChatAdministrators(this.chat.id, ...args)
   }
 
   getChatMember (...args) {
-    this.assertShortcut(this.chat, 'getChatMember')
+    this.assert(this.chat, 'getChatMember')
     return this.telegram.getChatMember(this.chat.id, ...args)
   }
 
   getChatMembersCount (...args) {
-    this.assertShortcut(this.chat, 'getChatMembersCount')
+    this.assert(this.chat, 'getChatMembersCount')
     return this.telegram.getChatMembersCount(this.chat.id, ...args)
   }
 
   replyWithPhoto (...args) {
-    this.assertShortcut(this.chat, 'replyWithPhoto')
+    this.assert(this.chat, 'replyWithPhoto')
     return this.telegram.sendPhoto(this.chat.id, ...args)
   }
 
   replyWithAudio (...args) {
-    this.assertShortcut(this.chat, 'replyWithAudio')
+    this.assert(this.chat, 'replyWithAudio')
     return this.telegram.sendAudio(this.chat.id, ...args)
   }
 
   replyWithDocument (...args) {
-    this.assertShortcut(this.chat, 'replyWithDocument')
+    this.assert(this.chat, 'replyWithDocument')
     return this.telegram.sendDocument(this.chat.id, ...args)
   }
 
   replyWithSticker (...args) {
-    this.assertShortcut(this.chat, 'replyWithSticker')
+    this.assert(this.chat, 'replyWithSticker')
     return this.telegram.sendSticker(this.chat.id, ...args)
   }
 
   replyWithVideo (...args) {
-    this.assertShortcut(this.chat, 'replyWithVideo')
+    this.assert(this.chat, 'replyWithVideo')
     return this.telegram.sendVideo(this.chat.id, ...args)
   }
 
   replyWithVideoNote (...args) {
-    this.assertShortcut(this.chat, 'replyWithVideoNote')
+    this.assert(this.chat, 'replyWithVideoNote')
     return this.telegram.sendVideoNote(this.chat.id, ...args)
   }
 
   replyWithInvoice (...args) {
-    this.assertShortcut(this.chat, 'replyWithInvoice')
+    this.assert(this.chat, 'replyWithInvoice')
     return this.telegram.sendInvoice(this.chat.id, ...args)
   }
 
   replyWithGame (...args) {
-    this.assertShortcut(this.chat, 'replyWithGame')
+    this.assert(this.chat, 'replyWithGame')
     return this.telegram.sendGame(this.chat.id, ...args)
   }
 
   replyWithVoice (...args) {
-    this.assertShortcut(this.chat, 'replyWithVoice')
+    this.assert(this.chat, 'replyWithVoice')
     return this.telegram.sendVoice(this.chat.id, ...args)
   }
 
   replyWithChatAction (...args) {
-    this.assertShortcut(this.chat, 'replyWithChatAction')
+    this.assert(this.chat, 'replyWithChatAction')
     return this.telegram.sendChatAction(this.chat.id, ...args)
   }
 
   replyWithLocation (...args) {
-    this.assertShortcut(this.chat, 'replyWithLocation')
+    this.assert(this.chat, 'replyWithLocation')
     return this.telegram.sendLocation(this.chat.id, ...args)
   }
 
   replyWithVenue (...args) {
-    this.assertShortcut(this.chat, 'replyWithVenue')
+    this.assert(this.chat, 'replyWithVenue')
     return this.telegram.sendVenue(this.chat.id, ...args)
   }
 
   replyWithContact (...args) {
-    this.assertShortcut(this.from, 'replyWithContact')
+    this.assert(this.from, 'replyWithContact')
     return this.telegram.sendContact(this.chat.id, ...args)
   }
 
@@ -346,12 +351,12 @@ class TelegrafContext {
   }
 
   setChatStickerSet (setName) {
-    this.assertShortcut(this.chat, 'setChatStickerSet')
+    this.assert(this.chat, 'setChatStickerSet')
     return this.telegram.setChatStickerSet(this.chat.id, setName)
   }
 
   deleteChatStickerSet () {
-    this.assertShortcut(this.chat, 'deleteChatStickerSet')
+    this.assert(this.chat, 'deleteChatStickerSet')
     return this.telegram.deleteChatStickerSet(this.chat.id)
   }
 
@@ -364,17 +369,17 @@ class TelegrafContext {
   }
 
   uploadStickerFile (...args) {
-    this.assertShortcut(this.from, 'uploadStickerFile')
+    this.assert(this.from, 'uploadStickerFile')
     return this.telegram.uploadStickerFile(this.from.id, ...args)
   }
 
   createNewStickerSet (...args) {
-    this.assertShortcut(this.from, 'createNewStickerSet')
+    this.assert(this.from, 'createNewStickerSet')
     return this.telegram.createNewStickerSet(this.from.id, ...args)
   }
 
   addStickerToSet (...args) {
-    this.assertShortcut(this.from, 'addStickerToSet')
+    this.assert(this.from, 'addStickerToSet')
     return this.telegram.addStickerToSet(this.from.id, ...args)
   }
 
@@ -392,7 +397,7 @@ class TelegrafContext {
       this.channelPost ||
       this.editedChannelPost ||
       (this.callbackQuery && this.callbackQuery.message)
-    this.assertShortcut(message && this.chat, 'deleteMessage')
+    this.assert(message && this.chat, 'deleteMessage')
     return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
 }

@@ -1,7 +1,7 @@
-const Telegraf = require('telegraf')
-const Router = require('telegraf/router')
-const Extra = require('telegraf/extra')
-const session = require('telegraf/session')
+const Telegraf = require('../../')
+const Router = require('../../router')
+const Extra = require('../../extra')
+const session = require('../../session')
 
 const markup = Extra
   .HTML()
@@ -44,13 +44,15 @@ calculator.on('clear', (ctx) => {
 })
 
 function editText (ctx) {
-  return ctx.session.value !== 42
-    ? ctx.editMessageText(`Value: <b>${ctx.session.value}</b>`, markup).catch(() => undefined)
-    : ctx.answerCallbackQuery('🎉', undefined, true).then(() => ctx.editMessageText(`🎉 ${ctx.session.value} 🎉`))
+  if (ctx.session.value === 42) {
+    return ctx.answerCbQuery('Answer to the Ultimate Question of Life, the Universe, and Everything', true)
+      .then(() => ctx.editMessageText('🎆'))
+  }
+  return ctx.editMessageText(`Value: <b>${ctx.session.value}</b>`, markup).catch(() => undefined)
 }
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.use(session({ttl: 10}))
+bot.use(session({ ttl: 10 }))
 bot.start((ctx) => {
   ctx.session.value = 0
   return ctx.reply(`Value: <b>${ctx.session.value}</b>`, markup)

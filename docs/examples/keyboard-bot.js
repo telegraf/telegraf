@@ -86,7 +86,7 @@ bot.action('Dr Pepper', (ctx, next) => {
 })
 
 bot.action(/.+/, (ctx) => {
-  return ctx.answerCallbackQuery(`Oh, ${ctx.match[0]}! Great choise`)
+  return ctx.answerCbQuery(`Oh, ${ctx.match[0]}! Great choise`)
 })
 
 bot.startPolling()

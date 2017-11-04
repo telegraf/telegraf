@@ -2,7 +2,6 @@ const debug = require('debug')('telegraf:core')
 const util = require('util')
 const Telegram = require('./telegram')
 const Extra = require('./extra')
-const Scenes = require('./scenes/')
 const Composer = require('./composer')
 const Markup = require('./markup')
 const session = require('./session')
@@ -150,10 +149,9 @@ class Telegraf extends Composer {
 module.exports = Object.assign(Telegraf, {
   Composer,
   Extra,
-  Scenes,
   Markup,
   Router,
   Telegram,
   session,
-  memorySession: util.deprecate(session, 'Telegraf: memorySession() is deprecated, use session() instead')
+  memorySession: util.deprecate(session, '⚠️ Telegraf: memorySession() is deprecated, use session() instead')
 })

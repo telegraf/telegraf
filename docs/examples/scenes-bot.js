@@ -1,14 +1,14 @@
 const Telegraf = require('telegraf')
 const session = require('telegraf/session')
-const RotatingStage = require('telegraf/scenes')
+const Stage = require('telegraf/stage')
 const Scene = require('telegraf/scenes/base')
-const { enter, leave } = RotatingStage
+const { enter, leave } = Stage
 
 // Greeter scene
 const greeterScene = new Scene('greeter')
 greeterScene.enter((ctx) => ctx.reply('Hi'))
 greeterScene.leave((ctx) => ctx.reply('Buy'))
-greeterScene.hears(/hi/gi, leave())
+greeterScene.hears('hi', enter('greeter'))
 greeterScene.on('message', (ctx) => ctx.replyWithMarkdown('Send `hi`'))
 
 // Echo scene
@@ -20,9 +20,9 @@ echoScene.on('text', (ctx) => ctx.reply(ctx.message.text))
 echoScene.on('message', (ctx) => ctx.reply('Only text messages please'))
 
 const app = new Telegraf(process.env.BOT_TOKEN)
-const stage = new RotatingStage([greeterScene, echoScene], { ttl: 10 })
+const stage = new Stage([greeterScene, echoScene], { ttl: 10 })
 app.use(session())
-app.use(stage)
+app.use(stage.middleware())
 app.command('greeter', enter('greeter'))
 app.command('echo', enter('echo'))
 app.on('message', (ctx) => ctx.reply('Try /echo or /greeter'))

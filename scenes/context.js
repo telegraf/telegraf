@@ -1,5 +1,5 @@
 const debug = require('debug')('telegraf:scenes:context')
-const Composer = require('../composer.js')
+const Composer = require('../composer')
 const { safePassThru } = Composer
 
 const noop = () => Promise.resolve()
@@ -32,7 +32,7 @@ class SceneContext {
   }
 
   get current () {
-    const sceneId = this.session.current || this.options.defaultScene
+    const sceneId = this.session.current || this.options.default
     return (sceneId && this.scenes.has(sceneId)) ? this.scenes.get(sceneId) : null
   }
 

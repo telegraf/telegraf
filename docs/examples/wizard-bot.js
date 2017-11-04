@@ -1,6 +1,6 @@
 const Telegraf = require('telegraf')
 const session = require('telegraf/session')
-const RotatingStage = require('telegraf/scenes')
+const Stage = require('telegraf/stage')
 const WizardScene = require('telegraf/scenes/wizard')
 
 const superWizard = new WizardScene('super-wizard',
@@ -30,7 +30,7 @@ const superWizard = new WizardScene('super-wizard',
 )
 
 const app = new Telegraf(process.env.BOT_TOKEN)
-const stage = new RotatingStage([superWizard], {defaultScene: 'super-wizard'})
+const stage = new Stage([superWizard], { default: 'super-wizard' })
 app.use(session())
-app.use(stage)
+app.use(stage.middleware())
 app.startPolling()

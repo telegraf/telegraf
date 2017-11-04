@@ -21,8 +21,8 @@ const updateTypes = [
 
 updateTypes.forEach((update) => {
   test.cb('should provide update payload for ' + update.type, (t) => {
-    const app = new Telegraf()
-    app.on(update.type, (ctx) => {
+    const bot = new Telegraf()
+    bot.on(update.type, (ctx) => {
       t.true(update.prop in ctx)
       t.true('telegram' in ctx)
       t.true('updateType' in ctx)
@@ -32,13 +32,13 @@ updateTypes.forEach((update) => {
       t.is(ctx.updateType, update.type)
       t.end()
     })
-    app.handleUpdate(update.update)
+    bot.handleUpdate(update.update)
   })
 })
 
 test.cb('should provide update payload for text', (t) => {
-  const app = new Telegraf()
-  app.on('text', (ctx) => {
+  const bot = new Telegraf()
+  bot.on('text', (ctx) => {
     t.true('telegram' in ctx)
     t.true('updateType' in ctx)
     t.true('updateSubTypes' in ctx)
@@ -48,12 +48,12 @@ test.cb('should provide update payload for text', (t) => {
     t.is(ctx.updateType, 'message')
     t.end()
   })
-  app.handleUpdate({message: Object.assign({text: 'foo'}, baseMessage)})
+  bot.handleUpdate({message: Object.assign({text: 'foo'}, baseMessage)})
 })
 
 test.cb('should provide shortcuts for `message` event', (t) => {
-  const app = new Telegraf()
-  app.on('message', (ctx) => {
+  const bot = new Telegraf()
+  bot.on('message', (ctx) => {
     t.true('reply' in ctx)
     t.true('replyWithPhoto' in ctx)
     t.true('replyWithMarkdown' in ctx)
@@ -97,12 +97,12 @@ test.cb('should provide shortcuts for `message` event', (t) => {
     t.true('stopMessageLiveLocation' in ctx)
     t.end()
   })
-  app.handleUpdate({message: baseMessage})
+  bot.handleUpdate({message: baseMessage})
 })
 
 test.cb('should provide shortcuts for `callback_query` event', (t) => {
-  const app = new Telegraf()
-  app.on('callback_query', (ctx) => {
+  const bot = new Telegraf()
+  bot.on('callback_query', (ctx) => {
     t.true('answerCbQuery' in ctx)
     t.true('reply' in ctx)
     t.true('replyWithMarkdown' in ctx)
@@ -146,49 +146,49 @@ test.cb('should provide shortcuts for `callback_query` event', (t) => {
     t.true('stopMessageLiveLocation' in ctx)
     t.end()
   })
-  app.handleUpdate({callback_query: baseMessage})
+  bot.handleUpdate({callback_query: baseMessage})
 })
 
 test.cb('should provide shortcuts for `shipping_query` event', (t) => {
-  const app = new Telegraf()
-  app.on('shipping_query', (ctx) => {
+  const bot = new Telegraf()
+  bot.on('shipping_query', (ctx) => {
     t.true('answerShippingQuery' in ctx)
     t.end()
   })
-  app.handleUpdate({shipping_query: baseMessage})
+  bot.handleUpdate({shipping_query: baseMessage})
 })
 
 test.cb('should provide shortcuts for `pre_checkout_query` event', (t) => {
-  const app = new Telegraf()
-  app.on('pre_checkout_query', (ctx) => {
+  const bot = new Telegraf()
+  bot.on('pre_checkout_query', (ctx) => {
     t.true('answerPreCheckoutQuery' in ctx)
     t.end()
   })
-  app.handleUpdate({pre_checkout_query: baseMessage})
+  bot.handleUpdate({pre_checkout_query: baseMessage})
 })
 
 test.cb('should provide chat and sender info', (t) => {
-  const app = new Telegraf()
-  app.on(['text', 'message'], (ctx) => {
+  const bot = new Telegraf()
+  bot.on(['text', 'message'], (ctx) => {
     t.is(ctx.from.id, 42)
     t.is(ctx.chat.id, 1)
     t.end()
   })
-  app.handleUpdate({message: Object.assign({from: {id: 42}}, baseMessage)})
+  bot.handleUpdate({message: Object.assign({from: {id: 42}}, baseMessage)})
 })
 
 test.cb('should provide shortcuts for `inline_query` event', (t) => {
-  const app = new Telegraf()
-  app.on('inline_query', (ctx) => {
+  const bot = new Telegraf()
+  bot.on('inline_query', (ctx) => {
     t.true('answerInlineQuery' in ctx)
     t.end()
   })
-  app.handleUpdate({inline_query: baseMessage})
+  bot.handleUpdate({inline_query: baseMessage})
 })
 
 test.cb('should share state', (t) => {
-  const app = new Telegraf()
-  app.on('message', (ctx, next) => {
+  const bot = new Telegraf()
+  bot.on('message', (ctx, next) => {
     ctx.state.answer = 41
     return next()
   }, (ctx, next) => {
@@ -198,32 +198,32 @@ test.cb('should share state', (t) => {
     t.is(ctx.state.answer, 42)
     t.end()
   })
-  app.handleUpdate({message: baseMessage})
+  bot.handleUpdate({message: baseMessage})
 })
 
 test.cb('should work with context extensions', (t) => {
-  const app = new Telegraf()
-  app.context.db = {
+  const bot = new Telegraf()
+  bot.context.db = {
     getUser: () => undefined
   }
-  app.on('message', (ctx) => {
+  bot.on('message', (ctx) => {
     t.true('db' in ctx)
     t.true('getUser' in ctx.db)
     t.end()
   })
-  app.handleUpdate({message: baseMessage})
+  bot.handleUpdate({message: baseMessage})
 })
 
 test.cb('should handle webhook response', (t) => {
-  const app = new Telegraf()
-  app.on('message', ({reply}) => {
+  const bot = new Telegraf()
+  bot.on('message', ({reply}) => {
     reply(':)')
   })
   const res = {
     setHeader: () => undefined,
     end: () => t.end()
   }
-  app.handleUpdate({message: baseMessage}, res)
+  bot.handleUpdate({message: baseMessage}, res)
 })
 
 const resStub = {
@@ -232,16 +232,16 @@ const resStub = {
 }
 
 test.cb('should respect webhookReply option', (t) => {
-  const app = new Telegraf(null, {telegram: {webhookReply: false}})
-  app.catch((err) => { throw err }) // Disable log
-  app.on('message', ({ reply }) => reply(':)'))
-  t.throws(app.handleUpdate({message: baseMessage}, resStub)).then(() => t.end())
+  const bot = new Telegraf(null, {telegram: {webhookReply: false}})
+  bot.catch((err) => { throw err }) // Disable log
+  bot.on('message', ({ reply }) => reply(':)'))
+  t.throws(bot.handleUpdate({message: baseMessage}, resStub)).then(() => t.end())
 })
 
 test.cb('should respect webhookReply runtime change', (t) => {
-  const app = new Telegraf()
-  app.webhookReply = false
-  app.catch((err) => { throw err }) // Disable log
-  app.on('message', (ctx) => ctx.reply(':)'))
-  t.throws(app.handleUpdate({message: baseMessage}, resStub)).then(() => t.end())
+  const bot = new Telegraf()
+  bot.webhookReply = false
+  bot.catch((err) => { throw err }) // Disable log
+  bot.on('message', (ctx) => ctx.reply(':)'))
+  t.throws(bot.handleUpdate({message: baseMessage}, resStub)).then(() => t.end())
 })

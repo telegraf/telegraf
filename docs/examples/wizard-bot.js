@@ -29,8 +29,8 @@ const superWizard = new WizardScene('super-wizard',
   }
 )
 
-const app = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN)
 const stage = new Stage([superWizard], { default: 'super-wizard' })
-app.use(session())
-app.use(stage.middleware())
-app.startPolling()
+bot.use(session())
+bot.use(stage.middleware())
+bot.startPolling()

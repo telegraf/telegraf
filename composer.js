@@ -1,4 +1,4 @@
-const TelegrafContext = require('./context')
+const TelegrafContext = require('./core/context')
 
 class Composer {
   constructor (...fns) {

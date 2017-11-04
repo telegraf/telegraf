@@ -1,5 +1,6 @@
-const Telegraf = require('../')
-const { Extra, Markup } = require('../')
+const Telegraf = require('telegraf')
+const Extra = require('telegraf/extra')
+const Markup = require('telegraf/markup')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
@@ -85,7 +86,7 @@ bot.action('Dr Pepper', (ctx, next) => {
 })
 
 bot.action(/.+/, (ctx) => {
-  return ctx.answerCallbackQuery(`Oh, ${ctx.match[0]}! Great choise`)
+  return ctx.answerCbQuery(`Oh, ${ctx.match[0]}! Great choise`)
 })
 
 bot.startPolling()

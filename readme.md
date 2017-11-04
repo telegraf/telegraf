@@ -1,3 +1,9 @@
+## telegraf.js
+
+Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
+Users can interact with bots by sending them command messages in private or group chats. 
+These accounts serve as an interface for code running somewhere on your server.
+
 ![Telegraf](docs/header.png)
 [![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.2-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
@@ -6,10 +12,6 @@
 [![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com/)
 
-Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
-Users can interact with bots by sending them command messages in private or group chats. 
-These accounts serve as an interface for code running somewhere on your server.
-
 ### Features
 
 - Full [Telegram Bot API 3.4](https://core.telegram.org/bots/api) support
@@ -17,15 +19,17 @@ These accounts serve as an interface for code running somewhere on your server.
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
-- AWS **λ**/now/Heroku/Firebase/Glitch ready
-- `http`/`https`/`Connect.js`/`express.js` compatible webhooks
+- AWS **λ**/now/Heroku/Firebase/Glitch/Whatever ready
+- `http`/`https`/`koa`/`Connect.js`/`express.js` compatible webhooks
 - Easy to extend
 
 ### Installation
 
 ```
 $ npm install telegraf
-
+```
+or using `yarn`:
+```
 $ yarn add telegraf
 ```
 
@@ -58,7 +62,7 @@ bot.command('/hipster', reply('λ'))
 bot.startPolling()
 ```
 
-There's some cool [examples](https://github.com/telegraf/telegraf/tree/master/examples).
+There's some cool [examples too](docs/examples/).
 
 ### Documentation
 

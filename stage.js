@@ -28,7 +28,7 @@ class Stage extends Composer {
         ctx.scene = new SceneContext(ctx, this.scenes, this.options)
         return next()
       },
-      super.middleware(),
+      lazy((ctx) => super.middleware()),
       lazy((ctx) => ctx.scene.current || safePassThru())
     ])
     return optional((ctx) => ctx[this.options.sessionName], handler)

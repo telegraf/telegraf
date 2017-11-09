@@ -104,7 +104,7 @@ class Markup {
     return new Markup().oneTime(value)
   }
 
-  static button (text, hide) {
+  static button (text, hide = false) {
     return { text: text, hide: hide }
   }
 

@@ -26,7 +26,7 @@ class Telegraf extends Composer {
       throw err
     }
     this.context = {}
-    this.state = {
+    this.polling = {
       offset: 0,
       started: false
     }
@@ -59,13 +59,13 @@ class Telegraf extends Composer {
   }
 
   startPolling (timeout = 30, limit = 100, allowedUpdates) {
-    this.state.timeout = timeout
-    this.state.limit = limit
-    this.state.allowedUpdates = allowedUpdates
+    this.polling.timeout = timeout
+    this.polling.limit = limit
+    this.polling.allowedUpdates = allowedUpdates
       ? Array.isArray(allowedUpdates) ? allowedUpdates : [`${allowedUpdates}`]
       : null
-    if (!this.state.started) {
-      this.state.started = true
+    if (!this.polling.started) {
+      this.polling.started = true
       this.fetchUpdates()
     }
     return this
@@ -86,7 +86,7 @@ class Telegraf extends Composer {
   }
 
   stop (cb = () => {}) {
-    this.state.started = false
+    this.polling.started = false
     if (this.webhookServer) {
       this.webhookServer.close(cb)
     } else {
@@ -120,26 +120,29 @@ class Telegraf extends Composer {
   }
 
   fetchUpdates () {
-    const { timeout, limit, offset, started, allowedUpdates } = this.state
+    const { timeout, limit, offset, started, allowedUpdates } = this.polling
     if (!started) {
       return
     }
     this.telegram.getUpdates(timeout, limit, offset, allowedUpdates)
       .catch((err) => {
+        if (err.code === 401 || err.code === 409) {
+          throw err
+        }
         const wait = (err.parameters && err.parameters.retry_after) || this.options.retryAfter
-        console.error(`Failed to get updates. Waiting: ${wait}s`, err)
+        console.error(`Failed to fetch updates. Waiting: ${wait}s`, err.message)
         return new Promise((resolve) => setTimeout(resolve, wait * 1000, []))
       })
       .then((updates) => this.handleUpdates(updates).then(() => updates))
       .catch((err) => {
         console.error('Failed to process updates.', err)
-        this.state.offset = 0
-        this.state.started = false
+        this.polling.started = false
+        this.polling.offset = 0
         return []
       })
       .then((updates) => {
         if (updates.length > 0) {
-          this.state.offset = updates[updates.length - 1].update_id + 1
+          this.polling.offset = updates[updates.length - 1].update_id + 1
         }
         this.fetchUpdates()
       })

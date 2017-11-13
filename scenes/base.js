@@ -14,6 +14,10 @@ class BaseScene extends Composer {
     this.leaveHandler = Composer.compose(opts.leaveHandlers)
   }
 
+  set ttl (value) {
+    this.options.ttl = value
+  }
+
   get ttl () {
     return this.options.ttl
   }

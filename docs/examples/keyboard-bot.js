@@ -1,6 +1,6 @@
-const Telegraf = require('telegraf')
-const Extra = require('telegraf/extra')
-const Markup = require('telegraf/markup')
+const Telegraf = require('../..')
+const Extra = require('../../extra')
+const Markup = require('../../markup')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
@@ -82,7 +82,7 @@ bot.hears(/\/wrap (\d+)/, (ctx) => {
 })
 
 bot.action('Dr Pepper', (ctx, next) => {
-  return ctx.reply('👍').then(next)
+  return ctx.reply('👍').then(() => next())
 })
 
 bot.action(/.+/, (ctx) => {

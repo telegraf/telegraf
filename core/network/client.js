@@ -67,11 +67,17 @@ class ApiClient {
     if (this.options.webhookReply && this.response && !this.response.finished && !isMultipart && !webhookBlacklist.includes(method)) {
       debug('▷ webhook', method)
       extra.method = method
-      if (!this.response.headersSent) {
-        this.response.setHeader('connection', 'keep-alive')
-        this.response.setHeader('content-type', 'application/json')
+      if (typeof this.response.end === 'function') {
+        if (!this.response.headersSent) {
+          this.response.setHeader('connection', 'keep-alive')
+          this.response.setHeader('content-type', 'application/json')
+        }
+        this.response.end(JSON.stringify(extra))
+      } else if (typeof this.response.header === 'object') {
+        this.response.header['connection'] = 'keep-alive'
+        this.response.header['content-type'] = 'application/json'
+        this.response.body = extra
       }
-      this.response.end(JSON.stringify(extra))
       return Promise.resolve({webhook: true})
     }
 

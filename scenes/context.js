@@ -55,7 +55,7 @@ class SceneContext {
         this.session.expires = now() + ttl
       }
       if (silent) {
-        return
+        return Promise.resolve()
       }
       const handler = this.current.enterMiddleware
         ? this.current.enterMiddleware()

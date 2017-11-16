@@ -450,12 +450,13 @@ require('https')
 Express.js example integration
 
 ```js
+const Telegraf = require('telegraf')
 const express = require('express')
 const expressApp = express()
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 expressApp.use(bot.webhookCallback('/secret-path'))
-bot.setWebhook('https://server.tld:8443/secret-path')
+bot.telegram.setWebhook('https://server.tld:8443/secret-path')
 
 expressApp.get('/', (req, res) => {
   res.send('Hello World!')
@@ -465,6 +466,25 @@ expressApp.listen(3000, () => {
   console.log('Example app listening on port 3000!')
 })
 
+```
+
+Koa.js example integration
+
+```js
+const Telegraf = require('telegraf')
+const Koa = require('koa')
+const koaBody = require('koa-body')
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.telegram.setWebhook('https://server.tld:8443/secret-path')
+
+const app = new Koa()
+app.use(koaBody())
+app.use((ctx, next) => ctx.method === 'POST' || ctx.url === '/secret-path'
+  ? bot.handleUpdate(ctx.request.body, ctx.response)
+  : next()
+)
+app.listen(3000)
 ```
 
 #### Working with files

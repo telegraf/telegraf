@@ -715,7 +715,7 @@ Stop Webhook and polling
 ##### webhookCallback
 
 Return a callback function suitable for the http[s].createServer() method to handle a request. 
-You may also use this callback function to mount your telegraf app in a Koa/Connect/Express app.
+You may also use this callback function to mount your telegraf app in a Connect/Express app.
 
 `telegraf.webhookCallback(webhookPath) => Function`
 

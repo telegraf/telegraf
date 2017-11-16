@@ -1,5 +1,5 @@
+const Telegraf = require('../../')
 const fs = require('fs')
-const Telegraf = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
@@ -11,12 +11,29 @@ const downloadPhotoMiddleware = (ctx, next) => {
     })
 }
 
+bot.command('album', (ctx) => {
+  ctx.replyWithMediaGroup([
+    {
+      'media': 'http://lorempixel.com/400/200/cats/',
+      'type': 'photo'
+    },
+    {
+      'media': 'http://lorempixel.com/400/200/sports/',
+      'type': 'photo'
+    },
+    {
+      'media': 'http://lorempixel.com/400/200/nature/',
+      'type': 'photo'
+    }
+  ])
+})
+
 bot.on('photo', downloadPhotoMiddleware, (ctx, next) => {
   console.log('Photo url:', ctx.state.fileLink)
   return ctx.replyWithPhoto({ source: '/directory/file.jpeg' })
 })
 
-bot.on('text', (ctx) => {
+bot.command('foo', (ctx) => {
   return Promise.all([
     // file
     ctx.replyWithPhoto({

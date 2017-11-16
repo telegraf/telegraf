@@ -46,7 +46,7 @@ class SceneContext {
       throw new Error(`Can't find scene: ${sceneId}`)
     }
     const leave = silent ? noop() : this.leave()
-    leave.then(() => {
+    return leave.then(() => {
       debug('enter', sceneId, initialState, silent)
       this.session.current = sceneId
       this.state = initialState

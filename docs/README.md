@@ -223,6 +223,7 @@ replyWithInvoice() -> telegram.sendInvoice()
 replyWithLocation() -> telegram.sendLocation()
 replyWithMarkdown() -> telegram.sendMessage()
 replyWithPhoto() -> telegram.sendPhoto()
+replyWithMediaGroup() -> telegram.sendMediaGroup()
 replyWithSticker() -> telegram.sendSticker()
 replyWithVideo() -> telegram.sendVideo()
 replyWithVideoNote() -> telegram.sendVideoNote()
@@ -266,6 +267,7 @@ replyWithInvoice() -> telegram.sendInvoice()
 replyWithLocation() -> telegram.sendLocation()
 replyWithMarkdown() -> telegram.sendMessage()
 replyWithPhoto() -> telegram.sendPhoto()
+replyWithMediaGroup() -> telegram.sendMediaGroup()
 replyWithSticker() -> telegram.sendSticker()
 replyWithVideo() -> telegram.sendVideo()
 replyWithVideoNote() -> telegram.sendVideoNote()
@@ -1433,6 +1435,18 @@ Sends photo.
 | chatId | `number/string` | Chat id |
 | photo | `File` | Photo |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendphoto)|
+
+##### sendMediaGroup
+
+Sends media album.
+
+`telegram.sendMediaGroup(chatId, media, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| media | `Media[]` | Media array |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmediagroup)|
 
 ##### sendSticker
 

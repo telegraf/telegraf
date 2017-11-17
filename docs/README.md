@@ -1465,7 +1465,7 @@ Sends media album.
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
-| media | `Media[]` | Media array |
+| media | `InputMedia[]` | Media array |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmediagroup)|
 
 ##### sendSticker

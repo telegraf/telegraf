@@ -82,11 +82,11 @@ bot.hears(/\/wrap (\d+)/, (ctx) => {
 })
 
 bot.action('Dr Pepper', (ctx, next) => {
-  return ctx.reply('👍').then(next)
+  return ctx.reply('👍').then(() => next())
 })
 
 bot.action(/.+/, (ctx) => {
-  return ctx.answerCbQuery(`Oh, ${ctx.match[0]}! Great choise`)
+  return ctx.answerCbQuery(`Oh, ${ctx.match[0]}! Great choice`)
 })
 
 bot.startPolling()

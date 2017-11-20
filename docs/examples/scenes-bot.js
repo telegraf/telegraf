@@ -7,7 +7,7 @@ const { enter, leave } = Stage
 // Greeter scene
 const greeterScene = new Scene('greeter')
 greeterScene.enter((ctx) => ctx.reply('Hi'))
-greeterScene.leave((ctx) => ctx.reply('Buy'))
+greeterScene.leave((ctx) => ctx.reply('Bye'))
 greeterScene.hears('hi', enter('greeter'))
 greeterScene.on('message', (ctx) => ctx.replyWithMarkdown('Send `hi`'))
 

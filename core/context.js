@@ -286,6 +286,11 @@ class TelegrafContext {
     return this.telegram.sendPhoto(this.chat.id, ...args)
   }
 
+  replyWithMediaGroup (...args) {
+    this.assert(this.chat, 'replyWithMediaGroup')
+    return this.telegram.sendMediaGroup(this.chat.id, ...args)
+  }
+
   replyWithAudio (...args) {
     this.assert(this.chat, 'replyWithAudio')
     return this.telegram.sendAudio(this.chat.id, ...args)

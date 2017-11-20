@@ -8,7 +8,7 @@ const TelegramError = require('./error')
 const MultipartStream = require('./multipart-stream')
 const { isStream } = MultipartStream
 
-const webhookBlacklist = [
+const WebhookBlacklist = [
   'getChat',
   'getChatAdministrators',
   'getChatMember',
@@ -21,7 +21,7 @@ const webhookBlacklist = [
   'getWebhookInfo'
 ]
 
-const defaultExtensions = {
+const DefaultExtensions = {
   audio: 'mp3',
   photo: 'jpg',
   sticker: 'webp',
@@ -30,7 +30,7 @@ const defaultExtensions = {
   voice: 'ogg'
 }
 
-const defaultOptions = {
+const DefaultOptions = {
   apiRoot: 'https://api.telegram.org',
   webhookReply: true,
   agent: new https.Agent({
@@ -50,7 +50,7 @@ function safeJSONParse (text) {
 class ApiClient {
   constructor (token, options, webhookResponse) {
     this.token = token
-    this.options = Object.assign({}, defaultOptions, options)
+    this.options = Object.assign({}, DefaultOptions, options)
     this.response = webhookResponse
   }
 
@@ -63,15 +63,26 @@ class ApiClient {
   }
 
   callApi (method, extra = {}) {
-    const isMultipart = Object.keys(extra).find((x) => extra[x] && (extra[x].source || extra[x].url))
-    if (this.options.webhookReply && this.response && !this.response.finished && !isMultipart && !webhookBlacklist.includes(method)) {
+    const isMultipartRequest = Object.keys(extra)
+      .filter((x) => extra[x])
+      .some((x) => Array.isArray(extra[x])
+        ? extra[x].some((child) => typeof child.media === 'object' && (child.media.source || child.media.url))
+        : extra[x].source || extra[x].url
+      )
+    if (this.options.webhookReply && !isMultipartRequest && this.response && !this.response.finished && !WebhookBlacklist.includes(method)) {
       debug('▷ webhook', method)
       extra.method = method
-      if (!this.response.headersSent) {
-        this.response.setHeader('connection', 'keep-alive')
-        this.response.setHeader('content-type', 'application/json')
+      if (typeof this.response.end === 'function') {
+        if (!this.response.headersSent) {
+          this.response.setHeader('connection', 'keep-alive')
+          this.response.setHeader('content-type', 'application/json')
+        }
+        this.response.end(JSON.stringify(extra))
+      } else if (typeof this.response.header === 'object') {
+        this.response.header['connection'] = 'keep-alive'
+        this.response.header['content-type'] = 'application/json'
+        this.response.body = extra
       }
-      this.response.end(JSON.stringify(extra))
       return Promise.resolve({webhook: true})
     }
 
@@ -83,7 +94,7 @@ class ApiClient {
     }
 
     debug('▶︎ http', method)
-    const buildPayload = isMultipart ? this.buildFormDataPayload(extra) : this.buildJSONPayload(extra)
+    const buildPayload = isMultipartRequest ? this.buildFormDataPayload(extra) : this.buildJSONPayload(extra)
     return buildPayload
       .then((payload) => {
         payload.agent = this.options.agent
@@ -119,38 +130,7 @@ class ApiClient {
     }
     const boundary = crypto.randomBytes(30).toString('hex')
     const formData = new MultipartStream(boundary)
-    const tasks = Object.keys(options).filter((key) => options[key]).map((key) => {
-      const value = options[key]
-      const valueType = typeof value
-      if (valueType === 'string' || valueType === 'boolean' || valueType === 'number') {
-        return formData.addPart({
-          headers: { 'content-disposition': `form-data; name="${key}"` },
-          body: `${value}`
-        })
-      }
-      let fileName = value.filename || `${key}.${defaultExtensions[key] || 'dat'}`
-      if (value.url) {
-        return fetch(value.url).then((res) => {
-          formData.addPart({
-            headers: { 'content-disposition': `form-data; name="${key}";filename="${fileName}"` },
-            body: res.body
-          })
-        })
-      }
-      if (value.source) {
-        if (fs.existsSync(value.source)) {
-          fileName = value.filename || path.basename(value.source)
-          value.source = fs.createReadStream(value.source)
-        }
-        if (isStream(value.source) || Buffer.isBuffer(value.source)) {
-          return formData.addPart({
-            headers: { 'content-disposition': `form-data; name="${key}";filename="${fileName}"` },
-            body: value.source
-          })
-        }
-      }
-      throw new Error('Invalid file descriptor')
-    })
+    const tasks = Object.keys(options).map((key) => attachFormValue(formData, options[key], key))
     return Promise.all(tasks).then(() => {
       return {
         method: 'POST',
@@ -159,6 +139,61 @@ class ApiClient {
       }
     })
   }
+}
+
+function attachFormValue (form, value, id) {
+  if (!value) {
+    return Promise.resolve()
+  }
+  const valueType = typeof value
+  if (valueType === 'string' || valueType === 'boolean' || valueType === 'number') {
+    form.addPart({
+      headers: { 'content-disposition': `form-data; name="${id}"` },
+      body: `${value}`
+    })
+    return Promise.resolve()
+  }
+  if (Array.isArray(value)) {
+    return Promise.all(
+      value.map((item) => {
+        if (typeof item.media === 'object') {
+          const attachmentId = crypto.randomBytes(30).toString('hex')
+          return attachFormMedia(form, item.media, attachmentId)
+            .then(() => Object.assign({}, item, { media: `attach://${attachmentId}` }))
+        }
+        return Promise.resolve(item)
+      })
+    ).then((items) => form.addPart({
+      headers: { 'content-disposition': `form-data; name="${id}"` },
+      body: JSON.stringify(items)
+    }))
+  }
+  return attachFormMedia(form, value, id)
+}
+
+function attachFormMedia (form, media, id) {
+  let fileName = media.filename || `${id}.${DefaultExtensions[id] || 'dat'}`
+  if (media.url) {
+    return fetch(media.url).then((res) =>
+      form.addPart({
+        headers: { 'content-disposition': `form-data; name="${id}";filename="${fileName}"` },
+        body: res.body
+      })
+    )
+  }
+  if (media.source) {
+    if (fs.existsSync(media.source)) {
+      fileName = media.filename || path.basename(media.source)
+      media.source = fs.createReadStream(media.source)
+    }
+    if (isStream(media.source) || Buffer.isBuffer(media.source)) {
+      form.addPart({
+        headers: { 'content-disposition': `form-data; name="${id}";filename="${fileName}"` },
+        body: media.source
+      })
+    }
+  }
+  return Promise.resolve()
 }
 
 module.exports = ApiClient

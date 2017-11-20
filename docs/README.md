@@ -5,7 +5,7 @@ Users can interact with bots by sending them command messages in private or grou
 These accounts serve as an interface for code running somewhere on your server.
 
 ![Telegraf](header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.2-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.5-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![bitHound](https://img.shields.io/bithound/code/github/telegraf/telegraf.svg?style=flat-square)](https://www.bithound.io/github/telegraf/telegraf)
@@ -14,7 +14,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 3.4](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 3.5](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -223,6 +223,7 @@ replyWithInvoice() -> telegram.sendInvoice()
 replyWithLocation() -> telegram.sendLocation()
 replyWithMarkdown() -> telegram.sendMessage()
 replyWithPhoto() -> telegram.sendPhoto()
+replyWithMediaGroup() -> telegram.sendMediaGroup()
 replyWithSticker() -> telegram.sendSticker()
 replyWithVideo() -> telegram.sendVideo()
 replyWithVideoNote() -> telegram.sendVideoNote()
@@ -266,6 +267,7 @@ replyWithInvoice() -> telegram.sendInvoice()
 replyWithLocation() -> telegram.sendLocation()
 replyWithMarkdown() -> telegram.sendMessage()
 replyWithPhoto() -> telegram.sendPhoto()
+replyWithMediaGroup() -> telegram.sendMediaGroup()
 replyWithSticker() -> telegram.sendSticker()
 replyWithVideo() -> telegram.sendVideo()
 replyWithVideoNote() -> telegram.sendVideoNote()
@@ -448,12 +450,13 @@ require('https')
 Express.js example integration
 
 ```js
+const Telegraf = require('telegraf')
 const express = require('express')
 const expressApp = express()
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 expressApp.use(bot.webhookCallback('/secret-path'))
-bot.setWebhook('https://server.tld:8443/secret-path')
+bot.telegram.setWebhook('https://server.tld:8443/secret-path')
 
 expressApp.get('/', (req, res) => {
   res.send('Hello World!')
@@ -463,6 +466,25 @@ expressApp.listen(3000, () => {
   console.log('Example app listening on port 3000!')
 })
 
+```
+
+Koa.js example integration
+
+```js
+const Telegraf = require('telegraf')
+const Koa = require('koa')
+const koaBody = require('koa-body')
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.telegram.setWebhook('https://server.tld:8443/secret-path')
+
+const app = new Koa()
+app.use(koaBody())
+app.use((ctx, next) => ctx.method === 'POST' || ctx.url === '/secret-path'
+  ? bot.handleUpdate(ctx.request.body, ctx.response)
+  : next()
+)
+app.listen(3000)
 ```
 
 #### Working with files
@@ -693,7 +715,7 @@ Stop Webhook and polling
 ##### webhookCallback
 
 Return a callback function suitable for the http[s].createServer() method to handle a request. 
-You may also use this callback function to mount your telegraf app in a Koa/Connect/Express app.
+You may also use this callback function to mount your telegraf app in a Connect/Express app.
 
 `telegraf.webhookCallback(webhookPath) => Function`
 
@@ -1434,6 +1456,18 @@ Sends photo.
 | photo | `File` | Photo |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendphoto)|
 
+##### sendMediaGroup
+
+Sends media album.
+
+`telegram.sendMediaGroup(chatId, media, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| media | `InputMedia[]` | Media array |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmediagroup)|
+
 ##### sendSticker
 
 Sends sticker.
@@ -1588,6 +1622,7 @@ const Telegraf = require('telegraf')
 const session = require('telegraf/session')
 const Stage = require('telegraf/stage')
 const Scene = require('telegraf/scenes/base')
+const { leave } = Stage
 
 // Greeter scene
 const greeter = new Scene('greeter')

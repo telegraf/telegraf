@@ -20,7 +20,7 @@ These accounts serve as an interface for code running somewhere on your server.
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
 - AWS **λ**/now/Heroku/Firebase/Glitch/Whatever ready
-- `http/https/koa/Connect.js/express.js` compatible webhooks
+- `http/https/koa/fastify/Connect.js/express.js` compatible webhooks
 - Easy to extend
 
 #### Installation
@@ -463,6 +463,26 @@ expressApp.get('/', (req, res) => {
 })
 
 expressApp.listen(3000, () => {
+  console.log('Example app listening on port 3000!')
+})
+
+```
+
+Fastify example integration
+
+```js
+const Telegraf = require('telegraf')
+const fastifyApp = require('fastify')()
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+
+bot.on('text', ({ reply }) => reply('Hey there!'))
+fastifyApp.use(bot.webhookCallback('/secret-path'))
+// Set telegram webhook
+// npm install -g localtunnel && lt --port 3000
+bot.telegram.setWebhook('https://------.localtunnel.me/secret-path');
+
+fastifyApp.listen(3000, () => {
   console.log('Example app listening on port 3000!')
 })
 

@@ -1,4 +1,5 @@
 const Composer = require('../composer')
+const { compose } = Composer
 
 class BaseScene extends Composer {
   constructor (id, options) {
@@ -10,8 +11,8 @@ class BaseScene extends Composer {
     super(...opts.handlers)
     this.id = id
     this.options = opts
-    this.enterHandler = Composer.compose(opts.enterHandlers)
-    this.leaveHandler = Composer.compose(opts.leaveHandlers)
+    this.enterHandler = compose(opts.enterHandlers)
+    this.leaveHandler = compose(opts.leaveHandlers)
   }
 
   set ttl (value) {
@@ -23,12 +24,12 @@ class BaseScene extends Composer {
   }
 
   enter (...fns) {
-    this.enterHandler = Composer.compose([this.enterHandler, ...fns])
+    this.enterHandler = compose([this.enterHandler, ...fns])
     return this
   }
 
   leave (...fns) {
-    this.leaveHandler = Composer.compose([this.leaveHandler, ...fns])
+    this.leaveHandler = compose([this.leaveHandler, ...fns])
     return this
   }
 

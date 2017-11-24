@@ -7,10 +7,14 @@ const WizardScene = require('telegraf/scenes/wizard')
 
 const stepHandler = new Composer()
 stepHandler.action('next', (ctx) => {
-  ctx.reply('Step 2 ')
+  ctx.reply('Step 2. Via inline button')
   ctx.wizard.next()
 })
-stepHandler.use((ctx) => ctx.replyWithMarkdown('Press `Next` button to contunie'))
+stepHandler.command('next', (ctx) => {
+  ctx.reply('Step 2. Via command')
+  ctx.wizard.next()
+})
+stepHandler.use((ctx) => ctx.replyWithMarkdown('Press `Next` button or type /next'))
 
 const superWizard = new WizardScene('super-wizard',
   (ctx) => {
@@ -20,7 +24,7 @@ const superWizard = new WizardScene('super-wizard',
     ]).extra())
     ctx.wizard.next()
   },
-  stepHandler.middleware(),
+  stepHandler,
   (ctx) => {
     ctx.reply('Step 3')
     ctx.wizard.next()

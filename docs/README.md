@@ -1627,11 +1627,11 @@ Use this method to unban a previously kicked user in a supergroup.
 
 #### Extra
 
-Telegram message options helper, [see examples](https://github.com/telegraf/telegraf/tree/develop/examples/).
+Telegram message options helper, [see examples](https://github.com/telegraf/telegraf/tree/develop/docs/examples/).
 
 #### Markup
 
-Telegram markup helper, [see examples](https://github.com/telegraf/telegraf/tree/develop/examples/).
+Telegram markup helper, [see examples](https://github.com/telegraf/telegraf/tree/develop/docs/examples/).
 
 #### Stage
 

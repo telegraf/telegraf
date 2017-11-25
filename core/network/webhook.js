@@ -3,7 +3,7 @@ const debug = require('debug')('telegraf:webhook')
 module.exports = function (path, updateHandler, errorHandler) {
   return (req, res, next) => {
     if (req.method !== 'POST' || req.url !== `${path}`) {
-      if (next && typeof next === 'function') {
+      if (typeof next === 'function') {
         return next()
       }
       res.statusCode = 403

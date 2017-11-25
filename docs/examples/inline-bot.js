@@ -2,7 +2,6 @@ const Telegraf = require('telegraf')
 const fetch = require('node-fetch')
 
 // async/await example.
-// Similar bot with `micro-bot` wrapper: https://gist.github.com/dotcypress/b26e7bcd6f70e72c482292d8778420da
 
 async function spotifySearch (query = '', offset, limit) {
   const apiUrl = `https://api.spotify.com/v1/search?type=track&limit=${limit}&offset=${offset}&q=${encodeURIComponent(query)}`

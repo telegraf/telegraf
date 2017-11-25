@@ -1,7 +1,7 @@
-const Telegraf = require('../../')
-const Router = require('../../router')
-const Extra = require('../../extra')
-const session = require('../../session')
+const Telegraf = require('telegraf')
+const Router = require('telegraf/router')
+const Extra = require('telegraf/extra')
+const session = require('telegraf/session')
 
 const markup = Extra
   .HTML()
@@ -12,20 +12,21 @@ const markup = Extra
     m.callbackButton('Subtract 1', 'sub:1'),
     m.callbackButton('Subtract 10', 'sub:10'),
     m.callbackButton('Subtract 100', 'sub:100'),
+    m.callbackButton('🐈', Math.random().toString(36).slice(2)),
     m.callbackButton('Clear', 'clear')
   ], {columns: 3}))
 
-const calculator = new Router((ctx) => {
-  if (!ctx.callbackQuery.data) {
-    return Promise.resolve()
+const calculator = new Router(({ callbackQuery }) => {
+  if (!callbackQuery.data) {
+    return
   }
-  const parts = ctx.callbackQuery.data.split(':')
-  return Promise.resolve({
+  const parts = callbackQuery.data.split(':')
+  return {
     route: parts[0],
     state: {
       amount: parseInt(parts[1], 10) || 0
     }
-  })
+  }
 })
 
 calculator.on('add', (ctx) => {
@@ -42,6 +43,8 @@ calculator.on('clear', (ctx) => {
   ctx.session.value = 0
   return editText(ctx)
 })
+
+calculator.otherwise((ctx) => ctx.reply('🌯'))
 
 function editText (ctx) {
   if (ctx.session.value === 42) {

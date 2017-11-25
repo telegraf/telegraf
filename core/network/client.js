@@ -128,7 +128,7 @@ class ApiClient {
     if (options.reply_markup && typeof options.reply_markup !== 'string') {
       options.reply_markup = JSON.stringify(options.reply_markup)
     }
-    const boundary = crypto.randomBytes(30).toString('hex')
+    const boundary = crypto.randomBytes(32).toString('hex')
     const formData = new MultipartStream(boundary)
     const tasks = Object.keys(options).map((key) => attachFormValue(formData, options[key], key))
     return Promise.all(tasks).then(() => {
@@ -157,7 +157,7 @@ function attachFormValue (form, value, id) {
     return Promise.all(
       value.map((item) => {
         if (typeof item.media === 'object') {
-          const attachmentId = crypto.randomBytes(30).toString('hex')
+          const attachmentId = crypto.randomBytes(16).toString('hex')
           return attachFormMedia(form, item.media, attachmentId)
             .then(() => Object.assign({}, item, { media: `attach://${attachmentId}` }))
         }
@@ -176,7 +176,7 @@ function attachFormMedia (form, media, id) {
   if (media.url) {
     return fetch(media.url).then((res) =>
       form.addPart({
-        headers: { 'content-disposition': `form-data; name="${id}";filename="${fileName}"` },
+        headers: { 'content-disposition': `form-data; name="${id}"; filename="${fileName}"` },
         body: res.body
       })
     )
@@ -188,7 +188,7 @@ function attachFormMedia (form, media, id) {
     }
     if (isStream(media.source) || Buffer.isBuffer(media.source)) {
       form.addPart({
-        headers: { 'content-disposition': `form-data; name="${id}";filename="${fileName}"` },
+        headers: { 'content-disposition': `form-data; name="${id}"; filename="${fileName}"` },
         body: media.source
       })
     }

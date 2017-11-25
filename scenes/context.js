@@ -1,6 +1,5 @@
 const debug = require('debug')('telegraf:scenes:context')
-const Composer = require('../composer')
-const { safePassThru } = Composer
+const { safePassThru } = require('../composer')
 
 const noop = () => Promise.resolve()
 const now = () => Math.floor(new Date().getTime() / 1000)

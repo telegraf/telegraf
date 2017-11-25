@@ -1,6 +1,6 @@
 const Composer = require('../../composer')
 const WizardContext = require('./context')
-const { compose } = Composer
+const { compose, unwrap } = Composer
 
 class WizardScene extends Composer {
   constructor (id, options, ...steps) {
@@ -42,7 +42,7 @@ class WizardScene extends Composer {
           ctx.wizard.selectStep(0)
           return ctx.scene.leave()
         }
-        return ctx.wizard.step(ctx, next)
+        return unwrap(ctx.wizard.step)(ctx, next)
       }
     ])
   }

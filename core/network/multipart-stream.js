@@ -3,7 +3,7 @@ const { SandwichStream } = require('sandwich-stream')
 const CRNL = '\r\n'
 
 class MultipartStream extends SandwichStream {
-  constructor (boundary = Math.random().toString(36).slice(2)) {
+  constructor (boundary) {
     super({
       head: `--${boundary}${CRNL}`,
       tail: `${CRNL}--${boundary}--`,

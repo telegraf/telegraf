@@ -28,7 +28,7 @@ class Router {
 
   middleware () {
     return lazy((ctx) => {
-      return this.routeFn(ctx).then((result) => {
+      return Promise.resolve(this.routeFn(ctx)).then((result) => {
         if (!result || !result.route || !this.handlers.has(result.route)) {
           return this.otherwiseHandler
         }

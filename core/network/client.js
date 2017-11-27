@@ -93,7 +93,7 @@ class ApiClient {
       })
     }
 
-    debug('▶︎ http', method)
+    debug('︎ http', method)
     const buildPayload = isMultipartRequest ? this.buildFormDataPayload(extra) : this.buildJSONPayload(extra)
     return buildPayload
       .then((payload) => {
@@ -110,7 +110,7 @@ class ApiClient {
       })
       .then((data) => {
         if (!data.ok) {
-          throw new TelegramError(data)
+          throw new TelegramError(data , {method,args: extra})
         }
         return data.result
       })

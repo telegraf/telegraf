@@ -110,7 +110,7 @@ class ApiClient {
       })
       .then((data) => {
         if (!data.ok) {
-          throw new TelegramError(data)
+          throw new TelegramError(data, {method, extra})
         }
         return data.result
       })

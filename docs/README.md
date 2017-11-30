@@ -705,13 +705,14 @@ Registers middleware for handling `callback_data` actions with game query.
 
 Start poll updates.
 
-`telegraf.startPolling([timeout], [limit], [allowedUpdates])`
+`telegraf.startPolling([timeout], [limit], [allowedUpdates], [stopCallback])`
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
 | [timeout] | `number` | 30 | Poll timeout in seconds |
 | [limit] | `number` | 100 | Limits the number of updates to be retrieved |
 | [allowedUpdates] | `string[]` | null | List the types of updates you want your bot to receive |
+| [stopCallback] | `function` | null | Polling stop callback |
 
 ##### startWebhook
 

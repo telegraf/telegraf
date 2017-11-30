@@ -360,10 +360,13 @@ class Telegram extends ApiClient {
     return this.callApi('deleteStickerFromSet', { sticker: sticker })
   }
 
-  sendCopy (chatId, message = {}, extra) {
+  sendCopy (chatId, message, extra) {
+    if (!message) {
+      throw new Error('Message is required')
+    }
     const type = Object.keys(replicators.copyMethods).find((type) => message[type])
     if (!type) {
-      throw new Error('Unsupported message', message)
+      throw new Error('Unsupported message type')
     }
     const opts = Object.assign({chat_id: chatId}, replicators[type](message), extra)
     return this.callApi(replicators.copyMethods[type], opts)

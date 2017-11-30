@@ -14,6 +14,8 @@ const DefaultOptions = {
   handlerTimeout: 0
 }
 
+const noop = () => {}
+
 class Telegraf extends Composer {
   constructor (token, options) {
     super()
@@ -58,12 +60,13 @@ class Telegraf extends Composer {
     return generateCallback(path, (update, res) => this.handleUpdate(update, res), debug)
   }
 
-  startPolling (timeout = 30, limit = 100, allowedUpdates) {
+  startPolling (timeout = 30, limit = 100, allowedUpdates, stopCallback = noop) {
     this.polling.timeout = timeout
     this.polling.limit = limit
     this.polling.allowedUpdates = allowedUpdates
       ? Array.isArray(allowedUpdates) ? allowedUpdates : [`${allowedUpdates}`]
       : null
+    this.polling.stopCallback = stopCallback
     if (!this.polling.started) {
       this.polling.started = true
       this.fetchUpdates()
@@ -85,7 +88,7 @@ class Telegraf extends Composer {
     return this
   }
 
-  stop (cb = () => {}) {
+  stop (cb = noop) {
     this.polling.started = false
     if (this.webhookServer) {
       this.webhookServer.close(cb)
@@ -138,6 +141,7 @@ class Telegraf extends Composer {
         console.error('Failed to process updates.', err)
         this.polling.started = false
         this.polling.offset = 0
+        this.polling.stopCallback && this.polling.stopCallback()
         return []
       })
       .then((updates) => {

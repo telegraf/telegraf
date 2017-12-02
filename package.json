@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "3.16.4",
+  "version": "4.0.0-dev.0",
   "description": "📡 Modern Telegram bot framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <dotcypress@gmail.com>",
@@ -12,10 +12,13 @@
   "bugs": {
     "url": "https://github.com/telegraf/telegraf/issues"
   },
-  "main": "telegraf.js",
+  "main": "lib/telegraf.js",
   "scripts": {
+    "flow": "flow",
+    "build": "babel src/ -d lib/",
     "lint": "eslint .",
     "test": "ava test",
+    "pretest": "npm run build",
     "precommit": "npm run lint && npm test"
   },
   "engines": {
@@ -23,18 +26,25 @@
   },
   "dependencies": {
     "debug": "^3.0.0",
+    "fluture": "^7.2.2",
     "node-fetch": "^1.6.3",
     "sandwich-stream": "^1.0.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.33",
+    "@babel/core": "^7.0.0-beta.33",
+    "@babel/preset-env": "^7.0.0-beta.33",
+    "@babel/preset-flow": "^7.0.0-beta.33",
     "ava": "^0.24.0",
+    "babel-eslint": "^8.0.3",
     "eslint": "^4.1.1",
-    "eslint-config-standard": "^10.2.0",
+    "eslint-config-atomix-base": "^5.0.0",
     "eslint-plugin-ava": "^4.0.0",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-node": "^5.1.0",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
+    "flow-bin": "^0.60.1",
     "husky": "^0.14.1"
   },
   "keywords": [

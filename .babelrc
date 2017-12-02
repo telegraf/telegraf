@@ -1,0 +1,11 @@
+{
+  "presets": [
+    "@babel/preset-flow",
+    ["@babel/preset-env", {
+      "targets": {
+        "node": "6"
+      }
+    }]
+  ],
+  "retainLines": true
+}

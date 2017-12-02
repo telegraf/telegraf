@@ -40,3 +40,4 @@ coverage
 _docpress
 package-lock.json
 .env
+.vscode

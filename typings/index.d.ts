@@ -19,9 +19,8 @@ export interface TelegramOptions {
   webhookReply?: boolean
 }
 
-export interface Context<S extends {}> {
+export interface Context {
   telegram: Telegram
-  state: S
   callbackQuery?: tt.CallbackQuery
   channelPost?: tt.Message
   chat?: tt.Chat
@@ -36,7 +35,7 @@ export interface Context<S extends {}> {
   shippingQuery?: tt.ShippingQuery
 }
 
-export interface ContextMessageUpdate<S extends {}> extends Context<S> {
+export interface ContextMessageUpdate extends Context {
 
   /**
    * Use this method to add a new sticker to a set created by the bot
@@ -337,10 +336,10 @@ export interface ContextMessageUpdate<S extends {}> extends Context<S> {
 
 }
 
-export interface Middleware<S = {}> {
-  (ctx: Context<S>): any
+export interface Middleware<C extends ContextMessageUpdate> {
+  (ctx: C): any
 
-  (ctx: Context<S>, next: () => Promise<any>): Promise<any>
+  (ctx: C, next: () => any): any
 }
 
 export type HearsTriggers = string[] | string | RegExp | RegExp[] | Function
@@ -687,7 +686,110 @@ export interface TelegrafOptions {
   username?: string
 }
 
-export class Telegraf {
+export class Composer<C extends ContextMessageUpdate> {
+
+  constructor(...middlewares: Array<Middleware<C>>)
+
+  /**
+   * Registers a middleware.
+   * @param middleware Middleware function
+   */
+  use(middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Telegraf<C>
+
+  /**
+   * Registers middleware for provided update type.
+   * @param updateTypes Update type
+   * @param middlewares Middleware functions
+   */
+  on(updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+
+  /**
+   * Registers middleware for handling text messages.
+   * @param triggers Triggers
+   * @param middlewares Middleware functions
+   */
+  hears(triggers: HearsTriggers, middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+
+  /**
+   * Command handling.
+   * @param command Commands
+   * @param middlwares Middleware functions
+   */
+  command(command: string | string[], middleware: Array<Middleware<C>>, ...middlewares: Array<Middleware<C>>): Composer<C>
+
+  /**
+   * Registers middleware for handling callback_data actions with game query.
+   * @param middlewares Middleware functions
+   */
+  gameQuery(middleware: Array<Middleware<C>>, ...middlewares: Array<Middleware<C>>): Composer<C>
+
+  /**
+   * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
+   * @param middlewares Array of middlewares functions
+   */
+  static compose<R extends ContextMessageUpdate>(middlewares: Array<Middleware<any>>): Middleware<R>
+
+  /**
+   * Generates middleware for handling provided update types.
+   * @param updateTypes Update type
+   * @param middleware Middleware function
+   */
+  static mount<C extends ContextMessageUpdate, R extends ContextMessageUpdate>
+    (updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware<C>): Middleware<R>
+
+  /**
+   * Generates middleware for handling text messages with regular expressions.
+   * @param triggers Triggers
+   * @param handler Handler
+   */
+  static hears<C extends ContextMessageUpdate, R extends ContextMessageUpdate>
+    (triggers: HearsTriggers, handler: Middleware<C>): Middleware<R>
+
+  /**
+   * Generates middleware for handling callbackQuery data with regular expressions.
+   * @param triggers Triggers
+   * @param handler Handler
+   */
+  static action<C extends ContextMessageUpdate, R extends ContextMessageUpdate>
+    (triggers: HearsTriggers, handler: Middleware<C>): Middleware<R>
+
+  /**
+   * Generates pass thru middleware.
+   */
+  static passThru<C extends ContextMessageUpdate>(): Middleware<C>
+
+  /**
+   * Generates safe version of pass thru middleware.
+   */
+  static safePassThru<C extends ContextMessageUpdate>(): Middleware<C>
+
+  /**
+   * Generates optional middleware.
+   * @param test Value or predicate (ctx) => bool
+   * @param middleware Middleware function
+   */
+  static optional<C extends ContextMessageUpdate, R extends ContextMessageUpdate>
+    (test: boolean | ((ctx: C) => boolean), middleware: Middleware<C>): Middleware<R>
+
+  /**
+   * Generates filter middleware.
+   * @param test  Value or predicate (ctx) => bool
+   */
+  static filter<C extends ContextMessageUpdate>
+    (test: boolean | ((ctx: C) => boolean)): Middleware<C>
+
+  /**
+   * Generates branch middleware.
+   * @param test Value or predicate (ctx) => bool
+   * @param trueMiddleware true action middleware
+   * @param falseMiddleware false action middleware
+   */
+  static branch<C extends ContextMessageUpdate, T extends ContextMessageUpdate, F extends ContextMessageUpdate, R extends ContextMessageUpdate>
+    (test: boolean | ((ctx: C) => boolean), trueMiddleware: Middleware<T>, falseMiddleware: Middleware<F>): Middleware<R>
+}
+
+
+export class Telegraf<C extends ContextMessageUpdate> extends Composer<C> {
   /**
    * Use this property to get/set bot token
    */
@@ -708,45 +810,12 @@ export class Telegraf {
   constructor(token: string, options?: TelegrafOptions)
 
   /**
-   * Registers a middleware.
-   * @param middleware Middleware function
-   */
-  use(middleware: Middleware)
-
-  /**
-   * Registers middleware for provided update type.
-   * @param updateTypes Update type
-   * @param middlewares Middleware functions
-   */
-  on(updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware, ...middlewares: Middleware[])
-
-  /**
-   * Registers middleware for handling text messages.
-   * @param triggers Triggers
-   * @param middlewares Middleware functions
-   */
-  hears(triggers: HearsTriggers, middleware: Middleware, ...middlewares: Middleware[])
-
-  /**
-   * Command handling.
-   * @param command Commands
-   * @param middlwares Middleware functions
-   */
-  command(command: string | string[], middleware: Middleware, ...middlewares: Middleware[])
-
-  /**
-   * Registers middleware for handling callback_data actions with game query.
-   * @param middlewares Middleware functions
-   */
-  gameQuery(middleware: Middleware, ...middlewares: Middleware[])
-
-  /**
    * Start poll updates.
    * @param timeout Poll timeout in seconds
    * @param limit Limits the number of updates to be retrieved
    * @param allowedUpdates List the types of updates you want your bot to receive
    */
-  startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[])
+  startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[]): Telegraf<C>
 
   /**
    * Start listening @ https://host:port/webhookPath for Telegram calls.
@@ -755,12 +824,12 @@ export class Telegraf {
    * @param port Port number
    * @param host Hostname
    */
-  startWebhook(webhookPath: string, tlsOptions: TlsOptions, port: number, host?: string)
+  startWebhook(webhookPath: string, tlsOptions: TlsOptions, port: number, host?: string): Telegraf<C>
 
   /**
    * Stop Webhook and polling
    */
-  stop()
+  stop(): Telegraf<C>
 
   /**
    * Return a callback function suitable for the http[s].createServer() method to handle a request.
@@ -774,66 +843,9 @@ export class Telegraf {
    * @param rawUpdate Telegram update payload
    * @param webhookResponse http.ServerResponse
    */
-  handleUpdate(rawUpdate: Update, webhookResponse?: ServerResponse)
-
-  /**
-   * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
-   * @param middlewares Array of middlewares functions
-   */
-  static compose(middlewares: Middleware[]): Middleware
-
-  /**
-   * Generates middleware for handling provided update types.
-   * @param updateTypes Update type
-   * @param middleware Middleware function
-   */
-  static mount(updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware): Middleware
-
-  /**
-   * Generates middleware for handling text messages with regular expressions.
-   * @param triggers Triggers
-   * @param handler Handler
-   */
-  static hears(triggers: HearsTriggers, handler: Middleware): Middleware
-
-  /**
-   * Generates middleware for handling callbackQuery data with regular expressions.
-   * @param triggers Triggers
-   * @param handler Handler
-   */
-  static action(triggers: HearsTriggers, handler: Middleware): Middleware
-
-  /**
-   * Generates pass thru middleware.
-   */
-  static passThru(): Middleware
-
-  /**
-   * Generates safe version of pass thru middleware.
-   */
-  static safePassThru(): Middleware
-
-  /**
-   * Generates optional middleware.
-   * @param test Value or predicate (ctx) => bool
-   * @param middleware Middleware function
-   */
-  static optional(test: boolean | ((ctx: Context) => boolean), middleware: Middleware): Middleware
-
-  /**
-   * Generates filter middleware.
-   * @param test  Value or predicate (ctx) => bool
-   */
-  static filter(test: boolean | ((ctx: Context) => boolean)): Middleware
-
-  /**
-   * Generates branch middleware.
-   * @param test Value or predicate (ctx) => bool
-   * @param trueMiddleware true action middleware
-   * @param falseMiddleware false action middleware
-   */
-  static branch(test: boolean | ((ctx: Context) => boolean), trueMiddleware: Middleware, falseMiddleware: Middleware): Middleware
+  handleUpdate(rawUpdate: tt.Update, webhookResponse?: ServerResponse): Promise<any>
 }
 
 
 export default Telegraf
+

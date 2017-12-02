@@ -13,8 +13,6 @@
       "./typings",
       "./node_modules/@types"
     ],
-    "types": [
-    ],
     "noEmit": true,
     "forceConsistentCasingInFileNames": true
   },

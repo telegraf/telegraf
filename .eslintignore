@@ -2,3 +2,5 @@ node_modules/
 _docpress/
 lib/
 flow-typed/
+test/
+docs/

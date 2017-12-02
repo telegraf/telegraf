@@ -12,8 +12,8 @@
 
 [options]
 all=true
-esproposal.class_instance_fields=warn
-esproposal.class_static_fields=warn
+esproposal.class_instance_fields=enable
+esproposal.class_static_fields=enable
 esproposal.decorators=warn
 esproposal.export_star_as=warn
 experimental.const_params=false

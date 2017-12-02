@@ -19,7 +19,7 @@
     "lint": "eslint .",
     "test": "ava test",
     "pretest": "npm run build",
-    "precommit": "npm run lint && npm test"
+    "precommit": "npm run lint"
   },
   "engines": {
     "node": ">=6.2.0"
@@ -35,6 +35,7 @@
     "@babel/core": "^7.0.0-beta.33",
     "@babel/preset-env": "^7.0.0-beta.33",
     "@babel/preset-flow": "^7.0.0-beta.33",
+    "@babel/preset-stage-3": "^7.0.0-beta.33",
     "ava": "^0.24.0",
     "babel-eslint": "^8.0.3",
     "eslint": "^4.1.1",

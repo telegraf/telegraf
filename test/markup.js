@@ -111,6 +111,11 @@ test('should generate extra from keyboard markup', (t) => {
   })
 })
 
+test('should generate standart button markup', (t) => {
+  const markup = Object.assign({}, Markup.button('foo'))
+  t.deepEqual(markup, {text: 'foo', hide: false})
+})
+
 test('should generate cb button markup', (t) => {
   const markup = Object.assign({}, Markup.callbackButton('foo', 'bar'))
   t.deepEqual(markup, {text: 'foo', callback_data: 'bar', hide: false})

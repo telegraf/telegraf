@@ -142,28 +142,35 @@ class Markup {
 }
 
 function buildKeyboard (buttons, options) {
-  const result = []
-  if (!Array.isArray(buttons)) {
-    return result
-  }
-  if (buttons.find(Array.isArray)) {
-    return buttons.map(row => row.filter((button) => !button.hide))
-  }
-  const opts = Object.assign({ wrap: (btn, index, currentRow) => currentRow.length >= opts.columns }, options)
   let currentRow = []
-  let index = 0
-  for (const btn of buttons.filter((button) => !button.hide)) {
-    if (opts.wrap(btn, index, currentRow) && currentRow.length > 0) {
-      result.push(currentRow)
-      currentRow = []
-    }
-    currentRow.push(btn)
-    index++
+  let reset = false
+  if (!Array.isArray(buttons)) {
+    return []
   }
-  if (currentRow.length > 0) {
-    result.push(currentRow)
-  }
-  return result
+  options = Object.assign(
+    { wrap: (btn, index, currentRow) => currentRow.length >= (options.columns || 1) },
+    options
+  )
+  return buttons
+    .map((btn, index) => {
+      if (reset) {
+        reset = false
+        currentRow = []
+      }
+      if (Array.isArray(btn)) {
+        return btn.filter((button) => !button.hide)
+      }
+      if (btn.hide) {
+        return false
+      }
+      if (!(options.wrap(btn, index, currentRow) && currentRow.length)) {
+        currentRow.push(btn)
+        return false
+      }
+      reset = true
+      return currentRow
+    })
+    .filter((row) => !!row)
 }
 
 module.exports = Markup

@@ -25,13 +25,13 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Installation
 
-```
-$ npm install telegraf
+```bash
+$ npm install telegraf --save
 ```
 
 or using yarn
 
-```
+```bash
 $ yarn add telegraf
 ```
 
@@ -41,10 +41,12 @@ $ yarn add telegraf
 const Telegraf = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
+
 bot.start((ctx) => {
   console.log('started:', ctx.from.id)
   return ctx.reply('Welcome!')
 })
+
 bot.command('help', (ctx) => ctx.reply('Try send a sticker!'))
 bot.hears('hi', (ctx) => ctx.reply('Hey there!'))
 bot.hears(/buy/i, (ctx) => ctx.reply('Buy-buy!'))
@@ -56,7 +58,7 @@ bot.startPolling()
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
 
 <p class="tip">
-  Also, checkout our [step-by-step instructions](https://github.com/telegraf/micro-bot) for building and deploying basic bot with [🤖 micro-bot](https://github.com/telegraf/micro-bot)(Telegraf high level wrapper)
+  Also, checkout our <a href="https://github.com/telegraf/micro-bot">step-by-step instructions</a> for building and deploying basic bot with <a href="https://github.com/telegraf/micro-bot">🤖 micro-bot</a>(Telegraf high level wrapper)
 </p>
 
 **Community bots:**
@@ -114,7 +116,7 @@ bot.on('text', (ctx) => ctx.reply('Hello World'))
 
 ##### Cascading with async functions
 
-You might need Babel(or `node >=v.7.x` with harmony flags) for running following example.
+You might need Babel or `node >=v.7.x` with harmony flags or `@std/esm` package for running following example.
 
 ```js
 bot.use(async (ctx, next) => {
@@ -137,7 +139,6 @@ bot.use(async (ctx, next) => {
 - [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
 - [statsd integration](https://github.com/telegraf/telegraf-statsd)
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
-
 
 #### Error handling
 

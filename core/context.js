@@ -123,7 +123,9 @@ class TelegrafContext {
   }
 
   get state () {
-    this.contextState = this.contextState || {}
+    if (!this.contextState) {
+      this.contextState = {}
+    }
     return this.contextState
   }
 

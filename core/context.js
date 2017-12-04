@@ -39,7 +39,6 @@ const updateMessageSubTypes = [
 ]
 
 class TelegrafContext {
-
   constructor (update, telegram, options) {
     this.tg = telegram
     this.update = update
@@ -53,7 +52,7 @@ class TelegrafContext {
       this.updateType = updateTypes.find((key) => key in this.update)
       this.updateSubTypes = []
     }
-    
+
     Object.getOwnPropertyNames(TelegrafContext.prototype)
       .filter((key) => key !== 'constructor' && typeof this[key] === 'function')
       .forEach((key) => (this[key] = this[key].bind(this)))
@@ -461,7 +460,6 @@ class TelegrafContext {
     this.assert(message && this.chat, 'deleteMessage')
     return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
-
 }
 
 module.exports = TelegrafContext

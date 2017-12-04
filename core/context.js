@@ -10,7 +10,7 @@ const updateTypes = [
   'message'
 ]
 
-const messageSubTypes = [
+const updateMessageSubTypes = [
   'voice',
   'video_note',
   'video',
@@ -39,17 +39,21 @@ const messageSubTypes = [
 ]
 
 class TelegrafContext {
+
   constructor (update, telegram, options) {
     this.tg = telegram
     this.update = update
     this.options = options
+
     if ('message' in this.update) {
       this.updateType = 'message'
-      this.updateSubTypes = messageSubTypes.filter((key) => key in this.update.message)
+      this.updateSubTypes = updateMessageSubTypes
+        .filter((key) => key in this.update.message)
     } else {
       this.updateType = updateTypes.find((key) => key in this.update)
       this.updateSubTypes = []
     }
+    
     Object.getOwnPropertyNames(TelegrafContext.prototype)
       .filter((key) => key !== 'constructor' && typeof this[key] === 'function')
       .forEach((key) => (this[key] = this[key].bind(this)))
@@ -120,19 +124,16 @@ class TelegrafContext {
   }
 
   get state () {
-    if (!this.contextState) {
-      this.contextState = {}
-    }
-    return this.contextState
+    return (this.contextState = this.contextState || {})
   }
 
-  set state (val) {
-    this.contextState = Object.assign({}, val)
+  set state (value) {
+    this.contextState = Object.assign({}, value)
   }
 
   assert (value, method) {
     if (!value) {
-      throw new Error(`Telegraf: "${method}" is't available for "${this.updateType}::${this.updateSubTypes}"`)
+      throw new Error(`Telegraf: "${method}" isn't available for "${this.updateType}::${this.updateSubTypes}"`)
     }
   }
 
@@ -169,36 +170,90 @@ class TelegrafContext {
   editMessageText (text, extra) {
     this.assert(this.callbackQuery, 'editMessageText')
     return this.callbackQuery.inline_message_id
-      ? this.telegram.editMessageText(undefined, undefined, this.callbackQuery.inline_message_id, text, extra)
-      : this.telegram.editMessageText(this.chat.id, this.callbackQuery.message.message_id, undefined, text, extra)
+      ? this.telegram.editMessageText(
+        undefined,
+        undefined,
+        this.callbackQuery.inline_message_id,
+        text,
+        extra
+      )
+      : this.telegram.editMessageText(
+        this.chat.id,
+        this.callbackQuery.message.message_id,
+        undefined,
+        text,
+        extra
+      )
   }
 
   editMessageCaption (caption, markup) {
     this.assert(this.callbackQuery, 'editMessageCaption')
     return this.callbackQuery.inline_message_id
-      ? this.telegram.editMessageCaption(undefined, undefined, this.callbackQuery.inline_message_id, caption, markup)
-      : this.telegram.editMessageCaption(this.chat.id, this.callbackQuery.message.message_id, undefined, caption, markup)
+      ? this.telegram.editMessageCaption(
+        undefined,
+        undefined,
+        this.callbackQuery.inline_message_id,
+        caption,
+        markup
+      )
+      : this.telegram.editMessageCaption(
+        this.chat.id,
+        this.callbackQuery.message.message_id,
+        undefined,
+        caption,
+        markup
+      )
   }
 
   editMessageReplyMarkup (markup) {
     this.assert(this.callbackQuery, 'editMessageReplyMarkup')
     return this.callbackQuery.inline_message_id
-      ? this.telegram.editMessageReplyMarkup(undefined, undefined, this.callbackQuery.inline_message_id, markup)
-      : this.telegram.editMessageReplyMarkup(this.chat.id, this.callbackQuery.message.message_id, undefined, markup)
+      ? this.telegram.editMessageReplyMarkup(
+        undefined,
+        undefined,
+        this.callbackQuery.inline_message_id,
+        markup
+      )
+      : this.telegram.editMessageReplyMarkup(
+        this.chat.id,
+        this.callbackQuery.message.message_id,
+        undefined,
+        markup
+      )
   }
 
   editMessageLiveLocation (latitude, longitude, markup) {
     this.assert(this.callbackQuery, 'editMessageLiveLocation')
     return this.callbackQuery.inline_message_id
-      ? this.telegram.editMessageLiveLocation(latitude, longitude, undefined, undefined, this.callbackQuery.inline_message_id, markup)
-      : this.telegram.editMessageLiveLocation(latitude, longitude, this.chat.id, this.callbackQuery.message.message_id, undefined, markup)
+      ? this.telegram.editMessageLiveLocation(
+        latitude,
+        longitude,
+        undefined,
+        undefined,
+        this.callbackQuery.inline_message_id,
+        markup
+      )
+      : this.telegram.editMessageLiveLocation(
+        latitude,
+        longitude,
+        this.chat.id,
+        this.callbackQuery.message.message_id,
+        undefined,
+        markup
+      )
   }
 
   stopMessageLiveLocation (markup) {
     this.assert(this.callbackQuery, 'stopMessageLiveLocation')
     return this.callbackQuery.inline_message_id
-      ? this.telegram.stopMessageLiveLocation(undefined, undefined, this.callbackQuery.inline_message_id, markup)
-      : this.telegram.stopMessageLiveLocation(this.chat.id, this.callbackQuery.message.message_id, undefined, markup)
+      ? this.telegram.stopMessageLiveLocation(
+        undefined, undefined, this.callbackQuery.inline_message_id,
+        markup
+      )
+      : this.telegram.stopMessageLiveLocation(
+        this.chat.id, this.callbackQuery.message.message_id, undefined,
+        markup
+      )
   }
 
   reply (...args) {
@@ -389,11 +444,11 @@ class TelegrafContext {
   }
 
   replyWithMarkdown (markdown, extra) {
-    return this.reply(markdown, Object.assign({parse_mode: 'Markdown'}, extra))
+    return this.reply(markdown, Object.assign({ 'parse_mode': 'Markdown' }, extra))
   }
 
   replyWithHTML (html, extra) {
-    return this.reply(html, Object.assign({parse_mode: 'HTML'}, extra))
+    return this.reply(html, Object.assign({ 'parse_mode': 'HTML' }, extra))
   }
 
   deleteMessage () {
@@ -402,9 +457,11 @@ class TelegrafContext {
       this.channelPost ||
       this.editedChannelPost ||
       (this.callbackQuery && this.callbackQuery.message)
+
     this.assert(message && this.chat, 'deleteMessage')
     return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
+
 }
 
 module.exports = TelegrafContext

@@ -161,7 +161,7 @@ Context is created per request and contains following props:
 
 ```js
 bot.use((ctx) => {
-  ctx.tg                   // Telegram client instance
+  ctx.telegram             // Telegram client instance
   ctx.updateType           // Update type (message, inline_query, etc.)
   [ctx.updateSubTypes]     // Update subtypes (text, sticker, audio, etc.)
   [ctx.message]            // Received message

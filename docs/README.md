@@ -621,7 +621,7 @@ Registers middleware for handling `text` messages.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string[]\|RegEx[]\|Function` | Triggers |
+| triggers | `string\|string[]\|RegEx\|RegEx[]\|Function` | Triggers |
 | middleware | `function` | Middleware |
 
 ##### command
@@ -653,7 +653,7 @@ Entity handling.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| entity | `string\|string[]\|function` | Entity name |
+| entity | `string\|string[]\|RegEx\|RegEx[]\|Function` | Entity name |
 | middleware | `function` | Middleware |
 
 ##### mention
@@ -686,7 +686,7 @@ Registers middleware for handling `callback_data` actions with regular expressio
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string[]\|RegEx[]` | Triggers |
+| triggers | `string\|string[]\|RegEx\|RegEx[]` | Triggers |
 | middleware | `function` | Middleware |
 
 
@@ -784,7 +784,7 @@ Generates middleware for handling `text` messages with regular expressions.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string[]\|RegEx[]\|Function[]` | Triggers |
+| triggers | `string\|string[]\|RegEx\|RegEx[]\|Function\|Function[]` | Triggers |
 | handler | `function` | Handler |
 
 ##### Telegraf.action
@@ -795,7 +795,7 @@ Generates middleware for handling `callbackQuery` data with regular expressions.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string[]\|RegEx[]\|Function[]` | Triggers |
+| triggers | `string\|string[]\|RegEx\|RegEx[]\|Function\|Function[]` | Triggers |
 | handler | `function` | Handler |
 
 ##### Telegraf.passThru
@@ -1198,7 +1198,7 @@ Returns link to file.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| fileId | `string/object` | File id or file object |
+| fileId | `string\|object` | File id or file object |
 
 ##### getMe
 

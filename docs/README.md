@@ -20,7 +20,7 @@ These accounts serve as an interface for code running somewhere on your server.
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
 - AWS **λ**/now/Heroku/Firebase/Glitch/Whatever ready
-- `http/https/koa/fastify/Connect.js/express.js` compatible webhooks
+- `https/koa/fastify/Connect.js/express.js` compatible webhooks
 - Easy to extend
 
 #### Installation

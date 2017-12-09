@@ -453,19 +453,41 @@ Express.js example integration
 ```js
 const Telegraf = require('telegraf')
 const express = require('express')
-const expressApp = express()
+const https = require('https')
+const path = require('path')
+const fs = require('fs')
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-expressApp.use(bot.webhookCallback('/secret-path'))
-bot.telegram.setWebhook('https://server.tld:8443/secret-path')
+// Certificates from letsencrypt
+const tlsOptions = {
+  key: fs.readFileSync(path.resolve(process.env.WEBHOOK_KEY)),
+  cert: fs.readFileSync(path.resolve(process.env.WEBHOOK_CERT)),
+}
 
-expressApp.get('/', (req, res) => {
+const server = express()
+const bot = new Telegraf(process.env.BOT_TOKEN, { telegram: { webhookReply: true } })
+
+server.use(bot.webhookCallback(`/${process.env.WEBHOOK_PATH}`))
+bot.telegram.setWebhook(`https://${process.env.WEBHOOK_DOMAIN}:${process.env.WEBHOOK_PORT}/${process.env.WEBHOOK_PATH}`)
+
+// [Optional] If you would need static share
+server.use('/images', express.static('images'))
+
+server.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-expressApp.listen(3000, () => {
-  console.log('Example app listening on port 3000!')
-})
+// Handle bot update
+server.post(
+  `/${process.env.WEBHOOK_PATH}`,
+  (req, res) => bot.handleUpdate(req.body, res)
+)
+
+// Start HTTPS Express Server
+https
+  .createServer(tlsOptions, server)
+  .listen(process.env.WEBHOOK_PORT, process.env.WEBHOOK_DOMAIN, () => {
+    console.log(`Example app listening on port ${process.env.WEBHOOK_PORT}!`)
+  })
 ```
 
 Fastify example integration

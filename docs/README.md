@@ -71,6 +71,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Chat Linker Bot](https://github.com/jt3k/chat-linker)
 * [Spyfall Game Bot](https://github.com/verget/telegram-spy-game)
 * [telegram-telegraf-bot](https://github.com/Finalgalaxy/telegram-telegraf-bot)
+* [midnabot](https://github.com/wsknorth/midnabot)
 * Send PR to add link to your bot
 
 ## Introduction

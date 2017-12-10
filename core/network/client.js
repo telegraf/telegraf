@@ -54,7 +54,6 @@ class ApiClient {
     if (this.options.apiRoot.startsWith('http://')) {
       this.options.agent = null
     }
-    console.log('this.options', this.options)
     this.response = webhookResponse
   }
 

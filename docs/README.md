@@ -1649,9 +1649,53 @@ Use this method to unban a previously kicked user in a supergroup.
 
 Telegram message options helper, [see examples](https://github.com/telegraf/telegraf/tree/develop/docs/examples/).
 
+##### inReplyTo
+
+##### notifications
+
+##### webPreview
+
+##### load
+
+##### markup
+
+##### HTML
+
+##### markdown
+
 #### Markup
 
 Telegram markup helper, [see examples](https://github.com/telegraf/telegraf/tree/develop/docs/examples/).
+
+##### removeKeyboard
+
+##### forceReply
+
+##### keyboard
+
+##### inlineKeyboard
+
+##### resize
+
+##### oneTime
+
+##### button
+
+##### contactRequestButton
+
+##### locationRequestButton
+
+##### urlButton
+
+##### callbackButton
+
+##### switchToChatButton
+
+##### switchToCurrentChatButton
+
+##### gameButton
+
+##### payButton
 
 #### Stage
 

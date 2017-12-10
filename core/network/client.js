@@ -51,6 +51,10 @@ class ApiClient {
   constructor (token, options, webhookResponse) {
     this.token = token
     this.options = Object.assign({}, DefaultOptions, options)
+    if (this.options.apiRoot.startsWith('http://')) {
+      this.options.agent = null
+    }
+    console.log('this.options', this.options)
     this.response = webhookResponse
   }
 

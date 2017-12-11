@@ -541,26 +541,26 @@ Also you can provide optional name of file as `filename`.
 ```js
 bot.on('message', (ctx) =>  {
   // resend existing file by file_id
-  ctx.answerWithSticker('123123jkbhj6b')
+  ctx.replyWithSticker('123123jkbhj6b')
   
   // send file
-  ctx.answerWithVideo({ source: '/path/to/video.mp4' })
+  ctx.replyWithVideo({ source: '/path/to/video.mp4' })
   
   // send stream
-  ctx.answerWithVideo({
+  ctx.replyWithVideo({
     source: fs.createReadStream('/path/to/video.mp4')
   })
   
   // send buffer
-  ctx.answerWithVoice({
+  ctx.replyWithVoice({
     source: new Buffer()
   })
 
   // send url via Telegram server
-  ctx.answerWithPhoto('http://lorempixel.com/400/200/cats/')
+  ctx.replyWithPhoto('http://lorempixel.com/400/200/cats/')
 
   // pipe url content
-  ctx.answerWithPhoto({
+  ctx.replyWithPhoto({
     url: 'http://lorempixel.com/400/200/cats/',
     filename: 'kitten.jpg'
   })

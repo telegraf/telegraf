@@ -1651,9 +1651,36 @@ Telegram message options helper, [see examples](https://github.com/telegraf/tele
 
 ##### inReplyTo
 
+If the message is a reply, ID of the original message
+
+`Message.reply_to_message_id`
+[Telegram official docs](https://core.telegram.org/bots/api#sendmessage)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| messageId | `number` | Message id |
+
 ##### notifications
 
+Sends the message silently. Users will receive a notification with no sound.
+
+`Message.disable_notification`
+[Telegram official docs](https://core.telegram.org/bots/api#sendmessage)
+
+| Param | Type | Description | Default |
+| --- | --- | --- | --- |
+| [enabled] | `boolean` | Disabled if false | `true` |
+
 ##### webPreview
+
+Disables link previews for links in this message.
+
+`Message.disable_web_page_preview`
+[Telegram official docs](https://core.telegram.org/bots/api#sendmessage)
+
+| Param | Type | Description | Default |
+| --- | --- | --- | --- |
+| [enabled] | `boolean` | Disabled if false | `true` |
 
 ##### load
 

@@ -16,6 +16,7 @@ const updateMessageSubTypes = [
   'video',
   'venue',
   'text',
+  'reply_to_message',
   'supergroup_chat_created',
   'successful_payment',
   'sticker',
@@ -462,6 +463,23 @@ class TelegrafContext {
 
     this.assert(message && this.chat, 'deleteMessage')
     return this.telegram.deleteMessage(this.chat.id, message.message_id)
+  }
+
+  onReply (message_id, ...args) {
+    this.options.replyListeners.push({
+      chat_id: this.chat.id,
+      message_id: message_id,
+      cb: args[1] || args[0],
+      nondisposable: args[1] ? args[0] : true
+    })
+  }
+
+  deleteReplyListener (message_id) {
+    const index = this.options.replyListeners.findIndex(replyListener => {
+      return replyListener.message_id === message_id
+    })
+    if (index === -1) return null
+    return this.options.replyListeners.splice(index, 1)[0]
   }
 }
 

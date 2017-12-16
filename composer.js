@@ -3,6 +3,7 @@ const TelegrafContext = require('./core/context')
 class Composer {
   constructor (...fns) {
     this.handler = Composer.compose(fns)
+    this.use(Composer.mount('reply_to_message', (ctx) => { Composer.replyOnMessage(ctx) }))
   }
 
   use (...fns) {
@@ -168,6 +169,16 @@ class Composer {
         (commands.includes(value) || groupCommands.includes(value))
         , ...fns)
     }))
+  }
+
+  static replyOnMessage (ctx) {
+    ctx.options.replyListeners.forEach(reply => {
+      if(ctx.message.from.id === reply.chat_id) 
+        if(ctx.message.reply_to_message.message_id === reply.message_id) {
+          reply.cb(ctx)
+          if(!reply.nondisposable) ctx.deleteReplyListener(reply.message_id)
+        }
+    })
   }
 
   static action (triggers, ...fns) {

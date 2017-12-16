@@ -465,18 +465,18 @@ class TelegrafContext {
     return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
 
-  onReply (message_id, ...args) {
+  onReply (messageID, ...args) {
     this.options.replyListeners.push({
       chat_id: this.chat.id,
-      message_id: message_id,
+      message_id: messageID,
       cb: args[1] || args[0],
       nondisposable: args[1] ? args[0] : true
     })
   }
 
-  deleteReplyListener (message_id) {
+  deleteReplyListener (messageID) {
     const index = this.options.replyListeners.findIndex(replyListener => {
-      return replyListener.message_id === message_id
+      return replyListener.message_id === messageID
     })
     if (index === -1) return null
     return this.options.replyListeners.splice(index, 1)[0]

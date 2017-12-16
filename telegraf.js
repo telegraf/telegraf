@@ -11,7 +11,8 @@ const generateCallback = require('./core/network/webhook')
 
 const DefaultOptions = {
   retryAfter: 1,
-  handlerTimeout: 0
+  handlerTimeout: 0,
+  replyListeners: []
 }
 
 const noop = () => {}

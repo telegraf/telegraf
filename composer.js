@@ -176,7 +176,7 @@ class Composer {
       if (ctx.message.from.id === reply.chat_id) {
         if (ctx.message.reply_to_message.message_id === reply.message_id) {
           reply.cb(ctx)
-          if(!reply.nondisposable) ctx.deleteReplyListener(reply.message_id)
+          if (!reply.nondisposable) ctx.deleteReplyListener(reply.message_id)
         }
       }
     })

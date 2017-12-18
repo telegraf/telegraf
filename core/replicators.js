@@ -1,48 +1,50 @@
-function wrapEntity (content, entity) {
+const entityStart = (entity) => {
   switch (entity.type) {
     case 'bold':
-      return `<b>${content}</b>`
     case 'italic':
-      return `<i>${content}</i>`
+      return `<${entity.type.charAt(0)}>`
     case 'code':
-      return `<code>${content}</code>`
     case 'pre':
-      return `<pre>${content}</pre>`
+      return `<${entity.type}>`
     case 'text_link':
-      return `<a href="${entity.url}">${content}</a>`
-    default:
-      return content
+      return `<a href="${entity.url}">`
   }
+  return ''
 }
 
-function applyEntity (text, entity) {
-  const head = text.substring(0, entity.offset)
-  const tail = text.substring(entity.offset + entity.length)
-  const content = wrapEntity(text.substring(entity.offset, entity.offset + entity.length), entity)
-  return `${head}${content}${tail}`
+const entityEnd = (entity) => {
+  switch (entity.type) {
+    case 'bold':
+    case 'italic':
+      return `</${entity.type.charAt(0)}>`
+    case 'code':
+    case 'pre':
+      return `</${entity.type}>`
+    case 'text_link':
+      return '</a>'
+  }
+  return ''
 }
+
+const applyEntity = (text, entity) => text
+  .splice(entity.offset + entity.length, 0, entityEnd(entity))
+  .splice(entity.offset, 0, entityStart(entity))
 
 module.exports = {
-  copyMethods: {
-    'audio': 'sendAudio',
-    'contact': 'sendContact',
-    'document': 'sendDocument',
-    'location': 'sendLocation',
-    'photo': 'sendPhoto',
-    'sticker': 'sendSticker',
-    'text': 'sendMessage',
-    'venue': 'sendVenue',
-    'video': 'sendVideo',
-    'video_note': 'sendVideoNote',
-    'voice': 'sendVoice'
-  },
-  text: (message) => {
-    const entities = message.entities || []
-    return {
-      parse_mode: 'HTML',
-      text: entities.reduceRight(applyEntity, message.text)
+  copyMethods: new Proxy({}, {
+    get (target, property, receiver) {
+      return property === 'text'
+        ? 'sendMessage'
+        : `send_${property}`.replace(/_([a-z])/g, ($0, $1) => $1.toUpperCase())
     }
-  },
+  }),
+  text: (message) => ({
+    parse_mode: 'HTML',
+    text: message.entities && message.entities.reduceRight(
+      applyEntity,
+      message.text
+    ) || []
+  }),
   contact: (message) => ({
     phone_number: message.contact.phone_number,
     first_name: message.contact.first_name,

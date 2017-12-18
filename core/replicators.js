@@ -43,75 +43,55 @@ module.exports = {
       text: entities.reduceRight(applyEntity, message.text)
     }
   },
-  contact: (message) => {
-    return {
-      phone_number: message.contact.phone_number,
-      first_name: message.contact.first_name,
-      last_name: message.contact.last_name
-    }
-  },
-  location: (message) => {
-    return {
-      latitude: message.location.latitude,
-      longitude: message.location.longitude
-    }
-  },
-  venue: (message) => {
-    return {
-      latitude: message.venue.location.latitude,
-      longitude: message.venue.location.longitude,
-      title: message.venue.title,
-      address: message.venue.address,
-      foursquare_id: message.venue.foursquare_id
-    }
-  },
-  voice: (message) => {
-    return {
-      voice: message.voice.file_id,
-      duration: message.voice.duration,
-      caption: message.caption
-    }
-  },
-  audio: (message) => {
-    return {
-      audio: message.audio.file_id,
-      duration: message.audio.duration,
-      performer: message.audio.performer,
-      title: message.audio.title,
-      caption: message.caption
-    }
-  },
-  video: (message) => {
-    return {
-      video: message.video.file_id,
-      caption: message.caption,
-      duration: message.video.duration,
-      width: message.video.width,
-      height: message.video.height
-    }
-  },
-  document: (message) => {
-    return {
-      document: message.document.file_id,
-      caption: message.caption
-    }
-  },
-  sticker: (message) => {
-    return {
-      sticker: message.sticker.file_id
-    }
-  },
-  photo: (message) => {
-    return {
-      photo: message.photo[message.photo.length - 1].file_id,
-      caption: message.caption
-    }
-  },
-  video_note: (message) => {
-    return {
-      video_note: message.video_note.file_id,
-      length: message.video_note.length,
-      duration: message.video_note.duration
-    }
-  }
+  contact: (message) => ({
+    phone_number: message.contact.phone_number,
+    first_name: message.contact.first_name,
+    last_name: message.contact.last_name
+  }),
+  location: (message) => ({
+    latitude: message.location.latitude,
+    longitude: message.location.longitude
+  }),
+  venue: (message) => ({
+    latitude: message.venue.location.latitude,
+    longitude: message.venue.location.longitude,
+    title: message.venue.title,
+    address: message.venue.address,
+    foursquare_id: message.venue.foursquare_id
+  }),
+  voice: (message) => ({
+    voice: message.voice.file_id,
+    duration: message.voice.duration,
+    caption: message.caption
+  }),
+  audio: (message) => ({
+    audio: message.audio.file_id,
+    duration: message.audio.duration,
+    performer: message.audio.performer,
+    title: message.audio.title,
+    caption: message.caption
+  }),
+  video: (message) => ({
+    video: message.video.file_id,
+    caption: message.caption,
+    duration: message.video.duration,
+    width: message.video.width,
+    height: message.video.height
+  }),
+  document: (message) => ({
+    document: message.document.file_id,
+    caption: message.caption
+  }),
+  sticker: (message) => ({
+    sticker: message.sticker.file_id
+  }),
+  photo: (message) => ({
+    photo: message.photo[message.photo.length - 1].file_id,
+    caption: message.caption
+  }),
+  video_note: (message) => ({
+    video_note: message.video_note.file_id,
+    length: message.video_note.length,
+    duration: message.video_note.duration
+  })
 }

@@ -1,34 +1,20 @@
-const entityStart = (entity) => {
+const entityTag = (entity, isTail = false) => {
   switch (entity.type) {
     case 'bold':
     case 'italic':
-      return `<${entity.type.charAt(0)}>`
+      return `<${isTail ? '/' : ''}${entity.type.charAt(0)}>`
     case 'code':
     case 'pre':
-      return `<${entity.type}>`
+      return `<${isTail ? '/' : ''}${entity.type}>`
     case 'text_link':
-      return `<a href="${entity.url}">`
-  }
-  return ''
-}
-
-const entityEnd = (entity) => {
-  switch (entity.type) {
-    case 'bold':
-    case 'italic':
-      return `</${entity.type.charAt(0)}>`
-    case 'code':
-    case 'pre':
-      return `</${entity.type}>`
-    case 'text_link':
-      return '</a>'
+      return `<${isTail ? '/' : ''}a${isTail ? '' : ' href="' + entity.url + '"'}>`
   }
   return ''
 }
 
 const applyEntity = (text, entity) => text
-  .splice(entity.offset + entity.length, 0, entityEnd(entity))
-  .splice(entity.offset, 0, entityStart(entity))
+  .splice(entity.offset + entity.length, 0, entityTag(entity, true))
+  .splice(entity.offset, 0, entityTag(entity))
 
 module.exports = {
   copyMethods: new Proxy({}, {

@@ -44,12 +44,12 @@ class TelegrafContext {
     this.update = update
     this.options = options
 
-    if ('message' in this.update) {
+    if (this.update.hasOwnProperty('message')) {
       this.updateType = 'message'
       this.updateSubTypes = updateMessageSubTypes
         .filter((key) => key in this.update.message)
     } else {
-      this.updateType = updateTypes.find((key) => key in this.update)
+      this.updateType = updateTypes.find((key) => this.update.hasOwnProperty(key))
       this.updateSubTypes = []
     }
 

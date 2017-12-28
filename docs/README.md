@@ -72,6 +72,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Spyfall Game Bot](https://github.com/verget/telegram-spy-game)
 * [telegram-telegraf-bot](https://github.com/Finalgalaxy/telegram-telegraf-bot)
 * [midnabot](https://github.com/wsknorth/midnabot)
+* [Metal Archives Bot](https://github.com/amiralies/metalarchives-telegram-bot)
 * Send PR to add link to your bot
 
 ## Introduction

@@ -72,6 +72,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Spyfall Game Bot](https://github.com/verget/telegram-spy-game)
 * [telegram-telegraf-bot](https://github.com/Finalgalaxy/telegram-telegraf-bot)
 * [midnabot](https://github.com/wsknorth/midnabot)
+* [Metal Archives Bot](https://github.com/amiralies/metalarchives-telegram-bot)
 * Send PR to add link to your bot
 
 ## Introduction
@@ -541,26 +542,26 @@ Also you can provide optional name of file as `filename`.
 ```js
 bot.on('message', (ctx) =>  {
   // resend existing file by file_id
-  ctx.answerWithSticker('123123jkbhj6b')
+  ctx.replyWithSticker('123123jkbhj6b')
   
   // send file
-  ctx.answerWithVideo({ source: '/path/to/video.mp4' })
+  ctx.replyWithVideo({ source: '/path/to/video.mp4' })
   
   // send stream
-  ctx.answerWithVideo({
+  ctx.replyWithVideo({
     source: fs.createReadStream('/path/to/video.mp4')
   })
   
   // send buffer
-  ctx.answerWithVoice({
+  ctx.replyWithVoice({
     source: new Buffer()
   })
 
   // send url via Telegram server
-  ctx.answerWithPhoto('http://lorempixel.com/400/200/cats/')
+  ctx.replyWithPhoto('http://lorempixel.com/400/200/cats/')
 
   // pipe url content
-  ctx.answerWithPhoto({
+  ctx.replyWithPhoto({
     url: 'http://lorempixel.com/400/200/cats/',
     filename: 'kitten.jpg'
   })

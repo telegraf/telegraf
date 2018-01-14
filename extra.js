@@ -36,12 +36,15 @@ class Extra {
   }
 
   HTML (value = true) {
-    this.parse_mode = value ? 'HTML' : undefined
-    return this
+    return value ? this._setParseMode('HTML') : this
   }
 
   markdown (value = true) {
-    this.parse_mode = value ? 'Markdown' : undefined
+    return value ? this._setParseMode('Markdown') : this
+  }
+
+  _setParseMode (mode) {
+    this.parse_mode = mode
     return this
   }
 

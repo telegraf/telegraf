@@ -73,6 +73,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [telegram-telegraf-bot](https://github.com/Finalgalaxy/telegram-telegraf-bot)
 * [midnabot](https://github.com/wsknorth/midnabot)
 * [Metal Archives Bot](https://github.com/amiralies/metalarchives-telegram-bot)
+* [Syntax Highlighter Bot](https://github.com/piterden/syntax-highlighter-bot)
 * Send PR to add link to your bot
 
 ## Introduction

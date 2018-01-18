@@ -47,6 +47,15 @@ function safeJSONParse (text) {
   }
 }
 
+function isMultipartRequest (payload) {
+  return Object.keys(payload)
+    .filter((x) => payload[x])
+    .some((x) => Array.isArray(payload[x])
+      ? payload[x].some(({ media }) => typeof media === 'object' && (media.source || media.url))
+      : payload[x].source || payload[x].url
+    )
+}
+
 class ApiClient {
   constructor (token, options, webhookResponse) {
     this.token = token
@@ -65,28 +74,29 @@ class ApiClient {
     return this.options.webhookReply
   }
 
-  callApi (method, extra = {}) {
-    const isMultipartRequest = Object.keys(extra)
-      .filter((x) => extra[x])
-      .some((x) => Array.isArray(extra[x])
-        ? extra[x].some((child) => typeof child.media === 'object' && (child.media.source || child.media.url))
-        : extra[x].source || extra[x].url
-      )
-    if (this.options.webhookReply && !isMultipartRequest && this.response && !this.response.finished && !WebhookBlacklist.includes(method)) {
+  callApi (method, payload = {}) {
+    if (
+      this.options.webhookReply &&
+      !isMultipartRequest(payload) &&
+      this.response &&
+      !this.responseEnd &&
+      !WebhookBlacklist.includes(method)
+    ) {
       debug('▷ webhook', method)
-      extra.method = method
-      if (typeof this.response.end === 'function') {
-        if (!this.response.headersSent) {
-          this.response.setHeader('connection', 'keep-alive')
-          this.response.setHeader('content-type', 'application/json')
-        }
-        this.response.end(JSON.stringify(extra))
-      } else if (typeof this.response.header === 'object') {
-        this.response.header['connection'] = 'keep-alive'
-        this.response.header['content-type'] = 'application/json'
-        this.response.body = extra
+      this.responseEnd = true
+      payload.method = method
+
+      if (typeof this.response.header === 'object') {
+        this.response.body = payload
+        return Promise.resolve({ webhook: true })
       }
-      return Promise.resolve({webhook: true})
+
+      if (!this.response.headersSent) {
+        this.response.setHeader('content-type', 'application/json')
+      }
+      return new Promise((resolve) =>
+        this.response.end(JSON.stringify(payload), 'utf-8', () => resolve({ webhook: true }))
+      )
     }
 
     if (!this.token) {
@@ -97,7 +107,9 @@ class ApiClient {
     }
 
     debug('▶︎ http', method)
-    const buildPayload = isMultipartRequest ? this.buildFormDataPayload(extra) : this.buildJSONPayload(extra)
+    const buildPayload = isMultipartRequest
+      ? this.buildFormDataPayload(payload)
+      : this.buildJSONPayload(payload)
     return buildPayload
       .then((payload) => {
         payload.agent = this.options.agent
@@ -113,7 +125,7 @@ class ApiClient {
       })
       .then((data) => {
         if (!data.ok) {
-          throw new TelegramError(data, {method, extra})
+          throw new TelegramError(data, { method, payload })
         }
         return data.result
       })

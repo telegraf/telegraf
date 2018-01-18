@@ -54,8 +54,8 @@ function safeJSONParse (text) {
 function includesMedia (payload) {
   return Object.keys(payload).some(
     (key) => Array.isArray(payload[key])
-      ? payload[key].some(({ media }) => typeof media === 'object' && (media.source || media.url))
-      : typeof payload[key] === 'object' && (payload[key].source || payload[key].url)
+      ? payload[key].some(({ media }) => media && typeof media === 'object' && (media.source || media.url))
+      : payload[key] && typeof payload[key] === 'object' && (payload[key].source || payload[key].url)
   )
 }
 

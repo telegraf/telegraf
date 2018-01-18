@@ -39,6 +39,10 @@ const DefaultOptions = {
   })
 }
 
+const WebhookReplyStub = {
+  webhook: true
+}
+
 function safeJSONParse (text) {
   try {
     return JSON.parse(text)
@@ -47,13 +51,12 @@ function safeJSONParse (text) {
   }
 }
 
-function isMultipartRequest (payload) {
-  return Object.keys(payload)
-    .filter((x) => payload[x])
-    .some((x) => Array.isArray(payload[x])
-      ? payload[x].some(({ media }) => typeof media === 'object' && (media.source || media.url))
-      : payload[x].source || payload[x].url
-    )
+function includesMedia (payload) {
+  return Object.keys(payload).some(
+    (key) => Array.isArray(payload[key])
+      ? payload[key].some(({ media }) => typeof media === 'object' && (media.source || media.url))
+      : typeof payload[key] === 'object' && (payload[key].source || payload[key].url)
+  )
 }
 
 class ApiClient {
@@ -75,27 +78,26 @@ class ApiClient {
   }
 
   callApi (method, payload = {}) {
+    const response = this.response
     if (
       this.options.webhookReply &&
-      !isMultipartRequest(payload) &&
-      this.response &&
       !this.responseEnd &&
-      !WebhookBlacklist.includes(method)
+      response &&
+      !WebhookBlacklist.includes(method) &&
+      !includesMedia(payload)
     ) {
       debug('▷ webhook', method)
       this.responseEnd = true
-      payload.method = method
-
-      if (typeof this.response.header === 'object') {
-        this.response.body = payload
-        return Promise.resolve({ webhook: true })
+      const answer = Object.assign({ method }, payload)
+      if (typeof response.header === 'object') {
+        response.body = answer
+        return Promise.resolve(WebhookReplyStub)
       }
-
-      if (!this.response.headersSent) {
-        this.response.setHeader('content-type', 'application/json')
+      if (!response.headersSent) {
+        response.setHeader('content-type', 'application/json')
       }
       return new Promise((resolve) =>
-        this.response.end(JSON.stringify(payload), 'utf-8', () => resolve({ webhook: true }))
+        response.end(JSON.stringify(answer), 'utf-8', () => resolve(WebhookReplyStub))
       )
     }
 
@@ -107,13 +109,11 @@ class ApiClient {
     }
 
     debug('▶︎ http', method)
-    const buildPayload = isMultipartRequest
-      ? this.buildFormDataPayload(payload)
-      : this.buildJSONPayload(payload)
-    return buildPayload
-      .then((payload) => {
-        payload.agent = this.options.agent
-        return fetch(`${this.options.apiRoot}/bot${this.token}/${method}`, payload)
+    return this.buildFetchConfig(payload)
+      .then((config) => {
+        const apiUrl = `${this.options.apiRoot}/bot${this.token}/${method}`
+        config.agent = this.options.agent
+        return fetch(apiUrl, config)
       })
       .then((res) => res.text())
       .then((text) => {
@@ -124,22 +124,29 @@ class ApiClient {
         }
       })
       .then((data) => {
-        if (!data.ok) {
-          throw new TelegramError(data, { method, payload })
+        if (data.ok) {
+          return data.result
         }
-        return data.result
+        throw new TelegramError(data, { method, payload })
       })
   }
 
-  buildJSONPayload (options) {
+  buildFetchConfig (payload) {
+    return includesMedia(payload)
+      ? this.buildFormDataConfig(payload)
+      : this.buildJSONConfig(payload)
+  }
+
+  buildJSONConfig (options) {
     return Promise.resolve({
       method: 'POST',
+      compress: true,
       headers: { 'content-type': 'application/json', 'connection': 'keep-alive' },
       body: JSON.stringify(options)
     })
   }
 
-  buildFormDataPayload (options) {
+  buildFormDataConfig (options) {
     if (options.reply_markup && typeof options.reply_markup !== 'string') {
       options.reply_markup = JSON.stringify(options.reply_markup)
     }
@@ -149,6 +156,7 @@ class ApiClient {
     return Promise.all(tasks).then(() => {
       return {
         method: 'POST',
+        compress: true,
         headers: { 'content-type': `multipart/form-data; boundary=${boundary}`, 'connection': 'keep-alive' },
         body: formData
       }
@@ -171,12 +179,12 @@ function attachFormValue (form, value, id) {
   if (Array.isArray(value)) {
     return Promise.all(
       value.map((item) => {
-        if (typeof item.media === 'object') {
-          const attachmentId = crypto.randomBytes(16).toString('hex')
-          return attachFormMedia(form, item.media, attachmentId)
-            .then(() => Object.assign({}, item, { media: `attach://${attachmentId}` }))
+        if (typeof item.media !== 'object') {
+          return Promise.resolve(item)
         }
-        return Promise.resolve(item)
+        const attachmentId = crypto.randomBytes(16).toString('hex')
+        return attachFormMedia(form, item.media, attachmentId)
+          .then(() => Object.assign({}, item, { media: `attach://${attachmentId}` }))
       })
     ).then((items) => form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },

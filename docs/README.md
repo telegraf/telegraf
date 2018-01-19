@@ -19,8 +19,8 @@ These accounts serve as an interface for code running somewhere on your server.
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
-- AWS **λ**/now/Heroku/Firebase/Glitch/Whatever ready
-- `http/https/koa/fastify/Connect.js/express.js` compatible webhooks
+- [now](https://now.sh)/[Firebase](https://firebase.google.com/products/functions/)/[Glitch](https://dashing-light.glitch.me)/[Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction)/[AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)/Whatever ready
+- `http/https/fastify/Connect.js/express.js` compatible webhooks
 - Easy to extend
 
 #### Installation
@@ -71,6 +71,9 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Chat Linker Bot](https://github.com/jt3k/chat-linker)
 * [Spyfall Game Bot](https://github.com/verget/telegram-spy-game)
 * [telegram-telegraf-bot](https://github.com/Finalgalaxy/telegram-telegraf-bot)
+* [midnabot](https://github.com/wsknorth/midnabot)
+* [Metal Archives Bot](https://github.com/amiralies/metalarchives-telegram-bot)
+* [Syntax Highlighter Bot](https://github.com/piterden/syntax-highlighter-bot)
 * Send PR to add link to your bot
 
 ## Introduction
@@ -201,84 +204,84 @@ bot.on('text', (ctx) => {
 Context shortcuts for **message** update:
 
 ```js
-addStickerToSet() -> telegram.addStickerToSet()
-createNewStickerSet() -> telegram.createNewStickerSet()
-deleteChatPhoto() -> telegram.deleteChatPhoto()
-deleteMessage() -> telegram.deleteMessage()
-deleteStickerFromSet() -> telegram.deleteStickerFromSet()
-exportChatInviteLink() -> telegram.exportChatInviteLink()
-getChat() -> telegram.getChat()
-getChatAdministrators() -> telegram.getChatAdministrators()
-getChatMember() -> telegram.getChatMember()
-getChatMembersCount() -> telegram.getChatMembersCount()
-getStickerSet() -> telegram.getStickerSet()
-leaveChat() -> telegram.leaveChat()
-pinChatMessage() -> telegram.pinChatMessage()
-reply() -> telegram.sendMessage()
-replyWithAudio() -> telegram.sendAudio()
-replyWithChatAction() -> telegram.sendChatAction()
-replyWithDocument() -> telegram.sendDocument()
-replyWithGame() -> telegram.sendGame()
-replyWithHTML() -> telegram.sendMessage()
-replyWithInvoice() -> telegram.sendInvoice()
-replyWithLocation() -> telegram.sendLocation()
-replyWithMarkdown() -> telegram.sendMessage()
-replyWithPhoto() -> telegram.sendPhoto()
-replyWithMediaGroup() -> telegram.sendMediaGroup()
-replyWithSticker() -> telegram.sendSticker()
-replyWithVideo() -> telegram.sendVideo()
-replyWithVideoNote() -> telegram.sendVideoNote()
-replyWithVoice() -> telegram.sendVoice()
-setChatDescription() -> telegram.setChatDescription()
-setChatPhoto() -> telegram.setChatPhoto()
-setChatTitle() -> telegram.setChatTitle()
+addStickerToSet()         -> telegram.addStickerToSet()
+createNewStickerSet()     -> telegram.createNewStickerSet()
+deleteChatPhoto()         -> telegram.deleteChatPhoto()
+deleteMessage()           -> telegram.deleteMessage()
+deleteStickerFromSet()    -> telegram.deleteStickerFromSet()
+exportChatInviteLink()    -> telegram.exportChatInviteLink()
+getChat()                 -> telegram.getChat()
+getChatAdministrators()   -> telegram.getChatAdministrators()
+getChatMember()           -> telegram.getChatMember()
+getChatMembersCount()     -> telegram.getChatMembersCount()
+getStickerSet()           -> telegram.getStickerSet()
+leaveChat()               -> telegram.leaveChat()
+pinChatMessage()          -> telegram.pinChatMessage()
+reply()                   -> telegram.sendMessage()
+replyWithAudio()          -> telegram.sendAudio()
+replyWithChatAction()     -> telegram.sendChatAction()
+replyWithDocument()       -> telegram.sendDocument()
+replyWithGame()           -> telegram.sendGame()
+replyWithHTML()           -> telegram.sendMessage()
+replyWithInvoice()        -> telegram.sendInvoice()
+replyWithLocation()       -> telegram.sendLocation()
+replyWithMarkdown()       -> telegram.sendMessage()
+replyWithPhoto()          -> telegram.sendPhoto()
+replyWithMediaGroup()     -> telegram.sendMediaGroup()
+replyWithSticker()        -> telegram.sendSticker()
+replyWithVideo()          -> telegram.sendVideo()
+replyWithVideoNote()      -> telegram.sendVideoNote()
+replyWithVoice()          -> telegram.sendVoice()
+setChatDescription()      -> telegram.setChatDescription()
+setChatPhoto()            -> telegram.setChatPhoto()
+setChatTitle()            -> telegram.setChatTitle()
 setStickerPositionInSet() -> telegram.setStickerPositionInSet()
-unpinChatMessage() -> telegram.unpinChatMessage()
-uploadStickerFile() -> telegram.uploadStickerFile()
+unpinChatMessage()        -> telegram.unpinChatMessage()
+uploadStickerFile()       -> telegram.uploadStickerFile()
 ```
 
 Context shortcuts for **callback_query** update:
 
 ```js
-addStickerToSet() -> telegram.addStickerToSet()
-answerCbQuery() -> telegram.answerCbQuery()
-answerGameQuery() -> telegram.answerGameQuery()
-createNewStickerSet() -> telegram.createNewStickerSet()
-deleteChatPhoto() -> telegram.deleteChatPhoto()
-deleteMessage() -> telegram.deleteMessage()
-deleteStickerFromSet() -> telegram.deleteStickerFromSet()
-editMessageCaption() -> telegram.editMessageCaption()
-editMessageReplyMarkup() -> telegram.editMessageReplyMarkup()
-editMessageText() -> telegram.editMessageText()
-exportChatInviteLink() -> telegram.exportChatInviteLink()
-getChat() -> telegram.getChat()
-getChatAdministrators() -> telegram.getChatAdministrators()
-getChatMember() -> telegram.getChatMember()
-getChatMembersCount() -> telegram.getChatMembersCount()
-getStickerSet() -> telegram.getStickerSet()
-leaveChat() -> telegram.leaveChat()
-pinChatMessage() -> telegram.pinChatMessage()
-reply() -> telegram.sendMessage()
-replyWithAudio() -> telegram.sendAudio()
-replyWithChatAction() -> telegram.sendChatAction()
-replyWithDocument() -> telegram.sendDocument()
-replyWithGame() -> telegram.sendGame()
-replyWithHTML() -> telegram.sendMessage()
-replyWithInvoice() -> telegram.sendInvoice()
-replyWithLocation() -> telegram.sendLocation()
-replyWithMarkdown() -> telegram.sendMessage()
-replyWithPhoto() -> telegram.sendPhoto()
-replyWithMediaGroup() -> telegram.sendMediaGroup()
-replyWithSticker() -> telegram.sendSticker()
-replyWithVideo() -> telegram.sendVideo()
-replyWithVideoNote() -> telegram.sendVideoNote()
-replyWithVoice() -> telegram.sendVoice()
-setChatDescription() -> telegram.setChatDescription()
-setChatPhoto() -> telegram.setChatPhoto()
-setChatTitle() -> telegram.setChatTitle()
+addStickerToSet()         -> telegram.addStickerToSet()
+answerCbQuery()           -> telegram.answerCbQuery()
+answerGameQuery()         -> telegram.answerGameQuery()
+createNewStickerSet()     -> telegram.createNewStickerSet()
+deleteChatPhoto()         -> telegram.deleteChatPhoto()
+deleteMessage()           -> telegram.deleteMessage()
+deleteStickerFromSet()    -> telegram.deleteStickerFromSet()
+editMessageCaption()      -> telegram.editMessageCaption()
+editMessageReplyMarkup()  -> telegram.editMessageReplyMarkup()
+editMessageText()         -> telegram.editMessageText()
+exportChatInviteLink()    -> telegram.exportChatInviteLink()
+getChat()                 -> telegram.getChat()
+getChatAdministrators()   -> telegram.getChatAdministrators()
+getChatMember()           -> telegram.getChatMember()
+getChatMembersCount()     -> telegram.getChatMembersCount()
+getStickerSet()           -> telegram.getStickerSet()
+leaveChat()               -> telegram.leaveChat()
+pinChatMessage()          -> telegram.pinChatMessage()
+reply()                   -> telegram.sendMessage()
+replyWithAudio()          -> telegram.sendAudio()
+replyWithChatAction()     -> telegram.sendChatAction()
+replyWithDocument()       -> telegram.sendDocument()
+replyWithGame()           -> telegram.sendGame()
+replyWithHTML()           -> telegram.sendMessage()
+replyWithInvoice()        -> telegram.sendInvoice()
+replyWithLocation()       -> telegram.sendLocation()
+replyWithMarkdown()       -> telegram.sendMessage()
+replyWithPhoto()          -> telegram.sendPhoto()
+replyWithMediaGroup()     -> telegram.sendMediaGroup()
+replyWithSticker()        -> telegram.sendSticker()
+replyWithVideo()          -> telegram.sendVideo()
+replyWithVideoNote()      -> telegram.sendVideoNote()
+replyWithVoice()          -> telegram.sendVoice()
+setChatDescription()      -> telegram.setChatDescription()
+setChatPhoto()            -> telegram.setChatPhoto()
+setChatTitle()            -> telegram.setChatTitle()
 setStickerPositionInSet() -> telegram.setStickerPositionInSet()
-unpinChatMessage() -> telegram.unpinChatMessage()
-uploadStickerFile() -> telegram.uploadStickerFile()
+unpinChatMessage()        -> telegram.unpinChatMessage()
+uploadStickerFile()       -> telegram.uploadStickerFile()
 ```
 
 Context shortcuts for **inline_query** update:
@@ -384,14 +387,34 @@ Supported update types:
 - `edited_channel_post`
 
 Available update sub-types:
-`text`, `audio`, `document`, `photo`, `sticker`, `video`, `voice`, `contact`, 
-`location`, `venue`, `new_chat_members`, `left_chat_member`, `new_chat_title`, 
-`new_chat_photo`, `delete_chat_photo`, `group_chat_created`, `migrate_to_chat_id`,
-`supergroup_chat_created`, `channel_chat_created`, `migrate_from_chat_id`, 
-`pinned_message`, `game`, `video_note`, `invoice`, `successful_payment`.
+
+- `text`
+- `audio`
+- `document`
+- `photo`
+- `sticker`
+- `video`
+- `voice`
+- `contact`
+- `location`
+- `venue`
+- `new_chat_members`
+- `left_chat_member`
+- `new_chat_title`
+- `new_chat_photo`
+- `delete_chat_photo`
+- `group_chat_created`
+- `migrate_to_chat_id`
+- `supergroup_chat_created`
+- `channel_chat_created`
+- `migrate_from_chat_id`
+- `pinned_message`
+- `game`
+- `video_note`
+- `invoice`
+- `successful_payment`
 
 ```js
-
 // Handle message update
 bot.on('message', (ctx) =>  {
   return ctx.reply('Hey there!')
@@ -402,7 +425,6 @@ bot.on(['sticker', 'photo'], (ctx) =>  {
   console.log(ctx.message)
   return ctx.reply('Cool!')
 })
-
 ```
 [Related Telegram Official Docs](https://core.telegram.org/bots/api#message)
 
@@ -521,26 +543,26 @@ Also you can provide optional name of file as `filename`.
 ```js
 bot.on('message', (ctx) =>  {
   // resend existing file by file_id
-  ctx.answerWithSticker('123123jkbhj6b')
+  ctx.replyWithSticker('123123jkbhj6b')
   
   // send file
-  ctx.answerWithVideo({ source: '/path/to/video.mp4' })
+  ctx.replyWithVideo({ source: '/path/to/video.mp4' })
   
   // send stream
-  ctx.answerWithVideo({
+  ctx.replyWithVideo({
     source: fs.createReadStream('/path/to/video.mp4')
   })
   
   // send buffer
-  ctx.answerWithVoice({
+  ctx.replyWithVoice({
     source: new Buffer()
   })
 
   // send url via Telegram server
-  ctx.answerWithPhoto('http://lorempixel.com/400/200/cats/')
+  ctx.replyWithPhoto('http://lorempixel.com/400/200/cats/')
 
   // pipe url content
-  ctx.answerWithPhoto({
+  ctx.replyWithPhoto({
     url: 'http://lorempixel.com/400/200/cats/',
     filename: 'kitten.jpg'
   })
@@ -610,7 +632,7 @@ Registers middleware for provided update type.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| updateTypes | `string\|string[]` | Update type |
+| updateTypes | `string/string[]` | Update type |
 | middleware | `function` | Middleware |
 
 ##### hears
@@ -621,7 +643,7 @@ Registers middleware for handling `text` messages.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string\|string[]\|RegEx\|RegEx[]\|Function` | Triggers |
+| triggers | `string/string[]/RegEx/RegEx[]/Function` | Triggers |
 | middleware | `function` | Middleware |
 
 ##### command
@@ -632,7 +654,7 @@ Command handling.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| commands | `string\|string[]` | Commands |
+| commands | `string/string[]` | Commands |
 | middleware | `function` | Middleware |
 
 ##### start
@@ -653,7 +675,7 @@ Entity handling.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| entity | `string\|string[]\|RegEx\|RegEx[]\|Function` | Entity name |
+| entity | `string/string[]/RegEx/RegEx[]/Function` | Entity name |
 | middleware | `function` | Middleware |
 
 ##### mention
@@ -664,7 +686,7 @@ Mention handling.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| username | `string\|string[]` | Username |
+| username | `string/string[]` | Username |
 | middleware | `function` | Middleware |
 
 ##### hashtag
@@ -675,7 +697,7 @@ Hashtag handling.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| hashtag | `string\|string[]` | Hashtag |
+| hashtag | `string/string[]` | Hashtag |
 | middleware | `function` | Middleware |
 
 ##### action
@@ -686,7 +708,7 @@ Registers middleware for handling `callback_data` actions with regular expressio
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string\|string[]\|RegEx\|RegEx[]` | Triggers |
+| triggers | `string/string[]/RegEx/RegEx[]` | Triggers |
 | middleware | `function` | Middleware |
 
 
@@ -773,7 +795,7 @@ Generates middleware for handling provided update types.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| updateTypes | `string\|string[]` | Update type |
+| updateTypes | `string/string[]` | Update type |
 | middleware | `function` | middleware |
 
 ##### Telegraf.hears
@@ -784,7 +806,7 @@ Generates middleware for handling `text` messages with regular expressions.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string\|string[]\|RegEx\|RegEx[]\|Function\|Function[]` | Triggers |
+| triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
 ##### Telegraf.action
@@ -795,7 +817,7 @@ Generates middleware for handling `callbackQuery` data with regular expressions.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string\|string[]\|RegEx\|RegEx[]\|Function\|Function[]` | Triggers |
+| triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
 ##### Telegraf.passThru
@@ -818,7 +840,7 @@ Generates optional middleware.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| test | `truthy\|function` | Value or predicate `(ctx) => bool` |
+| test | `truthy/function` | Value or predicate `(ctx) => bool` |
 | middleware | `function` | middleware |
 
 ##### Telegraf.drop
@@ -829,7 +851,7 @@ Generates drop middleware.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| test | `truthy\|function` | Value or predicate `(ctx) => bool` |
+| test | `truthy/function` | Value or predicate `(ctx) => bool` |
 
 ##### Telegraf.filter
 
@@ -839,7 +861,7 @@ Generates filter middleware.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| test | `truthy\|function` | Value or predicate `(ctx) => bool` |
+| test | `truthy/function` | Value or predicate `(ctx) => bool` |
 
 ##### Telegraf.branch
 
@@ -849,7 +871,7 @@ Generates branch middleware.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| test | `truthy\|function` | Value or predicate `(ctx) => bool` |
+| test | `truthy/function` | Value or predicate `(ctx) => bool` |
 | trueMiddleware | `function` | true action  middleware |
 | falseMiddleware | `function` | false action middleware |
 
@@ -987,7 +1009,7 @@ Use this method to delete a group sticker set from a supergroup.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 
 ##### deleteMessage
 
@@ -998,7 +1020,7 @@ Use this method to delete bot messages.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 
 ##### deleteStickerFromSet
@@ -1020,7 +1042,7 @@ Use this method to edit captions of messages sent by the bot or via the bot.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 | inlineMessageId | `string` | Inline message id |
 | caption | `string` | Caption |
@@ -1037,7 +1059,7 @@ Use this method to edit live location messages sent by the bot or via the bot.
 | --- | --- | --- |
 | latitude | `string` | Latitude of new location |
 | longitude | `string` | Longitude of new location |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 | inlineMessageId | `string` | Inline message id |
 | [markup] | `object` | Keyboard markup |
@@ -1050,7 +1072,7 @@ Use this method to edit only the reply markup of messages sent by the bot or via
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 | inlineMessageId | `string` | Inline message id |
 | markup | `object` | Keyboard markup |
@@ -1064,7 +1086,7 @@ Use this method to edit text messages sent by the bot or via the bot.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 | inlineMessageId | `string` | Inline message id |
 | text | `string` | Message |
@@ -1078,8 +1100,8 @@ Forwards message.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Target Chat id |
-| fromChatId | `number\|string` | Source Chat id |
+| chatId | `number/string` | Target Chat id |
+| fromChatId | `number/string` | Source Chat id |
 | messageId | `number` | Message id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#forwardmessage)|
 
@@ -1092,7 +1114,7 @@ Sends message copy.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Target Chat id |
+| chatId | `number/string` | Target Chat id |
 | message | `object` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
 
@@ -1112,7 +1134,7 @@ ns, current username of a user, group or channel, etc.).
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 
 ##### getChatAdministrators
 
@@ -1123,7 +1145,7 @@ Use this method to get a list of administrators in a chat. On success, returns a
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 
 ##### setGameScore
 
@@ -1137,8 +1159,8 @@ Use this method to set the score of the specified user in a game. On success, if
 | userId | `number` | Target User id |
 | score | `number` | Target User id |
 | inlineMessageId | `string` | Inline message id |
-| chatId | `number\|string` | Target Chat id |
-| messageId | `number\|string` | Message id |
+| chatId | `number/string` | Target Chat id |
+| messageId | `number/string` | Message id |
 | [editMessage] | `boolean` | edit target message, default value is True |
 | [force] | `boolean` | Pass True, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters |
 
@@ -1153,8 +1175,8 @@ Use this method to get data for high score tables. Will return the score of the 
 | --- | --- | --- |
 | userId | `number`\ | Target User id |
 | inlineMessageId | `string` | Inline message id |
-| chatId | `number\|string` | Target Chat id |
-| messageId | `number\|string` | Message id |
+| chatId | `number/string` | Target Chat id |
+| messageId | `number/string` | Message id |
 
 ##### getChatMember
 
@@ -1165,7 +1187,7 @@ Use this method to get information about a member of a chat.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | userId | `number` |   User identifier |
 
 ##### getChatMembersCount
@@ -1177,7 +1199,7 @@ Use this method to get the number of members in a chat.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 
 ##### getFile
 
@@ -1198,7 +1220,7 @@ Returns link to file.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| fileId | `string\|object` | File id or file object |
+| fileId | `string/object` | File id or file object |
 
 ##### getMe
 
@@ -1239,7 +1261,7 @@ Use this method to kick a user from a group or a supergroup.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | userId | `number` | User id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#kickchatmember)|
 
@@ -1251,7 +1273,7 @@ Use this method to restrict a user in a supergroup.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | userId | `number` | User id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#restrictchatmember)|
 
@@ -1263,7 +1285,7 @@ Use this method to promote or demote a user in a supergroup or a channel.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | userId | `number` | User id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#promotechatmember)|
 
@@ -1276,7 +1298,7 @@ Use this method to export an invite link to a supergroup or a channel.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 
 ##### setChatPhoto
 
@@ -1287,7 +1309,7 @@ Use this method to set a new profile photo for the chat.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | photo | `File` | New chat photo |
 
 ##### deleteChatPhoto
@@ -1299,7 +1321,7 @@ Use this method to delete a chat photo.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 
 ##### setChatTitle
 
@@ -1310,7 +1332,7 @@ Use this method to change the title of a chat.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | title | `string` | New chat title, 1-255 characters |
 
 ##### setChatDescription
@@ -1322,7 +1344,7 @@ Use this method to change the description of a supergroup or a channel.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | description | `string` | New chat description, 0-255 characters |
 
 ##### setChatStickerSet
@@ -1334,7 +1356,7 @@ Use this method to set a new group sticker set for a supergroup.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | stickerSetName | `string` | Name of the sticker set |
 
 ##### pinChatMessage
@@ -1345,7 +1367,7 @@ Use this method to pin a message in a supergroup.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | messageId | `number` | Message id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#pinchatmessage)|
 
@@ -1358,7 +1380,7 @@ Use this method to unpin a message in a supergroup chat.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 
 ##### leaveChat
 
@@ -1369,7 +1391,7 @@ Use this method for your bot to leave a group, supergroup or channel.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 
 ##### deleteWebhook
 
@@ -1386,7 +1408,7 @@ Sends audio.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | audio | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendaudio)|
 
@@ -1399,7 +1421,7 @@ Sends game.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | gameName | `String` | Game short name |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendgame)|
 
@@ -1411,7 +1433,7 @@ Sends chat action.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | action | `string` | [Chat action](https://core.telegram.org/bots/api#sendchataction) |
 
 ##### sendContact
@@ -1422,7 +1444,7 @@ Sends document.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | phoneNumber | `string` | Contact phone number |
 | firstName | `string` | Contact first name |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendcontact)|
@@ -1435,7 +1457,7 @@ Sends document.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | doc | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#senddocument)|
 
@@ -1447,7 +1469,7 @@ Sends location.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | latitude | `number` | Latitude |
 | longitude | `number` | Longitude |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendlocation)|
@@ -1460,7 +1482,7 @@ Sends text message.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | text | `string` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
 
@@ -1472,7 +1494,7 @@ Sends photo.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | photo | `File` | Photo |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendphoto)|
 
@@ -1484,7 +1506,7 @@ Sends media album.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | media | `InputMedia[]` | Media array |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmediagroup)|
 
@@ -1496,7 +1518,7 @@ Sends sticker.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | sticker | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendsticker)|
 
@@ -1519,7 +1541,7 @@ Sends venue information.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | latitude | `number` | Latitude |
 | longitude | `number` | Longitude |
 | title | `string` | Venue title |
@@ -1534,7 +1556,7 @@ Sends invoice.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | invoice | `object` | [Invoice object](https://core.telegram.org/bots/api#sendinvoice) |
 
 ##### sendVideo
@@ -1545,7 +1567,7 @@ Sends video.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | video | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideo)|
 
@@ -1557,7 +1579,7 @@ Sends round video.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | video | `File` | Video note file |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideonote)|
 
@@ -1569,7 +1591,7 @@ Sends voice.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | voice | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
 
@@ -1582,7 +1604,7 @@ Use this method to stop updating a live location message sent by the bot or via 
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 | inlineMessageId | `string` | Inline message id |
 | [markup] | `object` | Keyboard markup |
@@ -1622,7 +1644,7 @@ Use this method to unban a previously kicked user in a supergroup.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| chatId | `number\|string` | Chat id |
+| chatId | `number/string` | Chat id |
 | userId | `number` | User id |
 
 #### Extra

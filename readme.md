@@ -19,8 +19,8 @@ These accounts serve as an interface for code running somewhere on your server.
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
-- AWS **λ**/now/Heroku/Firebase/Glitch/Whatever ready
-- `http`/`https`/`koa`/`fastify`/`Connect.js`/`express.js` compatible webhooks
+- [now](https://now.sh)/[Firebase](https://firebase.google.com/products/functions/)/[Glitch](https://dashing-light.glitch.me)/[Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction)/[AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)/Whatever ready
+- `http/https/fastify/Connect.js/express.js` compatible webhooks
 - Easy to extend
 
 ### Installation
@@ -47,7 +47,6 @@ bot.command('help', (ctx) => ctx.reply('Try send a sticker!'))
 bot.hears('hi', (ctx) => ctx.reply('Hey there!'))
 bot.hears(/buy/i, (ctx) => ctx.reply('Buy-buy!'))
 bot.on('sticker', (ctx) => ctx.reply('👍'))
-
 bot.startPolling()
 ```
 

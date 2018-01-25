@@ -1,4 +1,4 @@
-const ReplyMarkup = require('./markup')
+const Markup = require('./markup')
 
 class Extra {
   constructor (opts) {
@@ -29,7 +29,7 @@ class Extra {
 
   markup (markup) {
     if (typeof markup === 'function') {
-      markup = markup(new ReplyMarkup())
+      markup = markup(new Markup())
     }
     this.reply_markup = Object.assign({}, markup)
     return this
@@ -74,6 +74,6 @@ class Extra {
   }
 }
 
-Extra.Markup = ReplyMarkup
+Extra.Markup = Markup
 
 module.exports = Extra

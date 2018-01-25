@@ -6,9 +6,6 @@ class Extra {
   }
 
   load (opts) {
-    if (opts) {
-
-    }
     return Object.assign(this, opts || {})
   }
 

@@ -1,30 +1,33 @@
 const ReplyMarkup = require('./markup')
 
 class Extra {
-  constructor(opts) {
+  constructor (opts) {
     this.load(opts)
   }
 
-  load(opts) {
+  load (opts) {
+    if (opts) {
+
+    }
     return Object.assign(this, opts || {})
   }
 
-  inReplyTo(messageId) {
+  inReplyTo (messageId) {
     this.reply_to_message_id = messageId
     return this
   }
 
-  notifications(value = true) {
+  notifications (value = true) {
     this.disable_notification = !value
     return this
   }
 
-  webPreview(value = true) {
+  webPreview (value = true) {
     this.disable_web_page_preview = !value
     return this
   }
 
-  markup(markup) {
+  markup (markup) {
     if (typeof markup === 'function') {
       markup = markup(new ReplyMarkup())
     }
@@ -32,41 +35,41 @@ class Extra {
     return this
   }
 
-  HTML(value = true) {
+  HTML (value = true) {
     this.parse_mode = value ? 'HTML' : undefined
     return this
   }
 
-  markdown(value = true) {
+  markdown (value = true) {
     this.parse_mode = value ? 'Markdown' : undefined
     return this
   }
 
-  static inReplyTo(messageId) {
+  static inReplyTo (messageId) {
     return new Extra().inReplyTo(messageId)
   }
 
-  static notifications(value) {
+  static notifications (value) {
     return new Extra().notifications(value)
   }
 
-  static webPreview(value) {
+  static webPreview (value) {
     return new Extra().webPreview(value)
   }
 
-  static load(opts) {
+  static load (opts) {
     return new Extra(opts)
   }
 
-  static markup(markup) {
+  static markup (markup) {
     return new Extra().markup(markup)
   }
 
-  static HTML(value) {
+  static HTML (value) {
     return new Extra().HTML(value)
   }
 
-  static markdown(value) {
+  static markdown (value) {
     return new Extra().markdown(value)
   }
 }

@@ -72,10 +72,6 @@ class Extra {
   static markdown (value) {
     return new Extra().markdown(value)
   }
-
-  static get object () {
-    return new Extra().object
-  }
 }
 
 Extra.Markup = Markup

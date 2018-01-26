@@ -143,10 +143,6 @@ class Markup {
   static payButton (text, hide = false) {
     return { text: text, pay: true, hide: hide }
   }
-
-  static get object () {
-    return new Markup().object
-  }
 }
 
 function buildKeyboard (buttons, options) {

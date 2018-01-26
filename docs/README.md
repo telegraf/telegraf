@@ -1647,7 +1647,7 @@ Use this method to unban a previously kicked user in a supergroup.
 
 ### Extra
 
-##### inReplyTo
+##### inReplyTo(messageId)
 
 If the message is a reply, ID of the original message
 
@@ -1658,7 +1658,7 @@ If the message is a reply, ID of the original message
 | --- | --- | --- |
 | messageId | `number` | Message id |
 
-##### notifications
+##### notifications(enabled)
 
 Sends the message silently. Users will receive a notification with no sound.
 
@@ -1669,7 +1669,7 @@ Sends the message silently. Users will receive a notification with no sound.
 | --- | --- | --- | --- |
 | [enabled] | `boolean` | Disabled if false | `true` |
 
-##### webPreview
+##### webPreview(enabled)
 
 Enables webpage preview for links in this message.
 
@@ -1680,7 +1680,7 @@ Enables webpage preview for links in this message.
 | --- | --- | --- | --- |
 | [enabled] | `boolean` | Disabled if false | `true` |
 
-##### load
+##### load(opts)
 
 Creates the new instance of the Extra class. The same as `new`.
 [Telegram official docs](https://core.telegram.org/bots/api#sendmessage)
@@ -1689,7 +1689,13 @@ Creates the new instance of the Extra class. The same as `new`.
 | --- | --- | --- |
 | opts | `Object` | Message config object |
 
-##### markup
+##### markup(markup)
+
+Sets the reply markup object on Extra instance.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| markup | `Object/Function` | Message markup config object |
 
 ##### HTML
 

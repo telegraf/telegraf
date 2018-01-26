@@ -26,8 +26,8 @@ class Extra {
 
   markup (markup) {
     this.reply_markup = typeof markup === 'function'
-      ? markup(new Markup())
-      : markup || {}
+      ? Object.assign({}, markup(new Markup()))
+      : Object.assign({}, markup)
     return this
   }
 

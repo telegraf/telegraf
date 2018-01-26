@@ -1687,7 +1687,7 @@ Creates the new instance of the Extra class. The same as `new`.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| opts | `Object` | Object of message config properties |
+| opts | `Object` | Message config object |
 
 ##### markup
 

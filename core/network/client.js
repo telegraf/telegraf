@@ -39,12 +39,24 @@ const DefaultOptions = {
   })
 }
 
+const WebhookReplyStub = {
+  webhook: true
+}
+
 function safeJSONParse (text) {
   try {
     return JSON.parse(text)
   } catch (err) {
     debug('JSON parse failed', err)
   }
+}
+
+function includesMedia (payload) {
+  return Object.keys(payload).some(
+    (key) => Array.isArray(payload[key])
+      ? payload[key].some(({ media }) => media && typeof media === 'object' && (media.source || media.url))
+      : payload[key] && typeof payload[key] === 'object' && (payload[key].source || payload[key].url)
+  )
 }
 
 class ApiClient {
@@ -65,28 +77,28 @@ class ApiClient {
     return this.options.webhookReply
   }
 
-  callApi (method, extra = {}) {
-    const isMultipartRequest = Object.keys(extra)
-      .filter((x) => extra[x])
-      .some((x) => Array.isArray(extra[x])
-        ? extra[x].some((child) => typeof child.media === 'object' && (child.media.source || child.media.url))
-        : extra[x].source || extra[x].url
-      )
-    if (this.options.webhookReply && !isMultipartRequest && this.response && !this.response.finished && !WebhookBlacklist.includes(method)) {
+  callApi (method, payload = {}) {
+    const response = this.response
+    if (
+      this.options.webhookReply &&
+      !this.responseEnd &&
+      response &&
+      !WebhookBlacklist.includes(method) &&
+      !includesMedia(payload)
+    ) {
       debug('▷ webhook', method)
-      extra.method = method
-      if (typeof this.response.end === 'function') {
-        if (!this.response.headersSent) {
-          this.response.setHeader('connection', 'keep-alive')
-          this.response.setHeader('content-type', 'application/json')
-        }
-        this.response.end(JSON.stringify(extra))
-      } else if (typeof this.response.header === 'object') {
-        this.response.header['connection'] = 'keep-alive'
-        this.response.header['content-type'] = 'application/json'
-        this.response.body = extra
+      this.responseEnd = true
+      const answer = Object.assign({ method }, payload)
+      if (typeof response.header === 'object') {
+        response.body = answer
+        return Promise.resolve(WebhookReplyStub)
       }
-      return Promise.resolve({webhook: true})
+      if (!response.headersSent) {
+        response.setHeader('content-type', 'application/json')
+      }
+      return new Promise((resolve) =>
+        response.end(JSON.stringify(answer), 'utf-8', () => resolve(WebhookReplyStub))
+      )
     }
 
     if (!this.token) {
@@ -97,11 +109,11 @@ class ApiClient {
     }
 
     debug('▶︎ http', method)
-    const buildPayload = isMultipartRequest ? this.buildFormDataPayload(extra) : this.buildJSONPayload(extra)
-    return buildPayload
-      .then((payload) => {
-        payload.agent = this.options.agent
-        return fetch(`${this.options.apiRoot}/bot${this.token}/${method}`, payload)
+    return this.buildFetchConfig(payload)
+      .then((config) => {
+        const apiUrl = `${this.options.apiRoot}/bot${this.token}/${method}`
+        config.agent = this.options.agent
+        return fetch(apiUrl, config)
       })
       .then((res) => res.text())
       .then((text) => {
@@ -112,22 +124,29 @@ class ApiClient {
         }
       })
       .then((data) => {
-        if (!data.ok) {
-          throw new TelegramError(data, {method, extra})
+        if (data.ok) {
+          return data.result
         }
-        return data.result
+        throw new TelegramError(data, { method, payload })
       })
   }
 
-  buildJSONPayload (options) {
+  buildFetchConfig (payload) {
+    return includesMedia(payload)
+      ? this.buildFormDataConfig(payload)
+      : this.buildJSONConfig(payload)
+  }
+
+  buildJSONConfig (options) {
     return Promise.resolve({
       method: 'POST',
+      compress: true,
       headers: { 'content-type': 'application/json', 'connection': 'keep-alive' },
       body: JSON.stringify(options)
     })
   }
 
-  buildFormDataPayload (options) {
+  buildFormDataConfig (options) {
     if (options.reply_markup && typeof options.reply_markup !== 'string') {
       options.reply_markup = JSON.stringify(options.reply_markup)
     }
@@ -137,6 +156,7 @@ class ApiClient {
     return Promise.all(tasks).then(() => {
       return {
         method: 'POST',
+        compress: true,
         headers: { 'content-type': `multipart/form-data; boundary=${boundary}`, 'connection': 'keep-alive' },
         body: formData
       }
@@ -159,12 +179,12 @@ function attachFormValue (form, value, id) {
   if (Array.isArray(value)) {
     return Promise.all(
       value.map((item) => {
-        if (typeof item.media === 'object') {
-          const attachmentId = crypto.randomBytes(16).toString('hex')
-          return attachFormMedia(form, item.media, attachmentId)
-            .then(() => Object.assign({}, item, { media: `attach://${attachmentId}` }))
+        if (typeof item.media !== 'object') {
+          return Promise.resolve(item)
         }
-        return Promise.resolve(item)
+        const attachmentId = crypto.randomBytes(16).toString('hex')
+        return attachFormMedia(form, item.media, attachmentId)
+          .then(() => Object.assign({}, item, { media: `attach://${attachmentId}` }))
       })
     ).then((items) => form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },

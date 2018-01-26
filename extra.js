@@ -1,4 +1,4 @@
-const ReplyMarkup = require('./markup')
+const Markup = require('./markup')
 
 class Extra {
   constructor (opts) {
@@ -6,10 +6,7 @@ class Extra {
   }
 
   load (opts) {
-    if (opts) {
-      Object.assign(this, opts)
-    }
-    return this
+    return Object.assign(this, opts || {})
   }
 
   inReplyTo (messageId) {
@@ -29,7 +26,7 @@ class Extra {
 
   markup (markup) {
     this.reply_markup = typeof markup === 'function'
-      ? markup(new ReplyMarkup())
+      ? markup(new Markup())
       : markup || {}
     return this
   }
@@ -73,6 +70,6 @@ class Extra {
   }
 }
 
-Extra.Markup = ReplyMarkup
+Extra.Markup = Markup
 
 module.exports = Extra

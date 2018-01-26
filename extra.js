@@ -30,7 +30,7 @@ class Extra {
   markup (markup) {
     this.reply_markup = typeof markup === 'function'
       ? markup(new ReplyMarkup())
-      : markup
+      : markup || {}
     return this
   }
 

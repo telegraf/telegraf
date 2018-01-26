@@ -6,10 +6,7 @@ class Extra {
   }
 
   load (opts) {
-    if (opts) {
-      Object.assign(this, opts)
-    }
-    return this
+    return Object.assign(this, opts || {})
   }
 
   inReplyTo (messageId) {

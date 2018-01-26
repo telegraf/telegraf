@@ -80,6 +80,10 @@ class Markup {
     return Markup.payButton(text, hide)
   }
 
+  get object () {
+    return Object.assign({}, this)
+  }
+
   static removeKeyboard (value) {
     return new Markup().removeKeyboard(value)
   }
@@ -138,6 +142,10 @@ class Markup {
 
   static payButton (text, hide = false) {
     return { text: text, pay: true, hide: hide }
+  }
+
+  static get object () {
+    return new Markup().object
   }
 }
 

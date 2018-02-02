@@ -218,8 +218,9 @@ test.cb('should work with context extensions', (t) => {
 
 test.cb('should handle webhook response', (t) => {
   const bot = new Telegraf()
-  bot.on('message', ({reply}) => {
-    reply(':)')
+  bot.on('message', async ({reply}) => {
+    const result = await reply(':)')
+    t.deepEqual(result, { webhook: true })
   })
   const res = {
     setHeader: () => undefined,
@@ -245,5 +246,17 @@ test.cb('should respect webhookReply runtime change', (t) => {
   bot.webhookReply = false
   bot.catch((err) => { throw err }) // Disable log
   bot.on('message', (ctx) => ctx.reply(':)'))
+
+  // Throws cause Bot Token is required for http call'
   t.throws(bot.handleUpdate({message: baseMessage}, resStub)).then(() => t.end())
+})
+
+test.cb('should respect webhookReply runtime change (per request)', (t) => {
+  const bot = new Telegraf()
+  bot.catch((err) => { throw err }) // Disable log
+  bot.on('message', async (ctx) => {
+    ctx.webhookReply = false
+    return ctx.reply(':)')
+  })
+  t.throws(bot.handleUpdate({ message: baseMessage }, resStub)).then(() => t.end())
 })

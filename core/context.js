@@ -133,6 +133,14 @@ class TelegrafContext {
     this.contextState = Object.assign({}, value)
   }
 
+  get webhookReply () {
+    return this.tg.webhookReply
+  }
+
+  set webhookReply (enable) {
+    this.tg.webhookReply = enable
+  }
+
   assert (value, method) {
     if (!value) {
       throw new Error(`Telegraf: "${method}" isn't available for "${this.updateType}::${this.updateSubTypes}"`)

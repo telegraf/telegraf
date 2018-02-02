@@ -35,8 +35,10 @@ class Telegraf extends Composer {
   }
 
   set token (token) {
-    const config = this.telegram ? this.telegram.options : this.options.telegram
-    this.telegram = new Telegram(token, config)
+    this.telegram = new Telegram(token, this.telegram
+      ? this.telegram.options
+      : this.options.telegram
+    )
   }
 
   get token () {
@@ -114,10 +116,8 @@ class Telegraf extends Composer {
 
   handleUpdate (update, webhookResponse) {
     debug('⚡ update', update.update_id)
-    const telegram = webhookResponse && this.webhookReply
-      ? new Telegram(this.token, this.telegram.options, webhookResponse)
-      : this.telegram
-    const ctx = new Context(update, telegram, this.options)
+    const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
+    const ctx = new Context(update, tg, this.options)
     Object.assign(ctx, this.context)
     return this.middleware()(ctx).catch(this.handleError)
   }

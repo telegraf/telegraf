@@ -1,4 +1,4 @@
-const debug = require('debug')('telegraf:api')
+const debug = require('debug')('telegraf:client')
 const crypto = require('crypto')
 const fetch = require('node-fetch')
 const fs = require('fs')
@@ -40,7 +40,8 @@ const DefaultOptions = {
 }
 
 const WebhookReplyStub = {
-  webhook: true
+  webhook: true,
+  details: 'https://core.telegram.org/bots/api#making-requests-when-getting-updates'
 }
 
 function safeJSONParse (text) {
@@ -59,109 +60,30 @@ function includesMedia (payload) {
   )
 }
 
-class ApiClient {
-  constructor (token, options, webhookResponse) {
-    this.token = token
-    this.options = Object.assign({}, DefaultOptions, options)
-    if (this.options.apiRoot.startsWith('http://')) {
-      this.options.agent = null
-    }
-    this.response = webhookResponse
+function buildJSONConfig (options) {
+  return Promise.resolve({
+    method: 'POST',
+    compress: true,
+    headers: { 'content-type': 'application/json', 'connection': 'keep-alive' },
+    body: JSON.stringify(options)
+  })
+}
+
+function buildFormDataConfig (options) {
+  if (options.reply_markup && typeof options.reply_markup !== 'string') {
+    options.reply_markup = JSON.stringify(options.reply_markup)
   }
-
-  set webhookReply (enable) {
-    this.options.webhookReply = enable
-  }
-
-  get webhookReply () {
-    return this.options.webhookReply
-  }
-
-  callApi (method, payload = {}) {
-    const response = this.response
-    if (
-      this.options.webhookReply &&
-      !this.responseEnd &&
-      response &&
-      !WebhookBlacklist.includes(method) &&
-      !includesMedia(payload)
-    ) {
-      debug('▷ webhook', method)
-      this.responseEnd = true
-      const answer = Object.assign({ method }, payload)
-      if (typeof response.header === 'object') {
-        response.body = answer
-        return Promise.resolve(WebhookReplyStub)
-      }
-      if (!response.headersSent) {
-        response.setHeader('content-type', 'application/json')
-      }
-      return new Promise((resolve) =>
-        response.end(JSON.stringify(answer), 'utf-8', () => resolve(WebhookReplyStub))
-      )
-    }
-
-    if (!this.token) {
-      throw new TelegramError({
-        error_code: 401,
-        description: 'Bot Token is required'
-      })
-    }
-
-    debug('▶︎ http', method)
-    return this.buildFetchConfig(payload)
-      .then((config) => {
-        const apiUrl = `${this.options.apiRoot}/bot${this.token}/${method}`
-        config.agent = this.options.agent
-        return fetch(apiUrl, config)
-      })
-      .then((res) => res.text())
-      .then((text) => {
-        return safeJSONParse(text) || {
-          error_code: 500,
-          description: 'Unsupported message from Telegram',
-          response: text
-        }
-      })
-      .then((data) => {
-        if (data.ok) {
-          return data.result
-        }
-        throw new TelegramError(data, { method, payload })
-      })
-  }
-
-  buildFetchConfig (payload) {
-    return includesMedia(payload)
-      ? this.buildFormDataConfig(payload)
-      : this.buildJSONConfig(payload)
-  }
-
-  buildJSONConfig (options) {
-    return Promise.resolve({
+  const boundary = crypto.randomBytes(32).toString('hex')
+  const formData = new MultipartStream(boundary)
+  const tasks = Object.keys(options).map((key) => attachFormValue(formData, options[key], key))
+  return Promise.all(tasks).then(() => {
+    return {
       method: 'POST',
       compress: true,
-      headers: { 'content-type': 'application/json', 'connection': 'keep-alive' },
-      body: JSON.stringify(options)
-    })
-  }
-
-  buildFormDataConfig (options) {
-    if (options.reply_markup && typeof options.reply_markup !== 'string') {
-      options.reply_markup = JSON.stringify(options.reply_markup)
+      headers: { 'content-type': `multipart/form-data; boundary=${boundary}`, 'connection': 'keep-alive' },
+      body: formData
     }
-    const boundary = crypto.randomBytes(32).toString('hex')
-    const formData = new MultipartStream(boundary)
-    const tasks = Object.keys(options).map((key) => attachFormValue(formData, options[key], key))
-    return Promise.all(tasks).then(() => {
-      return {
-        method: 'POST',
-        compress: true,
-        headers: { 'content-type': `multipart/form-data; boundary=${boundary}`, 'connection': 'keep-alive' },
-        body: formData
-      }
-    })
-  }
+  })
 }
 
 function attachFormValue (form, value, id) {
@@ -217,6 +139,101 @@ function attachFormMedia (form, media, id) {
     }
   }
   return Promise.resolve()
+}
+
+function isKoaResponse (response) {
+  return typeof response.set === 'function' && typeof response.header === 'object'
+}
+
+function answerToWebhook (response, payload = {}) {
+  if (!includesMedia(payload)) {
+    if (isKoaResponse(response)) {
+      response.body = payload
+      return Promise.resolve(WebhookReplyStub)
+    }
+    if (!response.headersSent) {
+      response.setHeader('content-type', 'application/json')
+    }
+    return new Promise((resolve) =>
+      response.end(JSON.stringify(payload), 'utf-8', () => resolve(WebhookReplyStub))
+    )
+  }
+
+  return buildFormDataConfig(payload)
+    .then(({ headers, body }) => {
+      if (isKoaResponse(response)) {
+        Object.keys(headers).forEach(key => response.set(key, headers[key]))
+        response.body = body
+        return Promise.resolve(WebhookReplyStub)
+      }
+      if (!response.headersSent) {
+        Object.keys(headers).forEach(key => response.setHeader(key, headers[key]))
+      }
+      return new Promise((resolve) => {
+        response.on('finish', () => resolve(WebhookReplyStub))
+        body.pipe(response)
+      })
+    })
+}
+
+class ApiClient {
+  constructor (token, options, webhookResponse) {
+    this.token = token
+    this.options = Object.assign({}, DefaultOptions, options)
+    if (this.options.apiRoot.startsWith('http://')) {
+      this.options.agent = null
+    }
+    this.response = webhookResponse
+  }
+
+  set webhookReply (enable) {
+    this.options.webhookReply = enable
+  }
+
+  get webhookReply () {
+    return this.options.webhookReply
+  }
+
+  callApi (method, payload = {}) {
+    const { token, options, response, responseEnd } = this
+    if (options.webhookReply && response && !responseEnd && !WebhookBlacklist.includes(method)) {
+      debug('▷ webhook call:', method)
+      this.responseEnd = true
+      return answerToWebhook(response, Object.assign({ method }, payload))
+    }
+
+    if (!token) {
+      throw new TelegramError({
+        error_code: 401,
+        description: 'Bot Token is required'
+      })
+    }
+
+    debug('▶︎ http call:', method)
+    const buildConfig = includesMedia(payload)
+      ? buildFormDataConfig(Object.assign({ method }, payload))
+      : buildJSONConfig(payload)
+    return buildConfig
+      .then((config) => {
+        const apiUrl = `${options.apiRoot}/bot${token}/${method}`
+        config.agent = options.agent
+        return fetch(apiUrl, config)
+      })
+      .then((res) => res.text())
+      .then((text) => {
+        return safeJSONParse(text) || {
+          error_code: 500,
+          description: 'Unsupported http response from Telegram',
+          response: text
+        }
+      })
+      .then((data) => {
+        if (!data.ok) {
+          throw new TelegramError(data, { method, payload })
+        }
+        return data.result
+      })
+  }
 }
 
 module.exports = ApiClient

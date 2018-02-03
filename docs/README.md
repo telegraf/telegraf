@@ -162,24 +162,27 @@ bot.catch((err) => {
 A Telegraf Context encapsulates telegram message.
 Context is created per request and contains following props:
 
+* `ctx.telegram `            - Telegram client instance
+* `ctx.webhookReply `        - Shortcut to `ctx.telegram.webhookReply`
+* `ctx.updateType `          - Update type (message, inline_query, etc.)
+
+* `[ctx.updateSubTypes]`     - Update subtypes (text, sticker, audio, etc.)
+* `[ctx.message]`            - Received message
+* `[ctx.editedMessage]`      - Edited message
+* `[ctx.inlineQuery]`        - Received inline query
+* `[ctx.chosenInlineResult]` - Received inline query result
+* `[ctx.callbackQuery]`      - Received callback query
+* `[ctx.shippingQuery]`      - Shipping query
+* `[ctx.preCheckoutQuery]`   - Precheckout query
+* `[ctx.channelPost]`        - New incoming channel post of any kind — text, photo, sticker, etc.
+* `[ctx.editedChannelPost]`  - New version of a channel post that is known to the bot and was edited
+* `[ctx.chat]`               - Current chat info
+* `[ctx.from]`               - Sender info
+* `[ctx.match]`              - Regex match (available only for `hears`, `command`, `action` handlers)
+
 ```js
 bot.use((ctx) => {
-  ctx.telegram             // Telegram client instance
-  ctx.webhookReply         // Shortcut to ctx.telegram.webhookReply
-  ctx.updateType           // Update type (message, inline_query, etc.)
-  [ctx.updateSubTypes]     // Update subtypes (text, sticker, audio, etc.)
-  [ctx.message]            // Received message
-  [ctx.editedMessage]      // Edited message
-  [ctx.inlineQuery]        // Received inline query
-  [ctx.chosenInlineResult] // Received inline query result
-  [ctx.callbackQuery]      // Received callback query
-  [ctx.shippingQuery]      // Shipping query
-  [ctx.preCheckoutQuery]   // Precheckout query
-  [ctx.channelPost]        // New incoming channel post of any kind — text, photo, sticker, etc.
-  [ctx.editedChannelPost]  // New version of a channel post that is known to the bot and was edited
-  [ctx.chat]               // Current chat info
-  [ctx.from]               // Sender info
-  [ctx.match]              // Regex match (available only for `hears`, `command`, `action` handlers)
+  console.log(ctx.message)
 })
 ```
 
@@ -204,101 +207,94 @@ bot.on('text', (ctx) => {
 
 Context shortcuts for **message** update:
 
-```js
-addStickerToSet()         -> telegram.addStickerToSet()
-createNewStickerSet()     -> telegram.createNewStickerSet()
-deleteChatPhoto()         -> telegram.deleteChatPhoto()
-deleteMessage()           -> telegram.deleteMessage()
-deleteStickerFromSet()    -> telegram.deleteStickerFromSet()
-exportChatInviteLink()    -> telegram.exportChatInviteLink()
-getChat()                 -> telegram.getChat()
-getChatAdministrators()   -> telegram.getChatAdministrators()
-getChatMember()           -> telegram.getChatMember()
-getChatMembersCount()     -> telegram.getChatMembersCount()
-getStickerSet()           -> telegram.getStickerSet()
-leaveChat()               -> telegram.leaveChat()
-pinChatMessage()          -> telegram.pinChatMessage()
-reply()                   -> telegram.sendMessage()
-replyWithAudio()          -> telegram.sendAudio()
-replyWithChatAction()     -> telegram.sendChatAction()
-replyWithDocument()       -> telegram.sendDocument()
-replyWithGame()           -> telegram.sendGame()
-replyWithHTML()           -> telegram.sendMessage()
-replyWithInvoice()        -> telegram.sendInvoice()
-replyWithLocation()       -> telegram.sendLocation()
-replyWithMarkdown()       -> telegram.sendMessage()
-replyWithPhoto()          -> telegram.sendPhoto()
-replyWithMediaGroup()     -> telegram.sendMediaGroup()
-replyWithSticker()        -> telegram.sendSticker()
-replyWithVideo()          -> telegram.sendVideo()
-replyWithVideoNote()      -> telegram.sendVideoNote()
-replyWithVoice()          -> telegram.sendVoice()
-setChatDescription()      -> telegram.setChatDescription()
-setChatPhoto()            -> telegram.setChatPhoto()
-setChatTitle()            -> telegram.setChatTitle()
-setStickerPositionInSet() -> telegram.setStickerPositionInSet()
-unpinChatMessage()        -> telegram.unpinChatMessage()
-uploadStickerFile()       -> telegram.uploadStickerFile()
-```
+* `addStickerToSet`         -> [`telegram.addStickerToSet`](#addstickertoset)
+* `createNewStickerSet`     -> [`telegram.createNewStickerSet`](#createnewstickerset)
+* `deleteChatPhoto`         -> [`telegram.deleteChatPhoto`](#deletechatphoto)
+* `deleteMessage`           -> [`telegram.deleteMessage`](#deletemessage)
+* `deleteStickerFromSet`    -> [`telegram.deleteStickerFromSet`](#deletestickerfromset)
+* `exportChatInviteLink`    -> [`telegram.exportChatInviteLink`](#exportchatinvitelink)
+* `getChat`                 -> [`telegram.getChat`](#getchat)
+* `getChatAdministrators`   -> [`telegram.getChatAdministrators`](#getchatadministrators)
+* `getChatMember`           -> [`telegram.getChatMember`](#getchatmember)
+* `getChatMembersCount`     -> [`telegram.getChatMembersCount`](#getchatmemberscount)
+* `getStickerSet`           -> [`telegram.getStickerSet`](#getstickerset)
+* `leaveChat`               -> [`telegram.leaveChat`](#leavechat)
+* `pinChatMessage`          -> [`telegram.pinChatMessage`](#pinchatmessage)
+* `reply`                   -> [`telegram.sendMessage`](#sendmessage)
+* `replyWithAudio`          -> [`telegram.sendAudio`](#sendaudio)
+* `replyWithChatAction`     -> [`telegram.sendChatAction`](#sendchataction)
+* `replyWithDocument`       -> [`telegram.sendDocument`](#senddocument)
+* `replyWithGame`           -> [`telegram.sendGame`](#sendgame)
+* `replyWithHTML`           -> [`telegram.sendMessage`](#sendmessage)
+* `replyWithInvoice`        -> [`telegram.sendInvoice`](#sendinvoice)
+* `replyWithLocation`       -> [`telegram.sendLocation`](#sendlocation)
+* `replyWithMarkdown`       -> [`telegram.sendMessage`](#sendmessage)
+* `replyWithPhoto`          -> [`telegram.sendPhoto`](#sendphoto)
+* `replyWithMediaGroup`     -> [`telegram.sendMediaGroup`](#sendmediagroup)
+* `replyWithSticker`        -> [`telegram.sendSticker`](#sendsticker)
+* `replyWithVideo`          -> [`telegram.sendVideo`](#sendvideo)
+* `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
+* `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
+* `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
+* `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
+* `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
+* `setStickerPositionInSet` -> [`telegram.setStickerPositionInSet`](#setstickerpositioninset)
+* `unpinChatMessage`        -> [`telegram.unpinChatMessage`](#unpinchatmessage)
+* `uploadStickerFile`       -> [`telegram.uploadStickerFile`](#uploadstickerfile)
 
 Context shortcuts for **callback_query** update:
 
-```js
-addStickerToSet()         -> telegram.addStickerToSet()
-answerCbQuery()           -> telegram.answerCbQuery()
-answerGameQuery()         -> telegram.answerGameQuery()
-createNewStickerSet()     -> telegram.createNewStickerSet()
-deleteChatPhoto()         -> telegram.deleteChatPhoto()
-deleteMessage()           -> telegram.deleteMessage()
-deleteStickerFromSet()    -> telegram.deleteStickerFromSet()
-editMessageCaption()      -> telegram.editMessageCaption()
-editMessageReplyMarkup()  -> telegram.editMessageReplyMarkup()
-editMessageText()         -> telegram.editMessageText()
-exportChatInviteLink()    -> telegram.exportChatInviteLink()
-getChat()                 -> telegram.getChat()
-getChatAdministrators()   -> telegram.getChatAdministrators()
-getChatMember()           -> telegram.getChatMember()
-getChatMembersCount()     -> telegram.getChatMembersCount()
-getStickerSet()           -> telegram.getStickerSet()
-leaveChat()               -> telegram.leaveChat()
-pinChatMessage()          -> telegram.pinChatMessage()
-reply()                   -> telegram.sendMessage()
-replyWithAudio()          -> telegram.sendAudio()
-replyWithChatAction()     -> telegram.sendChatAction()
-replyWithDocument()       -> telegram.sendDocument()
-replyWithGame()           -> telegram.sendGame()
-replyWithHTML()           -> telegram.sendMessage()
-replyWithInvoice()        -> telegram.sendInvoice()
-replyWithLocation()       -> telegram.sendLocation()
-replyWithMarkdown()       -> telegram.sendMessage()
-replyWithPhoto()          -> telegram.sendPhoto()
-replyWithMediaGroup()     -> telegram.sendMediaGroup()
-replyWithSticker()        -> telegram.sendSticker()
-replyWithVideo()          -> telegram.sendVideo()
-replyWithVideoNote()      -> telegram.sendVideoNote()
-replyWithVoice()          -> telegram.sendVoice()
-setChatDescription()      -> telegram.setChatDescription()
-setChatPhoto()            -> telegram.setChatPhoto()
-setChatTitle()            -> telegram.setChatTitle()
-setStickerPositionInSet() -> telegram.setStickerPositionInSet()
-unpinChatMessage()        -> telegram.unpinChatMessage()
-uploadStickerFile()       -> telegram.uploadStickerFile()
-```
+* `addStickerToSet`         -> [`telegram.addStickerToSet`](#addstickertoset)
+* `answerCbQuery`           -> [`telegram.answerCbQuery`](#answercbquery)
+* `answerGameQuery`         -> [`telegram.answerGameQuery`](#answergamequery)
+* `createNewStickerSet`     -> [`telegram.createNewStickerSet`](#createnewstickerset)
+* `deleteChatPhoto`         -> [`telegram.deleteChatPhoto`](#deletechatphoto)
+* `deleteMessage`           -> [`telegram.deleteMessage`](#deletemessage)
+* `deleteStickerFromSet`    -> [`telegram.deleteStickerFromSet`](#deletestickerfromset)
+* `editMessageCaption`      -> [`telegram.editMessageCaption`](#editmessagecaption)
+* `editMessageReplyMarkup`  -> [`telegram.editMessageReplyMarkup`](#editmessagereplymarkup)
+* `editMessageText`         -> [`telegram.editMessageText`](#editmessagetext)
+* `exportChatInviteLink`    -> [`telegram.exportChatInviteLink`](#exportchatinvitelink)
+* `getChat`                 -> [`telegram.getChat`](#getchat)
+* `getChatAdministrators`   -> [`telegram.getChatAdministrators`](#getchatadministrators)
+* `getChatMember`           -> [`telegram.getChatMember`](#getchatmember)
+* `getChatMembersCount`     -> [`telegram.getChatMembersCount`](#getchatmemberscount)
+* `getStickerSet`           -> [`telegram.getStickerSet`](#getstickerset)
+* `leaveChat`               -> [`telegram.leaveChat`](#leavechat)
+* `pinChatMessage`          -> [`telegram.pinChatMessage`](#pinchatmessage)
+* `reply`                   -> [`telegram.sendMessage`](#sendmessage)
+* `replyWithAudio`          -> [`telegram.sendAudio`](#sendaudio)
+* `replyWithChatAction`     -> [`telegram.sendChatAction`](#sendchataction)
+* `replyWithDocument`       -> [`telegram.sendDocument`](#senddocument)
+* `replyWithGame`           -> [`telegram.sendGame`](#sendgame)
+* `replyWithHTML`           -> [`telegram.sendMessage`](#sendmessage)
+* `replyWithInvoice`        -> [`telegram.sendInvoice`](#sendinvoice)
+* `replyWithLocation`       -> [`telegram.sendLocation`](#sendlocation)
+* `replyWithMarkdown`       -> [`telegram.sendMessage`](#sendmessage)
+* `replyWithPhoto`          -> [`telegram.sendPhoto`](#sendphoto)
+* `replyWithMediaGroup`     -> [`telegram.sendMediaGroup`](#sendmediagroup)
+* `replyWithSticker`        -> [`telegram.sendSticker`](#sendsticker)
+* `replyWithVideo`          -> [`telegram.sendVideo`](#sendvideo)
+* `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
+* `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
+* `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
+* `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
+* `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
+* `setStickerPositionInSet` -> [`telegram.setStickerPositionInSet`](#setstickerpositioninset)
+* `unpinChatMessage`        -> [`telegram.unpinChatMessage`](#unpinchatmessage)
+* `uploadStickerFile`       -> [`telegram.uploadStickerFile`](#uploadstickerfile)
 
 Context shortcuts for **inline_query** update:
-```js
-answerInlineQuery() -> telegram.answerInlineQuery()
-```
+
+* `answerInlineQuery`-> [`telegram.answerInlineQuery`](#answerinlinequery)
 
 Context shortcuts for **shipping_query** update:
-```js
-answerShippingQuery() -> telegram.answerShippingQuery()
-```
+
+* `answerShippingQuery`-> [`telegram.answerShippingQuery`](#answershippingquery)
 
 Context shortcuts for **pre_checkout_query** update:
-```js
-answerPreCheckoutQuery() -> telegram.answerPreCheckoutQuery()
-```
+
+* `answerPreCheckoutQuery`-> [`telegram.answerPreCheckoutQuery`](#answerprecheckoutquery)
 
 ##### Shortcuts usage example
 
@@ -348,7 +344,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 
 // Naive authorization middleware
 bot.use((ctx, next) => {
-  ctx.state.role = getUserRole(ctx.message) 
+  ctx.state.role = getUserRole(ctx.message)
   return next()
 })
 
@@ -417,12 +413,12 @@ Available update sub-types:
 
 ```js
 // Handle message update
-bot.on('message', (ctx) =>  {
+bot.on('message', (ctx) => {
   return ctx.reply('Hey there!')
 })
 
 // Handle sticker or photo update
-bot.on(['sticker', 'photo'], (ctx) =>  {
+bot.on(['sticker', 'photo'], (ctx) => {
   console.log(ctx.message)
   return ctx.reply('Cool!')
 })
@@ -438,11 +434,11 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 
 // TLS options
 const tlsOptions = {
-  key:  fs.readFileSync('server-key.pem'),
+  key: fs.readFileSync('server-key.pem'),
   cert: fs.readFileSync('server-cert.pem'),
-  ca: [ 
+  ca: [
     // This is necessary only if the client uses the self-signed certificate.
-    fs.readFileSync('client-cert.pem') 
+    fs.readFileSync('client-cert.pem')
   ]
 }
 
@@ -453,7 +449,6 @@ bot.telegram.setWebhook('https://server.tld:8443/secret-path', {
 
 // Start https webhook
 bot.startWebhook('/secret-path', tlsOptions, 8443)
-
 
 // Http webhook, for nginx/heroku users.
 bot.startWebhook('/secret-path', null, 5000)
@@ -503,7 +498,7 @@ bot.on('text', ({ reply }) => reply('Hey there!'))
 fastifyApp.use(bot.webhookCallback('/secret-path'))
 // Set telegram webhook
 // npm install -g localtunnel && lt --port 3000
-bot.telegram.setWebhook('https://------.localtunnel.me/secret-path');
+bot.telegram.setWebhook('https://------.localtunnel.me/secret-path')
 
 fastifyApp.listen(3000, () => {
   console.log('Example app listening on port 3000!')
@@ -542,29 +537,29 @@ Supported file sources:
 Also you can provide optional name of file as `filename`.
 
 ```js
-bot.on('message', (ctx) =>  {
+bot.on('message', (ctx) => {
   // resend existing file by file_id
   ctx.replyWithSticker('123123jkbhj6b')
-  
+
   // send file
   ctx.replyWithVideo({ source: '/path/to/video.mp4' })
-  
+
   // send stream
   ctx.replyWithVideo({
     source: fs.createReadStream('/path/to/video.mp4')
   })
-  
+
   // send buffer
   ctx.replyWithVoice({
-    source: new Buffer()
+    source: Buffer.alloc()
   })
 
   // send url via Telegram server
-  ctx.replyWithPhoto('http://lorempixel.com/400/200/cats/')
+  ctx.replyWithPhoto('https://picsum.photos/200/300/')
 
   // pipe url content
   ctx.replyWithPhoto({
-    url: 'http://lorempixel.com/400/200/cats/',
+    url: 'https://picsum.photos/200/300/?random',
     filename: 'kitten.jpg'
   })
 })
@@ -599,7 +594,7 @@ Telegraf options:
     agent: null,        // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
     webhookReply: true  // Reply via webhook
   },
-  username: ''          // Bot username (optional)  
+  username: ''          // Bot username (optional)
 }
 ```
 
@@ -1709,11 +1704,12 @@ bot.on('message', (ctx) => {
 For handling group/supergroup commands(`/start@your_bot`) you need to provide bot username.
 
 ```js
-
-// Provide with options
 const bot = new Telegraf(process.env.BOT_TOKEN, {username: 'your_bot'})
+```
 
-// Or you can get username from Telegram server
+Also, you can get the username from Telegram server.
+
+```js
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.telegram.getMe().then((botInfo) => {

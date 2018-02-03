@@ -140,7 +140,7 @@ class Telegraf extends Composer {
       .catch((err) => {
         console.error('Failed to process updates.', err)
         this.polling.started = false
-        this.polling.offset = 0
+        this.polling.offset = 1
         this.polling.stopCallback && this.polling.stopCallback()
         return []
       })

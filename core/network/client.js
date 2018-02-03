@@ -40,7 +40,7 @@ const DefaultOptions = {
 }
 
 const WebhookReplyStub = {
-  webhookCall: true,
+  webhook: true,
   details: 'https://core.telegram.org/bots/api#making-requests-when-getting-updates'
 }
 

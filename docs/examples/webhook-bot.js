@@ -1,6 +1,7 @@
 const Telegraf = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.command('image', (ctx) => ctx.replyWithPhoto({ url: 'https://picsum.photos/200/300/?random' }))
 bot.on('text', ({ replyWithHTML }) => replyWithHTML('<b>Hey there!</b>'))
 
 // Set telegram webhook
@@ -8,5 +9,4 @@ bot.on('text', ({ replyWithHTML }) => replyWithHTML('<b>Hey there!</b>'))
 bot.telegram.setWebhook('https://-----.localtunnel.me/secret-path')
 
 // Start https webhook
-// FYI: First non-file reply will be served via webhook response
 bot.startWebhook('/secret-path', null, 3000)

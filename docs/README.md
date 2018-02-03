@@ -555,11 +555,11 @@ bot.on('message', (ctx) => {
   })
 
   // send url via Telegram server
-  ctx.replyWithPhoto('http://lorempixel.com/400/200/cats/')
+  ctx.replyWithPhoto('https://picsum.photos/200/300/')
 
   // pipe url content
   ctx.replyWithPhoto({
-    url: 'http://lorempixel.com/400/200/cats/',
+    url: 'https://picsum.photos/200/300/?random',
     filename: 'kitten.jpg'
   })
 })

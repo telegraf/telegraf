@@ -6,9 +6,9 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.command('local', (ctx) => ctx.replyWithPhoto({ source: '/cats/cat1.jpeg' }))
 bot.command('stream', (ctx) => ctx.replyWithPhoto({ source: fs.createReadStream('/cats/cat2.jpeg') }))
 bot.command('buffer', (ctx) => ctx.replyWithPhoto({ source: fs.readFileSync('/cats/cat3.jpeg') }))
-bot.command('pipe', (ctx) => ctx.replyWithPhoto({ url: 'http://lorempixel.com/400/200/cats/' }))
-bot.command('url', (ctx) => ctx.replyWithPhoto('http://lorempixel.com/400/200/cats/'))
-bot.command('caption', (ctx) => ctx.replyWithPhoto('http://lorempixel.com/400/200/cats/', { caption: 'Caption text' }))
+bot.command('pipe', (ctx) => ctx.replyWithPhoto({ url: 'https://picsum.photos/200/300/?random' }))
+bot.command('url', (ctx) => ctx.replyWithPhoto('https://picsum.photos/200/300/?random'))
+bot.command('caption', (ctx) => ctx.replyWithPhoto('https://picsum.photos/200/300/?random', { caption: 'Caption text' }))
 
 bot.command('album', (ctx) => {
   ctx.replyWithMediaGroup([
@@ -18,12 +18,12 @@ bot.command('album', (ctx) => {
       'type': 'photo'
     },
     {
-      'media': 'http://lorempixel.com/500/300/cats/',
+      'media': 'https://picsum.photos/200/500/',
       'caption': 'From URL',
       'type': 'photo'
     },
     {
-      'media': { url: 'http://lorempixel.com/400/200/cats/' },
+      'media': { url: 'https://picsum.photos/200/300/?random' },
       'caption': 'Piped from URL',
       'type': 'photo'
     },

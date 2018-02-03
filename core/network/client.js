@@ -141,13 +141,13 @@ function attachFormMedia (form, media, id) {
   return Promise.resolve()
 }
 
-function isKoaReponse (response) {
+function isKoaResponse (response) {
   return typeof response.set === 'function' && typeof response.header === 'object'
 }
 
 function answerToWebhook (response, payload = {}) {
   if (!includesMedia(payload)) {
-    if (isKoaReponse(response)) {
+    if (isKoaResponse(response)) {
       response.body = payload
       return Promise.resolve(WebhookReplyStub)
     }
@@ -161,7 +161,7 @@ function answerToWebhook (response, payload = {}) {
 
   return buildFormDataConfig(payload)
     .then(({ headers, body }) => {
-      if (isKoaReponse(response)) {
+      if (isKoaResponse(response)) {
         Object.keys(headers).forEach(key => response.set(key, headers[key]))
         response.body = body
         return Promise.resolve(WebhookReplyStub)

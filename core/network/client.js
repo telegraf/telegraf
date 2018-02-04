@@ -60,22 +60,22 @@ function includesMedia (payload) {
   )
 }
 
-function buildJSONConfig (options) {
+function buildJSONConfig (payload) {
   return Promise.resolve({
     method: 'POST',
     compress: true,
     headers: { 'content-type': 'application/json', 'connection': 'keep-alive' },
-    body: JSON.stringify(options)
+    body: JSON.stringify(payload)
   })
 }
 
-function buildFormDataConfig (options) {
-  if (options.reply_markup && typeof options.reply_markup !== 'string') {
-    options.reply_markup = JSON.stringify(options.reply_markup)
+function buildFormDataConfig (payload) {
+  if (payload.reply_markup && typeof payload.reply_markup !== 'string') {
+    payload.reply_markup = JSON.stringify(payload.reply_markup)
   }
   const boundary = crypto.randomBytes(32).toString('hex')
   const formData = new MultipartStream(boundary)
-  const tasks = Object.keys(options).map((key) => attachFormValue(formData, options[key], key))
+  const tasks = Object.keys(payload).map((key) => attachFormValue(formData, key, payload[key]))
   return Promise.all(tasks).then(() => {
     return {
       method: 'POST',
@@ -86,7 +86,7 @@ function buildFormDataConfig (options) {
   })
 }
 
-function attachFormValue (form, value, id) {
+function attachFormValue (form, id, value) {
   if (!value) {
     return Promise.resolve()
   }

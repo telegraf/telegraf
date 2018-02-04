@@ -56,7 +56,7 @@ class SceneContext {
       if (silent) {
         return Promise.resolve()
       }
-      const handler = this.current.enterMiddleware
+      const handler = typeof this.current.enterMiddleware === 'function'
         ? this.current.enterMiddleware()
         : this.current.middleware()
       return handler(this.ctx, noop)

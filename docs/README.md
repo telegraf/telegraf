@@ -1,7 +1,7 @@
 ## telegraf.js
 
-Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
-Users can interact with bots by sending them command messages in private or group chats. 
+Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically.
+Users can interact with bots by sending them command messages in private or group chats.
 These accounts serve as an interface for code running somewhere on your server.
 
 ![Telegraf](header.png)
@@ -36,7 +36,7 @@ $ yarn add telegraf
 ```
 
 #### Example
-  
+
 ```js
 const Telegraf = require('telegraf')
 
@@ -80,16 +80,16 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 #### Telegram token
 
-To use the [Telegram Bot API](https://core.telegram.org/bots/api), 
-you first have to [get a bot account](https://core.telegram.org/bots) 
+To use the [Telegram Bot API](https://core.telegram.org/bots/api),
+you first have to [get a bot account](https://core.telegram.org/bots)
 by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
 BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
 
 #### Bot
 
-A Telegraf bot is an object containing an array of middlewares which are composed 
-and executed in a stack-like manner upon request. Is similar to many other middleware systems 
+A Telegraf bot is an object containing an array of middlewares which are composed
+and executed in a stack-like manner upon request. Is similar to many other middleware systems
 that you may have encountered such as Koa, Ruby's Rack, Connect.
 
 #### Middleware
@@ -99,8 +99,8 @@ It allows you to modify requests and responses as they pass between the Telegram
 
 You can imagine middleware as a chain of logic connection your bot to the Telegram request.
 
-Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram update, 
-`next` is a function that is invoked to execute the downstream middleware. 
+Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram update,
+`next` is a function that is invoked to execute the downstream middleware.
 It returns a Promise with a then function for running code after completion.
 
 ```js
@@ -155,7 +155,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.catch((err) => {
   console.log('Ooops', err)
 })
-``` 
+```
 
 #### Context
 
@@ -752,7 +752,7 @@ Stop Webhook and polling
 
 ##### webhookCallback
 
-Return a callback function suitable for the http[s].createServer() method to handle a request. 
+Return a callback function suitable for the http[s].createServer() method to handle a request.
 You may also use this callback function to mount your telegraf app in a Connect/Express app.
 
 `telegraf.webhookCallback(webhookPath) => Function`
@@ -763,8 +763,8 @@ You may also use this callback function to mount your telegraf app in a Connect/
 
 ##### handleUpdate
 
-Handle raw Telegram update. 
-In case you use centralized webhook server, queue, etc.  
+Handle raw Telegram update.
+In case you use centralized webhook server, queue, etc.
 
 `telegraf.handleUpdate(rawUpdate, [webhookResponse])`
 
@@ -1263,7 +1263,7 @@ Use this method to kick a user from a group or a supergroup.
 
 ##### restrictChatMember
 
-Use this method to restrict a user in a supergroup. 
+Use this method to restrict a user in a supergroup.
 
 `telegram.restrictChatMember(chatId, userId, [extra]) => Promise`
 
@@ -1345,7 +1345,7 @@ Use this method to change the description of a supergroup or a channel.
 
 ##### setChatStickerSet
 
-Use this method to set a new group sticker set for a supergroup. 
+Use this method to set a new group sticker set for a supergroup.
 
 `telegram.setChatStickerSet(chatId, stickerSetName) => Promise`
 [Telegram official docs](https://core.telegram.org/bots/api#setchatstickerset)
@@ -1643,13 +1643,95 @@ Use this method to unban a previously kicked user in a supergroup.
 | chatId | `number/string` | Chat id |
 | userId | `number` | User id |
 
-#### Extra
+### Extra
 
-Telegram message options helper, [see examples](https://github.com/telegraf/telegraf/tree/develop/docs/examples/).
+##### inReplyTo(messageId)
+
+If the message is a reply, ID of the original message
+
+`Message.reply_to_message_id`
+[Telegram official docs](https://core.telegram.org/bots/api#sendmessage)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| messageId | `number` | Message id |
+
+##### notifications(enabled)
+
+Sends the message silently. Users will receive a notification with no sound.
+
+`Message.disable_notification`
+[Telegram official docs](https://core.telegram.org/bots/api#sendmessage)
+
+| Param | Type | Description | Default |
+| --- | --- | --- | --- |
+| [enabled] | `boolean` | Disabled if false | `true` |
+
+##### webPreview(enabled)
+
+Enables webpage preview for links in this message.
+
+`Message.disable_web_page_preview`
+[Telegram official docs](https://core.telegram.org/bots/api#sendmessage)
+
+| Param | Type | Description | Default |
+| --- | --- | --- | --- |
+| [enabled] | `boolean` | Disabled if false | `true` |
+
+##### load(opts)
+
+Creates the new instance of the Extra class. The same as `new`.
+[Telegram official docs](https://core.telegram.org/bots/api#sendmessage)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| opts | `Object` | Message config object |
+
+##### markup(markup)
+
+Sets the reply markup object on Extra instance.
+
+| Param | Type | Description |
+| --- | --- | --- |
+| markup | `Object/Function` | Message markup config object |
+
+##### HTML
+
+##### markdown
 
 #### Markup
 
 Telegram markup helper, [see examples](https://github.com/telegraf/telegraf/tree/develop/docs/examples/).
+
+##### removeKeyboard
+
+##### forceReply
+
+##### keyboard
+
+##### inlineKeyboard
+
+##### resize
+
+##### oneTime
+
+##### button
+
+##### contactRequestButton
+
+##### locationRequestButton
+
+##### urlButton
+
+##### callbackButton
+
+##### switchToChatButton
+
+##### switchToCurrentChatButton
+
+##### gameButton
+
+##### payButton
 
 #### Stage
 
@@ -1718,4 +1800,3 @@ bot.telegram.getMe().then((botInfo) => {
 
 bot.command('foo', (ctx) => ctx.reply('Hello World'))
 ```
-

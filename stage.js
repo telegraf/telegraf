@@ -14,10 +14,10 @@ class Stage extends Composer {
 
   register (...scenes) {
     scenes.forEach((scene) => {
-      if (!scene || !scene.id || !scene.middleware) {
-        throw new Error('telegraf: Unsupported scene')
+      if (scene && scene.id && scene.middleware) {
+        return this.scenes.set(scene.id, scene)
       }
-      this.scenes.set(scene.id, scene)
+      throw new Error('telegraf: Unsupported scene')
     })
     return this
   }

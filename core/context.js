@@ -462,17 +462,16 @@ class TelegrafContext {
   }
 
   deleteMessage (messageId) {
-    if (messageId !== undefined) {
+    this.assert(this.chat, 'deleteMessage')
+    if (typeof messageId !== 'undefined') {
       return this.telegram.deleteMessage(this.chat.id, messageId)
     }
-
     const message = this.message ||
       this.editedMessage ||
       this.channelPost ||
       this.editedChannelPost ||
       (this.callbackQuery && this.callbackQuery.message)
-
-    this.assert(message && this.chat, 'deleteMessage')
+    this.assert(message, 'deleteMessage')
     return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
 }

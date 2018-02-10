@@ -461,7 +461,11 @@ class TelegrafContext {
     return this.reply(html, Object.assign({ 'parse_mode': 'HTML' }, extra))
   }
 
-  deleteMessage () {
+  deleteMessage (messageId) {
+    if (messageId !== undefined) {
+      return this.telegram.deleteMessage(this.chat.id, messageId)
+    }
+
     const message = this.message ||
       this.editedMessage ||
       this.channelPost ||

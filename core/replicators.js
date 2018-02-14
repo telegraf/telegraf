@@ -87,7 +87,8 @@ module.exports = {
       caption: message.caption,
       duration: message.video.duration,
       width: message.video.width,
-      height: message.video.height
+      height: message.video.height,
+      supports_streaming: !!message.video.supports_streaming
     }
   },
   document: (message) => {

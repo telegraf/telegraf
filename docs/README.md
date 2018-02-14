@@ -14,7 +14,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 3.5](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 3.6](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -410,6 +410,7 @@ Available update sub-types:
 - `video_note`
 - `invoice`
 - `successful_payment`
+- `connected_website`
 
 ```js
 // Handle message update
@@ -423,7 +424,7 @@ bot.on(['sticker', 'photo'], (ctx) => {
   return ctx.reply('Cool!')
 })
 ```
-[Related Telegram Official Docs](https://core.telegram.org/bots/api#message)
+[Official Docs](https://core.telegram.org/bots/api#message)
 
 #### Webhooks
 
@@ -911,7 +912,7 @@ Use this property to control `reply via webhook` feature.
 Use this method to add a new sticker to a set created by the bot.
 
 `telegram.addStickerToSet(ownerId, name, stickerData) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#addstickertoset)
+[Official documentation](https://core.telegram.org/bots/api#addstickertoset)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -924,7 +925,7 @@ Use this method to add a new sticker to a set created by the bot.
 Use this method to send answers to callback queries.
 
 `telegram.answerCbQuery(callbackQueryId, text, [showAlert], [extra]) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#answercallbackquery)
+[Official documentation](https://core.telegram.org/bots/api#answercallbackquery)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -986,7 +987,7 @@ Use this method to send answers to an inline query.
 Use this method to create new sticker set owned by a user.
 
 `telegram.createNewStickerSet(ownerId, name, title, stickerData, [isMasks]) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#createnewstickerset)
+[Official documentation](https://core.telegram.org/bots/api#createnewstickerset)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1001,7 +1002,7 @@ Use this method to create new sticker set owned by a user.
 Use this method to delete a group sticker set from a supergroup.
 
 `telegram.deleteChatStickerSet(chatId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#deletechatstickerset)
+[Official documentation](https://core.telegram.org/bots/api#deletechatstickerset)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1012,7 +1013,7 @@ Use this method to delete a group sticker set from a supergroup.
 Use this method to delete bot messages.
 
 `telegram.deleteMessage(chatId, messageId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#deletemessage)
+[Official documentation](https://core.telegram.org/bots/api#deletemessage)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1024,7 +1025,7 @@ Use this method to delete bot messages.
 Use this method to delete a sticker from a set created by the bot.
 
 `telegram.deleteStickerFromSet(stickerId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#deletestickerfromset)
+[Official documentation](https://core.telegram.org/bots/api#deletestickerfromset)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1049,7 +1050,7 @@ Use this method to edit captions of messages sent by the bot or via the bot.
 Use this method to edit live location messages sent by the bot or via the bot.
 
 `telegram.editMessageLiveLocation(latitude, longitude, chatId, messageId, inlineMessageId, [markup]) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#editmessagelivelocation)
+[Official documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1126,7 +1127,7 @@ Use this method to get up to date information about the chat (current name of th
 ns, current username of a user, group or channel, etc.).
 
 `telegram.getChat(chatId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#getchat)
+[Official documentation](https://core.telegram.org/bots/api#getchat)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1137,7 +1138,7 @@ ns, current username of a user, group or channel, etc.).
 Use this method to get a list of administrators in a chat. On success, returns an Array of ChatMember objects that contains information about all chat administrators except other bots. If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
 
 `telegram.getChatAdministrators(chatId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#getchatadministrators)
+[Official documentation](https://core.telegram.org/bots/api#getchatadministrators)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1148,7 +1149,7 @@ Use this method to get a list of administrators in a chat. On success, returns a
 Use this method to set the score of the specified user in a game. On success, if the message was sent by the bot, returns the edited Message, otherwise returns True. Returns an error, if the new score is not greater than the user's current score in the chat.
 
 `telegram.setGameScore(userId, score, inlineMessageId, chatId, messageId, [editMessage], [force]) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#setgamescore)
+[Official documentation](https://core.telegram.org/bots/api#setgamescore)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1165,7 +1166,7 @@ Use this method to set the score of the specified user in a game. On success, if
 Use this method to get data for high score tables. Will return the score of the specified user and several of his neighbors in a game. On success, returns an Array of GameHighScore objects.
 
 `telegram.getGameHighScores(userId, inlineMessageId, chatId, messageId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#getgamehighscores)
+[Official documentation](https://core.telegram.org/bots/api#getgamehighscores)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1179,7 +1180,7 @@ Use this method to get data for high score tables. Will return the score of the 
 Use this method to get information about a member of a chat.
 
 `telegram.getChatMember(chatId, userId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#getchatmember)
+[Official documentation](https://core.telegram.org/bots/api#getchatmember)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1191,7 +1192,7 @@ Use this method to get information about a member of a chat.
 Use this method to get the number of members in a chat.
 
 `telegram.getChatMembersCount(chatId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#getchatmemberscount)
+[Official documentation](https://core.telegram.org/bots/api#getchatmemberscount)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1202,7 +1203,7 @@ Use this method to get the number of members in a chat.
 Returns basic info about a file and prepare it for downloading.
 
 `telegram.getFile(fileId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#getfile)
+[Official documentation](https://core.telegram.org/bots/api#getfile)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1223,7 +1224,7 @@ Returns link to file.
 Returns basic information about the bot.
 
 `telegram.getMe() => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#getme)
+[Official documentation](https://core.telegram.org/bots/api#getme)
 
 ##### getStickerSet
 
@@ -1234,14 +1235,14 @@ Use this method to get a sticker set.
 | Param | Type | Description |
 | --- | --- | --- |
 | name | `string` | Short name of the sticker set |
-[Telegram official docs](https://core.telegram.org/bots/api#getstickerset)
+[Official documentation](https://core.telegram.org/bots/api#getstickerset)
 
 ##### getUserProfilePhotos
 
 Returns profiles photos for provided user.
 
 `telegram.getUserProfilePhotos(userId, [offset], [limit]) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#getuserprofilephotos)
+[Official documentation](https://core.telegram.org/bots/api#getuserprofilephotos)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1290,7 +1291,7 @@ Use this method to promote or demote a user in a supergroup or a channel.
 Use this method to export an invite link to a supergroup or a channel.
 
 `telegram.exportChatInviteLink(chatId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#exportchatinvitelink)
+[Official documentation](https://core.telegram.org/bots/api#exportchatinvitelink)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1301,7 +1302,7 @@ Use this method to export an invite link to a supergroup or a channel.
 Use this method to set a new profile photo for the chat.
 
 `telegram.setChatPhoto(chatId, photo) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#setchatphoto)
+[Official documentation](https://core.telegram.org/bots/api#setchatphoto)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1313,7 +1314,7 @@ Use this method to set a new profile photo for the chat.
 Use this method to delete a chat photo.
 
 `telegram.deleteChatPhoto(chatId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#deletechatphoto)
+[Official documentation](https://core.telegram.org/bots/api#deletechatphoto)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1324,7 +1325,7 @@ Use this method to delete a chat photo.
 Use this method to change the title of a chat.
 
 `telegram.setChatTitle(chatId, title) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#setchattitle)
+[Official documentation](https://core.telegram.org/bots/api#setchattitle)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1336,7 +1337,7 @@ Use this method to change the title of a chat.
 Use this method to change the description of a supergroup or a channel.
 
 `telegram.setChatDescription(chatId, description) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#setchattitle)
+[Official documentation](https://core.telegram.org/bots/api#setchattitle)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1348,7 +1349,7 @@ Use this method to change the description of a supergroup or a channel.
 Use this method to set a new group sticker set for a supergroup. 
 
 `telegram.setChatStickerSet(chatId, stickerSetName) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#setchatstickerset)
+[Official documentation](https://core.telegram.org/bots/api#setchatstickerset)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1372,7 +1373,7 @@ Use this method to pin a message in a supergroup.
 Use this method to unpin a message in a supergroup chat.
 
 `telegram.unpinChatMessage(chatId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#unpinchatmessage)
+[Official documentation](https://core.telegram.org/bots/api#unpinchatmessage)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1383,7 +1384,7 @@ Use this method to unpin a message in a supergroup chat.
 Use this method for your bot to leave a group, supergroup or channel.
 
 `telegram.leaveChat(chatId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#leavechat)
+[Official documentation](https://core.telegram.org/bots/api#leavechat)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1394,7 +1395,7 @@ Use this method for your bot to leave a group, supergroup or channel.
 Removes webhook integration.
 
 `telegram.deleteWebhook() => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#deletewebhook)
+[Official documentation](https://core.telegram.org/bots/api#deletewebhook)
 
 ##### sendAudio
 
@@ -1596,7 +1597,7 @@ Sends voice.
 Use this method to stop updating a live location message sent by the bot or via the bot (for inline bots) before live_period expires.
 
 `telegram.stopMessageLiveLocation(chatId, messageId, inlineMessageId, [markup]) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#stopmessagelivelocation)
+[Official documentation](https://core.telegram.org/bots/api#stopmessagelivelocation)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1610,7 +1611,7 @@ Use this method to stop updating a live location message sent by the bot or via 
 Use this method to upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods.
 
 `telegram.uploadStickerFile(ownerId, stickerFile) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#uploadstickerfile)
+[Official documentation](https://core.telegram.org/bots/api#uploadstickerfile)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1622,7 +1623,7 @@ Use this method to upload a .png file with a sticker for later use in createNewS
 Specifies an url to receive incoming updates via an outgoing webhook.
 
 `telegram.setWebhook(url, [cert], [maxConnections], [allowedUpdates]) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#setwebhook)
+[Official documentation](https://core.telegram.org/bots/api#setwebhook)
 
 | Param | Type | Description |
 | ---  | --- | --- |
@@ -1636,7 +1637,7 @@ Specifies an url to receive incoming updates via an outgoing webhook.
 Use this method to unban a previously kicked user in a supergroup.
 
 `telegram.unbanChatMember(chatId, userId) => Promise`
-[Telegram official docs](https://core.telegram.org/bots/api#unbanchatmember)
+[Official documentation](https://core.telegram.org/bots/api#unbanchatmember)
 
 | Param | Type | Description |
 | --- | --- | --- |

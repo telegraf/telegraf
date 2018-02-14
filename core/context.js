@@ -35,7 +35,8 @@ const updateMessageSubTypes = [
   'delete_chat_photo',
   'contact',
   'channel_chat_created',
-  'audio'
+  'audio',
+  'connected_website'
 ]
 
 class TelegrafContext {

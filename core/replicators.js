@@ -66,25 +66,31 @@ module.exports = {
     }
   },
   voice: (message) => {
+    const entities = message.caption_entities || []
     return {
       voice: message.voice.file_id,
       duration: message.voice.duration,
-      caption: message.caption
+      caption: entities.reduceRight(applyEntity, message.caption),
+      parse_mode: entities.length > 0 ? 'HTML' : ''
     }
   },
   audio: (message) => {
+    const entities = message.caption_entities || []
     return {
       audio: message.audio.file_id,
       duration: message.audio.duration,
       performer: message.audio.performer,
       title: message.audio.title,
-      caption: message.caption
+      caption: entities.reduceRight(applyEntity, message.caption),
+      parse_mode: entities.length > 0 ? 'HTML' : ''
     }
   },
   video: (message) => {
+    const entities = message.caption_entities || []
     return {
       video: message.video.file_id,
-      caption: message.caption,
+      caption: entities.reduceRight(applyEntity, message.caption),
+      parse_mode: entities.length > 0 ? 'HTML' : '',
       duration: message.video.duration,
       width: message.video.width,
       height: message.video.height,
@@ -92,9 +98,11 @@ module.exports = {
     }
   },
   document: (message) => {
+    const entities = message.caption_entities || []
     return {
       document: message.document.file_id,
-      caption: message.caption
+      caption: entities.reduceRight(applyEntity, message.caption),
+      parse_mode: entities.length > 0 ? 'HTML' : ''
     }
   },
   sticker: (message) => {

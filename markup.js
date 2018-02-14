@@ -14,8 +14,8 @@ class Markup {
     return this
   }
 
-  extra () {
-    return { reply_markup: Object.assign({}, this) }
+  extra (options) {
+    return Object.assign({reply_markup: Object.assign({}, this)}, options)
   }
 
   keyboard (buttons, options) {

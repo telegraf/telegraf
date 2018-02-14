@@ -8,7 +8,10 @@ bot.command('stream', (ctx) => ctx.replyWithPhoto({ source: fs.createReadStream(
 bot.command('buffer', (ctx) => ctx.replyWithPhoto({ source: fs.readFileSync('/cats/cat3.jpeg') }))
 bot.command('pipe', (ctx) => ctx.replyWithPhoto({ url: 'https://picsum.photos/200/300/?random' }))
 bot.command('url', (ctx) => ctx.replyWithPhoto('https://picsum.photos/200/300/?random'))
-bot.command('caption', (ctx) => ctx.replyWithPhoto('https://picsum.photos/200/300/?random', { caption: 'Caption text' }))
+bot.command('caption', (ctx) => ctx.replyWithPhoto('https://picsum.photos/200/300/?random', {
+  caption: 'Caption *text*',
+  parse_mode: 'Markdown'
+}))
 
 bot.command('album', (ctx) => {
   ctx.replyWithMediaGroup([

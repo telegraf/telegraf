@@ -130,11 +130,13 @@ class Composer {
       const entityTypes = normalizeTextArguments(predicate)
       return Composer.entity(({ type }) => entityTypes.includes(type), ...fns)
     }
-    return Composer.optional(({ message }) =>
-      message &&
-      message.entities &&
-      message.entities.some((entity) => predicate(entity, message.text.substring(entity.offset, entity.offset + entity.length)))
-      , ...fns)
+    return Composer.optional(({ message }) => {
+      const entities = message && (message.entities || message.caption_entities)
+      const text = message && (message.text || message.caption)
+      return entities && entities.some((entity) =>
+        predicate(entity, text.substring(entity.offset, entity.offset + entity.length))
+      )
+    }, ...fns)
   }
 
   static mention (username, ...fns) {

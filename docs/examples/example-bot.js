@@ -8,6 +8,7 @@ const sayYoMiddleware = ({ reply }, next) => reply('yo').then(() => next())
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
+// // Register session middleware
 bot.use(session())
 
 // Register logger middleware
@@ -18,6 +19,9 @@ bot.use((ctx, next) => {
     console.log('response time %sms', ms)
   })
 })
+
+// Login widget events
+bot.on('connected_website', ({ reply }) => reply('Website connected'))
 
 // Random location on some text messages
 bot.on('text', ({ replyWithLocation }, next) => {

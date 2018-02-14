@@ -39,7 +39,7 @@ module.exports = {
   text: (message) => {
     const entities = message.entities || []
     return {
-      parse_mode: 'HTML',
+      parse_mode: entities.length > 0 ? 'HTML' : '',
       text: entities.reduceRight(applyEntity, message.text)
     }
   },
@@ -102,9 +102,11 @@ module.exports = {
     }
   },
   photo: (message) => {
+    const entities = message.caption_entities || []
     return {
       photo: message.photo[message.photo.length - 1].file_id,
-      caption: message.caption
+      parse_mode: entities.length > 0 ? 'HTML' : '',
+      caption: entities.reduceRight(applyEntity, message.caption)
     }
   },
   video_note: (message) => {

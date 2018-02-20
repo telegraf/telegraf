@@ -1035,7 +1035,7 @@ Use this method to delete a sticker from a set created by the bot.
 
 Use this method to edit captions of messages sent by the bot or via the bot.
 
-`telegram.editMessageCaption(chatId, messageId, inlineMessageId, caption, [extra], [parseMode]) => Promise`
+`telegram.editMessageCaption(chatId, messageId, inlineMessageId, caption, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1044,7 +1044,6 @@ Use this method to edit captions of messages sent by the bot or via the bot.
 | inlineMessageId | `string` | Inline message id |
 | caption | `string` | Caption |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagecaption)|
-| [parseMode] | `string` | `Markdown` ot 'HTML'|
 
 ##### editMessageLiveLocation
 

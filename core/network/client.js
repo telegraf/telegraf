@@ -194,8 +194,13 @@ class ApiClient {
     return this.options.webhookReply
   }
 
-  callApi (method, payload = {}) {
+  callApi (method, data = {}) {
     const { token, options, response, responseEnd } = this
+
+    const payload = Object.keys(data)
+      .filter((key) => typeof data[key] !== 'undefined')
+      .reduce((acc, key) => Object.assign(acc, { [key]: data[key] }), {})
+
     if (options.webhookReply && response && !responseEnd && !WebhookBlacklist.includes(method)) {
       debug('▷ webhook call:', method)
       this.responseEnd = true
@@ -203,10 +208,7 @@ class ApiClient {
     }
 
     if (!token) {
-      throw new TelegramError({
-        error_code: 401,
-        description: 'Bot Token is required'
-      })
+      throw new TelegramError({ error_code: 401, description: 'Bot Token is required' })
     }
 
     debug('▶︎ http call:', method)

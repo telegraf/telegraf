@@ -197,7 +197,7 @@ class TelegrafContext {
       )
   }
 
-  editMessageCaption (caption, markup, parseMode) {
+  editMessageCaption (caption, extra) {
     this.assert(this.callbackQuery, 'editMessageCaption')
     return this.callbackQuery.inline_message_id
       ? this.telegram.editMessageCaption(
@@ -205,16 +205,14 @@ class TelegrafContext {
         undefined,
         this.callbackQuery.inline_message_id,
         caption,
-        markup,
-        parseMode
+        extra
       )
       : this.telegram.editMessageCaption(
         this.chat.id,
         this.callbackQuery.message.message_id,
         undefined,
         caption,
-        markup,
-        parseMode
+        extra
       )
   }
 

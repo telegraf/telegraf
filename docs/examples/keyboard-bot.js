@@ -79,7 +79,7 @@ bot.command('caption', (ctx) => {
       .markdown()
       .markup((m) =>
         m.inlineKeyboard([
-          m.callbackButton('Bold', 'bold'),
+          m.callbackButton('Plain', 'plain'),
           m.callbackButton('Italic', 'italic')
         ])
       )
@@ -98,18 +98,18 @@ bot.action('Dr Pepper', (ctx, next) => {
   return ctx.reply('👍').then(() => next())
 })
 
-bot.action('bold', async (ctx) => {
-  ctx.editMessageCaption('*Caption*', Markup.inlineKeyboard([
-    Markup.callbackButton('* Bold *', 'bold'),
+bot.action('plain', async (ctx) => {
+  ctx.editMessageCaption('Caption', Markup.inlineKeyboard([
+    Markup.callbackButton('Plain', 'plain'),
     Markup.callbackButton('Italic', 'italic')
-  ]), 'Markdown')
+  ]))
 })
 
 bot.action('italic', (ctx) => {
-  ctx.editMessageCaption('_Caption_', Markup.inlineKeyboard([
-    Markup.callbackButton('Bold', 'bold'),
+  ctx.editMessageCaption('_Caption_', Extra.markdown().markup(Markup.inlineKeyboard([
+    Markup.callbackButton('Plain', 'plain'),
     Markup.callbackButton('* Italic *', 'italic')
-  ]), 'Markdown')
+  ])))
 })
 
 bot.action(/.+/, (ctx) => {

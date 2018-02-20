@@ -149,11 +149,13 @@ function buildKeyboard (buttons, options) {
   if (buttons.find(Array.isArray)) {
     return buttons.map(row => row.filter((button) => !button.hide))
   }
-  const opts = Object.assign({ wrap: (btn, index, currentRow) => currentRow.length >= opts.columns }, options)
+  const wrapFn = options.wrap
+    ? options.wrap
+    : (btn, index, currentRow) => currentRow.length >= options.columns
   let currentRow = []
   let index = 0
   for (const btn of buttons.filter((button) => !button.hide)) {
-    if (opts.wrap(btn, index, currentRow) && currentRow.length > 0) {
+    if (wrapFn(btn, index, currentRow) && currentRow.length > 0) {
       result.push(currentRow)
       currentRow = []
     }

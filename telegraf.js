@@ -1,5 +1,4 @@
 const debug = require('debug')('telegraf:core')
-const util = require('util')
 const Telegram = require('./telegram')
 const Extra = require('./extra')
 const Composer = require('./composer')
@@ -115,7 +114,7 @@ class Telegraf extends Composer {
   }
 
   handleUpdate (update, webhookResponse) {
-    debug('⚡ update', update.update_id)
+    debug('Processing update', update.update_id)
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
     const ctx = new Context(update, tg, this.options)
     Object.assign(ctx, this.context)
@@ -159,6 +158,5 @@ module.exports = Object.assign(Telegraf, {
   Markup,
   Router,
   Telegram,
-  session,
-  memorySession: util.deprecate(session, '⚠️ Telegraf: memorySession() is deprecated, use session() instead')
+  session
 })

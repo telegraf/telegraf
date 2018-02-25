@@ -51,7 +51,8 @@ class TelegrafContext {
         .filter((key) => key in this.update.message)
     } else {
       this.updateType = updateTypes.find((key) => key in this.update)
-      this.updateSubTypes = []
+      this.updateSubTypes = updateMessageSubTypes
+        .filter((key) => key in this.update[this.updateType])
     }
 
     Object.getOwnPropertyNames(TelegrafContext.prototype)

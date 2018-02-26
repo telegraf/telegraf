@@ -15,7 +15,9 @@ class Markup {
   }
 
   extra (options) {
-    return Object.assign({reply_markup: Object.assign({}, this)}, options)
+    return Object.assign({
+      reply_markup: Object.assign({}, this)
+    }, options)
   }
 
   keyboard (buttons, options) {
@@ -98,6 +100,10 @@ class Markup {
 
   static resize (value = true) {
     return new Markup().resize(value)
+  }
+
+  static selective (value = true) {
+    return new Markup().selective(value)
   }
 
   static oneTime (value = true) {

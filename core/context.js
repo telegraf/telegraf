@@ -1,4 +1,4 @@
-const updateTypes = [
+const UpdateTypes = [
   'callback_query',
   'channel_post',
   'chosen_inline_result',
@@ -10,7 +10,12 @@ const updateTypes = [
   'message'
 ]
 
-const updateMessageSubTypes = [
+const MessageTypes = [
+  'message',
+  'channel_post'
+]
+
+const MessageSubTypes = [
   'voice',
   'video_note',
   'video',
@@ -44,16 +49,10 @@ class TelegrafContext {
     this.tg = telegram
     this.update = update
     this.options = options
-
-    if ('message' in this.update || 'channel_post' in this.update) {
-      this.updateType = 'message' in this.update ? 'message' : 'channel_post'
-      this.updateSubTypes = updateMessageSubTypes
-        .filter((key) => key in this.update[this.updateType])
-    } else {
-      this.updateType = updateTypes.find((key) => key in this.update)
-      this.updateSubTypes = []
-    }
-
+    this.updateType = UpdateTypes.find((key) => key in this.update)
+    this.updateSubTypes = MessageTypes.includes(this.updateType)
+      ? MessageSubTypes.filter((key) => key in this.update[this.updateType])
+      : []
     Object.getOwnPropertyNames(TelegrafContext.prototype)
       .filter((key) => key !== 'constructor' && typeof this[key] === 'function')
       .forEach((key) => (this[key] = this[key].bind(this)))

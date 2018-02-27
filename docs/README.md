@@ -596,6 +596,7 @@ Telegraf options:
     webhookReply: true  // Reply via webhook
   },
   username: ''          // Bot username (optional)
+  channelMode: false    // Handle `channel_post` updates as messages (optional)
 }
 ```
 

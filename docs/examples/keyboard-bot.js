@@ -73,6 +73,19 @@ bot.command('random', (ctx) => {
   )
 })
 
+bot.command('caption', (ctx) => {
+  return ctx.replyWithPhoto({ url: 'https://picsum.photos/200/300/?random' },
+    Extra.load({ caption: 'Caption' })
+      .markdown()
+      .markup((m) =>
+        m.inlineKeyboard([
+          m.callbackButton('Plain', 'plain'),
+          m.callbackButton('Italic', 'italic')
+        ])
+      )
+  )
+})
+
 bot.hears(/\/wrap (\d+)/, (ctx) => {
   return ctx.reply('Keyboard wrap', Extra.markup(
     Markup.keyboard(['one', 'two', 'three', 'four', 'five', 'six'], {
@@ -83,6 +96,20 @@ bot.hears(/\/wrap (\d+)/, (ctx) => {
 
 bot.action('Dr Pepper', (ctx, next) => {
   return ctx.reply('👍').then(() => next())
+})
+
+bot.action('plain', async (ctx) => {
+  ctx.editMessageCaption('Caption', Markup.inlineKeyboard([
+    Markup.callbackButton('Plain', 'plain'),
+    Markup.callbackButton('Italic', 'italic')
+  ]))
+})
+
+bot.action('italic', (ctx) => {
+  ctx.editMessageCaption('_Caption_', Extra.markdown().markup(Markup.inlineKeyboard([
+    Markup.callbackButton('Plain', 'plain'),
+    Markup.callbackButton('* Italic *', 'italic')
+  ])))
 })
 
 bot.action(/.+/, (ctx) => {

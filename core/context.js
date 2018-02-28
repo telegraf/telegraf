@@ -1,4 +1,4 @@
-const updateTypes = [
+const UpdateTypes = [
   'callback_query',
   'channel_post',
   'chosen_inline_result',
@@ -10,7 +10,7 @@ const updateTypes = [
   'message'
 ]
 
-const updateMessageSubTypes = [
+const MessageSubTypes = [
   'voice',
   'video_note',
   'video',
@@ -44,16 +44,12 @@ class TelegrafContext {
     this.tg = telegram
     this.update = update
     this.options = options
-
-    if ('message' in this.update) {
-      this.updateType = 'message'
-      this.updateSubTypes = updateMessageSubTypes
-        .filter((key) => key in this.update.message)
+    this.updateType = UpdateTypes.find((key) => key in this.update)
+    if (this.updateType === 'message' || (this.options.channelMode && this.updateType === 'channel_post')) {
+      this.updateSubTypes = MessageSubTypes.filter((key) => key in this.update[this.updateType])
     } else {
-      this.updateType = updateTypes.find((key) => key in this.update)
       this.updateSubTypes = []
     }
-
     Object.getOwnPropertyNames(TelegrafContext.prototype)
       .filter((key) => key !== 'constructor' && typeof this[key] === 'function')
       .forEach((key) => (this[key] = this[key].bind(this)))
@@ -197,7 +193,7 @@ class TelegrafContext {
       )
   }
 
-  editMessageCaption (caption, markup) {
+  editMessageCaption (caption, extra) {
     this.assert(this.callbackQuery, 'editMessageCaption')
     return this.callbackQuery.inline_message_id
       ? this.telegram.editMessageCaption(
@@ -205,14 +201,14 @@ class TelegrafContext {
         undefined,
         this.callbackQuery.inline_message_id,
         caption,
-        markup
+        extra
       )
       : this.telegram.editMessageCaption(
         this.chat.id,
         this.callbackQuery.message.message_id,
         undefined,
         caption,
-        markup
+        extra
       )
   }
 

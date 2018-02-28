@@ -15,7 +15,9 @@ class Markup {
   }
 
   extra (options) {
-    return Object.assign({reply_markup: Object.assign({}, this)}, options)
+    return Object.assign({
+      reply_markup: Object.assign({}, this)
+    }, options)
   }
 
   keyboard (buttons, options) {
@@ -100,6 +102,10 @@ class Markup {
     return new Markup().resize(value)
   }
 
+  static selective (value = true) {
+    return new Markup().selective(value)
+  }
+
   static oneTime (value = true) {
     return new Markup().oneTime(value)
   }
@@ -149,11 +155,13 @@ function buildKeyboard (buttons, options) {
   if (buttons.find(Array.isArray)) {
     return buttons.map(row => row.filter((button) => !button.hide))
   }
-  const opts = Object.assign({ wrap: (btn, index, currentRow) => currentRow.length >= opts.columns }, options)
+  const wrapFn = options.wrap
+    ? options.wrap
+    : (btn, index, currentRow) => currentRow.length >= options.columns
   let currentRow = []
   let index = 0
   for (const btn of buttons.filter((button) => !button.hide)) {
-    if (opts.wrap(btn, index, currentRow) && currentRow.length > 0) {
+    if (wrapFn(btn, index, currentRow) && currentRow.length > 0) {
       result.push(currentRow)
       currentRow = []
     }

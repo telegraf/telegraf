@@ -1,25 +1,24 @@
 const test = require('ava')
 const Telegraf = require('../')
 
-const baseMessage = {
-  chat: {
-    id: 1
-  }
+const BaseTextMessage = {
+  chat: { id: 1 },
+  text: 'foo'
 }
 
-const updateTypes = [
+const UpdateTypes = [
   { type: 'shipping_query', prop: 'shippingQuery', update: { shipping_query: {} } },
-  { type: 'message', prop: 'message', update: { message: baseMessage } },
-  { type: 'edited_message', prop: 'editedMessage', update: { edited_message: baseMessage } },
-  { type: 'callback_query', prop: 'callbackQuery', update: { callback_query: { message: baseMessage } } },
+  { type: 'message', prop: 'message', update: { message: BaseTextMessage } },
+  { type: 'edited_message', prop: 'editedMessage', update: { edited_message: BaseTextMessage } },
+  { type: 'callback_query', prop: 'callbackQuery', update: { callback_query: { message: BaseTextMessage } } },
   { type: 'inline_query', prop: 'inlineQuery', update: { inline_query: {} } },
-  { type: 'channel_post', prop: 'channelPost', update: { channel_post: {} } },
+  { type: 'channel_post', prop: 'channelPost', update: { channel_post: BaseTextMessage } },
   { type: 'pre_checkout_query', prop: 'preCheckoutQuery', update: { pre_checkout_query: {} } },
   { type: 'edited_channel_post', prop: 'editedChannelPost', update: { edited_channel_post: {} } },
   { type: 'chosen_inline_result', prop: 'chosenInlineResult', update: { chosen_inline_result: {} } }
 ]
 
-updateTypes.forEach((update) => {
+UpdateTypes.forEach((update) => {
   test.cb('should provide update payload for ' + update.type, (t) => {
     const bot = new Telegraf()
     bot.on(update.type, (ctx) => {
@@ -48,10 +47,10 @@ test.cb('should provide update payload for text', (t) => {
     t.is(ctx.updateType, 'message')
     t.end()
   })
-  bot.handleUpdate({message: Object.assign({text: 'foo'}, baseMessage)})
+  bot.handleUpdate({message: Object.assign({text: 'foo'}, BaseTextMessage)})
 })
 
-test.cb('should provide shortcuts for `message` event', (t) => {
+test.cb('should provide shortcuts for `message` update', (t) => {
   const bot = new Telegraf()
   bot.on('message', (ctx) => {
     t.true('reply' in ctx)
@@ -98,10 +97,10 @@ test.cb('should provide shortcuts for `message` event', (t) => {
     t.true('stopMessageLiveLocation' in ctx)
     t.end()
   })
-  bot.handleUpdate({message: baseMessage})
+  bot.handleUpdate({message: BaseTextMessage})
 })
 
-test.cb('should provide shortcuts for `callback_query` event', (t) => {
+test.cb('should provide shortcuts for `callback_query` update', (t) => {
   const bot = new Telegraf()
   bot.on('callback_query', (ctx) => {
     t.true('answerCbQuery' in ctx)
@@ -148,25 +147,25 @@ test.cb('should provide shortcuts for `callback_query` event', (t) => {
     t.true('stopMessageLiveLocation' in ctx)
     t.end()
   })
-  bot.handleUpdate({callback_query: baseMessage})
+  bot.handleUpdate({callback_query: BaseTextMessage})
 })
 
-test.cb('should provide shortcuts for `shipping_query` event', (t) => {
+test.cb('should provide shortcuts for `shipping_query` update', (t) => {
   const bot = new Telegraf()
   bot.on('shipping_query', (ctx) => {
     t.true('answerShippingQuery' in ctx)
     t.end()
   })
-  bot.handleUpdate({shipping_query: baseMessage})
+  bot.handleUpdate({shipping_query: BaseTextMessage})
 })
 
-test.cb('should provide shortcuts for `pre_checkout_query` event', (t) => {
+test.cb('should provide shortcuts for `pre_checkout_query` update', (t) => {
   const bot = new Telegraf()
   bot.on('pre_checkout_query', (ctx) => {
     t.true('answerPreCheckoutQuery' in ctx)
     t.end()
   })
-  bot.handleUpdate({pre_checkout_query: baseMessage})
+  bot.handleUpdate({pre_checkout_query: BaseTextMessage})
 })
 
 test.cb('should provide chat and sender info', (t) => {
@@ -176,16 +175,25 @@ test.cb('should provide chat and sender info', (t) => {
     t.is(ctx.chat.id, 1)
     t.end()
   })
-  bot.handleUpdate({message: Object.assign({from: {id: 42}}, baseMessage)})
+  bot.handleUpdate({message: Object.assign({from: {id: 42}}, BaseTextMessage)})
 })
 
-test.cb('should provide shortcuts for `inline_query` event', (t) => {
+test.cb('should provide shortcuts for `inline_query` update', (t) => {
   const bot = new Telegraf()
   bot.on('inline_query', (ctx) => {
     t.true('answerInlineQuery' in ctx)
     t.end()
   })
-  bot.handleUpdate({inline_query: baseMessage})
+  bot.handleUpdate({inline_query: BaseTextMessage})
+})
+
+test.cb('should provide subtype for `channel_post` update', (t) => {
+  const bot = new Telegraf('', { channelMode: true })
+  bot.on('text', (ctx) => {
+    t.is(ctx.channelPost.text, 'foo')
+    t.end()
+  })
+  bot.handleUpdate({channel_post: BaseTextMessage})
 })
 
 test.cb('should share state', (t) => {
@@ -200,7 +208,7 @@ test.cb('should share state', (t) => {
     t.is(ctx.state.answer, 42)
     t.end()
   })
-  bot.handleUpdate({message: baseMessage})
+  bot.handleUpdate({message: BaseTextMessage})
 })
 
 test.cb('should work with context extensions', (t) => {
@@ -213,7 +221,7 @@ test.cb('should work with context extensions', (t) => {
     t.true('getUser' in ctx.db)
     t.end()
   })
-  bot.handleUpdate({message: baseMessage})
+  bot.handleUpdate({message: BaseTextMessage})
 })
 
 test.cb('should handle webhook response', (t) => {
@@ -226,7 +234,7 @@ test.cb('should handle webhook response', (t) => {
     setHeader: () => undefined,
     end: () => t.end()
   }
-  bot.handleUpdate({message: baseMessage}, res)
+  bot.handleUpdate({message: BaseTextMessage}, res)
 })
 
 const resStub = {
@@ -238,7 +246,7 @@ test.cb('should respect webhookReply option', (t) => {
   const bot = new Telegraf(null, {telegram: {webhookReply: false}})
   bot.catch((err) => { throw err }) // Disable log
   bot.on('message', ({ reply }) => reply(':)'))
-  t.throws(bot.handleUpdate({message: baseMessage}, resStub)).then(() => t.end())
+  t.throws(bot.handleUpdate({message: BaseTextMessage}, resStub)).then(() => t.end())
 })
 
 test.cb('should respect webhookReply runtime change', (t) => {
@@ -248,7 +256,7 @@ test.cb('should respect webhookReply runtime change', (t) => {
   bot.on('message', (ctx) => ctx.reply(':)'))
 
   // Throws cause Bot Token is required for http call'
-  t.throws(bot.handleUpdate({message: baseMessage}, resStub)).then(() => t.end())
+  t.throws(bot.handleUpdate({message: BaseTextMessage}, resStub)).then(() => t.end())
 })
 
 test.cb('should respect webhookReply runtime change (per request)', (t) => {
@@ -258,5 +266,5 @@ test.cb('should respect webhookReply runtime change (per request)', (t) => {
     ctx.webhookReply = false
     return ctx.reply(':)')
   })
-  t.throws(bot.handleUpdate({ message: baseMessage }, resStub)).then(() => t.end())
+  t.throws(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
 })

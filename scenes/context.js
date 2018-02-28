@@ -46,7 +46,7 @@ class SceneContext {
     }
     const leave = silent ? noop() : this.leave()
     return leave.then(() => {
-      debug('enter', sceneId, initialState, silent)
+      debug('Enter scene', sceneId, initialState, silent)
       this.session.current = sceneId
       this.state = initialState
       const ttl = this.current.ttl || this.options.ttl
@@ -68,7 +68,7 @@ class SceneContext {
   }
 
   leave () {
-    debug('leave')
+    debug('Leave scene')
     const handler = this.current && this.current.leaveMiddleware
       ? this.current.leaveMiddleware()
       : safePassThru()

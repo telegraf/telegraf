@@ -5,7 +5,7 @@ Users can interact with bots by sending them command messages in private or grou
 These accounts serve as an interface for code running somewhere on your server.
 
 ![Telegraf](header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.5-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.6-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![bitHound](https://img.shields.io/bithound/code/github/telegraf/telegraf.svg?style=flat-square)](https://www.bithound.io/github/telegraf/telegraf)
@@ -58,7 +58,7 @@ bot.startPolling()
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
 
 <p class="tip">
-  Also, checkout our <a href="https://github.com/telegraf/micro-bot">step-by-step instructions</a> for building and deploying basic bot with <a href="https://github.com/telegraf/micro-bot">🤖 micro-bot</a>(Telegraf high level wrapper)
+  Also, checkout our <a href="https://github.com/telegraf/micro-bot">step-by-step instructions</a> for building and deploying basic bot with <a href="https://github.com/telegraf/micro-bot">🤖 micro-bot</a> (Telegraf high level wrapper)
 </p>
 
 **Community bots:**
@@ -596,6 +596,7 @@ Telegraf options:
     webhookReply: true  // Reply via webhook
   },
   username: ''          // Bot username (optional)
+  channelMode: false    // Handle `channel_post` updates as messages (optional)
 }
 ```
 

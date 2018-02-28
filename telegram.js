@@ -265,13 +265,14 @@ class Telegram extends ApiClient {
     }, extra))
   }
 
-  editMessageCaption (chatId, messageId, inlineMessageId, caption, markup) {
+  editMessageCaption (chatId, messageId, inlineMessageId, caption, extra) {
     return this.callApi('editMessageCaption', {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
       caption: caption,
-      reply_markup: markup
+      parse_mode: extra.parse_mode,
+      reply_markup: extra.parse_mode || extra.reply_markup ? extra.reply_markup : extra
     })
   }
 

@@ -30,7 +30,7 @@ module.exports = function (hookPath, updateHandler, errorHandler) {
           }
         })
         .catch((err) => {
-          debug('webhook error', err)
+          debug('Webhook error', err)
           res.writeHead(500)
           res.end()
         })

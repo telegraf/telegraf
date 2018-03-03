@@ -337,9 +337,7 @@ export interface ContextMessageUpdate extends Context {
 }
 
 export interface Middleware<C extends ContextMessageUpdate> {
-  (ctx: C): any
-
-  (ctx: C, next: () => any): any
+  (ctx: C, next?: () => any): any
 }
 
 export type HearsTriggers = string[] | string | RegExp | RegExp[] | Function

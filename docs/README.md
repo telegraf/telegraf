@@ -1,7 +1,7 @@
 ## telegraf.js
 
-Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
-Users can interact with bots by sending them command messages in private or group chats. 
+Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically.
+Users can interact with bots by sending them command messages in private or group chats.
 These accounts serve as an interface for code running somewhere on your server.
 
 ![Telegraf](header.png)
@@ -36,7 +36,7 @@ $ yarn add telegraf
 ```
 
 #### Example
-  
+
 ```js
 const Telegraf = require('telegraf')
 
@@ -80,16 +80,16 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 #### Telegram token
 
-To use the [Telegram Bot API](https://core.telegram.org/bots/api), 
-you first have to [get a bot account](https://core.telegram.org/bots) 
+To use the [Telegram Bot API](https://core.telegram.org/bots/api),
+you first have to [get a bot account](https://core.telegram.org/bots)
 by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
 BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
 
 #### Bot
 
-A Telegraf bot is an object containing an array of middlewares which are composed 
-and executed in a stack-like manner upon request. Is similar to many other middleware systems 
+A Telegraf bot is an object containing an array of middlewares which are composed
+and executed in a stack-like manner upon request. Is similar to many other middleware systems
 that you may have encountered such as Koa, Ruby's Rack, Connect.
 
 #### Middleware
@@ -99,8 +99,8 @@ It allows you to modify requests and responses as they pass between the Telegram
 
 You can imagine middleware as a chain of logic connection your bot to the Telegram request.
 
-Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram update, 
-`next` is a function that is invoked to execute the downstream middleware. 
+Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram update,
+`next` is a function that is invoked to execute the downstream middleware.
 It returns a Promise with a then function for running code after completion.
 
 ```js
@@ -155,7 +155,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.catch((err) => {
   console.log('Ooops', err)
 })
-``` 
+```
 
 #### Context
 
@@ -254,6 +254,8 @@ Context shortcuts for **callback_query** update:
 * `editMessageCaption`      -> [`telegram.editMessageCaption`](#editmessagecaption)
 * `editMessageReplyMarkup`  -> [`telegram.editMessageReplyMarkup`](#editmessagereplymarkup)
 * `editMessageText`         -> [`telegram.editMessageText`](#editmessagetext)
+* `editMessageMarkdown`     -> [`telegram.editMessageText`](#editmessagetext)
+* `editMessageHTML`         -> [`telegram.editMessageText`](#editmessagetext)
 * `exportChatInviteLink`    -> [`telegram.exportChatInviteLink`](#exportchatinvitelink)
 * `getChat`                 -> [`telegram.getChat`](#getchat)
 * `getChatAdministrators`   -> [`telegram.getChatAdministrators`](#getchatadministrators)
@@ -754,7 +756,7 @@ Stop Webhook and polling
 
 ##### webhookCallback
 
-Return a callback function suitable for the http[s].createServer() method to handle a request. 
+Return a callback function suitable for the http[s].createServer() method to handle a request.
 You may also use this callback function to mount your telegraf app in a Connect/Express app.
 
 `telegraf.webhookCallback(webhookPath) => Function`
@@ -765,8 +767,8 @@ You may also use this callback function to mount your telegraf app in a Connect/
 
 ##### handleUpdate
 
-Handle raw Telegram update. 
-In case you use centralized webhook server, queue, etc.  
+Handle raw Telegram update.
+In case you use centralized webhook server, queue, etc.
 
 `telegraf.handleUpdate(rawUpdate, [webhookResponse])`
 
@@ -1090,6 +1092,34 @@ Use this method to edit text messages sent by the bot or via the bot.
 | text | `string` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagetext)|
 
+##### editMessageMarkdown
+
+Use this method to edit text messages sent by the bot or via the bot with use of Markdown format.
+
+`telegram.editMessageText(chatId, messageId, inlineMessageId, text, {parse_mode: Markdown[, ...extra]}) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| messageId | `string` | Message id |
+| inlineMessageId | `string` | Inline message id |
+| text | `string` | Message |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagetext)|
+
+##### editMessageHTML
+
+Use this method to edit text messages sent by the bot or via the bot with use of HTML format.
+
+`telegram.editMessageText(chatId, messageId, inlineMessageId, text, {parse_mode: HTML[, ...extra]}) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| messageId | `string` | Message id |
+| inlineMessageId | `string` | Inline message id |
+| text | `string` | Message |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagetext)|
+
 ##### forwardMessage
 
 Forwards message.
@@ -1265,7 +1295,7 @@ Use this method to kick a user from a group or a supergroup.
 
 ##### restrictChatMember
 
-Use this method to restrict a user in a supergroup. 
+Use this method to restrict a user in a supergroup.
 
 `telegram.restrictChatMember(chatId, userId, [extra]) => Promise`
 
@@ -1347,7 +1377,7 @@ Use this method to change the description of a supergroup or a channel.
 
 ##### setChatStickerSet
 
-Use this method to set a new group sticker set for a supergroup. 
+Use this method to set a new group sticker set for a supergroup.
 
 `telegram.setChatStickerSet(chatId, stickerSetName) => Promise`
 [Official documentation](https://core.telegram.org/bots/api#setchatstickerset)
@@ -1720,4 +1750,3 @@ bot.telegram.getMe().then((botInfo) => {
 
 bot.command('foo', (ctx) => ctx.reply('Hello World'))
 ```
-

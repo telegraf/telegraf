@@ -250,6 +250,20 @@ class TelegrafContext {
       )
   }
 
+  editMessageMarkdown (markdown, extra) {
+    return this.editMessageText(
+      markdown,
+      Object.assign({ 'parse_mode': 'Markdown' }, extra)
+    )
+  }
+
+  editMessageHTML (html, extra) {
+    return this.editMessageText(
+      html,
+      Object.assign({ 'parse_mode': 'HTML' }, extra)
+    )
+  }
+
   stopMessageLiveLocation (markup) {
     this.assert(this.callbackQuery, 'stopMessageLiveLocation')
     return this.callbackQuery.inline_message_id

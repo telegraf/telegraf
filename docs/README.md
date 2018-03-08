@@ -1094,9 +1094,9 @@ Use this method to edit text messages sent by the bot or via the bot.
 
 ##### editMessageMarkdown
 
-Use this method to edit text messages sent by the bot or via the bot with use of Markdown format.
+Use this method to edit text messages sent by the bot or via the bot with Markdown formatting.
 
-`telegram.editMessageText(chatId, messageId, inlineMessageId, text, {parse_mode: Markdown[, ...extra]}) => Promise`
+`telegram.editMessageMarkdown(chatId, messageId, inlineMessageId, text, extra) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1108,9 +1108,9 @@ Use this method to edit text messages sent by the bot or via the bot with use of
 
 ##### editMessageHTML
 
-Use this method to edit text messages sent by the bot or via the bot with use of HTML format.
+Use this method to edit text messages sent by the bot or via the bot with HTML formatting.
 
-`telegram.editMessageText(chatId, messageId, inlineMessageId, text, {parse_mode: HTML[, ...extra]}) => Promise`
+`telegram.editMessageHTML(chatId, messageId, inlineMessageId, text, extra) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |

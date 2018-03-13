@@ -9,8 +9,7 @@ const sceneCleaner = () => async (ctx) => {
   ctx.scene.state.messages.forEach(({ message_id: id }) => {
     try {
       ctx.deleteMessage(id)
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error)
     }
   })
@@ -18,7 +17,7 @@ const sceneCleaner = () => async (ctx) => {
 
 const replyKeyboard = () => Markup.keyboard([
   Markup.button('First'),
-  Markup.button('Second'),
+  Markup.button('Second')
 ]).extra()
 
 const firstScene = new Scene('first')

@@ -1,5 +1,6 @@
 const Telegraf = require('telegraf')
 const session = require('telegraf/session')
+const Markup = require('telegraf/markup')
 const Stage = require('telegraf/stage')
 const Scene = require('telegraf/scenes/base')
 const { enter } = Stage

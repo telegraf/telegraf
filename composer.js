@@ -54,6 +54,14 @@ class Composer {
     return this.command('start', ...fns)
   }
 
+  help (...fns) {
+    return this.command('help', ...fns)
+  }
+
+  settings (...fns) {
+    return this.command('settings', ...fns)
+  }
+
   middleware () {
     return this.handler
   }

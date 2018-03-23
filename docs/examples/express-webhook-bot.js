@@ -2,7 +2,7 @@ const Telegraf = require('telegraf')
 const express = require('express')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.on('text', ({ replyWithHTML }) => replyWithHTML('<b>Hey there!</b>'))
+bot.on('text', ({ replyWithHTML }) => replyWithHTML('<b>Hello</b>'))
 
 // Set telegram webhook
 // npm install -g localtunnel && lt --port 3000

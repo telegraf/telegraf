@@ -3,7 +3,7 @@ const fastifyApp = require('fastify')()
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.on('text', ({ reply }) => reply('Hey there!'))
+bot.on('text', ({ reply }) => reply('Hello'))
 
 // Set telegram webhook
 // npm install -g localtunnel && lt --port 3000

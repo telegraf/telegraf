@@ -42,16 +42,23 @@ const Telegraf = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.start((ctx) => {
-  console.log('started:', ctx.from.id)
-  return ctx.reply('Welcome!')
-})
-
-bot.command('help', (ctx) => ctx.reply('Try send a sticker!'))
-bot.hears('hi', (ctx) => ctx.reply('Hey there!'))
-bot.hears(/buy/i, (ctx) => ctx.reply('Buy-buy!'))
+bot.start((ctx) => ctx.reply('Welcome'))
+bot.help((ctx) => ctx.reply('Send me a sticker'))
 bot.on('sticker', (ctx) => ctx.reply('👍'))
+bot.hears('hi', (ctx) => ctx.reply('Hey there'))
+bot.hears(/buy/i, (ctx) => ctx.reply('Buy-buy'))
 
+bot.startPolling()
+```
+
+
+```js
+const Telegraf = require('telegraf')
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.command('/oldschool', (ctx) => ctx.reply('Hello'))
+bot.command('/modern', ({ reply }) => reply('Yo'))
+bot.command('/hipster', Telegraf.reply('λ'))
 bot.startPolling()
 ```
 
@@ -415,7 +422,7 @@ Available update sub-types:
 ```js
 // Handle message update
 bot.on('message', (ctx) => {
-  return ctx.reply('Hey there!')
+  return ctx.reply('Hello')
 })
 
 // Handle sticker or photo update
@@ -495,7 +502,7 @@ const fastifyApp = require('fastify')()
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.on('text', ({ reply }) => reply('Hey there!'))
+bot.on('text', ({ reply }) => reply('Hello'))
 fastifyApp.use(bot.webhookCallback('/secret-path'))
 // Set telegram webhook
 // npm install -g localtunnel && lt --port 3000
@@ -657,9 +664,29 @@ Command handling.
 
 ##### start
 
-Tiny wrapper for /start command.
+Handler for /start command.
 
 `telegraf.start(...middleware)`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| middleware | `function` | Middleware |
+
+##### help
+
+Handler for /help command.
+
+`telegraf.help(...middleware)`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| middleware | `function` | Middleware |
+
+##### settings
+
+Handler for /settings command.
+
+`telegraf.settings(...middleware)`
 
 | Param | Type | Description |
 | --- | --- | --- |

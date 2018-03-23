@@ -467,6 +467,18 @@ test.cb('should handle start command', (t) => {
   bot.handleUpdate({ message: Object.assign({ text: '/start', entities: [{ type: 'bot_command', offset: 0, length: 6 }] }, baseMessage) })
 })
 
+test.cb('should handle help command', (t) => {
+  const bot = new Telegraf()
+  bot.help((ctx) => t.end())
+  bot.handleUpdate({ message: Object.assign({ text: '/help', entities: [{ type: 'bot_command', offset: 0, length: 5 }] }, baseMessage) })
+})
+
+test.cb('should handle settings command', (t) => {
+  const bot = new Telegraf()
+  bot.settings((ctx) => t.end())
+  bot.handleUpdate({ message: Object.assign({ text: '/settings', entities: [{ type: 'bot_command', offset: 0, length: 9 }] }, baseMessage) })
+})
+
 test.cb('should handle short command', (t) => {
   const bot = new Telegraf()
   bot.command('start', (ctx) => t.end())

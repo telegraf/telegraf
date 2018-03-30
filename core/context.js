@@ -219,13 +219,13 @@ class TelegrafContext {
         undefined,
         undefined,
         this.callbackQuery.inline_message_id,
-        markup
+        markup.reply_markup || markup
       )
       : this.telegram.editMessageReplyMarkup(
         this.chat.id,
         this.callbackQuery.message.message_id,
         undefined,
-        markup
+        markup.reply_markup || markup
       )
   }
 

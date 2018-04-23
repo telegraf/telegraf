@@ -947,117 +947,1026 @@ export interface InputContactMessageContent {
 }
 
 
-export interface InlineQueryResultCachedAudio {
-  /**
-   * Type of the result, must be audio
-   */
-  type: string
+export type InlineQueryResultType = 
+'article' |
+'photo' |
+'gif' |
+'mpeg4_gif' |
+'video' |
+'audio' |
+'voice' |
+'document' |
+'location' |
+'venue' |
+'contact' |
+'game' |
+'sticker'
 
-  /**
-   * Unique identifier for this result, 1-64 bytes
-   */
-  id: string
-
-  /**
-   * A valid file identifier for the audio file
-   */
-  audio_file_id: string
-
-  /**
-   * Caption, 0-200 characters
-   */
-  caption?: string
-
-  /**
-   * Inline keyboard attached to the message
-   */
-  reply_markup?: InlineKeyboardMarkup
-
-  /**
-   * Content of the message to be sent instead of the audio
-   */
-  input_message_content?: InputMessageContent
+interface inlineQueryResult {
+  type: InlineQueryResultType
 }
 
-export interface InlineQueryResultCachedDocument {
-  /**
-   * Type of the result, must be document
-   */
-  type: string
+export interface InlineQueryResultArticle extends inlineQueryResult {
+    /**
+     * Type of the result, must be article
+     */
+    type: 'article'
 
-  /**
-   * Unique identifier for this result, 1-64 bytes
-   */
-  id: string
+    /**
+     * Unique identifier for this result, 1-64 Bytes
+     */
+    id: string
 
-  /**
-   * Title for the result
-   */
-  title: string
+    /**
+     * Title of the result
+     */
+    title: string
 
-  /**
-   * A valid file identifier for the file
-   */
-  document_file_id: string
+    /**
+     * Content of the message to be sent
+     */
+    input_message_content: InputMessageContent
 
-  /**
-   * Short description of the result
-   */
-  description?: string
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
 
-  /**
-   * Caption of the document to be sent, 0-200 characters
-   */
-  caption?: string
+    /**
+     * URL of the result
+     */
+    url?: string
 
-  /**
-   * Inline keyboard attached to the message
-   */
-  reply_markup?: InlineKeyboardMarkup
+    /**
+     * Pass True, if you don't want the URL to be shown in the message
+     */
+    hide_url?: boolean
 
-  /**
-   * Content of the message to be sent instead of the file
-   */
-  input_message_content?: InputMessageContent
+    /**
+     * Short description of the result
+     */
+    description?: string
 
-}
+    /**
+     * Url of the thumbnail for the result
+     */
+    thumb_url?: string
 
-export interface InlineQueryResultCachedGif {
-  /**
-   * Type of the result, must be gif
-   */
-  type: string
+    /**
+     * Thumbnail width
+     */
+    thumb_width?: number
 
-  /**
-   * Unique identifier for this result, 1-64 bytes
-   */
-  id: string
+    /**
+     * Thumbnail height
+     */
+    thumb_height?: number
+  }
 
-  /**
-   * A valid file identifier for the GIF file
-   */
-  gif_file_id: string
+  export interface InlineQueryResultPhoto extends inlineQueryResult {
+      /**
+       * Type of the result, must be photo
+       */
+    type: 'photo'
 
-  /**
-   * Title for the result
-   */
-  title?: string
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
 
-  /**
-   * Caption of the GIF file to be sent, 0-200 characters
-   */
-  caption?: string
+    /**
+     * A valid URL of the photo. Photo must be in jpeg format. Photo size must not exceed 5MB
+     */
+    photo_url: string
 
-  /**
-   * Inline keyboard attached to the message
-   */
-  reply_markup?: InlineKeyboardMarkup
+    /**
+     * URL of the thumbnail for the photo
+     */
+    thumb_url: string
 
-  /**
-   * Content of the message to be sent instead of the GIF animation
-   */
-  input_message_content?: InputMessageContent
-}
+    /**
+     * Width of the photo
+     */
+    photo_width?: number
+
+    /**
+     * Height of the photo
+     */
+    photo_height?: number
+
+    /**
+     * Title for the result
+     */
+    title?: string
+
+    /**
+     * Short description of the result
+     */
+    description?: string
+
+    /**
+     * Caption of the photo to be sent, 0-200 characters
+     */
+    caption?: string
+
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+     */
+    parse_mode?: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the photo
+     */
+    input_message_content?: InputMessageContent
+  }
+
+  export interface InlineQueryResultGif extends inlineQueryResult {
+    /**
+     * Type of the result, must be gif
+     */
+    type: 'gif'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+
+    /**
+     * A valid URL for the GIF file. File size must not exceed 1MB
+     */
+    gif_url: string
+
+    /**
+     * Width of the GIF
+     */
+    gif_width?: number
+
+    /**
+     * Height of the GIF
+     */
+    gif_height?: number
+
+    /**
+     * Duration of the GIF
+     */
+    gif_duration?: number
+    
+    /**
+     * URL of the static thumbnail for the result (jpeg or gif)
+     */
+    thumb_url: string
+
+    /**
+     * Title for the result
+     */
+    title?: string
+
+    /**
+     * Caption of the GIF file to be sent, 0-200 characters
+     */
+    caption?: string
+
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption
+     */
+    parse_mode?: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the GIF animation
+     */
+    input_message_content?: InputMessageContent
+  }
+
+  export interface InlineQueryResultMpeg4Gif extends inlineQueryResult {
+    /**
+     * Type of the result, must be mpeg4_gif
+     */
+    type: 'mpeg4_gif'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+
+    /**
+     * A valid URL for the MP4 file. File size must not exceed 1MB
+     */
+    mpeg4_url: string
+
+    /**
+     * Video width
+     */
+    mpeg4_width?: number
+
+    /**
+     * Video height
+     */
+    mpeg4_height?: number
+
+    /**
+     * Video duration
+     */
+    mpeg4_duration?: number
+
+    /**
+     * URL of the static thumbnail (jpeg or gif) for the result
+     */
+    thumb_url: string
+
+    /**
+     * Title for the result
+     */
+    title?: string
+
+    /**
+     * Caption of the MPEG-4 file to be sent, 0-200 characters
+     */
+    caption?: string
+
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+     */
+    parse_mode?: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the video animation
+     */
+    input_message_content?: InputMessageContent
+  }
+
+  export interface InlineQueryResultVideo extends inlineQueryResult {
+    /**
+     * Type of the result, must be video
+     */
+    type: 'video'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+
+    /**
+     * A valid URL for the embedded video player or video file
+     */
+    video_url: string
+
+    /**
+     * Mime type of the content of video url, “text/html” or “video/mp4
+     */
+    mime_type: string
+
+    /**
+     * URL of the thumbnail (jpeg only) for the video
+     */
+    thumb_url: string
+
+    /**
+     * Title for the result
+     */
+    title: string
+
+    /**
+     * Caption of the video to be sent, 0-200 characters
+     */
+    caption?: string
+
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+     */
+    parse_mode?: string
+
+    /**
+     * Video width
+     */
+    video_width?: number
+
+    /**
+     * Video height
+     */
+    video_height?: number
+
+    /**
+     * Video duration in seconds
+     */
+    video_duration?: number
+
+    /**
+     * Short description of the result
+     */
+    description?: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the video. This field is required if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
+     */
+    input_message_content?: InputMessageContent
+  }
+
+  export interface InlineQueryResultAudio extends inlineQueryResult {
+    /**
+     * Type of the result, must be audio
+     */
+    type: 'audio'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+
+    /**
+     * A valid URL for the audio file
+     */
+    audio_url: string
+
+    /**
+     * Title
+     */
+    title: string
+
+    /**
+     * Caption, 0-200 characters
+     */
+    caption?: string
+
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+     */
+    parse_mode?: string
+    
+    /**
+     * Performer
+     */
+    performer?: string
+
+    /**
+     * Audio duration in seconds
+     */
+    audio_duration?: number
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the audio
+     */
+    input_message_content?: InputMessageContent
+  }
+
+  export interface InlineQueryResultVoice extends inlineQueryResult {
+    /**
+     * Type of the result, must be voice
+     */
+    type: 'voice'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+
+    /**
+     * A valid URL for the voice recording
+     */
+    voice_url: string
+
+    /**
+     * 	Recording title
+     */
+    title: string
+
+    /**
+     * Caption, 0-200 characters
+     */
+    caption?: string
+
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption
+     */
+    parse_mode?: string
+
+    /**
+     * Recording duration in seconds
+     */
+    voice_duration?: number
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the voice recording
+     */
+    input_message_content?: InputMessageContent
+  }
+
+  export interface InlineQueryResultDocument extends inlineQueryResult {
+    /**
+     * Type of the result, must be document
+     */
+    type: 'document'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+
+    /**
+     * Title for the result
+     */
+    title: string
+
+    /**
+     * Caption of the document to be sent, 0-200 characters
+     */
+    caption?: string
+
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+     */
+    parse_mode?: string
+
+    /**
+     * A valid URL for the file
+     */
+    document_url: string
+
+    /**
+     * Mime type of the content of the file, either “application/pdf” or “application/zip”
+     */
+    mime_type: string
+
+    /**
+     * Short description of the result
+     */
+    description?: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the file
+     */
+    input_message_content?: InputMessageContent
+
+    /**
+     * URL of the thumbnail (jpeg only) for the file
+     */
+    thumb_url?: string
+
+    /**
+     * Thumbnail width
+     */
+    thumb_width?: number
+
+    /**
+     * Thumbnail height
+     */
+    thumb_height?: number
+  }
+
+  export interface InlineQueryResultLocation extends inlineQueryResult {
+    /**
+     * Type of the result, must be location
+     */
+    type: 'location'
+
+    /**
+     * Unique identifier for this result, 1-64 Bytes
+     */
+    id: string
+
+    /**
+     * Location latitude in degrees
+     */
+    latitude: number
+
+    /**
+     * Location longitude in degrees
+     */
+    longitude: number
+
+    /**
+     * Location title
+     */
+    title: string
+
+    /**
+     * Period in seconds for which the location can be updated, should be between 60 and 86400.
+     */
+    live_period?: number
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the location
+     */
+    input_message_content?: InputMessageContent
+
+    /**
+     * Url of the thumbnail for the result
+     */
+    thumb_url?: string
+
+    /**
+     * Thumbnail width
+     */
+    thumb_width?: number
+
+    /**
+     * Thumbnail height
+     */
+    thumb_height?: number
+  }
+
+  export interface InlineQueryResultVenue extends inlineQueryResult {
+    /**
+     * Type of the result, must be venue
+     */
+    type: 'venue'
+
+    /**
+     * Unique identifier for this result, 1-64 Bytes
+     */
+    id: string
+
+    /**
+     * Latitude of the venue location in degrees
+     */
+    latitude: number
+
+    /**
+     * Longitude of the venue location in degrees
+     */
+    longitude: number
+
+    /**
+     * Title of the venue
+     */
+    title: string
+
+    /**
+     * Address of the venue
+     */
+    address: string
+
+    /**
+     * Foursquare identifier of the venue if known
+     */
+    foursquare_id?: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the venue
+     */
+    input_message_content?: InputMessageContent
+
+    /**
+     * Url of the thumbnail for the result
+     */
+    thumb_url?: string
+
+    /**
+     * Thumbnail width
+     */
+    thumb_width?: number
+
+    /**
+     * Thumbnail height
+     */
+    thumb_height?: number
+  }
+
+  export interface InlineQueryResultContact extends inlineQueryResult {
+    /**
+     * Type of the result, must be contact
+     */
+    type: 'contact'
+
+    /**
+     * Unique identifier for this result, 1-64 Bytes
+     */
+    id: string
+
+    /**
+     * Contact's phone number
+     */
+    phone_number: string
+
+    /**
+     * Contact's first name
+     */
+    first_name: string
+
+    /**
+     * Contact's last name
+     */
+    last_name?: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the contact
+     */
+    input_message_content?: InputMessageContent
+
+    /**
+     * Url of the thumbnail for the result
+     */
+    thumb_url?: string
+
+    /**
+     * Thumbnail width
+     */
+    thumb_width?: number
+
+    /**
+     * Thumbnail height
+     */
+    thumb_height?: number
+  }
+
+  export interface InlineQueryResultGame extends inlineQueryResult {
+    /**
+     * Type of the result, must be game
+     */
+    type: 'game'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+
+    /**
+     * Short name of the game
+     */
+    game_short_name: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+  }
+
+  export interface InlineQueryResultCachedPhoto extends inlineQueryResult {
+    /**
+     * Type of the result, must be photo
+     */
+    type: 'photo'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+
+    /**
+     * A valid file identifier of the photo
+     */
+    photo_file_id: string
+
+    /**
+     * Title for the result
+     */
+    title?: string
+
+    /**
+     * Short description of the result
+     */
+    description?: string
+
+    /**
+     * Caption of the photo to be sent, 0-200 characters
+     */
+    caption?: string
+
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+     */
+    parse_mode?: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the photo
+     */
+    input_message_content?: InputMessageContent
+  }
+
+  export interface InlineQueryResultCachedGif extends inlineQueryResult {
+    /**
+     * Type of the result, must be gif
+     */
+    type: 'gif'
+  
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+  
+    /**
+     * A valid file identifier for the GIF file
+     */
+    gif_file_id: string
+  
+    /**
+     * Title for the result
+     */
+    title?: string
+  
+    /**
+     * Caption of the GIF file to be sent, 0-200 characters
+     */
+    caption?: string
+
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+     */
+    parse_mode?: string
+  
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+  
+    /**
+     * Content of the message to be sent instead of the GIF animation
+     */
+    input_message_content?: InputMessageContent
+  }
+  
+
+  export interface InlineQueryResultCachedMpeg4Gif extends inlineQueryResult {
+    /**
+     * Type of the result, must be mpeg4_gif
+     */
+    type: 'mpeg4_gif'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+    
+    /**
+     * 	A valid file identifier for the MP4 file
+     */
+    mpeg4_file_id: string
+
+    /**
+     * Title for the result
+     */
+    title?: string
+
+    /**
+     * Caption of the MPEG-4 file to be sent, 0-200 characters
+     */
+    caption?: string
+    
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption
+     */
+    parse_mode?: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the video animation
+     */
+    input_message_content?: InputMessageContent
+  }
+
+  export interface InlineQueryResultCachedSticker extends inlineQueryResult {
+    /**
+     * Type of the result, must be sticker
+     */
+    type: 'sticker'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+
+    /**
+     * A valid file identifier of the sticker
+     */
+    sticker_file_id: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the sticker
+     */
+    input_message_content?: InputMessageContent
+  }
+
+  export interface InlineQueryResultCachedDocument extends inlineQueryResult {
+    /**
+     * Type of the result, must be document
+     */
+    type: 'document'
+  
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+  
+    /**
+     * Title for the result
+     */
+    title: string
+  
+    /**
+     * A valid file identifier for the file
+     */
+    document_file_id: string
+  
+    /**
+     * Short description of the result
+     */
+    description?: string
+  
+    /**
+     * Caption of the document to be sent, 0-200 characters
+     */
+    caption?: string
+
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+     */
+    parse_mode?: string
+  
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+  
+    /**
+     * Content of the message to be sent instead of the file
+     */
+    input_message_content?: InputMessageContent
+  
+  }
+
+  export interface InlineQueryResultCachedVideo extends inlineQueryResult {
+    /**
+     * Type of the result, must be video
+     */
+    type: 'video'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+
+    /**
+     * 	A valid file identifier for the video file
+     */
+    video_file_id: string
+
+    /**
+     * Title for the result
+     */
+    title: string
+
+    /**
+     * Short description of the result
+     */
+    description?: string
+    
+    /**
+     * Caption of the video to be sent, 0-200 characters
+     */
+    caption?: string
+
+    /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+     */
+    parse_mode?: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the video
+     */
+    input_message_content?: InputMessageContent
+  }
+
+  export interface InlineQueryResultCachedVoice extends inlineQueryResult {
+    /**
+     * Type of the result, must be voice
+     */
+    type: 'voice'
+
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+
+    /**
+     * A valid file identifier for the voice message
+     */
+    voice_file_id: string
+
+    /**
+     * Voice message title
+     */
+    title: string
+
+    /**
+     * Caption, 0-200 characters
+     */
+    caption?: string
+
+      /**
+     * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+     */
+    parse_mode?: string
+
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+
+    /**
+     * Content of the message to be sent instead of the voice message
+     */
+    input_message_content?: InputMessageContent
+  }
+
+  export interface InlineQueryResultCachedAudio extends inlineQueryResult {
+    /**
+     * Type of the result, must be audio
+     */
+    type: 'audio'
+  
+    /**
+     * Unique identifier for this result, 1-64 bytes
+     */
+    id: string
+  
+    /**
+     * A valid file identifier for the audio file
+     */
+    audio_file_id: string
+  
+    /**
+     * Caption, 0-200 characters
+     */
+    caption?: string
+  
+    /**
+     * Inline keyboard attached to the message
+     */
+    reply_markup?: InlineKeyboardMarkup
+  
+    /**
+     * Content of the message to be sent instead of the audio
+     */
+    input_message_content?: InputMessageContent
+  }
 
 /**
  * A placeholder, currently holds no information. Use BotFather to set up your game.
@@ -1068,7 +1977,24 @@ export interface CallbackGame {
 export type InlineQueryResult =
   InlineQueryResultCachedAudio |
   InlineQueryResultCachedDocument |
-  InlineQueryResultCachedGif
+  InlineQueryResultCachedGif |
+  InlineQueryResultCachedMpeg4Gif |
+  InlineQueryResultCachedPhoto |
+  InlineQueryResultCachedSticker |
+  InlineQueryResultCachedVideo |
+  InlineQueryResultCachedVoice |
+  InlineQueryResultArticle |
+  InlineQueryResultAudio |
+  InlineQueryResultContact |
+  InlineQueryResultGame |
+  InlineQueryResultDocument |
+  InlineQueryResultGif |
+  InlineQueryResultLocation |
+  InlineQueryResultMpeg4Gif |
+  InlineQueryResultPhoto |
+  InlineQueryResultVenue |
+  InlineQueryResultVideo |
+  InlineQueryResultVoice
 
 export interface InlineKeyboardButton {
   /**

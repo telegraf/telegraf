@@ -3442,7 +3442,7 @@ export type InputFile =
     /**
      * Pass True, if results may be cached on the server side only for the user that sent the query. By default, results may be returned to any user who sends the same query
      */
-    is_personal?: number
+    is_personal?: boolean
   
     /**
      * Pass the offset that a client should send in the next query with the same text to receive more results. Pass an empty string if there are no more results or if you don‘t support pagination. Offset length can’t exceed 64 bytes.

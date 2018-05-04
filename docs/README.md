@@ -22,6 +22,7 @@ These accounts serve as an interface for code running somewhere on your server.
 - [now](https://now.sh)/[Firebase](https://firebase.google.com/products/functions/)/[Glitch](https://dashing-light.glitch.me)/[Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction)/[AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)/Whatever ready
 - `http/https/fastify/Connect.js/express.js` compatible webhooks
 - Easy to extend
+- `TypeScript` typings
 
 #### Installation
 

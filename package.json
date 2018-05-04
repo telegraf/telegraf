@@ -21,10 +21,13 @@
   "engines": {
     "node": ">=6.2.0"
   },
+  "types": "./typings/index.d.ts",
   "dependencies": {
+    "@types/node": "^9.6.6",
     "debug": "^3.0.0",
     "node-fetch": "^1.6.3",
-    "sandwich-stream": "^1.0.0"
+    "sandwich-stream": "^1.0.0",
+    "telegram-typings": "^3.6.0"
   },
   "devDependencies": {
     "ava": "^0.24.0",

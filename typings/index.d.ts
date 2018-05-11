@@ -846,4 +846,3 @@ export class Telegraf<C extends ContextMessageUpdate> extends Composer<C> {
 
 
 export default Telegraf
-

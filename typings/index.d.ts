@@ -699,7 +699,7 @@ export class Composer<C extends ContextMessageUpdate> {
    * @param updateTypes Update type
    * @param middlewares Middleware functions
    */
-  on(updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  on(updateTypes: tt.UpdateType | tt.UpdateType[] | tt.MessageSubTypes | tt.MessageSubTypes[], middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
 
   /**
    * Registers middleware for handling text messages.
@@ -790,6 +790,8 @@ export class Composer<C extends ContextMessageUpdate> {
    */
   static branch<C extends ContextMessageUpdate, T extends ContextMessageUpdate, F extends ContextMessageUpdate, R extends ContextMessageUpdate>
     (test: boolean | ((ctx: C) => boolean), trueMiddleware: Middleware<T>, falseMiddleware: Middleware<F>): Middleware<R>
+
+  static reply<C extends ContextMessageUpdate>(text: string, extra?: tt.ExtraReplyMessage): Middleware<C>
 }
 
 

@@ -1,3 +1,9 @@
+---
+name: Bug report
+about: Create a report to help us improve
+
+---
+
 ## Context
 
 Please provide any relevant information about your setup. This is important in case the issue is not reproducible except for under certain conditions.

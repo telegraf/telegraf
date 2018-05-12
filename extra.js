@@ -25,10 +25,9 @@ class Extra {
   }
 
   markup (markup) {
-    if (typeof markup === 'function') {
-      markup = markup(new Markup())
-    }
-    this.reply_markup = Object.assign({}, markup)
+    this.reply_markup = typeof markup === 'function'
+      ? markup(new Markup()).object
+      : markup.object
     return this
   }
 
@@ -40,6 +39,10 @@ class Extra {
   markdown (value = true) {
     this.parse_mode = value ? 'Markdown' : undefined
     return this
+  }
+
+  get object () {
+    return Object.assign({}, this)
   }
 
   static inReplyTo (messageId) {

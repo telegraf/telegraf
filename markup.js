@@ -82,6 +82,10 @@ class Markup {
     return Markup.payButton(text, hide)
   }
 
+  get object () {
+    return Object.assign({}, this)
+  }
+
   static removeKeyboard (value) {
     return new Markup().removeKeyboard(value)
   }

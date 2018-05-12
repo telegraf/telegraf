@@ -713,13 +713,19 @@ export class Composer<C extends ContextMessageUpdate> {
    * @param command Commands
    * @param middlwares Middleware functions
    */
-  command(command: string | string[], middleware: Array<Middleware<C>>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  command(command: string | string[], middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
 
   /**
    * Registers middleware for handling callback_data actions with game query.
    * @param middlewares Middleware functions
    */
-  gameQuery(middleware: Array<Middleware<C>>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  gameQuery(middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+
+  /**
+   * Registers middleware for handling callback_data actions on start.
+   * @param middlewares Middleware functions
+   */
+  start(middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
 
   /**
    * Compose middlewares returning a fully valid middleware comprised of all those which are passed.

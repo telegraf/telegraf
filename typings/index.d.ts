@@ -699,7 +699,7 @@ export class Composer<C extends ContextMessageUpdate> {
    * @param updateTypes Update type
    * @param middlewares Middleware functions
    */
-  on(updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  on(updateTypes: tt.UpdateType | tt.UpdateType[] | tt.MessageSubTypes | tt.MessageSubTypes[], middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
 
   /**
    * Registers middleware for handling text messages.
@@ -713,13 +713,19 @@ export class Composer<C extends ContextMessageUpdate> {
    * @param command Commands
    * @param middlwares Middleware functions
    */
-  command(command: string | string[], middleware: Array<Middleware<C>>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  command(command: string | string[], middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
 
   /**
    * Registers middleware for handling callback_data actions with game query.
    * @param middlewares Middleware functions
    */
-  gameQuery(middleware: Array<Middleware<C>>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  gameQuery(middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+
+  /**
+   * Registers middleware for handling callback_data actions on start.
+   * @param middlewares Middleware functions
+   */
+  start(middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
 
   /**
    * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
@@ -784,6 +790,8 @@ export class Composer<C extends ContextMessageUpdate> {
    */
   static branch<C extends ContextMessageUpdate, T extends ContextMessageUpdate, F extends ContextMessageUpdate, R extends ContextMessageUpdate>
     (test: boolean | ((ctx: C) => boolean), trueMiddleware: Middleware<T>, falseMiddleware: Middleware<F>): Middleware<R>
+
+  static reply<C extends ContextMessageUpdate>(text: string, extra?: tt.ExtraReplyMessage): Middleware<C>
 }
 
 

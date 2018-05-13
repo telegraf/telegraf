@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "3.21.0",
+  "version": "3.21.1",
   "description": "📡 Modern Telegram bot framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <dotcypress@gmail.com>",
@@ -16,7 +16,8 @@
   "scripts": {
     "lint": "eslint .",
     "test": "ava test",
-    "precommit": "npm run lint && npm test"
+    "precommit": "npm run lint && npm run typecheck && npm test",
+    "typecheck": "tsc"
   },
   "engines": {
     "node": ">=6.2.0"
@@ -27,7 +28,8 @@
     "debug": "^3.0.0",
     "node-fetch": "^2.0.0",
     "sandwich-stream": "^1.0.0",
-    "telegram-typings": "^3.6.0"
+    "telegram-typings": "^3.6.0",
+    "typescript": "^2.8.3"
   },
   "devDependencies": {
     "ava": "^0.25.0",

@@ -17,7 +17,7 @@
     "forceConsistentCasingInFileNames": true
   },
   "files": [
-    "index.d.ts",
-    "telegram-types.d.ts"
+    "typings/index.d.ts",
+    "typings/telegram-types.d.ts"
   ]
 }

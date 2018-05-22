@@ -807,6 +807,11 @@ export class Telegraf<C extends ContextMessageUpdate> extends Composer<C> {
   public webhookReply: boolean
 
   /**
+   * Use this property to get telegram instance
+   */
+  public telegram: Telegram
+
+  /**
    * Initialize new Telegraf app.
    * @param token Bot token
    * @param options options

@@ -19,5 +19,7 @@ bot.command('cat', ({ replyWithPhoto }) => replyWithPhoto(randomPhoto))
 // Look ma, reply middleware factory
 bot.command('foo', reply('http://coub.com/view/9cjmt'))
 
+bot.telegram.sendMessage(process.env.BOT_CLIENT_ID,"It's work")
+
 // Start polling
 bot.startPolling()

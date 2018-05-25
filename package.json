@@ -24,7 +24,7 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "@types/node": "^9.6.6",
+    "@types/node": "^10.1.2",
     "debug": "^3.0.0",
     "node-fetch": "^2.0.0",
     "sandwich-stream": "^1.0.0",

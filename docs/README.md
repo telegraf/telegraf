@@ -82,6 +82,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [midnabot](https://github.com/wsknorth/midnabot)
 * [Metal Archives Bot](https://github.com/amiralies/metalarchives-telegram-bot)
 * [Syntax Highlighter Bot](https://github.com/piterden/syntax-highlighter-bot)
+* [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot)
 * [PodSearch bot(TypeScript)](https://fazendaaa.github.io/podsearch_bot/)
 * Send PR to add link to your bot
 

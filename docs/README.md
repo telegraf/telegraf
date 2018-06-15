@@ -1703,6 +1703,8 @@ greeter.on('message', (ctx) => ctx.reply('Send `hi`'))
 
 // Create scene manager
 const stage = new Stage()
+stage.command('cancel', leave())
+
 // Scene registration
 stage.register(greeter)
 
@@ -1710,7 +1712,6 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(session())
 bot.use(stage.middleware())
 bot.command('greeter', (ctx) => ctx.scene.enter('greeter'))
-bot.command('cancel', leave())
 bot.startPolling()
 ```
 

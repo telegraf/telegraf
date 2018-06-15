@@ -18,21 +18,21 @@ const topLevelUpdates = [
 topLevelUpdates.forEach((update) => {
   test.cb('should route ' + update.type, (t) => {
     const bot = new Telegraf()
-    bot.on(update.type, (ctx) => t.end())
+    bot.on(update.type, () => t.end())
     bot.handleUpdate(update.update)
   })
 })
 
 test.cb('should route many types', (t) => {
   const bot = new Telegraf()
-  bot.on(['chosen_inline_result', 'message'], (ctx) => t.end())
+  bot.on(['chosen_inline_result', 'message'], () => t.end())
   bot.handleUpdate({inline_query: baseMessage})
   bot.handleUpdate({message: baseMessage})
 })
 
 test.cb('should route sub types', (t) => {
   const bot = new Telegraf()
-  bot.on('text', (ctx) => t.end())
+  bot.on('text', () => t.end())
   bot.handleUpdate({message: Object.assign({voice: {}}, baseMessage)})
   bot.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
 })
@@ -79,7 +79,7 @@ updateTypes.forEach((update) => {
 
 test.cb('should route venue', (t) => {
   const bot = new Telegraf()
-  bot.on('venue', (ctx) => t.end())
+  bot.on('venue', () => t.end())
   const message = Object.assign({location: {}, venue: {title: 'location', address: 'n/a'}}, baseMessage)
   bot.handleUpdate({message: message})
 })
@@ -151,14 +151,14 @@ test.cb('should support Composer instance as middleware', (t) => {
 test.cb('should support Composer instance as handler', (t) => {
   const bot = new Telegraf()
   const composer = new Composer()
-  composer.on('text', (ctx) => t.end())
+  composer.on('text', () => t.end())
   bot.on('text', composer)
   bot.handleUpdate({message: Object.assign({text: 'hello'}, baseMessage)})
 })
 
 test.cb('should handle text triggers', (t) => {
   const bot = new Telegraf()
-  bot.hears('hello world', (ctx) => t.end())
+  bot.hears('hello world', () => t.end())
   bot.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
@@ -329,7 +329,7 @@ test.cb('Composer.lazy should work with fn', (t) => {
 test.cb('Composer.lazy should work with fn', (t) => {
   const bot = new Telegraf()
   bot.use(Composer.lazy((ctx) => (_, next) => next()))
-  bot.use((ctx) => t.end())
+  bot.use(() => t.end())
   bot.handleUpdate({message: Object.assign({text: 'hello world'}, baseMessage)})
 })
 
@@ -441,7 +441,7 @@ test.cb('Composer.hashtag should work with patterns array', (t) => {
 
 test.cb('should handle text triggers via functions', (t) => {
   const bot = new Telegraf()
-  bot.hears((text) => text.startsWith('Hi'), (ctx) => t.end())
+  bot.hears((text) => text.startsWith('Hi'), () => t.end())
   bot.handleUpdate({message: Object.assign({text: 'Hi there!'}, baseMessage)})
 })
 
@@ -457,49 +457,49 @@ test.cb('should handle regex triggers', (t) => {
 
 test.cb('should handle command', (t) => {
   const bot = new Telegraf()
-  bot.command('/start', (ctx) => t.end())
-  bot.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
+  bot.command('foo', () => t.end())
+  bot.handleUpdate({message: Object.assign({text: '/foo', entities: [{type: 'bot_command', offset: 0, length: 4}]}, baseMessage)})
 })
 
 test.cb('should handle start command', (t) => {
   const bot = new Telegraf()
-  bot.start((ctx) => t.end())
+  bot.start(() => t.end())
   bot.handleUpdate({ message: Object.assign({ text: '/start', entities: [{ type: 'bot_command', offset: 0, length: 6 }] }, baseMessage) })
 })
 
 test.cb('should handle help command', (t) => {
   const bot = new Telegraf()
-  bot.help((ctx) => t.end())
+  bot.help(() => t.end())
   bot.handleUpdate({ message: Object.assign({ text: '/help', entities: [{ type: 'bot_command', offset: 0, length: 5 }] }, baseMessage) })
 })
 
 test.cb('should handle settings command', (t) => {
   const bot = new Telegraf()
-  bot.settings((ctx) => t.end())
+  bot.settings(() => t.end())
   bot.handleUpdate({ message: Object.assign({ text: '/settings', entities: [{ type: 'bot_command', offset: 0, length: 9 }] }, baseMessage) })
 })
 
 test.cb('should handle short command', (t) => {
   const bot = new Telegraf()
-  bot.command('start', (ctx) => t.end())
+  bot.start(() => t.end())
   bot.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
 })
 
 test.cb('should handle group command', (t) => {
   const bot = new Telegraf(null, {username: 'bot'})
-  bot.command('start', (ctx) => t.end())
+  bot.start(() => t.end())
   bot.handleUpdate({message: Object.assign({text: '/start@bot', entities: [{type: 'bot_command', offset: 0, length: 10}]}, baseGroupMessage)})
 })
 
 test.cb('should handle game query', (t) => {
   const bot = new Telegraf()
-  bot.gameQuery((ctx) => t.end())
+  bot.gameQuery(() => t.end())
   bot.handleUpdate({callback_query: {game_short_name: 'foo'}})
 })
 
 test.cb('should handle action', (t) => {
   const bot = new Telegraf()
-  bot.action('foo', (ctx) => t.end())
+  bot.action('foo', () => t.end())
   bot.handleUpdate({callback_query: {data: 'foo'}})
 })
 
@@ -518,25 +518,25 @@ test.cb('should handle action', (t) => {
   bot.action('bar', (ctx) => {
     t.fail()
   })
-  bot.use((ctx) => t.end())
+  bot.use(() => t.end())
   bot.handleUpdate({callback_query: {data: 'foo'}})
 })
 
 test.cb('should handle short command', (t) => {
   const bot = new Telegraf()
-  bot.command('start', (ctx) => t.end())
+  bot.start(() => t.end())
   bot.handleUpdate({message: Object.assign({text: '/start', entities: [{type: 'bot_command', offset: 0, length: 6}]}, baseMessage)})
 })
 
 test.cb('should handle command in group', (t) => {
   const bot = new Telegraf('---', {username: 'bot'})
-  bot.command('start', (ctx) => t.end())
+  bot.start(() => t.end())
   bot.handleUpdate({message: {text: '/start@bot', entities: [{type: 'bot_command', offset: 0, length: 10}], chat: {id: 2, type: 'group'}}})
 })
 
 test.cb('should handle command in supergroup', (t) => {
   const bot = new Telegraf()
   bot.options.username = 'bot'
-  bot.command('start', (ctx) => t.end())
+  bot.start(() => t.end())
   bot.handleUpdate({message: {text: '/start@bot', entities: [{type: 'bot_command', offset: 0, length: 10}], chat: {id: 2, type: 'supergroup'}}})
 })

@@ -8,7 +8,6 @@ These accounts serve as an interface for code running somewhere on your server.
 [![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.6-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
-[![bitHound](https://img.shields.io/bithound/code/github/telegraf/telegraf.svg?style=flat-square)](https://www.bithound.io/github/telegraf/telegraf)
 [![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com/)
 
@@ -57,9 +56,9 @@ bot.startPolling()
 const Telegraf = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.command('/oldschool', (ctx) => ctx.reply('Hello'))
-bot.command('/modern', ({ reply }) => reply('Yo'))
-bot.command('/hipster', Telegraf.reply('λ'))
+bot.command('oldschool', (ctx) => ctx.reply('Hello'))
+bot.command('modern', ({ reply }) => reply('Yo'))
+bot.command('hipster', Telegraf.reply('λ'))
 bot.startPolling()
 ```
 

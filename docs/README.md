@@ -1697,7 +1697,7 @@ const { leave } = Stage
 // Greeter scene
 const greeter = new Scene('greeter')
 greeter.enter((ctx) => ctx.reply('Hi'))
-greeter.leave((ctx) => ctx.reply('Buy'))
+greeter.leave((ctx) => ctx.reply('Bye'))
 greeter.hears(/hi/gi, leave())
 greeter.on('message', (ctx) => ctx.reply('Send `hi`'))
 

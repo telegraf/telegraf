@@ -728,6 +728,12 @@ export class Composer<C extends ContextMessageUpdate> {
   start(middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
 
   /**
+   * Registers middleware for handling callback_data actions on help.
+   * @param middlewares Middleware functions
+   */
+  help(middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+
+  /**
    * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
    * @param middlewares Array of middlewares functions
    */

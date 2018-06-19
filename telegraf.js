@@ -160,3 +160,12 @@ module.exports = Object.assign(Telegraf, {
   Telegram,
   session
 })
+
+module.exports.default = Object.assign(Telegraf, {
+  Composer,
+  Extra,
+  Markup,
+  Router,
+  Telegram,
+  session
+})

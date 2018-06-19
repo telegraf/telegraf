@@ -310,20 +310,20 @@ Context shortcuts for **pre_checkout_query** update:
 ```js
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
+bot.command('quit', (ctx) => {
+  // Explicit usage
+  ctx.telegram.leaveChat(ctx.message.chat.id)
+
+  // Using shortcut
+  ctx.leaveChat()
+})
+
 bot.on('text', (ctx) => {
   // Explicit usage
   ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`)
 
   // Using shortcut
   ctx.reply(`Hello ${ctx.state.role}`)
-})
-
-bot.on('/quit', (ctx) => {
-  // Explicit usage
-  ctx.telegram.leaveChat(ctx.message.chat.id)
-
-  // Using shortcut
-  ctx.leaveChat()
 })
 
 bot.on('callback_query', (ctx) => {

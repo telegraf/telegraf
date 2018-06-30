@@ -30,6 +30,14 @@ class Telegram extends ApiClient {
     })
   }
 
+  clearUpdates () {
+    return this.getUpdates(0, 100, -1)
+      .then((updates) => updates.length > 0
+        ? this.getUpdates(0, 100, updates[updates.length - 1].update_id + 1)
+        : []
+      )
+  }
+
   getWebhookInfo () {
     return this.callApi(`getWebhookInfo`)
   }

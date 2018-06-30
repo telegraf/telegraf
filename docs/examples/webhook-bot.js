@@ -11,7 +11,7 @@ var tunnel =  localtunnel(3000, function(err, tunnel) {
     // the assigned public url for your tunnel
     // i.e. https://abcdefgjhij.localtunnel.me
     console.log(tunnel.url)
-    bot.telegram.setWebhook(`${tunnelURL}/telegramTelegrafLocalTunnel`)
+    bot.telegram.setWebhook(`${tunnelURL}/telegramTelegrafLocalTunnel`) //configure your webhook URL
 });
 
 // Start https webhook

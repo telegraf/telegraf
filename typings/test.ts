@@ -21,5 +21,11 @@ bot.command('foo', reply('http://coub.com/view/9cjmt'))
 
 bot.telegram.sendMessage(process.env.BOT_CLIENT_ID,"It's work")
 
+// Start https webhook
+bot.startWebhook('/secret-path', {}, 8443)
+
+// Http webhook, for nginx/heroku users.
+bot.startWebhook('/secret-path', null, 5000)
+
 // Start polling
 bot.startPolling()

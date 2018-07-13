@@ -1012,6 +1012,12 @@ Use this method to send answers to an inline query.
 | results | `object[]` | Results |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#answerinlinequery)|
 
+##### clearUpdates
+
+Use this method to clear the bot's update queue before starting to poll. Requires no parameters. This method WILL fail if the bot is already polling, or if there is a webhook in place
+
+`telegram.clearUpdates() => Promise`
+
 ##### createNewStickerSet
 
 Use this method to create new sticker set owned by a user.

@@ -578,6 +578,14 @@ bot.on('message', (ctx) => {
 
 #### Telegram Passport
 
+To enable Telegram Passport support, pass the `privateKey` option in the Telegraf or Telegram instance. For instance:
+
+```js
+const bot = new Telegraf("bot_token", {
+  privateKey: "PRIVATE_KEY_IN_PEM_FORMAT"
+})
+```
+
 Use `decryptPassportData` on the context when you receive a `passport_data` sub-event:
 
 ```js

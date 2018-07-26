@@ -1,6 +1,7 @@
 const util = require('util')
 const replicators = require('./core/replicators')
 const ApiClient = require('./core/network/client')
+const TelegramPassport = require('telegram-passport')
 
 class Telegram extends ApiClient {
   getMe () {
@@ -359,6 +360,22 @@ class Telegram extends ApiClient {
 
   deleteStickerFromSet (sticker) {
     return this.callApi('deleteStickerFromSet', { sticker: sticker })
+  }
+
+  setPassportDataErrors (userId, errors) {
+    return this.callApi('setPassportDataErrors', {
+      user_id: userId,
+      errors: errors
+    })
+  }
+
+  decryptPassportCredentials (data, hash, secret) {
+    if (this.options.privateKey) {
+      var passport = new TelegramPassport(this.options.privateKey)
+      return passport.decryptPassportCredentials(data, hash, secret)
+    } else {
+      throw new Error('Please set the privateKey option to decrypt Telegram Passport data.')
+    }
   }
 
   sendCopy (chatId, message, extra) {

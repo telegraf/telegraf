@@ -25,11 +25,12 @@
   "types": "./typings/index.d.ts",
   "dependencies": {
     "@types/node": "^10.1.2",
-    "debug": "^3.0.0",
-    "node-fetch": "^2.0.0",
+    "debug": "^3.1.0",
+    "node-fetch": "^2.2.0",
     "sandwich-stream": "^1.0.0",
-    "telegram-typings": "^3.6.0",
-    "typescript": "^2.8.3"
+    "telegram-passport": "^1.0.2",
+    "telegram-typings": "^3.6.1",
+    "typescript": "^2.9.2"
   },
   "devDependencies": {
     "ava": "^0.25.0",

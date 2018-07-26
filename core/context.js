@@ -1,3 +1,5 @@
+const TelegramPassport = require('telegram-passport')
+
 const UpdateTypes = [
   'callback_query',
   'channel_post',
@@ -36,7 +38,8 @@ const MessageSubTypes = [
   'contact',
   'channel_chat_created',
   'audio',
-  'connected_website'
+  'connected_website',
+  'passport_data'
 ]
 
 class TelegrafContext {
@@ -99,6 +102,10 @@ class TelegrafContext {
     return this.update.callback_query
   }
 
+  get passportData () {
+    return this.update.passport_data
+  }
+
   get chat () {
     return (this.message && this.message.chat) ||
       (this.editedMessage && this.editedMessage.chat) ||
@@ -141,6 +148,15 @@ class TelegrafContext {
   assert (value, method) {
     if (!value) {
       throw new Error(`Telegraf: "${method}" isn't available for "${this.updateType}::${this.updateSubTypes}"`)
+    }
+  }
+
+  decryptPassportData () {
+    if (this.options.privateKey) {
+      var passport = new TelegramPassport(this.options.privateKey)
+      return passport.decrypt(this.update.message.passport_data)
+    } else {
+      throw new Error('Please set the privateKey option to decrypt Telegram Passport data.')
     }
   }
 
@@ -448,6 +464,10 @@ class TelegrafContext {
   addStickerToSet (...args) {
     this.assert(this.from, 'addStickerToSet')
     return this.telegram.addStickerToSet(this.from.id, ...args)
+  }
+
+  setPassportDataErrors (errors) {
+    return this.telegram.setPassportDataErrors(this.from.id, errors)
   }
 
   replyWithMarkdown (markdown, extra) {

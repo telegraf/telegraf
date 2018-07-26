@@ -285,10 +285,7 @@ class Telegram extends ApiClient {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      media: {
-        ...media,
-        parse_mode: extra.parse_mode
-      },
+      media: Object.assign(media, { parse_mode: extra.parse_mode }),
       reply_markup: extra.reply_markup ? extra.reply_markup : extra
     })
   }

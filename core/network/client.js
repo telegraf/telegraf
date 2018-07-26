@@ -127,10 +127,9 @@ function attachFormValue (form, id, value) {
     return attachFormMedia(form, value.media, attachmentId)
       .then(() => form.addPart({
         headers: { 'content-disposition': `form-data; name="${id}"` },
-        body: JSON.stringify({
-          ...value,
+        body: JSON.stringify(Object.assign(value, {
           media: `attach://${attachmentId}`
-        })
+        }))
       }))
   }
   return attachFormMedia(form, value, id)

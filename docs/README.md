@@ -5,7 +5,7 @@ Users can interact with bots by sending them command messages in private or grou
 These accounts serve as an interface for code running somewhere on your server.
 
 ![Telegraf](header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v3.6-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v4.0-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
@@ -13,7 +13,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 3.6](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 4.0](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -261,6 +261,7 @@ Context shortcuts for **callback_query** update:
 * `deleteMessage`           -> [`telegram.deleteMessage`](#deletemessage)
 * `deleteStickerFromSet`    -> [`telegram.deleteStickerFromSet`](#deletestickerfromset)
 * `editMessageCaption`      -> [`telegram.editMessageCaption`](#editmessagecaption)
+* `editMessageMedia`        -> [`telegram.editMessageMedia`](#editmessagemedia)
 * `editMessageReplyMarkup`  -> [`telegram.editMessageReplyMarkup`](#editmessagereplymarkup)
 * `editMessageText`         -> [`telegram.editMessageText`](#editmessagetext)
 * `exportChatInviteLink`    -> [`telegram.exportChatInviteLink`](#exportchatinvitelink)
@@ -284,6 +285,7 @@ Context shortcuts for **callback_query** update:
 * `replyWithMediaGroup`     -> [`telegram.sendMediaGroup`](#sendmediagroup)
 * `replyWithSticker`        -> [`telegram.sendSticker`](#sendsticker)
 * `replyWithVideo`          -> [`telegram.sendVideo`](#sendvideo)
+* `replyWithAnimation`      -> [`telegram.sendAnimation`](#sendanimation)
 * `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
 * `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
 * `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
@@ -420,6 +422,7 @@ Available update sub-types:
 - `invoice`
 - `successful_payment`
 - `connected_website`
+- `passport_data`
 
 ```js
 // Handle message update
@@ -716,6 +719,17 @@ Mention handling.
 | username | `string/string[]` | Username |
 | middleware | `function` | Middleware |
 
+##### phone
+
+Phone number handling.
+
+`telegraf.phone(number, ...middleware)`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| number | `string/string[]` | Phone number |
+| middleware | `function` | Middleware |
+
 ##### hashtag
 
 Hashtag handling.
@@ -725,6 +739,17 @@ Hashtag handling.
 | Param | Type | Description |
 | --- | --- | --- |
 | hashtag | `string/string[]` | Hashtag |
+| middleware | `function` | Middleware |
+
+##### cashtag
+
+Cashtag handling.
+
+`telegraf.cashtag(cashtag, ...middleware)`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| cashtag | `string/string[]` | Cashtag |
 | middleware | `function` | Middleware |
 
 ##### action
@@ -1074,6 +1099,20 @@ Use this method to edit captions of messages sent by the bot or via the bot.
 | inlineMessageId | `string` | Inline message id |
 | caption | `string` | Caption |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagecaption)|
+
+##### editMessageMedia
+
+Use this method to edit media of messages sent by the bot or via the bot.
+
+`telegram.editMessageMedia(chatId, messageId, inlineMessageId, caption, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| messageId | `string` | Message id |
+| inlineMessageId | `string` | Inline message id |
+| media | `InputMedia` | [InputMedia](https://core.telegram.org/bots/api#inputmedia) |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagemedia)|
 
 ##### editMessageLiveLocation
 
@@ -1597,6 +1636,18 @@ Sends video.
 | chatId | `number/string` | Chat id |
 | video | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideo)|
+
+##### sendAnimation
+
+Sends video.
+
+`telegram.sendAnimation(chatId, animation, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| animation | `File` | Document |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendanimation)|
 
 ##### sendVideoNote
 

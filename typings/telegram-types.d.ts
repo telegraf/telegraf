@@ -52,6 +52,7 @@ export type MessageSubTypes =
   'contact' |
   'channel_chat_created' |
   'audio' |
+  'passport_data' |
   'connected_website'
 
 export type InlineQueryResult =

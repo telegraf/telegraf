@@ -46,8 +46,16 @@ class Composer {
     return this.use(Composer.mention(...args))
   }
 
+  phone (...args) {
+    return this.use(Composer.phone(...args))
+  }
+
   hashtag (...args) {
     return this.use(Composer.hashtag(...args))
+  }
+
+  cashtag (...args) {
+    return this.use(Composer.cashtag(...args))
   }
 
   start (...fns) {
@@ -138,7 +146,8 @@ class Composer {
       const entityTypes = normalizeTextArguments(predicate)
       return Composer.entity(({ type }) => entityTypes.includes(type), ...fns)
     }
-    return Composer.optional(({ message }) => {
+    return Composer.optional((ctx) => {
+      const message = ctx.message || ctx.channelPost
       const entities = message && (message.entities || message.caption_entities)
       const text = message && (message.text || message.caption)
       return entities && entities.some((entity) =>
@@ -155,12 +164,28 @@ class Composer {
     return Composer.entity(({ type }, value) => type === 'mention' && usernames.includes(value), ...fns)
   }
 
+  static phone (number, ...fns) {
+    if (fns.length === 0) {
+      return Composer.entity(['phone_number'], number)
+    }
+    const numbers = normalizeTextArguments(number)
+    return Composer.entity(({ type }, value) => type === 'phone_number' && numbers.includes(value), ...fns)
+  }
+
   static hashtag (hashtag, ...fns) {
     if (fns.length === 0) {
       return Composer.entity(['hashtag'], hashtag)
     }
     const hashtags = normalizeTextArguments(hashtag, '#')
     return Composer.entity(({ type }, value) => type === 'hashtag' && hashtags.includes(value), ...fns)
+  }
+
+  static cashtag (cashtag, ...fns) {
+    if (fns.length === 0) {
+      return Composer.entity(['cashtag'], cashtag)
+    }
+    const cashtags = normalizeTextArguments(cashtag, '$')
+    return Composer.entity(({ type }, value) => type === 'cashtag' && cashtags.includes(value), ...fns)
   }
 
   static command (command, ...fns) {

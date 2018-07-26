@@ -34,6 +34,7 @@ module.exports = {
     'venue': 'sendVenue',
     'video': 'sendVideo',
     'video_note': 'sendVideoNote',
+    'animation': 'sendAnimation',
     'voice': 'sendVoice'
   },
   text: (message) => {
@@ -78,6 +79,7 @@ module.exports = {
     const entities = message.caption_entities || []
     return {
       audio: message.audio.file_id,
+      thumb: message.audio.thumb,
       duration: message.audio.duration,
       performer: message.audio.performer,
       title: message.audio.title,
@@ -89,6 +91,7 @@ module.exports = {
     const entities = message.caption_entities || []
     return {
       video: message.video.file_id,
+      thumb: message.video.thumb,
       caption: entities.reduceRight(applyEntity, message.caption),
       parse_mode: entities.length > 0 ? 'HTML' : '',
       duration: message.video.duration,
@@ -121,8 +124,16 @@ module.exports = {
   video_note: (message) => {
     return {
       video_note: message.video_note.file_id,
+      thumb: message.video_note.thumb,
       length: message.video_note.length,
       duration: message.video_note.duration
+    }
+  },
+  animation: (message) => {
+    return {
+      animation: message.animation.file_id,
+      thumb: message.animation.thumb,
+      duration: message.animation.duration
     }
   }
 }

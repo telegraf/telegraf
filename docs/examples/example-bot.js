@@ -23,6 +23,9 @@ bot.use((ctx, next) => {
 // Login widget events
 bot.on('connected_website', ({ reply }) => reply('Website connected'))
 
+// Telegram passport events
+bot.on('passport_data', ({ reply }) => reply('Telegram password connected'))
+
 // Random location on some text messages
 bot.on('text', ({ replyWithLocation }, next) => {
   if (Math.random() > 0.2) {

@@ -41,6 +41,7 @@ const updateTypes = [
   'voice',
   'video_note',
   'video',
+  'animation',
   'venue',
   'text',
   'supergroup_chat_created',

@@ -669,6 +669,16 @@ export class Telegram {
    * @returns a Message on success
    */
   sendVideo(chatId: number | string, video: tt.InputFile, extra?: tt.ExtraVideo): Promise<tt.MessageVideo>
+
+  /**
+   * Use this method to specify a url and receive incoming updates via an outgoing webhook
+   * @param url HTTPS url to send updates to. Use an empty string to remove webhook integration
+   * @param cert Upload your public key certificate so that the root certificate in use can be checked
+   * @param maxConnections Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100
+   * @param allowedUpdates List the types of updates you want your bot to receive
+   * @returns True on success
+   */
+  setWebhook (url: string, cert?: tt.InputFile, maxConnections?: number, allowedUpdates?: string[]): Promise<boolean>;
 }
 
 
@@ -841,7 +851,7 @@ export class Telegraf<C extends ContextMessageUpdate> extends Composer<C> {
    * @param port Port number
    * @param host Hostname
    */
-  startWebhook(webhookPath: string, tlsOptions: TlsOptions, port: number, host?: string): Telegraf<C>
+  startWebhook(webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string): Telegraf<C>
 
   /**
    * Stop Webhook and polling

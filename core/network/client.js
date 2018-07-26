@@ -26,6 +26,7 @@ const DefaultExtensions = {
   photo: 'jpg',
   sticker: 'webp',
   video: 'mp4',
+  animation: 'mp4',
   video_note: 'mp4',
   voice: 'ogg'
 }
@@ -54,9 +55,17 @@ function safeJSONParse (text) {
 
 function includesMedia (payload) {
   return Object.keys(payload).some(
-    (key) => Array.isArray(payload[key])
-      ? payload[key].some(({ media }) => media && typeof media === 'object' && (media.source || media.url))
-      : payload[key] && typeof payload[key] === 'object' && (payload[key].source || payload[key].url)
+    (key) => {
+      const value = payload[key]
+      if (Array.isArray(value)) {
+        return value.some(({ media }) => media && typeof media === 'object' && (media.source || media.url))
+      }
+      return (typeof value === 'object') && (
+        value.source ||
+        value.url ||
+        (typeof value.media === 'object' && (value.media.source || value.media.url))
+      )
+    }
   )
 }
 
@@ -112,6 +121,17 @@ function attachFormValue (form, id, value) {
       headers: { 'content-disposition': `form-data; name="${id}"` },
       body: JSON.stringify(items)
     }))
+  }
+  if (typeof value.media !== 'undefined' && typeof value.type !== 'undefined') {
+    const attachmentId = crypto.randomBytes(16).toString('hex')
+    return attachFormMedia(form, value.media, attachmentId)
+      .then(() => form.addPart({
+        headers: { 'content-disposition': `form-data; name="${id}"` },
+        body: JSON.stringify({
+          ...value,
+          media: `attach://${attachmentId}`
+        })
+      }))
   }
   return attachFormMedia(form, value, id)
 }

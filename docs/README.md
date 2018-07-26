@@ -420,6 +420,7 @@ Available update sub-types:
 - `invoice`
 - `successful_payment`
 - `connected_website`
+- `passport_data`
 
 ```js
 // Handle message update
@@ -573,6 +574,26 @@ bot.on('message', (ctx) => {
     filename: 'kitten.jpg'
   })
 })
+```
+
+#### Telegram Passport
+
+Use `decryptPassportData` on the context when you receive a `passport_data` sub-event:
+
+```js
+bot.on('passport_data', ctx => {
+  console.log(ctx.decryptPassportData()) // will print the decrypted Passport data
+})
+```
+
+To decrypt a Passport file, use [`decryptPassportCredentials`](#decryptpassportcredentials) with the file data, hash, and secret supplied by `decryptPassportData`.
+
+```js
+bot.telegram.decryptPassportCredentials(
+  fileData, // Should be a Buffer
+  Buffer.from(file.hash, "base64"),
+  Buffer.from(file.secret, "base64")
+)
 ```
 
 ## API reference
@@ -1673,6 +1694,19 @@ Use this method to unban a previously kicked user in a supergroup.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | userId | `number` | User id |
+
+##### decryptPassportCredentials
+
+Decrypts Telegram Passport credentials (likely a file).
+
+`telegram.decryptPassportCredentials(data, hash, secret) => Buffer`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| data | `Buffer` | Data to decrypt |
+| hash | `Buffer` | Hash of the supplied data |
+| secret | `Buffer` | Secret to decrypt the data with |
+
 
 #### Extra
 

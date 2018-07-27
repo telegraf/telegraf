@@ -103,7 +103,7 @@ class TelegrafContext {
   }
 
   get passportData () {
-    return this.update.passport_data
+    return this.message && this.message.passport_data
   }
 
   get chat () {
@@ -154,7 +154,7 @@ class TelegrafContext {
   decryptPassportData () {
     if (this.options.privateKey) {
       var passport = new TelegramPassport(this.options.privateKey)
-      return passport.decrypt(this.update.message.passport_data)
+      return passport.decrypt(this.passportData)
     } else {
       throw new Error('Please set the privateKey option to decrypt Telegram Passport data.')
     }

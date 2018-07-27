@@ -131,6 +131,10 @@ class Telegram extends ApiClient {
     return this.callApi('sendVideo', Object.assign({ chat_id: chatId, video: video }, extra))
   }
 
+  sendAnimation (chatId, animation, extra) {
+    return this.callApi('sendAnimation', Object.assign({ chat_id: chatId, animation: animation }, extra))
+  }
+
   sendVideoNote (chatId, videoNote, extra) {
     return this.callApi('sendVideoNote', Object.assign({ chat_id: chatId, video_note: videoNote }, extra))
   }
@@ -266,7 +270,7 @@ class Telegram extends ApiClient {
     }, extra))
   }
 
-  editMessageCaption (chatId, messageId, inlineMessageId, caption, extra) {
+  editMessageCaption (chatId, messageId, inlineMessageId, caption, extra = {}) {
     return this.callApi('editMessageCaption', {
       chat_id: chatId,
       message_id: messageId,
@@ -274,6 +278,19 @@ class Telegram extends ApiClient {
       caption: caption,
       parse_mode: extra.parse_mode,
       reply_markup: extra.parse_mode || extra.reply_markup ? extra.reply_markup : extra
+    })
+  }
+
+  editMessageMedia (chatId, messageId, inlineMessageId, media, extra = {}) {
+    return this.callApi('editMessageMedia', {
+      chat_id: chatId,
+      message_id: messageId,
+      inline_message_id: inlineMessageId,
+      media: {
+        ...media,
+        parse_mode: extra.parse_mode
+      },
+      reply_markup: extra.reply_markup ? extra.reply_markup : extra
     })
   }
 

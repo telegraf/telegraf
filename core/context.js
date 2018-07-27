@@ -16,6 +16,7 @@ const MessageSubTypes = [
   'voice',
   'video_note',
   'video',
+  'animation',
   'venue',
   'text',
   'supergroup_chat_created',
@@ -228,6 +229,25 @@ class TelegrafContext {
       )
   }
 
+  editMessageMedia (media, extra) {
+    this.assert(this.callbackQuery, 'editMessageMedia')
+    return this.callbackQuery.inline_message_id
+      ? this.telegram.editMessageMedia(
+        undefined,
+        undefined,
+        this.callbackQuery.inline_message_id,
+        media,
+        extra
+      )
+      : this.telegram.editMessageMedia(
+        this.chat.id,
+        this.callbackQuery.message.message_id,
+        undefined,
+        media,
+        extra
+      )
+  }
+
   editMessageReplyMarkup (markup) {
     this.assert(this.callbackQuery, 'editMessageReplyMarkup')
     return this.callbackQuery.inline_message_id
@@ -387,6 +407,11 @@ class TelegrafContext {
   replyWithVideo (...args) {
     this.assert(this.chat, 'replyWithVideo')
     return this.telegram.sendVideo(this.chat.id, ...args)
+  }
+
+  replyWithAnimation (...args) {
+    this.assert(this.chat, 'replyWithAnimation')
+    return this.telegram.sendAnimation(this.chat.id, ...args)
   }
 
   replyWithVideoNote (...args) {

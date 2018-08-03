@@ -497,6 +497,17 @@ class TelegrafContext {
     this.assert(message, 'deleteMessage')
     return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
+
+  forwardMessage (chatId, extra) {
+    this.assert(this.chat, 'forwardMessage')
+    const message = this.message ||
+      this.editedMessage ||
+      this.channelPost ||
+      this.editedChannelPost ||
+      (this.callbackQuery && this.callbackQuery.message)
+    this.assert(message, 'forwardMessage')
+    return this.telegram.forwardMessage(chatId, this.chat.id, message.message_id, extra)
+  }
 }
 
 module.exports = TelegrafContext

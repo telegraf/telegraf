@@ -808,6 +808,13 @@ export class Composer<C extends ContextMessageUpdate> {
     (test: boolean | ((ctx: C) => boolean), trueMiddleware: Middleware<T>, falseMiddleware: Middleware<F>): Middleware<R>
 
   static reply<C extends ContextMessageUpdate>(text: string, extra?: tt.ExtraReplyMessage): Middleware<C>
+
+  /**
+   * Allows it to console.log each request received.
+  */
+  static fork<C extends ContextMessageUpdate>(middleware: Middleware<C>): Function;
+
+  static log(logFn?: Function): Middleware<ContextMessageUpdate>;
 }
 
 

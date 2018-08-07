@@ -26,10 +26,10 @@
   "dependencies": {
     "@types/node": "^10.1.2",
     "debug": "^3.0.0",
-    "node-fetch": "^2.0.0",
+    "node-fetch": "^2.2.0",
     "sandwich-stream": "^1.0.0",
     "telegram-typings": "^3.6.0",
-    "typescript": "^2.8.3"
+    "typescript": "^3.0.1"
   },
   "devDependencies": {
     "ava": "^0.25.0",

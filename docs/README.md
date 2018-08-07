@@ -1,5 +1,7 @@
 ## telegraf.js
 
+Modern Telegram bot framework.
+
 Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
 Users can interact with bots by sending them command messages in private or group chats. 
 These accounts serve as an interface for code running somewhere on your server.
@@ -222,6 +224,7 @@ Context shortcuts for **message** update:
 * `deleteMessage`           -> [`telegram.deleteMessage`](#deletemessage)
 * `deleteStickerFromSet`    -> [`telegram.deleteStickerFromSet`](#deletestickerfromset)
 * `exportChatInviteLink`    -> [`telegram.exportChatInviteLink`](#exportchatinvitelink)
+* `forwardMessage`          -> [`telegram.forwardMessage`](#forwardmessage)
 * `getChat`                 -> [`telegram.getChat`](#getchat)
 * `getChatAdministrators`   -> [`telegram.getChatAdministrators`](#getchatadministrators)
 * `getChatMember`           -> [`telegram.getChatMember`](#getchatmember)
@@ -265,6 +268,7 @@ Context shortcuts for **callback_query** update:
 * `editMessageReplyMarkup`  -> [`telegram.editMessageReplyMarkup`](#editmessagereplymarkup)
 * `editMessageText`         -> [`telegram.editMessageText`](#editmessagetext)
 * `exportChatInviteLink`    -> [`telegram.exportChatInviteLink`](#exportchatinvitelink)
+* `forwardMessage`          -> [`telegram.forwardMessage`](#forwardmessage)
 * `getChat`                 -> [`telegram.getChat`](#getchat)
 * `getChatAdministrators`   -> [`telegram.getChatAdministrators`](#getchatadministrators)
 * `getChatMember`           -> [`telegram.getChatMember`](#getchatmember)

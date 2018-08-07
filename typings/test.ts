@@ -9,6 +9,9 @@ const {reply} =  Telegraf;
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
+// Logs each request
+bot.use(Telegraf.log())
+
 bot.start((ctx) => ctx.reply('Bot started!'));
 
 // Login widget events

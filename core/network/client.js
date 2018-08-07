@@ -1,6 +1,6 @@
 const debug = require('debug')('telegraf:client')
 const crypto = require('crypto')
-const fetch = require('node-fetch')
+const fetch = require('node-fetch').default
 const fs = require('fs')
 const https = require('https')
 const path = require('path')

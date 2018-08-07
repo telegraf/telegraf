@@ -200,8 +200,7 @@ class Composer {
       return Composer.entity(({ offset, type }, value) =>
         offset === 0 &&
         type === 'bot_command' &&
-        (commands.includes(value) || groupCommands.includes(value))
-        , ...fns)
+        (commands.includes(value) || groupCommands.includes(value)), ...fns)
     }))
   }
 

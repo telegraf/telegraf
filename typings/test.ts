@@ -29,3 +29,6 @@ bot.startWebhook('/secret-path', null, 5000)
 
 // Start polling
 bot.startPolling()
+
+// Logs each request
+bot.use(Telegraf.log())

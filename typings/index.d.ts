@@ -848,8 +848,9 @@ export class Telegraf<C extends ContextMessageUpdate> extends Composer<C> {
    * @param timeout Poll timeout in seconds
    * @param limit Limits the number of updates to be retrieved
    * @param allowedUpdates List the types of updates you want your bot to receive
+   * @param reconnectAfterConflict Prevent bot from stopping after a 409 error (getUpdates request conflict)
    */
-  startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[]): Telegraf<C>
+  startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[], reconnectAfterConflict?: boolean): Telegraf<C>
 
   /**
    * Start listening @ https://host:port/webhookPath for Telegram calls.

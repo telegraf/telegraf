@@ -61,7 +61,7 @@ class Telegraf extends Composer {
     return generateCallback(path, (update, res) => this.handleUpdate(update, res), debug)
   }
 
-  startPolling (timeout = 30, limit = 100, allowedUpdates, stopCallback = noop) {
+  startPolling (timeout = 30, limit = 100, allowedUpdates, reconnectAfterConflict = false, stopCallback = noop) {
     this.polling.timeout = timeout
     this.polling.limit = limit
     this.polling.allowedUpdates = allowedUpdates
@@ -70,7 +70,7 @@ class Telegraf extends Composer {
     this.polling.stopCallback = stopCallback
     if (!this.polling.started) {
       this.polling.started = true
-      this.fetchUpdates()
+      this.fetchUpdates(reconnectAfterConflict)
     }
     return this
   }
@@ -121,15 +121,20 @@ class Telegraf extends Composer {
     return this.middleware()(ctx).catch(this.handleError)
   }
 
-  fetchUpdates () {
+  fetchUpdates (reconnectAfterConflict = false) {
     const { timeout, limit, offset, started, allowedUpdates } = this.polling
     if (!started) {
       return
     }
     this.telegram.getUpdates(timeout, limit, offset, allowedUpdates)
       .catch((err) => {
-        if (err.code === 401 || err.code === 409) {
+        if (err.code === 401) {
           throw err
+        }
+        if (err.code === 409) {
+          if (!reconnectAfterConflict) {
+            throw err
+          }
         }
         const wait = (err.parameters && err.parameters.retry_after) || this.options.retryAfter
         console.error(`Failed to fetch updates. Waiting: ${wait}s`, err.message)
@@ -147,7 +152,7 @@ class Telegraf extends Composer {
         if (updates.length > 0) {
           this.polling.offset = updates[updates.length - 1].update_id + 1
         }
-        this.fetchUpdates()
+        this.fetchUpdates(reconnectAfterConflict)
       })
   }
 }

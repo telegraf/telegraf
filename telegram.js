@@ -8,7 +8,7 @@ class Telegram extends ApiClient {
   }
 
   getFile (fileId) {
-    return this.callApi('getFile', {file_id: fileId})
+    return this.callApi('getFile', { file_id: fileId })
   }
 
   getFileLink (fileId) {
@@ -151,11 +151,11 @@ class Telegram extends ApiClient {
   }
 
   getChat (chatId) {
-    return this.callApi('getChat', {chat_id: chatId})
+    return this.callApi('getChat', { chat_id: chatId })
   }
 
   getChatAdministrators (chatId) {
-    return this.callApi('getChatAdministrators', {chat_id: chatId})
+    return this.callApi('getChatAdministrators', { chat_id: chatId })
   }
 
   getChatMember (chatId, userId) {
@@ -163,7 +163,7 @@ class Telegram extends ApiClient {
   }
 
   getChatMembersCount (chatId) {
-    return this.callApi('getChatMembersCount', {chat_id: chatId})
+    return this.callApi('getChatMembersCount', { chat_id: chatId })
   }
 
   answerInlineQuery (inlineQueryId, results, extra) {
@@ -211,7 +211,7 @@ class Telegram extends ApiClient {
   }
 
   leaveChat (chatId) {
-    return this.callApi('leaveChat', {chat_id: chatId})
+    return this.callApi('leaveChat', { chat_id: chatId })
   }
 
   unbanChatMember (chatId, userId) {
@@ -383,7 +383,7 @@ class Telegram extends ApiClient {
     if (!type) {
       throw new Error('Unsupported message type')
     }
-    const opts = Object.assign({chat_id: chatId}, replicators[type](message), extra)
+    const opts = Object.assign({ chat_id: chatId }, replicators[type](message), extra)
     return this.callApi(replicators.copyMethods[type], opts)
   }
 }

@@ -21,7 +21,7 @@ bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => {
     title: track.name,
     audio_url: track.preview_url
   }))
-  return answerInlineQuery(results, {next_offset: offset + 30})
+  return answerInlineQuery(results, { next_offset: offset + 30 })
 })
 
 bot.startPolling()

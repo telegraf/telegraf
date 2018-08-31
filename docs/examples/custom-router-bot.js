@@ -14,7 +14,7 @@ const markup = Extra
     m.callbackButton('Subtract 100', 'sub:100'),
     m.callbackButton('🐈', Math.random().toString(36).slice(2)),
     m.callbackButton('Clear', 'clear')
-  ], {columns: 3}))
+  ], { columns: 3 }))
 
 const calculator = new Router(({ callbackQuery }) => {
   if (!callbackQuery.data) {

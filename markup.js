@@ -21,7 +21,7 @@ class Markup {
   }
 
   keyboard (buttons, options) {
-    const keyboard = buildKeyboard(buttons, Object.assign({columns: 1}, options))
+    const keyboard = buildKeyboard(buttons, Object.assign({ columns: 1 }, options))
     if (keyboard && keyboard.length > 0) {
       this.keyboard = keyboard
     }
@@ -39,7 +39,7 @@ class Markup {
   }
 
   inlineKeyboard (buttons, options) {
-    const keyboard = buildKeyboard(buttons, Object.assign({columns: buttons.length}, options))
+    const keyboard = buildKeyboard(buttons, Object.assign({ columns: buttons.length }, options))
     if (keyboard && keyboard.length > 0) {
       this.inline_keyboard = keyboard
     }

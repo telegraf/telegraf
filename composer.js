@@ -85,6 +85,12 @@ class Composer {
     }
   }
 
+  static tap (handler) {
+    return (ctx, next) => Promise.resolve(handler(ctx))
+      .then(() => next(ctx))
+      .catch(() => next(ctx))
+  }
+
   static passThru () {
     return (ctx, next) => next(ctx)
   }

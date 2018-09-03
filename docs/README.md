@@ -461,7 +461,7 @@ const tlsOptions = {
 
 // Set telegram webhook
 bot.telegram.setWebhook('https://server.tld:8443/secret-path', {
-  source: fs.readFileSync('server-cert.pem')
+  source: 'server-cert.pem'
 })
 
 // Start https webhook

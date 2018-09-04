@@ -890,7 +890,6 @@ export interface TelegrafConstructor {
    * new Telegraf(token, options)
    */
   new <C extends ContextMessageUpdate>(token: string, options?: TelegrafOptions): Telegraf<C>;
-  new <C extends ContextMessageUpdate>(): Telegraf<C>;
 }
 
 export default Telegraf

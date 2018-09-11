@@ -85,10 +85,9 @@ class Composer {
     }
   }
 
-  static tap (handler) {
-    return (ctx, next) => Promise.resolve(handler(ctx))
-      .then(() => next(ctx))
-      .catch(() => next(ctx))
+  static tap (middleware) {
+    const handler = Composer.unwrap(middleware)
+    return (ctx, next) => Promise.resolve(handler(ctx, Composer.safePassThru())).then(() => next(ctx))
   }
 
   static passThru () {

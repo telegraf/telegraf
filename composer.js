@@ -42,6 +42,14 @@ class Composer {
     return this.use(Composer.entity(...args))
   }
 
+  url (...args) {
+    return this.use(Composer.url(...args))
+  }
+
+  textLink (...args) {
+    return this.use(Composer.textLink(...args))
+  }
+
   mention (...args) {
     return this.use(Composer.mention(...args))
   }
@@ -159,6 +167,22 @@ class Composer {
         predicate(entity, text.substring(entity.offset, entity.offset + entity.length))
       )
     }, ...fns)
+  }
+
+  static url (url, ...fns) {
+    if (fns.length === 0) {
+      return Composer.entity(['url'], url)
+    }
+    const urls = normalizeTextArguments(url)
+    return Composer.entity(({ type }, value) => type === 'url' && urls.includes(value), ...fns)
+  }
+
+  static textLink (link, ...fns) {
+    if (fns.length === 0) {
+      return Composer.entity(['text_link'], link)
+    }
+    const links = normalizeTextArguments(link)
+    return Composer.entity(({ type }, value) => type === 'text_link' && links.includes(value), ...fns)
   }
 
   static mention (username, ...fns) {

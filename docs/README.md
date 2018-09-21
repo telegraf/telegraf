@@ -85,6 +85,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Syntax Highlighter Bot](https://github.com/piterden/syntax-highlighter-bot)
 * [PodSearch bot(TypeScript)](https://fazendaaa.github.io/podsearch_bot/)
 * [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot)
+* [Nyaa.si bot](https://github.com/ejnshtein/nyaasi-bot)
 * Send PR to add link to your bot
 
 ## Introduction
@@ -931,6 +932,83 @@ Generates branch middleware.
 | trueMiddleware | `function` | true action  middleware |
 | falseMiddleware | `function` | false action middleware |
 
+
+##### Telegraf.email
+
+Generates middleware for handling messages with `email` entity.
+
+`Telegraf.email(triggers, ...middleware) => function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
+| handler | `function` | Handler |
+
+##### Telegraf.hashtag
+
+Generates middleware for handling messages with `hashtag` entity.
+
+`Telegraf.hashtag(triggers, ...middleware) => function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
+| handler | `function` | Handler |
+
+##### Telegraf.cashtag
+
+Generates middleware for handling messages with `cashtag` entity.
+
+`Telegraf.cashtag(triggers, ...middleware) => function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
+| handler | `function` | Handler |
+
+##### Telegraf.url
+
+Generates middleware for handling messages with `url` entity.
+
+`Telegraf.url(triggers, ...middleware) => function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
+| handler | `function` | Handler |
+
+##### Telegraf.phone
+
+Generates middleware for handling messages with `phone` entity.
+
+`Telegraf.phone(triggers, ...middleware) => function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
+| handler | `function` | Handler |
+
+##### Telegraf.textLink
+
+Generates middleware for handling messages with `text_link` entity.
+
+`Telegraf.textLink(triggers, ...middleware) => function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
+| handler | `function` | Handler |
+
+##### Telegraf.textMention
+
+Generates middleware for handling messages with `text_mention` entity.
+
+`Telegraf.textMention(triggers, ...middleware) => function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
+| handler | `function` | Handler |
 
 #### Telegram
 

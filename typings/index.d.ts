@@ -20,6 +20,8 @@ export interface TelegramOptions {
 }
 
 export interface Context {
+  updateType: tt.UpdateType;
+  update: tt.Update;
   telegram: Telegram
   callbackQuery?: tt.CallbackQuery
   channelPost?: tt.Message
@@ -681,7 +683,7 @@ export class Telegram {
    * @param allowedUpdates List the types of updates you want your bot to receive
    * @returns True on success
    */
-  setWebhook (url: string, cert?: tt.InputFile, maxConnections?: number, allowedUpdates?: string[]): Promise<boolean>;
+  setWebhook(url: string, cert?: tt.InputFile, maxConnections?: number, allowedUpdates?: string[]): Promise<boolean>;
 }
 
 
@@ -881,7 +883,7 @@ export class Telegraf<C extends ContextMessageUpdate> extends Composer<C> {
    * @param webhookResponse http.ServerResponse
    */
   handleUpdate(rawUpdate: tt.Update, webhookResponse?: ServerResponse): Promise<any>
-  
+
   catch(logFn?: Function): void;
 }
 
@@ -957,9 +959,9 @@ export class Markup {
 
   selective(value?: boolean): Markup;
 
-  extra(options: object): object;
+  extra(options?: object): object;
 
-  keyboard(buttons: Buttons[], options: object): Markup;
+  keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
 
   resize(value?: boolean): Markup;
 
@@ -987,9 +989,9 @@ export class Markup {
 
   static removeKeyboard(value: string): Markup;
 
-  static forceReply(value: string): Markup;
+  static forceReply(value?: string): Markup;
 
-  static keyboard(buttons: Buttons[], options: object): Markup;
+  static keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
 
   static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][], options?: object): tt.InlineKeyboardMarkup;
 
@@ -1016,6 +1018,38 @@ export class Markup {
   static gameButton(text: string, hide?: boolean): GameButton;
 
   static payButton(text: string, hide?: boolean): PayButton;
+}
+
+export class Extra {
+  constructor(opts: object);
+
+  load(opts: object): Extra;
+
+  inReplyTo(messageId: string | number): Extra;
+
+  notifications(value?: boolean): Extra;
+
+  webPreview(value?: boolean): Extra;
+
+  markup(markup: any): tt.ExtraEditMessage;
+
+  HTML(value?: boolean): Extra;
+
+  markdown(value?: boolean): Extra;
+
+  static load(opts: object): Extra;
+
+  static inReplyTo(messageId: string | number): Extra;
+
+  static notifications(value?: boolean): Extra;
+
+  static webPreview(value?: boolean): Extra;
+
+  static markup(markup: any): Extra;
+
+  static HTML(value?: boolean): Extra;
+
+  static markdown(value?: boolean): Extra;
 }
 
 export default Telegraf

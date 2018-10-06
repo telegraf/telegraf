@@ -845,6 +845,11 @@ export interface Telegraf<C extends ContextMessageUpdate> extends Composer<C> {
   telegram: Telegram
 
   /**
+   * Use this property to extend context and support interface C
+   */
+  context: C
+
+  /**
    * Start poll updates.
    * @param timeout Poll timeout in seconds
    * @param limit Limits the number of updates to be retrieved

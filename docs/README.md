@@ -86,6 +86,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [PodSearch bot(TypeScript)](https://fazendaaa.github.io/podsearch_bot/)
 * [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot)
 * [Nyaa.si bot](https://github.com/ejnshtein/nyaasi-bot)
+* [Ordis Prime](https://github.com/MaxTgr/Ordis-Prime)
 * Send PR to add link to your bot
 
 ## Introduction

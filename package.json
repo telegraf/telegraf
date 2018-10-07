@@ -39,7 +39,7 @@
     "eslint-plugin-node": "^7.0.1",
     "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-standard": "^4.0.0",
-    "husky": "^0.14.1",
+    "husky": "^1.1.1",
     "typescript": "^3.0.1"
   },
   "keywords": [

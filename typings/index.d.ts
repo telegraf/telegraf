@@ -646,6 +646,15 @@ export interface Telegram {
   sendPhoto(chatId: number | string, photo: tt.InputFile, extra?: tt.ExtraPhoto): Promise<tt.MessagePhoto>
 
   /**
+   * Use this method to send .gif animations
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param animation Animation to send. Pass a file_id as String to send a GIF that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a GIF from the Internet, or upload a new GIF using multipart/form-data
+   * @param extra Additional params to send GIF
+   * @returns a Message on success
+   */
+  sendAnimation(chatId: number | string, animation: tt.InputFile, extra?: tt.ExtraAnimation): Promise<tt.MessageAnimation>
+
+  /**
    * Use this method to send .webp stickers
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param sticker Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .webp file from the Internet, or upload a new one using multipart/form-data

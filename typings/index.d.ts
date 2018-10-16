@@ -518,6 +518,12 @@ export interface Telegram {
   exportChatInviteLink(chatId: number | string): Promise<string>
 
   /**
+   * Use this method to get basic information about the bot
+   * @returns a User object on success.
+   */
+  getMe(): Promise<tt.User>
+
+  /**
    * Use this method to get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.)
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    * @returns a Chat object on success.

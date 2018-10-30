@@ -107,6 +107,14 @@ function attachFormValue (form, id, value) {
     })
     return Promise.resolve()
   }
+  if (id === 'thumb') {
+    const attachmentId = crypto.randomBytes(16).toString('hex')
+    return attachFormMedia(form, value, attachmentId)
+      .then(() => form.addPart({
+        headers: { 'content-disposition': `form-data; name="${id}"` },
+        body: `attach://${attachmentId}`
+      }))
+  }
   if (Array.isArray(value)) {
     return Promise.all(
       value.map((item) => {

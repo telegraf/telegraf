@@ -341,25 +341,19 @@ export interface ContextMessageUpdate extends Context {
 
 }
 
-export interface Middleware<C extends ContextMessageUpdate> {
-  (ctx: C, next?: () => any): any
+export interface Middleware<TContext extends ContextMessageUpdate> {
+  (ctx: TContext, next?: () => any): any
 }
 
 export type HearsTriggers = string[] | string | RegExp | RegExp[] | Function
 
-export class Telegram {
+export const Telegram: TelegramConstructor;
+
+export interface Telegram {
   /**
    * Use this property to control reply via webhook feature.
    */
-  public webkhookReply: boolean
-
-  /**
-   * Initialize new Telegram app.
-   * @param token Bot token
-   * @param options Telegram options
-   */
-  constructor(token: string, options: TelegramOptions)
-
+  webhookReply: boolean
 
   /**
    * Use this method to send answers to callback queries.
@@ -686,6 +680,14 @@ export class Telegram {
   setWebhook(url: string, cert?: tt.InputFile, maxConnections?: number, allowedUpdates?: string[]): Promise<boolean>;
 }
 
+export interface TelegramConstructor {
+  /**
+   * Initialize new Telegram app.
+   * @param token Bot token
+   * @param options Telegram options
+   */
+  new(token: string, options: TelegramOptions): Telegram;
+}
 
 export interface TelegrafOptions {
   /**
@@ -699,109 +701,116 @@ export interface TelegrafOptions {
   username?: string
 }
 
-export class Composer<C extends ContextMessageUpdate> {
+export const Composer: ComposerConstructor;
 
-  constructor(...middlewares: Array<Middleware<C>>)
+export interface Composer<TContext extends ContextMessageUpdate> {
 
   /**
    * Registers a middleware.
    * @param middleware Middleware function
    */
-  use(middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Telegraf<C>
+  use(middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Telegraf<TContext>
 
   /**
    * Registers middleware for provided update type.
    * @param updateTypes Update type
    * @param middlewares Middleware functions
    */
-  on(updateTypes: tt.UpdateType | tt.UpdateType[] | tt.MessageSubTypes | tt.MessageSubTypes[], middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  on(updateTypes: tt.UpdateType | tt.UpdateType[] | tt.MessageSubTypes | tt.MessageSubTypes[], middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
   /**
    * Registers middleware for handling text messages.
    * @param triggers Triggers
    * @param middlewares Middleware functions
    */
-  hears(triggers: HearsTriggers, middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  hears(triggers: HearsTriggers, middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
   /**
    * Command handling.
    * @param command Commands
    * @param middlwares Middleware functions
    */
-  command(command: string | string[], middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  command(command: string | string[], middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
   /**
    * Registers middleware for handling callback_data actions with game query.
    * @param middlewares Middleware functions
    */
-  gameQuery(middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  gameQuery(middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
   /**
    * Registers middleware for handling callback_data actions on start.
    * @param middlewares Middleware functions
    */
-  start(middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  start(middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
   /**
    * Registers middleware for handling callback_data actions on help.
    * @param middlewares Middleware functions
    */
-  help(middleware: Middleware<C>, ...middlewares: Array<Middleware<C>>): Composer<C>
+  help(middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
+}
+
+export interface ComposerConstructor {
+
+  new<TContext extends ContextMessageUpdate>(): Composer<TContext>;
+
+  new<TContext extends ContextMessageUpdate>(...middlewares: Array<Middleware<TContext>>): Composer<TContext>;
 
   /**
    * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
    * @param middlewares Array of middlewares functions
    */
-  static compose<R extends ContextMessageUpdate>(middlewares: Array<Middleware<any>>): Middleware<R>
+  compose<TContext extends ContextMessageUpdate>(middlewares: Array<Middleware<any>>): Middleware<TContext>
 
   /**
    * Generates middleware for handling provided update types.
    * @param updateTypes Update type
    * @param middleware Middleware function
    */
-  static mount<C extends ContextMessageUpdate, R extends ContextMessageUpdate>
-    (updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware<C>): Middleware<R>
+  mount<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+  (updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware<TContext>): Middleware<UContext>
 
   /**
    * Generates middleware for handling text messages with regular expressions.
    * @param triggers Triggers
    * @param handler Handler
    */
-  static hears<C extends ContextMessageUpdate, R extends ContextMessageUpdate>
-    (triggers: HearsTriggers, handler: Middleware<C>): Middleware<R>
+  hears<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+  (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
 
   /**
    * Generates middleware for handling callbackQuery data with regular expressions.
    * @param triggers Triggers
    * @param handler Handler
    */
-  static action<C extends ContextMessageUpdate, R extends ContextMessageUpdate>
-    (triggers: HearsTriggers, handler: Middleware<C>): Middleware<R>
+  action<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+  (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
 
   /**
    * Generates pass thru middleware.
    */
-  static passThru<C extends ContextMessageUpdate>(): Middleware<C>
+  passThru<TContext extends ContextMessageUpdate>(): Middleware<TContext>
 
   /**
    * Generates safe version of pass thru middleware.
    */
-  static safePassThru<C extends ContextMessageUpdate>(): Middleware<C>
+  safePassThru<TContext extends ContextMessageUpdate>(): Middleware<TContext>
 
   /**
    * Generates optional middleware.
    * @param test Value or predicate (ctx) => bool
    * @param middleware Middleware function
    */
-  static optional<C extends ContextMessageUpdate, R extends ContextMessageUpdate>
-    (test: boolean | ((ctx: C) => boolean), middleware: Middleware<C>): Middleware<R>
+  optional<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+  (test: boolean | ((ctx: TContext) => boolean), middleware: Middleware<TContext>): Middleware<UContext>
 
   /**
    * Generates filter middleware.
    * @param test  Value or predicate (ctx) => bool
    */
-  static filter<C extends ContextMessageUpdate>
-    (test: boolean | ((ctx: C) => boolean)): Middleware<C>
+  filter<TContext extends ContextMessageUpdate>
+  (test: boolean | ((ctx: TContext) => boolean)): Middleware<TContext>
 
   /**
    * Generates branch middleware.
@@ -809,44 +818,41 @@ export class Composer<C extends ContextMessageUpdate> {
    * @param trueMiddleware true action middleware
    * @param falseMiddleware false action middleware
    */
-  static branch<C extends ContextMessageUpdate, T extends ContextMessageUpdate, F extends ContextMessageUpdate, R extends ContextMessageUpdate>
-    (test: boolean | ((ctx: C) => boolean), trueMiddleware: Middleware<T>, falseMiddleware: Middleware<F>): Middleware<R>
+  branch<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate, VContext extends ContextMessageUpdate, WContext extends ContextMessageUpdate>
+  (test: boolean | ((ctx: TContext) => boolean), trueMiddleware: Middleware<UContext>, falseMiddleware: Middleware<VContext>): Middleware<WContext>
 
-  static reply<C extends ContextMessageUpdate>(text: string, extra?: tt.ExtraReplyMessage): Middleware<C>
+  reply<TContext extends ContextMessageUpdate>(text: string, extra?: tt.ExtraReplyMessage): Middleware<TContext>
 
   /**
    * Allows it to console.log each request received.
-  */
-  static fork<C extends ContextMessageUpdate>(middleware: Middleware<C>): Function;
+   */
+  fork<TContext extends ContextMessageUpdate>(middleware: Middleware<TContext>): Function;
 
-  static log(logFn?: Function): Middleware<ContextMessageUpdate>;
+  log(logFn?: Function): Middleware<ContextMessageUpdate>;
 }
 
+export const Telegraf: TelegrafConstructor;
 
-export class Telegraf<C extends ContextMessageUpdate> extends Composer<C> {
+export interface Telegraf<TContext extends ContextMessageUpdate> extends Composer<TContext> {
   /**
    * Use this property to get/set bot token
    */
-  public token: string
+  token: string
 
   /**
    * Use this property to control reply via webhook feature.
    */
-  public webhookReply: boolean
+  webhookReply: boolean
 
   /**
    * Use this property to get telegram instance
    */
-  public telegram: Telegram
+  telegram: Telegram
 
   /**
-   * Initialize new Telegraf app.
-   * @param token Bot token
-   * @param options options
-   * @example
-   * new Telegraf(token, options)
+   * Use this property to extend context and support your custom interface
    */
-  constructor(token: string, options?: TelegrafOptions)
+  context: TContext
 
   /**
    * Start poll updates.
@@ -854,7 +860,7 @@ export class Telegraf<C extends ContextMessageUpdate> extends Composer<C> {
    * @param limit Limits the number of updates to be retrieved
    * @param allowedUpdates List the types of updates you want your bot to receive
    */
-  startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[]): Telegraf<C>
+  startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[]): Telegraf<TContext>
 
   /**
    * Start listening @ https://host:port/webhookPath for Telegram calls.
@@ -863,12 +869,12 @@ export class Telegraf<C extends ContextMessageUpdate> extends Composer<C> {
    * @param port Port number
    * @param host Hostname
    */
-  startWebhook(webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string): Telegraf<C>
+  startWebhook(webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string): Telegraf<TContext>
 
   /**
    * Stop Webhook and polling
    */
-  stop(): Telegraf<C>
+  stop(): Telegraf<TContext>
 
   /**
    * Return a callback function suitable for the http[s].createServer() method to handle a request.
@@ -1050,6 +1056,17 @@ export class Extra {
   static HTML(value?: boolean): Extra;
 
   static markdown(value?: boolean): Extra;
+}
+
+export interface TelegrafConstructor {
+  /**
+   * Initialize new Telegraf app.
+   * @param token Bot token
+   * @param options options
+   * @example
+   * new Telegraf(token, options)
+   */
+  new <TContext extends ContextMessageUpdate>(token: string, options?: TelegrafOptions): Telegraf<TContext>;
 }
 
 export default Telegraf

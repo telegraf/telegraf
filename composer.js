@@ -42,6 +42,22 @@ class Composer {
     return this.use(Composer.entity(...args))
   }
 
+  email (...args) {
+    return this.use(Composer.email(...args))
+  }
+
+  url (...args) {
+    return this.use(Composer.url(...args))
+  }
+
+  textLink (...args) {
+    return this.use(Composer.textLink(...args))
+  }
+
+  textMention (...args) {
+    return this.use(Composer.textMention(...args))
+  }
+
   mention (...args) {
     return this.use(Composer.mention(...args))
   }
@@ -83,6 +99,11 @@ class Composer {
       setImmediate(Composer.unwrap(middleware), ctx, Composer.safePassThru())
       return next(ctx)
     }
+  }
+
+  static tap (middleware) {
+    const handler = Composer.unwrap(middleware)
+    return (ctx, next) => Promise.resolve(handler(ctx, Composer.safePassThru())).then(() => next(ctx))
   }
 
   static passThru () {
@@ -137,10 +158,6 @@ class Composer {
     return Composer.optional(predicate, ...fns)
   }
 
-  static hears (triggers, ...fns) {
-    return Composer.mount('text', Composer.match(normalizeTriggers(triggers), ...fns))
-  }
-
   static entity (predicate, ...fns) {
     if (typeof predicate !== 'function') {
       const entityTypes = normalizeTextArguments(predicate)
@@ -151,41 +168,80 @@ class Composer {
       const entities = message && (message.entities || message.caption_entities)
       const text = message && (message.text || message.caption)
       return entities && entities.some((entity) =>
-        predicate(entity, text.substring(entity.offset, entity.offset + entity.length))
+        predicate(entity, text.substring(entity.offset, entity.offset + entity.length), ctx)
       )
     }, ...fns)
   }
 
-  static mention (username, ...fns) {
+  static entityText (entityType, predicate, ...fns) {
     if (fns.length === 0) {
-      return Composer.entity(['mention'], username)
+      return Array.isArray(predicate)
+        ? Composer.entity(entityType, ...predicate)
+        : Composer.entity(entityType, predicate)
     }
-    const usernames = normalizeTextArguments(username, '@')
-    return Composer.entity(({ type }, value) => type === 'mention' && usernames.includes(value), ...fns)
+    const triggers = normalizeTriggers(predicate)
+    return Composer.entity(({ type }, value, ctx) => {
+      if (type !== entityType) {
+        return false
+      }
+      for (let trigger of triggers) {
+        ctx.match = trigger(value, ctx)
+        if (ctx.match) {
+          return true
+        }
+      }
+    }, ...fns)
+  }
+
+  static email (email, ...fns) {
+    return Composer.entityText('email', email, ...fns)
   }
 
   static phone (number, ...fns) {
-    if (fns.length === 0) {
-      return Composer.entity(['phone_number'], number)
-    }
-    const numbers = normalizeTextArguments(number)
-    return Composer.entity(({ type }, value) => type === 'phone_number' && numbers.includes(value), ...fns)
+    return Composer.entityText('phone_number', number, ...fns)
+  }
+
+  static url (url, ...fns) {
+    return Composer.entityText('url', url, ...fns)
+  }
+
+  static textLink (link, ...fns) {
+    return Composer.entityText('text_link', link, ...fns)
+  }
+
+  static textMention (mention, ...fns) {
+    return Composer.entityText('text_mention', mention, ...fns)
+  }
+
+  static mention (mention, ...fns) {
+    return Composer.entityText('mention', normalizeTextArguments(mention, '@'), ...fns)
   }
 
   static hashtag (hashtag, ...fns) {
-    if (fns.length === 0) {
-      return Composer.entity(['hashtag'], hashtag)
-    }
-    const hashtags = normalizeTextArguments(hashtag, '#')
-    return Composer.entity(({ type }, value) => type === 'hashtag' && hashtags.includes(value), ...fns)
+    return Composer.entityText('hashtag', normalizeTextArguments(hashtag, '#'), ...fns)
   }
 
   static cashtag (cashtag, ...fns) {
-    if (fns.length === 0) {
-      return Composer.entity(['cashtag'], cashtag)
-    }
-    const cashtags = normalizeTextArguments(cashtag, '$')
-    return Composer.entity(({ type }, value) => type === 'cashtag' && cashtags.includes(value), ...fns)
+    return Composer.entityText('cashtag', normalizeTextArguments(cashtag, '$'), ...fns)
+  }
+
+  static match (triggers, ...fns) {
+    return Composer.optional((ctx) => {
+      const text = (
+        (ctx.message && (ctx.message.caption || ctx.message.text)) ||
+        (ctx.callbackQuery && ctx.callbackQuery.data)
+      )
+      for (let trigger of triggers) {
+        ctx.match = trigger(text, ctx)
+        if (ctx.match) {
+          return true
+        }
+      }
+    }, ...fns)
+  }
+
+  static hears (triggers, ...fns) {
+    return Composer.mount('text', Composer.match(normalizeTriggers(triggers), ...fns))
   }
 
   static command (command, ...fns) {
@@ -200,28 +256,13 @@ class Composer {
       return Composer.entity(({ offset, type }, value) =>
         offset === 0 &&
         type === 'bot_command' &&
-        (commands.includes(value) || groupCommands.includes(value)), ...fns)
+        (commands.includes(value) || groupCommands.includes(value))
+      , ...fns)
     }))
   }
 
   static action (triggers, ...fns) {
     return Composer.mount('callback_query', Composer.match(normalizeTriggers(triggers), ...fns))
-  }
-
-  static match (triggers, ...fns) {
-    return Composer.lazy((ctx) => {
-      const text = (
-        (ctx.message && (ctx.message.caption || ctx.message.text)) ||
-        (ctx.callbackQuery && ctx.callbackQuery.data)
-      )
-      for (let trigger of triggers) {
-        ctx.match = trigger(text, ctx)
-        if (ctx.match) {
-          return Composer.compose(fns)
-        }
-      }
-      return Composer.safePassThru()
-    })
   }
 
   static acl (userId, ...fns) {
@@ -303,8 +344,8 @@ function normalizeTriggers (triggers) {
 function normalizeTextArguments (argument, prefix) {
   const args = Array.isArray(argument) ? argument : [argument]
   return args
-    .filter((item) => item)
-    .map((arg) => arg && prefix && !arg.startsWith(prefix) ? `${prefix}${arg}` : arg)
+    .filter(Boolean)
+    .map((arg) => prefix && typeof arg === 'string' && !arg.startsWith(prefix) ? `${prefix}${arg}` : arg)
 }
 
 module.exports = Composer

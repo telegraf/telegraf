@@ -208,6 +208,13 @@ export type InputFile =
     caption?: string
   }
 
+  export interface ExtraAnimation extends ExtraReplyMessage {
+    /**
+     * Animation caption (may also be used when resending animation by file_id), 0-200 characters
+     */
+    caption?: string
+  }
+
   export interface ExtraSticker extends ExtraReplyMessage {
     // no specified sticker props
     // https://core.telegram.org/bots/api#sendsticker
@@ -225,6 +232,7 @@ export type InputFile =
     document?: TT.Document
     game?: TT.Game
     photo?: TT.PhotoSize[]
+    animation?: TT.Animation
     sticker?: TT.Sticker
     video?: TT.Video
     video_note?: TT.VideoNote
@@ -260,6 +268,10 @@ export type InputFile =
     photo: TT.PhotoSize[]
   }
 
+  export interface MessageAnimation extends TT.Message {
+    animation: TT.Animation
+  }
+  
   export interface MessageSticker extends TT.Message {
     sticker: TT.Sticker
   }

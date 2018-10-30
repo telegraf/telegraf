@@ -20,6 +20,8 @@ export interface TelegramOptions {
 }
 
 export interface Context {
+  updateType: tt.UpdateType;
+  update: tt.Update;
   telegram: Telegram
   callbackQuery?: tt.CallbackQuery
   channelPost?: tt.Message
@@ -245,6 +247,7 @@ export interface ContextMessageUpdate extends Context {
   answerInlineQuery(results: tt.InlineQueryResult[], extra?: tt.ExtraAnswerInlineQuery): Promise<boolean>
 
   /**
+   * @deprecated answerCallbackQuery() is deprecated, use answerCbQuery() instead
    * Use this method to send answers to callback queries.
    * @param text Notification text
    * @param url Game url
@@ -252,6 +255,8 @@ export interface ContextMessageUpdate extends Context {
    * @param cacheTime The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0.
    */
   answerCallbackQuery(text?: string, url?: string, showAlert?: boolean, cacheTime?: number): Promise<boolean>
+
+  answerCbQuery(text?: string, showAlert?: boolean, extra?: object): Promise<boolean>
 
   /**
    * Use this method to send answers to game query.
@@ -518,6 +523,12 @@ export interface Telegram {
   exportChatInviteLink(chatId: number | string): Promise<string>
 
   /**
+   * Use this method to get basic information about the bot
+   * @returns a User object on success.
+   */
+  getMe(): Promise<tt.User>
+
+  /**
    * Use this method to get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.)
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    * @returns a Chat object on success.
@@ -646,6 +657,15 @@ export interface Telegram {
   sendPhoto(chatId: number | string, photo: tt.InputFile, extra?: tt.ExtraPhoto): Promise<tt.MessagePhoto>
 
   /**
+   * Use this method to send .gif animations
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param animation Animation to send. Pass a file_id as String to send a GIF that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a GIF from the Internet, or upload a new GIF using multipart/form-data
+   * @param extra Additional params to send GIF
+   * @returns a Message on success
+   */
+  sendAnimation(chatId: number | string, animation: tt.InputFile, extra?: tt.ExtraAnimation): Promise<tt.MessageAnimation>
+
+  /**
    * Use this method to send .webp stickers
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param sticker Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .webp file from the Internet, or upload a new one using multipart/form-data
@@ -672,7 +692,7 @@ export interface Telegram {
    * @param allowedUpdates List the types of updates you want your bot to receive
    * @returns True on success
    */
-  setWebhook (url: string, cert?: tt.InputFile, maxConnections?: number, allowedUpdates?: string[]): Promise<boolean>;
+  setWebhook(url: string, cert?: tt.InputFile, maxConnections?: number, allowedUpdates?: string[]): Promise<boolean>;
 }
 
 export interface TelegramConstructor {
@@ -884,6 +904,173 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    * @param webhookResponse http.ServerResponse
    */
   handleUpdate(rawUpdate: tt.Update, webhookResponse?: ServerResponse): Promise<any>
+
+  catch(logFn?: Function): void;
+}
+
+export type CallbackGame = string;
+
+export interface Button {
+  text: string;
+  hide: boolean;
+}
+
+export interface ContactRequestButton {
+  text: string;
+  hide: boolean;
+  request_contact: boolean;
+}
+
+export interface LocationRequestButton {
+  text: string;
+  hide: boolean;
+  request_location: boolean;
+}
+
+export interface UrlButton {
+  url: string;
+  text: string;
+  hide?: boolean;
+}
+
+export interface CallbackButton {
+  text: string;
+  hide: boolean;
+  callback_data: string;
+}
+
+export interface SwitchToChatButton {
+  text: string;
+  hide: boolean;
+  switch_inline_query: string;
+}
+
+export interface SwitchToCurrentChatButton {
+  text: string;
+  hide: boolean;
+  switch_inline_query_current_chat: string;
+}
+
+export interface GameButton {
+  text: string;
+  hide: boolean;
+  callback_game: object;
+}
+
+export interface PayButton {
+  pay: boolean;
+  text: string;
+  hide: boolean;
+}
+
+export interface Buttons {
+  url?: string;
+  pay?: boolean;
+  text: string;
+  callback_data?: string;
+  callback_game?: CallbackGame;
+  switch_inline_query?: string;
+  switch_inline_query_current_chat?: string;
+}
+
+export class Markup {
+  forceReply(value?: boolean): Markup;
+
+  removeKeyboard(value?: boolean): Markup;
+
+  selective(value?: boolean): Markup;
+
+  extra(options?: object): object;
+
+  keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
+
+  resize(value?: boolean): Markup;
+
+  oneTime(value?: boolean): Markup;
+
+  inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][], options: object): tt.InlineKeyboardMarkup;
+
+  button(text: string, hide: boolean): Button;
+
+  contactRequestButton(text: string, hide: boolean): ContactRequestButton;
+
+  locationRequestButton(text: string, hide: boolean): LocationRequestButton;
+
+  urlButton(text: string, url: string, hide: boolean): UrlButton;
+
+  callbackButton(text: string, data: string, hide: boolean): CallbackButton;
+
+  switchToChatButton(text: string, value: string, hide: boolean): SwitchToChatButton;
+
+  switchToCurrentChatButton(text: string, value: string, hide: boolean): SwitchToCurrentChatButton;
+
+  gameButton(text: string, hide: boolean): GameButton;
+
+  payButton(text: string, hide: boolean): PayButton;
+
+  static removeKeyboard(value: string): Markup;
+
+  static forceReply(value?: string): Markup;
+
+  static keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
+
+  static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][], options?: object): tt.InlineKeyboardMarkup;
+
+  static resize(value?: boolean): Markup;
+
+  static selective(value?: boolean): Markup;
+
+  static oneTime(value?: boolean): Markup;
+
+  static button(text: string, hide?: boolean): Button;
+
+  static contactRequestButton(text: string, hide?: boolean): ContactRequestButton;
+
+  static locationRequestButton(text: string, hide?: boolean): LocationRequestButton;
+
+  static urlButton(text: string, url: string, hide?: boolean): UrlButton;
+
+  static callbackButton(text: string, data: string, hide?: boolean): CallbackButton;
+
+  static switchToChatButton(text: string, value: string, hide?: boolean): SwitchToChatButton;
+
+  static switchToCurrentChatButton(text: string, value: string, hide?: boolean): SwitchToCurrentChatButton;
+
+  static gameButton(text: string, hide?: boolean): GameButton;
+
+  static payButton(text: string, hide?: boolean): PayButton;
+}
+
+export class Extra {
+  constructor(opts: object);
+
+  load(opts: object): Extra;
+
+  inReplyTo(messageId: string | number): Extra;
+
+  notifications(value?: boolean): Extra;
+
+  webPreview(value?: boolean): Extra;
+
+  markup(markup: any): tt.ExtraEditMessage;
+
+  HTML(value?: boolean): Extra;
+
+  markdown(value?: boolean): Extra;
+
+  static load(opts: object): Extra;
+
+  static inReplyTo(messageId: string | number): Extra;
+
+  static notifications(value?: boolean): Extra;
+
+  static webPreview(value?: boolean): Extra;
+
+  static markup(markup: any): Extra;
+
+  static HTML(value?: boolean): Extra;
+
+  static markdown(value?: boolean): Extra;
 }
 
 export interface TelegrafConstructor {

@@ -693,6 +693,25 @@ export interface Telegram {
    * @returns True on success
    */
   setWebhook(url: string, cert?: tt.InputFile, maxConnections?: number, allowedUpdates?: string[]): Promise<boolean>;
+  
+  /**
+   * Use this method to delete webhook
+   * @returns True on success
+   */ 
+  deleteWebhook (): Promise<boolean>;
+  
+  /**
+   * Use this method to get information about set webhook
+   * @returns a WebhookInfo on success
+   */ 
+  getWebhookInfo (): Promise<tt.WebhookInfo>;
+  
+  /**
+   * Use this method to get link to a file by file id
+   * @param fileId Id of file to get link to
+   * @returns a String with an url to the file
+   */ 
+  getFileLink (fileId: string): Promise<string>;
 }
 
 export interface TelegramConstructor {

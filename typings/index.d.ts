@@ -9,6 +9,10 @@ import * as tt from './telegram-types.d'
 
 export interface TelegramOptions {
   /**
+   * Telegram endpoint API, allow to override default https://api.telegram.org
+   */
+  apiRoot?: string
+  /**
    * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
    */
   agent?: Agent

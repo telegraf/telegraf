@@ -9,6 +9,11 @@ import * as tt from './telegram-types.d'
 
 export interface TelegramOptions {
   /**
+   * Telegram endpoint API, allow to override default https://api.telegram.org
+   */
+  apiRoot?: Agent
+
+  /**
    * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
    */
   agent?: Agent
@@ -38,6 +43,8 @@ export interface Context {
 }
 
 export interface ContextMessageUpdate extends Context {
+
+  match: string[]
 
   /**
    * Use this method to add a new sticker to a set created by the bot
@@ -342,7 +349,7 @@ export interface ContextMessageUpdate extends Context {
 }
 
 export interface Middleware<TContext extends ContextMessageUpdate> {
-  (ctx: TContext, next?: () => any): any
+  (ctx: TContext, next: () => any): any
 }
 
 export type HearsTriggers = string[] | string | RegExp | RegExp[] | Function
@@ -759,6 +766,15 @@ export interface Composer<TContext extends ContextMessageUpdate> {
    */
   hears(triggers: HearsTriggers, middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
+
+  /**
+   * Generates middleware for handling callbackQuery data with regular expressions.
+   * @param triggers Triggers
+   * @param handler Handler
+   */
+  action<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+    (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
+  
   /**
    * Command handling.
    * @param command Commands
@@ -1001,37 +1017,37 @@ export class Markup {
 
   extra(options?: object): object;
 
-  keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
+  keyboard(buttons: (Buttons | string)[], options?: object): Markup;
 
   resize(value?: boolean): Markup;
 
   oneTime(value?: boolean): Markup;
 
-  inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][], options: object): tt.InlineKeyboardMarkup;
+  inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][], options?: object): Markup;
 
-  button(text: string, hide: boolean): Button;
+  button(text: string, hide?: boolean): Button;
 
-  contactRequestButton(text: string, hide: boolean): ContactRequestButton;
+  contactRequestButton(text: string, hide?: boolean): ContactRequestButton;
 
-  locationRequestButton(text: string, hide: boolean): LocationRequestButton;
+  locationRequestButton(text: string, hide?: boolean): LocationRequestButton;
 
-  urlButton(text: string, url: string, hide: boolean): UrlButton;
+  urlButton(text: string, url: string, hide?: boolean): UrlButton;
 
-  callbackButton(text: string, data: string, hide: boolean): CallbackButton;
+  callbackButton(text: string, data: string, hide?: boolean): CallbackButton;
 
-  switchToChatButton(text: string, value: string, hide: boolean): SwitchToChatButton;
+  switchToChatButton(text: string, value: string, hide?: boolean): SwitchToChatButton;
 
-  switchToCurrentChatButton(text: string, value: string, hide: boolean): SwitchToCurrentChatButton;
+  switchToCurrentChatButton(text: string, value: string, hide?: boolean): SwitchToCurrentChatButton;
 
-  gameButton(text: string, hide: boolean): GameButton;
+  gameButton(text: string, hide?: boolean): GameButton;
 
-  payButton(text: string, hide: boolean): PayButton;
+  payButton(text: string, hide?: boolean): PayButton;
 
   static removeKeyboard(value: string): Markup;
 
   static forceReply(value?: string): Markup;
 
-  static keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
+  static keyboard(buttons: (Buttons | string)[], options?: object): Markup;
 
   static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][], options?: object): tt.InlineKeyboardMarkup;
 
@@ -1071,7 +1087,7 @@ export class Extra {
 
   webPreview(value?: boolean): Extra;
 
-  markup(markup: any): tt.ExtraEditMessage;
+  markup(markup: ((cb: Markup) => Markup) | Markup): tt.ExtraEditMessage;
 
   HTML(value?: boolean): Extra;
 
@@ -1085,7 +1101,7 @@ export class Extra {
 
   static webPreview(value?: boolean): Extra;
 
-  static markup(markup: any): Extra;
+  static markup(markup: ((cb: Markup) => Markup) | Markup): tt.ExtraEditMessage;
 
   static HTML(value?: boolean): Extra;
 

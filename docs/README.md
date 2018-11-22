@@ -383,7 +383,7 @@ bot.on('text', (ctx) => {
 
 **Note: For persistent sessions you might use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
 
-**Tip: To use same session in private chat with bot and in inline mode, use this property-function in session config object:**
+**Tip: To use same session in private chat with bot and in inline mode, use this session key resolver in session config object:**
 
 ```js
 {

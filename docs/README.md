@@ -383,6 +383,21 @@ bot.on('text', (ctx) => {
 
 **Note: For persistent sessions you might use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
 
+**Tip: To use same session in private chat with bot and in inline mode, use this session key resolver in session config object:**
+
+```js
+{
+  getSessionKey: (ctx) => {
+    if (ctx.from && ctx.chat) {
+      return `${ctx.from.id}:${ctx.chat.id}`
+    } else if (ctx.from && ctx.inlineQuery) {
+      return `${ctx.from.id}:${ctx.from.id}`
+    }
+    return null
+  }
+}
+```
+
 #### Update types
 
 Supported update types:

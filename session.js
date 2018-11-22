@@ -1,7 +1,9 @@
 module.exports = function (opts) {
   opts = Object.assign({
     property: 'session',
-    getSessionKey: (ctx) => ctx.from && ctx.chat && `${ctx.from.id}:${ctx.chat.id}`
+    getSessionKey: (ctx) => opts.inlineMode ?
+      ctx.from && ctx.chat && `${ctx.from.id}:${ctx.chat.id}` || ctx.from && ctx.inlineQuery && `${ctx.from.id}:${ctx.from.id}` :
+      ctx.from && ctx.chat && `${ctx.from.id}:${ctx.chat.id}`
   }, opts)
 
   const ttlMs = opts.ttl && opts.ttl * 1000

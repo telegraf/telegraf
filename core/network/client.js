@@ -18,7 +18,8 @@ const WebhookBlacklist = [
   'getGameHighScores',
   'getMe',
   'getUserProfilePhotos',
-  'getWebhookInfo'
+  'getWebhookInfo',
+  'exportChatInviteLink'
 ]
 
 const DefaultExtensions = {

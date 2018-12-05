@@ -110,7 +110,7 @@ class Telegraf extends Composer {
         if (domain.startsWith('https://') || domain.startsWith('http://')) {
           domain = new URL(domain).host
         }
-        const hookPath = config.webhook.hookPath || `telegraf/${crypto.randomBytes(32).toString('hex')}`
+        const hookPath = config.webhook.hookPath || `/telegraf/${crypto.randomBytes(32).toString('hex')}`
         const { port, host, tlsOptions, cb } = config.webhook
         this.startWebhook(hookPath, tlsOptions, port, host, cb)
         if (!domain) {
@@ -118,7 +118,7 @@ class Telegraf extends Composer {
           return
         }
         return this.telegram
-          .setWebhook(`https://${domain}/${hookPath}`)
+          .setWebhook(`https://${domain}${hookPath}`)
           .then(() => debug(`Bot started with webhook @ https://${domain}`))
       })
   }

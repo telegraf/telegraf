@@ -91,31 +91,35 @@ class Telegraf extends Composer {
     return this
   }
 
-  boot (config = {}) {
+  launch (config = {}) {
     return this.telegram.getMe()
       .then((botInfo) => {
-        debug(`Booting up @${botInfo.username}`)
+        debug(`Launching @${botInfo.username}`)
         this.options.username = botInfo.username
         this.context.botInfo = botInfo
         if (!config.webhook) {
           const { timeout, limit, allowedUpdates, stopCallback } = config.polling || {}
           return this.telegram.deleteWebhook()
             .then(() => this.startPolling(timeout, limit, allowedUpdates, stopCallback))
-            .then(() => debug(`Bot started`))
+            .then(() => debug(`Bot started with long-polling`))
         }
-        if (typeof config.webhook.domain !== 'string') {
-          throw new Error('Webhook domain is required')
+        if (typeof config.webhook.domain !== 'string' && typeof config.webhook.hookPath !== 'string') {
+          throw new Error('Webhook domain or webhook path is required')
         }
         let domain = config.webhook.domain
         if (domain.startsWith('https://') || domain.startsWith('http://')) {
           domain = new URL(domain).host
         }
-        const secret = crypto.randomBytes(32).toString('hex')
+        const hookPath = config.webhook.hookPath || `/telegraf/${crypto.randomBytes(32).toString('hex')}`
         const { port, host, tlsOptions, cb } = config.webhook
-        this.startWebhook(`/telegraf/${secret}`, tlsOptions, port, host, cb)
+        this.startWebhook(hookPath, tlsOptions, port, host, cb)
+        if (!domain) {
+          debug(`Bot started with webhook`)
+          return
+        }
         return this.telegram
-          .setWebhook(`https://${domain}/telegraf/${secret}`)
-          .then(() => debug(`Bot started @ https://${domain}`))
+          .setWebhook(`https://${domain}/${hookPath}`)
+          .then(() => debug(`Bot started with webhook @ https://${domain}`))
       })
   }
 

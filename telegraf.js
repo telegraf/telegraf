@@ -7,13 +7,15 @@ const session = require('./session')
 const Router = require('./router')
 const Context = require('./core/context')
 const generateCallback = require('./core/network/webhook')
+const crypto = require('crypto')
+const { URL } = require('url')
 
 const DefaultOptions = {
   retryAfter: 1,
   handlerTimeout: 0
 }
 
-const noop = () => {}
+const noop = () => { }
 
 class Telegraf extends Composer {
   constructor (token, options) {
@@ -87,6 +89,34 @@ class Telegraf extends Composer {
       debug('Webhook listening on port: %s', port)
     })
     return this
+  }
+
+  boot (config = {}) {
+    return this.telegram.getMe()
+      .then((botInfo) => {
+        debug(`Booting up @${botInfo.username}`)
+        this.options.username = botInfo.username
+        this.context.botInfo = botInfo
+        if (!config.webhook) {
+          const { timeout, limit, allowedUpdates, stopCallback } = config.polling || {}
+          return this.telegram.deleteWebhook()
+            .then(() => this.startPolling(timeout, limit, allowedUpdates, stopCallback))
+            .then(() => debug(`Bot started`))
+        }
+        if (typeof config.webhook.domain !== 'string') {
+          throw new Error('Webhook domain is required')
+        }
+        let domain = config.webhook.domain
+        if (domain.startsWith('https://') || domain.startsWith('http://')) {
+          domain = new URL(domain).host
+        }
+        const secret = crypto.randomBytes(32).toString('hex')
+        const { port, host, tlsOptions, cb } = config.webhook
+        this.startWebhook(`/telegraf/${secret}`, tlsOptions, port, host, cb)
+        return this.telegram
+          .setWebhook(`https://${domain}/telegraf/${secret}`)
+          .then(() => debug(`Bot started @ https://${domain}`))
+      })
   }
 
   stop (cb = noop) {

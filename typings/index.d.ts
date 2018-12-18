@@ -5,7 +5,6 @@ import { Agent } from 'https'
 import { TlsOptions } from 'tls'
 
 import * as tt from './telegram-types.d'
-import { Http2SecureServer } from 'http2';
 
 
 export interface TelegramOptions {
@@ -1137,7 +1136,7 @@ export interface TOptions {
   channelMode?: boolean
 
   retryAfter?: number
-  
+
   handlerTimeout?: number
 }
 

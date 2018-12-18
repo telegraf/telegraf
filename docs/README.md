@@ -84,6 +84,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot)
 * [Nyaa.si bot](https://github.com/ejnshtein/nyaasi-bot)
 * [Ordis Prime](https://github.com/MaxTgr/Ordis-Prime)
+* [telegraf-rutracker-transmission](https://github.com/DZamataev/telegraf-rutracker-transmission)
 * Send PR to add link to your bot
 
 ## Introduction

@@ -5,6 +5,7 @@ import { Agent } from 'https'
 import { TlsOptions } from 'tls'
 
 import * as tt from './telegram-types.d'
+import { Http2SecureServer } from 'http2';
 
 
 export interface TelegramOptions {
@@ -889,6 +890,11 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
   context: TContext
 
   /**
+   * Telegraf options
+   */
+  options: TOptions
+
+  /**
    * Start poll updates.
    * @param timeout Poll timeout in seconds
    * @param limit Limits the number of updates to be retrieved
@@ -1101,6 +1107,38 @@ export interface TelegrafConstructor {
    * new Telegraf(token, options)
    */
   new <TContext extends ContextMessageUpdate>(token: string, options?: TelegrafOptions): Telegraf<TContext>;
+}
+
+export interface TOptions {
+  
+  /**
+   * Telegram options
+   */
+  telegram?: {
+    /**
+     * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+     */
+    agent: Agent
+
+    /**
+     * Reply via webhook
+     */
+    webhookReply: boolean
+  }
+
+  /**
+   * Bot username
+   */
+  username?: string
+
+  /**
+   * Handle `channel_post` updates as messages
+   */
+  channelMode?: boolean
+
+  retryAfter?: number
+  
+  handlerTimeout?: number
 }
 
 export default Telegraf

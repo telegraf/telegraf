@@ -42,4 +42,4 @@ bot.command('buy', ({ replyWithInvoice }) => replyWithInvoice(invoice, replyOpti
 bot.on('shipping_query', ({ answerShippingQuery }) => answerShippingQuery(true, shippingOptions))
 bot.on('pre_checkout_query', ({ answerPreCheckoutQuery }) => answerPreCheckoutQuery(true))
 bot.on('successful_payment', () => console.log('Woohoo'))
-bot.startPolling()
+bot.launch()

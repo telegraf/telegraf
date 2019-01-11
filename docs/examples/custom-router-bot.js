@@ -61,4 +61,4 @@ bot.start((ctx) => {
   return ctx.reply(`Value: <b>${ctx.session.value}</b>`, markup)
 })
 bot.on('callback_query', calculator)
-bot.startPolling()
+bot.launch()

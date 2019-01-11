@@ -250,7 +250,7 @@ test.cb('should respect webhookReply option', (t) => {
   const bot = new Telegraf(null, { telegram: { webhookReply: false } })
   bot.catch((err) => { throw err }) // Disable log
   bot.on('message', ({ reply }) => reply(':)'))
-  t.throws(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
+  t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
 })
 
 test.cb('should respect webhookReply runtime change', (t) => {
@@ -260,7 +260,7 @@ test.cb('should respect webhookReply runtime change', (t) => {
   bot.on('message', (ctx) => ctx.reply(':)'))
 
   // Throws cause Bot Token is required for http call'
-  t.throws(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
+  t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
 })
 
 test.cb('should respect webhookReply runtime change (per request)', (t) => {
@@ -270,5 +270,5 @@ test.cb('should respect webhookReply runtime change (per request)', (t) => {
     ctx.webhookReply = false
     return ctx.reply(':)')
   })
-  t.throws(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
+  t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
 })

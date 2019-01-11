@@ -77,8 +77,8 @@ class Telegraf extends Composer {
     return this
   }
 
-  startWebhook (path, tlsOptions, port, host, cb) {
-    const webhookCb = this.webhookCallback(path)
+  startWebhook (hookPath, tlsOptions, port, host, cb) {
+    const webhookCb = this.webhookCallback(hookPath)
     const callback = cb && typeof cb === 'function'
       ? (req, res) => webhookCb(req, res, () => cb(req, res))
       : webhookCb
@@ -106,7 +106,7 @@ class Telegraf extends Composer {
         if (typeof config.webhook.domain !== 'string' && typeof config.webhook.hookPath !== 'string') {
           throw new Error('Webhook domain or webhook path is required')
         }
-        let domain = config.webhook.domain
+        let domain = config.webhook.domain || ''
         if (domain.startsWith('https://') || domain.startsWith('http://')) {
           domain = new URL(domain).host
         }

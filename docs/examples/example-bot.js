@@ -61,5 +61,5 @@ bot.command('foo', reply('http://coub.com/view/9cjmt'))
 // Wow! RegEx
 bot.hears(/reverse (.+)/, ({ match, reply }) => reply(match[1].split('').reverse().join('')))
 
-// Start polling
-bot.startPolling()
+// Launch bot
+bot.launch()

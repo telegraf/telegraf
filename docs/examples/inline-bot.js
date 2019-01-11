@@ -24,4 +24,4 @@ bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => {
   return answerInlineQuery(results, { next_offset: offset + 30 })
 })
 
-bot.startPolling()
+bot.launch()

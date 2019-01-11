@@ -75,7 +75,9 @@ class Composer {
   }
 
   start (...fns) {
-    return this.command('start', ...fns)
+    return this.command('start', Composer.tap((ctx) => {
+      ctx.startPayload = ctx.message.text.substring(7)
+    }), ...fns)
   }
 
   help (...fns) {

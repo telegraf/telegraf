@@ -49,4 +49,4 @@ bot.use(stage.middleware())
 bot.start(async (ctx) => enter('first'))
 bot.hears(/^First|Second$/, async (ctx) => enter(ctx.match[0].toLowerCase()))
 
-bot.startPolling()
+bot.launch()

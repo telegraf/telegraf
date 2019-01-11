@@ -47,7 +47,7 @@ bot.start((ctx) => ctx.reply('Welcome'))
 bot.help((ctx) => ctx.reply('Send me a sticker'))
 bot.on('sticker', (ctx) => ctx.reply('👍'))
 bot.hears('hi', (ctx) => ctx.reply('Hey there'))
-bot.startPolling()
+bot.launch()
 ```
 
 
@@ -58,7 +58,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.command('oldschool', (ctx) => ctx.reply('Hello'))
 bot.command('modern', ({ reply }) => reply('Yo'))
 bot.command('hipster', Telegraf.reply('λ'))
-bot.startPolling()
+bot.launch()
 ```
 
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
@@ -127,6 +127,7 @@ bot.use((ctx, next) => {
 })
 
 bot.on('text', (ctx) => ctx.reply('Hello World'))
+bot.launch()
 ```
 
 ##### Cascading with async functions
@@ -163,10 +164,11 @@ To perform custom error-handling logic use following snippet:
 
 ```js
 const bot = new Telegraf(process.env.BOT_TOKEN)
-
 bot.catch((err) => {
   console.log('Ooops', err)
 })
+bot.start((ctx) => ctx.reply(42/0))
+bot.launch()
 ``` 
 
 #### Context
@@ -213,6 +215,8 @@ bot.on('text', (ctx) => {
   const scores = ctx.db.getScores(ctx.message.from.username)
   return ctx.reply(`${ctx.message.from.username}: ${score}`)
 })
+
+bot.launch()
 ```
 
 ##### Shortcuts
@@ -349,6 +353,8 @@ bot.on('inline_query', (ctx) => {
   // Using shortcut
   ctx.answerInlineQuery(result)
 })
+
+bot.launch()
 ```
 
 #### State
@@ -367,6 +373,8 @@ bot.use((ctx, next) => {
 bot.on('text', (ctx) => {
   return ctx.reply(`Hello ${ctx.state.role}`)
 })
+
+bot.launch()
 ```
 
 #### Session
@@ -381,6 +389,8 @@ bot.on('text', (ctx) => {
   ctx.session.counter++
   return ctx.reply(`Message counter:${ctx.session.counter}`)
 })
+
+bot.launch()
 ```
 
 **Note: For persistent sessions you might use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
@@ -794,6 +804,30 @@ Registers middleware for handling `callback_data` actions with game query.
 | --- | --- | --- |
 | middleware | `function` | Middleware |
 
+##### launch
+
+Launch bot in long-polling or webhook mode. 
+
+`telegraf.launch(options) => Promise`
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | `object` | Launch options |
+
+Launch options:
+
+```js
+{
+  // Start bot in polling mode (Default)
+  // See startPolling reference
+  polling: { timeout, limit,  allowedUpdates,  stopCallback },
+
+  // Start bot in webhook mode
+  // See startWebhook reference
+  webhook: { domain, hookPath,  port,  host,  tlsOptions,  cb } 
+}
+```
+
 ##### startPolling
 
 Start poll updates.
@@ -811,11 +845,11 @@ Start poll updates.
 
 Start listening @ `https://host:port/webhookPath` for Telegram calls.
 
-`telegraf.startWebhook(webhookPath, [tlsOptions], port, [host])`
+`telegraf.startWebhook(hookPath, [tlsOptions], port, [host])`
 
 | Param | Type | Description |
 | ---  | --- | --- |
-| webhookPath | `string` | Webhook url path (see Telegraf.setWebhook) |
+| hookPath | `string` | Webhook url path (see Telegraf.setWebhook) |
 | [tlsOptions] | `object` | [TLS server options](https://nodejs.org/api/tls.html#tls_tls_createserver_options_secureconnectionlistener). Pass null to use http |
 | port | `number` | Port number |
 | [host] | `string` | Hostname |

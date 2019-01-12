@@ -1067,7 +1067,6 @@ Generates middleware for filtering messages from admin users - members with crea
 
 | Param | Type | Description |
 | --- | --- | --- |
-| triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | middleware | `function` | middleware |
 
 #### Telegram

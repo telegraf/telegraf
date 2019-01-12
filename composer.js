@@ -304,7 +304,7 @@ class Composer {
   }
 
   static authorOnly (...fns) {
-    return Composer.mount('callback_query', Composer.optional((ctx) => ctx.callbackQuery.from.id === ctx.callbackQuery.message.reply_to_message.from.id, ...fns))
+    return Composer.mount('callback_query', Composer.optional((ctx) => ctx.callbackQuery.message.reply_to_message && ctx.callbackQuery.from.id === ctx.callbackQuery.message.reply_to_message.from.id, ...fns))
   }
 
   static gameQuery (...fns) {

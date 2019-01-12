@@ -1059,16 +1059,6 @@ Generates middleware for handling messages with `text_mention` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-##### Telegraf.admin
-
-Generates middleware for filtering messages from admin users - members with creator or administrator statuses.
-
-`Telegraf.admin(...middleware) => function`
-
-| Param | Type | Description |
-| --- | --- | --- |
-| middleware | `function` | middleware |
-
 #### Telegram
 
 Telegram client API reference.

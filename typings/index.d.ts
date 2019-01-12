@@ -580,7 +580,7 @@ export interface Telegram {
    * @param extra SendMessage additional params
    * @returns sent Message if Success
    */
-  sendMessage(chatId: number | string, text: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
+  sendMessage(chatId: number | string, text: string, extra?: tt.ExtraEditMessage): Promise<tt.Message>
 
   /**
    * Use this method to send audio files, if you want Telegram clients to display them in the music player.
@@ -1012,7 +1012,7 @@ export class Markup {
 
   oneTime(value?: boolean): Markup;
 
-  inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][], options: object): tt.InlineKeyboardMarkup;
+  inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][] | UrlButton[] | UrlButton[][], options: object): tt.InlineKeyboardMarkup;
 
   button(text: string, hide: boolean): Button;
 

@@ -85,7 +85,7 @@ test('should generate keyboard markup with custom wrap fn', (t) => {
   })
 })
 
-test('should generate keyboard markup with default setting', (t) => {
+test('should generate inline keyboard markup with default setting', (t) => {
   const markup = Object.assign({}, Markup.inlineKeyboard(['one', 'two', 'three', 'four']))
   t.deepEqual(markup, {
     inline_keyboard: [[
@@ -141,7 +141,7 @@ test('should generate switch inline query button markup', (t) => {
   t.deepEqual(markup, { text: 'play now', switch_inline_query: 'foo', hide: false })
 })
 
-test('should generate switch inline query button markup', (t) => {
+test('should generate switch inline query button markup for chat', (t) => {
   const markup = Object.assign({}, Markup.switchToCurrentChatButton('play now', 'foo'))
   t.deepEqual(markup, { text: 'play now', switch_inline_query_current_chat: 'foo', hide: false })
 })
@@ -151,7 +151,7 @@ test('should generate game button markup', (t) => {
   t.deepEqual(markup, { text: 'play', callback_game: {}, hide: false })
 })
 
-test('should generate game button markup', (t) => {
+test('should generate hidden game button markup', (t) => {
   const markup = Object.assign({}, Markup.gameButton('play again', true))
   t.deepEqual(markup, { text: 'play again', callback_game: {}, hide: true })
 })

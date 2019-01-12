@@ -66,4 +66,4 @@ bot.action('swap_media', (ctx) => ctx.editMessageMedia({
   media: AnimationUrl2
 }))
 
-bot.startPolling()
+bot.launch()

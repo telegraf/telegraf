@@ -67,7 +67,7 @@ const updateTypes = [
 ]
 
 updateTypes.forEach((update) => {
-  test.cb('should route ' + update, (t) => {
+  test.cb('should route update type: ' + update, (t) => {
     const bot = new Telegraf()
     bot.on(update, (ctx) => {
       t.end()
@@ -85,7 +85,7 @@ test.cb('should route venue', (t) => {
   bot.handleUpdate({ message: message })
 })
 
-test.cb('should route venue/location', (t) => {
+test.cb('should route location', (t) => {
   const bot = new Telegraf()
   bot.on('venue', (ctx) => {
     t.true(ctx.updateSubTypes.includes('venue'))
@@ -96,7 +96,7 @@ test.cb('should route venue/location', (t) => {
   bot.handleUpdate({ message: message })
 })
 
-test('should throw error then called with invalid middleware', (t) => {
+test('should throw error then called with undefined middleware', (t) => {
   const composer = new Composer()
   t.throws(() => {
     composer.compose(() => undefined)
@@ -202,14 +202,14 @@ test.cb('Composer.acl should work with user id', (t) => {
   bot.handleUpdate({ message: Object.assign({ text: 'hello world' }, baseMessage) })
 })
 
-test.cb('Composer.acl should work with user id', (t) => {
+test.cb('Composer.acl should passthru', (t) => {
   const bot = new Telegraf()
   bot.use(Composer.acl(42, Composer.passThru()))
   bot.use(() => t.end())
   bot.handleUpdate({ message: Object.assign({ text: 'hello world' }, baseMessage) })
 })
 
-test.cb('Composer.acl should work with user id', (t) => {
+test.cb('Composer.acl should not be false positive', (t) => {
   const bot = new Telegraf()
   bot.use(Composer.acl(999, () => t.fail()))
   bot.use(() => t.end())
@@ -327,7 +327,7 @@ test.cb('Composer.lazy should work with fn', (t) => {
   bot.handleUpdate({ message: Object.assign({ text: 'hello world' }, baseMessage) })
 })
 
-test.cb('Composer.lazy should work with fn', (t) => {
+test.cb('Composer.lazy should support middlewares', (t) => {
   const bot = new Telegraf()
   bot.use(Composer.lazy((ctx) => (_, next) => next()))
   bot.use(() => t.end())
@@ -428,7 +428,7 @@ test.cb('Composer.hashtag should work with pattern', (t) => {
   bot.handleUpdate({ message: { text: 'bar #foo', entities: [{ type: 'hashtag', offset: 4, length: 4 }] } })
 })
 
-test.cb('Composer.hashtag should work with pattern', (t) => {
+test.cb('Composer.hashtag should work with hash pattern', (t) => {
   const bot = new Telegraf()
   bot.use(Composer.hashtag('#foo', () => t.end()))
   bot.handleUpdate({ message: { text: 'bar #foo', entities: [{ type: 'hashtag', offset: 4, length: 4 }] } })
@@ -480,12 +480,6 @@ test.cb('should handle settings command', (t) => {
   bot.handleUpdate({ message: Object.assign({ text: '/settings', entities: [{ type: 'bot_command', offset: 0, length: 9 }] }, baseMessage) })
 })
 
-test.cb('should handle short command', (t) => {
-  const bot = new Telegraf()
-  bot.start(() => t.end())
-  bot.handleUpdate({ message: Object.assign({ text: '/start', entities: [{ type: 'bot_command', offset: 0, length: 6 }] }, baseMessage) })
-})
-
 test.cb('should handle group command', (t) => {
   const bot = new Telegraf(null, { username: 'bot' })
   bot.start(() => t.end())
@@ -514,7 +508,7 @@ test.cb('should handle regex action', (t) => {
   bot.handleUpdate({ callback_query: { data: 'foo 42' } })
 })
 
-test.cb('should handle action', (t) => {
+test.cb('should support middlewares', (t) => {
   const bot = new Telegraf()
   bot.action('bar', (ctx) => {
     t.fail()

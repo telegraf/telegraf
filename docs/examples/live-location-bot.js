@@ -14,4 +14,4 @@ function sendLiveLocation (ctx) {
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.start(sendLiveLocation)
-bot.startPolling()
+bot.launch()

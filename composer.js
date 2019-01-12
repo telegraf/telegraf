@@ -275,6 +275,16 @@ class Composer {
     return Composer.optional((ctx) => !ctx.from || allowed.includes(ctx.from.id), ...fns)
   }
 
+  static admin (...fns) {
+    return Composer.optional((ctx) => {
+      if (!ctx.message) {
+        return false
+      }
+      ctx.getChatMember(ctx.message.from.id)
+        .then(member => member && (member.status === 'creator' || member.status === 'administrator'))
+    }, ...fns)
+  }
+
   static gameQuery (...fns) {
     return Composer.mount('callback_query', Composer.optional((ctx) => ctx.callbackQuery.game_short_name, ...fns))
   }

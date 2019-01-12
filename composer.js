@@ -275,10 +275,19 @@ class Composer {
     return Composer.optional((ctx) => !ctx.from || allowed.includes(ctx.from.id), ...fns)
   }
 
-  static admin (...fns) {
+  static memberStatus (status, ...fns) {
+    const statuses = Array.isArray(status) ? status : [status]
     return Composer.optional((ctx) => ctx.message && ctx.getChatMember(ctx.message.from.id)
-      .then(member => member && ['administrator', 'creator'].includes(member.status))
+      .then(member => member && statuses.includes(member.status))
     , ...fns)
+  }
+
+  static admin (...fns) {
+    return Composer.memberStatus(['administrator', 'creator'], ...fns)
+  }
+
+  static creator (...fns) {
+    return Composer.memberStatus('creator', ...fns)
   }
 
   static gameQuery (...fns) {

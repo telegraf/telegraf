@@ -277,10 +277,7 @@ class Composer {
 
   static admin (...fns) {
     return Composer.optional((ctx) => {
-      if (!ctx.message) {
-        return false
-      }
-      ctx.getChatMember(ctx.message.from.id)
+      return ctx.message && ctx.getChatMember(ctx.message.from.id)
         .then(member => member && (member.status === 'creator' || member.status === 'administrator'))
     }, ...fns)
   }

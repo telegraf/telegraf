@@ -275,6 +275,12 @@ class Composer {
     return Composer.optional((ctx) => !ctx.from || allowed.includes(ctx.from.id), ...fns)
   }
 
+  static admin (...fns) {
+    return Composer.optional((ctx) => ctx.message && ctx.getChatMember(ctx.message.from.id)
+      .then(member => member && ['administrator', 'creator'].includes(member.status))
+    , ...fns)
+  }
+
   static gameQuery (...fns) {
     return Composer.mount('callback_query', Composer.optional((ctx) => ctx.callbackQuery.game_short_name, ...fns))
   }

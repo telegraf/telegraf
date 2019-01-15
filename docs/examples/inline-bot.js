@@ -14,8 +14,7 @@ async function omdbSearch (query = '') {
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => {
-  const offset = parseInt(inlineQuery.offset) || 0
-  const posters = await omdbSearch(inlineQuery.query, offset, 30)
+  const posters = await omdbSearch(inlineQuery.query)
   const results = posters.map((poster) => ({
     type: 'photo',
     id: poster.imdbID,
@@ -24,7 +23,7 @@ bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => {
     thumb_url: poster.Poster,
     photo_url: poster.Poster
   }))
-  return answerInlineQuery(results, { next_offset: offset + 30 })
+  return answerInlineQuery(results)
 })
 
 bot.launch()

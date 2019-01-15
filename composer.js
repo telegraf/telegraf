@@ -290,6 +290,23 @@ class Composer {
     return Composer.memberStatus('creator', ...fns)
   }
 
+  static chatType (type, ...fns) {
+    const types = Array.isArray(type) ? type : [type]
+    return Composer.optional((ctx) => ctx.chat && types.includes(ctx.chat.type), ...fns)
+  }
+
+  static privateChat (...fns) {
+    return Composer.chatType('private', ...fns)
+  }
+
+  static groupChat (...fns) {
+    return Composer.chatType(['group', 'supergroup'], ...fns)
+  }
+
+  static authorOnly (...fns) {
+    return Composer.mount('callback_query', Composer.optional((ctx) => ctx.callbackQuery.message.reply_to_message && ctx.callbackQuery.from.id === ctx.callbackQuery.message.reply_to_message.from.id, ...fns))
+  }
+
   static gameQuery (...fns) {
     return Composer.mount('callback_query', Composer.optional((ctx) => ctx.callbackQuery.game_short_name, ...fns))
   }

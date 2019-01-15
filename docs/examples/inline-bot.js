@@ -3,23 +3,26 @@ const fetch = require('node-fetch')
 
 // async/await example.
 
-async function spotifySearch (query = '', offset, limit) {
-  const apiUrl = `https://api.spotify.com/v1/search?type=track&limit=${limit}&offset=${offset}&q=${encodeURIComponent(query)}`
+async function omdbSearch (query = '') {
+  const apiUrl = `http://www.omdbapi.com/?s=${query}&apikey=9699cca`
   const response = await fetch(apiUrl)
-  const { tracks } = await response.json()
-  return tracks.items
+  const json = await response.json()
+  const posters = (json.Search && json.Search) || []
+  return posters.filter(({ Poster }) => Poster && Poster.startsWith('https://')) || []
 }
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => {
   const offset = parseInt(inlineQuery.offset) || 0
-  const tracks = await spotifySearch(inlineQuery.query, offset, 30)
-  const results = tracks.map((track) => ({
-    type: 'audio',
-    id: track.id,
-    title: track.name,
-    audio_url: track.preview_url
+  const posters = await omdbSearch(inlineQuery.query, offset, 30)
+  const results = posters.map((poster) => ({
+    type: 'photo',
+    id: poster.imdbID,
+    caption: poster.Title,
+    description: poster.Title,
+    thumb_url: poster.Poster,
+    photo_url: poster.Poster
   }))
   return answerInlineQuery(results, { next_offset: offset + 30 })
 })

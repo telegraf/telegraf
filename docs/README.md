@@ -173,13 +173,11 @@ bot.launch()
 
 #### Context
 
-A Telegraf Context encapsulates telegram message.
+A Telegraf Context encapsulates telegram update.
 Context is created per request and contains following props:
 
 * `ctx.telegram `            - Telegram client instance
-* `ctx.webhookReply `        - Shortcut to `ctx.telegram.webhookReply`
 * `ctx.updateType `          - Update type (message, inline_query, etc.)
-
 * `[ctx.updateSubTypes]`     - Update subtypes (text, sticker, audio, etc.)
 * `[ctx.message]`            - Received message
 * `[ctx.editedMessage]`      - Edited message
@@ -193,6 +191,7 @@ Context is created per request and contains following props:
 * `[ctx.chat]`               - Current chat info
 * `[ctx.from]`               - Sender info
 * `[ctx.match]`              - Regex match (available only for `hears`, `command`, `action` handlers)
+* `ctx.webhookReply `        - Shortcut to `ctx.telegram.webhookReply`
 
 ```js
 bot.use((ctx) => {
@@ -1906,30 +1905,3 @@ bot.on('message', (ctx) => {
   ctx.scene.leave()                                  // Leave scene s
 })
 ```
-
-## Recipes
-
-<p class="tip">
-  Feel free to send PR with additional recipes.
-</p>
-
-##### Command handling in group
-
-For handling group/supergroup commands(`/start@your_bot`) you need to provide bot username.
-
-```js
-const bot = new Telegraf(process.env.BOT_TOKEN, {username: 'your_bot'})
-```
-
-Also, you can get the username from Telegram server.
-
-```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
-
-bot.telegram.getMe().then((botInfo) => {
-  bot.options.username = botInfo.username
-})
-
-bot.command('foo', (ctx) => ctx.reply('Hello World'))
-```
-

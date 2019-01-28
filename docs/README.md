@@ -793,6 +793,18 @@ Registers middleware for handling `callback_data` actions with regular expressio
 | middleware | `function` | Middleware |
 
 
+##### inlineQuery
+
+Registers middleware for handling `inline_query` actions with regular expressions.
+
+`telegraf.inlineQuery(triggers, ...middleware)`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string/string[]/RegEx/RegEx[]` | Triggers |
+| middleware | `function` | Middleware |
+
+
 ##### gameQuery
 
 Registers middleware for handling `callback_data` actions with game query.

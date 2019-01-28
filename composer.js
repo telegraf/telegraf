@@ -26,6 +26,10 @@ class Composer {
     return this.use(Composer.action(triggers, ...fns))
   }
 
+  inlineQuery (triggers, ...fns) {
+    return this.use(Composer.inlineQuery(triggers, ...fns))
+  }
+
   gameQuery (...fns) {
     return this.use(Composer.gameQuery(...fns))
   }
@@ -231,7 +235,8 @@ class Composer {
     return Composer.optional((ctx) => {
       const text = (
         (ctx.message && (ctx.message.caption || ctx.message.text)) ||
-        (ctx.callbackQuery && ctx.callbackQuery.data)
+        (ctx.callbackQuery && ctx.callbackQuery.data) ||
+        (ctx.inlineQuery && ctx.inlineQuery.query)
       )
       for (let trigger of triggers) {
         ctx.match = trigger(text, ctx)
@@ -265,6 +270,10 @@ class Composer {
 
   static action (triggers, ...fns) {
     return Composer.mount('callback_query', Composer.match(normalizeTriggers(triggers), ...fns))
+  }
+
+  static inlineQuery (triggers, ...fns) {
+    return Composer.mount('inline_query', Composer.match(normalizeTriggers(triggers), ...fns))
   }
 
   static acl (userId, ...fns) {

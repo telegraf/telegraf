@@ -190,7 +190,7 @@ Context is created per request and contains following props:
 * `[ctx.editedChannelPost]`  - New version of a channel post that is known to the bot and was edited
 * `[ctx.chat]`               - Current chat info
 * `[ctx.from]`               - Sender info
-* `[ctx.match]`              - Regex match (available only for `hears`, `command`, `action` handlers)
+* `[ctx.match]`              - Regex match (available only for `hears`, `command`, `action`, `inlineQuery` handlers)
 * `ctx.webhookReply `        - Shortcut to `ctx.telegram.webhookReply`
 
 ```js
@@ -931,6 +931,17 @@ Generates middleware for handling `text` messages with regular expressions.
 Generates middleware for handling `callbackQuery` data with regular expressions.
 
 `Telegraf.action(triggers, ...middleware) => function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
+| handler | `function` | Handler |
+
+##### Telegraf.inlineQuery
+
+Generates middleware for handling `inlineQuery` data with regular expressions.
+
+`Telegraf.inlineQuery(triggers, ...middleware) => function`
 
 | Param | Type | Description |
 | --- | --- | --- |

@@ -508,6 +508,22 @@ test.cb('should handle regex action', (t) => {
   bot.handleUpdate({ callback_query: { data: 'foo 42' } })
 })
 
+test.cb('should handle inline query', (t) => {
+  const bot = new Telegraf()
+  bot.inlineQuery('foo', () => t.end())
+  bot.handleUpdate({ inline_query: { query: 'foo' } })
+})
+
+test.cb('should handle regex inline query', (t) => {
+  const bot = new Telegraf()
+  bot.inlineQuery(/foo (\d+)/, (ctx) => {
+    t.true('match' in ctx)
+    t.is('42', ctx.match[1])
+    t.end()
+  })
+  bot.handleUpdate({ inline_query: { query: 'foo 42' } })
+})
+
 test.cb('should support middlewares', (t) => {
   const bot = new Telegraf()
   bot.action('bar', (ctx) => {

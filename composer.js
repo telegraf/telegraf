@@ -26,6 +26,10 @@ class Composer {
     return this.use(Composer.action(triggers, ...fns))
   }
 
+  inlineQuery (triggers, ...fns) {
+    return this.use(Composer.inlineQuery(triggers, ...fns))
+  }
+
   gameQuery (...fns) {
     return this.use(Composer.gameQuery(...fns))
   }
@@ -231,7 +235,8 @@ class Composer {
     return Composer.optional((ctx) => {
       const text = (
         (ctx.message && (ctx.message.caption || ctx.message.text)) ||
-        (ctx.callbackQuery && ctx.callbackQuery.data)
+        (ctx.callbackQuery && ctx.callbackQuery.data) ||
+        (ctx.inlineQuery && ctx.inlineQuery.query)
       )
       for (let trigger of triggers) {
         ctx.match = trigger(text, ctx)
@@ -267,12 +272,44 @@ class Composer {
     return Composer.mount('callback_query', Composer.match(normalizeTriggers(triggers), ...fns))
   }
 
+  static inlineQuery (triggers, ...fns) {
+    return Composer.mount('inline_query', Composer.match(normalizeTriggers(triggers), ...fns))
+  }
+
   static acl (userId, ...fns) {
     if (typeof userId === 'function') {
       return Composer.optional(userId, ...fns)
     }
     const allowed = Array.isArray(userId) ? userId : [userId]
     return Composer.optional((ctx) => !ctx.from || allowed.includes(ctx.from.id), ...fns)
+  }
+
+  static memberStatus (status, ...fns) {
+    const statuses = Array.isArray(status) ? status : [status]
+    return Composer.optional((ctx) => ctx.message && ctx.getChatMember(ctx.message.from.id)
+      .then(member => member && statuses.includes(member.status))
+    , ...fns)
+  }
+
+  static admin (...fns) {
+    return Composer.memberStatus(['administrator', 'creator'], ...fns)
+  }
+
+  static creator (...fns) {
+    return Composer.memberStatus('creator', ...fns)
+  }
+
+  static chatType (type, ...fns) {
+    const types = Array.isArray(type) ? type : [type]
+    return Composer.optional((ctx) => ctx.chat && types.includes(ctx.chat.type), ...fns)
+  }
+
+  static privateChat (...fns) {
+    return Composer.chatType('private', ...fns)
+  }
+
+  static groupChat (...fns) {
+    return Composer.chatType(['group', 'supergroup'], ...fns)
   }
 
   static gameQuery (...fns) {

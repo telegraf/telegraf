@@ -13,6 +13,12 @@
     "url": "https://github.com/telegraf/telegraf/issues"
   },
   "main": "telegraf.js",
+  "files": [
+    "core/**/*.js",
+    "scenes/**/*.js",
+    "typings/*.d.ts",
+    "*.js"
+  ],
   "scripts": {
     "lint": "eslint .",
     "test": "ava test",

@@ -23,11 +23,11 @@ class Telegram extends ApiClient {
       .then((file) => `${this.options.apiRoot}/file/bot${this.token}/${file.file_path}`)
   }
 
-  getUpdates (timeout, limit, offset, allowedUpdates) {
+  getUpdates (timeout, limit, offset, allowedUpdates, fetchOptions) {
     let url = `getUpdates?offset=${offset}&limit=${limit}&timeout=${timeout}`
     return this.callApi(url, {
       allowed_updates: allowedUpdates
-    })
+    }, fetchOptions)
   }
 
   getWebhookInfo () {

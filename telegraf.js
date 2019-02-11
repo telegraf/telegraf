@@ -9,6 +9,7 @@ const Context = require('./core/context')
 const generateCallback = require('./core/network/webhook')
 const crypto = require('crypto')
 const { URL } = require('url')
+const AbortController = require('abort-controller')
 
 const DefaultOptions = {
   retryAfter: 1,
@@ -125,8 +126,14 @@ class Telegraf extends Composer {
 
   stop (cb = noop) {
     this.polling.started = false
+    const { pendingUpdates, pendingController } = this.polling
     if (this.webhookServer) {
       this.webhookServer.close(cb)
+    } else if (pendingUpdates) {
+      if (pendingController) {
+        pendingController.abort()
+      }
+      return pendingUpdates.then(() => cb())
     } else {
       cb()
     }
@@ -160,9 +167,13 @@ class Telegraf extends Composer {
     if (!started) {
       return
     }
-    this.telegram.getUpdates(timeout, limit, offset, allowedUpdates)
+    const pendingController = new AbortController()
+    this.polling.pendingController = pendingController
+    this.polling.pendingUpdates = this.telegram.getUpdates(timeout, limit, offset, allowedUpdates, { signal: pendingController.signal })
       .catch((err) => {
         if (err.code === 401 || err.code === 409) {
+          throw err
+        } else if (err.name === 'AbortError') {
           throw err
         }
         const wait = (err.parameters && err.parameters.retry_after) || this.options.retryAfter
@@ -171,7 +182,11 @@ class Telegraf extends Composer {
       })
       .then((updates) => this.handleUpdates(updates).then(() => updates))
       .catch((err) => {
-        console.error('Failed to process updates.', err)
+        if (err.name === 'AbortError') {
+          debug('Long polling was aborted by signal!')
+        } else {
+          console.error('Failed to process updates.', err)
+        }
         this.polling.started = false
         this.polling.offset = 0
         this.polling.stopCallback && this.polling.stopCallback()

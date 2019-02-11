@@ -1,3 +1,4 @@
+const http = require('http')
 const test = require('ava')
 const Telegraf = require('../')
 
@@ -271,4 +272,115 @@ test.cb('should respect webhookReply runtime change (per request)', (t) => {
     return ctx.reply(':)')
   })
   t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
+})
+
+function createServerMock (totalRequests, rejectIfMaxRequests = true) {
+  return new Promise((resolve, reject) => {
+    const portResolve = resolve
+    const portReject = reject
+    const errorMsg = 'ETELEGRAM: 409 Conflict: terminated by other long poll'
+    const reqPromise = new Promise((resolve, reject) => {
+      const reqResolve = resolve
+      const reqReject = reject
+      const rejectTimeout = setTimeout(() => {
+        reqReject(new Error('Long polling timeout reached'))
+        server.close()
+      }, 5000)
+      const server = http.createServer((req, res) => {
+        retSrv.requestsCount++
+        if (retSrv.requestsCount > totalRequests) {
+          clearTimeout(rejectTimeout)
+          if (rejectIfMaxRequests) {
+            reqReject(new Error(errorMsg))
+          } else {
+            reqResolve(retSrv)
+          }
+          res.end()
+          return server.close()
+        }
+      })
+      server.listen(0, (err) => { // https://stackoverflow.com/a/28050404/5431545
+        if (err) {
+          portReject(err)
+        } else {
+          retSrv.port = server.address().port
+          portResolve(retSrv)
+        }
+      })
+    })
+    let retSrv = { port: 0, reqPromise, errorMsg, requestsCount: 0 }
+  })
+}
+
+test.cb('should throw duplicate long polling request error', (t) => {
+  (async () => {
+    t.plan(2)
+    const retSrv = await createServerMock(1)
+    const { port, reqPromise, errorMsg } = retSrv
+    reqPromise.catch(err => {
+      t.deepEqual(err, new Error(errorMsg))
+      t.is(retSrv.requestsCount, 2)
+      t.end()
+    })
+    const bot1 = new Telegraf('faketoken', { telegram: { apiRoot: 'http://127.0.0.1:' + port } })
+    bot1.startPolling()
+    const bot2 = new Telegraf('faketoken', { telegram: { apiRoot: 'http://127.0.0.1:' + port } })
+    bot2.startPolling()
+  })().catch(err => {
+    t.fail(err)
+    t.end()
+  })
+})
+
+test.cb('should immediate terminate long polling requests', (t) => {
+  (async () => {
+    t.plan(1)
+    const retSrv = await createServerMock(0)
+    const { port, reqPromise } = retSrv
+    reqPromise.catch(err => {
+      t.fail(err)
+      t.end()
+    })
+    const bot1 = new Telegraf('faketoken', { telegram: { apiRoot: 'http://127.0.0.1:' + port } })
+    bot1.startPolling()
+    bot1.stop()
+    bot1.startPolling()
+    bot1.stop()
+    const bot2 = new Telegraf('faketoken', { telegram: { apiRoot: 'http://127.0.0.1:' + port } })
+    bot2.startPolling()
+    bot2.stop()
+    bot2.startPolling()
+    await bot2.stop()
+    t.is(retSrv.requestsCount, 0)
+    t.end()
+  })().catch(err => {
+    t.fail(err)
+    t.end()
+  })
+})
+
+test.cb('should recover long polling request after immediate terminate', (t) => {
+  (async () => {
+    t.plan(1)
+    const retSrv = await createServerMock(0, false)
+    const { port, reqPromise } = retSrv
+    reqPromise
+      .then(() => {
+        t.is(retSrv.requestsCount, 1)
+        t.end()
+      })
+      .catch(err => {
+        t.fail(err)
+        t.end()
+      })
+    const bot1 = new Telegraf('faketoken', { telegram: { apiRoot: 'http://127.0.0.1:' + port } })
+    bot1.startPolling()
+    bot1.stop()
+    bot1.startPolling()
+    bot1.stop()
+    bot1.startPolling()
+  })().catch(err => {
+    t.fail(err)
+    t.end()
+  })
 })

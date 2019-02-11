@@ -9,6 +9,10 @@ import * as tt from './telegram-types.d'
 
 export interface TelegramOptions {
   /**
+   * Telegram server host
+   */
+  apiRoot?: string
+  /**
    * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
    */
   agent?: Agent
@@ -894,6 +898,16 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
   options: TOptions
 
   /**
+   * Launch bot in long-polling or webhook mode.
+   * @param options Launch options
+   */
+  launch({ polling, webhook }: { polling?: {
+    timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[]
+  }, webhook?: {
+    webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string
+  } }): Promise<Telegraf<TContext>>
+
+  /**
    * Start poll updates.
    * @param timeout Poll timeout in seconds
    * @param limit Limits the number of updates to be retrieved
@@ -911,9 +925,9 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
   startWebhook(webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string): Telegraf<TContext>
 
   /**
-   * Stop Webhook and polling
+   * Stop Webhook or polling
    */
-  stop(): Telegraf<TContext>
+  stop(): Telegraf<TContext> | Promise<void>
 
   /**
    * Return a callback function suitable for the http[s].createServer() method to handle a request.

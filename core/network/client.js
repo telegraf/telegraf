@@ -222,7 +222,7 @@ class ApiClient {
     return this.options.webhookReply
   }
 
-  callApi (method, data = {}) {
+  callApi (method, data = {}, fetchOptions = {}) {
     const { token, options, response, responseEnd } = this
 
     const payload = Object.keys(data)
@@ -247,6 +247,7 @@ class ApiClient {
       .then((config) => {
         const apiUrl = `${options.apiRoot}/bot${token}/${method}`
         config.agent = options.agent
+        Object.assign(config, fetchOptions)
         return fetch(apiUrl, config)
       })
       .then((res) => res.text())

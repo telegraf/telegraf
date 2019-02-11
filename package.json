@@ -31,6 +31,7 @@
   "types": "./typings/index.d.ts",
   "dependencies": {
     "@types/node": "^10.1.2",
+    "abort-controller": "^2.0.2",
     "debug": "^4.0.1",
     "node-fetch": "^2.2.0",
     "sandwich-stream": "^2.0.1",

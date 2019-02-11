@@ -867,7 +867,9 @@ Start listening @ `https://host:port/webhookPath` for Telegram calls.
 
 ##### stop
 
-Stop Webhook and polling
+Stop Webhook or polling
+
+Polling: If [long-polling](https://en.wikipedia.org/wiki/Push_technology#Long_polling) request is active, it will be terminated by [abort signal](https://www.npmjs.com/package/node-fetch#request-cancellation-with-abortsignal) and promise will be returned
 
 `telegraf.stop([callback])`
 

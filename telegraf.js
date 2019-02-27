@@ -172,7 +172,11 @@ class Telegraf extends Composer {
       .then((updates) => {
         if (this.options.noUpdateWaiting) {
           this.handleUpdates(updates)
-          return updates;
+          return new Promise(res => {
+            setTimeout(() => {
+              res(updates);
+            }, 50);
+          });
         } else {
           return this.handleUpdates(updates).then(() => updates)
         }

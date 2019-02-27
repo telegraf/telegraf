@@ -169,7 +169,14 @@ class Telegraf extends Composer {
         console.error(`Failed to fetch updates. Waiting: ${wait}s`, err.message)
         return new Promise((resolve) => setTimeout(resolve, wait * 1000, []))
       })
-      .then((updates) => this.handleUpdates(updates).then(() => updates))
+      .then((updates) => {
+        if (this.options.noUpdateWaiting) {
+          this.handleUpdates(updates)
+          return updates;
+        } else {
+          return this.handleUpdates(updates).then(() => updates)
+        }
+      })
       .catch((err) => {
         console.error('Failed to process updates.', err)
         this.polling.started = false

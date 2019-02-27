@@ -172,18 +172,9 @@ class Telegraf extends Composer {
         return new Promise((resolve) => setTimeout(resolve, wait * 1000, []))
       })
       .then((updates) => {
-        if (this.options.noUpdateWaiting) {
           const fetchUpdatesEndTime = new Date()
           console.log(`Fetched ${updates.length} updates in ${(fetchUpdatesEndTime.getTime() - fetchUpdatesStartTime.getTime()) / 1000}s`)
-          this.handleUpdates(updates)
-          return new Promise(res => {
-            setTimeout(() => {
-              res(updates)
-            }, 50)
-          })
-        } else {
           return this.handleUpdates(updates).then(() => updates)
-        }
       })
       .catch((err) => {
         console.error('Failed to process updates.', err)

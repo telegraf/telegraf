@@ -173,7 +173,10 @@ class Telegraf extends Composer {
       })
       .then((updates) => {
           const fetchUpdatesEndTime = new Date()
-          console.log(`Fetched ${updates.length} updates in ${(fetchUpdatesEndTime.getTime() - fetchUpdatesStartTime.getTime()) / 1000}s`)
+          const oldestUpdateDate = updates
+            .filter(u => u.message && u.message.date)
+            .reduce((p, c) => p > c.message.date ? c.message.date : p, parseInt(Date.now() / 1000, 10))
+          console.log(`Fetched ${updates.length} updates in ${(fetchUpdatesEndTime.getTime() - fetchUpdatesStartTime.getTime()) / 1000}s, oldest update is ${(parseInt(Date.now() / 1000, 10)) - oldestUpdateDate}s old`)
           return this.handleUpdates(updates).then(() => updates)
       })
       .catch((err) => {

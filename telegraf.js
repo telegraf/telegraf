@@ -16,6 +16,7 @@ const DefaultOptions = {
 }
 
 const noop = () => { }
+let fetchUpdatesStartTime
 
 class Telegraf extends Composer {
   constructor (token, options) {
@@ -160,6 +161,7 @@ class Telegraf extends Composer {
     if (!started) {
       return
     }
+    fetchUpdatesStartTime = new Date()
     this.telegram.getUpdates(timeout, limit, offset, allowedUpdates)
       .catch((err) => {
         if (err.code === 401 || err.code === 409) {
@@ -171,7 +173,8 @@ class Telegraf extends Composer {
       })
       .then((updates) => {
         if (this.options.noUpdateWaiting) {
-          console.log(`Fetched ${updates.length} updates`)
+          const fetchUpdatesEndTime = new Date()
+          console.log(`Fetched ${updates.length} updates in ${(fetchUpdatesEndTime.getTime() - fetchUpdatesStartTime.getTime()) / 1000}`s)
           this.handleUpdates(updates)
           return new Promise(res => {
             setTimeout(() => {

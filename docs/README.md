@@ -149,6 +149,7 @@ bot.use(async (ctx, next) => {
 - [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
 - [Local powered session (via lowdb)](https://github.com/RealSpeaker/telegraf-session-local)
 - [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
+- [Menus via inline keyboards](https://github.com/EdJoPaTo/telegraf-inline-menu)
 - [Natural language processing via wit.ai](https://github.com/telegraf/telegraf-wit)
 - [Natural language processing via recast.ai](https://github.com/telegraf/telegraf-recast)
 - [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)

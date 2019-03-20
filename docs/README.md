@@ -87,6 +87,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Ordis Prime](https://github.com/MaxTgr/Ordis-Prime)
 * [telegraf-rutracker-transmission](https://github.com/DZamataev/telegraf-rutracker-transmission)
 * [kitchen-timer-bot](https://github.com/DZamataev/kitchen-timer-bot)
+* [Eve Movies bot](https://github.com/dmbaranov/evemovies-bot)
 * Send PR to add link to your bot
 
 ## Introduction

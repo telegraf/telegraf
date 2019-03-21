@@ -1825,7 +1825,7 @@ Sends voice.
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
-| voice | `File` | Document |
+| voice | `File/string` | File, file id or HTTP URL |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
 
 ##### stopMessageLiveLocation

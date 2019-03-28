@@ -88,6 +88,12 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [telegraf-rutracker-transmission](https://github.com/DZamataev/telegraf-rutracker-transmission)
 * [kitchen-timer-bot](https://github.com/DZamataev/kitchen-timer-bot)
 * [Eve Movies bot](https://github.com/dmbaranov/evemovies-bot)
+* [Shieldy](https://github.com/backmeupplz/shieldy)
+* [Temply](https://github.com/backmeupplz/temply)
+* [Randy](https://github.com/backmeupplz/randymbot)
+* [Voicy](https://github.com/backmeupplz/voicy)
+* [Watchy](https://github.com/backmeupplz/watchy)
+* [Memcoin](https://github.com/backmeupplz/memcoin)
 * Send PR to add link to your bot
 
 ## Introduction

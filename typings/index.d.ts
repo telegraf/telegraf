@@ -720,7 +720,7 @@ export interface TelegramConstructor {
    * @param token Bot token
    * @param options Telegram options
    */
-  new(token: string, options: TelegramOptions): Telegram;
+  new(token: string, options?: TelegramOptions): Telegram;
 }
 
 export interface TelegrafOptions {

@@ -69,6 +69,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 **Community bots:**
 
+* [Referal system: channels promoter](https://github.com/Khuzha/refbot)
 * [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
 * [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
 * [Counter Bot](https://github.com/leodj/telegram-counter-bot)
@@ -86,6 +87,13 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Ordis Prime](https://github.com/MaxTgr/Ordis-Prime)
 * [telegraf-rutracker-transmission](https://github.com/DZamataev/telegraf-rutracker-transmission)
 * [kitchen-timer-bot](https://github.com/DZamataev/kitchen-timer-bot)
+* [Eve Movies bot](https://github.com/dmbaranov/evemovies-bot)
+* [Shieldy](https://github.com/backmeupplz/shieldy)
+* [Temply](https://github.com/backmeupplz/temply)
+* [Randy](https://github.com/backmeupplz/randymbot)
+* [Voicy](https://github.com/backmeupplz/voicy)
+* [Watchy](https://github.com/backmeupplz/watchy)
+* [Memcoin](https://github.com/backmeupplz/memcoin)
 * Send PR to add link to your bot
 
 ## Introduction
@@ -149,6 +157,7 @@ bot.use(async (ctx, next) => {
 - [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
 - [Local powered session (via lowdb)](https://github.com/RealSpeaker/telegraf-session-local)
 - [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
+- [Menus via inline keyboards](https://github.com/EdJoPaTo/telegraf-inline-menu)
 - [Natural language processing via wit.ai](https://github.com/telegraf/telegraf-wit)
 - [Natural language processing via recast.ai](https://github.com/telegraf/telegraf-recast)
 - [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)
@@ -394,7 +403,7 @@ bot.launch()
 
 **Note: For persistent sessions you might use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
 
-**Tip: To use same session in private chat with bot and in inline mode, use this session key resolver in session config object:**
+**Tip: To use same session in private chat with bot and in inline mode, use following session key resolver:**
 
 ```js
 {
@@ -1823,7 +1832,7 @@ Sends voice.
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
-| voice | `File` | Document |
+| voice | `File/string` | File, file id or HTTP URL |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
 
 ##### stopMessageLiveLocation

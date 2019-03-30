@@ -1,5 +1,6 @@
 const test = require('ava')
 const Telegraf = require('../')
+const { session } = Telegraf
 
 const BaseTextMessage = {
   chat: { id: 1 },
@@ -47,7 +48,7 @@ test.cb('should provide update payload for text', (t) => {
     t.is(ctx.updateType, 'message')
     t.end()
   })
-  bot.handleUpdate({ message: Object.assign({ text: 'foo' }, BaseTextMessage) })
+  bot.handleUpdate({ message: BaseTextMessage })
 })
 
 test.cb('should provide shortcuts for `message` update', (t) => {
@@ -179,7 +180,7 @@ test.cb('should provide chat and sender info', (t) => {
     t.is(ctx.chat.id, 1)
     t.end()
   })
-  bot.handleUpdate({ message: Object.assign({ from: { id: 42 } }, BaseTextMessage) })
+  bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 } }) })
 })
 
 test.cb('should provide shortcuts for `inline_query` update', (t) => {
@@ -213,6 +214,54 @@ test.cb('should share state', (t) => {
     t.end()
   })
   bot.handleUpdate({ message: BaseTextMessage })
+})
+
+test('should store session state', (t) => {
+  const bot = new Telegraf()
+  bot.use(session())
+  bot.hears('calc', (ctx) => {
+    t.true('session' in ctx)
+    t.true('counter' in ctx.session)
+    t.is(ctx.session.counter, 2)
+  })
+  bot.on('message', (ctx) => {
+    t.true('session' in ctx)
+    ctx.session.counter = ctx.session.counter || 0
+    ctx.session.counter++
+  })
+  return bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 } }) })
+    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 } }) }))
+    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 100500 }, chat: { id: 42 } }) }))
+    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 }, text: 'calc' }) }))
+})
+
+test('should store session state with custom store', (t) => {
+  const bot = new Telegraf()
+  const dummyStore = {}
+  bot.use(session({
+    store: {
+      get: (key) => new Promise((resolve) => setTimeout(resolve, 100, dummyStore[key])),
+      set: (key, value) => {
+        return new Promise((resolve) => setTimeout(resolve, 100)).then(() => {
+          dummyStore[key] = value
+        })
+      }
+    }
+  }))
+  bot.hears('calc', (ctx) => {
+    t.true('session' in ctx)
+    t.true('counter' in ctx.session)
+    t.is(ctx.session.counter, 2)
+  })
+  bot.on('message', (ctx) => {
+    t.true('session' in ctx)
+    ctx.session.counter = ctx.session.counter || 0
+    ctx.session.counter++
+  })
+  return bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 } }) })
+    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 } }) }))
+    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 100500 }, chat: { id: 42 } }) }))
+    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 }, text: 'calc' }) }))
 })
 
 test.cb('should work with context extensions', (t) => {

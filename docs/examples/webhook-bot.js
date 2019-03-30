@@ -1,5 +1,5 @@
 // npm install -g localtunnel && lt --port 3000
-const Telegraf = require('../..')
+const Telegraf = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.command('image', (ctx) => ctx.replyWithPhoto({ url: 'https://picsum.photos/200/300/?random' }))

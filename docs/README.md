@@ -84,6 +84,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [PodSearch bot(TypeScript)](https://fazendaaa.github.io/podsearch_bot/)
 * [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot)
 * [Nyaa.si bot](https://github.com/ejnshtein/nyaasi-bot)
+* [Mangadex bot](https://github.com/ejnshtein/mangadex_bot)
 * [Ordis Prime](https://github.com/MaxTgr/Ordis-Prime)
 * [telegraf-rutracker-transmission](https://github.com/DZamataev/telegraf-rutracker-transmission)
 * [kitchen-timer-bot](https://github.com/DZamataev/kitchen-timer-bot)

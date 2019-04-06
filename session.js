@@ -23,11 +23,10 @@ module.exports = function (opts) {
           get: function () { return session },
           set: function (newValue) { session = Object.assign({}, newValue) }
         })
-        const newState = {
+        return next(ctx).then(() => options.store.set(key, {
           session,
           expires: ttlMs ? now + ttlMs : null
-        }
-        return next(ctx).then(() => options.store.set(key, newState))
+        }))
       })
   }
 }

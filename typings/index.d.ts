@@ -1038,7 +1038,7 @@ export class Markup {
 
   static keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
 
-  static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][], options?: object): tt.InlineKeyboardMarkup;
+  static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][] | UrlButton[] | UrlButton[][], options?: object): tt.InlineKeyboardMarkup;
 
   static resize(value?: boolean): Markup;
 

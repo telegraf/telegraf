@@ -257,6 +257,7 @@ Context shortcuts for **message** update:
 * `replyWithVideo`          -> [`telegram.sendVideo`](#sendvideo)
 * `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
 * `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
+* `replyWithPoll`           -> [`telegram.sendPoll`](#sendpoll)
 * `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
 * `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
 * `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
@@ -302,6 +303,7 @@ Context shortcuts for **callback_query** update:
 * `replyWithAnimation`      -> [`telegram.sendAnimation`](#sendanimation)
 * `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
 * `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
+* `replyWithPoll`           -> [`telegram.sendPoll`](#sendpoll)
 * `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
 * `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
 * `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
@@ -1831,6 +1833,19 @@ Sends voice.
 | chatId | `number/string` | Chat id |
 | voice | `File/string` | File, file id or HTTP URL |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
+
+##### sendPoll
+
+Sends anonymous poll.
+
+`telegram.sendPoll(chatId, question, options, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| question | `string` | Poll question |
+| options| `string/string[]` | Answer options |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
 
 ##### stopMessageLiveLocation
 

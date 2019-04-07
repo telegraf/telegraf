@@ -419,6 +419,11 @@ class TelegrafContext {
     return this.telegram.sendVoice(this.chat.id, ...args)
   }
 
+  replyWithPoll (...args) {
+    this.assert(this.chat, 'replyWithPoll')
+    return this.telegram.sendPoll(this.chat.id, ...args)
+  }
+
   replyWithChatAction (...args) {
     this.assert(this.chat, 'replyWithChatAction')
     return this.telegram.sendChatAction(this.chat.id, ...args)

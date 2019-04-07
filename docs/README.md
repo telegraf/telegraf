@@ -66,6 +66,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 **Community bots:**
 
 * [Referal system: channels promoter](https://github.com/Khuzha/refbot)
+* [SimpleRegBot](https://github.com/Khuzha/simpleRegBot)
 * [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
 * [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
 * [Counter Bot](https://github.com/leodj/telegram-counter-bot)

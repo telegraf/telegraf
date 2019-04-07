@@ -1844,7 +1844,7 @@ Sends anonymous poll.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | question | `string` | Poll question |
-| options| `string/string[]` | Answer options |
+| options| `string[]` | Answer options |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
 
 ##### stopMessageLiveLocation

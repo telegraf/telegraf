@@ -15,17 +15,19 @@ const sceneCleaner = () => async (ctx) => {
   })
 }
 
-const replyKeyboard = () => Markup.keyboard([
-  Markup.button('First'),
-  Markup.button('Second')
-]).extra()
+const replyKeyboard = () => {
+    return Markup.keyboard([
+        Markup.button('First'),
+        Markup.button('Second')
+    ]).extra()
+}
 
 const firstScene = new Scene('first')
   .enter(async (ctx) => {
     const messages = []
     messages.push(await ctx.reply('First scene, first message'))
     messages.push(await ctx.reply('First scene, second message'))
-    messages.push(await ctx.reply('First scene, third message'), replyKeyboard())
+    messages.push(await ctx.reply('First scene, third message', replyKeyboard()))
     ctx.scene.state.messages = messages
   })
   .leave(sceneCleaner())
@@ -35,7 +37,7 @@ const secondScene = new Scene('second')
     const messages = []
     messages.push(await ctx.reply('Second scene, first message'))
     messages.push(await ctx.reply('Second scene, second message'))
-    messages.push(await ctx.reply('Second scene, third message'), replyKeyboard())
+    messages.push(await ctx.reply('Second scene, third message', replyKeyboard()))
     ctx.scene.state.messages = messages
   })
   .leave(sceneCleaner())
@@ -46,7 +48,7 @@ const stage = new Stage([firstScene, secondScene], { ttl: 10 })
 bot.use(session())
 bot.use(stage.middleware())
 
-bot.start(async (ctx) => enter('first'))
-bot.hears(/^First|Second$/, async (ctx) => enter(ctx.match[0].toLowerCase()))
+bot.start(enter('first'))
+bot.hears(/^First|Second$/, async (ctx) => ctx.scene.enter(ctx.match[0].toLowerCase()))
 
 bot.launch()

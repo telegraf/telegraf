@@ -7,7 +7,8 @@ const UpdateTypes = [
   'inline_query',
   'shipping_query',
   'pre_checkout_query',
-  'message'
+  'message',
+  'poll'
 ]
 
 const MessageSubTypes = [
@@ -38,7 +39,8 @@ const MessageSubTypes = [
   'channel_chat_created',
   'audio',
   'connected_website',
-  'passport_data'
+  'passport_data',
+  'poll'
 ]
 
 class TelegrafContext {
@@ -99,6 +101,10 @@ class TelegrafContext {
 
   get callbackQuery () {
     return this.update.callback_query
+  }
+
+  get poll () {
+    return this.update.poll
   }
 
   get chat () {

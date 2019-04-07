@@ -195,6 +195,7 @@ Context is created per request and contains following props:
 * `[ctx.preCheckoutQuery]`   - Precheckout query
 * `[ctx.channelPost]`        - New incoming channel post of any kind — text, photo, sticker, etc.
 * `[ctx.editedChannelPost]`  - New version of a channel post that is known to the bot and was edited
+* `[ctx.poll]`               - New version of a anonymous poll that is known to the bot and was changed
 * `[ctx.chat]`               - Current chat info
 * `[ctx.from]`               - Sender info
 * `[ctx.match]`              - Regex match (available only for `hears`, `command`, `action`, `inlineQuery` handlers)
@@ -1847,6 +1848,17 @@ Sends anonymous poll.
 | question | `string` | Poll question |
 | options| `string[]` | Answer options |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
+
+##### stopPoll
+
+Stops anonymous poll.
+
+`telegram.stopPoll(chatId, messageId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| messageId | `string` | Poll message id |
 
 ##### stopMessageLiveLocation
 

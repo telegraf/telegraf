@@ -63,12 +63,10 @@ bot.launch()
 
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
 
-<p class="tip">
-  Also, checkout our <a href="https://github.com/telegraf/micro-bot">step-by-step instructions</a> for building and deploying basic bot with <a href="https://github.com/telegraf/micro-bot">🤖 micro-bot</a> (Telegraf high level wrapper)
-</p>
-
 **Community bots:**
 
+* [Referal system: channels promoter](https://github.com/Khuzha/refbot)
+* [SimpleRegBot](https://github.com/Khuzha/simpleRegBot)
 * [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
 * [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
 * [Counter Bot](https://github.com/leodj/telegram-counter-bot)
@@ -83,9 +81,17 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [PodSearch bot(TypeScript)](https://fazendaaa.github.io/podsearch_bot/)
 * [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot)
 * [Nyaa.si bot](https://github.com/ejnshtein/nyaasi-bot)
+* [Mangadex bot](https://github.com/ejnshtein/mangadex_bot)
 * [Ordis Prime](https://github.com/MaxTgr/Ordis-Prime)
 * [telegraf-rutracker-transmission](https://github.com/DZamataev/telegraf-rutracker-transmission)
 * [kitchen-timer-bot](https://github.com/DZamataev/kitchen-timer-bot)
+* [Eve Movies bot](https://github.com/dmbaranov/evemovies-bot)
+* [Shieldy](https://github.com/backmeupplz/shieldy)
+* [Temply](https://github.com/backmeupplz/temply)
+* [Randy](https://github.com/backmeupplz/randymbot)
+* [Voicy](https://github.com/backmeupplz/voicy)
+* [Watchy](https://github.com/backmeupplz/watchy)
+* [Memcoin](https://github.com/backmeupplz/memcoin)
 * Send PR to add link to your bot
 
 ## Introduction
@@ -149,6 +155,7 @@ bot.use(async (ctx, next) => {
 - [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
 - [Local powered session (via lowdb)](https://github.com/RealSpeaker/telegraf-session-local)
 - [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
+- [Menus via inline keyboards](https://github.com/EdJoPaTo/telegraf-inline-menu)
 - [Natural language processing via wit.ai](https://github.com/telegraf/telegraf-wit)
 - [Natural language processing via recast.ai](https://github.com/telegraf/telegraf-recast)
 - [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)
@@ -188,6 +195,7 @@ Context is created per request and contains following props:
 * `[ctx.preCheckoutQuery]`   - Precheckout query
 * `[ctx.channelPost]`        - New incoming channel post of any kind — text, photo, sticker, etc.
 * `[ctx.editedChannelPost]`  - New version of a channel post that is known to the bot and was edited
+* `[ctx.poll]`               - New version of a anonymous poll that is known to the bot and was changed
 * `[ctx.chat]`               - Current chat info
 * `[ctx.from]`               - Sender info
 * `[ctx.match]`              - Regex match (available only for `hears`, `command`, `action`, `inlineQuery` handlers)
@@ -251,6 +259,7 @@ Context shortcuts for **message** update:
 * `replyWithVideo`          -> [`telegram.sendVideo`](#sendvideo)
 * `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
 * `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
+* `replyWithPoll`           -> [`telegram.sendPoll`](#sendpoll)
 * `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
 * `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
 * `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
@@ -296,6 +305,7 @@ Context shortcuts for **callback_query** update:
 * `replyWithAnimation`      -> [`telegram.sendAnimation`](#sendanimation)
 * `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
 * `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
+* `replyWithPoll`           -> [`telegram.sendPoll`](#sendpoll)
 * `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
 * `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
 * `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
@@ -394,7 +404,7 @@ bot.launch()
 
 **Note: For persistent sessions you might use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
 
-**Tip: To use same session in private chat with bot and in inline mode, use this session key resolver in session config object:**
+**Tip: To use same session in private chat with bot and in inline mode, use following session key resolver:**
 
 ```js
 {
@@ -1825,8 +1835,32 @@ Sends voice.
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
-| voice | `File` | Document |
+| voice | `File/string` | File, file id or HTTP URL |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
+
+##### sendPoll
+
+Sends anonymous poll.
+
+`telegram.sendPoll(chatId, question, options, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| question | `string` | Poll question |
+| options| `string[]` | Answer options |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
+
+##### stopPoll
+
+Stops anonymous poll.
+
+`telegram.stopPoll(chatId, messageId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| messageId | `string` | Poll message id |
 
 ##### stopMessageLiveLocation
 

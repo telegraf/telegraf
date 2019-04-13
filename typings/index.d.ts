@@ -724,7 +724,7 @@ export interface TelegramConstructor {
    * @param token Bot token
    * @param options Telegram options
    */
-  new(token: string, options: TelegramOptions): Telegram;
+  new(token: string, options?: TelegramOptions): Telegram;
 }
 
 export interface TelegrafOptions {
@@ -899,13 +899,10 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
 
   /**
    * Launch bot in long-polling or webhook mode.
-   * @param options Launch options
+   *
+   * @param options [See reference to get more]{@link https://telegraf.js.org/#/?id=launch}
    */
-  launch({ polling, webhook }: { polling?: {
-    timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[]
-  }, webhook?: {
-    webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string
-  } }): Promise<Telegraf<TContext>>
+  launch(options?: Object): Promise<any>
 
   /**
    * Start poll updates.
@@ -1052,7 +1049,7 @@ export class Markup {
 
   static keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
 
-  static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][], options?: object): tt.InlineKeyboardMarkup;
+  static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][] | UrlButton[] | UrlButton[][], options?: object): tt.InlineKeyboardMarkup;
 
   static resize(value?: boolean): Markup;
 

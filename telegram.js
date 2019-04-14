@@ -150,6 +150,14 @@ class Telegram extends ApiClient {
     return this.callApi('sendMediaGroup', Object.assign({ chat_id: chatId, media }, extra))
   }
 
+  sendPoll (chatId, question, options, extra) {
+    return this.callApi('sendPoll', Object.assign({ chat_id: chatId, question, options }, extra))
+  }
+
+  stopPoll (chatId, messageId, extra) {
+    return this.callApi('stopPoll', Object.assign({ chat_id: chatId, message_id: messageId }, extra))
+  }
+
   getChat (chatId) {
     return this.callApi('getChat', { chat_id: chatId })
   }

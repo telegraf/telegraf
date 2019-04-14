@@ -12,7 +12,8 @@ const topLevelUpdates = [
   { type: 'inline_query', update: { inline_query: {} } },
   { type: 'channel_post', update: { channel_post: {} } },
   { type: 'edited_channel_post', update: { edited_channel_post: {} } },
-  { type: 'chosen_inline_result', update: { chosen_inline_result: {} } }
+  { type: 'chosen_inline_result', update: { chosen_inline_result: {} } },
+  { type: 'poll', update: { poll: {} } }
 ]
 
 topLevelUpdates.forEach((update) => {
@@ -63,7 +64,8 @@ const updateTypes = [
   'delete_chat_photo',
   'contact',
   'channel_chat_created',
-  'audio'
+  'audio',
+  'poll'
 ]
 
 updateTypes.forEach((update) => {

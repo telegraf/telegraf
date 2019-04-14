@@ -894,6 +894,13 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
   options: TOptions
 
   /**
+   * Launch bot in long-polling or webhook mode.
+   *
+   * @param options [See reference to get more]{@link https://telegraf.js.org/#/?id=launch}
+   */
+  launch(options?: Object): Promise<any>
+
+  /**
    * Start poll updates.
    * @param timeout Poll timeout in seconds
    * @param limit Limits the number of updates to be retrieved
@@ -1038,7 +1045,7 @@ export class Markup {
 
   static keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
 
-  static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][], options?: object): tt.InlineKeyboardMarkup;
+  static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][] | UrlButton[] | UrlButton[][], options?: object): tt.InlineKeyboardMarkup;
 
   static resize(value?: boolean): Markup;
 

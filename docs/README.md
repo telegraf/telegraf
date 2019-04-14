@@ -7,7 +7,7 @@ Users can interact with bots by sending them command messages in private or grou
 These accounts serve as an interface for code running somewhere on your server.
 
 ![Telegraf](header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v4.0-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v4.2-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
@@ -15,7 +15,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 4.0](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 4.2](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -63,13 +63,10 @@ bot.launch()
 
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
 
-<p class="tip">
-  Also, checkout our <a href="https://github.com/telegraf/micro-bot">step-by-step instructions</a> for building and deploying basic bot with <a href="https://github.com/telegraf/micro-bot">🤖 micro-bot</a> (Telegraf high level wrapper)
-</p>
-
 **Community bots:**
 
 * [Referal system: channels promoter](https://github.com/Khuzha/refbot)
+* [SimpleRegBot](https://github.com/Khuzha/simpleRegBot)
 * [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
 * [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
 * [Counter Bot](https://github.com/leodj/telegram-counter-bot)
@@ -198,6 +195,7 @@ Context is created per request and contains following props:
 * `[ctx.preCheckoutQuery]`   - Precheckout query
 * `[ctx.channelPost]`        - New incoming channel post of any kind — text, photo, sticker, etc.
 * `[ctx.editedChannelPost]`  - New version of a channel post that is known to the bot and was edited
+* `[ctx.poll]`               - New version of a anonymous poll that is known to the bot and was changed
 * `[ctx.chat]`               - Current chat info
 * `[ctx.from]`               - Sender info
 * `[ctx.match]`              - Regex match (available only for `hears`, `command`, `action`, `inlineQuery` handlers)
@@ -261,6 +259,8 @@ Context shortcuts for **message** update:
 * `replyWithVideo`          -> [`telegram.sendVideo`](#sendvideo)
 * `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
 * `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
+* `replyWithPoll`           -> [`telegram.sendPoll`](#sendpoll)
+* `stopPoll`                -> [`telegram.stopPoll`](#stoppoll)
 * `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
 * `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
 * `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
@@ -306,6 +306,8 @@ Context shortcuts for **callback_query** update:
 * `replyWithAnimation`      -> [`telegram.sendAnimation`](#sendanimation)
 * `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
 * `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
+* `replyWithPoll`           -> [`telegram.sendPoll`](#sendpoll)
+* `stopPoll`                -> [`telegram.stopPoll`](#stoppoll)
 * `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
 * `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
 * `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
@@ -1835,6 +1837,32 @@ Sends voice.
 | chatId | `number/string` | Chat id |
 | voice | `File/string` | File, file id or HTTP URL |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
+
+##### sendPoll
+
+Sends anonymous poll.
+
+`telegram.sendPoll(chatId, question, options, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| question | `string` | Poll question |
+| options| `string[]` | Answer options |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
+
+##### stopPoll
+
+Stops anonymous poll.
+
+`telegram.stopPoll(chatId, messageId, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| messageId | `string` | Poll message id |
+| options| `string[]` | Answer options |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#stoppoll)|
 
 ##### stopMessageLiveLocation
 

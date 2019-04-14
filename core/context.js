@@ -430,6 +430,11 @@ class TelegrafContext {
     return this.telegram.sendPoll(this.chat.id, ...args)
   }
 
+  stopPoll (...args) {
+    this.assert(this.chat, 'stopPoll')
+    return this.telegram.stopPoll(this.chat.id, ...args)
+  }
+
   replyWithChatAction (...args) {
     this.assert(this.chat, 'replyWithChatAction')
     return this.telegram.sendChatAction(this.chat.id, ...args)

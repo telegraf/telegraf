@@ -7,7 +7,7 @@ Users can interact with bots by sending them command messages in private or grou
 These accounts serve as an interface for code running somewhere on your server.
 
 ![Telegraf](header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v4.0-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v4.2-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
@@ -15,7 +15,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 4.0](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 4.2](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -260,6 +260,7 @@ Context shortcuts for **message** update:
 * `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
 * `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
 * `replyWithPoll`           -> [`telegram.sendPoll`](#sendpoll)
+* `stopPoll`                -> [`telegram.stopPoll`](#stoppoll)
 * `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
 * `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
 * `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
@@ -306,6 +307,7 @@ Context shortcuts for **callback_query** update:
 * `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
 * `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
 * `replyWithPoll`           -> [`telegram.sendPoll`](#sendpoll)
+* `stopPoll`                -> [`telegram.stopPoll`](#stoppoll)
 * `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
 * `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
 * `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
@@ -1853,12 +1855,14 @@ Sends anonymous poll.
 
 Stops anonymous poll.
 
-`telegram.stopPoll(chatId, messageId) => Promise`
+`telegram.stopPoll(chatId, messageId, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | messageId | `string` | Poll message id |
+| options| `string[]` | Answer options |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#stoppoll)|
 
 ##### stopMessageLiveLocation
 

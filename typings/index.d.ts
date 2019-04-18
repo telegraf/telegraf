@@ -1019,7 +1019,7 @@ export class Markup {
 
   oneTime(value?: boolean): Markup;
 
-  inlineKeyboard(buttons: (CallbackButton | UrlButton)[] | (CallbackButton | UrlButton)[][], options: object): tt.InlineKeyboardMarkup;
+  inlineKeyboard(buttons: Buttons[] | Buttons[][], options: object): tt.InlineKeyboardMarkup;
 
   button(text: string, hide: boolean): Button;
 

@@ -900,8 +900,8 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    */
   launch(
     options?: {
-      polling?: {timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[]}, 
-      webhook?: {webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string}
+      polling?: { timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[] },
+      webhook?: { webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string }
     }
   ): Promise<void>
 

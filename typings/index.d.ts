@@ -693,25 +693,25 @@ export interface Telegram {
    * @returns True on success
    */
   setWebhook(url: string, cert?: tt.InputFile, maxConnections?: number, allowedUpdates?: string[]): Promise<boolean>;
-  
+
   /**
    * Use this method to delete webhook
    * @returns True on success
-   */ 
-  deleteWebhook (): Promise<boolean>;
-  
+   */
+  deleteWebhook(): Promise<boolean>;
+
   /**
    * Use this method to get information about set webhook
    * @returns a WebhookInfo on success
-   */ 
-  getWebhookInfo (): Promise<tt.WebhookInfo>;
-  
+   */
+  getWebhookInfo(): Promise<tt.WebhookInfo>;
+
   /**
    * Use this method to get link to a file by file id
    * @param fileId Id of file to get link to
    * @returns a String with an url to the file
-   */ 
-  getFileLink (fileId: string): Promise<string>;
+   */
+  getFileLink(fileId: string): Promise<string>;
 }
 
 export interface TelegramConstructor {
@@ -787,9 +787,9 @@ export interface Composer<TContext extends ContextMessageUpdate> {
 
 export interface ComposerConstructor {
 
-  new<TContext extends ContextMessageUpdate>(): Composer<TContext>;
+  new <TContext extends ContextMessageUpdate>(): Composer<TContext>;
 
-  new<TContext extends ContextMessageUpdate>(...middlewares: Array<Middleware<TContext>>): Composer<TContext>;
+  new <TContext extends ContextMessageUpdate>(...middlewares: Array<Middleware<TContext>>): Composer<TContext>;
 
   /**
    * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
@@ -803,7 +803,7 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   mount<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-  (updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware<TContext>): Middleware<UContext>
+    (updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware<TContext>): Middleware<UContext>
 
   /**
    * Generates middleware for handling text messages with regular expressions.
@@ -811,7 +811,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   hears<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-  (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
+    (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
 
   /**
    * Generates middleware for handling callbackQuery data with regular expressions.
@@ -819,7 +819,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   action<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-  (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
+    (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
 
   /**
    * Generates pass thru middleware.
@@ -837,14 +837,14 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   optional<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-  (test: boolean | ((ctx: TContext) => boolean), middleware: Middleware<TContext>): Middleware<UContext>
+    (test: boolean | ((ctx: TContext) => boolean), middleware: Middleware<TContext>): Middleware<UContext>
 
   /**
    * Generates filter middleware.
    * @param test  Value or predicate (ctx) => bool
    */
   filter<TContext extends ContextMessageUpdate>
-  (test: boolean | ((ctx: TContext) => boolean)): Middleware<TContext>
+    (test: boolean | ((ctx: TContext) => boolean)): Middleware<TContext>
 
   /**
    * Generates branch middleware.
@@ -853,7 +853,7 @@ export interface ComposerConstructor {
    * @param falseMiddleware false action middleware
    */
   branch<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate, VContext extends ContextMessageUpdate, WContext extends ContextMessageUpdate>
-  (test: boolean | ((ctx: TContext) => boolean), trueMiddleware: Middleware<UContext>, falseMiddleware: Middleware<VContext>): Middleware<WContext>
+    (test: boolean | ((ctx: TContext) => boolean), trueMiddleware: Middleware<UContext>, falseMiddleware: Middleware<VContext>): Middleware<WContext>
 
   reply<TContext extends ContextMessageUpdate>(text: string, extra?: tt.ExtraReplyMessage): Middleware<TContext>
 
@@ -898,7 +898,12 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    *
    * @param options [See reference to get more]{@link https://telegraf.js.org/#/?id=launch}
    */
-  launch(options?: Object): Promise<any>
+  launch(
+    options?: {
+      polling?: { timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[] },
+      webhook?: { webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string }
+    }
+  ): Promise<void>
 
   /**
    * Start poll updates.
@@ -1116,7 +1121,7 @@ export interface TelegrafConstructor {
 }
 
 export interface TOptions {
-  
+
   /**
    * Telegram options
    */

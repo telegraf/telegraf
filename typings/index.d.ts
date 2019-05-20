@@ -1118,6 +1118,8 @@ export interface TelegrafConstructor {
    * new Telegraf(token, options)
    */
   new <TContext extends ContextMessageUpdate>(token: string, options?: TelegrafOptions): Telegraf<TContext>;
+
+  log(logFn?: Function): Middleware<ContextMessageUpdate>;
 }
 
 export interface TOptions {

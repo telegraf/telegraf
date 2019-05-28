@@ -92,6 +92,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Voicy](https://github.com/backmeupplz/voicy)
 * [Watchy](https://github.com/backmeupplz/watchy)
 * [Memcoin](https://github.com/backmeupplz/memcoin)
+* [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot)
 * Send PR to add link to your bot
 
 ## Introduction

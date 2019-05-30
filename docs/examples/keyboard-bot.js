@@ -79,7 +79,7 @@ bot.command('random2', (ctx) => {
       Markup.callbackButton('Coke', 'Coke'),
       Markup.callbackButton('Dr Pepper', 'Dr Pepper', Math.random() > 0.5),
       Markup.callbackButton('Pepsi', 'Pepsi')
-    ],{columns: 2}).extra()
+    ] , {columns: 2}).extra()
   )
 })
 

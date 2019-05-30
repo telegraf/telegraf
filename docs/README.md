@@ -65,6 +65,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 **Community bots:**
 
+* [RandomPassBot: generate a password](https://github.com/Khuzha/randompassbot)
 * [Referal system: channels promoter](https://github.com/Khuzha/refbot)
 * [SimpleRegBot](https://github.com/Khuzha/simpleRegBot)
 * [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)

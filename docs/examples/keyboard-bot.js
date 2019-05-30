@@ -73,6 +73,16 @@ bot.command('random', (ctx) => {
   )
 })
 
+bot.command('random2', (ctx) => {
+  return ctx.reply('random example with 2 column',
+    Markup.inlineKeyboard([
+      Markup.callbackButton('Coke', 'Coke'),
+      Markup.callbackButton('Dr Pepper', 'Dr Pepper', Math.random() > 0.5),
+      Markup.callbackButton('Pepsi', 'Pepsi')
+    ],{columns: 2}).extra()
+  )
+})
+
 bot.command('caption', (ctx) => {
   return ctx.replyWithPhoto({ url: 'https://picsum.photos/200/300/?random' },
     Extra.load({ caption: 'Caption' })

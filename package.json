@@ -26,7 +26,7 @@
     "typecheck": "tsc"
   },
   "engines": {
-    "node": ">=6.2.0"
+    "node": ">=8"
   },
   "types": "./typings/index.d.ts",
   "dependencies": {

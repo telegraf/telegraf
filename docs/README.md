@@ -7,7 +7,7 @@ Users can interact with bots by sending them command messages in private or grou
 These accounts serve as an interface for code running somewhere on your server.
 
 ![Telegraf](header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v4.2-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v4.3-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
@@ -15,7 +15,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 4.2](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 4.3](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -65,6 +65,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 **Community bots:**
 
+* [RandomPassBot: generate a password](https://github.com/Khuzha/randompassbot)
 * [Referal system: channels promoter](https://github.com/Khuzha/refbot)
 * [SimpleRegBot](https://github.com/Khuzha/simpleRegBot)
 * [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
@@ -92,6 +93,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Voicy](https://github.com/backmeupplz/voicy)
 * [Watchy](https://github.com/backmeupplz/watchy)
 * [Memcoin](https://github.com/backmeupplz/memcoin)
+* [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot)
 * Send PR to add link to your bot
 
 ## Introduction

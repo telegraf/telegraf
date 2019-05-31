@@ -82,6 +82,10 @@ class Markup {
     return Markup.payButton(text, hide)
   }
 
+  loginButton (text, url, opts, hide) {
+    return Markup.loginButton(text, url, opts, hide)
+  }
+
   static removeKeyboard (value) {
     return new Markup().removeKeyboard(value)
   }
@@ -144,6 +148,17 @@ class Markup {
 
   static payButton (text, hide = false) {
     return { text: text, pay: true, hide: hide }
+  }
+
+  static loginButton (text, url, opts = {}, hide = false) {
+    return {
+      text: text,
+      login_url: {
+        url: url,
+        ...opts
+      },
+      hide: hide
+    }
   }
 }
 

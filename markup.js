@@ -153,10 +153,7 @@ class Markup {
   static loginButton (text, url, opts = {}, hide = false) {
     return {
       text: text,
-      login_url: {
-        url: url,
-        ...opts
-      },
+      login_url: Object.assign({}, opts, { url: url }),
       hide: hide
     }
   }

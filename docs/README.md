@@ -65,6 +65,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 **Community bots:**
 
+* [OneQRBot: scan and generate QR](https://github.com/Khuzha/oneqrbot)
 * [RandomPassBot: generate a password](https://github.com/Khuzha/randompassbot)
 * [Referal system: channels promoter](https://github.com/Khuzha/refbot)
 * [SimpleRegBot](https://github.com/Khuzha/simpleRegBot)

@@ -948,14 +948,14 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    * You may also use this callback function to mount your telegraf app in a Koa/Connect/Express app.
    * @param webhookPath Webhook url path (see Telegraf.setWebhook)
    */
-  webhookCallback(webhookPath: string): (req: IncomingMessage, res: ServerResponse) => void
+  webhookCallback(webhookPath: string): (req: IncomingMessage, res: ServerResponse | Response) => void
 
   /**
    * Handle raw Telegram update. In case you use centralized webhook server, queue, etc.
    * @param rawUpdate Telegram update payload
    * @param webhookResponse http.ServerResponse
    */
-  handleUpdate(rawUpdate: tt.Update, webhookResponse?: ServerResponse): Promise<any>
+  handleUpdate(rawUpdate: tt.Update, webhookResponse?: ServerResponse | Response): Promise<any>
 
   catch(logFn?: Function): void;
 }

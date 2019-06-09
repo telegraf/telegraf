@@ -794,6 +794,13 @@ export interface Composer<TContext extends ContextMessageUpdate> {
   hears(triggers: HearsTriggers, middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
   /**
+   * Registers middleware for handling callbackQuery data with regular expressions
+   * @param triggers Triggers
+   * @param middlewares Middleware functions
+   */
+  action(triggers: HearsTriggers, middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
+
+  /**
    * Command handling.
    * @param command Commands
    * @param middlwares Middleware functions

@@ -22,6 +22,8 @@ bot.command('cat', ({ replyWithPhoto }) => replyWithPhoto(randomPhoto))
 // Look ma, reply middleware factory
 bot.command('foo', reply('http://coub.com/view/9cjmt'))
 
+bot.action('bar', reply('i was here'))
+
 bot.telegram.sendMessage(process.env.BOT_CLIENT_ID,"It's work")
 
 // Start https webhook

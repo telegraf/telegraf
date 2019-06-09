@@ -31,6 +31,7 @@ export interface Context {
   editedMessage?: tt.Message
   from?: tt.User
   inlineQuery?: tt.InlineQuery
+  match?: RegExpExecArray
   me?: string
   message?: tt.IncomingMessage
   preCheckoutQuery?: tt.PreCheckoutQuery

@@ -232,6 +232,14 @@ export interface ContextMessageUpdate extends Context {
    */
   replyWithVideo(video: tt.InputFile, extra?: tt.ExtraVideo): Promise<tt.MessageVideo>
 
+  /**
+   * Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .ogg file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
+   * @param voice Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data
+   * @param extra Additional params to send voice
+   * @returns a Message on success
+   */
+  replyWithVoice(voice: tt.InputFile, extra?: tt.ExtraVoice): Promise<tt.MessageVoice>
+
 
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
@@ -683,6 +691,15 @@ export interface Telegram {
    * @returns a Message on success
    */
   sendVideo(chatId: number | string, video: tt.InputFile, extra?: tt.ExtraVideo): Promise<tt.MessageVideo>
+
+  /**
+   * Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .ogg file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param voice Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data
+   * @param extra Additional params to send voice
+   * @returns a Message on success
+   */
+  sendVoice(chatId: number | string, voice: tt.InputFile, extra?: tt.ExtraVoice): Promise<tt.MessageVoice>
 
   /**
    * Use this method to specify a url and receive incoming updates via an outgoing webhook

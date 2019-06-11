@@ -208,6 +208,18 @@ export interface ExtraVideo extends ExtraReplyMessage {
   // https://core.telegram.org/bots/api#sendvideo
 }
 
+export interface ExtraVoice extends ExtraReplyMessage {
+  /**
+   * Voice message caption, 0-1024 characters
+   */
+  caption?: string
+
+  /**
+   * Duration of the voice message in seconds
+   */
+  duration?: number
+}
+
 export interface IncomingMessage extends TT.Message {
   audio?: TT.Audio
   entities?: TT.MessageEntity[]
@@ -261,6 +273,10 @@ export interface MessageSticker extends TT.Message {
 
 export interface MessageVideo extends TT.Message {
   video: TT.Video
+}
+
+export interface MessageVoice extends TT.Message {
+  voice: TT.Voice
 }
 
 export interface NewInvoiceParams {

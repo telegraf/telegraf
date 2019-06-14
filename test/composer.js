@@ -98,6 +98,22 @@ test.cb('should route location', (t) => {
   bot.handleUpdate({ message: message })
 })
 
+test.cb('should route forward', (t) => {
+  const bot = new Telegraf()
+  bot.on('forward', (ctx) => {
+    t.true(ctx.updateSubTypes.includes('forward'))
+    t.end()
+  })
+  const message = Object.assign({
+    'forward_from': {
+      'id': 43,
+      'is_bot': false,
+      'username': 'username'
+    }
+  }, baseMessage)
+  bot.handleUpdate({ message: message })
+})
+
 test('should throw error then called with undefined middleware', (t) => {
   const composer = new Composer()
   t.throws(() => {

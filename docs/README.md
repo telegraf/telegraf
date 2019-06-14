@@ -450,6 +450,7 @@ Available update sub-types:
 - `contact`
 - `location`
 - `venue`
+- `forward`
 - `new_chat_members`
 - `left_chat_member`
 - `new_chat_title`

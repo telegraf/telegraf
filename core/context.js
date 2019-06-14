@@ -40,8 +40,13 @@ const MessageSubTypes = [
   'audio',
   'connected_website',
   'passport_data',
-  'poll'
+  'poll',
+  'forward_from'
 ]
+
+const MessageSubTypesMapping = {
+  'forward_from': 'forward'
+}
 
 class TelegrafContext {
   constructor (update, telegram, options) {
@@ -50,7 +55,9 @@ class TelegrafContext {
     this.options = options
     this.updateType = UpdateTypes.find((key) => key in this.update)
     if (this.updateType === 'message' || (this.options.channelMode && this.updateType === 'channel_post')) {
-      this.updateSubTypes = MessageSubTypes.filter((key) => key in this.update[this.updateType])
+      this.updateSubTypes = MessageSubTypes
+        .filter((key) => key in this.update[this.updateType])
+        .map((type) => MessageSubTypesMapping[type] || type)
     } else {
       this.updateSubTypes = []
     }

@@ -1065,7 +1065,7 @@ export class Markup {
 
   oneTime(value?: boolean): Markup;
 
-  inlineKeyboard(buttons: Buttons[] | Buttons[][], options: object): tt.InlineKeyboardMarkup;
+  inlineKeyboard(buttons: Buttons[] | Buttons[][], options: object): Markup & tt.InlineKeyboardMarkup;
 
   button(text: string, hide: boolean): Button;
 

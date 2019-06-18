@@ -1,6 +1,7 @@
 // This is a test file for the TypeScript typings.
 // It is not intended to be used by external users.
-import Telegraf from './index';
+import Telegraf, { Markup } from './index';
+
 
 const randomPhoto = 'https://picsum.photos/200/300/?random'
 const sayYoMiddleware = ({ reply }, next) => reply('yo').then(() => next())
@@ -34,3 +35,10 @@ bot.startWebhook('/secret-path', null, 5000)
 
 // Start polling
 bot.startPolling()
+
+
+// Markup
+
+const markup = new Markup
+markup.inlineKeyboard([Markup.button('sample')], {})
+Markup.inlineKeyboard([Markup.callbackButton('sampleText', 'sampleData')], {})

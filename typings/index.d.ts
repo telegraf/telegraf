@@ -1059,7 +1059,7 @@ export class Markup {
 
   extra(options?: object): object;
 
-  keyboard(buttons: (Buttons | string)[], options?: object): Markup & tt.ReplyKeyboardMarkup;
+  keyboard(buttons: (Buttons | string)[] | (Buttons | string)[][], options?: object): Markup & tt.ReplyKeyboardMarkup;
 
   resize(value?: boolean): Markup;
 
@@ -1089,7 +1089,7 @@ export class Markup {
 
   static forceReply(value?: string): Markup;
 
-  static keyboard(buttons: (Buttons | string)[], options?: object): Markup & tt.ReplyKeyboardMarkup;
+  static keyboard(buttons: (Buttons | string)[] | (Buttons | string)[][], options?: object): Markup & tt.ReplyKeyboardMarkup;
 
   static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][] | UrlButton[] | UrlButton[][], options?: object): Markup & tt.InlineKeyboardMarkup;
 

@@ -803,7 +803,7 @@ export interface Composer<TContext extends ContextMessageUpdate> {
   /**
    * Command handling.
    * @param command Commands
-   * @param middlwares Middleware functions
+   * @param middlewares Middleware functions
    */
   command(command: string | string[], middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 

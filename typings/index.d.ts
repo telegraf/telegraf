@@ -803,7 +803,7 @@ export interface Composer<TContext extends ContextMessageUpdate> {
   /**
    * Command handling.
    * @param command Commands
-   * @param middlwares Middleware functions
+   * @param middlewares Middleware functions
    */
   command(command: string | string[], middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
@@ -1059,7 +1059,7 @@ export class Markup {
 
   extra(options?: object): object;
 
-  keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
+  keyboard(buttons: (Buttons | string)[] | (Buttons | string)[][], options?: object): Markup & tt.ReplyKeyboardMarkup;
 
   resize(value?: boolean): Markup;
 
@@ -1089,7 +1089,7 @@ export class Markup {
 
   static forceReply(value?: string): Markup;
 
-  static keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
+  static keyboard(buttons: (Buttons | string)[] | (Buttons | string)[][], options?: object): Markup & tt.ReplyKeyboardMarkup;
 
   static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][] | UrlButton[] | UrlButton[][], options?: object): Markup & tt.InlineKeyboardMarkup;
 

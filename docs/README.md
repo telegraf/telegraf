@@ -253,6 +253,7 @@ Context shortcuts for **message** update:
 * `replyWithDocument`       -> [`telegram.sendDocument`](#senddocument)
 * `replyWithGame`           -> [`telegram.sendGame`](#sendgame)
 * `replyWithHTML`           -> [`telegram.sendMessage`](#sendmessage)
+* `replyWithQuote`          -> [`telegram.sendMessage`](#sendmessage)
 * `replyWithInvoice`        -> [`telegram.sendInvoice`](#sendinvoice)
 * `replyWithLocation`       -> [`telegram.sendLocation`](#sendlocation)
 * `replyWithMarkdown`       -> [`telegram.sendMessage`](#sendmessage)

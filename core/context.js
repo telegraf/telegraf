@@ -506,6 +506,10 @@ class TelegrafContext {
   replyWithHTML (html, extra) {
     return this.reply(html, Object.assign({ 'parse_mode': 'HTML' }, extra))
   }
+  
+  replyWithQuote (message, extra) {
+    return this.reply(message, Object.assign({ reply_to_message_id: this.message.message_id }, extra))
+  }
 
   deleteMessage (messageId) {
     this.assert(this.chat, 'deleteMessage')

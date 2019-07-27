@@ -41,6 +41,11 @@ class Extra {
     this.parse_mode = value ? 'Markdown' : undefined
     return this
   }
+  
+  caption (text = '') {
+    this.caption = text
+    return this
+  }
 
   static inReplyTo (messageId) {
     return new Extra().inReplyTo(messageId)

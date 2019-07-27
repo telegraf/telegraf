@@ -42,6 +42,11 @@ class Extra {
     return this
   }
 
+  caption (text = '') {
+    this.caption = text
+    return this
+  }
+
   static inReplyTo (messageId) {
     return new Extra().inReplyTo(messageId)
   }
@@ -68,6 +73,10 @@ class Extra {
 
   static markdown (value) {
     return new Extra().markdown(value)
+  }
+
+  static caption (text) {
+    return new Extra().caption(text)
   }
 }
 

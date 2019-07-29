@@ -74,7 +74,7 @@ function buildJSONConfig (payload) {
   return Promise.resolve({
     method: 'POST',
     compress: true,
-    headers: { 'content-type': 'application/json', 'connection': 'keep-alive' },
+    headers: { 'content-type': 'application/json', connection: 'keep-alive' },
     body: JSON.stringify(payload)
   })
 }
@@ -90,7 +90,7 @@ function buildFormDataConfig (payload) {
     return {
       method: 'POST',
       compress: true,
-      headers: { 'content-type': `multipart/form-data; boundary=${boundary}`, 'connection': 'keep-alive' },
+      headers: { 'content-type': `multipart/form-data; boundary=${boundary}`, connection: 'keep-alive' },
       body: formData
     }
   })

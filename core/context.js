@@ -40,8 +40,13 @@ const MessageSubTypes = [
   'audio',
   'connected_website',
   'passport_data',
-  'poll'
+  'poll',
+  'forward_from'
 ]
+
+const MessageSubTypesMapping = {
+  forward_from: 'forward'
+}
 
 class TelegrafContext {
   constructor (update, telegram, options) {
@@ -50,7 +55,9 @@ class TelegrafContext {
     this.options = options
     this.updateType = UpdateTypes.find((key) => key in this.update)
     if (this.updateType === 'message' || (this.options.channelMode && this.updateType === 'channel_post')) {
-      this.updateSubTypes = MessageSubTypes.filter((key) => key in this.update[this.updateType])
+      this.updateSubTypes = MessageSubTypes
+        .filter((key) => key in this.update[this.updateType])
+        .map((type) => MessageSubTypesMapping[type] || type)
     } else {
       this.updateSubTypes = []
     }
@@ -355,6 +362,11 @@ class TelegrafContext {
     return this.telegram.leaveChat(this.chat.id, ...args)
   }
 
+  setChatPermissions (...args) {
+    this.assert(this.chat, 'setChatPermissions')
+    return this.telegram.setChatPermissions(this.chat.id, ...args)
+  }
+
   getChatAdministrators (...args) {
     this.assert(this.chat, 'getChatAdministrators')
     return this.telegram.getChatAdministrators(this.chat.id, ...args)
@@ -493,11 +505,11 @@ class TelegrafContext {
   }
 
   replyWithMarkdown (markdown, extra) {
-    return this.reply(markdown, Object.assign({ 'parse_mode': 'Markdown' }, extra))
+    return this.reply(markdown, Object.assign({ parse_mode: 'Markdown' }, extra))
   }
 
   replyWithHTML (html, extra) {
-    return this.reply(html, Object.assign({ 'parse_mode': 'HTML' }, extra))
+    return this.reply(html, Object.assign({ parse_mode: 'HTML' }, extra))
   }
 
   deleteMessage (messageId) {

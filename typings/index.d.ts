@@ -31,6 +31,7 @@ export interface Context {
   editedMessage?: tt.Message
   from?: tt.User
   inlineQuery?: tt.InlineQuery
+  match?: RegExpExecArray
   me?: string
   message?: tt.IncomingMessage
   preCheckoutQuery?: tt.PreCheckoutQuery
@@ -231,6 +232,14 @@ export interface ContextMessageUpdate extends Context {
    * @returns a Message on success
    */
   replyWithVideo(video: tt.InputFile, extra?: tt.ExtraVideo): Promise<tt.MessageVideo>
+
+  /**
+   * Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .ogg file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
+   * @param voice Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data
+   * @param extra Additional params to send voice
+   * @returns a Message on success
+   */
+  replyWithVoice(voice: tt.InputFile, extra?: tt.ExtraVoice): Promise<tt.MessageVoice>
 
 
   // ------------------------------------------------------------------------------------------ //
@@ -558,6 +567,21 @@ export interface Telegram {
   getChatMembersCount(chatId: string | number): Promise<number>
 
   /**
+   * Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate admin rights. Pass True for all boolean parameters to lift restrictions from a user. Returns True on success.
+   * @param chatId Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   * @param user_id Unique identifier of the target user
+   * @param extra Additional params for restrict chat member
+   * @returns True on success 
+   */
+  restrictChatMember(chatId: string | number, userId: number, extra?: {
+    until_date?: boolean,
+    can_send_messages?: boolean,
+    can_send_media_messages?: boolean,
+    can_send_other_messages?: boolean,
+    can_add_web_page_previews?: boolean
+  }): Promise<boolean>
+
+  /**
    * Use this method for your bot to leave a group, supergroup or channel
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    * @returns True on success
@@ -685,6 +709,15 @@ export interface Telegram {
   sendVideo(chatId: number | string, video: tt.InputFile, extra?: tt.ExtraVideo): Promise<tt.MessageVideo>
 
   /**
+   * Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .ogg file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param voice Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data
+   * @param extra Additional params to send voice
+   * @returns a Message on success
+   */
+  sendVoice(chatId: number | string, voice: tt.InputFile, extra?: tt.ExtraVoice): Promise<tt.MessageVoice>
+
+  /**
    * Use this method to specify a url and receive incoming updates via an outgoing webhook
    * @param url HTTPS url to send updates to. Use an empty string to remove webhook integration
    * @param cert Upload your public key certificate so that the root certificate in use can be checked
@@ -776,9 +809,16 @@ export interface Composer<TContext extends ContextMessageUpdate> {
   hears(triggers: HearsTriggers, middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
   /**
+   * Registers middleware for handling callbackQuery data with regular expressions
+   * @param triggers Triggers
+   * @param middlewares Middleware functions
+   */
+  action(triggers: HearsTriggers, middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
+
+  /**
    * Command handling.
    * @param command Commands
-   * @param middlwares Middleware functions
+   * @param middlewares Middleware functions
    */
   command(command: string | string[], middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
@@ -1034,13 +1074,13 @@ export class Markup {
 
   extra(options?: object): object;
 
-  keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
+  keyboard(buttons: (Buttons | string)[] | (Buttons | string)[][], options?: object): Markup & tt.ReplyKeyboardMarkup;
 
   resize(value?: boolean): Markup;
 
   oneTime(value?: boolean): Markup;
 
-  inlineKeyboard(buttons: Buttons[] | Buttons[][], options: object): tt.InlineKeyboardMarkup;
+  inlineKeyboard(buttons: Buttons[] | Buttons[][], options: object): Markup & tt.InlineKeyboardMarkup;
 
   button(text: string, hide: boolean): Button;
 
@@ -1064,9 +1104,9 @@ export class Markup {
 
   static forceReply(value?: string): Markup;
 
-  static keyboard(buttons: (Buttons | string)[], options?: object): tt.InlineKeyboardMarkup;
+  static keyboard(buttons: (Buttons | string)[] | (Buttons | string)[][], options?: object): Markup & tt.ReplyKeyboardMarkup;
 
-  static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][] | UrlButton[] | UrlButton[][], options?: object): tt.InlineKeyboardMarkup;
+  static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][] | UrlButton[] | UrlButton[][], options?: object): Markup & tt.InlineKeyboardMarkup;
 
   static resize(value?: boolean): Markup;
 

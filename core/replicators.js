@@ -24,18 +24,18 @@ function applyEntity (text, entity) {
 
 module.exports = {
   copyMethods: {
-    'audio': 'sendAudio',
-    'contact': 'sendContact',
-    'document': 'sendDocument',
-    'location': 'sendLocation',
-    'photo': 'sendPhoto',
-    'sticker': 'sendSticker',
-    'text': 'sendMessage',
-    'venue': 'sendVenue',
-    'video': 'sendVideo',
-    'video_note': 'sendVideoNote',
-    'animation': 'sendAnimation',
-    'voice': 'sendVoice'
+    audio: 'sendAudio',
+    contact: 'sendContact',
+    document: 'sendDocument',
+    location: 'sendLocation',
+    photo: 'sendPhoto',
+    sticker: 'sendSticker',
+    text: 'sendMessage',
+    venue: 'sendVenue',
+    video: 'sendVideo',
+    video_note: 'sendVideoNote',
+    animation: 'sendAnimation',
+    voice: 'sendVoice'
   },
   text: (message) => {
     const entities = message.entities || []

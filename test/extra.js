@@ -46,3 +46,13 @@ test('should generate markup options in functional style', (t) => {
   const extra = Object.assign({}, Extra.markdown().markup((markup) => markup.removeKeyboard()))
   t.deepEqual(extra, { parse_mode: 'Markdown', reply_markup: { remove_keyboard: true } })
 })
+
+test('should generate caption options', (t) => {
+  const extra = Object.assign({}, Extra.markdown().caption('text'))
+  t.deepEqual(extra, { parse_mode: 'Markdown', caption: 'text' })
+})
+
+test('should generate caption options from static method', (t) => {
+  const extra = Object.assign({}, Extra.caption('text'))
+  t.deepEqual(extra, { caption: 'text' })
+})

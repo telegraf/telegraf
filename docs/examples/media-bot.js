@@ -15,10 +15,10 @@ bot.command('url', (ctx) => ctx.replyWithPhoto('https://picsum.photos/200/300/?r
 bot.command('animation', (ctx) => ctx.replyWithAnimation(AnimationUrl1))
 bot.command('pipe_animation', (ctx) => ctx.replyWithAnimation({ url: AnimationUrl1 }))
 
-bot.command('caption', (ctx) => ctx.replyWithPhoto('https://picsum.photos/200/300/?random', {
-  caption: 'Caption *text*',
-  parse_mode: 'Markdown'
-}))
+bot.command('caption', (ctx) => ctx.replyWithPhoto(
+  'https://picsum.photos/200/300/?random',
+  Extra.caption('Caption *text*').markdown()
+))
 
 bot.command('album', (ctx) => {
   ctx.replyWithMediaGroup([

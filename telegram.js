@@ -24,7 +24,7 @@ class Telegram extends ApiClient {
   }
 
   getUpdates (timeout, limit, offset, allowedUpdates) {
-    let url = `getUpdates?offset=${offset}&limit=${limit}&timeout=${timeout}`
+    const url = `getUpdates?offset=${offset}&limit=${limit}&timeout=${timeout}`
     return this.callApi(url, {
       allowed_updates: allowedUpdates
     })

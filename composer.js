@@ -190,7 +190,7 @@ class Composer {
       if (type !== entityType) {
         return false
       }
-      for (let trigger of triggers) {
+      for (const trigger of triggers) {
         ctx.match = trigger(value, ctx)
         if (ctx.match) {
           return true
@@ -238,7 +238,7 @@ class Composer {
         (ctx.callbackQuery && ctx.callbackQuery.data) ||
         (ctx.inlineQuery && ctx.inlineQuery.query)
       )
-      for (let trigger of triggers) {
+      for (const trigger of triggers) {
         ctx.match = trigger(text, ctx)
         if (ctx.match) {
           return true

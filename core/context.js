@@ -45,7 +45,7 @@ const MessageSubTypes = [
 ]
 
 const MessageSubTypesMapping = {
-  'forward_from': 'forward'
+  forward_from: 'forward'
 }
 
 class TelegrafContext {
@@ -505,11 +505,11 @@ class TelegrafContext {
   }
 
   replyWithMarkdown (markdown, extra) {
-    return this.reply(markdown, Object.assign({ 'parse_mode': 'Markdown' }, extra))
+    return this.reply(markdown, Object.assign({ parse_mode: 'Markdown' }, extra))
   }
 
   replyWithHTML (html, extra) {
-    return this.reply(html, Object.assign({ 'parse_mode': 'HTML' }, extra))
+    return this.reply(html, Object.assign({ parse_mode: 'HTML' }, extra))
   }
 
   deleteMessage (messageId) {

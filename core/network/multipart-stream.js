@@ -15,7 +15,7 @@ class MultipartStream extends SandwichStream {
     part = part || {}
     const partStream = new stream.PassThrough()
     if (part.headers) {
-      for (let key in part.headers) {
+      for (const key in part.headers) {
         const header = part.headers[key]
         partStream.write(`${key}:${header}${CRNL}`)
       }

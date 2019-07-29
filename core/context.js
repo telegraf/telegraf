@@ -362,6 +362,11 @@ class TelegrafContext {
     return this.telegram.leaveChat(this.chat.id, ...args)
   }
 
+  setChatPermissions (...args) {
+    this.assert(this.chat, 'setChatPermissions')
+    return this.telegram.setChatPermissions(this.chat.id, ...args)
+  }
+
   getChatAdministrators (...args) {
     this.assert(this.chat, 'getChatAdministrators')
     return this.telegram.getChatAdministrators(this.chat.id, ...args)

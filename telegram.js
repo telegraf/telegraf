@@ -178,6 +178,10 @@ class Telegram extends ApiClient {
     return this.callApi('answerInlineQuery', Object.assign({ inline_query_id: inlineQueryId, results: JSON.stringify(results) }, extra))
   }
 
+  setChatPermissions (chatId, permissions) {
+    return this.callApi('setChatPermissions', { chat_id: chatId, permissions })
+  }
+
   kickChatMember (chatId, userId, untilDate) {
     return this.callApi('kickChatMember', { chat_id: chatId, user_id: userId, until_date: untilDate })
   }

@@ -72,6 +72,7 @@ test.cb('should provide shortcuts for `message` update', (t) => {
     t.true('replyWithContact' in ctx)
     t.true('replyWithGame' in ctx)
     t.true('replyWithMediaGroup' in ctx)
+    t.true('setChatPermissions' in ctx)
     t.true('kickChatMember' in ctx)
     t.true('promoteChatMember' in ctx)
     t.true('restrictChatMember' in ctx)

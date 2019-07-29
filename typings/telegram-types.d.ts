@@ -77,6 +77,13 @@ export type InlineQueryResult =
   TT.InlineQueryResultVideo |
   TT.InlineQueryResultVoice
 
+export type MessageMedia = 
+  TT.InputMediaPhoto |
+  TT.InputMediaVideo |
+  TT.InputMediaAnimation |
+  TT.InputMediaAudio |
+  TT.InputMediaDocument
+  
 export interface StickerData {
   png_sticker: string | Buffer
   emojis: string

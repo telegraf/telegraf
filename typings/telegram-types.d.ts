@@ -78,12 +78,63 @@ export type InlineQueryResult =
   TT.InlineQueryResultVoice
 
 export type MessageMedia = 
-  TT.InputMediaPhoto |
-  TT.InputMediaVideo |
-  TT.InputMediaAnimation |
-  TT.InputMediaAudio |
-  TT.InputMediaDocument
-  
+  InputMediaPhoto |
+  InputMediaVideo |
+  InputMediaAnimation |
+  InputMediaAudio |
+  InputMediaDocument
+
+export interface InputMediaPhoto {
+  type: string
+  media: string
+  caption?: string
+  parse_mode?: string
+}
+
+export interface InputMediaVideo {
+ type: string
+ media: string
+ thumb?: string | InputFile
+ caption?: string
+ parse_mode?: string
+ width?: number
+ height?: number
+ duration?: number
+ supports_streaming?: boolean
+}
+
+export interface InputMediaAnimation {
+ type: string
+ media: string
+ thumb?: string | InputFile
+ caption?: string
+ parse_mode?: string
+ width?: number
+ height?: number
+ duration?: number
+ supports_streaming?: boolean
+}
+
+export interface InputMediaAudio {
+ type: string
+ media: string
+ thumb?: string | InputFile
+ caption?: string
+ parse_mode?: string
+ performer?: string
+ title?: string
+ duration?: number
+ supports_streaming?: boolean
+}
+
+export interface InputMediaDocument {
+ type: string
+ media: string
+ thumb?: string | InputFile
+ caption?: string
+ parse_mode?: string
+}
+
 export interface StickerData {
   png_sticker: string | Buffer
   emojis: string

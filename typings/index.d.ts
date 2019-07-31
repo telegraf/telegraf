@@ -326,7 +326,7 @@ export interface ContextMessageUpdate extends Context {
    * @param media New media of message
    * @param markup Markup of inline keyboard
    */
-  editMessageMedia(media?: tt.MessageMedia ,extra: tt.ExtraEditMessage): Promise<tt.Message | boolean>
+  editMessageMedia(media: tt.MessageMedia ,extra?: tt.ExtraEditMessage): Promise<tt.Message | boolean>
 
   /**
    * Use this method to delete a message, including service messages, with the following limitations:

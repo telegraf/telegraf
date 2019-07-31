@@ -105,10 +105,10 @@ test.cb('should route forward', (t) => {
     t.end()
   })
   const message = Object.assign({
-    'forward_from': {
-      'id': 43,
-      'is_bot': false,
-      'username': 'username'
+    forward_from: {
+      id: 43,
+      is_bot: false,
+      username: 'username'
     }
   }, baseMessage)
   bot.handleUpdate({ message: message })

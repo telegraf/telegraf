@@ -24,7 +24,7 @@ class Telegram extends ApiClient {
   }
 
   getUpdates (timeout, limit, offset, allowedUpdates) {
-    let url = `getUpdates?offset=${offset}&limit=${limit}&timeout=${timeout}`
+    const url = `getUpdates?offset=${offset}&limit=${limit}&timeout=${timeout}`
     return this.callApi(url, {
       allowed_updates: allowedUpdates
     })
@@ -176,6 +176,10 @@ class Telegram extends ApiClient {
 
   answerInlineQuery (inlineQueryId, results, extra) {
     return this.callApi('answerInlineQuery', Object.assign({ inline_query_id: inlineQueryId, results: JSON.stringify(results) }, extra))
+  }
+
+  setChatPermissions (chatId, permissions) {
+    return this.callApi('setChatPermissions', { chat_id: chatId, permissions })
   }
 
   kickChatMember (chatId, userId, untilDate) {

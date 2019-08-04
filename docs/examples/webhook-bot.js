@@ -1,4 +1,4 @@
-// npm install -g localtunnel && lt --port 3000
+// Setup localtunnel: $ npm install -g localtunnel
 const Telegraf = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -12,7 +12,7 @@ bot.on('text', ({ replyWithHTML }) => replyWithHTML('<b>Hello</b>'))
 // Start webhook via launch (preffered)
 bot.launch({
   webhook: {
-    domain: 'https://---.localtunnel.me',
+    domain: 'https://YOUR_DOMAIN.localtunnel.me', // Create a localtunnel to get a domain: $ lt --port 3000 
     port: 3000
   }
 })

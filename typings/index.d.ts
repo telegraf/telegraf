@@ -17,6 +17,11 @@ export interface TelegramOptions {
    * Reply via webhook
    */
   webhookReply?: boolean
+
+  /**
+   * Path to API. default: https://api.telegram.org
+   */
+  apiRoot?: string
 }
 
 export interface Context {
@@ -571,7 +576,7 @@ export interface Telegram {
    * @param chatId Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
    * @param user_id Unique identifier of the target user
    * @param extra Additional params for restrict chat member
-   * @returns True on success 
+   * @returns True on success
    */
   restrictChatMember(chatId: string | number, userId: number, extra?: {
     until_date?: boolean,

@@ -123,14 +123,15 @@ class Telegraf extends Composer {
       })
   }
 
-  stop () {
+  stop (cb) {
     return new Promise((resolve) => {
+      const done = () => resolve() & cb()
       if (this.webhookServer) {
-        return this.webhookServer.close(resolve)
+        return this.webhookServer.close(done)
       } else if (!this.polling.started) {
-        return resolve()
+        return done()
       }
-      this.polling.stopCallback = resolve
+      this.polling.stopCallback = done
       this.polling.started = false
     })
   }

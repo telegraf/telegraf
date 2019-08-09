@@ -885,7 +885,7 @@ Start listening @ `https://host:port/webhookPath` for Telegram calls.
 
 Stop Webhook and polling
 
-`telegraf.stop([callback])`
+`telegraf.stop() => Promise`
 
 ##### webhookCallback
 

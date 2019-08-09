@@ -123,14 +123,16 @@ class Telegraf extends Composer {
       })
   }
 
-  stop (cb = noop) {
-    this.polling.started = false
-    if (this.webhookServer) {
-      this.webhookServer.close(cb)
-    } else {
-      cb()
-    }
-    return this
+  stop () {
+    return new Promise((resolve) => {
+      if (this.webhookServer) {
+        return this.webhookServer.close(resolve)
+      } else if (!this.polling.started) {
+        return resolve()
+      }
+      this.polling.stopCallback = resolve
+      this.polling.started = false
+    })
   }
 
   handleUpdates (updates) {
@@ -156,10 +158,11 @@ class Telegraf extends Composer {
   }
 
   fetchUpdates () {
-    const { timeout, limit, offset, started, allowedUpdates } = this.polling
-    if (!started) {
+    if (!this.polling.started) {
+      this.polling.stopCallback && this.polling.stopCallback()
       return
     }
+    const { timeout, limit, offset, allowedUpdates } = this.polling
     this.telegram.getUpdates(timeout, limit, offset, allowedUpdates)
       .catch((err) => {
         if (err.code === 401 || err.code === 409) {
@@ -169,7 +172,10 @@ class Telegraf extends Composer {
         console.error(`Failed to fetch updates. Waiting: ${wait}s`, err.message)
         return new Promise((resolve) => setTimeout(resolve, wait * 1000, []))
       })
-      .then((updates) => this.handleUpdates(updates).then(() => updates))
+      .then((updates) => this.polling.started
+        ? this.handleUpdates(updates).then(() => updates)
+        : []
+      )
       .catch((err) => {
         console.error('Failed to process updates.', err)
         this.polling.started = false

@@ -324,9 +324,9 @@ export interface ContextMessageUpdate extends Context {
    * @param markup Markup of inline keyboard
    */
   editMessageReplyMarkup(markup?: tt.InlineKeyboardMarkup): Promise<tt.Message | boolean>
-  
+
   /**
-   * Use this method to edit animation, audio, document, photo, or video messages. 
+   * Use this method to edit animation, audio, document, photo, or video messages.
    * @returns On success, if the edited message was sent by the bot, the edited Message is returned, otherwise True is returned.
    * @param media New media of message
    * @param markup Markup of inline keyboard
@@ -970,7 +970,7 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
   launch(
     options?: {
       polling?: { timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[] },
-      webhook?: { webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string }
+      webhook?: { hookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string }
     }
   ): Promise<void>
 
@@ -983,13 +983,13 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
   startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[]): Telegraf<TContext>
 
   /**
-   * Start listening @ https://host:port/webhookPath for Telegram calls.
-   * @param webhookPath Webhook url path (see Telegraf.setWebhook)
+   * Start listening @ https://host:port/hookPath for Telegram calls.
+   * @param hookPath Webhook url path (see Telegraf.setWebhook)
    * @param tlsOptions TLS server options. Pass null to use http
    * @param port Port number
    * @param host Hostname
    */
-  startWebhook(webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string): Telegraf<TContext>
+  startWebhook(hookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string): Telegraf<TContext>
 
   /**
    * Stop Webhook and polling
@@ -999,9 +999,9 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
   /**
    * Return a callback function suitable for the http[s].createServer() method to handle a request.
    * You may also use this callback function to mount your telegraf app in a Koa/Connect/Express app.
-   * @param webhookPath Webhook url path (see Telegraf.setWebhook)
+   * @param hookPath Webhook url path (see Telegraf.setWebhook)
    */
-  webhookCallback(webhookPath: string): (req: IncomingMessage, res: ServerResponse) => void
+  webhookCallback(hookPath: string): (req: IncomingMessage, res: ServerResponse) => void
 
   /**
    * Handle raw Telegram update. In case you use centralized webhook server, queue, etc.

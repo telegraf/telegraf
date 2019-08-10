@@ -396,7 +396,7 @@ class Telegram extends ApiClient {
       throw new Error('Unsupported message type')
     }
     const opts = Object.assign({ chat_id: chatId }, replicators[type](message), extra)
-    if(message.reply_markup){
+    if (message.reply_markup) {
       opts.reply_markup = message.reply_markup
     }
     return this.callApi(replicators.copyMethods[type], opts)

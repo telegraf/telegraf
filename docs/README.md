@@ -1916,7 +1916,7 @@ Specifies an url to receive incoming updates via an outgoing webhook.
 | ---  | --- | --- |
 | url  | `string` | Public url for webhook |
 | [cert] | `File` | SSL public certificate |
-| [maxConnections] | `number` | User id |
+| [maxConnections] | `number` | Maximum allowed number of simultaneous HTTPS connections to the webhook |
 | [allowedUpdates] | `string[]` | List the types of updates you want your bot to receive |
 
 ##### unbanChatMember

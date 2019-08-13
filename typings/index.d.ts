@@ -26,6 +26,7 @@ export interface TelegramOptions {
 
 export interface Context {
   updateType: tt.UpdateType;
+  updateSubTypes: tt.MessageSubTypes[];
   update: tt.Update;
   telegram: Telegram
   callbackQuery?: tt.CallbackQuery
@@ -220,6 +221,14 @@ export interface ContextMessageUpdate extends Context {
    * @returns a Message on success
    */
   replyWithPhoto(photo: tt.InputFile, extra?: tt.ExtraPhoto): Promise<tt.MessagePhoto>
+
+  /**
+   * Use this method to send a group of photos or videos as an album
+   * @param media A JSON-serialized array describing photos and videos to be sent, must include 2–10 items
+   * @param extra Additional params to send media group
+   * @returns On success, an array of the sent Messages is returned
+   */
+  replyWithMediaGroup(media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<Array<tt.Message>>
 
   /**
    * Use this method to send .webp stickers
@@ -674,6 +683,15 @@ export interface Telegram {
   sendPhoto(chatId: number | string, photo: tt.InputFile, extra?: tt.ExtraPhoto): Promise<tt.MessagePhoto>
 
   /**
+   * Use this method to send a group of photos or videos as an album
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param media A JSON-serialized array describing photos and videos to be sent, must include 2–10 items
+   * @param extra Additional params to send media group
+   * @returns On success, an array of the sent Messages is returned
+   */
+  sendMediaGroup(chatId: number | string, media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<Array<tt.Message>>
+
+  /**
    * Use this method to send .gif animations
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param animation Animation to send. Pass a file_id as String to send a GIF that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a GIF from the Internet, or upload a new GIF using multipart/form-data
@@ -795,6 +813,11 @@ export interface Composer<TContext extends ContextMessageUpdate> {
   on(updateTypes: tt.UpdateType | tt.UpdateType[] | tt.MessageSubTypes | tt.MessageSubTypes[], middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
   /**
+   * Return the middleware created by this Composer
+   */
+  middleware(): Middleware<TContext>
+
+  /**
    * Registers middleware for handling text messages.
    * @param triggers Triggers
    * @param middlewares Middleware functions
@@ -852,7 +875,7 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   mount<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware<TContext>): Middleware<UContext>
+    (updateTypes: tt.UpdateType | tt.UpdateType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware for handling text messages with regular expressions.
@@ -860,7 +883,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   hears<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
+    (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware for handling callbackQuery data with regular expressions.
@@ -868,7 +891,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   action<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
+    (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates pass thru middleware.
@@ -886,7 +909,7 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   optional<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (test: boolean | ((ctx: TContext) => boolean), middleware: Middleware<TContext>): Middleware<UContext>
+    (test: boolean | ((ctx: TContext) => boolean), ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates filter middleware.
@@ -912,6 +935,28 @@ export interface ComposerConstructor {
   fork<TContext extends ContextMessageUpdate>(middleware: Middleware<TContext>): Function;
 
   log(logFn?: Function): Middleware<ContextMessageUpdate>;
+
+  /**
+   * Generates middleware which passes through when the requested chat type is not in the request.
+   * @param Chat Type to trigger the given middleware. Other types will pass through
+   * @param middleware Middleware function
+   */
+  chatType<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+    (type: tt.ChatType | tt.ChatType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+
+  /**
+   * Generates middleware which passes through when the requested chat type is not a private chat.
+   * @param middleware Middleware function
+   */
+  privateChat<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+    (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+
+  /**
+   * Generates middleware which passes through when the requested chat type is not a group.
+   * @param middleware Middleware function
+   */
+  groupChat<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+    (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 }
 
 export const Telegraf: TelegrafConstructor;
@@ -1158,7 +1203,7 @@ export class Extra {
   static markdown(value?: boolean): Extra;
 }
 
-export interface TelegrafConstructor {
+export interface TelegrafConstructor extends ComposerConstructor {
   /**
    * Initialize new Telegraf app.
    * @param token Bot token

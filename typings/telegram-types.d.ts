@@ -15,6 +15,12 @@ export type ChatAction =
   'record_video_note' |
   'upload_video_note'
 
+export type ChatType =
+  'private' |
+  'group' |
+  'supergroup' |
+  'channel'
+
 export type UpdateType =
   'callback_query' |
   'channel_post' |
@@ -77,7 +83,7 @@ export type InlineQueryResult =
   TT.InlineQueryResultVideo |
   TT.InlineQueryResultVoice
 
-export type MessageMedia = 
+export type MessageMedia =
   InputMediaPhoto |
   InputMediaVideo |
   InputMediaAnimation |
@@ -247,6 +253,11 @@ export interface ExtraPhoto extends ExtraReplyMessage {
    * Photo caption (may also be used when resending photos by file_id), 0-200 characters
    */
   caption?: string
+}
+
+export interface ExtraMediaGroup extends ExtraReplyMessage {
+  // no specified location props
+  // https://core.telegram.org/bots/api#sendmediagroup
 }
 
 export interface ExtraAnimation extends ExtraReplyMessage {

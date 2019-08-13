@@ -917,6 +917,28 @@ export interface ComposerConstructor {
   fork<TContext extends ContextMessageUpdate>(middleware: Middleware<TContext>): Function;
 
   log(logFn?: Function): Middleware<ContextMessageUpdate>;
+
+  /**
+   * Generates middleware which passes through when the requested chat type is not in the request.
+   * @param Chat Type to trigger the given middleware. Other types will pass through
+   * @param middleware Middleware function
+   */
+  chatType<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+    (type: tt.ChatType | tt.ChatType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+
+  /**
+   * Generates middleware which passes through when the requested chat type is not a private chat.
+   * @param middleware Middleware function
+   */
+  privateChat<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+    (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+
+  /**
+   * Generates middleware which passes through when the requested chat type is not a group.
+   * @param middleware Middleware function
+   */
+  groupChat<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+    (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 }
 
 export const Telegraf: TelegrafConstructor;

@@ -857,7 +857,7 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   mount<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware<TContext>): Middleware<UContext>
+    (updateTypes: tt.UpdateType | tt.UpdateType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware for handling text messages with regular expressions.
@@ -865,7 +865,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   hears<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
+    (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware for handling callbackQuery data with regular expressions.
@@ -873,7 +873,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   action<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
+    (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates pass thru middleware.
@@ -891,7 +891,7 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   optional<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (test: boolean | ((ctx: TContext) => boolean), middleware: Middleware<TContext>): Middleware<UContext>
+    (test: boolean | ((ctx: TContext) => boolean), ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates filter middleware.

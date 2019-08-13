@@ -1163,7 +1163,7 @@ export class Extra {
   static markdown(value?: boolean): Extra;
 }
 
-export interface TelegrafConstructor {
+export interface TelegrafConstructor extends ComposerConstructor {
   /**
    * Initialize new Telegraf app.
    * @param token Bot token

@@ -222,6 +222,14 @@ export interface ContextMessageUpdate extends Context {
   replyWithPhoto(photo: tt.InputFile, extra?: tt.ExtraPhoto): Promise<tt.MessagePhoto>
 
   /**
+   * Use this method to send a group of photos or videos as an album
+   * @param media A JSON-serialized array describing photos and videos to be sent, must include 2–10 items
+   * @param extra Additional params to send media group
+   * @returns On success, an array of the sent Messages is returned
+   */
+  replyWithMediaGroup(media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<Array<tt.Message>>
+
+  /**
    * Use this method to send .webp stickers
    * @param sticker Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .webp file from the Internet, or upload a new one using multipart/form-data
    * @param extra Additional params to send sticker
@@ -672,6 +680,15 @@ export interface Telegram {
    * @returns a Message on success
    */
   sendPhoto(chatId: number | string, photo: tt.InputFile, extra?: tt.ExtraPhoto): Promise<tt.MessagePhoto>
+
+  /**
+   * Use this method to send a group of photos or videos as an album
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param media A JSON-serialized array describing photos and videos to be sent, must include 2–10 items
+   * @param extra Additional params to send media group
+   * @returns On success, an array of the sent Messages is returned
+   */
+  sendMediaGroup(chatId: number | string, media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<Array<tt.Message>>
 
   /**
    * Use this method to send .gif animations

@@ -255,6 +255,11 @@ export interface ExtraPhoto extends ExtraReplyMessage {
   caption?: string
 }
 
+export interface ExtraMediaGroup extends ExtraReplyMessage {
+  // no specified location props
+  // https://core.telegram.org/bots/api#sendmediagroup
+}
+
 export interface ExtraAnimation extends ExtraReplyMessage {
   /**
    * Animation caption (may also be used when resending animation by file_id), 0-200 characters

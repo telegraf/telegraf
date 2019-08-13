@@ -26,6 +26,7 @@ export interface TelegramOptions {
 
 export interface Context {
   updateType: tt.UpdateType;
+  updateSubTypes: tt.MessageSubTypes[];
   update: tt.Update;
   telegram: Telegram
   callbackQuery?: tt.CallbackQuery

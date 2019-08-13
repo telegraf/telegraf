@@ -260,16 +260,6 @@ export interface ContextMessageUpdate extends Context {
    */
   answerInlineQuery(results: tt.InlineQueryResult[], extra?: tt.ExtraAnswerInlineQuery): Promise<boolean>
 
-  /**
-   * @deprecated answerCallbackQuery() is deprecated, use answerCbQuery() instead
-   * Use this method to send answers to callback queries.
-   * @param text Notification text
-   * @param url Game url
-   * @param showAlert Show alert instead of notification
-   * @param cacheTime The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0.
-   */
-  answerCallbackQuery(text?: string, url?: string, showAlert?: boolean, cacheTime?: number): Promise<boolean>
-
   answerCbQuery(text?: string, showAlert?: boolean, extra?: object): Promise<boolean>
 
   /**
@@ -376,16 +366,6 @@ export interface Telegram {
    * Use this property to control reply via webhook feature.
    */
   webhookReply: boolean
-
-  /**
-   * Use this method to send answers to callback queries.
-   * @param callbackQueryId Query id
-   * @param text Notification text
-   * @param url Game url
-   * @param showAlert Show alert instead of notification
-   * @param cacheTime The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0.
-   */
-  answerCallbackQuery(callbackQueryId: string, text?: string, url?: string, showAlert?: boolean, cacheTime?: number): Promise<boolean>
 
   /**
    * Use this method to send answers to game query.

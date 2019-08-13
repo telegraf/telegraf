@@ -164,11 +164,6 @@ class TelegrafContext {
     return this.telegram.answerInlineQuery(this.inlineQuery.id, ...args)
   }
 
-  answerCallbackQuery (...args) {
-    this.assert(this.callbackQuery, 'answerCallbackQuery')
-    return this.telegram.answerCallbackQuery(this.callbackQuery.id, ...args)
-  }
-
   answerCbQuery (...args) {
     this.assert(this.callbackQuery, 'answerCbQuery')
     return this.telegram.answerCbQuery(this.callbackQuery.id, ...args)

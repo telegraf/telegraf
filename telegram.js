@@ -1,4 +1,3 @@
-const util = require('util')
 const replicators = require('./core/replicators')
 const ApiClient = require('./core/network/client')
 
@@ -230,16 +229,6 @@ class Telegram extends ApiClient {
     return this.callApi('unbanChatMember', { chat_id: chatId, user_id: userId })
   }
 
-  answerCallbackQuery (callbackQueryId, text, url, showAlert, cacheTime) {
-    return this.callApi('answerCallbackQuery', {
-      callback_query_id: callbackQueryId,
-      text: text,
-      url: url,
-      show_alert: showAlert,
-      cache_time: cacheTime
-    })
-  }
-
   answerCbQuery (callbackQueryId, text, showAlert, extra) {
     return this.callApi('answerCallbackQuery', Object.assign({
       callback_query_id: callbackQueryId,
@@ -399,7 +388,5 @@ class Telegram extends ApiClient {
     return this.callApi(replicators.copyMethods[type], opts)
   }
 }
-
-Telegram.prototype.answerCallbackQuery = util.deprecate(Telegram.prototype.answerCallbackQuery, '️⚠️ Telegraf: answerCallbackQuery() is deprecated, use answerCbQuery() instead')
 
 module.exports = Telegram

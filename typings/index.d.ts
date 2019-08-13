@@ -795,6 +795,11 @@ export interface Composer<TContext extends ContextMessageUpdate> {
   on(updateTypes: tt.UpdateType | tt.UpdateType[] | tt.MessageSubTypes | tt.MessageSubTypes[], middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
   /**
+   * Return the middleware created by this Composer
+   */
+  middleware(): Middleware<TContext>
+
+  /**
    * Registers middleware for handling text messages.
    * @param triggers Triggers
    * @param middlewares Middleware functions

@@ -44,20 +44,20 @@ class Telegram extends ApiClient {
 
   setGameScore (userId, score, inlineMessageId, chatId, messageId, editMessage = true, force) {
     return this.callApi(`setGameScore`, {
+      force,
+      score,
       user_id: userId,
-      score: score,
       inline_message_id: inlineMessageId,
       chat_id: chatId,
       message_id: messageId,
-      disable_edit_message: !editMessage,
-      force: force
+      disable_edit_message: !editMessage
     })
   }
 
-  setWebhook (url, cert, maxConnections, allowedUpdates) {
+  setWebhook (url, certificate, maxConnections, allowedUpdates) {
     return this.callApi('setWebhook', {
-      url: url,
-      certificate: cert,
+      url,
+      certificate,
       max_connections: maxConnections,
       allowed_updates: allowedUpdates
     })
@@ -68,93 +68,95 @@ class Telegram extends ApiClient {
   }
 
   sendMessage (chatId, text, extra) {
-    return this.callApi('sendMessage', Object.assign({ chat_id: chatId, text: text }, extra))
+    return this.callApi('sendMessage', { chat_id: chatId, text, ...extra })
   }
 
   forwardMessage (chatId, fromChatId, messageId, extra) {
-    return this.callApi('forwardMessage', Object.assign({
+    return this.callApi('forwardMessage', {
       chat_id: chatId,
       from_chat_id: fromChatId,
-      message_id: messageId
-    }, extra))
+      message_id: messageId,
+      ...extra
+    })
   }
 
   sendChatAction (chatId, action) {
-    return this.callApi('sendChatAction', { chat_id: chatId, action: action })
+    return this.callApi('sendChatAction', { chat_id: chatId, action })
   }
 
   getUserProfilePhotos (userId, offset, limit) {
-    return this.callApi('getUserProfilePhotos', { user_id: userId, offset: offset, limit: limit })
+    return this.callApi('getUserProfilePhotos', { user_id: userId, offset, limit })
   }
 
   sendLocation (chatId, latitude, longitude, extra) {
-    return this.callApi('sendLocation', Object.assign({ chat_id: chatId, latitude: latitude, longitude: longitude }, extra))
+    return this.callApi('sendLocation', { chat_id: chatId, latitude, longitude, ...extra })
   }
 
   sendVenue (chatId, latitude, longitude, title, address, extra) {
-    return this.callApi('sendVenue', Object.assign({
+    return this.callApi('sendVenue', {
+      latitude,
+      longitude,
+      title,
+      address,
       chat_id: chatId,
-      latitude: latitude,
-      longitude: longitude,
-      title: title,
-      address: address
-    }, extra))
+      ...extra
+    })
   }
 
   sendInvoice (chatId, invoice, extra) {
-    return this.callApi('sendInvoice', Object.assign({ chat_id: chatId }, invoice, extra))
+    return this.callApi('sendInvoice', { chat_id: chatId, ...invoice, ...extra })
   }
 
   sendContact (chatId, phoneNumber, firstName, extra) {
-    return this.callApi('sendContact', Object.assign({ chat_id: chatId, phone_number: phoneNumber, first_name: firstName }, extra))
+    return this.callApi('sendContact', { chat_id: chatId, phone_number: phoneNumber, first_name: firstName, ...extra })
   }
 
   sendPhoto (chatId, photo, extra) {
-    return this.callApi('sendPhoto', Object.assign({ chat_id: chatId, photo: photo }, extra))
+    return this.callApi('sendPhoto', { chat_id: chatId, photo, ...extra })
   }
 
-  sendDocument (chatId, doc, extra) {
-    return this.callApi('sendDocument', Object.assign({ chat_id: chatId, document: doc }, extra))
+  sendDocument (chatId, document, extra) {
+    return this.callApi('sendDocument', { chat_id: chatId, document, ...extra })
   }
 
   sendAudio (chatId, audio, extra) {
-    return this.callApi('sendAudio', Object.assign({ chat_id: chatId, audio: audio }, extra))
+    return this.callApi('sendAudio', { chat_id: chatId, audio, ...extra })
   }
 
   sendSticker (chatId, sticker, extra) {
-    return this.callApi('sendSticker', Object.assign({ chat_id: chatId, sticker: sticker }, extra))
+    return this.callApi('sendSticker', { chat_id: chatId, sticker, ...extra })
   }
 
   sendVideo (chatId, video, extra) {
-    return this.callApi('sendVideo', Object.assign({ chat_id: chatId, video: video }, extra))
+    return this.callApi('sendVideo', { chat_id: chatId, video, ...extra })
   }
 
   sendAnimation (chatId, animation, extra) {
-    return this.callApi('sendAnimation', Object.assign({ chat_id: chatId, animation: animation }, extra))
+    return this.callApi('sendAnimation', { chat_id: chatId, animation, ...extra })
   }
 
   sendVideoNote (chatId, videoNote, extra) {
-    return this.callApi('sendVideoNote', Object.assign({ chat_id: chatId, video_note: videoNote }, extra))
+    return this.callApi('sendVideoNote', { chat_id: chatId, video_note: videoNote, ...extra })
   }
 
   sendVoice (chatId, voice, extra) {
-    return this.callApi('sendVoice', Object.assign({ chat_id: chatId, voice: voice }, extra))
+    return this.callApi('sendVoice', { chat_id: chatId, voice, ...extra })
   }
 
   sendGame (chatId, gameName, extra) {
-    return this.callApi('sendGame', Object.assign({ chat_id: chatId, game_short_name: gameName }, extra))
+    return this.callApi('sendGame', { chat_id: chatId, game_short_name: gameName, ...extra })
   }
 
   sendMediaGroup (chatId, media, extra) {
-    return this.callApi('sendMediaGroup', Object.assign({ chat_id: chatId, media }, extra))
+    return this.callApi('sendMediaGroup', { chat_id: chatId, media, ...extra })
   }
 
   sendPoll (chatId, question, options, extra) {
-    return this.callApi('sendPoll', Object.assign({ chat_id: chatId, question, options }, extra))
+    return this.callApi('sendPoll', { chat_id: chatId, question, options, ...extra })
   }
 
   stopPoll (chatId, messageId, extra) {
-    return this.callApi('stopPoll', Object.assign({ chat_id: chatId, message_id: messageId }, extra))
+    return this.callApi('stopPoll', { chat_id: chatId, message_id: messageId, ...extra })
   }
 
   getChat (chatId) {
@@ -174,7 +176,7 @@ class Telegram extends ApiClient {
   }
 
   answerInlineQuery (inlineQueryId, results, extra) {
-    return this.callApi('answerInlineQuery', Object.assign({ inline_query_id: inlineQueryId, results: JSON.stringify(results) }, extra))
+    return this.callApi('answerInlineQuery', { inline_query_id: inlineQueryId, results: JSON.stringify(results), ...extra })
   }
 
   setChatPermissions (chatId, permissions) {
@@ -186,11 +188,11 @@ class Telegram extends ApiClient {
   }
 
   promoteChatMember (chatId, userId, extra) {
-    return this.callApi('promoteChatMember', Object.assign({ chat_id: chatId, user_id: userId }, extra))
+    return this.callApi('promoteChatMember', { chat_id: chatId, user_id: userId, ...extra })
   }
 
   restrictChatMember (chatId, userId, extra) {
-    return this.callApi('restrictChatMember', Object.assign({ chat_id: chatId, user_id: userId }, extra))
+    return this.callApi('restrictChatMember', { chat_id: chatId, user_id: userId, ...extra })
   }
 
   exportChatInviteLink (chatId) {
@@ -198,7 +200,7 @@ class Telegram extends ApiClient {
   }
 
   setChatPhoto (chatId, photo) {
-    return this.callApi('setChatPhoto', { chat_id: chatId, photo: photo })
+    return this.callApi('setChatPhoto', { chat_id: chatId, photo })
   }
 
   deleteChatPhoto (chatId) {
@@ -206,15 +208,15 @@ class Telegram extends ApiClient {
   }
 
   setChatTitle (chatId, title) {
-    return this.callApi('setChatTitle', { chat_id: chatId, title: title })
+    return this.callApi('setChatTitle', { chat_id: chatId, title })
   }
 
   setChatDescription (chatId, description) {
-    return this.callApi('setChatDescription', { chat_id: chatId, description: description })
+    return this.callApi('setChatDescription', { chat_id: chatId, description })
   }
 
   pinChatMessage (chatId, messageId, extra) {
-    return this.callApi('pinChatMessage', Object.assign({ chat_id: chatId, message_id: messageId }, extra))
+    return this.callApi('pinChatMessage', { chat_id: chatId, message_id: messageId, ...extra })
   }
 
   unpinChatMessage (chatId) {
@@ -230,24 +232,25 @@ class Telegram extends ApiClient {
   }
 
   answerCbQuery (callbackQueryId, text, showAlert, extra) {
-    return this.callApi('answerCallbackQuery', Object.assign({
+    return this.callApi('answerCallbackQuery', {
+      text,
+      show_alert: showAlert,
       callback_query_id: callbackQueryId,
-      text: text,
-      show_alert: showAlert
-    }, extra))
+      ...extra
+    })
   }
 
   answerGameQuery (callbackQueryId, url) {
     return this.callApi('answerCallbackQuery', {
-      callback_query_id: callbackQueryId,
-      url: url
+      url,
+      callback_query_id: callbackQueryId
     })
   }
 
   answerShippingQuery (shippingQueryId, ok, shippingOptions, errorMessage) {
     return this.callApi('answerShippingQuery', {
+      ok,
       shipping_query_id: shippingQueryId,
-      ok: ok,
       shipping_options: shippingOptions,
       error_message: errorMessage
     })
@@ -255,27 +258,28 @@ class Telegram extends ApiClient {
 
   answerPreCheckoutQuery (preCheckoutQueryId, ok, errorMessage) {
     return this.callApi('answerPreCheckoutQuery', {
+      ok,
       pre_checkout_query_id: preCheckoutQueryId,
-      ok: ok,
       error_message: errorMessage
     })
   }
 
   editMessageText (chatId, messageId, inlineMessageId, text, extra) {
-    return this.callApi('editMessageText', Object.assign({
+    return this.callApi('editMessageText', {
+      text,
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      text: text
-    }, extra))
+      ...extra
+    })
   }
 
   editMessageCaption (chatId, messageId, inlineMessageId, caption, extra = {}) {
     return this.callApi('editMessageCaption', {
+      caption,
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      caption: caption,
       parse_mode: extra.parse_mode,
       reply_markup: extra.parse_mode || extra.reply_markup ? extra.reply_markup : extra
     })
@@ -286,7 +290,7 @@ class Telegram extends ApiClient {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      media: Object.assign(media, { parse_mode: extra.parse_mode }),
+      media: { ...media, parse_mode: extra.parse_mode },
       reply_markup: extra.reply_markup ? extra.reply_markup : extra
     })
   }
@@ -338,8 +342,8 @@ class Telegram extends ApiClient {
     return this.callApi('deleteChatStickerSet', { chat_id: chatId })
   }
 
-  getStickerSet (setName) {
-    return this.callApi('getStickerSet', { name: setName })
+  getStickerSet (name) {
+    return this.callApi('getStickerSet', { name })
   }
 
   uploadStickerFile (ownerId, stickerFile) {
@@ -350,30 +354,32 @@ class Telegram extends ApiClient {
   }
 
   createNewStickerSet (ownerId, name, title, stickerData) {
-    return this.callApi('createNewStickerSet', Object.assign({
+    return this.callApi('createNewStickerSet', {
+      name,
+      title,
       user_id: ownerId,
-      name: name,
-      title: title
-    }, stickerData))
+      ...stickerData
+    })
   }
 
   addStickerToSet (ownerId, name, stickerData, isMasks) {
-    return this.callApi('addStickerToSet', Object.assign({
+    return this.callApi('addStickerToSet', {
+      name,
       user_id: ownerId,
-      name: name,
-      is_masks: isMasks
-    }, stickerData))
+      is_masks: isMasks,
+      ...stickerData
+    })
   }
 
   setStickerPositionInSet (sticker, position) {
     return this.callApi('setStickerPositionInSet', {
-      sticker: sticker,
-      position: position
+      sticker,
+      position
     })
   }
 
   deleteStickerFromSet (sticker) {
-    return this.callApi('deleteStickerFromSet', { sticker: sticker })
+    return this.callApi('deleteStickerFromSet', { sticker })
   }
 
   sendCopy (chatId, message, extra) {
@@ -384,7 +390,11 @@ class Telegram extends ApiClient {
     if (!type) {
       throw new Error('Unsupported message type')
     }
-    const opts = Object.assign({ chat_id: chatId }, replicators[type](message), extra)
+    const opts = {
+      chat_id: chatId,
+      ...replicators[type](message),
+      ...extra
+    }
     return this.callApi(replicators.copyMethods[type], opts)
   }
 }

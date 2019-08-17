@@ -10,7 +10,7 @@ const generateCallback = require('./core/network/webhook')
 const crypto = require('crypto')
 const { URL } = require('url')
 
-const DefaultOptions = {
+const DEFAULT_OPTIONS = {
   retryAfter: 1,
   handlerTimeout: 0
 }
@@ -20,7 +20,10 @@ const noop = () => { }
 class Telegraf extends Composer {
   constructor (token, options) {
     super()
-    this.options = Object.assign({}, DefaultOptions, options)
+    this.options = {
+      ...DEFAULT_OPTIONS,
+      ...options
+    }
     this.token = token
     this.handleError = (err) => {
       console.error()

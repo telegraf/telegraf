@@ -27,7 +27,7 @@ class SceneContext {
   }
 
   set state (value) {
-    this.session.state = Object.assign({}, value)
+    this.session.state = { ...value }
   }
 
   get current () {

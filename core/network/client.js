@@ -8,7 +8,7 @@ const TelegramError = require('./error')
 const MultipartStream = require('./multipart-stream')
 const { isStream } = MultipartStream
 
-const WebhookBlacklist = [
+const WEBHOOK_BLACKLIST = [
   'getChat',
   'getChatAdministrators',
   'getChatMember',
@@ -22,7 +22,7 @@ const WebhookBlacklist = [
   'exportChatInviteLink'
 ]
 
-const DefaultExtensions = {
+const DEFAULT_EXTENSIONS = {
   audio: 'mp3',
   photo: 'jpg',
   sticker: 'webp',
@@ -32,7 +32,7 @@ const DefaultExtensions = {
   voice: 'ogg'
 }
 
-const DefaultOptions = {
+const DEFAULT_OPTIONS = {
   apiRoot: 'https://api.telegram.org',
   webhookReply: true,
   agent: new https.Agent({
@@ -41,7 +41,7 @@ const DefaultOptions = {
   })
 }
 
-const WebhookReplyStub = {
+const WEBHOOK_REPLY_STUB = {
   webhook: true,
   details: 'https://core.telegram.org/bots/api#making-requests-when-getting-updates'
 }
@@ -124,7 +124,7 @@ function attachFormValue (form, id, value) {
         }
         const attachmentId = crypto.randomBytes(16).toString('hex')
         return attachFormMedia(form, item.media, attachmentId)
-          .then(() => Object.assign({}, item, { media: `attach://${attachmentId}` }))
+          .then(() => ({ ...item, media: `attach://${attachmentId}` }))
       })
     ).then((items) => form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
@@ -136,16 +136,17 @@ function attachFormValue (form, id, value) {
     return attachFormMedia(form, value.media, attachmentId)
       .then(() => form.addPart({
         headers: { 'content-disposition': `form-data; name="${id}"` },
-        body: JSON.stringify(Object.assign(value, {
+        body: JSON.stringify({
+          ...value,
           media: `attach://${attachmentId}`
-        }))
+        })
       }))
   }
   return attachFormMedia(form, value, id)
 }
 
 function attachFormMedia (form, media, id) {
-  let fileName = media.filename || `${id}.${DefaultExtensions[id] || 'dat'}`
+  let fileName = media.filename || `${id}.${DEFAULT_EXTENSIONS[id] || 'dat'}`
   if (media.url) {
     return fetch(media.url).then((res) =>
       form.addPart({
@@ -177,13 +178,13 @@ function answerToWebhook (response, payload = {}) {
   if (!includesMedia(payload)) {
     if (isKoaResponse(response)) {
       response.body = payload
-      return Promise.resolve(WebhookReplyStub)
+      return Promise.resolve(WEBHOOK_REPLY_STUB)
     }
     if (!response.headersSent) {
       response.setHeader('content-type', 'application/json')
     }
     return new Promise((resolve) =>
-      response.end(JSON.stringify(payload), 'utf-8', () => resolve(WebhookReplyStub))
+      response.end(JSON.stringify(payload), 'utf-8', () => resolve(WEBHOOK_REPLY_STUB))
     )
   }
 
@@ -192,13 +193,13 @@ function answerToWebhook (response, payload = {}) {
       if (isKoaResponse(response)) {
         Object.keys(headers).forEach(key => response.set(key, headers[key]))
         response.body = body
-        return Promise.resolve(WebhookReplyStub)
+        return Promise.resolve(WEBHOOK_REPLY_STUB)
       }
       if (!response.headersSent) {
         Object.keys(headers).forEach(key => response.setHeader(key, headers[key]))
       }
       return new Promise((resolve) => {
-        response.on('finish', () => resolve(WebhookReplyStub))
+        response.on('finish', () => resolve(WEBHOOK_REPLY_STUB))
         body.pipe(response)
       })
     })
@@ -207,7 +208,10 @@ function answerToWebhook (response, payload = {}) {
 class ApiClient {
   constructor (token, options, webhookResponse) {
     this.token = token
-    this.options = Object.assign({}, DefaultOptions, options)
+    this.options = {
+      ...DEFAULT_OPTIONS,
+      ...options
+    }
     if (this.options.apiRoot.startsWith('http://')) {
       this.options.agent = null
     }
@@ -227,12 +231,12 @@ class ApiClient {
 
     const payload = Object.keys(data)
       .filter((key) => typeof data[key] !== 'undefined' && data[key] !== null)
-      .reduce((acc, key) => Object.assign(acc, { [key]: data[key] }), {})
+      .reduce((acc, key) => ({ ...acc, [key]: data[key] }), {})
 
-    if (options.webhookReply && response && !responseEnd && !WebhookBlacklist.includes(method)) {
+    if (options.webhookReply && response && !responseEnd && !WEBHOOK_BLACKLIST.includes(method)) {
       debug('Call via webhook', method, payload)
       this.responseEnd = true
-      return answerToWebhook(response, Object.assign({ method }, payload))
+      return answerToWebhook(response, { method, ...payload })
     }
 
     if (!token) {
@@ -241,7 +245,7 @@ class ApiClient {
 
     debug('HTTP call', method, payload)
     const buildConfig = includesMedia(payload)
-      ? buildFormDataConfig(Object.assign({ method }, payload))
+      ? buildFormDataConfig({ method, ...payload })
       : buildJSONConfig(payload)
     return buildConfig
       .then((config) => {

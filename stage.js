@@ -5,9 +5,10 @@ const { compose, optional, lazy, safePassThru } = Composer
 class Stage extends Composer {
   constructor (scenes = [], options) {
     super()
-    this.options = Object.assign({
-      sessionName: 'session'
-    }, options)
+    this.options = {
+      sessionName: 'session',
+      ...options
+    }
     this.scenes = new Map()
     scenes.forEach((scene) => this.register(scene))
   }

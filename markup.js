@@ -15,13 +15,14 @@ class Markup {
   }
 
   extra (options) {
-    return Object.assign({
-      reply_markup: Object.assign({}, this)
-    }, options)
+    return {
+      reply_markup: { ...this },
+      ...options
+    }
   }
 
   keyboard (buttons, options) {
-    const keyboard = buildKeyboard(buttons, Object.assign({ columns: 1 }, options))
+    const keyboard = buildKeyboard(buttons, { columns: 1, ...options })
     if (keyboard && keyboard.length > 0) {
       this.keyboard = keyboard
     }
@@ -39,7 +40,7 @@ class Markup {
   }
 
   inlineKeyboard (buttons, options) {
-    const keyboard = buildKeyboard(buttons, Object.assign({ columns: buttons.length }, options))
+    const keyboard = buildKeyboard(buttons, { columns: buttons.length, ...options })
     if (keyboard && keyboard.length > 0) {
       this.inline_keyboard = keyboard
     }
@@ -153,7 +154,7 @@ class Markup {
   static loginButton (text, url, opts = {}, hide = false) {
     return {
       text: text,
-      login_url: Object.assign({}, opts, { url: url }),
+      login_url: { ...opts, url: url },
       hide: hide
     }
   }

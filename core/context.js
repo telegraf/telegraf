@@ -142,7 +142,7 @@ class TelegrafContext {
   }
 
   set state (value) {
-    this.contextState = Object.assign({}, value)
+    this.contextState = { ...value }
   }
 
   get webhookReply () {
@@ -500,11 +500,11 @@ class TelegrafContext {
   }
 
   replyWithMarkdown (markdown, extra) {
-    return this.reply(markdown, Object.assign({ parse_mode: 'Markdown' }, extra))
+    return this.reply(markdown, { parse_mode: 'Markdown', ...extra })
   }
 
   replyWithHTML (html, extra) {
-    return this.reply(html, Object.assign({ parse_mode: 'HTML' }, extra))
+    return this.reply(html, { parse_mode: 'HTML', ...extra })
   }
 
   deleteMessage (messageId) {

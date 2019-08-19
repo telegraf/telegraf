@@ -5,6 +5,8 @@ const Composer = require('./composer')
 const Markup = require('./markup')
 const session = require('./session')
 const Router = require('./router')
+const Stage = require('./stage')
+const BaseScene = require('./scenes/base')
 const Context = require('./core/context')
 const generateCallback = require('./core/network/webhook')
 const crypto = require('crypto')
@@ -211,5 +213,7 @@ module.exports.default = Object.assign(Telegraf, {
   Markup,
   Router,
   Telegram,
+  Stage,
+  BaseScene,
   session
 })

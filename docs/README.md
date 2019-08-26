@@ -65,6 +65,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 **Community bots:**
 
+* [Groups Admin Bot](https://github.com/Azhant/AdminBot)
 * [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot)
 * [Chat Linker Bot](https://github.com/jt3k/chat-linker)
 * [Counter Bot](https://github.com/leodj/telegram-counter-bot)

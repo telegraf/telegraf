@@ -415,6 +415,16 @@ export interface Telegram {
   answerInlineQuery(inlineQueryId: string, results: Array<tt.InlineQueryResult>, extra?: tt.ExtraAnswerInlineQuery): Promise<boolean>
 
   /**
+   * Use this method to forward exists message.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param fromChatId Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+   * @param messageId Message identifier in the chat specified in from_chat_id
+   * @param extra Pass `{ disable_notification: true }`, if it is not necessary to send a notification for forwarded message
+   * @returns On success, the sent Message is returned.
+   */
+  forwardMessage(chatId: number | string, fromChatId: number | string, messageId: string | number, extra?: { disable_notification?: boolean }): Promise<tt.Message>;
+
+  /**
    * Use this method to edit text and game messages sent by the bot or via the bot (for inline bots).
    * On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
    * @param chatId Required if inlineMessageId is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)

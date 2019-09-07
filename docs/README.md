@@ -96,6 +96,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Watchy](https://github.com/backmeupplz/watchy)
 * [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
 * [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot)
+* [Google it Bot: Instant Inline Search](https://github.com/Edgar-P-yan/google-it-telegram-bot)
 * Send PR to add link to your bot
 
 ## Introduction

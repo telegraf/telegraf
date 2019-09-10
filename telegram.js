@@ -30,11 +30,11 @@ class Telegram extends ApiClient {
   }
 
   getWebhookInfo () {
-    return this.callApi(`getWebhookInfo`)
+    return this.callApi('getWebhookInfo')
   }
 
   getGameHighScores (userId, inlineMessageId, chatId, messageId) {
-    return this.callApi(`getGameHighScores`, {
+    return this.callApi('getGameHighScores', {
       user_id: userId,
       inline_message_id: inlineMessageId,
       chat_id: chatId,
@@ -43,7 +43,7 @@ class Telegram extends ApiClient {
   }
 
   setGameScore (userId, score, inlineMessageId, chatId, messageId, editMessage = true, force) {
-    return this.callApi(`setGameScore`, {
+    return this.callApi('setGameScore', {
       force,
       score,
       user_id: userId,

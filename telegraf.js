@@ -198,22 +198,6 @@ class Telegraf extends Composer {
   }
 }
 
-module.exports = Object.assign(Telegraf, {
-  Composer,
-  Extra,
-  Markup,
-  Router,
-  Telegram,
-  session
-})
+module.exports = Telegraf
 
-module.exports.default = Object.assign(Telegraf, {
-  Composer,
-  Extra,
-  Markup,
-  Router,
-  Telegram,
-  Stage,
-  BaseScene,
-  session
-})
+module.exports.default = Telegraf

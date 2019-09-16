@@ -321,7 +321,7 @@ class Composer {
     if (!handler) {
       throw new Error('Handler is undefined')
     }
-    return handler && typeof handler.middleware === 'function'
+    return typeof handler.middleware === 'function'
       ? handler.middleware()
       : handler
   }

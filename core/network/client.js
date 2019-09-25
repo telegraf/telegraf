@@ -183,9 +183,15 @@ function answerToWebhook (response, payload = {}) {
     if (!response.headersSent) {
       response.setHeader('content-type', 'application/json')
     }
-    return new Promise((resolve) =>
-      response.end(JSON.stringify(payload), 'utf-8', () => resolve(WEBHOOK_REPLY_STUB))
-    )
+    return new Promise((resolve) => {
+      const params = [JSON.stringify(payload), 'utf-8', () => resolve(WEBHOOK_REPLY_STUB)]
+      if (response.end.length === 2) {
+        response.end(...params.slice(0, 2))
+        params[2]()
+      } else {
+        response.end(...params)
+      }
+    })
   }
 
   return buildFormDataConfig(payload)

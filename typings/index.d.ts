@@ -1105,7 +1105,7 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    * @param timeout Poll timeout in seconds
    * @param limit Limits the number of updates to be retrieved
    * @param allowedUpdates List the types of updates you want your bot to receive
-   * @param sropCallback Polling stop callback
+   * @param stopCallback Polling stop callback
    */
   startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[] | tt.UpdateType | null, stopCallback?: () => void | null): Telegraf<TContext>
 

@@ -1008,6 +1008,60 @@ export interface ComposerConstructor {
 
 export const Telegraf: TelegrafConstructor;
 
+export interface LaunchPollingOptions {
+  /**
+   * Poll timeout in seconds
+   */
+  timeout?: number
+
+  /**
+   * Limits the number of updates to be retrieved
+   */
+  limit?: number
+
+  /**
+   * List the types of updates you want your bot to receive
+   */
+  allowedUpdates?: tt.UpdateType[] | tt.UpdateType | null
+
+  /**
+   * Polling stop callback
+   */
+  stopCallback?: () => void | null
+}
+
+export interface LaunchWebhookOptions {
+  /**
+   * Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component).
+   */
+  domain?: string
+
+  /**
+   * Webhook url path; will be automatically generated if not specified
+   */
+  hookPath?: string
+
+  /**
+   * The port to listen on for Telegram calls. If port is omitted or is 0, the operating system will assign an arbitrary unused port.
+   */
+  port?: number
+
+  /**
+   * The host to listen on for Telegram calls. If host is omitted, the server will accept connections on the unspecified IPv6 address (::) when IPv6 is available, or the unspecified IPv4 address (0.0.0.0) otherwise.
+   */
+  host?: string
+
+  /**
+   * TLS server options. Pass null (or omit) to use http.
+   */
+  tlsOptions?: TlsOptions | null
+
+  /**
+   * A callback function suitable for the http[s].createServer() method to handle a request.
+   */
+  cb?: (req: IncomingMessage, res: ServerResponse) => void
+}
+
 export interface Telegraf<TContext extends ContextMessageUpdate> extends Composer<TContext> {
   /**
    * Use this property to get/set bot token
@@ -1041,8 +1095,8 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    */
   launch(
     options?: {
-      polling?: { timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[] },
-      webhook?: { hookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string }
+      polling?: LaunchPollingOptions,
+      webhook?: LaunchWebhookOptions
     }
   ): Promise<void>
 
@@ -1051,8 +1105,9 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    * @param timeout Poll timeout in seconds
    * @param limit Limits the number of updates to be retrieved
    * @param allowedUpdates List the types of updates you want your bot to receive
+   * @param sropCallback Polling stop callback
    */
-  startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[]): Telegraf<TContext>
+  startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[] | tt.UpdateType | null, stopCallback?: () => void | null): Telegraf<TContext>
 
   /**
    * Start listening @ https://host:port/hookPath for Telegram calls.
@@ -1060,8 +1115,9 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    * @param tlsOptions TLS server options. Pass null to use http
    * @param port Port number
    * @param host Hostname
+   * @param cb A callback function suitable for the http[s].createServer() method to handle a request.
    */
-  startWebhook(hookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string): Telegraf<TContext>
+  startWebhook(hookPath: string, tlsOptions?: TlsOptions | null, port?: number, host?: string, cb?: (req: IncomingMessage, res: ServerResponse) => void): Telegraf<TContext>
 
   /**
    * Stop Webhook and polling

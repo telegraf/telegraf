@@ -42,3 +42,7 @@ bot.startPolling()
 const markup = new Markup
 markup.inlineKeyboard([Markup.button('sample')], {})
 Markup.inlineKeyboard([Markup.callbackButton('sampleText', 'sampleData')], {})
+
+
+// #761
+bot.telegram.sendPhoto(1, randomPhoto, { caption: '*Caption*', parse_mode: 'Markdown' });

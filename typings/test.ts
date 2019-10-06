@@ -25,7 +25,7 @@ bot.command('foo', reply('http://coub.com/view/9cjmt'))
 
 bot.action('bar', reply('i was here'))
 
-bot.telegram.sendMessage(process.env.BOT_CLIENT_ID,"It's work")
+bot.telegram.sendMessage(process.env.BOT_CLIENT_ID,"It works")
 
 // Start https webhook
 bot.startWebhook('/secret-path', {}, 8443)

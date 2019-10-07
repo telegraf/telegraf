@@ -266,6 +266,8 @@ export interface ExtraDocument extends ExtraReplyMessage {
 export interface ExtraGame extends ExtraReplyMessage {
   // no specified game props
   // https://core.telegram.org/bots/api#sendgame
+
+  // FIXME: does not have these inherited properties: parse_mode, disable_web_page_preview
 }
 
 export interface ExtraInvoice extends ExtraReplyMessage {

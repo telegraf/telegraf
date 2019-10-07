@@ -322,6 +322,16 @@ export interface ExtraPhoto extends ExtraReplyMessage {
 export interface ExtraMediaGroup extends ExtraReplyMessage {
   // no specified location props
   // https://core.telegram.org/bots/api#sendmediagroup
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
+   */
+  disable_web_page_preview?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
+   */
+  parse_mode?: never
 }
 
 export interface ExtraAnimation extends ExtraReplyMessage {

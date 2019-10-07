@@ -280,6 +280,11 @@ export interface ExtraInvoice extends ExtraReplyMessage {
   // https://core.telegram.org/bots/api#sendinvoice
 
   /**
+   * Inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.
+   */
+  reply_markup?: TT.InlineKeyboardMarkup
+
+  /**
    * Does not exist, see https://core.telegram.org/bots/api#sendinvoice
    */
   disable_web_page_preview?: never

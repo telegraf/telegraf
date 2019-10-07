@@ -76,6 +76,16 @@ bot.hears('something', (ctx) => {
         title: '',
         thumb: ''
     })
+
+    // tt.ExtraDocument
+    ctx.replyWithDocument('document', {
+        thumb: '',
+        caption: '',
+        parse_mode: "HTML",
+        disable_notification: true,
+        reply_to_message_id: 0,
+        reply_markup: Markup.inlineKeyboard([])
+    })
 })
 
 // Markup

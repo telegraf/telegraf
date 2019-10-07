@@ -176,6 +176,16 @@ export type InputFile =
 export interface ExtraReplyMessage {
 
   /**
+   * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
+   */
+  parse_mode?: ParseMode
+
+  /**
+   * Disables link previews for links in this message
+   */
+  disable_web_page_preview?: boolean
+
+  /**
    * Sends the message silently. Users will receive a notification with no sound.
    */
   disable_notification?: boolean

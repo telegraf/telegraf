@@ -60,6 +60,15 @@ bot.launch({
   }
 })
 
+// tt.ExtraXXX
+bot.hears('something', (ctx) => {
+    // tt.ExtraReplyMessage
+    ctx.reply('Response', {
+        parse_mode: "Markdown",
+        disable_web_page_preview: true
+    })
+})
+
 // Markup
 
 const markup = new Markup

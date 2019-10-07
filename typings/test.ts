@@ -25,7 +25,7 @@ bot.command('foo', reply('http://coub.com/view/9cjmt'))
 
 bot.action('bar', reply('i was here'))
 
-bot.telegram.sendMessage(process.env.BOT_CLIENT_ID,"It's work")
+bot.telegram.sendMessage(process.env.BOT_CLIENT_ID,"It works")
 
 // Start https webhook
 bot.startWebhook('/secret-path', {}, 8443)
@@ -42,3 +42,7 @@ bot.startPolling()
 const markup = new Markup
 markup.inlineKeyboard([Markup.button('sample')], {})
 Markup.inlineKeyboard([Markup.callbackButton('sampleText', 'sampleData')], {})
+
+
+// #761
+bot.telegram.sendPhoto(1, randomPhoto, { caption: '*Caption*', parse_mode: 'Markdown' });

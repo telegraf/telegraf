@@ -74,7 +74,10 @@ bot.hears('something', (ctx) => {
         duration: 0,
         performer: '',
         title: '',
-        thumb: ''
+        thumb: '',
+        disable_notification: true,
+        reply_to_message_id: 0,
+        reply_markup: Markup.inlineKeyboard([])
     })
 
     // tt.ExtraDocument

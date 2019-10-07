@@ -202,16 +202,7 @@ export interface ExtraReplyMessage {
 }
 
 export interface ExtraEditMessage extends ExtraReplyMessage {
-  /**
-   * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
-   */
-  parse_mode?: ParseMode
-
-  /**
-   * Disables link previews for links in this message
-   */
-  disable_web_page_preview?: boolean
-
+  // no specified properties
 }
 
 export interface ExtraAudio extends ExtraReplyMessage {

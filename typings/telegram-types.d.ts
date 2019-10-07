@@ -348,8 +348,15 @@ export interface ExtraAnimation extends ExtraReplyMessage {
 }
 
 export interface ExtraSticker extends ExtraReplyMessage {
-  // no specified sticker props
-  // https://core.telegram.org/bots/api#sendsticker
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendsticker
+   */
+  disable_web_page_preview?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendsticker
+   */
+  parse_mode?: never
 }
 
 export interface ExtraVideo extends ExtraReplyMessage {

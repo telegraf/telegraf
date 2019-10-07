@@ -264,11 +264,17 @@ export interface ExtraGame extends ExtraReplyMessage {
 export interface ExtraInvoice extends ExtraReplyMessage {
   // no specified invoice props
   // https://core.telegram.org/bots/api#sendinvoice
+
+  // FIXME: does not have these inherited proeprties: parse_mode, disable_web_page_preview
 }
 
 export interface ExtraLocation extends ExtraReplyMessage {
-  // no specified location props
-  // https://core.telegram.org/bots/api#sendlocation
+  /**
+   * Period in seconds for which the location will be updated (should be between 60 and 86400)
+   */
+  live_period?: number
+
+  // FIXME: does not have these inherited proeprties: parse_mode, disable_web_page_preview
 }
 
 export interface ExtraPhoto extends ExtraReplyMessage {

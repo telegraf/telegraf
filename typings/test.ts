@@ -89,6 +89,14 @@ bot.hears('something', (ctx) => {
         reply_to_message_id: 0,
         reply_markup: Markup.inlineKeyboard([])
     })
+
+    // tt.ExtraLocation
+    ctx.replyWithLocation(0, 0, {
+        live_period: 60,
+        disable_notification: true,
+        reply_to_message_id: 0,
+        reply_markup: Markup.inlineKeyboard([])
+    })
 })
 
 // Markup

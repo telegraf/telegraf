@@ -870,7 +870,7 @@ Start poll updates.
 | --- | --- | --- | --- |
 | [timeout] | `number` | 30 | Poll timeout in seconds |
 | [limit] | `number` | 100 | Limits the number of updates to be retrieved |
-| [allowedUpdates] | `string[]` | null | List the types of updates you want your bot to receive |
+| [allowedUpdates] | `string[]/string/null` | null | List the types of updates you want your bot to receive |
 | [stopCallback] | `function` | null | Polling stop callback |
 
 ##### startWebhook

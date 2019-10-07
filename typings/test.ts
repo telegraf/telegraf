@@ -36,6 +36,29 @@ bot.startWebhook('/secret-path', null, 5000)
 // Start polling
 bot.startPolling()
 
+// Launch - webhook
+bot.launch({ webhook: {} }) // Technically, all webhook parameters are optional, but in this case launch throws an exception
+bot.launch({
+  webhook: {
+    domain: 'https://---.localtunnel.me',
+    port: 3000,
+    hookPath: '/telegraf/mybot',
+    tlsOptions: null,
+    host: '127.0.0.1',
+    cb: (): void => {}
+  }
+})
+
+// Launch - polling
+bot.launch({ polling: {} })
+bot.launch({
+  polling: {
+    timeout: 30,
+    limit: 100,
+    allowedUpdates: null,
+    stopCallback: (): void => {}
+  }
+})
 
 // Markup
 

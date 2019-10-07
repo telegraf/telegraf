@@ -261,24 +261,23 @@ export interface ExtraDocument extends ExtraReplyMessage {
 }
 
 export interface ExtraGame extends ExtraReplyMessage {
-  // no specified game props
-  // https://core.telegram.org/bots/api#sendgame
+  /**
+   * Inline keyboard. If empty, one ‘Play game_title’ button will be shown. If not empty, the first button must launch the game.
+   */
+  reply_markup?: TT.InlineKeyboardMarkup
 
   /**
-   * Does not exist, see https://core.telegram.org/bots/api#senddocument
+   * Does not exist, see https://core.telegram.org/bots/api#sendgame
    */
   disable_web_page_preview?: never
 
   /**
-   * Does not exist, see https://core.telegram.org/bots/api#senddocument
+   * Does not exist, see https://core.telegram.org/bots/api#sendgame
    */
   parse_mode?: never
 }
 
 export interface ExtraInvoice extends ExtraReplyMessage {
-  // no specified invoice props
-  // https://core.telegram.org/bots/api#sendinvoice
-
   /**
    * Inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.
    */
@@ -325,9 +324,6 @@ export interface ExtraPhoto extends ExtraReplyMessage {
 }
 
 export interface ExtraMediaGroup extends ExtraReplyMessage {
-  // no specified location props
-  // https://core.telegram.org/bots/api#sendmediagroup
-
   /**
    * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
    */
@@ -337,6 +333,11 @@ export interface ExtraMediaGroup extends ExtraReplyMessage {
    * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
    */
   parse_mode?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
+   */
+  reply_markup?: never
 }
 
 export interface ExtraAnimation extends ExtraReplyMessage {

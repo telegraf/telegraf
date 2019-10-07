@@ -234,7 +234,10 @@ export interface ExtraAudio extends ExtraReplyMessage {
    */
   thumb?: InputFile
 
-  // FIXME: inherits disable_web_page_preview from ExtraReplyMessage, but this property does not exist
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendaudio
+   */
+  disable_web_page_preview?: never
 }
 
 export interface ExtraDocument extends ExtraReplyMessage {
@@ -251,21 +254,40 @@ export interface ExtraDocument extends ExtraReplyMessage {
    */
   caption?: string
 
-  // FIXME: inherits disable_web_page_preview from ExtraReplyMessage, but this property does not exist
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#senddocument
+   */
+  disable_web_page_preview?: never
 }
 
 export interface ExtraGame extends ExtraReplyMessage {
   // no specified game props
   // https://core.telegram.org/bots/api#sendgame
 
-  // FIXME: does not have these inherited properties: parse_mode, disable_web_page_preview
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#senddocument
+   */
+  disable_web_page_preview?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#senddocument
+   */
+  parse_mode?: never
 }
 
 export interface ExtraInvoice extends ExtraReplyMessage {
   // no specified invoice props
   // https://core.telegram.org/bots/api#sendinvoice
 
-  // FIXME: does not have these inherited proeprties: parse_mode, disable_web_page_preview
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendinvoice
+   */
+  disable_web_page_preview?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendinvoice
+   */
+  parse_mode?: never
 }
 
 export interface ExtraLocation extends ExtraReplyMessage {
@@ -274,7 +296,15 @@ export interface ExtraLocation extends ExtraReplyMessage {
    */
   live_period?: number
 
-  // FIXME: does not have these inherited proeprties: parse_mode, disable_web_page_preview
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendlocation
+   */
+  disable_web_page_preview?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendlocation
+   */
+  parse_mode?: never
 }
 
 export interface ExtraPhoto extends ExtraReplyMessage {

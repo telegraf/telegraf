@@ -67,6 +67,15 @@ bot.hears('something', (ctx) => {
         parse_mode: "Markdown",
         disable_web_page_preview: true
     })
+
+    // tt.ExtraAudio
+    ctx.replyWithAudio('somefile', {
+        caption: '',
+        duration: 0,
+        performer: '',
+        title: '',
+        thumb: ''
+    })
 })
 
 // Markup

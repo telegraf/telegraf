@@ -187,7 +187,7 @@ export interface ContextMessageUpdate extends Context {
    * @param extra Additional params to send message
    * @returns a Message on success
    */
-  replyWithHTML(html: string, extra?: tt.ExtraEditMessage): Promise<tt.Message>
+  replyWithHTML(html: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
 
   /**
    * Use this method to send invoices
@@ -212,7 +212,7 @@ export interface ContextMessageUpdate extends Context {
    * @param extra Additional params to send message
    * @returns a Message on success
    */
-  replyWithMarkdown(markdown: string, extra?: tt.ExtraEditMessage): Promise<tt.Message>
+  replyWithMarkdown(markdown: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
 
   /**
    * Use this method to send photos

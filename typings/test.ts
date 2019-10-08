@@ -110,6 +110,16 @@ bot.hears('something', (ctx) => {
         reply_to_message_id: 0,
         reply_markup: Markup.inlineKeyboard([])
     })
+
+    // tt.ExtraVoice
+    ctx.replyWithVoice('', {
+        caption: '',
+        parse_mode: "Markdown",
+        duration: 0,
+        disable_notification: false,
+        reply_to_message_id: 0,
+        reply_markup: Markup.inlineKeyboard([])
+    })
 })
 
 // Markup

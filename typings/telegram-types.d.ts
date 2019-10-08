@@ -409,6 +409,11 @@ export interface ExtraVoice extends ExtraReplyMessage {
    * Duration of the voice message in seconds
    */
   duration?: number
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendvoice
+   */
+  disable_web_page_preview?: never
 }
 
 export interface IncomingMessage extends TT.Message {

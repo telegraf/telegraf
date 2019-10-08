@@ -1,6 +1,6 @@
 // This is a test file for the TypeScript typings.
 // It is not intended to be used by external users.
-import Telegraf, { Markup, Middleware, ContextMessageUpdate } from './index';
+import Telegraf, { Markup, Middleware, ContextMessageUpdate, Extra } from './index';
 
 const randomPhoto = 'https://picsum.photos/200/300/?random'
 const sayYoMiddleware: Middleware<ContextMessageUpdate> = ({ reply }, next) => reply('yo').then(() => next && next())
@@ -64,7 +64,10 @@ bot.hears('something', (ctx) => {
     // tt.ExtraReplyMessage
     ctx.reply('Response', {
         parse_mode: "Markdown",
-        disable_web_page_preview: true
+        disable_web_page_preview: true,
+        disable_notification: true,
+        reply_to_message_id: 0,
+        reply_markup: Markup.keyboard([])
     })
 
     // tt.ExtraAudio
@@ -89,9 +92,38 @@ bot.hears('something', (ctx) => {
         reply_markup: Markup.inlineKeyboard([])
     })
 
+    // tt.ExtraGame
+    ctx.replyWithGame('game', {
+        disable_notification: true,
+        reply_to_message_id: 0,
+        reply_markup: Markup.inlineKeyboard([])
+    })
+
     // tt.ExtraLocation
     ctx.replyWithLocation(0, 0, {
         live_period: 60,
+        disable_notification: true,
+        reply_to_message_id: 0,
+        reply_markup: Markup.inlineKeyboard([])
+    })
+
+    // tt.ExtraPhoto
+    ctx.replyWithPhoto('', {
+        caption: '',
+        parse_mode: 'HTML',
+        disable_notification: true,
+        reply_to_message_id: 0,
+        reply_markup: Markup.inlineKeyboard([])
+    })
+
+    // tt.ExtraMediaGroup
+    ctx.replyWithMediaGroup([], {
+        disable_notification: false,
+        reply_to_message_id: 0
+    })
+
+    // tt.ExtraSticker
+    ctx.replyWithSticker('', {
         disable_notification: true,
         reply_to_message_id: 0,
         reply_markup: Markup.inlineKeyboard([])

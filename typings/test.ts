@@ -2,7 +2,6 @@
 // It is not intended to be used by external users.
 import Telegraf, { Markup, Middleware, ContextMessageUpdate } from './index';
 
-
 const randomPhoto = 'https://picsum.photos/200/300/?random'
 const sayYoMiddleware: Middleware<ContextMessageUpdate> = ({ reply }, next) => reply('yo').then(() => next && next())
 
@@ -93,6 +92,20 @@ bot.hears('something', (ctx) => {
     // tt.ExtraLocation
     ctx.replyWithLocation(0, 0, {
         live_period: 60,
+        disable_notification: true,
+        reply_to_message_id: 0,
+        reply_markup: Markup.inlineKeyboard([])
+    })
+
+    // tt.ExtraVideo
+    ctx.replyWithVideo('', {
+        duration: 0,
+        width: 0,
+        height: 0,
+        thumb: '',
+        caption: '',
+        supports_streaming: false,
+        parse_mode: "HTML",
         disable_notification: true,
         reply_to_message_id: 0,
         reply_markup: Markup.inlineKeyboard([])

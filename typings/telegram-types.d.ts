@@ -318,9 +318,9 @@ export interface ExtraPhoto extends ExtraReplyMessage {
   caption?: string
 
   /**
-   * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+   * Does not exist, see https://core.telegram.org/bots/api#sendphoto
    */
-  parse_mode?: ParseMode
+  disable_web_page_preview?: never
 }
 
 export interface ExtraMediaGroup extends ExtraReplyMessage {

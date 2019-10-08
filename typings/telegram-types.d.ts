@@ -176,6 +176,16 @@ export type InputFile =
 export interface ExtraReplyMessage {
 
   /**
+   * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
+   */
+  parse_mode?: ParseMode
+
+  /**
+   * Disables link previews for links in this message
+   */
+  disable_web_page_preview?: boolean
+
+  /**
    * Sends the message silently. Users will receive a notification with no sound.
    */
   disable_notification?: boolean
@@ -192,21 +202,12 @@ export interface ExtraReplyMessage {
 }
 
 export interface ExtraEditMessage extends ExtraReplyMessage {
-  /**
-   * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
-   */
-  parse_mode?: ParseMode
-
-  /**
-   * Disables link previews for links in this message
-   */
-  disable_web_page_preview?: boolean
-
+  // no specified properties
 }
 
 export interface ExtraAudio extends ExtraReplyMessage {
   /**
-   * Audio caption, 0-200 characters
+   * Audio caption, 0-1024 characters
    */
   caption?: string
 
@@ -224,28 +225,90 @@ export interface ExtraAudio extends ExtraReplyMessage {
    * Track name
    */
   title?: string
+
+  /**
+   * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
+   * The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail‘s width and height should not exceed 320.
+   * Ignored if the file is not uploaded using multipart/form-data. Thumbnails can’t be reused and can be only uploaded as a new file,
+   * so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+   */
+  thumb?: InputFile
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendaudio
+   */
+  disable_web_page_preview?: never
 }
 
 export interface ExtraDocument extends ExtraReplyMessage {
   /**
-   * Document caption (may also be used when resending documents by file_id), 0-200 characters
+   * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
+   * The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail‘s width and height should not exceed 320.
+   * Ignored if the file is not uploaded using multipart/form-data. Thumbnails can’t be reused and can be only uploaded as a new file,
+   * so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+   */
+  thumb?: InputFile
+
+  /**
+   * Document caption (may also be used when resending documents by file_id), 0-1024 characters
    */
   caption?: string
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#senddocument
+   */
+  disable_web_page_preview?: never
 }
 
 export interface ExtraGame extends ExtraReplyMessage {
-  // no specified game props
-  // https://core.telegram.org/bots/api#sendgame
+  /**
+   * Inline keyboard. If empty, one ‘Play game_title’ button will be shown. If not empty, the first button must launch the game.
+   */
+  reply_markup?: TT.InlineKeyboardMarkup
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendgame
+   */
+  disable_web_page_preview?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendgame
+   */
+  parse_mode?: never
 }
 
 export interface ExtraInvoice extends ExtraReplyMessage {
-  // no specified invoice props
-  // https://core.telegram.org/bots/api#sendinvoice
+  /**
+   * Inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.
+   */
+  reply_markup?: TT.InlineKeyboardMarkup
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendinvoice
+   */
+  disable_web_page_preview?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendinvoice
+   */
+  parse_mode?: never
 }
 
 export interface ExtraLocation extends ExtraReplyMessage {
-  // no specified location props
-  // https://core.telegram.org/bots/api#sendlocation
+  /**
+   * Period in seconds for which the location will be updated (should be between 60 and 86400)
+   */
+  live_period?: number
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendlocation
+   */
+  disable_web_page_preview?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendlocation
+   */
+  parse_mode?: never
 }
 
 export interface ExtraPhoto extends ExtraReplyMessage {
@@ -255,14 +318,26 @@ export interface ExtraPhoto extends ExtraReplyMessage {
   caption?: string
 
   /**
-   * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in the media caption.
+   * Does not exist, see https://core.telegram.org/bots/api#sendphoto
    */
-  parse_mode?: ParseMode
+  disable_web_page_preview?: never
 }
 
 export interface ExtraMediaGroup extends ExtraReplyMessage {
-  // no specified location props
-  // https://core.telegram.org/bots/api#sendmediagroup
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
+   */
+  disable_web_page_preview?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
+   */
+  parse_mode?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
+   */
+  reply_markup?: never
 }
 
 export interface ExtraAnimation extends ExtraReplyMessage {
@@ -273,13 +348,55 @@ export interface ExtraAnimation extends ExtraReplyMessage {
 }
 
 export interface ExtraSticker extends ExtraReplyMessage {
-  // no specified sticker props
-  // https://core.telegram.org/bots/api#sendsticker
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendsticker
+   */
+  disable_web_page_preview?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendsticker
+   */
+  parse_mode?: never
 }
 
 export interface ExtraVideo extends ExtraReplyMessage {
-  // no specified video props
-  // https://core.telegram.org/bots/api#sendvideo
+  /**
+   * Duration of sent video in seconds
+   */
+  duration?: number
+
+  /**
+   * Video width
+   */
+  width?: number
+
+  /**
+   * Video height
+   */
+  height?: number
+
+  /**
+   * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
+   * The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail‘s width and height should not exceed 320.
+   * Ignored if the file is not uploaded using multipart/form-data. Thumbnails can’t be reused and can be only uploaded as a new file,
+   * so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+   */
+  thumb?: InputFile
+
+  /**
+   * Video caption (may also be used when resending videos by file_id), 0-1024 characters
+   */
+  caption?: string
+
+  /**
+   * Pass True, if the uploaded video is suitable for streaming
+   */
+  supports_streaming?: boolean
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendvideo
+   */
+  disable_web_page_preview?: never
 }
 
 export interface ExtraVoice extends ExtraReplyMessage {
@@ -292,6 +409,11 @@ export interface ExtraVoice extends ExtraReplyMessage {
    * Duration of the voice message in seconds
    */
   duration?: number
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendvoice
+   */
+  disable_web_page_preview?: never
 }
 
 export interface IncomingMessage extends TT.Message {

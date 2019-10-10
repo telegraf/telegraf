@@ -35,6 +35,10 @@ or using `yarn`:
 $ yarn add telegraf
 ```
 
+### Documentation
+
+[Telegraf developer docs](http://telegraf.js.org)
+
 ### Examples
   
 ```js
@@ -59,7 +63,3 @@ bot.launch()
 ```
 
 There's some cool [examples too](docs/examples/).
-
-### Documentation
-
-[Telegraf developer docs](http://telegraf.js.org)

@@ -35,7 +35,8 @@ module.exports = {
     video: 'sendVideo',
     video_note: 'sendVideoNote',
     animation: 'sendAnimation',
-    voice: 'sendVoice'
+    voice: 'sendVoice',
+    poll: 'sendPoll'
   },
   text: (message) => {
     const entities = message.entities || []
@@ -146,6 +147,12 @@ module.exports = {
       animation: message.animation.file_id,
       thumb: message.animation.thumb,
       duration: message.animation.duration
+    }
+  },
+  poll: (message) => {
+    return {
+      question: message.poll.question,
+      options: message.poll.options.map(({ text }) => text)
     }
   }
 }

@@ -100,7 +100,7 @@ bot.action('Dr Pepper', (ctx, next) => {
 
 bot.action('plain', async (ctx) => {
   await ctx.answerCbQuery()
-  ctx.editMessageCaption('Caption', Markup.inlineKeyboard([
+  await ctx.editMessageCaption('Caption', Markup.inlineKeyboard([
     Markup.callbackButton('Plain', 'plain'),
     Markup.callbackButton('Italic', 'italic')
   ]))
@@ -108,7 +108,7 @@ bot.action('plain', async (ctx) => {
 
 bot.action('italic', async (ctx) => {
   await ctx.answerCbQuery()
-  ctx.editMessageCaption('_Caption_', Extra.markdown().markup(Markup.inlineKeyboard([
+  await ctx.editMessageCaption('_Caption_', Extra.markdown().markup(Markup.inlineKeyboard([
     Markup.callbackButton('Plain', 'plain'),
     Markup.callbackButton('* Italic *', 'italic')
   ])))

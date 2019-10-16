@@ -1,17 +1,10 @@
-## telegraf.js
+![Telegraf](header.png)
 
-Modern Telegram bot framework.
+## Introduction
 
 Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
 Users can interact with bots by sending them command messages in private or group chats. 
 These accounts serve as an interface for code running somewhere on your server.
-
-![Telegraf](header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v4.4-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
-[![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
-[![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
-[![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com/)
 
 #### Features
 
@@ -49,7 +42,6 @@ bot.on('sticker', (ctx) => ctx.reply('👍'))
 bot.hears('hi', (ctx) => ctx.reply('Hey there'))
 bot.launch()
 ```
-
 
 ```js
 const Telegraf = require('telegraf')
@@ -100,7 +92,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [TereGramBot](https://github.com/juandjara/TereGramBot)
 * Send PR to add link to your bot
 
-## Introduction
+## Getting started
 
 #### Telegram token
 
@@ -130,29 +122,15 @@ It returns a Promise with a then function for running code after completion.
 ```js
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.use((ctx, next) => {
-  const start = new Date()
-  return next(ctx).then(() => {
-    const ms = new Date() - start
-    console.log('Response time %sms', ms)
-  })
-})
-
-bot.on('text', (ctx) => ctx.reply('Hello World'))
-bot.launch()
-```
-
-##### Cascading with async functions
-
-You might need Babel or `node >=v.7.x` with harmony flags or `@std/esm` package for running following example.
-
-```js
 bot.use(async (ctx, next) => {
   const start = new Date()
   await next()
   const ms = new Date() - start
-  console.log('Response time %sms', ms)
+  console.log('Response time: %sms', ms)
 })
+
+bot.on('text', (ctx) => ctx.reply('Hello World'))
+bot.launch()
 ```
 
 ##### Known middleware
@@ -171,7 +149,7 @@ bot.use(async (ctx, next) => {
 
 #### Error handling
 
-By default Telegraf will print all errors to stderr and rethrow error.
+By default Telegraf will print all errors to `stderr` and rethrow error.
 
 To perform custom error-handling logic use following snippet:
 
@@ -342,7 +320,7 @@ bot.command('quit', (ctx) => {
   // Explicit usage
   ctx.telegram.leaveChat(ctx.message.chat.id)
 
-  // Using shortcut
+  // Using context shortcut
   ctx.leaveChat()
 })
 
@@ -350,7 +328,7 @@ bot.on('text', (ctx) => {
   // Explicit usage
   ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`)
 
-  // Using shortcut
+  // Using context shortcut
   ctx.reply(`Hello ${ctx.state.role}`)
 })
 
@@ -358,7 +336,7 @@ bot.on('callback_query', (ctx) => {
   // Explicit usage
   ctx.telegram.answerCbQuery(ctx.callbackQuery.id)
 
-  // Using shortcut
+  // Using context shortcut
   ctx.answerCbQuery()
 })
 
@@ -367,7 +345,7 @@ bot.on('inline_query', (ctx) => {
   // Explicit usage
   ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result)
 
-  // Using shortcut
+  // Using context shortcut
   ctx.answerInlineQuery(result)
 })
 
@@ -410,7 +388,7 @@ bot.on('text', (ctx) => {
 bot.launch()
 ```
 
-**Note: For persistent sessions you might use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
+**Note: For persistent sessions you can use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
 
 **Tip: To use same session in private chat with bot and in inline mode, use following session key resolver:**
 
@@ -471,6 +449,7 @@ Available update sub-types:
 - `successful_payment`
 - `connected_website`
 - `passport_data`
+- `poll`
 
 ```js
 // Handle message update
@@ -990,6 +969,17 @@ Generates optional middleware.
 | Param | Type | Description |
 | --- | --- | --- |
 | test | `truthy/function` | Value or predicate `(ctx) => bool` |
+| middleware | `function` | middleware |
+
+##### Telegraf.acl
+
+Generates middleware for provided users only.
+
+`Telegraf.acl(userId, ...middleware) => function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| userId | `string/string[]` | User id |
 | middleware | `function` | middleware |
 
 ##### Telegraf.drop

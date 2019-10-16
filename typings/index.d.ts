@@ -17,10 +17,16 @@ export interface TelegramOptions {
    * Reply via webhook
    */
   webhookReply?: boolean
+
+  /**
+   * Path to API. default: https://api.telegram.org
+   */
+  apiRoot?: string
 }
 
 export interface Context {
   updateType: tt.UpdateType;
+  updateSubTypes: tt.MessageSubTypes[];
   update: tt.Update;
   telegram: Telegram
   callbackQuery?: tt.CallbackQuery
@@ -181,7 +187,7 @@ export interface ContextMessageUpdate extends Context {
    * @param extra Additional params to send message
    * @returns a Message on success
    */
-  replyWithHTML(html: string, extra?: tt.ExtraEditMessage): Promise<tt.Message>
+  replyWithHTML(html: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
 
   /**
    * Use this method to send invoices
@@ -206,7 +212,7 @@ export interface ContextMessageUpdate extends Context {
    * @param extra Additional params to send message
    * @returns a Message on success
    */
-  replyWithMarkdown(markdown: string, extra?: tt.ExtraEditMessage): Promise<tt.Message>
+  replyWithMarkdown(markdown: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
 
   /**
    * Use this method to send photos
@@ -215,6 +221,14 @@ export interface ContextMessageUpdate extends Context {
    * @returns a Message on success
    */
   replyWithPhoto(photo: tt.InputFile, extra?: tt.ExtraPhoto): Promise<tt.MessagePhoto>
+
+  /**
+   * Use this method to send a group of photos or videos as an album
+   * @param media A JSON-serialized array describing photos and videos to be sent, must include 2–10 items
+   * @param extra Additional params to send media group
+   * @returns On success, an array of the sent Messages is returned
+   */
+  replyWithMediaGroup(media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<Array<tt.Message>>
 
   /**
    * Use this method to send .webp stickers
@@ -254,16 +268,6 @@ export interface ContextMessageUpdate extends Context {
    * @param extra Extra optional parameters
    */
   answerInlineQuery(results: tt.InlineQueryResult[], extra?: tt.ExtraAnswerInlineQuery): Promise<boolean>
-
-  /**
-   * @deprecated answerCallbackQuery() is deprecated, use answerCbQuery() instead
-   * Use this method to send answers to callback queries.
-   * @param text Notification text
-   * @param url Game url
-   * @param showAlert Show alert instead of notification
-   * @param cacheTime The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0.
-   */
-  answerCallbackQuery(text?: string, url?: string, showAlert?: boolean, cacheTime?: number): Promise<boolean>
 
   answerCbQuery(text?: string, showAlert?: boolean, extra?: object): Promise<boolean>
 
@@ -321,6 +325,14 @@ export interface ContextMessageUpdate extends Context {
   editMessageReplyMarkup(markup?: tt.InlineKeyboardMarkup): Promise<tt.Message | boolean>
 
   /**
+   * Use this method to edit animation, audio, document, photo, or video messages.
+   * @returns On success, if the edited message was sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param media New media of message
+   * @param markup Markup of inline keyboard
+   */
+  editMessageMedia(media: tt.MessageMedia ,extra?: tt.ExtraEditMessage): Promise<tt.Message | boolean>
+
+  /**
    * Use this method to delete a message, including service messages, with the following limitations:
    * - A message can only be deleted if it was sent less than 48 hours ago.
    * - Bots can delete outgoing messages in groups and supergroups.
@@ -350,6 +362,43 @@ export interface ContextMessageUpdate extends Context {
 
 }
 
+export interface SceneContextOptions {
+  sessionName: string;
+  default?: string;
+  ttl?: number;
+
+}
+
+export interface SceneContext<TContext extends SceneContextMessageUpdate> {
+  ctx: TContext;
+
+  scenes: Map<string, Scene<TContext>>;
+
+  options: SceneContextOptions;
+
+  readonly session: {
+    state?: object,
+    current?: string,
+    expires?: number
+  },
+
+  state: object;
+
+  readonly current: BaseScene<TContext> | null;
+
+  reset: () => void;
+
+  enter: (sceneId: string, initialState?: object, silent?: boolean) => Promise<any>;
+
+  reenter: () => Promise<any>;
+
+  leave: () => Promise<any>
+}
+
+export interface SceneContextMessageUpdate extends ContextMessageUpdate {
+  scene: SceneContext<this>
+}
+
 export interface Middleware<TContext extends ContextMessageUpdate> {
   (ctx: TContext, next?: () => any): any
 }
@@ -363,16 +412,6 @@ export interface Telegram {
    * Use this property to control reply via webhook feature.
    */
   webhookReply: boolean
-
-  /**
-   * Use this method to send answers to callback queries.
-   * @param callbackQueryId Query id
-   * @param text Notification text
-   * @param url Game url
-   * @param showAlert Show alert instead of notification
-   * @param cacheTime The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0.
-   */
-  answerCallbackQuery(callbackQueryId: string, text?: string, url?: string, showAlert?: boolean, cacheTime?: number): Promise<boolean>
 
   /**
    * Use this method to send answers to game query.
@@ -411,6 +450,16 @@ export interface Telegram {
    * @param extra Extra optional parameters
    */
   answerInlineQuery(inlineQueryId: string, results: Array<tt.InlineQueryResult>, extra?: tt.ExtraAnswerInlineQuery): Promise<boolean>
+
+  /**
+   * Use this method to forward exists message.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param fromChatId Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+   * @param messageId Message identifier in the chat specified in from_chat_id
+   * @param extra Pass `{ disable_notification: true }`, if it is not necessary to send a notification for forwarded message
+   * @returns On success, the sent Message is returned.
+   */
+  forwardMessage(chatId: number | string, fromChatId: number | string, messageId: string | number, extra?: { disable_notification?: boolean }): Promise<tt.Message>;
 
   /**
    * Use this method to edit text and game messages sent by the bot or via the bot (for inline bots).
@@ -571,7 +620,7 @@ export interface Telegram {
    * @param chatId Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
    * @param user_id Unique identifier of the target user
    * @param extra Additional params for restrict chat member
-   * @returns True on success 
+   * @returns True on success
    */
   restrictChatMember(chatId: string | number, userId: number, extra?: {
     until_date?: boolean,
@@ -679,6 +728,15 @@ export interface Telegram {
    * @returns a Message on success
    */
   sendPhoto(chatId: number | string, photo: tt.InputFile, extra?: tt.ExtraPhoto): Promise<tt.MessagePhoto>
+
+  /**
+   * Use this method to send a group of photos or videos as an album
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param media A JSON-serialized array describing photos and videos to be sent, must include 2–10 items
+   * @param extra Additional params to send media group
+   * @returns On success, an array of the sent Messages is returned
+   */
+  sendMediaGroup(chatId: number | string, media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<Array<tt.Message>>
 
   /**
    * Use this method to send .gif animations
@@ -802,6 +860,11 @@ export interface Composer<TContext extends ContextMessageUpdate> {
   on(updateTypes: tt.UpdateType | tt.UpdateType[] | tt.MessageSubTypes | tt.MessageSubTypes[], middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
   /**
+   * Return the middleware created by this Composer
+   */
+  middleware(): Middleware<TContext>
+
+  /**
    * Registers middleware for handling text messages.
    * @param triggers Triggers
    * @param middlewares Middleware functions
@@ -859,7 +922,7 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   mount<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (updateTypes: tt.UpdateType | tt.UpdateType[], middleware: Middleware<TContext>): Middleware<UContext>
+    (updateTypes: tt.UpdateType | tt.UpdateType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware for handling text messages with regular expressions.
@@ -867,7 +930,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   hears<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
+    (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware for handling callbackQuery data with regular expressions.
@@ -875,7 +938,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   action<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (triggers: HearsTriggers, handler: Middleware<TContext>): Middleware<UContext>
+    (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates pass thru middleware.
@@ -893,7 +956,7 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   optional<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (test: boolean | ((ctx: TContext) => boolean), middleware: Middleware<TContext>): Middleware<UContext>
+    (test: boolean | ((ctx: TContext) => boolean), ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates filter middleware.
@@ -919,9 +982,85 @@ export interface ComposerConstructor {
   fork<TContext extends ContextMessageUpdate>(middleware: Middleware<TContext>): Function;
 
   log(logFn?: Function): Middleware<ContextMessageUpdate>;
+
+  /**
+   * Generates middleware which passes through when the requested chat type is not in the request.
+   * @param Chat Type to trigger the given middleware. Other types will pass through
+   * @param middleware Middleware function
+   */
+  chatType<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+    (type: tt.ChatType | tt.ChatType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+
+  /**
+   * Generates middleware which passes through when the requested chat type is not a private chat.
+   * @param middleware Middleware function
+   */
+  privateChat<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+    (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+
+  /**
+   * Generates middleware which passes through when the requested chat type is not a group.
+   * @param middleware Middleware function
+   */
+  groupChat<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
+    (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 }
 
 export const Telegraf: TelegrafConstructor;
+
+export interface LaunchPollingOptions {
+  /**
+   * Poll timeout in seconds
+   */
+  timeout?: number
+
+  /**
+   * Limits the number of updates to be retrieved
+   */
+  limit?: number
+
+  /**
+   * List the types of updates you want your bot to receive
+   */
+  allowedUpdates?: tt.UpdateType[] | tt.UpdateType | null
+
+  /**
+   * Polling stop callback
+   */
+  stopCallback?: () => void | null
+}
+
+export interface LaunchWebhookOptions {
+  /**
+   * Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component).
+   */
+  domain?: string
+
+  /**
+   * Webhook url path; will be automatically generated if not specified
+   */
+  hookPath?: string
+
+  /**
+   * The port to listen on for Telegram calls. If port is omitted or is 0, the operating system will assign an arbitrary unused port.
+   */
+  port?: number
+
+  /**
+   * The host to listen on for Telegram calls. If host is omitted, the server will accept connections on the unspecified IPv6 address (::) when IPv6 is available, or the unspecified IPv4 address (0.0.0.0) otherwise.
+   */
+  host?: string
+
+  /**
+   * TLS server options. Pass null (or omit) to use http.
+   */
+  tlsOptions?: TlsOptions | null
+
+  /**
+   * A callback function suitable for the http[s].createServer() method to handle a request.
+   */
+  cb?: (req: IncomingMessage, res: ServerResponse) => void
+}
 
 export interface Telegraf<TContext extends ContextMessageUpdate> extends Composer<TContext> {
   /**
@@ -956,8 +1095,8 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    */
   launch(
     options?: {
-      polling?: { timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[] },
-      webhook?: { webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string }
+      polling?: LaunchPollingOptions,
+      webhook?: LaunchWebhookOptions
     }
   ): Promise<void>
 
@@ -966,17 +1105,19 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    * @param timeout Poll timeout in seconds
    * @param limit Limits the number of updates to be retrieved
    * @param allowedUpdates List the types of updates you want your bot to receive
+   * @param stopCallback Polling stop callback
    */
-  startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[]): Telegraf<TContext>
+  startPolling(timeout?: number, limit?: number, allowedUpdates?: tt.UpdateType[] | tt.UpdateType | null, stopCallback?: () => void | null): Telegraf<TContext>
 
   /**
-   * Start listening @ https://host:port/webhookPath for Telegram calls.
-   * @param webhookPath Webhook url path (see Telegraf.setWebhook)
+   * Start listening @ https://host:port/hookPath for Telegram calls.
+   * @param hookPath Webhook url path (see Telegraf.setWebhook)
    * @param tlsOptions TLS server options. Pass null to use http
    * @param port Port number
    * @param host Hostname
+   * @param cb A callback function suitable for the http[s].createServer() method to handle a request.
    */
-  startWebhook(webhookPath: string, tlsOptions: TlsOptions | null, port: number, host?: string): Telegraf<TContext>
+  startWebhook(hookPath: string, tlsOptions?: TlsOptions | null, port?: number, host?: string, cb?: (req: IncomingMessage, res: ServerResponse) => void): Telegraf<TContext>
 
   /**
    * Stop Webhook and polling
@@ -986,9 +1127,9 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
   /**
    * Return a callback function suitable for the http[s].createServer() method to handle a request.
    * You may also use this callback function to mount your telegraf app in a Koa/Connect/Express app.
-   * @param webhookPath Webhook url path (see Telegraf.setWebhook)
+   * @param hookPath Webhook url path (see Telegraf.setWebhook)
    */
-  webhookCallback(webhookPath: string): (req: IncomingMessage, res: ServerResponse) => void
+  webhookCallback(hookPath: string): (req: IncomingMessage, res: ServerResponse) => void
 
   /**
    * Handle raw Telegram update. In case you use centralized webhook server, queue, etc.
@@ -1165,7 +1306,61 @@ export class Extra {
   static markdown(value?: boolean): Extra;
 }
 
-export interface TelegrafConstructor {
+export interface BaseSceneOptions<TContext extends SceneContextMessageUpdate> {
+  handlers: Middleware<TContext>[];
+  enterHandlers: Middleware<TContext>[];
+  leaveHandlers: Middleware<TContext>[];
+  ttl?: number;
+}
+
+export class BaseScene<TContext extends SceneContextMessageUpdate> extends Composer<TContext> {
+  constructor(id: string, options?: Partial<BaseSceneOptions<TContext>>)
+
+  id: string;
+
+  options: BaseSceneOptions<TContext>;
+
+  enterHandler: Middleware<TContext>;
+
+  leaveHandler: Middleware<TContext>;
+
+  ttl?: number;
+
+  enter: (...fns: Middleware<TContext>[]) => this;
+
+  leave: (...fns: Middleware<TContext>[]) => this;
+
+  enterMiddleware: () => Middleware<TContext>;
+
+  leaveMiddleware: () => Middleware<TContext>;
+}
+
+export type Scene<TContext extends SceneContextMessageUpdate> = BaseScene<TContext>;
+
+export type StageOptions = SceneContextOptions;
+
+export class Stage<TContext extends SceneContextMessageUpdate> extends Composer<TContext> {
+  constructor(scenes: Scene<TContext>[], options?: Partial<StageOptions>)
+
+  register: (...scenes: Scene<TContext>[]) => this;
+
+  middleware: () => Middleware<TContext>;
+
+  static enter: (sceneId: string, initialState?: object, silent?: boolean) => Middleware<SceneContextMessageUpdate>;
+
+  static reenter: () => Middleware<SceneContextMessageUpdate>;
+
+  static leave: () => Middleware<SceneContextMessageUpdate>;
+}
+
+export function session<TContext extends ContextMessageUpdate>(opts?: Partial<{
+  property: string;
+  store: Map<string, any>;
+  getSessionKey: (ctx: TContext) => string;
+  ttl: number;
+}>): Middleware<TContext>;
+
+export interface TelegrafConstructor extends ComposerConstructor {
   /**
    * Initialize new Telegraf app.
    * @param token Bot token

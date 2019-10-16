@@ -1,17 +1,10 @@
-## telegraf.js
+![Telegraf](header.png)
 
-Modern Telegram bot framework.
+## Introduction
 
 Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
 Users can interact with bots by sending them command messages in private or group chats. 
 These accounts serve as an interface for code running somewhere on your server.
-
-![Telegraf](header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v4.4-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
-[![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
-[![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
-[![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com/)
 
 #### Features
 
@@ -50,7 +43,6 @@ bot.hears('hi', (ctx) => ctx.reply('Hey there'))
 bot.launch()
 ```
 
-
 ```js
 const Telegraf = require('telegraf')
 
@@ -65,39 +57,42 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 **Community bots:**
 
-* [OneQRBot: scan and generate QR](https://github.com/Khuzha/oneqrbot)
-* [RandomPassBot: generate a password](https://github.com/Khuzha/randompassbot)
-* [Referal system: channels promoter](https://github.com/Khuzha/refbot)
-* [SimpleRegBot](https://github.com/Khuzha/simpleRegBot)
-* [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
-* [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
-* [Counter Bot](https://github.com/leodj/telegram-counter-bot)
-* [GNU/Linux Indonesia Bot](https://github.com/bgli/bglibot-js)
-* [The Guard Bot](https://github.com/TheDevs-Network/the-guard-bot)
+* [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot)
 * [Chat Linker Bot](https://github.com/jt3k/chat-linker)
-* [Spyfall Game Bot](https://github.com/verget/telegram-spy-game)
-* [telegram-telegraf-bot](https://github.com/Finalgalaxy/telegram-telegraf-bot)
-* [midnabot](https://github.com/wsknorth/midnabot)
-* [Metal Archives Bot](https://github.com/amiralies/metalarchives-telegram-bot)
-* [Syntax Highlighter Bot](https://github.com/piterden/syntax-highlighter-bot)
-* [PodSearch bot(TypeScript)](https://fazendaaa.github.io/podsearch_bot/)
-* [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot)
-* [Nyaa.si bot](https://github.com/ejnshtein/nyaasi-bot)
-* [Mangadex bot](https://github.com/ejnshtein/mangadex_bot)
-* [Ordis Prime](https://github.com/MaxTgr/Ordis-Prime)
-* [telegraf-rutracker-transmission](https://github.com/DZamataev/telegraf-rutracker-transmission)
-* [kitchen-timer-bot](https://github.com/DZamataev/kitchen-timer-bot)
+* [Counter Bot](https://github.com/leodj/telegram-counter-bot)
 * [Eve Movies bot](https://github.com/dmbaranov/evemovies-bot)
-* [Shieldy](https://github.com/backmeupplz/shieldy)
-* [Temply](https://github.com/backmeupplz/temply)
+* [GNU/Linux Indonesia Bot](https://github.com/bgli/bglibot-js)
+* [Groups Admin Bot](https://github.com/Azhant/AdminBot)
+* [kitchen-timer-bot](https://github.com/DZamataev/kitchen-timer-bot)
+* [Mangadex bot](https://github.com/ejnshtein/mangadex_bot)
+* [Memcoin](https://github.com/backmeupplz/memcoin)
+* [Metal Archives Bot](https://github.com/amiralies/metalarchives-telegram-bot)
+* [midnabot](https://github.com/wsknorth/midnabot)
+* [Nyaa.si bot](https://github.com/ejnshtein/nyaasi-bot)
+* [OneQRBot: scan and generate QR](https://github.com/Khuzha/oneqrbot)
+* [Ordis Prime](https://github.com/MaxTgr/Ordis-Prime)
+* [PodSearch bot(TypeScript)](https://fazendaaa.github.io/podsearch_bot/)
+* [RandomPassBot: generate a password](https://github.com/Khuzha/randompassbot)
 * [Randy](https://github.com/backmeupplz/randymbot)
+* [Referal system: channels promoter](https://github.com/Khuzha/refbot)
+* [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
+* [Shieldy](https://github.com/backmeupplz/shieldy)
+* [SimpleRegBot](https://github.com/Khuzha/simpleRegBot)
+* [Spyfall Game Bot](https://github.com/verget/telegram-spy-game)
+* [Syntax Highlighter Bot](https://github.com/piterden/syntax-highlighter-bot)
+* [telegraf-rutracker-transmission](https://github.com/DZamataev/telegraf-rutracker-transmission)
+* [telegram-telegraf-bot](https://github.com/Finalgalaxy/telegram-telegraf-bot)
+* [Temply](https://github.com/backmeupplz/temply)
+* [The Guard Bot](https://github.com/TheDevs-Network/the-guard-bot)
 * [Voicy](https://github.com/backmeupplz/voicy)
 * [Watchy](https://github.com/backmeupplz/watchy)
-* [Memcoin](https://github.com/backmeupplz/memcoin)
-* [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot)
+* [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
+* [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot)
+* [Google it Bot: Instant Inline Search](https://github.com/Edgar-P-yan/google-it-telegram-bot)
+* [TereGramBot](https://github.com/juandjara/TereGramBot)
 * Send PR to add link to your bot
 
-## Introduction
+## Getting started
 
 #### Telegram token
 
@@ -127,29 +122,15 @@ It returns a Promise with a then function for running code after completion.
 ```js
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.use((ctx, next) => {
-  const start = new Date()
-  return next(ctx).then(() => {
-    const ms = new Date() - start
-    console.log('Response time %sms', ms)
-  })
-})
-
-bot.on('text', (ctx) => ctx.reply('Hello World'))
-bot.launch()
-```
-
-##### Cascading with async functions
-
-You might need Babel or `node >=v.7.x` with harmony flags or `@std/esm` package for running following example.
-
-```js
 bot.use(async (ctx, next) => {
   const start = new Date()
   await next()
   const ms = new Date() - start
-  console.log('Response time %sms', ms)
+  console.log('Response time: %sms', ms)
 })
+
+bot.on('text', (ctx) => ctx.reply('Hello World'))
+bot.launch()
 ```
 
 ##### Known middleware
@@ -168,7 +149,7 @@ bot.use(async (ctx, next) => {
 
 #### Error handling
 
-By default Telegraf will print all errors to stderr and rethrow error.
+By default Telegraf will print all errors to `stderr` and rethrow error.
 
 To perform custom error-handling logic use following snippet:
 
@@ -339,7 +320,7 @@ bot.command('quit', (ctx) => {
   // Explicit usage
   ctx.telegram.leaveChat(ctx.message.chat.id)
 
-  // Using shortcut
+  // Using context shortcut
   ctx.leaveChat()
 })
 
@@ -347,7 +328,7 @@ bot.on('text', (ctx) => {
   // Explicit usage
   ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`)
 
-  // Using shortcut
+  // Using context shortcut
   ctx.reply(`Hello ${ctx.state.role}`)
 })
 
@@ -355,7 +336,7 @@ bot.on('callback_query', (ctx) => {
   // Explicit usage
   ctx.telegram.answerCbQuery(ctx.callbackQuery.id)
 
-  // Using shortcut
+  // Using context shortcut
   ctx.answerCbQuery()
 })
 
@@ -364,7 +345,7 @@ bot.on('inline_query', (ctx) => {
   // Explicit usage
   ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result)
 
-  // Using shortcut
+  // Using context shortcut
   ctx.answerInlineQuery(result)
 })
 
@@ -407,7 +388,7 @@ bot.on('text', (ctx) => {
 bot.launch()
 ```
 
-**Note: For persistent sessions you might use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
+**Note: For persistent sessions you can use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
 
 **Tip: To use same session in private chat with bot and in inline mode, use following session key resolver:**
 
@@ -468,6 +449,7 @@ Available update sub-types:
 - `successful_payment`
 - `connected_website`
 - `passport_data`
+- `poll`
 
 ```js
 // Handle message update
@@ -495,12 +477,14 @@ const tlsOptions = {
   key: fs.readFileSync('server-key.pem'),
   cert: fs.readFileSync('server-cert.pem'),
   ca: [
-    // This is necessary only if the client uses the self-signed certificate.
+    // This is necessary only if the client uses a self-signed certificate.
     fs.readFileSync('client-cert.pem')
   ]
 }
 
 // Set telegram webhook
+// The second argument is necessary only if the client uses a self-signed 
+// certificate. Including it for a verified certificate may cause things to break.
 bot.telegram.setWebhook('https://server.tld:8443/secret-path', {
   source: 'server-cert.pem'
 })
@@ -865,7 +849,7 @@ Start poll updates.
 | --- | --- | --- | --- |
 | [timeout] | `number` | 30 | Poll timeout in seconds |
 | [limit] | `number` | 100 | Limits the number of updates to be retrieved |
-| [allowedUpdates] | `string[]` | null | List the types of updates you want your bot to receive |
+| [allowedUpdates] | `string[]/string/null` | null | List the types of updates you want your bot to receive |
 | [stopCallback] | `function` | null | Polling stop callback |
 
 ##### startWebhook
@@ -885,7 +869,7 @@ Start listening @ `https://host:port/webhookPath` for Telegram calls.
 
 Stop Webhook and polling
 
-`telegraf.stop([callback])`
+`telegraf.stop() => Promise`
 
 ##### webhookCallback
 
@@ -985,6 +969,17 @@ Generates optional middleware.
 | Param | Type | Description |
 | --- | --- | --- |
 | test | `truthy/function` | Value or predicate `(ctx) => bool` |
+| middleware | `function` | middleware |
+
+##### Telegraf.acl
+
+Generates middleware for provided users only.
+
+`Telegraf.acl(userId, ...middleware) => function`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| userId | `string/string[]` | User id |
 | middleware | `function` | middleware |
 
 ##### Telegraf.drop
@@ -1916,7 +1911,7 @@ Specifies an url to receive incoming updates via an outgoing webhook.
 | ---  | --- | --- |
 | url  | `string` | Public url for webhook |
 | [cert] | `File` | SSL public certificate |
-| [maxConnections] | `number` | User id |
+| [maxConnections] | `number` | Maximum allowed number of simultaneous HTTPS connections to the webhook |
 | [allowedUpdates] | `string[]` | List the types of updates you want your bot to receive |
 
 ##### unbanChatMember

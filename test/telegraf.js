@@ -181,7 +181,7 @@ test.cb('should provide chat and sender info', (t) => {
     t.is(ctx.chat.id, 1)
     t.end()
   })
-  bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 } }) })
+  bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 } } })
 })
 
 test.cb('should provide shortcuts for `inline_query` update', (t) => {
@@ -230,10 +230,10 @@ test('should store session state', (t) => {
     ctx.session.counter = ctx.session.counter || 0
     ctx.session.counter++
   })
-  return bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 } }) })
-    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 } }) }))
-    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 100500 }, chat: { id: 42 } }) }))
-    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 }, text: 'calc' }) }))
+  return bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 }, chat: { id: 42 } } })
+    .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 }, chat: { id: 42 } } }))
+    .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 100500 }, chat: { id: 42 } } }))
+    .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 }, chat: { id: 42 }, text: 'calc' } }))
 })
 
 test('should store session state with custom store', (t) => {
@@ -259,10 +259,10 @@ test('should store session state with custom store', (t) => {
     ctx.session.counter = ctx.session.counter || 0
     ctx.session.counter++
   })
-  return bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 } }) })
-    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 } }) }))
-    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 100500 }, chat: { id: 42 } }) }))
-    .then(() => bot.handleUpdate({ message: Object.assign({}, BaseTextMessage, { from: { id: 42 }, chat: { id: 42 }, text: 'calc' }) }))
+  return bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 }, chat: { id: 42 } } })
+    .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 }, chat: { id: 42 } } }))
+    .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 100500 }, chat: { id: 42 } } }))
+    .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 }, chat: { id: 42 }, text: 'calc' } }))
 })
 
 test.cb('should work with context extensions', (t) => {

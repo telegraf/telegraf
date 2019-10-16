@@ -8,7 +8,7 @@ class WizardScene extends Composer {
     this.id = id
     this.options = typeof options === 'function'
       ? { steps: [options, ...steps], leaveHandlers: [] }
-      : Object.assign({ steps: steps, leaveHandlers: [] }, options)
+      : { steps: steps, leaveHandlers: [], ...options }
     this.leaveHandler = compose(this.options.leaveHandlers)
   }
 

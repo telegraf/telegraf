@@ -101,8 +101,9 @@ class Composer {
   }
 
   static fork (middleware) {
+    const handler = Composer.unwrap(middleware)
     return (ctx, next) => {
-      setImmediate(Composer.unwrap(middleware), ctx, Composer.safePassThru())
+      setImmediate(handler, ctx, Composer.safePassThru())
       return next(ctx)
     }
   }
@@ -317,7 +318,10 @@ class Composer {
   }
 
   static unwrap (handler) {
-    return handler && typeof handler.middleware === 'function'
+    if (!handler) {
+      throw new Error('Handler is undefined')
+    }
+    return typeof handler.middleware === 'function'
       ? handler.middleware()
       : handler
   }
@@ -343,7 +347,7 @@ class Composer {
           return Promise.reject(new Error('next() called multiple times'))
         }
         index = i
-        const handler = Composer.unwrap(middlewares[i]) || next
+        const handler = middlewares[i] ? Composer.unwrap(middlewares[i]) : next
         if (!handler) {
           return Promise.resolve()
         }

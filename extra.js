@@ -5,8 +5,8 @@ class Extra {
     this.load(opts)
   }
 
-  load (opts) {
-    return Object.assign(this, opts || {})
+  load (opts = {}) {
+    return Object.assign(this, opts)
   }
 
   inReplyTo (messageId) {
@@ -28,7 +28,7 @@ class Extra {
     if (typeof markup === 'function') {
       markup = markup(new Markup())
     }
-    this.reply_markup = Object.assign({}, markup)
+    this.reply_markup = { ...markup }
     return this
   }
 

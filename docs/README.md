@@ -559,10 +559,17 @@ bot.telegram.setWebhook('https://server.tld:8443/secret-path')
 
 const app = new Koa()
 app.use(koaBody())
-app.use((ctx, next) => ctx.method === 'POST' || ctx.url === '/secret-path'
-  ? bot.handleUpdate(ctx.request.body, ctx.response)
-  : next()
-)
+app.use(async (ctx, next) => {
+  if (ctx.method !== 'POST' || ctx.url !== '/secret-path') {
+    return next()
+  }
+  await bot.handleUpdate(ctx.request.body, ctx.response)
+  ctx.status = 200
+})
+app.use(async (ctx) => {
+  ctx.body = 'Hello World'
+})
+
 app.listen(3000)
 ```
 

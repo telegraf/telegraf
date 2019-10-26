@@ -300,7 +300,7 @@ class Telegram extends ApiClient {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      reply_markup: markup
+      reply_markup: extra.reply_markup ? extra.reply_markup : extra
     })
   }
 
@@ -311,7 +311,7 @@ class Telegram extends ApiClient {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      reply_markup: markup
+      reply_markup: extra.reply_markup ? extra.reply_markup : extra
     })
   }
 
@@ -320,7 +320,7 @@ class Telegram extends ApiClient {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      reply_markup: markup
+      reply_markup: extra.reply_markup ? extra.reply_markup : extra
     })
   }
 

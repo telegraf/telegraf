@@ -295,7 +295,7 @@ class Telegram extends ApiClient {
     })
   }
 
-  editMessageReplyMarkup (chatId, messageId, inlineMessageId, markup) {
+  editMessageReplyMarkup (chatId, messageId, inlineMessageId, extra = {}) {
     return this.callApi('editMessageReplyMarkup', {
       chat_id: chatId,
       message_id: messageId,
@@ -304,7 +304,7 @@ class Telegram extends ApiClient {
     })
   }
 
-  editMessageLiveLocation (latitude, longitude, chatId, messageId, inlineMessageId, markup) {
+  editMessageLiveLocation (latitude, longitude, chatId, messageId, inlineMessageId, extra = {}) {
     return this.callApi('editMessageLiveLocation', {
       latitude,
       longitude,
@@ -315,7 +315,7 @@ class Telegram extends ApiClient {
     })
   }
 
-  stopMessageLiveLocation (chatId, messageId, inlineMessageId, markup) {
+  stopMessageLiveLocation (chatId, messageId, inlineMessageId, extra = {}) {
     return this.callApi('stopMessageLiveLocation', {
       chat_id: chatId,
       message_id: messageId,

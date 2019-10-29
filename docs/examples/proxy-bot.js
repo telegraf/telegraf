@@ -11,4 +11,5 @@ const agent = new HttpsProxyAgent({
 const bot = new Telegraf(BOT_TOKEN, { telegram: { agent } })
 bot.start((ctx) => ctx.reply('Hello'))
 bot.help((ctx) => ctx.reply('Help message'))
+bot.command('photo', (ctx) => ctx.replyWithPhoto({ url: 'https://picsum.photos/200/300/?random' }))
 bot.launch()

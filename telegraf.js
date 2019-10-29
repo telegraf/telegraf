@@ -126,6 +126,10 @@ class Telegraf extends Composer {
           .setWebhook(`https://${domain}${hookPath}`)
           .then(() => debug(`Bot started with webhook @ https://${domain}`))
       })
+      .catch((err) => {
+        console.error('Launch failed')
+        console.error(err.stack || err.toString())
+      })
   }
 
   stop (cb) {

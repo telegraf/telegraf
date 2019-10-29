@@ -160,7 +160,7 @@ class Telegraf extends Composer {
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
     const ctx = new Context(update, tg, this.options)
     Object.assign(ctx, this.context)
-    return this.middleware()(ctx).catch(this.handleError)
+    return this.middleware()(ctx).catch((err) => this.handleError(err, ctx))
   }
 
   fetchUpdates () {

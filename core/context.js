@@ -134,6 +134,10 @@ class TelegrafContext {
       (this.chosenInlineResult && this.chosenInlineResult.from)
   }
 
+  get inlineMessageId () {
+    return (this.callbackQuery && this.callbackQuery.inline_message_id) || (this.chosenInlineResult && this.chosenInlineResult.inline_message_id)
+  }
+
   get passportData () {
     return this.message && this.message.passport_data
   }
@@ -189,12 +193,12 @@ class TelegrafContext {
   }
 
   editMessageText (text, extra) {
-    this.assert(this.callbackQuery, 'editMessageText')
-    return this.callbackQuery.inline_message_id
+    this.assert(this.callbackQuery || this.inlineMessageId, 'editMessageText')
+    return this.inlineMessageId
       ? this.telegram.editMessageText(
         undefined,
         undefined,
-        this.callbackQuery.inline_message_id,
+        this.inlineMessageId,
         text,
         extra
       )
@@ -208,12 +212,12 @@ class TelegrafContext {
   }
 
   editMessageCaption (caption, extra) {
-    this.assert(this.callbackQuery, 'editMessageCaption')
-    return this.callbackQuery.inline_message_id
+    this.assert(this.callbackQuery || this.inlineMessageId, 'editMessageCaption')
+    return this.inlineMessageId
       ? this.telegram.editMessageCaption(
         undefined,
         undefined,
-        this.callbackQuery.inline_message_id,
+        this.inlineMessageId,
         caption,
         extra
       )
@@ -227,12 +231,12 @@ class TelegrafContext {
   }
 
   editMessageMedia (media, extra) {
-    this.assert(this.callbackQuery, 'editMessageMedia')
-    return this.callbackQuery.inline_message_id
+    this.assert(this.callbackQuery || this.inlineMessageId, 'editMessageMedia')
+    return this.inlineMessageId
       ? this.telegram.editMessageMedia(
         undefined,
         undefined,
-        this.callbackQuery.inline_message_id,
+        this.inlineMessageId,
         media,
         extra
       )
@@ -246,12 +250,12 @@ class TelegrafContext {
   }
 
   editMessageReplyMarkup (markup) {
-    this.assert(this.callbackQuery, 'editMessageReplyMarkup')
-    return this.callbackQuery.inline_message_id
+    this.assert(this.callbackQuery || this.inlineMessageId, 'editMessageReplyMarkup')
+    return this.inlineMessageId
       ? this.telegram.editMessageReplyMarkup(
         undefined,
         undefined,
-        this.callbackQuery.inline_message_id,
+        this.inlineMessageId,
         markup
       )
       : this.telegram.editMessageReplyMarkup(
@@ -263,14 +267,14 @@ class TelegrafContext {
   }
 
   editMessageLiveLocation (latitude, longitude, markup) {
-    this.assert(this.callbackQuery, 'editMessageLiveLocation')
-    return this.callbackQuery.inline_message_id
+    this.assert(this.callbackQuery || this.inlineMessageId, 'editMessageLiveLocation')
+    return this.inlineMessageId
       ? this.telegram.editMessageLiveLocation(
         latitude,
         longitude,
         undefined,
         undefined,
-        this.callbackQuery.inline_message_id,
+        this.inlineMessageId,
         markup
       )
       : this.telegram.editMessageLiveLocation(
@@ -284,14 +288,18 @@ class TelegrafContext {
   }
 
   stopMessageLiveLocation (markup) {
-    this.assert(this.callbackQuery, 'stopMessageLiveLocation')
-    return this.callbackQuery.inline_message_id
+    this.assert(this.callbackQuery || this.inlineMessageId, 'stopMessageLiveLocation')
+    return this.inlineMessageId
       ? this.telegram.stopMessageLiveLocation(
-        undefined, undefined, this.callbackQuery.inline_message_id,
+        undefined,
+        undefined,
+        this.inlineMessageId,
         markup
       )
       : this.telegram.stopMessageLiveLocation(
-        this.chat.id, this.callbackQuery.message.message_id, undefined,
+        this.chat.id,
+        this.callbackQuery.message.message_id,
+        undefined,
         markup
       )
   }

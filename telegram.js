@@ -382,6 +382,13 @@ class Telegram extends ApiClient {
     return this.callApi('deleteStickerFromSet', { sticker })
   }
 
+  setPassportDataErrors (userId, errors) {
+    return this.callApi('setPassportDataErrors', {
+      user_id: userId,
+      errors: errors
+    })
+  }
+
   sendCopy (chatId, message, extra) {
     if (!message) {
       throw new Error('Message is required')

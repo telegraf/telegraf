@@ -155,8 +155,8 @@ To perform custom error-handling logic use following snippet:
 
 ```js
 const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.catch((err) => {
-  console.log('Ooops', err)
+bot.catch((err, ctx) => {
+  console.log(`Ooops, ecountered an error for ${ctx.updateType}`, err)
 })
 bot.start((ctx) => ctx.reply(42/0))
 bot.launch()

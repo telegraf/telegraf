@@ -134,6 +134,10 @@ class TelegrafContext {
       (this.chosenInlineResult && this.chosenInlineResult.from)
   }
 
+  get passportData () {
+    return this.message && this.message.passport_data
+  }
+
   get state () {
     if (!this.contextState) {
       this.contextState = {}
@@ -375,6 +379,11 @@ class TelegrafContext {
   getChatMembersCount (...args) {
     this.assert(this.chat, 'getChatMembersCount')
     return this.telegram.getChatMembersCount(this.chat.id, ...args)
+  }
+
+  setPassportDataErrors (errors) {
+    this.assert(this.chat, 'setPassportDataErrors')
+    return this.telegram.setPassportDataErrors(this.from.id, errors)
   }
 
   replyWithPhoto (...args) {

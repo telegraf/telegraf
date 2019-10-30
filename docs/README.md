@@ -251,6 +251,7 @@ Context shortcuts for **message** update:
 * `setStickerPositionInSet` -> [`telegram.setStickerPositionInSet`](#setstickerpositioninset)
 * `unpinChatMessage`        -> [`telegram.unpinChatMessage`](#unpinchatmessage)
 * `uploadStickerFile`       -> [`telegram.uploadStickerFile`](#uploadstickerfile)
+* `setPassportDataErrors`   -> [`telegram.setPassportDataErrors`](#setpassportdataerrors)
 
 Context shortcuts for **callback_query** update:
 
@@ -612,6 +613,27 @@ bot.on('message', (ctx) => {
     filename: 'kitten.jpg'
   })
 })
+```
+
+#### Telegram Passport
+
+To enable Telegram Passport support you can use [`telegram-passport`](https://www.npmjs.com/package/telegram-passport) package:
+
+```js
+const Telegraf = require('telegraf')
+const TelegramPassport = require('telegram-passport')
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+const passport = new TelegramPassport("PRIVATE_KEY_IN_PEM_FORMAT")
+
+bot.on('passport_data', (ctx) => {
+  const decryptedPasswordData = passport.decrypt(ctx.passportData)
+  console.log(decryptedPasswordData)
+  return ctx.setPassportDataErrors([
+    { source: 'selfie', type: 'driver_license', file_hash: 'file-hash', message: 'Selfie photo is too low quality'}
+  ])
+})
+
 ```
 
 ## API reference
@@ -1932,6 +1954,20 @@ Use this method to unban a previously kicked user in a supergroup.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | userId | `number` | User id |
+
+
+##### setPassportDataErrors
+
+Informs a user that some of the Telegram Passport elements they provided contains errors. 
+The user will not be able to re-submit their Passport to you 
+until the errors are fixed (the contents of the field for which you returned the error must change).
+
+`telegram.setPassportDataErrors(errors) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#setpassportdataerrors)
+
+| Param | Type | Description |
+| ---  | --- | --- |
+| [errors] | `PassportElementError[]` | An array describing the errors |
 
 #### Extra
 

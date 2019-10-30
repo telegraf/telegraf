@@ -79,9 +79,19 @@ function buildJSONConfig (payload) {
   })
 }
 
+const FORM_DATA_JSON_FIELDS = [
+  'results',
+  'reply_markup',
+  'mask_position',
+  'shipping_options',
+  'errors'
+]
+
 function buildFormDataConfig (payload, agent) {
-  if (payload.reply_markup && typeof payload.reply_markup !== 'string') {
-    payload.reply_markup = JSON.stringify(payload.reply_markup)
+  for (const field of FORM_DATA_JSON_FIELDS) {
+    if (field in payload && typeof payload[field] !== 'string') {
+      payload[field] = JSON.stringify(payload[field])
+    }
   }
   const boundary = crypto.randomBytes(32).toString('hex')
   const formData = new MultipartStream(boundary)

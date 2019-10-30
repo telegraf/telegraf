@@ -633,7 +633,6 @@ bot.on('passport_data', (ctx) => {
     { source: 'selfie', type: 'driver_license', file_hash: 'file-hash', message: 'Selfie photo is too low quality'}
   ])
 })
-
 ```
 
 ## API reference

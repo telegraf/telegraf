@@ -7,14 +7,15 @@ const session = require('./session')
 const Router = require('./router')
 const Stage = require('./stage')
 const BaseScene = require('./scenes/base')
-const Context = require('./core/context')
+const Context = require('./context')
 const generateCallback = require('./core/network/webhook')
 const crypto = require('crypto')
 const { URL } = require('url')
 
 const DEFAULT_OPTIONS = {
   retryAfter: 1,
-  handlerTimeout: 0
+  handlerTimeout: 0,
+  contextType: Context
 }
 
 const noop = () => { }
@@ -162,7 +163,8 @@ class Telegraf extends Composer {
   handleUpdate (update, webhookResponse) {
     debug('Processing update', update.update_id)
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
-    const ctx = new Context(update, tg, this.options)
+    const TelegrafContext = this.options.contextType
+    const ctx = new TelegrafContext(update, tg, this.options)
     Object.assign(ctx, this.context)
     return this.middleware()(ctx).catch((err) => this.handleError(err, ctx))
   }
@@ -203,6 +205,7 @@ class Telegraf extends Composer {
 }
 
 module.exports = Object.assign(Telegraf, {
+  Context,
   Composer,
   Extra,
   Markup,
@@ -212,6 +215,7 @@ module.exports = Object.assign(Telegraf, {
 })
 
 module.exports.default = Object.assign(Telegraf, {
+  Context,
   Composer,
   Extra,
   Markup,

@@ -1,0 +1,118 @@
+#!/usr/bin/env node
+
+const path = require('path')
+const parse = require('minimist')
+const { URL } = require('url')
+const Telegraf = require('../')
+
+const help = () => {
+  console.log(`Usage: telegraf [opts] <file>
+  -t  Bot token
+  -d  Webhook domain
+  -H  Webhook host [0.0.0.0]
+  -p  Webhook port [$PORT or 3000]
+  -h  Show this help message`)
+}
+
+const args = parse(process.argv, {
+  alias: {
+    t: 'token',
+    d: 'domain',
+    H: 'host',
+    h: 'help',
+    p: 'port'
+  },
+  boolean: ['h'],
+  default: {
+    H: '0.0.0.0',
+    p: process.env.PORT || 3000
+  }
+})
+
+if (args.help) {
+  help()
+  process.exit(0)
+}
+
+const token = args.token || process.env.BOT_TOKEN
+const domain = args.domain || process.env.BOT_DOMAIN
+if (!token) {
+  console.error('Please supply Bot token')
+  help()
+  process.exit(1)
+}
+
+let [, , file] = args._
+
+if (!file) {
+  try {
+    const packageJson = require(path.resolve(process.cwd(), 'package.json'))
+    file = packageJson.main || 'index.js'
+  } catch (err) {
+  }
+}
+
+if (!file) {
+  console.error('Please supply a handler file.\n')
+  help()
+  process.exit(1)
+}
+
+if (file[0] !== '/') {
+  file = path.resolve(process.cwd(), file)
+}
+
+let botHandler
+let httpHandler
+let tlsOptions
+
+try {
+  const mod = require(file)
+  botHandler = mod.botHandler || mod
+  httpHandler = mod.httpHandler
+  tlsOptions = mod.tlsOptions
+} catch (err) {
+  console.error(`Error importing ${file}`, err.stack)
+  process.exit(1)
+}
+
+const webhookOpts = {
+  domain: domain,
+  port: args.port,
+  host: args.host,
+  tlsOptions: tlsOptions
+}
+
+function log (message) {
+  console.log(`telegraf :: ${message}`)
+}
+
+function start (token, handler, { domain, port, host, tlsOptions }, httpCallback) {
+  const bot = new Telegraf(token)
+  bot.catch((err) => log(`Error\n${err}`))
+  bot.use(handler)
+  return bot.telegram.getMe()
+    .then((botInfo) => {
+      log(`Starting @${botInfo.username}`)
+      bot.options.username = botInfo.username
+      bot.context.botInfo = botInfo
+      if (typeof domain !== 'string') {
+        return bot.telegram.deleteWebhook()
+          .then(() => bot.startPolling())
+          .then(() => log('Bot started'))
+      }
+      if (domain.startsWith('https://') || domain.startsWith('http://')) {
+        const parsedUrl = new URL(domain)
+        domain = parsedUrl.host
+      }
+      const secret = Math.random().toString(36).slice(2)
+      bot.startWebhook(`/telegraf/${secret}`, tlsOptions, port, host, httpCallback)
+      return bot.telegram
+        .setWebhook(`https://${domain}/telegraf/${secret}`)
+        .then(() => log(`Bot started @ https://${domain}`))
+    })
+}
+
+start(token, botHandler, webhookOpts, httpHandler).catch((err) => {
+  console.error(`Failed to start bot: ${err}`)
+})

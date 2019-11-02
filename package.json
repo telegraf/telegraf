@@ -19,6 +19,9 @@
     "typings/*.d.ts",
     "*.js"
   ],
+  "bin": {
+    "telegraf": "./bin/telegraf"
+  },
   "scripts": {
     "lint": "eslint .",
     "test": "ava test/*",
@@ -32,6 +35,7 @@
   "dependencies": {
     "@types/node": "^12.0.4",
     "debug": "^4.0.1",
+    "minimist": "^1.2.0",
     "node-fetch": "^2.2.0",
     "sandwich-stream": "^2.0.1",
     "telegram-typings": "^3.6.0"

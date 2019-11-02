@@ -1,4 +1,4 @@
-const TelegrafContext = require('./core/context')
+const Context = require('./context')
 
 class Composer {
   constructor (...fns) {
@@ -340,7 +340,7 @@ class Composer {
       let index = -1
       return execute(0, ctx)
       function execute (i, context) {
-        if (!(context instanceof TelegrafContext)) {
+        if (!(context instanceof Context)) {
           return Promise.reject(new Error('next(ctx) called with invalid context'))
         }
         if (i <= index) {

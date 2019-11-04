@@ -100,6 +100,20 @@ class Composer {
     return (ctx) => ctx.reply(...args)
   }
 
+  static catchAll (...fns) {
+    return Composer.hanleErrors((err) => {
+      console.error()
+      console.error((err.stack || err.toString()).replace(/^/gm, '  '))
+      console.error()
+    }, ...fns)
+  }
+
+  static catch (errorHandler, ...fns) {
+    const handler = Composer.compose(fns)
+    return (ctx, next) => Promise.resolve(handler(ctx, next))
+      .catch((err) => errorHandler(err, ctx))
+  }
+
   static fork (middleware) {
     const handler = Composer.unwrap(middleware)
     return (ctx, next) => {

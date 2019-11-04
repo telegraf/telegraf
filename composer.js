@@ -101,7 +101,7 @@ class Composer {
   }
 
   static catchAll (...fns) {
-    return Composer.hanleErrors((err) => {
+    return Composer.catch((err) => {
       console.error()
       console.error((err.stack || err.toString()).replace(/^/gm, '  '))
       console.error()

@@ -90,6 +90,10 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot)
 * [Google it Bot: Instant Inline Search](https://github.com/Edgar-P-yan/google-it-telegram-bot)
 * [TereGramBot](https://github.com/juandjara/TereGramBot)
+* [Defend The Castle](https://github.com/TiagoDanin/Defend-The-Castle)
+* [Store Of Bot](https://github.com/TiagoDanin/StoreOfBot)
+* [Stickers Play Bot](https://github.com/TiagoDanin/StickersPlayBot)
+* [TTgram](https://github.com/TiagoDanin/TTgram)
 * Send PR to add link to your bot
 
 ## Getting started

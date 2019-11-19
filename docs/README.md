@@ -1300,7 +1300,7 @@ Use this method to edit captions of messages sent by the bot or via the bot.
 
 Use this method to edit media of messages sent by the bot or via the bot.
 
-`telegram.editMessageMedia(chatId, messageId, inlineMessageId, caption, [extra]) => Promise`
+`telegram.editMessageMedia(chatId, messageId, inlineMessageId, media, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |

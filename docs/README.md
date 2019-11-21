@@ -94,6 +94,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Store Of Bot](https://github.com/TiagoDanin/StoreOfBot)
 * [Stickers Play Bot](https://github.com/TiagoDanin/StickersPlayBot)
 * [TTgram](https://github.com/TiagoDanin/TTgram)
+* [LyricsGramBot: Song Lyrics](https://github.com/lioialessandro/LyricsGramBot)
 * Send PR to add link to your bot
 
 ## Getting started

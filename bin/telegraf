@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
+const { URL } = require('url')
 const path = require('path')
 const parse = require('minimist')
-const { URL } = require('url')
+const { addAlias } = require('module-alias')
 const Telegraf = require('../')
 
 const help = () => {
@@ -67,6 +68,7 @@ let httpHandler
 let tlsOptions
 
 try {
+  addAlias('telegraf', path.join(__dirname, '../'))
   const mod = require(file)
   botHandler = mod.botHandler || mod
   httpHandler = mod.httpHandler

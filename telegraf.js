@@ -98,6 +98,7 @@ class Telegraf extends Composer {
   }
 
   launch (config = {}) {
+    debug('Connecting to Telegram')
     return this.telegram.getMe()
       .then((botInfo) => {
         debug(`Launching @${botInfo.username}`)

@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "3.34.0",
+  "version": "3.34.1",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -14,6 +14,7 @@
   },
   "main": "telegraf.js",
   "files": [
+    "bin/*",
     "core/**/*.js",
     "scenes/**/*.js",
     "typings/*.d.ts",

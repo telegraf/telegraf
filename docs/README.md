@@ -2017,9 +2017,9 @@ Scenes related context props and functions:
 
 ```js
 bot.on('message', (ctx) => {
-  ctx.scene.state                                    // Current scene sstate (persistent)
-  ctx.scene.enter(sceneId, [defaultState, silent])   // Enter scenes
-  ctx.scene.reenter()                                // Reenter currenst scene
-  ctx.scene.leave()                                  // Leave scene s
+  ctx.scene.state                                    // Current scene state (persistent)
+  ctx.scene.enter(sceneId, [defaultState, silent])   // Enter scene
+  ctx.scene.reenter()                                // Reenter current scene
+  ctx.scene.leave()                                  // Leave scene
 })
 ```

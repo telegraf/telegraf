@@ -74,7 +74,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [LyricsGramBot](https://github.com/lioialessandro/LyricsGramBot) | Song Lyrics |
 | [MangadexBot](https://github.com/ejnshtein/mangadex_bot) |   |
 | [Memcoin](https://github.com/backmeupplz/memcoin) |   |
-| [MetalArchivesBot](https://github.com/amiralies/metalarchives-telegram-bot) |   |
+| [MetalArchivesBot](https://github.com/amiralies/metalarchives-telegram-bot) | Unofficial metal-archives.com bot |
 | [MidnaBot](https://github.com/wsknorth/midnabot) |   |
 | [Nyaa.SiBot](https://github.com/ejnshtein/nyaasi-bot) |   |
 | [OCRToolBot](https://github.com/Piterden/tesseract-bot) | Tesseract text from image recognition |

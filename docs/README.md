@@ -61,7 +61,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | --- | --- |
 | [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot) |   |
 | [CaptchaOnlyBot](https://github.com/Piterden/captcha_only_bot) | Configurable question \w set of buttons on a new group user |
-| [ChannelHashBot](https://github.com/YouTwitFace/ChannelHashBot) |   |
+| [ChannelHashBot](https://github.com/YouTwitFace/ChannelHashBot) | Keep track of hashtags that are sent in your group by forwarding them to a channel |
 | [ChatLinkerBot](https://github.com/jt3k/chat-linker) | The bridge between jabber and telegram |
 | [ChessBot](https://github.com/Piterden/chessbot) | Inline chess game in a message |
 | [CounterBot](https://github.com/leodj/telegram-counter-bot) |   |
@@ -96,7 +96,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [Temply](https://github.com/backmeupplz/temply) |   |
 | [TereGramBot](https://github.com/juandjara/TereGramBot) |   |
 | [TheGuardBot](https://github.com/TheDevs-Network/the-guard-bot) |   |
-| [ThemerBot](https://github.com/YouTwitFace/ThemerBot) |   |
+| [ThemerBot](https://github.com/YouTwitFace/ThemerBot) | Create themes for Telegram based on colors chosen from a picture |
 | [TTgram](https://github.com/TiagoDanin/TTgram) |   |
 | [Voicy](https://github.com/backmeupplz/voicy) |   |
 | [Watchy](https://github.com/backmeupplz/watchy) |   |

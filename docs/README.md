@@ -57,50 +57,52 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 **Community bots:**
 
-* [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot)
-* [CaptchaOnlyBot: configurable bots protection](https://github.com/Piterden/captcha_only_bot)
-* [ChannelHashBot](https://github.com/YouTwitFace/ChannelHashBot)
-* [Chat Linker Bot](https://github.com/jt3k/chat-linker)
-* [ChessBot: inline PvP](https://github.com/Piterden/chessbot)
-* [Counter Bot](https://github.com/leodj/telegram-counter-bot)
-* [Defend The Castle](https://github.com/TiagoDanin/Defend-The-Castle)
-* [Eve Movies bot](https://github.com/dmbaranov/evemovies-bot)
-* [GNU/Linux Indonesia Bot](https://github.com/bgli/bglibot-js)
-* [Google it Bot: Instant Inline Search](https://github.com/Edgar-P-yan/google-it-telegram-bot)
-* [Groups Admin Bot](https://github.com/Azhant/AdminBot)
-* [kitchen-timer-bot](https://github.com/DZamataev/kitchen-timer-bot)
-* [LyricsGramBot: Song Lyrics](https://github.com/lioialessandro/LyricsGramBot)
-* [Mangadex bot](https://github.com/ejnshtein/mangadex_bot)
-* [Memcoin](https://github.com/backmeupplz/memcoin)
-* [Metal Archives Bot](https://github.com/amiralies/metalarchives-telegram-bot)
-* [midnabot](https://github.com/wsknorth/midnabot)
-* [Nyaa.si bot](https://github.com/ejnshtein/nyaasi-bot)
-* [OCR_Tool_Bot: Tesseract recognition](https://github.com/Piterden/tesseract-bot)
-* [OneQRBot: scan and generate QR](https://github.com/Khuzha/oneqrbot)
-* [Ordis Prime](https://github.com/MaxTgr/Ordis-Prime)
-* [PodSearch bot(TypeScript)](https://fazendaaa.github.io/podsearch_bot/)
-* [RandomPassBot: generate a password](https://github.com/Khuzha/randompassbot)
-* [Randy](https://github.com/backmeupplz/randymbot)
-* [Referal system: channels promoter](https://github.com/Khuzha/refbot)
-* [scrobblerBot](https://github.com/drvirtuozov/scrobblerBot)
-* [Shieldy](https://github.com/backmeupplz/shieldy)
-* [SimpleRegBot](https://github.com/Khuzha/simpleRegBot)
-* [Spyfall Game Bot](https://github.com/verget/telegram-spy-game)
-* [Stickers Play Bot](https://github.com/TiagoDanin/StickersPlayBot)
-* [Store Of Bot](https://github.com/TiagoDanin/StoreOfBot)
-* [Syntax Highlighter Bot](https://github.com/piterden/syntax-highlighter-bot)
-* [telegraf-rutracker-transmission](https://github.com/DZamataev/telegraf-rutracker-transmission)
-* [telegram-telegraf-bot](https://github.com/Finalgalaxy/telegram-telegraf-bot)
-* [Temply](https://github.com/backmeupplz/temply)
-* [TereGramBot](https://github.com/juandjara/TereGramBot)
-* [The Guard Bot](https://github.com/TheDevs-Network/the-guard-bot)
-* [ThemerBot](https://github.com/YouTwitFace/ThemerBot)
-* [TTgram](https://github.com/TiagoDanin/TTgram)
-* [Voicy](https://github.com/backmeupplz/voicy)
-* [Watchy](https://github.com/backmeupplz/watchy)
-* [yt-search-bot](https://github.com/Finalgalaxy/yt-search-bot)
-* [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot)
-* Send PR to add link to your bot
+| Name | Description |
+| --- | --- |
+| [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot) |   |
+| [CaptchaOnlyBot](https://github.com/Piterden/captcha_only_bot) | Configurable question \w set of buttons on a new group user |
+| [ChannelHashBot](https://github.com/YouTwitFace/ChannelHashBot) |   |
+| [ChatLinkerBot](https://github.com/jt3k/chat-linker) | The bridge between jabber and telegram |
+| [ChessBot](https://github.com/Piterden/chessbot) | Inline chess game in a message |
+| [CounterBot](https://github.com/leodj/telegram-counter-bot) |   |
+| [DefendTheCastle](https://github.com/TiagoDanin/Defend-The-Castle) |   |
+| [EveMoviesBot](https://github.com/dmbaranov/evemovies-bot) |   |
+| [GNU/LinuxIndonesiaBot](https://github.com/bgli/bglibot-js) |   |
+| [GoogleItBot](https://github.com/Edgar-P-yan/google-it-telegram-bot) | Instant inline search |
+| [GroupsAdminBot](https://github.com/Azhant/AdminBot) |   |
+| [KitchenTimerBot](https://github.com/DZamataev/kitchen-timer-bot) |   |
+| [LyricsGramBot](https://github.com/lioialessandro/LyricsGramBot) | Song Lyrics |
+| [MangadexBot](https://github.com/ejnshtein/mangadex_bot) |   |
+| [Memcoin](https://github.com/backmeupplz/memcoin) |   |
+| [MetalArchivesBot](https://github.com/amiralies/metalarchives-telegram-bot) |   |
+| [MidnaBot](https://github.com/wsknorth/midnabot) |   |
+| [Nyaa.SiBot](https://github.com/ejnshtein/nyaasi-bot) |   |
+| [OCRToolBot](https://github.com/Piterden/tesseract-bot) | Tesseract text from image recognition |
+| [OneQRBot](https://github.com/Khuzha/oneqrbot) | Scan and generate QR |
+| [OrdisPrime](https://github.com/MaxTgr/Ordis-Prime) |   |
+| [PodSearchBot](https://fazendaaa.github.io/podsearch_bot/) | TypeScript |
+| [RandomPassBot](https://github.com/Khuzha/randompassbot) | Generate a password |
+| [Randy](https://github.com/backmeupplz/randymbot) |   |
+| [ReferalSystem](https://github.com/Khuzha/refbot) | Channels promoter |
+| [ScrobblerBot](https://github.com/drvirtuozov/scrobblerBot) |   |
+| [Shieldy](https://github.com/backmeupplz/shieldy) |   |
+| [SimpleRegBot](https://github.com/Khuzha/simpleRegBot) |   |
+| [SpyfallGameBot](https://github.com/verget/telegram-spy-game) |   |
+| [StickersPlayBot](https://github.com/TiagoDanin/StickersPlayBot) |   |
+| [StoreOfBot](https://github.com/TiagoDanin/StoreOfBot) |   |
+| [SyntaxHighlighterBot](https://github.com/piterden/syntax-highlighter-bot) | A code highlighting tool for telegram chats |
+| [TelegrafRutrackerTransmission](https://github.com/DZamataev/telegraf-rutracker-transmission) |   |
+| [TelegramTelegrafBot](https://github.com/Finalgalaxy/telegram-telegraf-bot) |   |
+| [Temply](https://github.com/backmeupplz/temply) |   |
+| [TereGramBot](https://github.com/juandjara/TereGramBot) |   |
+| [TheGuardBot](https://github.com/TheDevs-Network/the-guard-bot) |   |
+| [ThemerBot](https://github.com/YouTwitFace/ThemerBot) |   |
+| [TTgram](https://github.com/TiagoDanin/TTgram) |   |
+| [Voicy](https://github.com/backmeupplz/voicy) |   |
+| [Watchy](https://github.com/backmeupplz/watchy) |   |
+| [YtSearchBot](https://github.com/Finalgalaxy/yt-search-bot) |   |
+| [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot) |   |
+| Send PR to add link to your bot |   |
 
 ## Getting started
 

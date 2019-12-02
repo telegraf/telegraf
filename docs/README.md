@@ -95,7 +95,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [TelegramTelegrafBot](https://github.com/Finalgalaxy/telegram-telegraf-bot) |   |
 | [Temply](https://github.com/backmeupplz/temply) |   |
 | [TereGramBot](https://github.com/juandjara/TereGramBot) |   |
-| [TheGuardBot](https://github.com/TheDevs-Network/the-guard-bot) |   |
+| [TheGuardBot](https://github.com/TheDevs-Network/the-guard-bot) | Manage a network of related groups |
 | [ThemerBot](https://github.com/YouTwitFace/ThemerBot) | Create themes for Telegram based on colors chosen from a picture |
 | [TTgram](https://github.com/TiagoDanin/TTgram) |   |
 | [Voicy](https://github.com/backmeupplz/voicy) |   |

@@ -59,6 +59,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 * [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot)
 * [Chat Linker Bot](https://github.com/jt3k/chat-linker)
+* [ChannelHashBot](https://github.com/YouTwitFace/ChannelHashBot)
 * [Counter Bot](https://github.com/leodj/telegram-counter-bot)
 * [Eve Movies bot](https://github.com/dmbaranov/evemovies-bot)
 * [GNU/Linux Indonesia Bot](https://github.com/bgli/bglibot-js)
@@ -93,6 +94,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 * [Defend The Castle](https://github.com/TiagoDanin/Defend-The-Castle)
 * [Store Of Bot](https://github.com/TiagoDanin/StoreOfBot)
 * [Stickers Play Bot](https://github.com/TiagoDanin/StickersPlayBot)
+* [ThemerBot](https://github.com/YouTwitFace/ThemerBot)
 * [TTgram](https://github.com/TiagoDanin/TTgram)
 * [LyricsGramBot: Song Lyrics](https://github.com/lioialessandro/LyricsGramBot)
 * Send PR to add link to your bot

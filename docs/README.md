@@ -66,7 +66,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [ChessBot](https://github.com/Piterden/chessbot) | Inline chess game in a message |
 | [CounterBot](https://github.com/leodj/telegram-counter-bot) |   |
 | [DefendTheCastle](https://github.com/TiagoDanin/Defend-The-Castle) |   |
-| [EveMoviesBot](https://github.com/dmbaranov/evemovies-bot) |   |
+| [EveMoviesBot](https://github.com/dmbaranov/evemovies-bot) | Track movie torrent releases and get notifications when it's there |
 | [GNU/LinuxIndonesiaBot](https://github.com/bgli/bglibot-js) |   |
 | [GoogleItBot](https://github.com/Edgar-P-yan/google-it-telegram-bot) | Instant inline search |
 | [GroupsAdminBot](https://github.com/Azhant/AdminBot) |   |

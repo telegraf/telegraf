@@ -72,11 +72,11 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [GroupsAdminBot](https://github.com/Azhant/AdminBot) |   |
 | [KitchenTimerBot](https://github.com/DZamataev/kitchen-timer-bot) |   |
 | [LyricsGramBot](https://github.com/lioialessandro/LyricsGramBot) | Song Lyrics |
-| [MangadexBot](https://github.com/ejnshtein/mangadex_bot) |   |
+| [MangadexBot](https://github.com/ejnshtein/mangadex_bot) | Read manga from Mangadex |
 | [Memcoin](https://github.com/backmeupplz/memcoin) |   |
 | [MetalArchivesBot](https://github.com/amiralies/metalarchives-telegram-bot) | Unofficial metal-archives.com bot |
 | [MidnaBot](https://github.com/wsknorth/midnabot) |   |
-| [Nyaa.SiBot](https://github.com/ejnshtein/nyaasi-bot) |   |
+| [Nyaa.si Bot](https://github.com/ejnshtein/nyaasi-bot) | Nyaa.si torrents |
 | [OCRToolBot](https://github.com/Piterden/tesseract-bot) | Tesseract text from image recognition |
 | [OneQRBot](https://github.com/Khuzha/oneqrbot) | Scan and generate QR |
 | [OrdisPrime](https://github.com/MaxTgr/Ordis-Prime) |   |

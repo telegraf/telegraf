@@ -64,7 +64,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [ChannelHashBot](https://github.com/YouTwitFace/ChannelHashBot) | Keep track of hashtags that are sent in your group by forwarding them to a channel |
 | [ChatLinkerBot](https://github.com/jt3k/chat-linker) | The bridge between jabber and telegram |
 | [ChessBot](https://github.com/Piterden/chessbot) | Inline chess game in a message |
-| [CounterBot](https://github.com/leodj/telegram-counter-bot) |   |
+| [CounterBot](https://github.com/leodj/telegram-counter-bot) | Keep track of multiple counters and increment, decrement, set and reset them to your hearts content  |
 | [DefendTheCastle](https://github.com/TiagoDanin/Defend-The-Castle) |   |
 | [EveMoviesBot](https://github.com/dmbaranov/evemovies-bot) | Track movie torrent releases and get notifications when it's there |
 | [GNU/LinuxIndonesiaBot](https://github.com/bgli/bglibot-js) |   |

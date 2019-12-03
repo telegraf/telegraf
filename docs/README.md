@@ -177,23 +177,25 @@ bot.launch()
 A Telegraf Context encapsulates telegram update.
 Context is created per request and contains following props:
 
-* `ctx.telegram `            - Telegram client instance
-* `ctx.updateType `          - Update type (message, inline_query, etc.)
-* `[ctx.updateSubTypes]`     - Update subtypes (text, sticker, audio, etc.)
-* `[ctx.message]`            - Received message
-* `[ctx.editedMessage]`      - Edited message
-* `[ctx.inlineQuery]`        - Received inline query
-* `[ctx.chosenInlineResult]` - Received inline query result
-* `[ctx.callbackQuery]`      - Received callback query
-* `[ctx.shippingQuery]`      - Shipping query
-* `[ctx.preCheckoutQuery]`   - Precheckout query
-* `[ctx.channelPost]`        - New incoming channel post of any kind — text, photo, sticker, etc.
-* `[ctx.editedChannelPost]`  - New version of a channel post that is known to the bot and was edited
-* `[ctx.poll]`               - New version of a anonymous poll that is known to the bot and was changed
-* `[ctx.chat]`               - Current chat info
-* `[ctx.from]`               - Sender info
-* `[ctx.match]`              - Regex match (available only for `hears`, `command`, `action`, `inlineQuery` handlers)
-* `ctx.webhookReply `        - Shortcut to `ctx.telegram.webhookReply`
+| Property | Description |
+| --- | --- |
+| ` ctx.telegram ` | Telegram client instance |
+| ` ctx.updateType ` | Update type (message, inline_query, etc.) |
+| `[ctx.updateSubTypes]` | Update subtypes (text, sticker, audio, etc.) |
+| `[ctx.message]` | Received message |
+| `[ctx.editedMessage]` | Edited message |
+| `[ctx.inlineQuery]` | Received inline query |
+| `[ctx.chosenInlineResult]` | Received inline query result |
+| `[ctx.callbackQuery]` | Received callback query |
+| `[ctx.shippingQuery]` | Shipping query |
+| `[ctx.preCheckoutQuery]` | Precheckout query |
+| `[ctx.channelPost]` | New incoming channel post of any kind — text, photo, sticker, etc. |
+| `[ctx.editedChannelPost]` | New version of a channel post that is known to the bot and was edited |
+| `[ctx.poll]` | New version of a anonymous poll that is known to the bot and was changed |
+| `[ctx.chat]` | Current chat info |
+| `[ctx.from]` | Sender info |
+| `[ctx.match]` | Regex match (available only for `hears`, `command`, `action`, `inlineQuery` handlers) |
+| ` ctx.webhookReply ` | Shortcut to `ctx.telegram.webhookReply` |
 
 ```js
 bot.use((ctx) => {
@@ -224,103 +226,113 @@ bot.launch()
 
 Context shortcuts for **message** update:
 
-* `addStickerToSet`         -> [`telegram.addStickerToSet`](#addstickertoset)
-* `createNewStickerSet`     -> [`telegram.createNewStickerSet`](#createnewstickerset)
-* `deleteChatPhoto`         -> [`telegram.deleteChatPhoto`](#deletechatphoto)
-* `deleteMessage`           -> [`telegram.deleteMessage`](#deletemessage)
-* `deleteStickerFromSet`    -> [`telegram.deleteStickerFromSet`](#deletestickerfromset)
-* `exportChatInviteLink`    -> [`telegram.exportChatInviteLink`](#exportchatinvitelink)
-* `forwardMessage`          -> [`telegram.forwardMessage`](#forwardmessage)
-* `getChat`                 -> [`telegram.getChat`](#getchat)
-* `getChatAdministrators`   -> [`telegram.getChatAdministrators`](#getchatadministrators)
-* `getChatMember`           -> [`telegram.getChatMember`](#getchatmember)
-* `getChatMembersCount`     -> [`telegram.getChatMembersCount`](#getchatmemberscount)
-* `getStickerSet`           -> [`telegram.getStickerSet`](#getstickerset)
-* `leaveChat`               -> [`telegram.leaveChat`](#leavechat)
-* `pinChatMessage`          -> [`telegram.pinChatMessage`](#pinchatmessage)
-* `reply`                   -> [`telegram.sendMessage`](#sendmessage)
-* `replyWithAudio`          -> [`telegram.sendAudio`](#sendaudio)
-* `replyWithChatAction`     -> [`telegram.sendChatAction`](#sendchataction)
-* `replyWithDocument`       -> [`telegram.sendDocument`](#senddocument)
-* `replyWithGame`           -> [`telegram.sendGame`](#sendgame)
-* `replyWithHTML`           -> [`telegram.sendMessage`](#sendmessage)
-* `replyWithInvoice`        -> [`telegram.sendInvoice`](#sendinvoice)
-* `replyWithLocation`       -> [`telegram.sendLocation`](#sendlocation)
-* `replyWithMarkdown`       -> [`telegram.sendMessage`](#sendmessage)
-* `replyWithPhoto`          -> [`telegram.sendPhoto`](#sendphoto)
-* `replyWithMediaGroup`     -> [`telegram.sendMediaGroup`](#sendmediagroup)
-* `replyWithSticker`        -> [`telegram.sendSticker`](#sendsticker)
-* `replyWithVideo`          -> [`telegram.sendVideo`](#sendvideo)
-* `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
-* `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
-* `replyWithPoll`           -> [`telegram.sendPoll`](#sendpoll)
-* `stopPoll`                -> [`telegram.stopPoll`](#stoppoll)
-* `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
-* `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
-* `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
-* `setStickerPositionInSet` -> [`telegram.setStickerPositionInSet`](#setstickerpositioninset)
-* `unpinChatMessage`        -> [`telegram.unpinChatMessage`](#unpinchatmessage)
-* `uploadStickerFile`       -> [`telegram.uploadStickerFile`](#uploadstickerfile)
-* `setPassportDataErrors`   -> [`telegram.setPassportDataErrors`](#setpassportdataerrors)
+| Shortcut | Bound to |
+| --- | --- |
+| `addStickerToSet`         | [`telegram.addStickerToSet`](#addstickertoset) |
+| `createNewStickerSet`     | [`telegram.createNewStickerSet`](#createnewstickerset) |
+| `deleteChatPhoto`         | [`telegram.deleteChatPhoto`](#deletechatphoto) |
+| `deleteMessage`           | [`telegram.deleteMessage`](#deletemessage) |
+| `deleteStickerFromSet`    | [`telegram.deleteStickerFromSet`](#deletestickerfromset) |
+| `exportChatInviteLink`    | [`telegram.exportChatInviteLink`](#exportchatinvitelink) |
+| `forwardMessage`          | [`telegram.forwardMessage`](#forwardmessage) |
+| `getChat`                 | [`telegram.getChat`](#getchat) |
+| `getChatAdministrators`   | [`telegram.getChatAdministrators`](#getchatadministrators) |
+| `getChatMember`           | [`telegram.getChatMember`](#getchatmember) |
+| `getChatMembersCount`     | [`telegram.getChatMembersCount`](#getchatmemberscount) |
+| `getStickerSet`           | [`telegram.getStickerSet`](#getstickerset) |
+| `leaveChat`               | [`telegram.leaveChat`](#leavechat) |
+| `pinChatMessage`          | [`telegram.pinChatMessage`](#pinchatmessage) |
+| `reply`                   | [`telegram.sendMessage`](#sendmessage) |
+| `replyWithAudio`          | [`telegram.sendAudio`](#sendaudio) |
+| `replyWithChatAction`     | [`telegram.sendChatAction`](#sendchataction) |
+| `replyWithDocument`       | [`telegram.sendDocument`](#senddocument) |
+| `replyWithGame`           | [`telegram.sendGame`](#sendgame) |
+| `replyWithHTML`           | [`telegram.sendMessage`](#sendmessage) |
+| `replyWithInvoice`        | [`telegram.sendInvoice`](#sendinvoice) |
+| `replyWithLocation`       | [`telegram.sendLocation`](#sendlocation) |
+| `replyWithMarkdown`       | [`telegram.sendMessage`](#sendmessage) |
+| `replyWithPhoto`          | [`telegram.sendPhoto`](#sendphoto) |
+| `replyWithMediaGroup`     | [`telegram.sendMediaGroup`](#sendmediagroup) |
+| `replyWithSticker`        | [`telegram.sendSticker`](#sendsticker) |
+| `replyWithVideo`          | [`telegram.sendVideo`](#sendvideo) |
+| `replyWithVideoNote`      | [`telegram.sendVideoNote`](#sendvideonote) |
+| `replyWithVoice`          | [`telegram.sendVoice`](#sendvoice) |
+| `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
+| `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
+| `setChatDescription`      | [`telegram.setChatDescription`](#setchatdescription) |
+| `setChatPhoto`            | [`telegram.setChatPhoto`](#setchatphoto) |
+| `setChatTitle`            | [`telegram.setChatTitle`](#setchattitle) |
+| `setStickerPositionInSet` | [`telegram.setStickerPositionInSet`](#setstickerpositioninset) |
+| `unpinChatMessage`        | [`telegram.unpinChatMessage`](#unpinchatmessage) |
+| `uploadStickerFile`       | [`telegram.uploadStickerFile`](#uploadstickerfile) |
+| `setPassportDataErrors`   | [`telegram.setPassportDataErrors`](#setpassportdataerrors) |
 
 Context shortcuts for **callback_query** update:
 
-* `addStickerToSet`         -> [`telegram.addStickerToSet`](#addstickertoset)
-* `answerCbQuery`           -> [`telegram.answerCbQuery`](#answercbquery)
-* `answerGameQuery`         -> [`telegram.answerGameQuery`](#answergamequery)
-* `createNewStickerSet`     -> [`telegram.createNewStickerSet`](#createnewstickerset)
-* `deleteChatPhoto`         -> [`telegram.deleteChatPhoto`](#deletechatphoto)
-* `deleteMessage`           -> [`telegram.deleteMessage`](#deletemessage)
-* `deleteStickerFromSet`    -> [`telegram.deleteStickerFromSet`](#deletestickerfromset)
-* `editMessageCaption`      -> [`telegram.editMessageCaption`](#editmessagecaption)
-* `editMessageMedia`        -> [`telegram.editMessageMedia`](#editmessagemedia)
-* `editMessageReplyMarkup`  -> [`telegram.editMessageReplyMarkup`](#editmessagereplymarkup)
-* `editMessageText`         -> [`telegram.editMessageText`](#editmessagetext)
-* `exportChatInviteLink`    -> [`telegram.exportChatInviteLink`](#exportchatinvitelink)
-* `forwardMessage`          -> [`telegram.forwardMessage`](#forwardmessage)
-* `getChat`                 -> [`telegram.getChat`](#getchat)
-* `getChatAdministrators`   -> [`telegram.getChatAdministrators`](#getchatadministrators)
-* `getChatMember`           -> [`telegram.getChatMember`](#getchatmember)
-* `getChatMembersCount`     -> [`telegram.getChatMembersCount`](#getchatmemberscount)
-* `getStickerSet`           -> [`telegram.getStickerSet`](#getstickerset)
-* `leaveChat`               -> [`telegram.leaveChat`](#leavechat)
-* `pinChatMessage`          -> [`telegram.pinChatMessage`](#pinchatmessage)
-* `reply`                   -> [`telegram.sendMessage`](#sendmessage)
-* `replyWithAudio`          -> [`telegram.sendAudio`](#sendaudio)
-* `replyWithChatAction`     -> [`telegram.sendChatAction`](#sendchataction)
-* `replyWithDocument`       -> [`telegram.sendDocument`](#senddocument)
-* `replyWithGame`           -> [`telegram.sendGame`](#sendgame)
-* `replyWithHTML`           -> [`telegram.sendMessage`](#sendmessage)
-* `replyWithInvoice`        -> [`telegram.sendInvoice`](#sendinvoice)
-* `replyWithLocation`       -> [`telegram.sendLocation`](#sendlocation)
-* `replyWithMarkdown`       -> [`telegram.sendMessage`](#sendmessage)
-* `replyWithPhoto`          -> [`telegram.sendPhoto`](#sendphoto)
-* `replyWithMediaGroup`     -> [`telegram.sendMediaGroup`](#sendmediagroup)
-* `replyWithSticker`        -> [`telegram.sendSticker`](#sendsticker)
-* `replyWithVideo`          -> [`telegram.sendVideo`](#sendvideo)
-* `replyWithAnimation`      -> [`telegram.sendAnimation`](#sendanimation)
-* `replyWithVideoNote`      -> [`telegram.sendVideoNote`](#sendvideonote)
-* `replyWithVoice`          -> [`telegram.sendVoice`](#sendvoice)
-* `replyWithPoll`           -> [`telegram.sendPoll`](#sendpoll)
-* `stopPoll`                -> [`telegram.stopPoll`](#stoppoll)
-* `setChatDescription`      -> [`telegram.setChatDescription`](#setchatdescription)
-* `setChatPhoto`            -> [`telegram.setChatPhoto`](#setchatphoto)
-* `setChatTitle`            -> [`telegram.setChatTitle`](#setchattitle)
-* `setStickerPositionInSet` -> [`telegram.setStickerPositionInSet`](#setstickerpositioninset)
-* `unpinChatMessage`        -> [`telegram.unpinChatMessage`](#unpinchatmessage)
-* `uploadStickerFile`       -> [`telegram.uploadStickerFile`](#uploadstickerfile)
+| Shortcut | Bound to |
+| --- | --- |
+| `addStickerToSet`         | [`telegram.addStickerToSet`](#addstickertoset) |
+| `answerCbQuery`           | [`telegram.answerCbQuery`](#answercbquery) |
+| `answerGameQuery`         | [`telegram.answerGameQuery`](#answergamequery) |
+| `createNewStickerSet`     | [`telegram.createNewStickerSet`](#createnewstickerset) |
+| `deleteChatPhoto`         | [`telegram.deleteChatPhoto`](#deletechatphoto) |
+| `deleteMessage`           | [`telegram.deleteMessage`](#deletemessage) |
+| `deleteStickerFromSet`    | [`telegram.deleteStickerFromSet`](#deletestickerfromset) |
+| `editMessageCaption`      | [`telegram.editMessageCaption`](#editmessagecaption) |
+| `editMessageMedia`        | [`telegram.editMessageMedia`](#editmessagemedia) |
+| `editMessageReplyMarkup`  | [`telegram.editMessageReplyMarkup`](#editmessagereplymarkup) |
+| `editMessageText`         | [`telegram.editMessageText`](#editmessagetext) |
+| `exportChatInviteLink`    | [`telegram.exportChatInviteLink`](#exportchatinvitelink) |
+| `forwardMessage`          | [`telegram.forwardMessage`](#forwardmessage) |
+| `getChat`                 | [`telegram.getChat`](#getchat) |
+| `getChatAdministrators`   | [`telegram.getChatAdministrators`](#getchatadministrators) |
+| `getChatMember`           | [`telegram.getChatMember`](#getchatmember) |
+| `getChatMembersCount`     | [`telegram.getChatMembersCount`](#getchatmemberscount) |
+| `getStickerSet`           | [`telegram.getStickerSet`](#getstickerset) |
+| `leaveChat`               | [`telegram.leaveChat`](#leavechat) |
+| `pinChatMessage`          | [`telegram.pinChatMessage`](#pinchatmessage) |
+| `reply`                   | [`telegram.sendMessage`](#sendmessage) |
+| `replyWithAudio`          | [`telegram.sendAudio`](#sendaudio) |
+| `replyWithChatAction`     | [`telegram.sendChatAction`](#sendchataction) |
+| `replyWithDocument`       | [`telegram.sendDocument`](#senddocument) |
+| `replyWithGame`           | [`telegram.sendGame`](#sendgame) |
+| `replyWithHTML`           | [`telegram.sendMessage`](#sendmessage) |
+| `replyWithInvoice`        | [`telegram.sendInvoice`](#sendinvoice) |
+| `replyWithLocation`       | [`telegram.sendLocation`](#sendlocation) |
+| `replyWithMarkdown`       | [`telegram.sendMessage`](#sendmessage) |
+| `replyWithPhoto`          | [`telegram.sendPhoto`](#sendphoto) |
+| `replyWithMediaGroup`     | [`telegram.sendMediaGroup`](#sendmediagroup) |
+| `replyWithSticker`        | [`telegram.sendSticker`](#sendsticker) |
+| `replyWithVideo`          | [`telegram.sendVideo`](#sendvideo) |
+| `replyWithAnimation`      | [`telegram.sendAnimation`](#sendanimation) |
+| `replyWithVideoNote`      | [`telegram.sendVideoNote`](#sendvideonote) |
+| `replyWithVoice`          | [`telegram.sendVoice`](#sendvoice) |
+| `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
+| `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
+| `setChatDescription`      | [`telegram.setChatDescription`](#setchatdescription) |
+| `setChatPhoto`            | [`telegram.setChatPhoto`](#setchatphoto) |
+| `setChatTitle`            | [`telegram.setChatTitle`](#setchattitle) |
+| `setStickerPositionInSet` | [`telegram.setStickerPositionInSet`](#setstickerpositioninset) |
+| `unpinChatMessage`        | [`telegram.unpinChatMessage`](#unpinchatmessage) |
+| `uploadStickerFile`       | [`telegram.uploadStickerFile`](#uploadstickerfile) |
 
 Context shortcuts for **inline_query** update:
 
-* `answerInlineQuery`-> [`telegram.answerInlineQuery`](#answerinlinequery)
+| Shortcut | Bound to |
+| --- | --- |
+| `answerInlineQuery` | [`telegram.answerInlineQuery`](#answerinlinequery) |
 
 Context shortcuts for **shipping_query** update:
 
-* `answerShippingQuery`-> [`telegram.answerShippingQuery`](#answershippingquery)
+| Shortcut | Bound to |
+| --- | --- |
+| `answerShippingQuery` | [`telegram.answerShippingQuery`](#answershippingquery) |
 
 Context shortcuts for **pre_checkout_query** update:
 
-* `answerPreCheckoutQuery`-> [`telegram.answerPreCheckoutQuery`](#answerprecheckoutquery)
+| Shortcut | Bound to |
+| --- | --- |
+| `answerPreCheckoutQuery` | [`telegram.answerPreCheckoutQuery`](#answerprecheckoutquery) |
 
 ##### Shortcuts usage example
 

@@ -135,6 +135,7 @@ class Telegraf extends Composer {
   }
 
   stop (cb = noop) {
+    debug('Stopping bot...')
     return new Promise((resolve) => {
       const done = () => resolve() & cb()
       if (this.webhookServer) {

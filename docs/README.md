@@ -65,43 +65,43 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [ChatLinkerBot](https://github.com/jt3k/chat-linker) | The bridge between jabber and telegram |
 | [ChessBot](https://github.com/Piterden/chessbot) | Inline chess game in a message |
 | [CounterBot](https://github.com/leodj/telegram-counter-bot) | Keep track of multiple counters and increment, decrement, set and reset them to your hearts content  |
-| [DefendTheCastle](https://github.com/TiagoDanin/Defend-The-Castle) |   |
+| [DefendTheCastle](https://github.com/TiagoDanin/Defend-The-Castle) | Telegram Bot Game - Defend The Castle |
 | [EveMoviesBot](https://github.com/dmbaranov/evemovies-bot) | Track movie torrent releases and get notifications when it's there |
-| [GNU/LinuxIndonesiaBot](https://github.com/bgli/bglibot-js) |   |
+| [GNU/LinuxIndonesiaBot](https://github.com/bgli/bglibot-js) | BGLI Bot a.k.a Miranda Salma |
 | [GoogleItBot](https://github.com/Edgar-P-yan/google-it-telegram-bot) | Instant inline search |
-| [GroupsAdminBot](https://github.com/Azhant/AdminBot) |   |
-| [KitchenTimerBot](https://github.com/DZamataev/kitchen-timer-bot) |   |
+| [GroupsAdminBot](https://github.com/Azhant/AdminBot) | Telegram groups administrator bot |
+| [KitchenTimerBot](https://github.com/DZamataev/kitchen-timer-bot) | Bot for setting up multiple timers for cooking |
 | [LyricsGramBot](https://github.com/lioialessandro/LyricsGramBot) | Song Lyrics |
 | [MangadexBot](https://github.com/ejnshtein/mangadex_bot) | Read manga from Mangadex |
-| [Memcoin](https://github.com/backmeupplz/memcoin) |   |
+| [Memcoin](https://github.com/backmeupplz/memcoin) | Memcoin for the Memconomy |
 | [MetalArchivesBot](https://github.com/amiralies/metalarchives-telegram-bot) | Unofficial metal-archives.com bot |
-| [MidnaBot](https://github.com/wsknorth/midnabot) |   |
+| [MidnaBot](https://github.com/wsknorth/midnabot) | Midnabot for telegram |
 | [Nyaa.si Bot](https://github.com/ejnshtein/nyaasi-bot) | Nyaa.si torrents |
 | [OCRToolBot](https://github.com/Piterden/tesseract-bot) | Tesseract text from image recognition |
 | [OneQRBot](https://github.com/Khuzha/oneqrbot) | Scan and generate QR |
-| [OrdisPrime](https://github.com/MaxTgr/Ordis-Prime) |   |
+| [OrdisPrime](https://github.com/MaxTgr/Ordis-Prime) | A telegram bot helper for warframe |
 | [PodSearchBot](https://fazendaaa.github.io/podsearch_bot/) | TypeScript |
 | [RandomPassBot](https://github.com/Khuzha/randompassbot) | Generate a password |
-| [Randy](https://github.com/backmeupplz/randymbot) |   |
+| [Randy](https://github.com/backmeupplz/randymbot) | Randy Marsh raffle Telegram bot |
 | [ReferalSystem](https://github.com/Khuzha/refbot) | Channels promoter |
-| [ScrobblerBot](https://github.com/drvirtuozov/scrobblerBot) |   |
-| [Shieldy](https://github.com/backmeupplz/shieldy) |   |
-| [SimpleRegBot](https://github.com/Khuzha/simpleRegBot) |   |
-| [SpyfallGameBot](https://github.com/verget/telegram-spy-game) |   |
+| [ScrobblerBot](https://github.com/drvirtuozov/scrobblerBot) | An unofficial Last.fm Scrobbler |
+| [Shieldy](https://github.com/backmeupplz/shieldy) | Telegram bot repository |
+| [SimpleRegBot](https://github.com/Khuzha/simpleRegBot) | Simple bot for registration users to any event |
+| [SpyfallGameBot](https://github.com/verget/telegram-spy-game) | Simple telegram bot for an interesting board game |
 | [StickersPlayBot](https://github.com/TiagoDanin/StickersPlayBot) |   |
 | [StoreOfBot](https://github.com/TiagoDanin/StoreOfBot) |   |
 | [SyntaxHighlighterBot](https://github.com/piterden/syntax-highlighter-bot) | A code highlighting tool for telegram chats |
-| [TelegrafRutrackerTransmission](https://github.com/DZamataev/telegraf-rutracker-transmission) |   |
-| [TelegramTelegrafBot](https://github.com/Finalgalaxy/telegram-telegraf-bot) |   |
+| [TelegrafRutrackerTransmission](https://github.com/DZamataev/telegraf-rutracker-transmission) | Bot for searching torrents at Rutracker and add them to your Transmission web service |
+| [TelegramTelegrafBot](https://github.com/Finalgalaxy/telegram-telegraf-bot) | Telegram bot example using Telegraf with easy configuration steps |
 | [Temply](https://github.com/backmeupplz/temply) |   |
-| [TereGramBot](https://github.com/juandjara/TereGramBot) |   |
+| [TereGramBot](https://github.com/juandjara/TereGramBot) | Simple telegram node bot with a few funny commands |
 | [TheGuardBot](https://github.com/TheDevs-Network/the-guard-bot) | Manage a network of related groups |
 | [ThemerBot](https://github.com/YouTwitFace/ThemerBot) | Create themes for Telegram based on colors chosen from a picture |
 | [TTgram](https://github.com/TiagoDanin/TTgram) |   |
 | [Voicy](https://github.com/backmeupplz/voicy) |   |
 | [Watchy](https://github.com/backmeupplz/watchy) |   |
-| [YtSearchBot](https://github.com/Finalgalaxy/yt-search-bot) |   |
-| [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot) |   |
+| [YtSearchBot](https://github.com/Finalgalaxy/yt-search-bot) | Bot to share YouTube fetched videos from any channel |
+| [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot) | Bot created to help you find and share any video from youtube |
 | Send PR to add link to your bot |   |
 
 ## Getting started

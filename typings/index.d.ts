@@ -1122,7 +1122,7 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
   /**
    * Stop Webhook and polling
    */
-  stop(): Telegraf<TContext>
+  stop(cb?: () => void): Promise<void>
 
   /**
    * Return a callback function suitable for the http[s].createServer() method to handle a request.
@@ -1241,7 +1241,7 @@ export class Markup {
 
   payButton(text: string, hide: boolean): PayButton;
 
-  static removeKeyboard(value: string): Markup;
+  static removeKeyboard(value?: string): Markup;
 
   static forceReply(value?: string): Markup;
 

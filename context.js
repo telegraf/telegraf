@@ -41,11 +41,11 @@ const MessageSubTypes = [
   'connected_website',
   'passport_data',
   'poll',
-  'forward_from'
+  'forward_date'
 ]
 
 const MessageSubTypesMapping = {
-  forward_from: 'forward'
+  forward_date: 'forward'
 }
 
 class TelegrafContext {

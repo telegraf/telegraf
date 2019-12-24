@@ -6,6 +6,8 @@ const parse = require('minimist')
 const { addAlias } = require('module-alias')
 const Telegraf = require('../')
 
+const log = debug('telegraf:cli')
+
 const help = () => {
   console.log(`Usage: telegraf [opts] <file>
   -t  Bot token
@@ -98,7 +100,9 @@ if (domain) {
 
 const bot = new Telegraf(token)
 if (!args.stop) {
-  bot.catch(debug)
+  bot.catch(log)
 }
 bot.use(botHandler)
+
+log(`Starting module ${file}`)
 bot.launch(config)

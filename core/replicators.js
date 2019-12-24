@@ -1,81 +1,6 @@
-function applyEntities (text, entities) {
-  const chars = [...text]
-  const available = [...entities]
-  const opened = []
-  const result = []
-  for (let offset = 0; offset < chars.length; offset++) {
-    while (true) {
-      const index = available.findIndex((entity) => entity.offset === offset)
-      if (index === -1) {
-        break
-      }
-      const entity = available[index]
-      switch (entity.type) {
-        case 'bold':
-          result.push('<b>')
-          break
-        case 'italic':
-          result.push('<i>')
-          break
-        case 'code':
-          result.push('<code>')
-          break
-        case 'pre':
-          result.push('<pre>')
-          break
-        case 'strikethrough':
-          result.push('<s>')
-          break
-        case 'underline':
-          result.push('<u>')
-          break
-        case 'text_link':
-          result.push(`<a href="${entity.url}">`)
-          break
-      }
-      opened.unshift(entity)
-      available.splice(index, 1)
-    }
-
-    result.push(chars[offset])
-
-    while (true) {
-      const index = opened.findIndex((entity) => entity.offset + entity.length - 1 === offset)
-      if (index === -1) {
-        break
-      }
-      const entity = opened[index]
-      switch (entity.type) {
-        case 'bold':
-          result.push('</b>')
-          break
-        case 'italic':
-          result.push('</i>')
-          break
-        case 'code':
-          result.push('</code>')
-          break
-        case 'pre':
-          result.push('</pre>')
-          break
-        case 'strikethrough':
-          result.push('</s>')
-          break
-        case 'underline':
-          result.push('</u>')
-          break
-        case 'text_link':
-          result.push('</a>')
-          break
-      }
-      opened.splice(index, 1)
-    }
-  }
-  return result.join('')
-}
+const { formatHTML } = require('../markup')
 
 module.exports = {
-  applyEntities,
   copyMethods: {
     audio: 'sendAudio',
     contact: 'sendContact',
@@ -96,7 +21,7 @@ module.exports = {
     return {
       reply_markup: message.reply_markup,
       parse_mode: entities.length > 0 ? 'HTML' : '',
-      text: applyEntities(message.text, entities)
+      text: formatHTML(message.text, entities)
     }
   },
   contact: (message) => {
@@ -130,7 +55,7 @@ module.exports = {
       reply_markup: message.reply_markup,
       voice: message.voice.file_id,
       duration: message.voice.duration,
-      caption: applyEntities(message.caption, entities),
+      caption: formatHTML(message.caption, entities),
       parse_mode: entities.length > 0 ? 'HTML' : ''
     }
   },
@@ -143,7 +68,7 @@ module.exports = {
       duration: message.audio.duration,
       performer: message.audio.performer,
       title: message.audio.title,
-      caption: applyEntities(message.caption, entities),
+      caption: formatHTML(message.caption, entities),
       parse_mode: entities.length > 0 ? 'HTML' : ''
     }
   },
@@ -153,7 +78,7 @@ module.exports = {
       reply_markup: message.reply_markup,
       video: message.video.file_id,
       thumb: message.video.thumb,
-      caption: applyEntities(message.caption, entities),
+      caption: formatHTML(message.caption, entities),
       parse_mode: entities.length > 0 ? 'HTML' : '',
       duration: message.video.duration,
       width: message.video.width,
@@ -166,7 +91,7 @@ module.exports = {
     return {
       reply_markup: message.reply_markup,
       document: message.document.file_id,
-      caption: applyEntities(message.caption, entities),
+      caption: formatHTML(message.caption, entities),
       parse_mode: entities.length > 0 ? 'HTML' : ''
     }
   },
@@ -182,7 +107,7 @@ module.exports = {
       reply_markup: message.reply_markup,
       photo: message.photo[message.photo.length - 1].file_id,
       parse_mode: entities.length > 0 ? 'HTML' : '',
-      caption: applyEntities(message.caption, entities)
+      caption: formatHTML(message.caption, entities)
     }
   },
   video_note: (message) => {

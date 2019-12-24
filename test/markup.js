@@ -1,6 +1,5 @@
 const test = require('ava')
 const Telegraf = require('../')
-const { applyEntities } = require('../core/replicators')
 const { Markup } = Telegraf
 
 test('should generate removeKeyboard markup', (t) => {
@@ -160,7 +159,7 @@ test('should generate hidden game button markup', (t) => {
 })
 
 test('should generate markup', (t) => {
-  const markup = applyEntities('strike', [
+  const markup = Markup.formatHTML('strike', [
     {
       offset: 0,
       length: 6,
@@ -171,7 +170,7 @@ test('should generate markup', (t) => {
 })
 
 test('should generate multi markup', (t) => {
-  const markup = applyEntities('strike bold', [
+  const markup = Markup.formatHTML('strike bold', [
     {
       offset: 0,
       length: 6,
@@ -187,7 +186,7 @@ test('should generate multi markup', (t) => {
 })
 
 test('should generate nested markup', (t) => {
-  const markup = applyEntities('test', [
+  const markup = Markup.formatHTML('test', [
     {
       offset: 0,
       length: 4,
@@ -203,7 +202,7 @@ test('should generate nested markup', (t) => {
 })
 
 test('should generate nested multi markup', (t) => {
-  const markup = applyEntities('strikeboldunder', [
+  const markup = Markup.formatHTML('strikeboldunder', [
     {
       offset: 0,
       length: 15,

@@ -9,13 +9,13 @@ const Telegraf = require('../')
 const log = debug('telegraf:cli')
 
 const help = () => {
-  console.log(`Usage: telegraf [opts] <file>
-  -t  Bot token
+  console.log(`Usage: telegraf [opts] <bot-file>
+  -t  Bot token [$BOT_TOKEN]
   -d  Webhook domain
   -H  Webhook host [0.0.0.0]
   -p  Webhook port [$PORT or 3000]
   -s  Stop on error
-  -l  Show logs
+  -l  Enable logs
   -h  Show this help message`)
 }
 
@@ -60,7 +60,7 @@ if (!file) {
 }
 
 if (!file) {
-  console.error('Please supply a handler file.\n')
+  console.error('Please supply a bot handler file.\n')
   help()
   process.exit(1)
 }

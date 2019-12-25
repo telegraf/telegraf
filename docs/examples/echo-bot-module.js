@@ -1,4 +1,5 @@
-// telegraf -t `BOT TOKEN` echo-bot-module.js
+// Modules documentation: https://telegraf.js.org/#/?id=telegraf-modules
+// $> telegraf -t `BOT TOKEN` echo-bot-module.js
 const Composer = require('telegraf/composer')
 const Extra = require('telegraf/extra')
 const Markup = require('telegraf/markup')

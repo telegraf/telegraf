@@ -659,6 +659,66 @@ bot.on('passport_data', (ctx) => {
 })
 ```
 
+#### Telegraf Modules
+
+Telegraf Modules is higher level abstraction for writing modular Telegram bots.
+
+Module is simple js file with exported Telegraf middleware:
+
+```js
+module.exports = (ctx) => ctx.reply('Hello from Telegraf Module!')
+```
+
+```js
+const Composer = require('telegraf/composer')
+
+module.exports = Composer.mount(
+  'sticker', 
+  (ctx) => ctx.reply('Wow, sticker')
+)
+```
+
+To run modules you can use `telegraf` module runner, it allows you to start Telegraf module easily from the command line.
+
+```bash
+$ npm install telegraf -g
+```
+
+#### Telegraf CLI usage
+
+```
+telegraf [opts] <bot-file>
+  -t  Bot token [$BOT_TOKEN]
+  -d  Webhook domain
+  -H  Webhook host [0.0.0.0]
+  -p  Webhook port [$PORT or 3000]
+  -s  Stop on error
+  -l  Enable logs
+  -h  Show this help message
+```
+
+##### Telegraf Module example
+
+Create module with name `bot.js` and following content:
+
+```js
+const Composer = require('telegraf/composer')
+const PhotoURL = 'https://picsum.photos/200/300/?random'
+
+const bot = new Composer()
+bot.start((ctx) => ctx.reply('Hello there!'))
+bot.help((ctx) => ctx.reply('Help message'))
+bot.command('photo', (ctx) => ctx.replyWithPhoto({ url: PhotoURL }))
+
+module.exports = bot
+```
+
+then run it:
+
+```bash
+$ telegraf -t "bot token" bot.js
+```
+
 ## API reference
 
 #### Telegraf

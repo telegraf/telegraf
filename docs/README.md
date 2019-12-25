@@ -88,8 +88,8 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [Shieldy](https://github.com/backmeupplz/shieldy) | Telegram bot repository |
 | [SimpleRegBot](https://github.com/Khuzha/simpleRegBot) | Simple bot for registration users to any event |
 | [SpyfallGameBot](https://github.com/verget/telegram-spy-game) | Simple telegram bot for an interesting board game |
-| [StickersPlayBot](https://github.com/TiagoDanin/StickersPlayBot) |   |
-| [StoreOfBot](https://github.com/TiagoDanin/StoreOfBot) |   |
+| [StickersPlayBot](https://github.com/TiagoDanin/StickersPlayBot) | Search series covers stickers via inline |
+| [StoreOfBot](https://github.com/TiagoDanin/StoreOfBot) | Search, explore & discover the bests bots, channel or groups |
 | [SyntaxHighlighterBot](https://github.com/piterden/syntax-highlighter-bot) | A code highlighting tool for telegram chats |
 | [TelegrafRutrackerTransmission](https://github.com/DZamataev/telegraf-rutracker-transmission) | Bot for searching torrents at Rutracker and add them to your Transmission web service |
 | [TelegramTelegrafBot](https://github.com/Finalgalaxy/telegram-telegraf-bot) | Telegram bot example using Telegraf with easy configuration steps |
@@ -97,7 +97,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [TereGramBot](https://github.com/juandjara/TereGramBot) | Simple telegram node bot with a few funny commands |
 | [TheGuardBot](https://github.com/TheDevs-Network/the-guard-bot) | Manage a network of related groups |
 | [ThemerBot](https://github.com/YouTwitFace/ThemerBot) | Create themes for Telegram based on colors chosen from a picture |
-| [TTgram](https://github.com/TiagoDanin/TTgram) |   |
+| [TTgram](https://github.com/TiagoDanin/TTgram) | Receive and send Twitters used a Telegram Bot |
 | [Voicy](https://github.com/backmeupplz/voicy) |   |
 | [Watchy](https://github.com/backmeupplz/watchy) |   |
 | [YtSearchBot](https://github.com/Finalgalaxy/yt-search-bot) | Bot to share YouTube fetched videos from any channel |

@@ -1299,7 +1299,7 @@ export class Extra {
 
   static webPreview(value?: boolean): Extra;
 
-  static markup(markup: any): Extra;
+  static markup(markup: any): tt.ExtraEditMessage;
 
   static HTML(value?: boolean): Extra;
 

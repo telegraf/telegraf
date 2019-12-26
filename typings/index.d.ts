@@ -805,6 +805,13 @@ export interface Telegram {
   getWebhookInfo(): Promise<tt.WebhookInfo>;
 
   /**
+   * Use this method to get basic info about a file and prepare it for downloading
+   * @param fileId Id of file to get link to
+   * @returns a File object on success
+   */
+  getFile(fileId: string): Promise<tt.File>;
+
+  /**
    * Use this method to get link to a file by file id
    * @param fileId Id of file to get link to
    * @returns a String with an url to the file

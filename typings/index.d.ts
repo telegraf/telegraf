@@ -360,6 +360,13 @@ export interface ContextMessageUpdate extends Context {
    */
   setStickerPositionInSet(sticker: string, position: number): Promise<boolean>
 
+  /**
+   * Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param title New chat title, 1-255 characters
+   * @returns True on success
+   */
+  setChatTitle(title: string): Promise<boolean>;
+
 }
 
 export interface SceneContextOptions {
@@ -818,6 +825,14 @@ export interface Telegram {
    * @returns Array of updates
    */
   getUpdates(): Promise<any[]>;
+
+  /**
+   * Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+   * @param title New chat title, 1-255 characters
+   * @returns True on success
+   */
+  setChatTitle(chatId: number | string, title: string): Promise<boolean>;
 
 }
 

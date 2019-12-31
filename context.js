@@ -41,11 +41,11 @@ const MessageSubTypes = [
   'connected_website',
   'passport_data',
   'poll',
-  'forward_from'
+  'forward_date'
 ]
 
 const MessageSubTypesMapping = {
-  forward_from: 'forward'
+  forward_date: 'forward'
 }
 
 class TelegrafContext {
@@ -332,6 +332,11 @@ class TelegrafContext {
   promoteChatMember (...args) {
     this.assert(this.chat, 'promoteChatMember')
     return this.telegram.promoteChatMember(this.chat.id, ...args)
+  }
+
+  setChatAdministratorCustomTitle (...args) {
+    this.assert(this.chat, 'setChatAdministratorCustomTitle')
+    return this.telegram.setChatAdministratorCustomTitle(this.chat.id, ...args)
   }
 
   setChatPhoto (...args) {

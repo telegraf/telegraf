@@ -360,6 +360,13 @@ export interface ContextMessageUpdate extends Context {
    */
   setStickerPositionInSet(sticker: string, position: number): Promise<boolean>
 
+  /**
+   * Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param title New chat title, 1-255 characters
+   * @returns True on success
+   */
+  setChatTitle(title: string): Promise<boolean>;
+
 }
 
 export interface SceneContextOptions {
@@ -798,6 +805,13 @@ export interface Telegram {
   getWebhookInfo(): Promise<tt.WebhookInfo>;
 
   /**
+   * Use this method to get basic info about a file and prepare it for downloading
+   * @param fileId Id of file to get link to
+   * @returns a File object on success
+   */
+  getFile(fileId: string): Promise<tt.File>;
+
+  /**
    * Use this method to get link to a file by file id
    * @param fileId Id of file to get link to
    * @returns a String with an url to the file
@@ -818,6 +832,14 @@ export interface Telegram {
    * @returns Array of updates
    */
   getUpdates(): Promise<any[]>;
+
+  /**
+   * Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+   * @param title New chat title, 1-255 characters
+   * @returns True on success
+   */
+  setChatTitle(chatId: number | string, title: string): Promise<boolean>;
 
 }
 
@@ -1122,7 +1144,7 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
   /**
    * Stop Webhook and polling
    */
-  stop(): Telegraf<TContext>
+  stop(cb?: () => void): Promise<void>
 
   /**
    * Return a callback function suitable for the http[s].createServer() method to handle a request.
@@ -1241,7 +1263,7 @@ export class Markup {
 
   payButton(text: string, hide: boolean): PayButton;
 
-  static removeKeyboard(value: string): Markup;
+  static removeKeyboard(value?: string): Markup;
 
   static forceReply(value?: string): Markup;
 
@@ -1299,7 +1321,7 @@ export class Extra {
 
   static webPreview(value?: boolean): Extra;
 
-  static markup(markup: any): Extra;
+  static markup(markup: any): tt.ExtraEditMessage;
 
   static HTML(value?: boolean): Extra;
 

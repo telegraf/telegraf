@@ -59,7 +59,8 @@ export type MessageSubTypes =
   'channel_chat_created' |
   'audio' |
   'passport_data' |
-  'connected_website'
+  'connected_website' |
+  'animation'
 
 export type InlineQueryResult =
   TT.InlineQueryResultCachedAudio |

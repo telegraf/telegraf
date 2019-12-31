@@ -157,3 +157,67 @@ test('should generate hidden game button markup', (t) => {
   const markup = { ...Markup.gameButton('play again', true) }
   t.deepEqual(markup, { text: 'play again', callback_game: {}, hide: true })
 })
+
+test('should generate markup', (t) => {
+  const markup = Markup.formatHTML('strike', [
+    {
+      offset: 0,
+      length: 6,
+      type: 'strikethrough'
+    }
+  ])
+  t.deepEqual(markup, '<s>strike</s>')
+})
+
+test('should generate multi markup', (t) => {
+  const markup = Markup.formatHTML('strike bold', [
+    {
+      offset: 0,
+      length: 6,
+      type: 'strikethrough'
+    },
+    {
+      offset: 7,
+      length: 4,
+      type: 'bold'
+    }
+  ])
+  t.deepEqual(markup, '<s>strike</s> <b>bold</b>')
+})
+
+test('should generate nested markup', (t) => {
+  const markup = Markup.formatHTML('test', [
+    {
+      offset: 0,
+      length: 4,
+      type: 'bold'
+    },
+    {
+      offset: 0,
+      length: 4,
+      type: 'strikethrough'
+    }
+  ])
+  t.deepEqual(markup, '<b><s>test</s></b>')
+})
+
+test('should generate nested multi markup', (t) => {
+  const markup = Markup.formatHTML('strikeboldunder', [
+    {
+      offset: 0,
+      length: 15,
+      type: 'strikethrough'
+    },
+    {
+      offset: 6,
+      length: 9,
+      type: 'bold'
+    },
+    {
+      offset: 10,
+      length: 5,
+      type: 'underline'
+    }
+  ])
+  t.deepEqual(markup, '<s>strike<b>bold<u>under</u></b></s>')
+})

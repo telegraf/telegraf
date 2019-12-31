@@ -1,0 +1,108 @@
+#!/usr/bin/env node
+
+const debug = require('debug')
+const path = require('path')
+const parse = require('minimist')
+const { addAlias } = require('module-alias')
+const Telegraf = require('../')
+
+const log = debug('telegraf:cli')
+
+const help = () => {
+  console.log(`Usage: telegraf [opts] <bot-file>
+  -t  Bot token [$BOT_TOKEN]
+  -d  Webhook domain
+  -H  Webhook host [0.0.0.0]
+  -p  Webhook port [$PORT or 3000]
+  -s  Stop on error
+  -l  Enable logs
+  -h  Show this help message`)
+}
+
+const args = parse(process.argv, {
+  alias: {
+    t: 'token',
+    d: 'domain',
+    H: 'host',
+    h: 'help',
+    l: 'logs',
+    s: 'stop',
+    p: 'port'
+  },
+  boolean: ['h', 'l', 's'],
+  default: {
+    H: '0.0.0.0',
+    p: process.env.PORT || 3000
+  }
+})
+
+if (args.help) {
+  help()
+  process.exit(0)
+}
+
+const token = args.token || process.env.BOT_TOKEN
+const domain = args.domain || process.env.BOT_DOMAIN
+if (!token) {
+  console.error('Please supply Bot Token')
+  help()
+  process.exit(1)
+}
+
+let [, , file] = args._
+
+if (!file) {
+  try {
+    const packageJson = require(path.resolve(process.cwd(), 'package.json'))
+    file = packageJson.main || 'index.js'
+  } catch (err) {
+  }
+}
+
+if (!file) {
+  console.error('Please supply a bot handler file.\n')
+  help()
+  process.exit(1)
+}
+
+if (file[0] !== '/') {
+  file = path.resolve(process.cwd(), file)
+}
+
+let botHandler
+let httpHandler
+let tlsOptions
+
+try {
+  if (args.logs) {
+    debug.enable('telegraf:*')
+  }
+  addAlias('telegraf', path.join(__dirname, '../'))
+  const mod = require(file)
+  botHandler = mod.botHandler || mod
+  httpHandler = mod.httpHandler
+  tlsOptions = mod.tlsOptions
+} catch (err) {
+  console.error(`Error importing ${file}`, err.stack)
+  process.exit(1)
+}
+
+const config = {}
+if (domain) {
+  config.webhook = {
+    tlsOptions,
+    host: args.host,
+    port: args.port,
+    domain: domain,
+    cb: httpHandler
+  }
+}
+
+const bot = new Telegraf(token)
+if (!args.stop) {
+  bot.catch(log)
+}
+bot.use(botHandler)
+
+log(`Starting module ${file}`)
+bot.launch(config)

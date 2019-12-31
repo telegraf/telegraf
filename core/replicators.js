@@ -1,26 +1,4 @@
-function wrapEntity (content, entity) {
-  switch (entity.type) {
-    case 'bold':
-      return `<b>${content}</b>`
-    case 'italic':
-      return `<i>${content}</i>`
-    case 'code':
-      return `<code>${content}</code>`
-    case 'pre':
-      return `<pre>${content}</pre>`
-    case 'text_link':
-      return `<a href="${entity.url}">${content}</a>`
-    default:
-      return content
-  }
-}
-
-function applyEntity (text, entity) {
-  const head = text.substring(0, entity.offset)
-  const tail = text.substring(entity.offset + entity.length)
-  const content = wrapEntity(text.substring(entity.offset, entity.offset + entity.length), entity)
-  return `${head}${content}${tail}`
-}
+const { formatHTML } = require('../markup')
 
 module.exports = {
   copyMethods: {
@@ -43,7 +21,7 @@ module.exports = {
     return {
       reply_markup: message.reply_markup,
       parse_mode: entities.length > 0 ? 'HTML' : '',
-      text: entities.reduceRight(applyEntity, message.text)
+      text: formatHTML(message.text, entities)
     }
   },
   contact: (message) => {
@@ -77,7 +55,7 @@ module.exports = {
       reply_markup: message.reply_markup,
       voice: message.voice.file_id,
       duration: message.voice.duration,
-      caption: entities.reduceRight(applyEntity, message.caption),
+      caption: formatHTML(message.caption, entities),
       parse_mode: entities.length > 0 ? 'HTML' : ''
     }
   },
@@ -90,7 +68,7 @@ module.exports = {
       duration: message.audio.duration,
       performer: message.audio.performer,
       title: message.audio.title,
-      caption: entities.reduceRight(applyEntity, message.caption),
+      caption: formatHTML(message.caption, entities),
       parse_mode: entities.length > 0 ? 'HTML' : ''
     }
   },
@@ -100,7 +78,7 @@ module.exports = {
       reply_markup: message.reply_markup,
       video: message.video.file_id,
       thumb: message.video.thumb,
-      caption: entities.reduceRight(applyEntity, message.caption),
+      caption: formatHTML(message.caption, entities),
       parse_mode: entities.length > 0 ? 'HTML' : '',
       duration: message.video.duration,
       width: message.video.width,
@@ -113,7 +91,7 @@ module.exports = {
     return {
       reply_markup: message.reply_markup,
       document: message.document.file_id,
-      caption: entities.reduceRight(applyEntity, message.caption),
+      caption: formatHTML(message.caption, entities),
       parse_mode: entities.length > 0 ? 'HTML' : ''
     }
   },
@@ -129,7 +107,7 @@ module.exports = {
       reply_markup: message.reply_markup,
       photo: message.photo[message.photo.length - 1].file_id,
       parse_mode: entities.length > 0 ? 'HTML' : '',
-      caption: entities.reduceRight(applyEntity, message.caption)
+      caption: formatHTML(message.caption, entities)
     }
   },
   video_note: (message) => {

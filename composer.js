@@ -1,4 +1,4 @@
-const TelegrafContext = require('./core/context')
+const Context = require('./context')
 
 class Composer {
   constructor (...fns) {
@@ -98,6 +98,20 @@ class Composer {
 
   static reply (...args) {
     return (ctx) => ctx.reply(...args)
+  }
+
+  static catchAll (...fns) {
+    return Composer.catch((err) => {
+      console.error()
+      console.error((err.stack || err.toString()).replace(/^/gm, '  '))
+      console.error()
+    }, ...fns)
+  }
+
+  static catch (errorHandler, ...fns) {
+    const handler = Composer.compose(fns)
+    return (ctx, next) => Promise.resolve(handler(ctx, next))
+      .catch((err) => errorHandler(err, ctx))
   }
 
   static fork (middleware) {
@@ -340,7 +354,7 @@ class Composer {
       let index = -1
       return execute(0, ctx)
       function execute (i, context) {
-        if (!(context instanceof TelegrafContext)) {
+        if (!(context instanceof Context)) {
           return Promise.reject(new Error('next(ctx) called with invalid context'))
         }
         if (i <= index) {

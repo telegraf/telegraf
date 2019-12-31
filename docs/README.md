@@ -8,7 +8,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 4.4](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 4.5](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -1645,7 +1645,19 @@ Use this method to promote or demote a user in a supergroup or a channel.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | userId | `number` | User id |
-| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#promotechatmember)|
+| title | `object` | [Extra parameters](https://core.telegram.org/bots/api#promotechatmember)|
+
+##### setChatAdministratorCustomTitle
+
+New custom title for the administrator; 0-16 characters, emoji are not allowed
+
+`telegram.setChatAdministratorCustomTitle(chatId, userId, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| userId | `number` | User id |
+| title | `string` | Custom title |
 
 ##### exportChatInviteLink
 

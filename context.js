@@ -334,6 +334,11 @@ class TelegrafContext {
     return this.telegram.promoteChatMember(this.chat.id, ...args)
   }
 
+  setChatAdministratorCustomTitle (...args) {
+    this.assert(this.chat, 'setChatAdministratorCustomTitle')
+    return this.telegram.setChatAdministratorCustomTitle(this.chat.id, ...args)
+  }
+
   setChatPhoto (...args) {
     this.assert(this.chat, 'setChatPhoto')
     return this.telegram.setChatPhoto(this.chat.id, ...args)

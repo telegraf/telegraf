@@ -48,7 +48,7 @@
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-ava": "^9.0.0",
     "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-standard": "^4.0.0",
     "husky": "^3.0.2",

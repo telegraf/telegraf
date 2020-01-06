@@ -1645,7 +1645,7 @@ Use this method to promote or demote a user in a supergroup or a channel.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | userId | `number` | User id |
-| title | `object` | [Extra parameters](https://core.telegram.org/bots/api#promotechatmember)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#promotechatmember)|
 
 ##### setChatAdministratorCustomTitle
 

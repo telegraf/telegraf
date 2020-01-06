@@ -29,6 +29,7 @@
     "precommit": "npm run lint && npm run typecheck && npm test",
     "typecheck": "tsc"
   },
+  "type": "commonjs",
   "engines": {
     "node": ">=8"
   },

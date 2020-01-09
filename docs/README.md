@@ -219,7 +219,7 @@ bot.context.db = {
 
 bot.on('text', (ctx) => {
   const scores = ctx.db.getScores(ctx.message.from.username)
-  return ctx.reply(`${ctx.message.from.username}: ${score}`)
+  return ctx.reply(`${ctx.message.from.username}: ${scores}`)
 })
 
 bot.launch()

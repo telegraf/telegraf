@@ -171,7 +171,9 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.catch((err, ctx) => {
   console.log(`Ooops, encountered an error for ${ctx.updateType}`, err)
 })
-bot.start((ctx) => ctx.reply(42/0))
+bot.start((ctx) => {
+  throw new Error('Example error')
+})
 bot.launch()
 ``` 
 

@@ -103,6 +103,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [YtSearchBot](https://github.com/Finalgalaxy/yt-search-bot) | Bot to share YouTube fetched videos from any channel |
 | [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot) | Bot created to help you find and share any video from youtube |
 | [NodeRSSBot](https://github.com/fengkx/NodeRSSBot) | Bot to subscribe RSS feed which allows many configurations |
+| [BibleBot](https://github.com/Kriv-Art/BibleBot) | Bot to get bible verses |
 | Send PR to add link to your bot |   |
 
 ## Getting started

@@ -8,7 +8,8 @@ const UpdateTypes = [
   'shipping_query',
   'pre_checkout_query',
   'message',
-  'poll'
+  'poll',
+  'poll_answer'
 ]
 
 const MessageSubTypes = [
@@ -112,6 +113,10 @@ class TelegrafContext {
 
   get poll () {
     return this.update.poll
+  }
+
+  get pollAnswer () {
+    return this.update.poll_answer
   }
 
   get chat () {
@@ -457,6 +462,11 @@ class TelegrafContext {
   replyWithPoll (...args) {
     this.assert(this.chat, 'replyWithPoll')
     return this.telegram.sendPoll(this.chat.id, ...args)
+  }
+
+  replyWithQuiz (...args) {
+    this.assert(this.chat, 'replyWithQuiz')
+    return this.telegram.sendQuiz(this.chat.id, ...args)
   }
 
   stopPoll (...args) {

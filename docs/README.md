@@ -8,7 +8,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 4.5](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 4.6](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -103,6 +103,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [YtSearchBot](https://github.com/Finalgalaxy/yt-search-bot) | Bot to share YouTube fetched videos from any channel |
 | [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot) | Bot created to help you find and share any video from youtube |
 | [NodeRSSBot](https://github.com/fengkx/NodeRSSBot) | Bot to subscribe RSS feed which allows many configurations |
+| [BibleBot](https://github.com/Kriv-Art/BibleBot) | Bot to get bible verses |
 | Send PR to add link to your bot |   |
 
 ## Getting started
@@ -171,7 +172,9 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.catch((err, ctx) => {
   console.log(`Ooops, encountered an error for ${ctx.updateType}`, err)
 })
-bot.start((ctx) => ctx.reply(42/0))
+bot.start((ctx) => {
+  throw new Error('Example error')
+})
 bot.launch()
 ``` 
 
@@ -195,6 +198,7 @@ Context is created per request and contains following props:
 | `[ctx.channelPost]` | New incoming channel post of any kind — text, photo, sticker, etc. |
 | `[ctx.editedChannelPost]` | New version of a channel post that is known to the bot and was edited |
 | `[ctx.poll]` | New version of a anonymous poll that is known to the bot and was changed |
+| `[ctx.pollAnswer]` | This object represents an answer of a user in a non-anonymous poll. |
 | `[ctx.chat]` | Current chat info |
 | `[ctx.from]` | Sender info |
 | `[ctx.match]` | Regex match (available only for `hears`, `command`, `action`, `inlineQuery` handlers) |
@@ -219,7 +223,7 @@ bot.context.db = {
 
 bot.on('text', (ctx) => {
   const scores = ctx.db.getScores(ctx.message.from.username)
-  return ctx.reply(`${ctx.message.from.username}: ${score}`)
+  return ctx.reply(`${ctx.message.from.username}: ${scores}`)
 })
 
 bot.launch()
@@ -261,6 +265,7 @@ Context shortcuts for **message** update:
 | `replyWithVideoNote`      | [`telegram.sendVideoNote`](#sendvideonote) |
 | `replyWithVoice`          | [`telegram.sendVoice`](#sendvoice) |
 | `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
+| `replyWithQuiz`           | [`telegram.sendQuiz`](#sendquiz) |
 | `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `setChatDescription`      | [`telegram.setChatDescription`](#setchatdescription) |
 | `setChatPhoto`            | [`telegram.setChatPhoto`](#setchatphoto) |
@@ -1645,7 +1650,7 @@ Use this method to promote or demote a user in a supergroup or a channel.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | userId | `number` | User id |
-| title | `object` | [Extra parameters](https://core.telegram.org/bots/api#promotechatmember)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#promotechatmember)|
 
 ##### setChatAdministratorCustomTitle
 
@@ -1987,8 +1992,22 @@ Sends anonymous poll.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | question | `string` | Poll question |
-| options| `string[]` | Answer options |
+| options | `string[]` | Answer options |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
+
+##### sendQuiz
+
+Sends quiz.
+
+`telegram.sendQuiz(chatId, question, options, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| question | `string` | Poll question |
+| options | `string[]` | Answer options |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
+
 
 ##### stopPoll
 

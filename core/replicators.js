@@ -130,6 +130,10 @@ module.exports = {
   poll: (message) => {
     return {
       question: message.poll.question,
+      type: message.poll.type,
+      is_anonymous: message.poll.is_anonymous,
+      allows_multiple_answers: message.poll.allows_multiple_answers,
+      correct_option_id: message.poll.correct_option_id,
       options: message.poll.options.map(({ text }) => text)
     }
   }

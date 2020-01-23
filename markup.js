@@ -127,6 +127,10 @@ class Markup {
     return { text: text, request_location: true, hide: hide }
   }
 
+  static pollRequestButton (text, type, hide = false) {
+    return { text: text, request_poll: { type }, hide: hide }
+  }
+
   static urlButton (text, url, hide = false) {
     return { text: text, url: url, hide: hide }
   }

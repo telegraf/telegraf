@@ -8,7 +8,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 4.5](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 4.6](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -198,6 +198,7 @@ Context is created per request and contains following props:
 | `[ctx.channelPost]` | New incoming channel post of any kind — text, photo, sticker, etc. |
 | `[ctx.editedChannelPost]` | New version of a channel post that is known to the bot and was edited |
 | `[ctx.poll]` | New version of a anonymous poll that is known to the bot and was changed |
+| `[ctx.pollAnswer]` | This object represents an answer of a user in a non-anonymous poll. |
 | `[ctx.chat]` | Current chat info |
 | `[ctx.from]` | Sender info |
 | `[ctx.match]` | Regex match (available only for `hears`, `command`, `action`, `inlineQuery` handlers) |
@@ -264,6 +265,7 @@ Context shortcuts for **message** update:
 | `replyWithVideoNote`      | [`telegram.sendVideoNote`](#sendvideonote) |
 | `replyWithVoice`          | [`telegram.sendVoice`](#sendvoice) |
 | `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
+| `replyWithQuiz`           | [`telegram.sendQuiz`](#sendquiz) |
 | `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `setChatDescription`      | [`telegram.setChatDescription`](#setchatdescription) |
 | `setChatPhoto`            | [`telegram.setChatPhoto`](#setchatphoto) |
@@ -1990,8 +1992,22 @@ Sends anonymous poll.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | question | `string` | Poll question |
-| options| `string[]` | Answer options |
+| options | `string[]` | Answer options |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
+
+##### sendQuiz
+
+Sends quiz.
+
+`telegram.sendQuiz(chatId, question, options, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| question | `string` | Poll question |
+| options | `string[]` | Answer options |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
+
 
 ##### stopPoll
 

@@ -152,7 +152,11 @@ class Telegram extends ApiClient {
   }
 
   sendPoll (chatId, question, options, extra) {
-    return this.callApi('sendPoll', { chat_id: chatId, question, options, ...extra })
+    return this.callApi('sendPoll', { chat_id: chatId, type: 'regular', question, options, ...extra })
+  }
+
+  sendQuiz (chatId, question, options, extra) {
+    return this.callApi('sendPoll', { chat_id: chatId, type: 'quiz', question, options, ...extra })
   }
 
   stopPoll (chatId, messageId, extra) {

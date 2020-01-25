@@ -1,7 +1,7 @@
 import * as TT from "telegram-typings";
 export * from "telegram-typings";
 
-export type ParseMode = 'Markdown' | 'HTML'
+export type ParseMode = 'Markdown' | 'MarkdownV2' | 'HTML'
 
 export type ChatAction =
   'typing' |

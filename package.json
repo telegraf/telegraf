@@ -44,9 +44,12 @@
     "telegram-typings": "^3.6.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.17.0",
+    "@typescript-eslint/parser": "^2.17.0",
     "ava": "^3.0.0",
     "eslint": "^6.2.2",
     "eslint-config-standard": "^14.1.0",
+    "eslint-config-standard-with-typescript": "^12.0.1",
     "eslint-plugin-ava": "^10.0.0",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-node": "^11.0.0",

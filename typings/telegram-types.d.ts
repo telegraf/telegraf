@@ -1,5 +1,5 @@
-import * as TT from "telegram-typings";
-export * from "telegram-typings";
+import * as TT from 'telegram-typings'
+export * from 'telegram-typings'
 
 export type ParseMode = 'Markdown' | 'MarkdownV2' | 'HTML'
 
@@ -99,47 +99,47 @@ export interface InputMediaPhoto {
 }
 
 export interface InputMediaVideo {
- type: string
- media: string
- thumb?: string | InputFile
- caption?: string
- parse_mode?: string
- width?: number
- height?: number
- duration?: number
- supports_streaming?: boolean
+  type: string
+  media: string
+  thumb?: string | InputFile
+  caption?: string
+  parse_mode?: string
+  width?: number
+  height?: number
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaAnimation {
- type: string
- media: string
- thumb?: string | InputFile
- caption?: string
- parse_mode?: string
- width?: number
- height?: number
- duration?: number
- supports_streaming?: boolean
+  type: string
+  media: string
+  thumb?: string | InputFile
+  caption?: string
+  parse_mode?: string
+  width?: number
+  height?: number
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaAudio {
- type: string
- media: string
- thumb?: string | InputFile
- caption?: string
- parse_mode?: string
- performer?: string
- title?: string
- duration?: number
- supports_streaming?: boolean
+  type: string
+  media: string
+  thumb?: string | InputFile
+  caption?: string
+  parse_mode?: string
+  performer?: string
+  title?: string
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaDocument {
- type: string
- media: string
- thumb?: string | InputFile
- caption?: string
- parse_mode?: string
+  type: string
+  media: string
+  thumb?: string | InputFile
+  caption?: string
+  parse_mode?: string
 }
 
 export interface StickerData {

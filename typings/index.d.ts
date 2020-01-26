@@ -6,7 +6,6 @@ import { TlsOptions } from 'tls'
 
 import * as tt from './telegram-types.d'
 
-
 export interface TelegramOptions {
   /**
    * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
@@ -25,9 +24,9 @@ export interface TelegramOptions {
 }
 
 export interface Context {
-  updateType: tt.UpdateType;
-  updateSubTypes: tt.MessageSubTypes[];
-  update: tt.Update;
+  updateType: tt.UpdateType
+  updateSubTypes: tt.MessageSubTypes[]
+  update: tt.Update
   telegram: Telegram
   callbackQuery?: tt.CallbackQuery
   channelPost?: tt.Message
@@ -95,7 +94,7 @@ export interface ContextMessageUpdate extends Context {
    * Use this method to get a list of administrators in a chat.
    * @returns On success, returns an Array of ChatMember objects that contains information about all chat administrators except other bots. If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
    */
-  getChatAdministrators(): Promise<Array<tt.ChatMember>>
+  getChatAdministrators(): Promise<tt.ChatMember[]>
 
   /**
    * Use this method to get information about a member of a chat.
@@ -228,7 +227,7 @@ export interface ContextMessageUpdate extends Context {
    * @param extra Additional params to send media group
    * @returns On success, an array of the sent Messages is returned
    */
-  replyWithMediaGroup(media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<Array<tt.Message>>
+  replyWithMediaGroup(media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<tt.Message[]>
 
   /**
    * Use this method to send .webp stickers
@@ -255,19 +254,9 @@ export interface ContextMessageUpdate extends Context {
    */
   replyWithVoice(voice: tt.InputFile, extra?: tt.ExtraVoice): Promise<tt.MessageVoice>
 
-
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
-
-
-  /**
-   * Use this method to send answers to an inline query. On success, True is returned.
-   * No more than 50 results per query are allowed.
-   * @param results Array of results for the inline query
-   * @param extra Extra optional parameters
-   */
-  answerInlineQuery(results: tt.InlineQueryResult[], extra?: tt.ExtraAnswerInlineQuery): Promise<boolean>
 
   answerCbQuery(text?: string, showAlert?: boolean, extra?: object): Promise<boolean>
 
@@ -290,7 +279,7 @@ export interface ContextMessageUpdate extends Context {
    * @param ok  Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems.
    * @param errorMessage Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user.
    */
-  answerPreCheckoutQuery(ok: boolean, errorMessage?: string): Promise<boolean>
+  answerPreCheckoutQuery (ok: boolean, errorMessage?: string): Promise<boolean>
 
   /**
    * Use this method to send answers to an inline query.
@@ -330,7 +319,7 @@ export interface ContextMessageUpdate extends Context {
    * @param media New media of message
    * @param markup Markup of inline keyboard
    */
-  editMessageMedia(media: tt.MessageMedia ,extra?: tt.ExtraEditMessage): Promise<tt.Message | boolean>
+  editMessageMedia(media: tt.MessageMedia, extra?: tt.ExtraEditMessage): Promise<tt.Message | boolean>
 
   /**
    * Use this method to delete a message, including service messages, with the following limitations:
@@ -365,39 +354,39 @@ export interface ContextMessageUpdate extends Context {
    * @param title New chat title, 1-255 characters
    * @returns True on success
    */
-  setChatTitle(title: string): Promise<boolean>;
+  setChatTitle(title: string): Promise<boolean>
 
 }
 
 export interface SceneContextOptions {
-  sessionName: string;
-  default?: string;
-  ttl?: number;
+  sessionName: string
+  default?: string
+  ttl?: number
 
 }
 
 export interface SceneContext<TContext extends SceneContextMessageUpdate> {
-  ctx: TContext;
+  ctx: TContext
 
-  scenes: Map<string, Scene<TContext>>;
+  scenes: Map<string, Scene<TContext>>
 
-  options: SceneContextOptions;
+  options: SceneContextOptions
 
   readonly session: {
-    state?: object,
-    current?: string,
+    state?: object
+    current?: string
     expires?: number
-  },
+  }
 
-  state: object;
+  state: object
 
-  readonly current: BaseScene<TContext> | null;
+  readonly current: BaseScene<TContext> | null
 
-  reset: () => void;
+  reset: () => void
 
-  enter: (sceneId: string, initialState?: object, silent?: boolean) => Promise<any>;
+  enter: (sceneId: string, initialState?: object, silent?: boolean) => Promise<any>
 
-  reenter: () => Promise<any>;
+  reenter: () => Promise<any>
 
   leave: () => Promise<any>
 }
@@ -412,7 +401,7 @@ export interface Middleware<TContext extends ContextMessageUpdate> {
 
 export type HearsTriggers = string[] | string | RegExp | RegExp[] | Function
 
-export const Telegram: TelegramConstructor;
+export const Telegram: TelegramConstructor
 
 export interface Telegram {
   /**
@@ -437,7 +426,7 @@ export interface Telegram {
    * @param shippingOptions Required if ok is True. A JSON-serialized array of available shipping options.
    * @param errorMessage Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable'). Telegram will display this message to the user.
    */
-  answerShippingQuery(shippingQueryId: string, ok: boolean, shippingOptions: Array<tt.ShippingOption>, errorMessage: string): Promise<boolean>
+  answerShippingQuery(shippingQueryId: string, ok: boolean, shippingOptions: tt.ShippingOption[], errorMessage: string): Promise<boolean>
 
   /**
    * Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query.
@@ -456,7 +445,7 @@ export interface Telegram {
    * @param results Array of results for the inline query
    * @param extra Extra optional parameters
    */
-  answerInlineQuery(inlineQueryId: string, results: Array<tt.InlineQueryResult>, extra?: tt.ExtraAnswerInlineQuery): Promise<boolean>
+  answerInlineQuery(inlineQueryId: string, results: tt.InlineQueryResult[], extra?: tt.ExtraAnswerInlineQuery): Promise<boolean>
 
   /**
    * Use this method to forward exists message.
@@ -466,7 +455,7 @@ export interface Telegram {
    * @param extra Pass `{ disable_notification: true }`, if it is not necessary to send a notification for forwarded message
    * @returns On success, the sent Message is returned.
    */
-  forwardMessage(chatId: number | string, fromChatId: number | string, messageId: string | number, extra?: { disable_notification?: boolean }): Promise<tt.Message>;
+  forwardMessage(chatId: number | string, fromChatId: number | string, messageId: string | number, extra?: { disable_notification?: boolean }): Promise<tt.Message>
 
   /**
    * Use this method to edit text and game messages sent by the bot or via the bot (for inline bots).
@@ -605,7 +594,7 @@ export interface Telegram {
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    * @returns On success, returns an Array of ChatMember objects that contains information about all chat administrators except other bots. If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
    */
-  getChatAdministrators(chatId: number | string): Promise<Array<tt.ChatMember>>
+  getChatAdministrators(chatId: number | string): Promise<tt.ChatMember[]>
 
   /**
    * Use this method to get information about a member of a chat.
@@ -630,10 +619,10 @@ export interface Telegram {
    * @returns True on success
    */
   restrictChatMember(chatId: string | number, userId: number, extra?: {
-    until_date?: boolean,
-    can_send_messages?: boolean,
-    can_send_media_messages?: boolean,
-    can_send_other_messages?: boolean,
+    until_date?: boolean
+    can_send_messages?: boolean
+    can_send_media_messages?: boolean
+    can_send_other_messages?: boolean
     can_add_web_page_previews?: boolean
   }): Promise<boolean>
 
@@ -743,7 +732,7 @@ export interface Telegram {
    * @param extra Additional params to send media group
    * @returns On success, an array of the sent Messages is returned
    */
-  sendMediaGroup(chatId: number | string, media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<Array<tt.Message>>
+  sendMediaGroup(chatId: number | string, media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<tt.Message[]>
 
   /**
    * Use this method to send .gif animations
@@ -790,33 +779,33 @@ export interface Telegram {
    * @param allowedUpdates List the types of updates you want your bot to receive
    * @returns True on success
    */
-  setWebhook(url: string, cert?: tt.InputFile, maxConnections?: number, allowedUpdates?: string[]): Promise<boolean>;
+  setWebhook(url: string, cert?: tt.InputFile, maxConnections?: number, allowedUpdates?: string[]): Promise<boolean>
 
   /**
    * Use this method to delete webhook
    * @returns True on success
    */
-  deleteWebhook(): Promise<boolean>;
+  deleteWebhook(): Promise<boolean>
 
   /**
    * Use this method to get information about set webhook
    * @returns a WebhookInfo on success
    */
-  getWebhookInfo(): Promise<tt.WebhookInfo>;
+  getWebhookInfo(): Promise<tt.WebhookInfo>
 
   /**
    * Use this method to get basic info about a file and prepare it for downloading
    * @param fileId Id of file to get link to
    * @returns a File object on success
    */
-  getFile(fileId: string): Promise<tt.File>;
+  getFile(fileId: string): Promise<tt.File>
 
   /**
    * Use this method to get link to a file by file id
    * @param fileId Id of file to get link to
    * @returns a String with an url to the file
    */
-  getFileLink(fileId: string): Promise<string>;
+  getFileLink(fileId: string): Promise<string>
 
   /**
    * Use this method to kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
@@ -825,13 +814,13 @@ export interface Telegram {
    * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
    * @returns True on success
    */
-  kickChatMember(chatId: number | string, userId: number, untilDate?: number): Promise<boolean>;
+  kickChatMember(chatId: number | string, userId: number, untilDate?: number): Promise<boolean>
 
   /**
    * Use this method to get updates from Telegram server. Bot should be in `polling` mode
    * @returns Array of updates
    */
-  getUpdates(): Promise<any[]>;
+  getUpdates(): Promise<any[]>
 
   /**
    * Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
@@ -839,7 +828,7 @@ export interface Telegram {
    * @param title New chat title, 1-255 characters
    * @returns True on success
    */
-  setChatTitle(chatId: number | string, title: string): Promise<boolean>;
+  setChatTitle(chatId: number | string, title: string): Promise<boolean>
 
 }
 
@@ -849,7 +838,7 @@ export interface TelegramConstructor {
    * @param token Bot token
    * @param options Telegram options
    */
-  new(token: string, options?: TelegramOptions): Telegram;
+  new(token: string, options?: TelegramOptions): Telegram
 }
 
 export interface TelegrafOptions {
@@ -864,7 +853,7 @@ export interface TelegrafOptions {
   username?: string
 }
 
-export const Composer: ComposerConstructor;
+export const Composer: ComposerConstructor
 
 export interface Composer<TContext extends ContextMessageUpdate> {
 
@@ -928,9 +917,9 @@ export interface Composer<TContext extends ContextMessageUpdate> {
 
 export interface ComposerConstructor {
 
-  new <TContext extends ContextMessageUpdate>(): Composer<TContext>;
+  new <TContext extends ContextMessageUpdate>(): Composer<TContext>
 
-  new <TContext extends ContextMessageUpdate>(...middlewares: Array<Middleware<TContext>>): Composer<TContext>;
+  new <TContext extends ContextMessageUpdate>(...middlewares: Array<Middleware<TContext>>): Composer<TContext>
 
   /**
    * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
@@ -944,7 +933,7 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   mount<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (updateTypes: tt.UpdateType | tt.UpdateType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+  (updateTypes: tt.UpdateType | tt.UpdateType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware for handling text messages with regular expressions.
@@ -952,7 +941,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   hears<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
+  (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware for handling callbackQuery data with regular expressions.
@@ -960,7 +949,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   action<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
+  (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates pass thru middleware.
@@ -978,14 +967,14 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   optional<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (test: boolean | ((ctx: TContext) => boolean), ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+  (test: boolean | ((ctx: TContext) => boolean), ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates filter middleware.
    * @param test  Value or predicate (ctx) => bool
    */
   filter<TContext extends ContextMessageUpdate>
-    (test: boolean | ((ctx: TContext) => boolean)): Middleware<TContext>
+  (test: boolean | ((ctx: TContext) => boolean)): Middleware<TContext>
 
   /**
    * Generates branch middleware.
@@ -994,16 +983,16 @@ export interface ComposerConstructor {
    * @param falseMiddleware false action middleware
    */
   branch<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate, VContext extends ContextMessageUpdate, WContext extends ContextMessageUpdate>
-    (test: boolean | ((ctx: TContext) => boolean), trueMiddleware: Middleware<UContext>, falseMiddleware: Middleware<VContext>): Middleware<WContext>
+  (test: boolean | ((ctx: TContext) => boolean), trueMiddleware: Middleware<UContext>, falseMiddleware: Middleware<VContext>): Middleware<WContext>
 
   reply<TContext extends ContextMessageUpdate>(text: string, extra?: tt.ExtraReplyMessage): Middleware<TContext>
 
   /**
    * Allows it to console.log each request received.
    */
-  fork<TContext extends ContextMessageUpdate>(middleware: Middleware<TContext>): Function;
+  fork<TContext extends ContextMessageUpdate>(middleware: Middleware<TContext>): Function
 
-  log(logFn?: Function): Middleware<ContextMessageUpdate>;
+  log(logFn?: Function): Middleware<ContextMessageUpdate>
 
   /**
    * Generates middleware which passes through when the requested chat type is not in the request.
@@ -1011,24 +1000,24 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   chatType<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (type: tt.ChatType | tt.ChatType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+  (type: tt.ChatType | tt.ChatType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware which passes through when the requested chat type is not a private chat.
    * @param middleware Middleware function
    */
   privateChat<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+  (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware which passes through when the requested chat type is not a group.
    * @param middleware Middleware function
    */
   groupChat<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+  (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
 }
 
-export const Telegraf: TelegrafConstructor;
+export const Telegraf: TelegrafConstructor
 
 export interface LaunchPollingOptions {
   /**
@@ -1117,7 +1106,7 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    */
   launch(
     options?: {
-      polling?: LaunchPollingOptions,
+      polling?: LaunchPollingOptions
       webhook?: LaunchWebhookOptions
     }
   ): Promise<void>
@@ -1160,72 +1149,72 @@ export interface Telegraf<TContext extends ContextMessageUpdate> extends Compose
    */
   handleUpdate(rawUpdate: tt.Update, webhookResponse?: ServerResponse): Promise<any>
 
-  catch(logFn?: Function): void;
+  catch(logFn?: Function): void
 }
 
 export type CallbackGame = string;
 
 export interface Button {
-  text: string;
-  hide: boolean;
+  text: string
+  hide: boolean
 }
 
 export interface ContactRequestButton {
-  text: string;
-  hide: boolean;
-  request_contact: boolean;
+  text: string
+  hide: boolean
+  request_contact: boolean
 }
 
 export interface LocationRequestButton {
-  text: string;
-  hide: boolean;
-  request_location: boolean;
+  text: string
+  hide: boolean
+  request_location: boolean
 }
 
 export interface UrlButton {
-  url: string;
-  text: string;
-  hide?: boolean;
+  url: string
+  text: string
+  hide?: boolean
 }
 
 export interface CallbackButton {
-  text: string;
-  hide: boolean;
-  callback_data: string;
+  text: string
+  hide: boolean
+  callback_data: string
 }
 
 export interface SwitchToChatButton {
-  text: string;
-  hide: boolean;
-  switch_inline_query: string;
+  text: string
+  hide: boolean
+  switch_inline_query: string
 }
 
 export interface SwitchToCurrentChatButton {
-  text: string;
-  hide: boolean;
-  switch_inline_query_current_chat: string;
+  text: string
+  hide: boolean
+  switch_inline_query_current_chat: string
 }
 
 export interface GameButton {
-  text: string;
-  hide: boolean;
-  callback_game: object;
+  text: string
+  hide: boolean
+  callback_game: object
 }
 
 export interface PayButton {
-  pay: boolean;
-  text: string;
-  hide: boolean;
+  pay: boolean
+  text: string
+  hide: boolean
 }
 
 export interface Buttons {
-  url?: string;
-  pay?: boolean;
-  text: string;
-  callback_data?: string;
-  callback_game?: CallbackGame;
-  switch_inline_query?: string;
-  switch_inline_query_current_chat?: string;
+  url?: string
+  pay?: boolean
+  text: string
+  callback_data?: string
+  callback_game?: CallbackGame
+  switch_inline_query?: string
+  switch_inline_query_current_chat?: string
 }
 
 export class Markup {
@@ -1237,7 +1226,7 @@ export class Markup {
 
   extra(options?: object): object;
 
-  keyboard(buttons: (Buttons | string)[] | (Buttons | string)[][], options?: object): Markup & tt.ReplyKeyboardMarkup;
+  keyboard(buttons: Array<Buttons | string> | Array<Array<Buttons | string>>, options?: object): Markup & tt.ReplyKeyboardMarkup;
 
   resize(value?: boolean): Markup;
 
@@ -1267,7 +1256,7 @@ export class Markup {
 
   static forceReply(value?: string): Markup;
 
-  static keyboard(buttons: (Buttons | string)[] | (Buttons | string)[][], options?: object): Markup & tt.ReplyKeyboardMarkup;
+  static keyboard(buttons: Array<Buttons | string> | Array<Array<Buttons | string>>, options?: object): Markup & tt.ReplyKeyboardMarkup;
 
   static inlineKeyboard(buttons: CallbackButton[] | CallbackButton[][] | UrlButton[] | UrlButton[][], options?: object): Markup & tt.InlineKeyboardMarkup;
 
@@ -1329,10 +1318,10 @@ export class Extra {
 }
 
 export interface BaseSceneOptions<TContext extends SceneContextMessageUpdate> {
-  handlers: Middleware<TContext>[];
-  enterHandlers: Middleware<TContext>[];
-  leaveHandlers: Middleware<TContext>[];
-  ttl?: number;
+  handlers: Array<Middleware<TContext>>
+  enterHandlers: Array<Middleware<TContext>>
+  leaveHandlers: Array<Middleware<TContext>>
+  ttl?: number
 }
 
 export class BaseScene<TContext extends SceneContextMessageUpdate> extends Composer<TContext> {
@@ -1348,9 +1337,9 @@ export class BaseScene<TContext extends SceneContextMessageUpdate> extends Compo
 
   ttl?: number;
 
-  enter: (...fns: Middleware<TContext>[]) => this;
+  enter: (...fns: Array<Middleware<TContext>>) => this;
 
-  leave: (...fns: Middleware<TContext>[]) => this;
+  leave: (...fns: Array<Middleware<TContext>>) => this;
 
   enterMiddleware: () => Middleware<TContext>;
 
@@ -1362,9 +1351,9 @@ export type Scene<TContext extends SceneContextMessageUpdate> = BaseScene<TConte
 export type StageOptions = SceneContextOptions;
 
 export class Stage<TContext extends SceneContextMessageUpdate> extends Composer<TContext> {
-  constructor(scenes: Scene<TContext>[], options?: Partial<StageOptions>)
+  constructor(scenes: Array<Scene<TContext>>, options?: Partial<StageOptions>)
 
-  register: (...scenes: Scene<TContext>[]) => this;
+  register: (...scenes: Array<Scene<TContext>>) => this;
 
   middleware: () => Middleware<TContext>;
 
@@ -1376,10 +1365,10 @@ export class Stage<TContext extends SceneContextMessageUpdate> extends Composer<
 }
 
 export function session<TContext extends ContextMessageUpdate>(opts?: Partial<{
-  property: string;
-  store: Map<string, any>;
-  getSessionKey: (ctx: TContext) => string;
-  ttl: number;
+  property: string
+  store: Map<string, any>
+  getSessionKey: (ctx: TContext) => string
+  ttl: number
 }>): Middleware<TContext>;
 
 export interface TelegrafConstructor extends ComposerConstructor {
@@ -1390,9 +1379,9 @@ export interface TelegrafConstructor extends ComposerConstructor {
    * @example
    * new Telegraf(token, options)
    */
-  new <TContext extends ContextMessageUpdate>(token: string, options?: TelegrafOptions): Telegraf<TContext>;
+  new <TContext extends ContextMessageUpdate>(token: string, options?: TelegrafOptions): Telegraf<TContext>
 
-  log(logFn?: Function): Middleware<ContextMessageUpdate>;
+  log(logFn?: Function): Middleware<ContextMessageUpdate>
 }
 
 export interface TOptions {

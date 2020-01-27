@@ -55,7 +55,7 @@
     "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-standard": "^4.0.0",
     "husky": "^4.2.0",
-    "typescript": "^3.0.1",
+    "typescript": "^3.7.5",
     "telegram-typings": "^3.6.0"
   },
   "keywords": [

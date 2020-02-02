@@ -535,6 +535,10 @@ class TelegrafContext {
     return this.reply(markdown, { parse_mode: 'Markdown', ...extra })
   }
 
+  replyWithMarkdownV2 (markdown, extra) {
+    return this.reply(markdown, { parse_mode: 'MarkdownV2', ...extra })
+  }
+
   replyWithHTML (html, extra) {
     return this.reply(html, { parse_mode: 'HTML', ...extra })
   }

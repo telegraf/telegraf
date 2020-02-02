@@ -194,6 +194,9 @@ class Markup {
           case 'underline':
             result.push('<u>')
             break
+          case 'text_mention':
+            result.push(`<a href="tg://user?id=${entity.user.id}">`)
+            break
           case 'text_link':
             result.push(`<a href="${entity.url}">`)
             break
@@ -229,6 +232,7 @@ class Markup {
           case 'underline':
             result.push('</u>')
             break
+          case 'text_mention':
           case 'text_link':
             result.push('</a>')
             break

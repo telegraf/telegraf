@@ -163,7 +163,7 @@ class Markup {
     }
   }
 
-  static formatHTML (text, entities) {
+  static formatHTML (text = '', entities = []) {
     const chars = [...text]
     const available = [...entities]
     const opened = []

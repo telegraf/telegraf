@@ -164,7 +164,7 @@ class Markup {
   }
 
   static formatHTML (text, entities) {
-    const chars = ['', ...text.split()]
+    const chars = ['', ...text.split('')]
     entities.forEach(entity => {
       const tag = getHTMLTag(entity)
       chars[entity.offset] += tag.open

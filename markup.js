@@ -201,22 +201,12 @@ function buildKeyboard (buttons, options) {
   return result
 }
 
-function openTag (tag, params) {
-  return params
-    ? `<${tag} ${Object.entries(params)
-        .map(param => `${param[0]}="${param[1]}"`)
-        .join(' ')}>`
-    : `<${tag}>`
-}
-
-function closeTag (tag) {
-  return `</${tag}>`
-}
-
 function tag (name, params) {
   return {
-    open: openTag(name, params),
-    close: closeTag(name)
+    open: params
+      ? `<${name} ${Object.entries(params).map(([key, value]) => `${key}="${value}"`).join(' ')}>`
+      : `<${name}>`,
+    close: `</${name}>`
   }
 }
 

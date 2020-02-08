@@ -227,7 +227,8 @@ const HTMLTags = new Map([
   ['pre', tag('pre')],
   ['strikethrough', tag('s')],
   ['underline', tag('u')],
-  ['text_link', ({ url }) => tag('a', { href: url })]
+  ['text_link', ({ url }) => tag('a', { href: url })],
+  ['text_mention', ({ user }) => tag('a', { href: `tg://user?id=${user.id}` })]
 ])
 
 function getHTMLTag (entity) {

@@ -39,7 +39,8 @@
     "minimist": "^1.2.0",
     "module-alias": "^2.2.2",
     "node-fetch": "^2.2.0",
-    "sandwich-stream": "^2.0.1"
+    "sandwich-stream": "^2.0.1",
+    "telegram-typings": "^3.6.0"
   },
   "devDependencies": {
     "@types/node": "^13.1.0",
@@ -52,8 +53,7 @@
     "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-standard": "^4.0.0",
     "husky": "^4.2.0",
-    "typescript": "^3.0.1",
-    "telegram-typings": "^3.6.0"
+    "typescript": "^3.0.1"
   },
   "keywords": [
     "telegraf",

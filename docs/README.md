@@ -59,6 +59,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 | Name | Description |
 | --- | --- |
+| [ChatAdmin](https://github.com/Khuzha/chatAdmin) | Helps to administer the chats  |
 | [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot) | An inline bot that allows you to search for books and share them in a conversation. Powered by Goodreads  |
 | [CaptchaOnlyBot](https://github.com/Piterden/captcha_only_bot) | Configurable question \w set of buttons on a new group user |
 | [ChannelHashBot](https://github.com/YouTwitFace/ChannelHashBot) | Keep track of hashtags that are sent in your group by forwarding them to a channel |

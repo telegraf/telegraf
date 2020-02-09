@@ -167,8 +167,10 @@ class Markup {
     const chars = ['', ...text.split('')]
     entities.forEach(entity => {
       const tag = getHTMLTag(entity)
-      chars[entity.offset] += tag.open
-      chars[entity.offset + entity.length] += tag.close
+      const openPos = entity.offset
+      const closePos = entity.offset + entity.length + 1
+      chars[openPos] += tag.open
+      chars[closePos] = tag.close + chars[closePos]
     })
     return chars.join('')
   }

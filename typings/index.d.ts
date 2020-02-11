@@ -132,6 +132,12 @@ export interface ContextMessageUpdate extends Context {
   pinChatMessage(messageId: number, extra?: { disable_notification?: boolean }): Promise<boolean>
 
   /**
+   * Use this method to unpin a message in a group, a supergroup, or a channel.
+   * @returns True on success
+  */
+  unpinChatMessage(): Promise<boolean>
+
+  /**
    * Use this method to reply on messages in the same chat.
    * @param text Text of the message to be sent
    * @param extra SendMessage additional params
@@ -652,6 +658,13 @@ export interface Telegram {
    * @returns True on success
    */
   pinChatMessage(chatId: number | string, messageId: number, extra?: { disable_notification?: boolean }): Promise<boolean>
+
+  /**
+   * Use this method to unpin a message in a group, a supergroup, or a channel.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @returns True on success
+  */
+  unpinChatMessage(chatId: number | string): Promise<boolean>
 
   /**
    * Use this method to send text messages

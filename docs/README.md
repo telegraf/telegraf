@@ -104,6 +104,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot) | Bot created to help you find and share any video from youtube |
 | [NodeRSSBot](https://github.com/fengkx/NodeRSSBot) | Bot to subscribe RSS feed which allows many configurations |
 | [BibleBot](https://github.com/Kriv-Art/BibleBot) | Bot to get bible verses |
+| [Wakaiyama](https://github.com/Mikkou/wakaiyama) | Bot which help people to learn languages |
 | Send PR to add link to your bot |   |
 
 ## Getting started

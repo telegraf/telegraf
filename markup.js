@@ -164,7 +164,7 @@ class Markup {
   }
 
   static formatHTML (text = '', entities = []) {
-    const chars = ['', ...text.split(''), '']
+    const chars = ['', ...text.split(''), ''].map(escapeHTMLChar)
     entities.forEach(entity => {
       const tag = getHTMLTag(entity)
       const openPos = entity.offset
@@ -203,10 +203,20 @@ function buildKeyboard (buttons, options) {
   return result
 }
 
+function escapeHTMLChar (c) {
+  switch (c) {
+    case `&`: return '&amp;'
+    case `"`: return '&quot;'
+    case `'`: return '&#39;'
+    case `<`: return '&lt;'
+    default : return c
+  }
+}
+
 function tag (name, params) {
   return {
     open: params
-      ? `<${name} ${Object.entries(params).map(([key, value]) => `${key}="${value.replace(/[<&"]/g, escapeChar)}"`).join(' ')}>`
+      ? `<${name} ${Object.entries(params).map(([key, value]) => `${key}="${value.replace(/[<&"]/g, escapeHTMLChar)}"`).join(' ')}>`
       : `<${name}>`,
     close: `</${name}>`
   }

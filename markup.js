@@ -206,7 +206,7 @@ function buildKeyboard (buttons, options) {
 function tag (name, params) {
   return {
     open: params
-      ? `<${name} ${Object.entries(params).map(([key, value]) => `${key}="${value}"`).join(' ')}>`
+      ? `<${name} ${Object.entries(params).map(([key, value]) => `${key}="${value.replace(/[<&"]/g, escapeChar)}"`).join(' ')}>`
       : `<${name}>`,
     close: `</${name}>`
   }

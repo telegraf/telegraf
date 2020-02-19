@@ -205,10 +205,10 @@ function buildKeyboard (buttons, options) {
 
 function escapeHTMLChar (c) {
   switch (c) {
-    case `&`: return '&amp;'
-    case `"`: return '&quot;'
-    case `'`: return '&#39;'
-    case `<`: return '&lt;'
+    case '&': return '&amp;'
+    case '"': return '&quot;'
+    case '\'': return '&#39;'
+    case '<': return '&lt;'
     default : return c
   }
 }

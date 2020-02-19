@@ -225,7 +225,7 @@ const HTMLTags = new Map([
 
 function getHTMLTag (entity) {
   const tag = HTMLTags.get(entity.type || 'unknown')
-  if (!tag) throw new TypeError('Unknown entity')
+  if (!tag) return { open: '', close: '' }
   return typeof tag === 'function' ? tag(entity) : tag
 }
 

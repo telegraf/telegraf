@@ -9,6 +9,7 @@ class SceneContext {
     this.ctx = ctx
     this.scenes = scenes
     this.options = options
+    this.stack = []
   }
 
   get session () {
@@ -44,23 +45,24 @@ class SceneContext {
     if (!sceneId || !this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }
-    const leave = silent ? noop() : this.leave()
-    return leave.then(() => {
-      debug('Enter scene', sceneId, initialState, silent)
-      this.session.current = sceneId
-      this.state = initialState
-      const ttl = this.current.ttl || this.options.ttl
-      if (ttl) {
-        this.session.expires = now() + ttl
-      }
-      if (silent) {
-        return Promise.resolve()
-      }
-      const handler = typeof this.current.enterMiddleware === 'function'
-        ? this.current.enterMiddleware()
-        : this.current.middleware()
-      return handler(this.ctx, noop)
-    })
+    debug('Enter scene', sceneId, initialState, silent)
+    if (this.session.current) {
+      debug('Push old scene to stack', this.session.current, this.State)
+      this.stack.push({ sceneId: this.session.current, state: this.State })
+    }
+    this.session.current = sceneId
+    this.state = initialState
+    const ttl = this.current.ttl || this.options.ttl
+    if (ttl) {
+      this.session.expires = now() + ttl
+    }
+    if (silent) {
+      return Promise.resolve()
+    }
+    const handler = typeof this.current.enterMiddleware === 'function'
+      ? this.current.enterMiddleware()
+      : this.current.middleware()
+    return handler(this.ctx, noop)
   }
 
   reenter () {
@@ -72,7 +74,17 @@ class SceneContext {
     const handler = this.current && this.current.leaveMiddleware
       ? this.current.leaveMiddleware()
       : safePassThru()
-    return handler(this.ctx, noop).then(() => this.reset())
+    return handler(this.ctx, noop).then(() => {
+      this.reset()
+      if (this.stack.length) {
+        const old = this.stack.pop()
+        this.session.current = old.sceneId
+        this.state = old.state
+        debug('Recovered session from stack', this.session.current, this.State)
+      } else {
+        debug('Left with no scene to recover from stack')
+      }
+    })
   }
 }
 

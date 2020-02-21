@@ -401,11 +401,11 @@ export interface SceneContext<TContext extends SceneContextMessageUpdate> {
 
   reset: () => void;
 
-  enter: (sceneId: string, initialState?: object, silent?: boolean) => Promise<any>;
+  enter: (sceneId: string, initialState?: object, silent?: boolean, stack?: boolean) => Promise<any>;
 
   reenter: () => Promise<any>;
 
-  leave: () => Promise<any>
+  leave: (recover: boolean) => Promise<any>
 }
 
 export interface SceneContextMessageUpdate extends ContextMessageUpdate {

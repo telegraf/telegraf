@@ -8,15 +8,13 @@ test('should create a scene', async (t) => {
   let wentThroughEnter = false
   let wentThroughEnd = false
   scene1.enter((ctx) => {
-    console.warn('wentThroughEnter')
     wentThroughEnter = true
   })
   scene1.command('end', (ctx) => {
-    console.warn('end')
     wentThroughEnd = true
   })
   scene1.command('next', (ctx) => {
-    ctx.scene.enter('two')
+    ctx.scene.enter('two', undefined, false, true)
   })
 
   const scene2 = new Telegraf.BaseScene('two').enter((ctx) => ctx.scene.leave())

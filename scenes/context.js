@@ -41,42 +41,45 @@ class SceneContext {
     delete this.ctx[sessionName].__scenes
   }
 
-  enter (sceneId, initialState, silent) {
+  enter (sceneId, initialState, silent, stack = false) {
     if (!sceneId || !this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }
-    debug('Enter scene', sceneId, initialState, silent)
-    if (this.session.current) {
-      debug('Push old scene to stack', this.session.current, this.State)
-      this.stack.push({ sceneId: this.session.current, state: this.State })
-    }
-    this.session.current = sceneId
-    this.state = initialState
-    const ttl = this.current.ttl || this.options.ttl
-    if (ttl) {
-      this.session.expires = now() + ttl
-    }
-    if (silent) {
-      return Promise.resolve()
-    }
-    const handler = typeof this.current.enterMiddleware === 'function'
-      ? this.current.enterMiddleware()
-      : this.current.middleware()
-    return handler(this.ctx, noop)
+    const leave = silent || stack ? noop() : this.leave(false)
+    return leave.then(() => {
+      debug('Enter scene', sceneId, initialState, silent)
+      if (this.session.current) {
+        debug('Push old scene to stack', this.session.current, this.State)
+        this.stack.push({ sceneId: this.session.current, state: this.State })
+      }
+      this.session.current = sceneId
+      this.state = initialState
+      const ttl = this.current.ttl || this.options.ttl
+      if (ttl) {
+        this.session.expires = now() + ttl
+      }
+      if (silent) {
+        return Promise.resolve()
+      }
+      const handler = typeof this.current.enterMiddleware === 'function'
+        ? this.current.enterMiddleware()
+        : this.current.middleware()
+      return handler(this.ctx, noop)
+    })
   }
 
   reenter () {
     return this.enter(this.session.current, this.state)
   }
 
-  leave () {
+  leave (recover = true) {
     debug('Leave scene')
     const handler = this.current && this.current.leaveMiddleware
       ? this.current.leaveMiddleware()
       : safePassThru()
     return handler(this.ctx, noop).then(() => {
       this.reset()
-      if (this.stack.length) {
+      if (recover && this.stack.length) {
         const old = this.stack.pop()
         this.session.current = old.sceneId
         this.state = old.state

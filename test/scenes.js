@@ -3,7 +3,7 @@ const Telegraf = require('../')
 
 const baseMessage = { chat: { id: 1 }, from: { id: 42, username: 'telegraf' } }
 
-test('should create a scene', async (t) => {
+test('should not discard scene after entering a new one', async (t) => {
   const scene1 = new Telegraf.BaseScene('one')
   let wentThroughEnter = false
   let wentThroughEnd = false

@@ -405,7 +405,7 @@ export interface SceneContext<TContext extends SceneContextMessageUpdate> {
 
   reenter: () => Promise<any>;
 
-  leave: (recover: boolean) => Promise<any>
+  leave: (recover?: boolean) => Promise<any>
 }
 
 export interface SceneContextMessageUpdate extends ContextMessageUpdate {

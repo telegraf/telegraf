@@ -9,7 +9,6 @@ class SceneContext {
     this.ctx = ctx
     this.scenes = scenes
     this.options = options
-    this.stack = []
   }
 
   get session () {
@@ -20,6 +19,11 @@ class SceneContext {
     }
     this.ctx[sessionName].__scenes = session
     return session
+  }
+
+  get stack () {
+    this.session.stack = this.session.stack || []
+    return this.session.stack
   }
 
   get state () {
@@ -38,7 +42,9 @@ class SceneContext {
 
   reset () {
     const sessionName = this.options.sessionName
+    const stack = this.stack
     delete this.ctx[sessionName].__scenes
+    this.session.stack = stack
   }
 
   enter (sceneId, initialState, silent, stack = false) {
@@ -51,6 +57,7 @@ class SceneContext {
       if (this.session.current) {
         debug('Push old scene to stack', this.session.current, this.State)
         this.stack.push({ sceneId: this.session.current, state: this.State })
+        debug('stack len is now', this.stack.length)
       }
       this.session.current = sceneId
       this.state = initialState
@@ -73,18 +80,19 @@ class SceneContext {
   }
 
   leave (recover = true) {
-    debug('Leave scene')
+    debug('Leave scene', this.session.current)
     const handler = this.current && this.current.leaveMiddleware
       ? this.current.leaveMiddleware()
       : safePassThru()
     return handler(this.ctx, noop).then(() => {
       this.reset()
+      debug('stack len is', this.stack.length)
       if (recover && this.stack.length) {
         const old = this.stack.pop()
         this.session.current = old.sceneId
         this.state = old.state
         debug('Recovered session from stack', this.session.current, this.State)
-      } else {
+      } else if (recover) {
         debug('Left with no scene to recover from stack')
       }
     })

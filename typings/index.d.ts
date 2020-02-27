@@ -866,7 +866,7 @@ export interface TelegramConstructor {
   new(token: string, options?: TelegramOptions): Telegram;
 }
 
-export interface TelegrafOptions<Context extends ContextMessageUpdate> {
+export interface TelegrafOptions {
   /**
    * Telegram options
    */
@@ -880,7 +880,7 @@ export interface TelegrafOptions<Context extends ContextMessageUpdate> {
   /**
    * Context Type
    */
-  contextType?: Context;
+  contextType?: ContextMessageUpdate;
 
   /**
    * retryAfter
@@ -1421,7 +1421,7 @@ export interface TelegrafConstructor extends ComposerConstructor {
    * @example
    * new Telegraf(token, options)
    */
-  new <TContext extends ContextMessageUpdate>(token: string, options?: TelegrafOptions<TContext>): Telegraf<TContext>;
+  new <TContext extends ContextMessageUpdate>(token: string, options?: TelegrafOptions): Telegraf<TContext>;
 
   Context: ContextMessageUpdate;
 

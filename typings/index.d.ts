@@ -879,20 +879,22 @@ export interface TelegrafOptions {
 
 export const Composer: ComposerConstructor;
 
+export type Handler<T extends ContextMessageUpdate> = Middleware<T> | Composer<T>
+
 export interface Composer<TContext extends ContextMessageUpdate> {
 
   /**
    * Registers a middleware.
    * @param middleware Middleware function
    */
-  use(middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Telegraf<TContext>
+  use(middleware: Handler<TContext>, ...middlewares: Array<Handler<TContext>>): Telegraf<TContext>
 
   /**
    * Registers middleware for provided update type.
    * @param updateTypes Update type
    * @param middlewares Middleware functions
    */
-  on(updateTypes: tt.UpdateType | tt.UpdateType[] | tt.MessageSubTypes | tt.MessageSubTypes[], middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
+  on(updateTypes: tt.UpdateType | tt.UpdateType[] | tt.MessageSubTypes | tt.MessageSubTypes[], middleware: Handler<TContext>, ...middlewares: Array<Handler<TContext>>): Composer<TContext>
 
   /**
    * Return the middleware created by this Composer
@@ -904,52 +906,52 @@ export interface Composer<TContext extends ContextMessageUpdate> {
    * @param triggers Triggers
    * @param middlewares Middleware functions
    */
-  hears(triggers: HearsTriggers, middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
+  hears(triggers: HearsTriggers, middleware: Handler<TContext>, ...middlewares: Array<Handler<TContext>>): Composer<TContext>
 
   /**
    * Registers middleware for handling callbackQuery data with regular expressions
    * @param triggers Triggers
    * @param middlewares Middleware functions
    */
-  action(triggers: HearsTriggers, middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
+  action(triggers: HearsTriggers, middleware: Handler<TContext>, ...middlewares: Array<Handler<TContext>>): Composer<TContext>
 
   /**
    * Command handling.
    * @param command Commands
    * @param middlewares Middleware functions
    */
-  command(command: string | string[], middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
+  command(command: string | string[], middleware: Handler<TContext>, ...middlewares: Array<Handler<TContext>>): Composer<TContext>
 
   /**
    * Registers middleware for handling callback_data actions with game query.
    * @param middlewares Middleware functions
    */
-  gameQuery(middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
+  gameQuery(middleware: Handler<TContext>, ...middlewares: Array<Handler<TContext>>): Composer<TContext>
 
   /**
    * Registers middleware for handling callback_data actions on start.
    * @param middlewares Middleware functions
    */
-  start(middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
+  start(middleware: Handler<TContext>, ...middlewares: Array<Handler<TContext>>): Composer<TContext>
 
   /**
    * Registers middleware for handling callback_data actions on help.
    * @param middlewares Middleware functions
    */
-  help(middleware: Middleware<TContext>, ...middlewares: Array<Middleware<TContext>>): Composer<TContext>
+  help(middleware: Handler<TContext>, ...middlewares: Array<Handler<TContext>>): Composer<TContext>
 }
 
 export interface ComposerConstructor {
 
   new <TContext extends ContextMessageUpdate>(): Composer<TContext>;
 
-  new <TContext extends ContextMessageUpdate>(...middlewares: Array<Middleware<TContext>>): Composer<TContext>;
+  new <TContext extends ContextMessageUpdate>(...middlewares: Array<Handler<TContext>>): Composer<TContext>;
 
   /**
    * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
    * @param middlewares Array of middlewares functions
    */
-  compose<TContext extends ContextMessageUpdate>(middlewares: Array<Middleware<any>>): Middleware<TContext>
+  compose<TContext extends ContextMessageUpdate>(middlewares: Array<Handler<any>>): Middleware<TContext>
 
   /**
    * Generates middleware for handling provided update types.
@@ -957,7 +959,7 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   mount<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (updateTypes: tt.UpdateType | tt.UpdateType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+    (updateTypes: tt.UpdateType | tt.UpdateType[], ...middleware: Array<Handler<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware for handling text messages with regular expressions.
@@ -965,7 +967,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   hears<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
+    (triggers: HearsTriggers, ...handler: Array<Handler<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware for handling callbackQuery data with regular expressions.
@@ -973,7 +975,7 @@ export interface ComposerConstructor {
    * @param handler Handler
    */
   action<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (triggers: HearsTriggers, ...handler: Array<Middleware<TContext>>): Middleware<UContext>
+    (triggers: HearsTriggers, ...handler: Array<Handler<TContext>>): Middleware<UContext>
 
   /**
    * Generates pass thru middleware.
@@ -991,7 +993,7 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   optional<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (test: boolean | ((ctx: TContext) => boolean), ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+    (test: boolean | ((ctx: TContext) => boolean), ...middleware: Array<Handler<TContext>>): Middleware<UContext>
 
   /**
    * Generates filter middleware.
@@ -1007,14 +1009,14 @@ export interface ComposerConstructor {
    * @param falseMiddleware false action middleware
    */
   branch<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate, VContext extends ContextMessageUpdate, WContext extends ContextMessageUpdate>
-    (test: boolean | ((ctx: TContext) => boolean), trueMiddleware: Middleware<UContext>, falseMiddleware: Middleware<VContext>): Middleware<WContext>
+    (test: boolean | ((ctx: TContext) => boolean), trueMiddleware: Handler<UContext>, falseMiddleware: Handler<VContext>): Middleware<WContext>
 
   reply<TContext extends ContextMessageUpdate>(text: string, extra?: tt.ExtraReplyMessage): Middleware<TContext>
 
   /**
    * Allows it to console.log each request received.
    */
-  fork<TContext extends ContextMessageUpdate>(middleware: Middleware<TContext>): Function;
+  fork<TContext extends ContextMessageUpdate>(middleware: Handler<TContext>): Function;
 
   log(logFn?: Function): Middleware<ContextMessageUpdate>;
 
@@ -1024,21 +1026,21 @@ export interface ComposerConstructor {
    * @param middleware Middleware function
    */
   chatType<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (type: tt.ChatType | tt.ChatType[], ...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+    (type: tt.ChatType | tt.ChatType[], ...middleware: Array<Handler<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware which passes through when the requested chat type is not a private chat.
    * @param middleware Middleware function
    */
   privateChat<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+    (...middleware: Array<Handler<TContext>>): Middleware<UContext>
 
   /**
    * Generates middleware which passes through when the requested chat type is not a group.
    * @param middleware Middleware function
    */
   groupChat<TContext extends ContextMessageUpdate, UContext extends ContextMessageUpdate>
-    (...middleware: Array<Middleware<TContext>>): Middleware<UContext>
+    (...middleware: Array<Handler<TContext>>): Middleware<UContext>
 }
 
 export const Telegraf: TelegrafConstructor;
@@ -1361,9 +1363,9 @@ export class BaseScene<TContext extends SceneContextMessageUpdate> extends Compo
 
   ttl?: number;
 
-  enter: (...fns: Middleware<TContext>[]) => this;
+  enter: (...fns: Handler<TContext>[]) => this;
 
-  leave: (...fns: Middleware<TContext>[]) => this;
+  leave: (...fns: Handler<TContext>[]) => this;
 
   enterMiddleware: () => Middleware<TContext>;
 

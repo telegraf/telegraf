@@ -1,6 +1,6 @@
 // This is a test file for the TypeScript typings.
 // It is not intended to be used by external users.
-import Telegraf, { Markup, Middleware, ContextMessageUpdate, Extra } from './index';
+import Telegraf, { Markup, Middleware, ContextMessageUpdate, Extra, Composer } from './index';
 
 const randomPhoto = 'https://picsum.photos/200/300/?random'
 const sayYoMiddleware: Middleware<ContextMessageUpdate> = ({ reply }, next) => reply('yo').then(() => next && next())
@@ -164,3 +164,32 @@ Markup.inlineKeyboard([Markup.callbackButton('sampleCallbackButton', 'sampleData
 
 // #761
 bot.telegram.sendPhoto(1, randomPhoto, { caption: '*Caption*', parse_mode: 'Markdown' });
+
+// type MiddlwareOrCmposer
+
+const composer = new Composer();
+const fooMiddleware: Middleware<ContextMessageUpdate> = (ctx) => ctx.reply('foo');
+const barMiddleware: Middleware<ContextMessageUpdate> = (ctx) => ctx.reply('bar');
+const bazMiddleware: Middleware<ContextMessageUpdate> = (ctx) => ctx.reply('baz');
+
+const otherComposer = new Composer(composer, bazMiddleware, bazMiddleware);
+Composer.compose([composer, bazMiddleware, bazMiddleware]);
+Composer.mount('callback_query', composer, bazMiddleware, bazMiddleware);
+Composer.hears('hear', composer, bazMiddleware, bazMiddleware);
+Composer.action('action', composer, bazMiddleware, bazMiddleware);
+Composer.optional(true, composer, bazMiddleware, bazMiddleware);
+Composer.branch(true, composer, bazMiddleware);
+Composer.chatType('channel', composer, bazMiddleware);
+Composer.privateChat(composer, bazMiddleware);
+Composer.groupChat(composer, bazMiddleware);
+
+composer.use(fooMiddleware, barMiddleware, otherComposer);
+composer.on('animation', barMiddleware, otherComposer);
+composer.hears('animation', barMiddleware, otherComposer);
+composer.action('animation', barMiddleware, otherComposer);
+composer.command('animation', barMiddleware, otherComposer);
+composer.gameQuery(barMiddleware, otherComposer);
+composer.start(barMiddleware, otherComposer);
+composer.help(barMiddleware, otherComposer);
+
+bot.use(composer, otherComposer, fooMiddleware);

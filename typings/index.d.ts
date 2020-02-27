@@ -45,6 +45,7 @@ export interface Context {
 }
 
 export interface ContextMessageUpdate extends Context {
+  new(update: any, telegram: Telegram, options: TOptions): ContextMessageUpdate;
 
   /**
    * Use this method to add a new sticker to a set created by the bot
@@ -336,7 +337,7 @@ export interface ContextMessageUpdate extends Context {
    * @param media New media of message
    * @param markup Markup of inline keyboard
    */
-  editMessageMedia(media: tt.MessageMedia ,extra?: tt.ExtraEditMessage): Promise<tt.Message | boolean>
+  editMessageMedia(media: tt.MessageMedia, extra?: tt.ExtraEditMessage): Promise<tt.Message | boolean>
 
   /**
    * Use this method to delete a message, including service messages, with the following limitations:
@@ -756,7 +757,7 @@ export interface Telegram {
    * @param extra Additional params to send media group
    * @returns On success, an array of the sent Messages is returned
    */
-  sendMediaGroup(chatId: number | string, media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<Array<tt.Message>>
+  sendMediaGroup(chatId: number | string, media: tt.MessageMedia[], extra?: tt.ExtraMediaGroup): Promise<Array<tt.Message>>
 
   /**
    * Use this method to send .gif animations
@@ -865,16 +866,31 @@ export interface TelegramConstructor {
   new(token: string, options?: TelegramOptions): Telegram;
 }
 
-export interface TelegrafOptions {
+export interface TelegrafOptions<Context extends ContextMessageUpdate> {
   /**
    * Telegram options
    */
-  telegram?: TelegramOptions
+  telegram?: TelegramOptions;
 
   /**
    * Bot username
    */
-  username?: string
+  username?: string;
+
+  /**
+   * Context Type
+   */
+  contextType?: Context;
+
+  /**
+   * retryAfter
+   */
+  retryAfter?: number;
+
+  /**
+   * handlerTimeout
+   */
+  handlerTimeout?: number;
 }
 
 export const Composer: ComposerConstructor;
@@ -1405,7 +1421,9 @@ export interface TelegrafConstructor extends ComposerConstructor {
    * @example
    * new Telegraf(token, options)
    */
-  new <TContext extends ContextMessageUpdate>(token: string, options?: TelegrafOptions): Telegraf<TContext>;
+  new <TContext extends ContextMessageUpdate>(token: string, options?: TelegrafOptions<TContext>): Telegraf<TContext>;
+
+  Context: ContextMessageUpdate;
 
   log(logFn?: Function): Middleware<ContextMessageUpdate>;
 }

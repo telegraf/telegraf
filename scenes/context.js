@@ -2,7 +2,7 @@ const debug = require('debug')('telegraf:scenes:context')
 const { safePassThru } = require('../composer')
 
 const noop = () => Promise.resolve()
-const now = () => Math.floor(new Date().getTime() / 1000)
+const now = () => Math.floor(Date.now() / 1000)
 
 class SceneContext {
   constructor (ctx, scenes, options) {

@@ -3,11 +3,12 @@ const { compose } = Composer
 
 class BaseScene extends Composer {
   constructor (id, options) {
-    const opts = Object.assign({
+    const opts = {
       handlers: [],
       enterHandlers: [],
-      leaveHandlers: []
-    }, options)
+      leaveHandlers: [],
+      ...options
+    }
     super(...opts.handlers)
     this.id = id
     this.options = opts

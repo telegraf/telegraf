@@ -8,7 +8,7 @@ const TelegramError = require('./error')
 const MultipartStream = require('./multipart-stream')
 const { isStream } = MultipartStream
 
-const WebhookBlacklist = [
+const WEBHOOK_BLACKLIST = [
   'getChat',
   'getChatAdministrators',
   'getChatMember',
@@ -22,7 +22,7 @@ const WebhookBlacklist = [
   'exportChatInviteLink'
 ]
 
-const DefaultExtensions = {
+const DEFAULT_EXTENSIONS = {
   audio: 'mp3',
   photo: 'jpg',
   sticker: 'webp',
@@ -32,7 +32,7 @@ const DefaultExtensions = {
   voice: 'ogg'
 }
 
-const DefaultOptions = {
+const DEFAULT_OPTIONS = {
   apiRoot: 'https://api.telegram.org',
   webhookReply: true,
   agent: new https.Agent({
@@ -41,7 +41,7 @@ const DefaultOptions = {
   })
 }
 
-const WebhookReplyStub = {
+const WEBHOOK_REPLY_STUB = {
   webhook: true,
   details: 'https://core.telegram.org/bots/api#making-requests-when-getting-updates'
 }
@@ -74,29 +74,39 @@ function buildJSONConfig (payload) {
   return Promise.resolve({
     method: 'POST',
     compress: true,
-    headers: { 'content-type': 'application/json', 'connection': 'keep-alive' },
+    headers: { 'content-type': 'application/json', connection: 'keep-alive' },
     body: JSON.stringify(payload)
   })
 }
 
-function buildFormDataConfig (payload) {
-  if (payload.reply_markup && typeof payload.reply_markup !== 'string') {
-    payload.reply_markup = JSON.stringify(payload.reply_markup)
+const FORM_DATA_JSON_FIELDS = [
+  'results',
+  'reply_markup',
+  'mask_position',
+  'shipping_options',
+  'errors'
+]
+
+function buildFormDataConfig (payload, agent) {
+  for (const field of FORM_DATA_JSON_FIELDS) {
+    if (field in payload && typeof payload[field] !== 'string') {
+      payload[field] = JSON.stringify(payload[field])
+    }
   }
   const boundary = crypto.randomBytes(32).toString('hex')
   const formData = new MultipartStream(boundary)
-  const tasks = Object.keys(payload).map((key) => attachFormValue(formData, key, payload[key]))
+  const tasks = Object.keys(payload).map((key) => attachFormValue(formData, key, payload[key], agent))
   return Promise.all(tasks).then(() => {
     return {
       method: 'POST',
       compress: true,
-      headers: { 'content-type': `multipart/form-data; boundary=${boundary}`, 'connection': 'keep-alive' },
+      headers: { 'content-type': `multipart/form-data; boundary=${boundary}`, connection: 'keep-alive' },
       body: formData
     }
   })
 }
 
-function attachFormValue (form, id, value) {
+function attachFormValue (form, id, value, agent) {
   if (!value) {
     return Promise.resolve()
   }
@@ -110,7 +120,7 @@ function attachFormValue (form, id, value) {
   }
   if (id === 'thumb') {
     const attachmentId = crypto.randomBytes(16).toString('hex')
-    return attachFormMedia(form, value, attachmentId)
+    return attachFormMedia(form, value, attachmentId, agent)
       .then(() => form.addPart({
         headers: { 'content-disposition': `form-data; name="${id}"` },
         body: `attach://${attachmentId}`
@@ -123,8 +133,8 @@ function attachFormValue (form, id, value) {
           return Promise.resolve(item)
         }
         const attachmentId = crypto.randomBytes(16).toString('hex')
-        return attachFormMedia(form, item.media, attachmentId)
-          .then(() => Object.assign({}, item, { media: `attach://${attachmentId}` }))
+        return attachFormMedia(form, item.media, attachmentId, agent)
+          .then(() => ({ ...item, media: `attach://${attachmentId}` }))
       })
     ).then((items) => form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
@@ -133,21 +143,22 @@ function attachFormValue (form, id, value) {
   }
   if (typeof value.media !== 'undefined' && typeof value.type !== 'undefined') {
     const attachmentId = crypto.randomBytes(16).toString('hex')
-    return attachFormMedia(form, value.media, attachmentId)
+    return attachFormMedia(form, value.media, attachmentId, agent)
       .then(() => form.addPart({
         headers: { 'content-disposition': `form-data; name="${id}"` },
-        body: JSON.stringify(Object.assign(value, {
+        body: JSON.stringify({
+          ...value,
           media: `attach://${attachmentId}`
-        }))
+        })
       }))
   }
-  return attachFormMedia(form, value, id)
+  return attachFormMedia(form, value, id, agent)
 }
 
-function attachFormMedia (form, media, id) {
-  let fileName = media.filename || `${id}.${DefaultExtensions[id] || 'dat'}`
+function attachFormMedia (form, media, id, agent) {
+  let fileName = media.filename || `${id}.${DEFAULT_EXTENSIONS[id] || 'dat'}`
   if (media.url) {
-    return fetch(media.url).then((res) =>
+    return fetch(media.url, { agent }).then((res) =>
       form.addPart({
         headers: { 'content-disposition': `form-data; name="${id}"; filename="${fileName}"` },
         body: res.body
@@ -173,32 +184,36 @@ function isKoaResponse (response) {
   return typeof response.set === 'function' && typeof response.header === 'object'
 }
 
-function answerToWebhook (response, payload = {}) {
+function answerToWebhook (response, payload = {}, options) {
   if (!includesMedia(payload)) {
     if (isKoaResponse(response)) {
       response.body = payload
-      return Promise.resolve(WebhookReplyStub)
+      return Promise.resolve(WEBHOOK_REPLY_STUB)
     }
     if (!response.headersSent) {
       response.setHeader('content-type', 'application/json')
     }
-    return new Promise((resolve) =>
-      response.end(JSON.stringify(payload), 'utf-8', () => resolve(WebhookReplyStub))
-    )
+    return new Promise((resolve) => {
+      if (response.end.length === 2) {
+        response.end(JSON.stringify(payload), 'utf-8')
+        return resolve(WEBHOOK_REPLY_STUB)
+      }
+      response.end(JSON.stringify(payload), 'utf-8', () => resolve(WEBHOOK_REPLY_STUB))
+    })
   }
 
-  return buildFormDataConfig(payload)
+  return buildFormDataConfig(payload, options.agent)
     .then(({ headers, body }) => {
       if (isKoaResponse(response)) {
         Object.keys(headers).forEach(key => response.set(key, headers[key]))
         response.body = body
-        return Promise.resolve(WebhookReplyStub)
+        return Promise.resolve(WEBHOOK_REPLY_STUB)
       }
       if (!response.headersSent) {
         Object.keys(headers).forEach(key => response.setHeader(key, headers[key]))
       }
       return new Promise((resolve) => {
-        response.on('finish', () => resolve(WebhookReplyStub))
+        response.on('finish', () => resolve(WEBHOOK_REPLY_STUB))
         body.pipe(response)
       })
     })
@@ -207,7 +222,10 @@ function answerToWebhook (response, payload = {}) {
 class ApiClient {
   constructor (token, options, webhookResponse) {
     this.token = token
-    this.options = Object.assign({}, DefaultOptions, options)
+    this.options = {
+      ...DEFAULT_OPTIONS,
+      ...options
+    }
     if (this.options.apiRoot.startsWith('http://')) {
       this.options.agent = null
     }
@@ -227,12 +245,12 @@ class ApiClient {
 
     const payload = Object.keys(data)
       .filter((key) => typeof data[key] !== 'undefined' && data[key] !== null)
-      .reduce((acc, key) => Object.assign(acc, { [key]: data[key] }), {})
+      .reduce((acc, key) => ({ ...acc, [key]: data[key] }), {})
 
-    if (options.webhookReply && response && !responseEnd && !WebhookBlacklist.includes(method)) {
+    if (options.webhookReply && response && !responseEnd && !WEBHOOK_BLACKLIST.includes(method)) {
       debug('Call via webhook', method, payload)
       this.responseEnd = true
-      return answerToWebhook(response, Object.assign({ method }, payload))
+      return answerToWebhook(response, { method, ...payload }, options)
     }
 
     if (!token) {
@@ -241,7 +259,7 @@ class ApiClient {
 
     debug('HTTP call', method, payload)
     const buildConfig = includesMedia(payload)
-      ? buildFormDataConfig(Object.assign({ method }, payload))
+      ? buildFormDataConfig({ method, ...payload }, options.agent)
       : buildJSONConfig(payload)
     return buildConfig
       .then((config) => {

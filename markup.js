@@ -15,13 +15,14 @@ class Markup {
   }
 
   extra (options) {
-    return Object.assign({
-      reply_markup: Object.assign({}, this)
-    }, options)
+    return {
+      reply_markup: { ...this },
+      ...options
+    }
   }
 
   keyboard (buttons, options) {
-    const keyboard = buildKeyboard(buttons, Object.assign({ columns: 1 }, options))
+    const keyboard = buildKeyboard(buttons, { columns: 1, ...options })
     if (keyboard && keyboard.length > 0) {
       this.keyboard = keyboard
     }
@@ -39,7 +40,7 @@ class Markup {
   }
 
   inlineKeyboard (buttons, options) {
-    const keyboard = buildKeyboard(buttons, Object.assign({ columns: buttons.length }, options))
+    const keyboard = buildKeyboard(buttons, { columns: buttons.length, ...options })
     if (keyboard && keyboard.length > 0) {
       this.inline_keyboard = keyboard
     }
@@ -126,6 +127,10 @@ class Markup {
     return { text: text, request_location: true, hide: hide }
   }
 
+  static pollRequestButton (text, type, hide = false) {
+    return { text: text, request_poll: { type }, hide: hide }
+  }
+
   static urlButton (text, url, hide = false) {
     return { text: text, url: url, hide: hide }
   }
@@ -153,9 +158,89 @@ class Markup {
   static loginButton (text, url, opts = {}, hide = false) {
     return {
       text: text,
-      login_url: Object.assign({}, opts, { url: url }),
+      login_url: { ...opts, url: url },
       hide: hide
     }
+  }
+
+  static formatHTML (text = '', entities = []) {
+    const chars = [...text]
+    const available = [...entities]
+    const opened = []
+    const result = []
+    for (let offset = 0; offset < chars.length; offset++) {
+      while (true) {
+        const index = available.findIndex((entity) => entity.offset === offset)
+        if (index === -1) {
+          break
+        }
+        const entity = available[index]
+        switch (entity.type) {
+          case 'bold':
+            result.push('<b>')
+            break
+          case 'italic':
+            result.push('<i>')
+            break
+          case 'code':
+            result.push('<code>')
+            break
+          case 'pre':
+            result.push('<pre>')
+            break
+          case 'strikethrough':
+            result.push('<s>')
+            break
+          case 'underline':
+            result.push('<u>')
+            break
+          case 'text_mention':
+            result.push(`<a href="tg://user?id=${entity.user.id}">`)
+            break
+          case 'text_link':
+            result.push(`<a href="${entity.url}">`)
+            break
+        }
+        opened.unshift(entity)
+        available.splice(index, 1)
+      }
+
+      result.push(chars[offset])
+
+      while (true) {
+        const index = opened.findIndex((entity) => entity.offset + entity.length - 1 === offset)
+        if (index === -1) {
+          break
+        }
+        const entity = opened[index]
+        switch (entity.type) {
+          case 'bold':
+            result.push('</b>')
+            break
+          case 'italic':
+            result.push('</i>')
+            break
+          case 'code':
+            result.push('</code>')
+            break
+          case 'pre':
+            result.push('</pre>')
+            break
+          case 'strikethrough':
+            result.push('</s>')
+            break
+          case 'underline':
+            result.push('</u>')
+            break
+          case 'text_mention':
+          case 'text_link':
+            result.push('</a>')
+            break
+        }
+        opened.splice(index, 1)
+      }
+    }
+    return result.join('')
   }
 }
 

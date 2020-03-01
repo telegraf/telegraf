@@ -1,4 +1,4 @@
-const TelegrafContext = require('./core/context')
+const Context = require('./context')
 
 class Composer {
   constructor (...fns) {
@@ -100,9 +100,24 @@ class Composer {
     return (ctx) => ctx.reply(...args)
   }
 
+  static catchAll (...fns) {
+    return Composer.catch((err) => {
+      console.error()
+      console.error((err.stack || err.toString()).replace(/^/gm, '  '))
+      console.error()
+    }, ...fns)
+  }
+
+  static catch (errorHandler, ...fns) {
+    const handler = Composer.compose(fns)
+    return (ctx, next) => Promise.resolve(handler(ctx, next))
+      .catch((err) => errorHandler(err, ctx))
+  }
+
   static fork (middleware) {
+    const handler = Composer.unwrap(middleware)
     return (ctx, next) => {
-      setImmediate(Composer.unwrap(middleware), ctx, Composer.safePassThru())
+      setImmediate(handler, ctx, Composer.safePassThru())
       return next(ctx)
     }
   }
@@ -190,7 +205,7 @@ class Composer {
       if (type !== entityType) {
         return false
       }
-      for (let trigger of triggers) {
+      for (const trigger of triggers) {
         ctx.match = trigger(value, ctx)
         if (ctx.match) {
           return true
@@ -238,7 +253,7 @@ class Composer {
         (ctx.callbackQuery && ctx.callbackQuery.data) ||
         (ctx.inlineQuery && ctx.inlineQuery.query)
       )
-      for (let trigger of triggers) {
+      for (const trigger of triggers) {
         ctx.match = trigger(text, ctx)
         if (ctx.match) {
           return true
@@ -317,7 +332,10 @@ class Composer {
   }
 
   static unwrap (handler) {
-    return handler && typeof handler.middleware === 'function'
+    if (!handler) {
+      throw new Error('Handler is undefined')
+    }
+    return typeof handler.middleware === 'function'
       ? handler.middleware()
       : handler
   }
@@ -336,14 +354,14 @@ class Composer {
       let index = -1
       return execute(0, ctx)
       function execute (i, context) {
-        if (!(context instanceof TelegrafContext)) {
+        if (!(context instanceof Context)) {
           return Promise.reject(new Error('next(ctx) called with invalid context'))
         }
         if (i <= index) {
           return Promise.reject(new Error('next() called multiple times'))
         }
         index = i
-        const handler = Composer.unwrap(middlewares[i]) || next
+        const handler = middlewares[i] ? Composer.unwrap(middlewares[i]) : next
         if (!handler) {
           return Promise.resolve()
         }

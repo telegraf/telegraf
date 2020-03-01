@@ -2,6 +2,8 @@ const Telegraf = require('telegraf')
 const session = require('telegraf/session')
 const Stage = require('telegraf/stage')
 const Scene = require('telegraf/scenes/base')
+
+// Handler factoriess
 const { enter, leave } = Stage
 
 // Greeter scene
@@ -23,7 +25,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 const stage = new Stage([greeterScene, echoScene], { ttl: 10 })
 bot.use(session())
 bot.use(stage.middleware())
-bot.command('greeter', enter('greeter'))
-bot.command('echo', enter('echo'))
+bot.command('greeter', (ctx) => ctx.scene.enter('greeter'))
+bot.command('echo', (ctx) => ctx.scene.enter('echo'))
 bot.on('message', (ctx) => ctx.reply('Try /echo or /greeter'))
 bot.launch()

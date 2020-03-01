@@ -9,7 +9,7 @@ bot.on('text', ({ replyWithHTML }) => replyWithHTML('<b>Hello</b>'))
 // bot.startWebhook('/secret-path', null, 3000)
 // bot.telegram.setWebhook('https://---.localtunnel.me/secret-path')
 
-// Start webhook via launch (preffered)
+// Start webhook via launch method (preffered)
 bot.launch({
   webhook: {
     domain: 'https://---.localtunnel.me',

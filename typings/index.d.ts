@@ -399,7 +399,7 @@ export interface SceneContext<TContext extends SceneContextMessageUpdate> {
 
   readonly current: BaseScene<TContext> | null;
 
-  reset: () => void;
+  reset: (keepStack?: boolean) => void;
 
   enter: (sceneId: string, initialState?: object, silent?: boolean, stack?: boolean) => Promise<any>;
 

@@ -40,11 +40,15 @@ class SceneContext {
     return (sceneId && this.scenes.has(sceneId)) ? this.scenes.get(sceneId) : null
   }
 
-  reset () {
+  reset (keepStack = true) {
     const sessionName = this.options.sessionName
-    const stack = this.stack
-    delete this.ctx[sessionName].__scenes
-    this.session.stack = stack
+    if (keepStack) {
+      const stack = this.stack
+      delete this.ctx[sessionName].__scenes
+      this.session.stack = stack
+    } else {
+      delete this.ctx[sessionName].__scenes
+    }
   }
 
   enter (sceneId, initialState, silent, stack = false) {

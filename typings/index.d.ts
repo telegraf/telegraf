@@ -339,6 +339,22 @@ export interface ContextMessageUpdate extends Context {
   editMessageMedia(media: tt.MessageMedia ,extra?: tt.ExtraEditMessage): Promise<tt.Message | boolean>
 
   /**
+   * Use this method to edit live location messages.
+   * @returns On success, if the edited message was sent by the bot, the edited message is returned, otherwise True is returned.
+   * @param lat New latitude
+   * @param lon New longitude
+   */
+  editMessageLiveLocation(lat: number, lon: number, extra?: tt.ExtraLocation): Promise<tt.MessageLocation | boolean>
+
+  /**
+   * Use this method to stop updating a live location message before live_period expires.
+   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
+   * @param extra Extra params
+   */
+  stopMessageLiveLocation(extra?: tt.ExtraLocation): Promise<tt.MessageLocation | boolean>
+
+
+  /**
    * Use this method to delete a message, including service messages, with the following limitations:
    * - A message can only be deleted if it was sent less than 48 hours ago.
    * - Bots can delete outgoing messages in groups and supergroups.

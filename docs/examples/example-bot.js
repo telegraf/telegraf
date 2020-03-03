@@ -1,10 +1,11 @@
 const Telegraf = require('telegraf')
 const Extra = require('telegraf/extra')
 const session = require('telegraf/session')
-const { reply } = Telegraf
+const { reply, fork } = Telegraf
 
 const randomPhoto = 'https://picsum.photos/200/300/?random'
-const sayYoMiddleware = ({ reply }, next) => reply('yo').then(() => next())
+
+const sayYoMiddleware = fork((ctx) => ctx.reply('yo'))
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 

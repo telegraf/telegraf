@@ -1,9 +1,10 @@
 module.exports = function (opts) {
-  const options = Object.assign({
+  const options = {
     property: 'session',
     store: new Map(),
-    getSessionKey: (ctx) => ctx.from && ctx.chat && `${ctx.from.id}:${ctx.chat.id}`
-  }, opts)
+    getSessionKey: (ctx) => ctx.from && ctx.chat && `${ctx.from.id}:${ctx.chat.id}`,
+    ...opts
+  }
 
   const ttlMs = options.ttl && options.ttl * 1000
 
@@ -21,7 +22,7 @@ module.exports = function (opts) {
         }
         Object.defineProperty(ctx, options.property, {
           get: function () { return session },
-          set: function (newValue) { session = Object.assign({}, newValue) }
+          set: function (newValue) { session = { ...newValue } }
         })
         return next(ctx).then(() => options.store.set(key, {
           session,

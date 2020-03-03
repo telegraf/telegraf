@@ -18,6 +18,7 @@
   },
   "files": [
     "typings/index.d.ts",
-    "typings/telegram-types.d.ts"
+    "typings/telegram-types.d.ts",
+    "typings/test.ts"
   ]
 }

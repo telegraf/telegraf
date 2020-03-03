@@ -5,8 +5,8 @@ class Extra {
     this.load(opts)
   }
 
-  load (opts) {
-    return Object.assign(this, opts || {})
+  load (opts = {}) {
+    return Object.assign(this, opts)
   }
 
   inReplyTo (messageId) {
@@ -28,7 +28,7 @@ class Extra {
     if (typeof markup === 'function') {
       markup = markup(new Markup())
     }
-    this.reply_markup = Object.assign({}, markup)
+    this.reply_markup = { ...markup }
     return this
   }
 
@@ -39,6 +39,11 @@ class Extra {
 
   markdown (value = true) {
     this.parse_mode = value ? 'Markdown' : undefined
+    return this
+  }
+
+  caption (caption = '') {
+    this.caption = caption
     return this
   }
 
@@ -68,6 +73,10 @@ class Extra {
 
   static markdown (value) {
     return new Extra().markdown(value)
+  }
+
+  static caption (caption) {
+    return new Extra().caption(caption)
   }
 }
 

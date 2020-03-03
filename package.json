@@ -1,7 +1,7 @@
 {
   "name": "telegraf",
-  "version": "3.30.1",
-  "description": "📡 Modern Telegram Bot Framework",
+  "version": "3.36.0",
+  "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
   "homepage": "https://github.com/telegraf/telegraf#readme",
@@ -14,38 +14,45 @@
   },
   "main": "telegraf.js",
   "files": [
+    "bin/*",
     "core/**/*.js",
     "scenes/**/*.js",
     "typings/*.d.ts",
     "*.js"
   ],
+  "bin": {
+    "telegraf": "./bin/telegraf"
+  },
   "scripts": {
     "lint": "eslint .",
-    "test": "ava test",
+    "test": "ava test/*",
     "precommit": "npm run lint && npm run typecheck && npm test",
     "typecheck": "tsc"
   },
+  "type": "commonjs",
   "engines": {
     "node": ">=8"
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "@types/node": "^12.0.4",
     "debug": "^4.0.1",
+    "minimist": "^1.2.0",
+    "module-alias": "^2.2.2",
     "node-fetch": "^2.2.0",
     "sandwich-stream": "^2.0.1",
     "telegram-typings": "^3.6.0"
   },
   "devDependencies": {
-    "ava": "^1.0.1",
-    "eslint": "^5.2.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-ava": "^6.0.0",
+    "@types/node": "^13.1.0",
+    "ava": "^3.0.0",
+    "eslint": "^6.2.2",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-ava": "^10.0.0",
     "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-standard": "^4.0.0",
-    "husky": "^2.3.0",
+    "husky": "^4.2.0",
     "typescript": "^3.0.1"
   },
   "keywords": [

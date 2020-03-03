@@ -15,42 +15,42 @@ bot.command('url', (ctx) => ctx.replyWithPhoto('https://picsum.photos/200/300/?r
 bot.command('animation', (ctx) => ctx.replyWithAnimation(AnimationUrl1))
 bot.command('pipe_animation', (ctx) => ctx.replyWithAnimation({ url: AnimationUrl1 }))
 
-bot.command('caption', (ctx) => ctx.replyWithPhoto('https://picsum.photos/200/300/?random', {
-  caption: 'Caption *text*',
-  parse_mode: 'Markdown'
-}))
+bot.command('caption', (ctx) => ctx.replyWithPhoto(
+  'https://picsum.photos/200/300/?random',
+  Extra.caption('Caption *text*').markdown()
+))
 
 bot.command('album', (ctx) => {
   ctx.replyWithMediaGroup([
     {
-      'media': 'AgADBAADXME4GxQXZAc6zcjjVhXkE9FAuxkABAIQ3xv265UJKGYEAAEC',
-      'caption': 'From file_id',
-      'type': 'photo'
+      media: 'AgADBAADXME4GxQXZAc6zcjjVhXkE9FAuxkABAIQ3xv265UJKGYEAAEC',
+      caption: 'From file_id',
+      type: 'photo'
     },
     {
-      'media': 'https://picsum.photos/200/500/',
-      'caption': 'From URL',
-      'type': 'photo'
+      media: 'https://picsum.photos/200/500/',
+      caption: 'From URL',
+      type: 'photo'
     },
     {
-      'media': { url: 'https://picsum.photos/200/300/?random' },
-      'caption': 'Piped from URL',
-      'type': 'photo'
+      media: { url: 'https://picsum.photos/200/300/?random' },
+      caption: 'Piped from URL',
+      type: 'photo'
     },
     {
-      'media': { source: '/cats/cat1.jpeg' },
-      'caption': 'From file',
-      'type': 'photo'
+      media: { source: '/cats/cat1.jpeg' },
+      caption: 'From file',
+      type: 'photo'
     },
     {
-      'media': { source: fs.createReadStream('/cats/cat2.jpeg') },
-      'caption': 'From stream',
-      'type': 'photo'
+      media: { source: fs.createReadStream('/cats/cat2.jpeg') },
+      caption: 'From stream',
+      type: 'photo'
     },
     {
-      'media': { source: fs.readFileSync('/cats/cat3.jpeg') },
-      'caption': 'From buffer',
-      'type': 'photo'
+      media: { source: fs.readFileSync('/cats/cat3.jpeg') },
+      caption: 'From buffer',
+      type: 'photo'
     }
   ])
 })

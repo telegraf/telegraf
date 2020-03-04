@@ -107,6 +107,14 @@ bot.hears('something', (ctx) => {
         reply_markup: Markup.inlineKeyboard([])
     })
 
+    ctx.editMessageLiveLocation(90,90, {
+        reply_markup: Markup.inlineKeyboard([])
+    })
+
+    ctx.stopMessageLiveLocation({
+        reply_markup: Markup.inlineKeyboard([])
+    })
+
     // tt.ExtraPhoto
     ctx.replyWithPhoto('', {
         caption: '',

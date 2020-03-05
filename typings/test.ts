@@ -172,3 +172,9 @@ Markup.inlineKeyboard([Markup.callbackButton('sampleCallbackButton', 'sampleData
 
 // #761
 bot.telegram.sendPhoto(1, randomPhoto, { caption: '*Caption*', parse_mode: 'Markdown' });
+
+
+const formattedString = Markup.formatHTML(
+  "Добрейшего вечерочка дня",
+  [{offset:0, length: 10, type: 'bold'}, {offset: 11, length: 9, type: 'strikethrough'}]
+);

@@ -1323,6 +1323,8 @@ export class Markup {
   static gameButton(text: string, hide?: boolean): GameButton;
 
   static payButton(text: string, hide?: boolean): PayButton;
+
+  static formatHTML(text: string, entities: Array<tt.MessageEntity>): string;
 }
 
 export class Extra {

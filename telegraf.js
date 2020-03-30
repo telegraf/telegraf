@@ -209,16 +209,7 @@ class Telegraf extends Composer {
 module.exports = Object.assign(Telegraf, {
   Context,
   Composer,
-  Extra,
-  Markup,
-  Router,
-  Telegram,
-  session
-})
-
-module.exports.default = Object.assign(Telegraf, {
-  Context,
-  Composer,
+  default: Telegraf,
   Extra,
   Markup,
   Router,

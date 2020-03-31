@@ -847,6 +847,15 @@ export interface Telegram {
   sendVideo(chatId: number | string, video: tt.InputFile, extra?: tt.ExtraVideo): Promise<tt.MessageVideo>
 
   /**
+   * Use this method to send video messages
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param videoNote video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. Sending video notes by a URL is currently unsupported
+   * @param extra Additional params to send video note
+   * @returns a Message on success
+   */
+  sendVideoNote (chatId: number | string, videoNote: tt.InputFileVideoNote, extra?: tt.ExtraVideoNote): Promise<tt.MessageVideoNote>
+
+  /**
    * Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .ogg file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param voice Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data

@@ -160,6 +160,17 @@ bot.hears('something', (ctx) => {
         reply_to_message_id: 0,
         reply_markup: Markup.inlineKeyboard([])
     })
+
+    ctx.telegram.sendVideoNote(-1, "", {
+        duration: 0,
+        length: 0,
+        thumb: '',
+        parse_mode: "HTML",
+        disable_notification: false,
+        disable_web_page_preview: false,
+        reply_markup: Markup.inlineKeyboard([]),
+        reply_to_message_id: 0,
+    })
 })
 
 // Markup

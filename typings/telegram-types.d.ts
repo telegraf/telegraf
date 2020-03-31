@@ -174,6 +174,11 @@ export type InputFile =
   InputFileByBuffer |
   InputFileByURL
 
+/**
+ * Sending video notes by a URL is currently unsupported
+ */
+export type InputFileVideoNote = Exclude<InputFile, InputFileByURL>
+
 export interface ExtraReplyMessage {
 
   /**
@@ -400,6 +405,26 @@ export interface ExtraVideo extends ExtraReplyMessage {
   disable_web_page_preview?: never
 }
 
+export interface ExtraVideoNote extends ExtraReplyMessage {
+  /**
+   * Duration of sent video in seconds
+   */
+  duration?: number
+
+  /**
+   * Video width and height, i.e. diameter of the video message
+   */
+  length?: number
+
+  /**
+   * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
+   * The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail‘s width and height should not exceed 320.
+   * Ignored if the file is not uploaded using multipart/form-data. Thumbnails can’t be reused and can be only uploaded as a new file,
+   * so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+   */
+  thumb?: InputFile
+}
+
 export interface ExtraVoice extends ExtraReplyMessage {
   /**
    * Voice message caption, 0-1024 characters
@@ -470,6 +495,10 @@ export interface MessageSticker extends TT.Message {
 
 export interface MessageVideo extends TT.Message {
   video: TT.Video
+}
+
+export interface MessageVideoNote extends TT.Message {
+  video_note: TT.VideoNote
 }
 
 export interface MessageVoice extends TT.Message {

@@ -22,6 +22,16 @@ export interface TelegramOptions {
    * Path to API. default: https://api.telegram.org
    */
   apiRoot?: string
+  
+  /**
+   * Bot username
+   */
+  username?: string
+  
+  /**
+   * Handle `channel_post` updates as messages.
+   */
+  channelMode?: boolean
 }
 
 interface AdminPerms {

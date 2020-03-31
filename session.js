@@ -13,7 +13,7 @@ module.exports = function (opts) {
     if (!key) {
       return next(ctx)
     }
-    const now = new Date().getTime()
+    const now = Date.now()
     return Promise.resolve(options.store.get(key))
       .then((state) => state || { session: {} })
       .then(({ session, expires }) => {

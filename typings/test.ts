@@ -107,6 +107,14 @@ bot.hears('something', (ctx) => {
         reply_markup: Markup.inlineKeyboard([])
     })
 
+    ctx.editMessageLiveLocation(90,90, {
+        reply_markup: Markup.inlineKeyboard([])
+    })
+
+    ctx.stopMessageLiveLocation({
+        reply_markup: Markup.inlineKeyboard([])
+    })
+
     // tt.ExtraPhoto
     ctx.replyWithPhoto('', {
         caption: '',
@@ -152,6 +160,17 @@ bot.hears('something', (ctx) => {
         reply_to_message_id: 0,
         reply_markup: Markup.inlineKeyboard([])
     })
+
+    ctx.telegram.sendVideoNote(-1, "", {
+        duration: 0,
+        length: 0,
+        thumb: '',
+        parse_mode: "HTML",
+        disable_notification: false,
+        disable_web_page_preview: false,
+        reply_markup: Markup.inlineKeyboard([]),
+        reply_to_message_id: 0,
+    })
 })
 
 // Markup
@@ -159,6 +178,7 @@ bot.hears('something', (ctx) => {
 const markup = new Markup
 markup.inlineKeyboard([Markup.button('sample')], {})
 Markup.inlineKeyboard([Markup.callbackButton('sampleText', 'sampleData')], {})
+Markup.inlineKeyboard([Markup.callbackButton('sampleCallbackButton', 'sampleData'), Markup.urlButton('sampleUrlButton', 'https://github.com')], {})
 
 
 // #761

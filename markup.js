@@ -163,80 +163,16 @@ class Markup {
     }
   }
 
-  static formatHTML (text, entities) {
-    const chars = [...text]
-    const available = [...entities]
-    const opened = []
-    const result = []
-    for (let offset = 0; offset < chars.length; offset++) {
-      while (true) {
-        const index = available.findIndex((entity) => entity.offset === offset)
-        if (index === -1) {
-          break
-        }
-        const entity = available[index]
-        switch (entity.type) {
-          case 'bold':
-            result.push('<b>')
-            break
-          case 'italic':
-            result.push('<i>')
-            break
-          case 'code':
-            result.push('<code>')
-            break
-          case 'pre':
-            result.push('<pre>')
-            break
-          case 'strikethrough':
-            result.push('<s>')
-            break
-          case 'underline':
-            result.push('<u>')
-            break
-          case 'text_link':
-            result.push(`<a href="${entity.url}">`)
-            break
-        }
-        opened.unshift(entity)
-        available.splice(index, 1)
-      }
-
-      result.push(chars[offset])
-
-      while (true) {
-        const index = opened.findIndex((entity) => entity.offset + entity.length - 1 === offset)
-        if (index === -1) {
-          break
-        }
-        const entity = opened[index]
-        switch (entity.type) {
-          case 'bold':
-            result.push('</b>')
-            break
-          case 'italic':
-            result.push('</i>')
-            break
-          case 'code':
-            result.push('</code>')
-            break
-          case 'pre':
-            result.push('</pre>')
-            break
-          case 'strikethrough':
-            result.push('</s>')
-            break
-          case 'underline':
-            result.push('</u>')
-            break
-          case 'text_link':
-            result.push('</a>')
-            break
-        }
-        opened.splice(index, 1)
-      }
-    }
-    return result.join('')
+  static formatHTML (text = '', entities = []) {
+    const chars = ['', ...text.split(''), ''].map(escapeHTMLChar)
+    entities.forEach(entity => {
+      const tag = getHTMLTag(entity)
+      const openPos = entity.offset
+      const closePos = entity.offset + entity.length + 1
+      chars[openPos] += tag.open
+      chars[closePos] = tag.close + chars[closePos]
+    })
+    return chars.join('')
   }
 }
 
@@ -265,6 +201,42 @@ function buildKeyboard (buttons, options) {
     result.push(currentRow)
   }
   return result
+}
+
+function escapeHTMLChar (c) {
+  switch (c) {
+    case '&': return '&amp;'
+    case '"': return '&quot;'
+    case '\'': return '&#39;'
+    case '<': return '&lt;'
+    default : return c
+  }
+}
+
+function tag (name, params) {
+  return {
+    open: params
+      ? `<${name} ${Object.entries(params).map(([key, value]) => `${key}="${value.replace(/[<&"]/g, escapeHTMLChar)}"`).join(' ')}>`
+      : `<${name}>`,
+    close: `</${name}>`
+  }
+}
+
+const HTMLTags = new Map([
+  ['bold', tag('b')],
+  ['italic', tag('i')],
+  ['code', tag('code')],
+  ['pre', tag('pre')],
+  ['strikethrough', tag('s')],
+  ['underline', tag('u')],
+  ['text_link', ({ url }) => tag('a', { href: url })],
+  ['text_mention', ({ user }) => tag('a', { href: `tg://user?id=${user.id}` })]
+])
+
+function getHTMLTag (entity) {
+  const tag = HTMLTags.get(entity.type || 'unknown')
+  if (!tag) return { open: '', close: '' }
+  return typeof tag === 'function' ? tag(entity) : tag
 }
 
 module.exports = Markup

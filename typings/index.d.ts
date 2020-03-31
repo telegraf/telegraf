@@ -24,10 +24,31 @@ export interface TelegramOptions {
   apiRoot?: string
 }
 
+interface AdminPerms {
+  /** Pass True, if the administrator can change chat title, photo and other settings */
+  can_change_info?: boolean
+  /** Pass True, if the administrator can create channel posts, channels only */
+  can_post_messages?: boolean
+  /** Pass True, if the administrator can edit messages of other users and can pin messages, channels only */
+  can_edit_messages?: boolean
+  /** Pass True, if the administrator can delete messages of other users */
+  can_delete_messages?: boolean
+  /** Pass True, if the administrator can invite new users to the chat */
+  can_invite_users?: boolean
+  /** Pass True, if the administrator can restrict, ban or unban chat members */
+  can_restrict_members?: boolean
+  /** Pass True, if the administrator can pin messages, supergroups only */
+  can_pin_messages?: boolean
+  /** Pass True, if the administrator can add new administrators with a subset of his own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him) */
+  can_promote_members?: boolean
+}
+
 export interface Context {
   updateType: tt.UpdateType;
   updateSubTypes: tt.MessageSubTypes[];
   update: tt.Update;
+  tg: Telegram
+  botInfo?: tt.User
   telegram: Telegram
   callbackQuery?: tt.CallbackQuery
   channelPost?: tt.Message
@@ -347,6 +368,29 @@ export interface ContextMessageUpdate extends Context {
   editMessageLiveLocation(lat: number, lon: number, extra?: tt.ExtraLocation): Promise<tt.MessageLocation | boolean>
 
   /**
+   * Use this method to kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param userId Unique identifier of the target user
+   * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
+   * @returns True on success
+   */
+  kickChatMember(userId: number, untilDate?: number): Promise<boolean>;
+
+  /**
+   * Use this method to unban a user from a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param userId Unique identifier of the target user
+   * @returns True on success
+   */
+  unbanChatMember(userId: number): Promise<boolean>;
+
+  /**
+   * Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Pass False for all boolean parameters to demote a user.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+   * @param userId Unique identifier of the target user
+   * @returns True on success
+   */
+  promoteChatMember (userId: number, extra: AdminPerms): Promise<boolean>;
+
+  /**
    * Use this method to stop updating a live location message before live_period expires.
    * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
    * @param extra Extra params
@@ -363,7 +407,7 @@ export interface ContextMessageUpdate extends Context {
    * - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
    * @returns Returns True on success.
    */
-  deleteMessage(): Promise<boolean>
+  deleteMessage(messageId?: number): Promise<boolean>
 
   /**
    * Use this method to upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods (can be used multiple times)
@@ -864,6 +908,22 @@ export interface Telegram {
    * @returns True on success
    */
   kickChatMember(chatId: number | string, userId: number, untilDate?: number): Promise<boolean>;
+
+  /**
+   * Use this method to unban a user from a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format @username)
+   * @param userId Unique identifier of the target user
+   * @returns True on success
+   */
+  unbanChatMember(chatId: number | string, userId: number): Promise<boolean>;
+
+  /**
+   * Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Pass False for all boolean parameters to demote a user.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+   * @param userId Unique identifier of the target user
+   * @returns True on success
+   */
+  promoteChatMember (chatId: number | string, userId: number, extra: AdminPerms): Promise<boolean>;
 
   /**
    * Use this method to get updates from Telegram server. Bot should be in `polling` mode

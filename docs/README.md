@@ -8,7 +8,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 4.6](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 4.7](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -248,34 +248,39 @@ Context shortcuts for **message** update:
 | `getChatAdministrators`   | [`telegram.getChatAdministrators`](#getchatadministrators) |
 | `getChatMember`           | [`telegram.getChatMember`](#getchatmember) |
 | `getChatMembersCount`     | [`telegram.getChatMembersCount`](#getchatmemberscount) |
+| `getMyCommands`           | [`telegram.getMyCommands`](#getmycommands) |
 | `getStickerSet`           | [`telegram.getStickerSet`](#getstickerset) |
 | `leaveChat`               | [`telegram.leaveChat`](#leavechat) |
 | `pinChatMessage`          | [`telegram.pinChatMessage`](#pinchatmessage) |
 | `reply`                   | [`telegram.sendMessage`](#sendmessage) |
 | `replyWithAudio`          | [`telegram.sendAudio`](#sendaudio) |
 | `replyWithChatAction`     | [`telegram.sendChatAction`](#sendchataction) |
+| `replyWithDice`           | [`telegram.sendDice`](#senddice) |
 | `replyWithDocument`       | [`telegram.sendDocument`](#senddocument) |
 | `replyWithGame`           | [`telegram.sendGame`](#sendgame) |
 | `replyWithHTML`           | [`telegram.sendMessage`](#sendmessage) |
 | `replyWithInvoice`        | [`telegram.sendInvoice`](#sendinvoice) |
 | `replyWithLocation`       | [`telegram.sendLocation`](#sendlocation) |
 | `replyWithMarkdown`       | [`telegram.sendMessage`](#sendmessage) |
-| `replyWithPhoto`          | [`telegram.sendPhoto`](#sendphoto) |
 | `replyWithMediaGroup`     | [`telegram.sendMediaGroup`](#sendmediagroup) |
+| `replyWithPhoto`          | [`telegram.sendPhoto`](#sendphoto) |
+| `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
+| `replyWithQuiz`           | [`telegram.sendQuiz`](#sendquiz) |
 | `replyWithSticker`        | [`telegram.sendSticker`](#sendsticker) |
 | `replyWithVideo`          | [`telegram.sendVideo`](#sendvideo) |
 | `replyWithVideoNote`      | [`telegram.sendVideoNote`](#sendvideonote) |
 | `replyWithVoice`          | [`telegram.sendVoice`](#sendvoice) |
-| `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
-| `replyWithQuiz`           | [`telegram.sendQuiz`](#sendquiz) |
-| `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `setChatDescription`      | [`telegram.setChatDescription`](#setchatdescription) |
 | `setChatPhoto`            | [`telegram.setChatPhoto`](#setchatphoto) |
 | `setChatTitle`            | [`telegram.setChatTitle`](#setchattitle) |
+| `setMyCommands`           | [`telegram.setMyCommands`](#setmycommands) |
+| `setPassportDataErrors`   | [`telegram.setPassportDataErrors`](#setpassportdataerrors) |
 | `setStickerPositionInSet` | [`telegram.setStickerPositionInSet`](#setstickerpositioninset) |
+| `setStickerSetThumb`      | [`telegram.setStickerSetThumb`](#setstickersetthumb) |
+| `setStickerSetThumb`      | [`telegram.setStickerSetThumb`](#setstickersetthumb) |
+| `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `unpinChatMessage`        | [`telegram.unpinChatMessage`](#unpinchatmessage) |
 | `uploadStickerFile`       | [`telegram.uploadStickerFile`](#uploadstickerfile) |
-| `setPassportDataErrors`   | [`telegram.setPassportDataErrors`](#setpassportdataerrors) |
 
 Context shortcuts for **callback_query** update:
 
@@ -302,27 +307,29 @@ Context shortcuts for **callback_query** update:
 | `leaveChat`               | [`telegram.leaveChat`](#leavechat) |
 | `pinChatMessage`          | [`telegram.pinChatMessage`](#pinchatmessage) |
 | `reply`                   | [`telegram.sendMessage`](#sendmessage) |
+| `replyWithAnimation`      | [`telegram.sendAnimation`](#sendanimation) |
 | `replyWithAudio`          | [`telegram.sendAudio`](#sendaudio) |
 | `replyWithChatAction`     | [`telegram.sendChatAction`](#sendchataction) |
+| `replyWithDice`           | [`telegram.sendDice`](#senddice) |
 | `replyWithDocument`       | [`telegram.sendDocument`](#senddocument) |
 | `replyWithGame`           | [`telegram.sendGame`](#sendgame) |
 | `replyWithHTML`           | [`telegram.sendMessage`](#sendmessage) |
 | `replyWithInvoice`        | [`telegram.sendInvoice`](#sendinvoice) |
 | `replyWithLocation`       | [`telegram.sendLocation`](#sendlocation) |
 | `replyWithMarkdown`       | [`telegram.sendMessage`](#sendmessage) |
-| `replyWithPhoto`          | [`telegram.sendPhoto`](#sendphoto) |
 | `replyWithMediaGroup`     | [`telegram.sendMediaGroup`](#sendmediagroup) |
+| `replyWithPhoto`          | [`telegram.sendPhoto`](#sendphoto) |
+| `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
 | `replyWithSticker`        | [`telegram.sendSticker`](#sendsticker) |
 | `replyWithVideo`          | [`telegram.sendVideo`](#sendvideo) |
-| `replyWithAnimation`      | [`telegram.sendAnimation`](#sendanimation) |
 | `replyWithVideoNote`      | [`telegram.sendVideoNote`](#sendvideonote) |
 | `replyWithVoice`          | [`telegram.sendVoice`](#sendvoice) |
-| `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
-| `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `setChatDescription`      | [`telegram.setChatDescription`](#setchatdescription) |
 | `setChatPhoto`            | [`telegram.setChatPhoto`](#setchatphoto) |
 | `setChatTitle`            | [`telegram.setChatTitle`](#setchattitle) |
 | `setStickerPositionInSet` | [`telegram.setStickerPositionInSet`](#setstickerpositioninset) |
+| `setStickerSetThumb`      | [`telegram.setStickerSetThumb`](#setstickersetthumb) |
+| `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `unpinChatMessage`        | [`telegram.unpinChatMessage`](#unpinchatmessage) |
 | `uploadStickerFile`       | [`telegram.uploadStickerFile`](#uploadstickerfile) |
 
@@ -456,6 +463,7 @@ Available update sub-types:
 
 - `text`
 - `audio`
+- `dice`
 - `document`
 - `photo`
 - `sticker`
@@ -1363,6 +1371,19 @@ Use this method to delete bot messages.
 | chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 
+##### setStickerSetThumb
+
+Use this method to set the thumbnail of a sticker set.
+
+`telegram.setStickerSetThumb(name, userId, [thumb]) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#setstickersetthumb)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | `string` | Sticker set name |
+| userId | `string` | User identifier of the sticker set owner |
+| thumb | `File` | A PNG image with the thumbnail, must be up to 128 kilobytes in size and have width and height exactly 100px, or a TGS animation with the thumbnail up to 32 kilobytes in size |
+
 ##### deleteStickerFromSet
 
 Use this method to delete a sticker from a set created by the bot.
@@ -1582,6 +1603,14 @@ Returns basic information about the bot.
 
 `telegram.getMe() => Promise`
 [Official documentation](https://core.telegram.org/bots/api#getme)
+
+##### getMyCommands
+
+Use this method to get the current list of the bot's commands. 
+Requires no parameters. Returns Array of BotCommand on success.
+
+`telegram.getMyCommands() => Promise`
+[Official documentation](https://core.telegram.org/bots/api#getmycommands)
 
 ##### getStickerSet
 
@@ -1826,6 +1855,17 @@ Sends document.
 | firstName | `string` | Contact first name |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendcontact)|
 
+##### sendDice
+
+Sends dice.
+
+`telegram.sendDice(chatId, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#senddice)|
+
 ##### sendDocument
 
 Sends document.
@@ -1996,6 +2036,16 @@ Sends anonymous poll.
 | question | `string` | Poll question |
 | options | `string[]` | Answer options |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
+
+##### setMyCommands
+
+Use this method to change the list of the bot's commands
+
+`telegram.setMyCommands(commands) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| commands | `object[]` | [List of bot commands](https://core.telegram.org/bots/api#setmycommands) |
 
 ##### sendQuiz
 

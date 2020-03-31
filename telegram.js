@@ -115,6 +115,10 @@ class Telegram extends ApiClient {
     return this.callApi('sendPhoto', { chat_id: chatId, photo, ...extra })
   }
 
+  sendDice (chatId, extra) {
+    return this.callApi('sendDice', { chat_id: chatId, ...extra })
+  }
+
   sendDocument (chatId, document, extra) {
     return this.callApi('sendDocument', { chat_id: chatId, document, ...extra })
   }
@@ -386,8 +390,20 @@ class Telegram extends ApiClient {
     })
   }
 
+  setStickerSetThumb (name, userId, thumb) {
+    return this.callApi('setStickerSetThumb', { name, user_id: userId, thumb })
+  }
+
   deleteStickerFromSet (sticker) {
     return this.callApi('deleteStickerFromSet', { sticker })
+  }
+
+  getMyCommands () {
+    return this.callApi('getMyCommands')
+  }
+
+  setMyCommands (commands) {
+    return this.callApi('setMyCommands', { commands })
   }
 
   setPassportDataErrors (userId, errors) {

@@ -60,6 +60,7 @@ const updateTypes = [
   'invoice',
   'group_chat_created',
   'game',
+  'dice',
   'document',
   'delete_chat_photo',
   'contact',

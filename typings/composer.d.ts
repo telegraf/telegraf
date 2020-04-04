@@ -22,8 +22,8 @@ export declare class Composer<TContext extends ContextMessageUpdate>
    * @param middleware Middleware function
    */
   use(
-    middleware: MiddlewareFn<TContext>,
-    ...middlewares: Array<MiddlewareFn<TContext>>
+    middleware: Middleware<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
   /**
@@ -37,8 +37,8 @@ export declare class Composer<TContext extends ContextMessageUpdate>
       | tt.UpdateType[]
       | tt.MessageSubTypes
       | tt.MessageSubTypes[],
-    middleware: MiddlewareFn<TContext>,
-    ...middlewares: Array<MiddlewareFn<TContext>>
+    middleware: Middleware<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
   /**
@@ -53,8 +53,8 @@ export declare class Composer<TContext extends ContextMessageUpdate>
    */
   hears(
     triggers: HearsTriggers,
-    middleware: MiddlewareFn<TContext>,
-    ...middlewares: Array<MiddlewareFn<TContext>>
+    middleware: Middleware<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
   /**
@@ -64,8 +64,8 @@ export declare class Composer<TContext extends ContextMessageUpdate>
    */
   action(
     triggers: HearsTriggers,
-    middleware: MiddlewareFn<TContext>,
-    ...middlewares: Array<MiddlewareFn<TContext>>
+    middleware: Middleware<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
   /**
@@ -75,8 +75,8 @@ export declare class Composer<TContext extends ContextMessageUpdate>
    */
   command(
     command: string | string[],
-    middleware: MiddlewareFn<TContext>,
-    ...middlewares: Array<MiddlewareFn<TContext>>
+    middleware: Middleware<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
   /**
@@ -84,8 +84,8 @@ export declare class Composer<TContext extends ContextMessageUpdate>
    * @param middlewares Middleware functions
    */
   gameQuery(
-    middleware: MiddlewareFn<TContext>,
-    ...middlewares: Array<MiddlewareFn<TContext>>
+    middleware: Middleware<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
   /**
@@ -93,8 +93,8 @@ export declare class Composer<TContext extends ContextMessageUpdate>
    * @param middlewares Middleware functions
    */
   start(
-    middleware: MiddlewareFn<TContext>,
-    ...middlewares: Array<MiddlewareFn<TContext>>
+    middleware: Middleware<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
   /**
@@ -102,18 +102,22 @@ export declare class Composer<TContext extends ContextMessageUpdate>
    * @param middlewares Middleware functions
    */
   help(
-    middleware: MiddlewareFn<TContext>,
-    ...middlewares: Array<MiddlewareFn<TContext>>
+    middleware: Middleware<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
-  constructor(...middlewares: Array<MiddlewareFn<TContext>>)
+  constructor(...middlewares: ReadonlyArray<Middleware<TContext>>)
+
+  static unwrap<TContext extends ContextMessageUpdate>(
+    handler: Middleware<TContext>
+  ): MiddlewareFn<TContext>
 
   /**
    * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
-   * @param middlewares Array of middlewares functions
+   * @param middlewares ReadonlyArray of middlewares functions
    */
   static compose<TContext extends ContextMessageUpdate>(
-    middlewares: Array<MiddlewareFn<TContext>>
+    middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
   /**
@@ -121,66 +125,50 @@ export declare class Composer<TContext extends ContextMessageUpdate>
    * @param updateTypes Update type
    * @param middleware Middleware function
    */
-  static mount<
-    TContext extends ContextMessageUpdate,
-    UContext extends ContextMessageUpdate
-  >(
+  static mount<TContext extends ContextMessageUpdate>(
     updateTypes: tt.UpdateType | tt.UpdateType[],
-    ...middleware: Array<MiddlewareFn<TContext>>
-  ): MiddlewareFn<UContext>
+    ...middleware: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
 
   /**
    * Generates middleware for handling text messages with regular expressions.
    * @param triggers Triggers
    * @param handler Handler
    */
-  static hears<
-    TContext extends ContextMessageUpdate,
-    UContext extends ContextMessageUpdate
-  >(
+  static hears<TContext extends ContextMessageUpdate>(
     triggers: HearsTriggers,
-    ...handler: Array<MiddlewareFn<TContext>>
-  ): MiddlewareFn<UContext>
+    ...handler: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
 
   /**
    * Generates middleware for handling callbackQuery data with regular expressions.
    * @param triggers Triggers
    * @param handler Handler
    */
-  static action<
-    TContext extends ContextMessageUpdate,
-    UContext extends ContextMessageUpdate
-  >(
+  static action<TContext extends ContextMessageUpdate>(
     triggers: HearsTriggers,
-    ...handler: Array<MiddlewareFn<TContext>>
-  ): MiddlewareFn<UContext>
+    ...handler: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
 
   /**
    * Generates pass thru middleware.
    */
-  static passThru<TContext extends ContextMessageUpdate>(): MiddlewareFn<
-    TContext
-  >
+  static passThru(): MiddlewareFn<any>
 
   /**
    * Generates safe version of pass thru middleware.
    */
-  static safePassThru<TContext extends ContextMessageUpdate>(): MiddlewareFn<
-    TContext
-  >
+  static safePassThru(): MiddlewareFn<any>
 
   /**
    * Generates optional middleware.
    * @param test Value or predicate (ctx) => bool
    * @param middleware Middleware function
    */
-  static optional<
-    TContext extends ContextMessageUpdate,
-    UContext extends ContextMessageUpdate
-  >(
+  static optional<TContext extends ContextMessageUpdate>(
     test: boolean | ((ctx: TContext) => boolean),
-    ...middleware: Array<MiddlewareFn<TContext>>
-  ): MiddlewareFn<UContext>
+    ...middleware: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
 
   /**
    * Generates filter middleware.
@@ -196,16 +184,11 @@ export declare class Composer<TContext extends ContextMessageUpdate>
    * @param trueMiddleware true action middleware
    * @param falseMiddleware false action middleware
    */
-  static branch<
-    TContext extends ContextMessageUpdate,
-    UContext extends ContextMessageUpdate,
-    VContext extends ContextMessageUpdate,
-    WContext extends ContextMessageUpdate
-  >(
+  static branch<TContext extends ContextMessageUpdate>(
     test: boolean | ((ctx: TContext) => boolean),
-    trueMiddleware: MiddlewareFn<UContext>,
-    falseMiddleware: MiddlewareFn<VContext>
-  ): MiddlewareFn<WContext>
+    trueMiddleware: Middleware<TContext>,
+    falseMiddleware: Middleware<TContext>
+  ): MiddlewareFn<TContext>
 
   static reply<TContext extends ContextMessageUpdate>(
     text: string,
@@ -216,39 +199,34 @@ export declare class Composer<TContext extends ContextMessageUpdate>
    * Allows it to console.log each request received.
    */
   static fork<TContext extends ContextMessageUpdate>(
-    middleware: MiddlewareFn<TContext>
-  ): Function
+    middleware: Middleware<TContext>
+  ): MiddlewareFn<TContext>
 
-  static log(logFn?: Function): MiddlewareFn<ContextMessageUpdate>
+  static log(logFn?: (s: string) => void): MiddlewareFn<ContextMessageUpdate>
 
   /**
    * Generates middleware which passes through when the requested chat type is not in the request.
    * @param Chat Type to trigger the given middleware. Other types will pass through
    * @param middleware Middleware function
    */
-  static chatType<
-    TContext extends ContextMessageUpdate,
-    UContext extends ContextMessageUpdate
-  >(
+  static chatType<TContext extends ContextMessageUpdate>(
     type: tt.ChatType | tt.ChatType[],
-    ...middleware: Array<MiddlewareFn<TContext>>
-  ): MiddlewareFn<UContext>
+    ...middleware: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
 
   /**
    * Generates middleware which passes through when the requested chat type is not a private chat.
    * @param middleware Middleware function
    */
-  static privateChat<
-    TContext extends ContextMessageUpdate,
-    UContext extends ContextMessageUpdate
-  >(...middleware: Array<MiddlewareFn<TContext>>): MiddlewareFn<UContext>
+  static privateChat<TContext extends ContextMessageUpdate>(
+    ...middleware: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
 
   /**
    * Generates middleware which passes through when the requested chat type is not a group.
    * @param middleware Middleware function
    */
-  static groupChat<
-    TContext extends ContextMessageUpdate,
-    UContext extends ContextMessageUpdate
-  >(...middleware: Array<MiddlewareFn<TContext>>): MiddlewareFn<UContext>
+  static groupChat<TContext extends ContextMessageUpdate>(
+    ...middleware: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
 }

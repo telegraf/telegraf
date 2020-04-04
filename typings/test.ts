@@ -181,6 +181,18 @@ bot.hears('something', async (ctx) => {
     ])
 
     const myCommands: tt.BotCommand[] = await ctx.telegram.getMyCommands()
+
+    const messageDice: tt.MessageDice = await ctx.telegram.sendDice(0, {
+        disable_notification: false,
+        reply_markup: Markup.inlineKeyboard([]),
+        reply_to_message_id: 0
+    })
+
+    const replyWithDiceMessage: tt.MessageDice = await ctx.replyWithDice({
+        disable_notification: false,
+        reply_markup: Markup.inlineKeyboard([]),
+        reply_to_message_id: 0
+    })
 })
 
 // Markup

@@ -949,6 +949,18 @@ export interface Telegram {
    */
   setChatTitle(chatId: number | string, title: string): Promise<boolean>;
 
+  /**
+   * Use this method to get the current list of the bot's commands. Requires no parameters.
+   * @returns Array of BotCommand on success.
+   */
+  getMyCommands(): Promise<tt.BotCommand[]>
+
+  /**
+   * Use this method to change the list of the bot's commands.
+   * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+   * @returns True on success
+   */
+  setMyCommands(commands: tt.BotCommand[]): Promise<boolean>
 }
 
 export interface TelegramConstructor {

@@ -10,7 +10,7 @@ import * as tt from './telegram-types.d'
 
 export interface TelegramOptions {
   /**
-   * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+   * https.Agent or http.Agent instance, allows custom proxy, certificate, keep alive, etc.
    */
   agent?: https.Agent | http.Agent
 
@@ -1511,7 +1511,7 @@ export interface TOptions {
    */
   telegram?: {
     /**
-     * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+     * https.Agent or http.Agent instance, allows custom proxy, certificate, keep alive, etc.
      */
     agent: https.Agent | http.Agent
 

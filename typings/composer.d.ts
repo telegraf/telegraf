@@ -4,7 +4,13 @@ import { ContextMessageUpdate } from './context'
 type HearsTriggers = string[] | string | RegExp | RegExp[] | Function
 
 export interface MiddlewareFn<TContext extends ContextMessageUpdate> {
-  (ctx: TContext, next: (ctx?: TContext) => Promise<void>): void
+  /*
+  next's parameter is in a contravariant position, and thus, trying to type it
+  prevents assigning `MiddlewareFn<ContextMessageUpdate>`
+  to `MiddlewareFn<CustomContext>`.
+  Middleware passing the parameter should be a separate type instead.
+  */
+  (ctx: TContext, next: () => Promise<unknown>): unknown
 }
 
 export interface MiddlewareObj<TContext extends ContextMessageUpdate> {
@@ -153,12 +159,12 @@ export declare class Composer<TContext extends ContextMessageUpdate>
   /**
    * Generates pass thru middleware.
    */
-  static passThru(): MiddlewareFn<any>
+  static passThru(): MiddlewareFn<ContextMessageUpdate>
 
   /**
    * Generates safe version of pass thru middleware.
    */
-  static safePassThru(): MiddlewareFn<any>
+  static safePassThru(): MiddlewareFn<ContextMessageUpdate>
 
   /**
    * Generates optional middleware.
@@ -190,10 +196,10 @@ export declare class Composer<TContext extends ContextMessageUpdate>
     falseMiddleware: Middleware<TContext>
   ): MiddlewareFn<TContext>
 
-  static reply<TContext extends ContextMessageUpdate>(
+  static reply(
     text: string,
     extra?: tt.ExtraReplyMessage
-  ): MiddlewareFn<TContext>
+  ): MiddlewareFn<ContextMessageUpdate>
 
   /**
    * Allows it to console.log each request received.

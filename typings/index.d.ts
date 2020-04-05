@@ -1,5 +1,5 @@
 import { BaseScene, Stage } from './stage'
-import { Composer, Middleware, MiddlewareFn } from './composer'
+import { Composer, Middleware } from './composer'
 import { ContextMessageUpdate } from './context'
 import { Extra } from './extra'
 import { Markup } from './markup'
@@ -21,7 +21,6 @@ declare namespace Telegraf {
     Extra,
     Markup,
     Middleware,
-    MiddlewareFn,
     Router,
     session,
     Stage,

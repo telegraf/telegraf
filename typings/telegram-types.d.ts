@@ -442,6 +442,18 @@ export interface ExtraVoice extends ExtraReplyMessage {
   disable_web_page_preview?: never
 }
 
+export interface ExtraDice extends ExtraReplyMessage {
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#senddice
+   */
+  parse_mode?: never
+  
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#senddice
+   */
+  disable_web_page_preview?: never
+}
+
 export interface IncomingMessage extends TT.Message {
   audio?: TT.Audio
   entities?: TT.MessageEntity[]
@@ -459,6 +471,7 @@ export interface IncomingMessage extends TT.Message {
   pinned_message?: TT.Message
   invoice?: TT.Invoice
   successful_payment?: TT.SuccessfulPayment
+  dice?: Dice
 }
 
 export interface MessageAudio extends TT.Message {
@@ -503,6 +516,10 @@ export interface MessageVideoNote extends TT.Message {
 
 export interface MessageVoice extends TT.Message {
   voice: TT.Voice
+}
+
+export interface MessageDice extends TT.Message {
+  dice: Dice
 }
 
 export interface NewInvoiceParams {
@@ -612,4 +629,29 @@ export interface ExtraAnswerInlineQuery {
    * Deep-linking parameter for the /start message sent to the bot when user presses the switch button. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed.
    */
   switch_pm_parameter?: string
+}
+
+/**
+ * This object represents a bot command
+ */
+export interface BotCommand {
+  /**
+   * Text of the command, 1-32 characters. Can contain only lowercase English letters, digits and underscores.
+   */
+  command: string
+
+  /**
+   * Description of the command, 3-256 characters.
+   */
+  description: string
+}
+
+/**
+ * This object represents a dice with random value from 1 to 6. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
+ */
+export interface Dice {
+  /**
+   * Value of the dice, 1-6
+   */
+  value: number
 }

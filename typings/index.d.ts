@@ -1,7 +1,8 @@
 /// <reference types="node" />
 
 import { IncomingMessage, ServerResponse } from 'http'
-import { Agent } from 'https'
+import * as https from 'https'
+import * as http from 'http'
 import { TlsOptions } from 'tls'
 
 import * as tt from './telegram-types.d'
@@ -9,9 +10,9 @@ import * as tt from './telegram-types.d'
 
 export interface TelegramOptions {
   /**
-   * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+   * https.Agent or http.Agent instance, allows custom proxy, certificate, keep alive, etc.
    */
-  agent?: Agent
+  agent?: https.Agent | http.Agent
 
   /**
    * Reply via webhook
@@ -1538,9 +1539,9 @@ export interface TOptions {
    */
   telegram?: {
     /**
-     * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+     * https.Agent or http.Agent instance, allows custom proxy, certificate, keep alive, etc.
      */
-    agent: Agent
+    agent: https.Agent | http.Agent
 
     /**
      * Reply via webhook

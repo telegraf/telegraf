@@ -1,6 +1,7 @@
 import * as tt from './telegram-types.d'
 
-import { Agent } from 'https'
+import * as https from 'https'
+import * as http from 'http'
 
 interface AdminPerms {
   /** Pass True, if the administrator can change chat title, photo and other settings */
@@ -23,9 +24,9 @@ interface AdminPerms {
 
 export interface TelegramOptions {
   /**
-   * https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+   * https.Agent or http.Agent instance, allows custom proxy, certificate, keep alive, etc.
    */
-  agent?: Agent
+  agent?: https.Agent | http.Agent
 
   /**
    * Reply via webhook
@@ -546,6 +547,17 @@ export declare class Telegram {
   ): Promise<tt.MessageVoice>
 
   /**
+   * Use this method to send a dice, which will have a random value from 1 to 6. On success, the sent Message is returned. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param extra Additional params to send dice
+   * @returns a Message on success
+   */
+  sendDice(
+    chatId: number | string,
+    extra?: tt.ExtraDice
+  ): Promise<tt.MessageDice>
+
+  /**
    * Use this method to specify a url and receive incoming updates via an outgoing webhook
    * @param url HTTPS url to send updates to. Use an empty string to remove webhook integration
    * @param cert Upload your public key certificate so that the root certificate in use can be checked
@@ -632,4 +644,17 @@ export declare class Telegram {
    * @returns True on success
    */
   setChatTitle(chatId: number | string, title: string): Promise<boolean>
+
+  /**
+   * Use this method to get the current list of the bot's commands. Requires no parameters.
+   * @returns Array of BotCommand on success.
+   */
+  getMyCommands(): Promise<tt.BotCommand[]>
+
+  /**
+   * Use this method to change the list of the bot's commands.
+   * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+   * @returns True on success
+   */
+  setMyCommands(commands: tt.BotCommand[]): Promise<boolean>
 }

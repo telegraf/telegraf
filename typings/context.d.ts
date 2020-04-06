@@ -291,6 +291,14 @@ export declare class ContextMessageUpdate {
     extra?: tt.ExtraVoice
   ): Promise<tt.MessageVoice>
 
+  /**
+   * Use this method to send a dice, which will have a random value from 1 to 6. On success, the sent Message is returned. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param extra Additional params to send dice
+   * @returns a Message on success
+   */
+  replyWithDice(extra?: tt.ExtraDice): Promise<tt.MessageDice>
+
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //

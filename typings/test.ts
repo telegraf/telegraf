@@ -1,6 +1,7 @@
 // This is a test file for the TypeScript typings.
 // It is not intended to be used by external users.
 import Telegraf, { Markup, Middleware, ContextMessageUpdate, Extra } from './index';
+import * as tt from './telegram-types';
 
 const randomPhoto = 'https://picsum.photos/200/300/?random'
 const sayYoMiddleware: Middleware<ContextMessageUpdate> = ({ reply }, next) => reply('yo').then(() => next && next())
@@ -60,7 +61,7 @@ bot.launch({
 })
 
 // tt.ExtraXXX
-bot.hears('something', (ctx) => {
+bot.hears('something', async (ctx) => {
     // tt.ExtraReplyMessage
     ctx.reply('Response', {
         parse_mode: "Markdown",
@@ -170,6 +171,27 @@ bot.hears('something', (ctx) => {
         disable_web_page_preview: false,
         reply_markup: Markup.inlineKeyboard([]),
         reply_to_message_id: 0,
+    })
+
+    const setMyCommandsResult: boolean =  await ctx.telegram.setMyCommands([
+        {
+            command: '',
+            description: ''
+        },
+    ])
+
+    const myCommands: tt.BotCommand[] = await ctx.telegram.getMyCommands()
+
+    const messageDice: tt.MessageDice = await ctx.telegram.sendDice(0, {
+        disable_notification: false,
+        reply_markup: Markup.inlineKeyboard([]),
+        reply_to_message_id: 0
+    })
+
+    const replyWithDiceMessage: tt.MessageDice = await ctx.replyWithDice({
+        disable_notification: false,
+        reply_markup: Markup.inlineKeyboard([]),
+        reply_to_message_id: 0
     })
 })
 

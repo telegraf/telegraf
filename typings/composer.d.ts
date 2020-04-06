@@ -25,17 +25,11 @@ export declare class Composer<TContext extends ContextMessageUpdate>
   implements MiddlewareObj<TContext> {
   /**
    * Registers a middleware.
-   * @param middleware Middleware function
    */
-  use(
-    middleware: Middleware<TContext>,
-    ...middlewares: ReadonlyArray<Middleware<TContext>>
-  ): this
+  use(...middlewares: ReadonlyArray<Middleware<TContext>>): this
 
   /**
    * Registers middleware for provided update type.
-   * @param updateTypes Update type
-   * @param middlewares Middleware functions
    */
   on(
     updateTypes:
@@ -43,7 +37,6 @@ export declare class Composer<TContext extends ContextMessageUpdate>
       | tt.UpdateType[]
       | tt.MessageSubTypes
       | tt.MessageSubTypes[],
-    middleware: Middleware<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
@@ -54,73 +47,51 @@ export declare class Composer<TContext extends ContextMessageUpdate>
 
   /**
    * Registers middleware for handling text messages.
-   * @param triggers Triggers
-   * @param middlewares Middleware functions
    */
   hears(
     triggers: HearsTriggers,
-    middleware: Middleware<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
   /**
    * Registers middleware for handling callbackQuery data with regular expressions
-   * @param triggers Triggers
-   * @param middlewares Middleware functions
    */
   action(
     triggers: HearsTriggers,
-    middleware: Middleware<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
   /**
-   * Command handling.
-   * @param command Commands
-   * @param middlewares Middleware functions
+   * Registers middleware for handling specified commands.
    */
   command(
     command: string | string[],
-    middleware: Middleware<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
   /**
    * Registers middleware for handling callback_data actions with game query.
-   * @param middlewares Middleware functions
    */
-  gameQuery(
-    middleware: Middleware<TContext>,
-    ...middlewares: ReadonlyArray<Middleware<TContext>>
-  ): this
+  gameQuery(...middlewares: ReadonlyArray<Middleware<TContext>>): this
 
   /**
-   * Registers middleware for handling callback_data actions on start.
-   * @param middlewares Middleware functions
+   * Registers middleware for handling /start command.
    */
-  start(
-    middleware: Middleware<TContext>,
-    ...middlewares: ReadonlyArray<Middleware<TContext>>
-  ): this
+  start(...middlewares: ReadonlyArray<Middleware<TContext>>): this
 
   /**
-   * Registers middleware for handling callback_data actions on help.
-   * @param middlewares Middleware functions
+   * Registers middleware for handling /help command.
    */
-  help(
-    middleware: Middleware<TContext>,
-    ...middlewares: ReadonlyArray<Middleware<TContext>>
-  ): this
+  help(...middlewares: ReadonlyArray<Middleware<TContext>>): this
 
   constructor(...middlewares: ReadonlyArray<Middleware<TContext>>)
 
   static unwrap<TContext extends ContextMessageUpdate>(
-    handler: Middleware<TContext>
+    middleware: Middleware<TContext>
   ): MiddlewareFn<TContext>
 
   /**
    * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
-   * @param middlewares ReadonlyArray of middlewares functions
    */
   static compose<TContext extends ContextMessageUpdate>(
     middlewares: ReadonlyArray<Middleware<TContext>>
@@ -128,32 +99,26 @@ export declare class Composer<TContext extends ContextMessageUpdate>
 
   /**
    * Generates middleware for handling provided update types.
-   * @param updateTypes Update type
-   * @param middleware Middleware function
    */
   static mount<TContext extends ContextMessageUpdate>(
     updateTypes: tt.UpdateType | tt.UpdateType[],
-    ...middleware: ReadonlyArray<Middleware<TContext>>
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
   /**
-   * Generates middleware for handling text messages with regular expressions.
-   * @param triggers Triggers
-   * @param handler Handler
+   * Generates middleware for handling matching text messages.
    */
   static hears<TContext extends ContextMessageUpdate>(
     triggers: HearsTriggers,
-    ...handler: ReadonlyArray<Middleware<TContext>>
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
   /**
-   * Generates middleware for handling callbackQuery data with regular expressions.
-   * @param triggers Triggers
-   * @param handler Handler
+   * Generates middleware for handling matching callback queries.
    */
   static action<TContext extends ContextMessageUpdate>(
     triggers: HearsTriggers,
-    ...handler: ReadonlyArray<Middleware<TContext>>
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
   /**
@@ -168,27 +133,23 @@ export declare class Composer<TContext extends ContextMessageUpdate>
 
   /**
    * Generates optional middleware.
-   * @param test Value or predicate (ctx) => bool
-   * @param middleware Middleware function
+   * @param middleware middleware to run if the predicate returns true
    */
   static optional<TContext extends ContextMessageUpdate>(
     test: boolean | ((ctx: TContext) => boolean),
-    ...middleware: ReadonlyArray<Middleware<TContext>>
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
   /**
    * Generates filter middleware.
-   * @param test  Value or predicate (ctx) => bool
    */
   static filter<TContext extends ContextMessageUpdate>(
     test: boolean | ((ctx: TContext) => boolean)
   ): MiddlewareFn<TContext>
 
   /**
-   * Generates branch middleware.
-   * @param test Value or predicate (ctx) => bool
-   * @param trueMiddleware true action middleware
-   * @param falseMiddleware false action middleware
+   * @param trueMiddleware middleware to run if the predicate returns true
+   * @param falseMiddleware middleware to run if the predicate returns false
    */
   static branch<TContext extends ContextMessageUpdate>(
     test: boolean | ((ctx: TContext) => boolean),
@@ -202,7 +163,7 @@ export declare class Composer<TContext extends ContextMessageUpdate>
   ): MiddlewareFn<ContextMessageUpdate>
 
   /**
-   * Allows it to console.log each request received.
+   * Generates middleware that runs in the background.
    */
   static fork<TContext extends ContextMessageUpdate>(
     middleware: Middleware<TContext>
@@ -211,28 +172,24 @@ export declare class Composer<TContext extends ContextMessageUpdate>
   static log(logFn?: (s: string) => void): MiddlewareFn<ContextMessageUpdate>
 
   /**
-   * Generates middleware which passes through when the requested chat type is not in the request.
-   * @param Chat Type to trigger the given middleware. Other types will pass through
-   * @param middleware Middleware function
+   * Generates middleware running only in given chat types.
    */
   static chatType<TContext extends ContextMessageUpdate>(
     type: tt.ChatType | tt.ChatType[],
-    ...middleware: ReadonlyArray<Middleware<TContext>>
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
   /**
-   * Generates middleware which passes through when the requested chat type is not a private chat.
-   * @param middleware Middleware function
+   * Generates middleware running only in private chats.
    */
   static privateChat<TContext extends ContextMessageUpdate>(
-    ...middleware: ReadonlyArray<Middleware<TContext>>
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
   /**
-   * Generates middleware which passes through when the requested chat type is not a group.
-   * @param middleware Middleware function
+   * Generates middleware running only in groups and supergroups.
    */
   static groupChat<TContext extends ContextMessageUpdate>(
-    ...middleware: ReadonlyArray<Middleware<TContext>>
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 }

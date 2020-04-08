@@ -199,7 +199,7 @@ bot.hears('something', async (ctx) => {
 // Markup
 
 const markup = new Markup
-markup.inlineKeyboard([Markup.button('sample')], {})
+markup.keyboard([Markup.button('sample')], {})
 Markup.inlineKeyboard([Markup.callbackButton('sampleText', 'sampleData')], {})
 Markup.inlineKeyboard([Markup.callbackButton('sampleCallbackButton', 'sampleData'), Markup.urlButton('sampleUrlButton', 'https://github.com')], {})
 

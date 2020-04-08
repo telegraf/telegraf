@@ -17,6 +17,12 @@ interface LocationRequestButton {
   request_location: boolean
 }
 
+export type KeyboardButton =
+  | string
+  | Button
+  | ContactRequestButton
+  | LocationRequestButton
+
 interface UrlButton {
   url: string
   text: string
@@ -53,14 +59,17 @@ interface PayButton {
   hide: boolean
 }
 
-interface Buttons {
-  url?: string
-  pay?: boolean
-  text: string
-  callback_data?: string
-  callback_game?: string
-  switch_inline_query?: string
-  switch_inline_query_current_chat?: string
+export type InlineKeyboardButton =
+  | UrlButton
+  | CallbackButton
+  | SwitchToChatButton
+  | SwitchToCurrentChatButton
+  | GameButton
+  | PayButton
+
+interface KeyboardOptions<TBtn> {
+  columns?: number
+  wrap?(btn: TBtn, index: number, currentRow: TBtn[]): boolean
 }
 
 export declare class Markup {
@@ -70,11 +79,11 @@ export declare class Markup {
 
   selective(value?: boolean): this
 
-  extra(options?: object): object
+  extra(options?: tt.ExtraReplyMessage): tt.ExtraReplyMessage
 
   keyboard(
-    buttons: (Buttons | string)[] | (Buttons | string)[][],
-    options?: object
+    buttons: KeyboardButton[] | KeyboardButton[][],
+    options?: KeyboardOptions<KeyboardButton>
   ): this & tt.ReplyKeyboardMarkup
 
   resize(value?: boolean): this
@@ -82,8 +91,8 @@ export declare class Markup {
   oneTime(value?: boolean): this
 
   inlineKeyboard(
-    buttons: Buttons[] | Buttons[][],
-    options: object
+    buttons: InlineKeyboardButton[] | InlineKeyboardButton[][],
+    options: KeyboardOptions<InlineKeyboardButton>
   ): this & tt.InlineKeyboardMarkup
 
   button(text: string, hide: boolean): Button
@@ -117,13 +126,13 @@ export declare class Markup {
   static forceReply(value?: string): Markup
 
   static keyboard(
-    buttons: (Buttons | string)[] | (Buttons | string)[][],
-    options?: object
+    buttons: KeyboardButton[] | KeyboardButton[][],
+    options?: KeyboardOptions<KeyboardButton>
   ): Markup & tt.ReplyKeyboardMarkup
 
   static inlineKeyboard(
-    buttons: (CallbackButton | UrlButton)[] | (CallbackButton | UrlButton)[][],
-    options?: object
+    buttons: InlineKeyboardButton[] | InlineKeyboardButton[][],
+    options?: KeyboardOptions<InlineKeyboardButton>
   ): Markup & tt.InlineKeyboardMarkup
 
   static resize(value?: boolean): Markup

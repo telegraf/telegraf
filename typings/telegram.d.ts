@@ -3,7 +3,7 @@ import * as tt from './telegram-types.d'
 import * as https from 'https'
 import * as http from 'http'
 
-interface AdminPerms {
+export interface AdminPerms {
   /** Pass True, if the administrator can change chat title, photo and other settings */
   can_change_info?: boolean
   /** Pass True, if the administrator can create channel posts, channels only */

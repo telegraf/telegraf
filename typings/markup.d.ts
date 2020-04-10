@@ -1,17 +1,17 @@
 import * as tt from './telegram-types.d'
 
-interface Button {
+export interface Button {
   text: string
   hide: boolean
 }
 
-interface ContactRequestButton {
+export interface ContactRequestButton {
   text: string
   hide: boolean
   request_contact: boolean
 }
 
-interface LocationRequestButton {
+export interface LocationRequestButton {
   text: string
   hide: boolean
   request_location: boolean
@@ -23,37 +23,37 @@ export type KeyboardButton =
   | ContactRequestButton
   | LocationRequestButton
 
-interface UrlButton {
+export interface UrlButton {
   url: string
   text: string
   hide?: boolean
 }
 
-interface CallbackButton {
+export interface CallbackButton {
   text: string
   hide: boolean
   callback_data: string
 }
 
-interface SwitchToChatButton {
+export interface SwitchToChatButton {
   text: string
   hide: boolean
   switch_inline_query: string
 }
 
-interface SwitchToCurrentChatButton {
+export interface SwitchToCurrentChatButton {
   text: string
   hide: boolean
   switch_inline_query_current_chat: string
 }
 
-interface GameButton {
+export interface GameButton {
   text: string
   hide: boolean
   callback_game: tt.CallbackGame
 }
 
-interface PayButton {
+export interface PayButton {
   pay: boolean
   text: string
   hide: boolean

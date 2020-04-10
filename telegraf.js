@@ -208,11 +208,13 @@ class Telegraf extends Composer {
 
 module.exports = Object.assign(Telegraf, {
   Context,
+  ContextMessageUpdate: Context,
   Composer,
   default: Telegraf,
   Extra,
   Markup,
   Router,
+  Telegraf,
   Telegram,
   Stage,
   BaseScene,

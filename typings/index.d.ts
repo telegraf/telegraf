@@ -1,31 +1,9 @@
-import { BaseScene, Stage } from './stage'
-import { Composer, Middleware } from './composer'
-import { ContextMessageUpdate } from './context'
-import { Extra } from './extra'
-import { Markup } from './markup'
-import { Router } from './router'
-import { session } from './session'
-import { Telegram } from './telegram'
-
-// works around https://github.com/microsoft/TypeScript/issues/37712
-import { Telegraf as _Telegraf } from './telegraf'
-declare class Telegraf<TContext extends ContextMessageUpdate> extends _Telegraf<
-  TContext
-> {}
-
-declare namespace Telegraf {
-  export {
-    BaseScene,
-    Composer,
-    ContextMessageUpdate as Context,
-    Extra,
-    Markup,
-    Middleware,
-    Router,
-    session,
-    Stage,
-    Telegram,
-  }
-}
-
-export = Telegraf
+export { BaseScene, Stage } from './stage'
+export { Composer, Middleware } from './composer'
+export { ContextMessageUpdate as Context } from './context'
+export { Extra } from './extra'
+export { Markup } from './markup'
+export { Router } from './router'
+export { session } from './session'
+export { Telegraf as default } from './telegraf'
+export { Telegram } from './telegram'

@@ -1,7 +1,6 @@
 // This is a test file for the TypeScript typings.
 // It is not intended to be used by external users.
-import Telegraf = require('./index')
-import { Markup, Middleware, Context } from './index';
+import Telegraf, { Markup, Middleware, Context } from './index';
 import * as tt from './telegram-types';
 
 const randomPhoto = 'https://picsum.photos/200/300/?random'

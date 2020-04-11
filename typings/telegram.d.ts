@@ -1,3 +1,5 @@
+/** @format */
+
 import * as tt from './telegram-types.d'
 
 import * as https from 'https'
@@ -488,7 +490,7 @@ export declare class Telegram {
     chatId: number | string,
     question: string,
     options: string[],
-    extra: tt.  ExtraPoll
+    extra: tt.ExtraPoll
   ): Promise<tt.MessagePoll>
 
   /**

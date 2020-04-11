@@ -1,3 +1,5 @@
+/** @format */
+
 export { BaseScene, Stage } from './stage'
 export { Composer, Middleware } from './composer'
 export {

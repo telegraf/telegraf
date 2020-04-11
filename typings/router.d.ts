@@ -1,3 +1,5 @@
+/** @format */
+
 import { MiddlewareObj, Middleware, MiddlewareFn } from './composer'
 import { ContextMessageUpdate } from './context'
 

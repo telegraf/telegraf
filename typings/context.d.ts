@@ -1,3 +1,5 @@
+/** @format */
+
 import * as tt from './telegram-types'
 
 import { Telegram } from './telegram'
@@ -280,7 +282,7 @@ export declare class ContextMessageUpdate {
   sendQuiz(
     question: string,
     options: string[],
-    extra: tt.  ExtraPoll
+    extra: tt.ExtraPoll
   ): Promise<tt.MessagePoll>
 
   /**
@@ -289,10 +291,7 @@ export declare class ContextMessageUpdate {
    * @param extra Additional params to stop poll
    * @returns On success, the stopped Poll with the final results is returned.
    */
-  stopPoll(
-    messageId: number,
-    extra: tt.ExtraStopPoll
-  ): Promise<tt.Poll>
+  stopPoll(messageId: number, extra: tt.ExtraStopPoll): Promise<tt.Poll>
 
   /**
    * Use this method to send .webp stickers

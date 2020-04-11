@@ -1,3 +1,5 @@
+/** @format */
+
 import * as tt from './telegram-types.d'
 
 export interface Button {

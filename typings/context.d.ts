@@ -1,6 +1,6 @@
 import * as tt from './telegram-types'
 
-import { AdminPerms, Telegram } from './telegram'
+import { Telegram } from './telegram'
 
 export declare class ContextMessageUpdate {
   updateType: tt.UpdateType
@@ -258,6 +258,43 @@ export declare class ContextMessageUpdate {
   ): Promise<Array<tt.Message>>
 
   /**
+   * Use this method to send a native poll.
+   * @param question Poll question, 1-255 characters
+   * @param options A JSON-serialized list of answer options, 2-10 strings 1-100 characters each
+   * @param extra Additional params to send poll
+   * @returns On success, the sent Message is returned.
+   */
+  sendPoll(
+    question: string,
+    options: string[],
+    extra: tt.ExtraPoll
+  ): Promise<tt.MessagePoll>
+
+  /**
+   * Use this method to send a native quiz.
+   * @param question Poll question, 1-255 characters
+   * @param options A JSON-serialized list of answer options, 2-10 strings 1-100 characters each
+   * @param extra Additional params to send quiz
+   * @returns On success, the sent Message is returned.
+   */
+  sendQuiz(
+    question: string,
+    options: string[],
+    extra: tt.  ExtraPoll
+  ): Promise<tt.MessagePoll>
+
+  /**
+   * Use this method to send a native quiz.
+   * @param messageId Identifier of the original message with the poll
+   * @param extra Additional params to stop poll
+   * @returns On success, the stopped Poll with the final results is returned.
+   */
+  stopPoll(
+    messageId: number,
+    extra: tt.ExtraStopPoll
+  ): Promise<tt.Poll>
+
+  /**
    * Use this method to send .webp stickers
    * @param sticker Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .webp file from the Internet, or upload a new one using multipart/form-data
    * @param extra Additional params to send sticker
@@ -429,7 +466,7 @@ export declare class ContextMessageUpdate {
    * @param userId Unique identifier of the target user
    * @returns True on success
    */
-  promoteChatMember(userId: number, extra: AdminPerms): Promise<boolean>
+  promoteChatMember(userId: number, extra: tt.AdminPerms): Promise<boolean>
 
   /**
    * Use this method to stop updating a live location message before live_period expires.

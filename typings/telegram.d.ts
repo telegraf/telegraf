@@ -3,25 +3,6 @@ import * as tt from './telegram-types.d'
 import * as https from 'https'
 import * as http from 'http'
 
-export interface AdminPerms {
-  /** Pass True, if the administrator can change chat title, photo and other settings */
-  can_change_info?: boolean
-  /** Pass True, if the administrator can create channel posts, channels only */
-  can_post_messages?: boolean
-  /** Pass True, if the administrator can edit messages of other users and can pin messages, channels only */
-  can_edit_messages?: boolean
-  /** Pass True, if the administrator can delete messages of other users */
-  can_delete_messages?: boolean
-  /** Pass True, if the administrator can invite new users to the chat */
-  can_invite_users?: boolean
-  /** Pass True, if the administrator can restrict, ban or unban chat members */
-  can_restrict_members?: boolean
-  /** Pass True, if the administrator can pin messages, supergroups only */
-  can_pin_messages?: boolean
-  /** Pass True, if the administrator can add new administrators with a subset of his own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him) */
-  can_promote_members?: boolean
-}
-
 export interface TelegramOptions {
   /**
    * https.Agent or http.Agent instance, allows custom proxy, certificate, keep alive, etc.
@@ -481,6 +462,49 @@ export declare class Telegram {
   ): Promise<Array<tt.Message>>
 
   /**
+   * Use this method to send a native poll.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param question Poll question, 1-255 characters
+   * @param options A JSON-serialized list of answer options, 2-10 strings 1-100 characters each
+   * @param extra Additional params to send poll
+   * @returns On success, the sent Message is returned.
+   */
+  sendPoll(
+    chatId: number | string,
+    question: string,
+    options: string[],
+    extra: tt.ExtraPoll
+  ): Promise<tt.MessagePoll>
+
+  /**
+   * Use this method to send a native quiz.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param question Poll question, 1-255 characters
+   * @param options A JSON-serialized list of answer options, 2-10 strings 1-100 characters each
+   * @param extra Additional params to send quiz
+   * @returns On success, the sent Message is returned.
+   */
+  sendQuiz(
+    chatId: number | string,
+    question: string,
+    options: string[],
+    extra: tt.  ExtraPoll
+  ): Promise<tt.MessagePoll>
+
+  /**
+   * Use this method to send a native quiz.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Identifier of the original message with the poll
+   * @param extra Additional params to stop poll
+   * @returns On success, the stopped Poll with the final results is returned.
+   */
+  stopPoll(
+    chatId: number | string,
+    messageId: number,
+    extra: tt.ExtraStopPoll
+  ): Promise<tt.Poll>
+
+  /**
    * Use this method to send .gif animations
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param animation Animation to send. Pass a file_id as String to send a GIF that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a GIF from the Internet, or upload a new GIF using multipart/form-data
@@ -628,7 +652,7 @@ export declare class Telegram {
   promoteChatMember(
     chatId: number | string,
     userId: number,
-    extra: AdminPerms
+    extra: tt.AdminPerms
   ): Promise<boolean>
 
   /**

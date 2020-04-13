@@ -179,6 +179,40 @@ export type InputFile =
  */
 export type InputFileVideoNote = Exclude<InputFile, InputFileByURL>
 
+export interface ChatPermissions {
+  /** True, if the user is allowed to send text messages, contacts, locations and venues */
+  can_send_messages?: boolean
+
+  /** True, if the user is allowed to send audios, documents, photos, videos, video notes and voice notes, implies can_send_messages */
+  can_send_media_messages?: boolean
+
+  /** True, if the user is allowed to send polls, implies can_send_messages */
+  can_send_polls?: boolean
+
+  /** True, if the user is allowed to send animations, games, stickers and use inline bots, implies can_send_media_messages */
+  can_send_other_messages?: boolean
+
+  /** True, if the user is allowed to add web page previews to their messages, implies can_send_media_messages */
+  can_add_web_page_previews?: boolean
+
+  /** True, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups */
+  can_change_info?: boolean
+
+  /** True, if the user is allowed to invite new users to the chat */
+  can_invite_users?: boolean
+
+  /** True, if the user is allowed to pin messages. Ignored in public supergroups */
+  can_pin_messages?: boolean
+}
+
+export interface ExtraRestrictChatMember {
+  /** New user permissions */
+  permissions: ChatPermissions
+
+  /** Date when restrictions will be lifted for the user, unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever */
+  until_date?: number
+}
+
 export interface AdminPerms {
   /** Pass True, if the administrator can change chat title, photo and other settings */
   can_change_info?: boolean

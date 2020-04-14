@@ -220,7 +220,7 @@ export declare class ContextMessageUpdate {
    * @returns a Message on success
    */
   replyWithInvoice(
-    invoice: tt.NewInvoiceParams,
+    invoice: tt.NewInvoiceParameters,
     extra?: tt.ExtraInvoice
   ): Promise<tt.MessageInvoice>
 
@@ -277,7 +277,7 @@ export declare class ContextMessageUpdate {
    * @param extra Additional params to send poll
    * @returns On success, the sent Message is returned.
    */
-  sendPoll(
+  replyWithPoll(
     question: string,
     options: string[],
     extra: tt.ExtraPoll
@@ -290,7 +290,7 @@ export declare class ContextMessageUpdate {
    * @param extra Additional params to send quiz
    * @returns On success, the sent Message is returned.
    */
-  sendQuiz(
+  replyWithQuiz(
     question: string,
     options: string[],
     extra: tt.ExtraPoll
@@ -349,17 +349,6 @@ export declare class ContextMessageUpdate {
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
-
-  /**
-   * Use this method to send answers to an inline query. On success, True is returned.
-   * No more than 50 results per query are allowed.
-   * @param results Array of results for the inline query
-   * @param extra Extra optional parameters
-   */
-  answerInlineQuery(
-    results: tt.InlineQueryResult[],
-    extra?: tt.ExtraAnswerInlineQuery
-  ): Promise<boolean>
 
   answerCbQuery(
     text?: string,
@@ -476,7 +465,10 @@ export declare class ContextMessageUpdate {
    * @param userId Unique identifier of the target user
    * @returns True on success
    */
-  promoteChatMember(userId: number, extra: tt.AdminPerms): Promise<boolean>
+  promoteChatMember(
+    userId: number,
+    extra: tt.ExtraPromoteChatMember
+  ): Promise<boolean>
 
   /**
    * Use this method to stop updating a live location message before live_period expires.

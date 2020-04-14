@@ -412,7 +412,7 @@ export declare class Telegram {
    */
   sendInvoice(
     chatId: number,
-    invoice: tt.NewInvoiceParams,
+    invoice: tt.NewInvoiceParameters,
     extra?: tt.ExtraInvoice
   ): Promise<tt.MessageInvoice>
 
@@ -648,7 +648,7 @@ export declare class Telegram {
   promoteChatMember(
     chatId: number | string,
     userId: number,
-    extra: tt.AdminPerms
+    extra: tt.ExtraPromoteChatMember
   ): Promise<boolean>
 
   /**

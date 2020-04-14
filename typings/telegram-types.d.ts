@@ -213,7 +213,7 @@ export interface ExtraRestrictChatMember {
   until_date?: number
 }
 
-export interface AdminPerms {
+export interface ExtraPromoteChatMember {
   /** Pass True, if the administrator can change chat title, photo and other settings */
   can_change_info?: boolean
 
@@ -618,7 +618,7 @@ export interface MessagePoll extends TT.Message {
   poll: Poll
 }
 
-export interface NewInvoiceParams {
+export interface NewInvoiceParameters {
   /**
    * Product name, 1-32 characters
    */

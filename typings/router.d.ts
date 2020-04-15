@@ -1,23 +1,23 @@
 /** @format */
 
 import { MiddlewareObj, Middleware, MiddlewareFn } from './composer'
-import { ContextMessageUpdate } from './context'
+import { TelegrafContext } from './context'
 
 type TRoute = string
 type MaybePromise<T> = T | Promise<T>
 
-export type RouteFn<TContext extends ContextMessageUpdate> = (
+export type RouteFn<TContext extends TelegrafContext> = (
   ctx: TContext
 ) => MaybePromise<{
   route?: TRoute
 } | null>
 
-type HandlersMap<TContext extends ContextMessageUpdate> = Map<
+type HandlersMap<TContext extends TelegrafContext> = Map<
   TRoute,
   Middleware<TContext>
 >
 
-declare class Router<TContext extends ContextMessageUpdate>
+declare class Router<TContext extends TelegrafContext>
   implements MiddlewareObj<TContext> {
   routeFn: RouteFn<TContext>
   handlers: HandlersMap<TContext>

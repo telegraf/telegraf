@@ -9,7 +9,7 @@ import { TlsOptions } from 'tls'
 
 import * as tt from './telegram-types.d'
 
-import { ContextMessageUpdate } from './context'
+import { TelegrafContext } from './context'
 import { Composer } from './composer'
 import { Telegram, TelegramOptions } from './telegram'
 
@@ -80,7 +80,7 @@ interface LaunchWebhookOptions {
 }
 
 export declare class Telegraf<
-  TContext extends ContextMessageUpdate
+  TContext extends TelegrafContext
 > extends Composer<TContext> {
   /**
    * Use this property to get/set bot token

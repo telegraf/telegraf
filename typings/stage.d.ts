@@ -1,6 +1,6 @@
 /** @format */
 
-import { ContextMessageUpdate } from './context'
+import { TelegrafContext } from './context'
 import { Middleware, Composer, MiddlewareFn } from './composer'
 
 export interface SceneContextOptions {
@@ -39,7 +39,7 @@ export interface SceneContext<TContext extends SceneContextMessageUpdate> {
   leave: () => Promise<any>
 }
 
-export interface SceneContextMessageUpdate extends ContextMessageUpdate {
+export interface SceneContextMessageUpdate extends TelegrafContext {
   scene: SceneContext<this>
 }
 export interface BaseSceneOptions<TContext extends SceneContextMessageUpdate> {

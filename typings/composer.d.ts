@@ -1,11 +1,11 @@
 /** @format */
 
 import * as tt from './telegram-types.d'
-import { ContextMessageUpdate } from './context'
+import { TelegrafContext } from './context'
 
 type HearsTriggers = string[] | string | RegExp | RegExp[] | Function
 
-export interface MiddlewareFn<TContext extends ContextMessageUpdate> {
+export interface MiddlewareFn<TContext extends TelegrafContext> {
   /*
   next's parameter is in a contravariant position, and thus, trying to type it
   prevents assigning `MiddlewareFn<ContextMessageUpdate>`
@@ -15,15 +15,15 @@ export interface MiddlewareFn<TContext extends ContextMessageUpdate> {
   (ctx: TContext, next: () => Promise<void>): void | Promise<unknown>
 }
 
-export interface MiddlewareObj<TContext extends ContextMessageUpdate> {
+export interface MiddlewareObj<TContext extends TelegrafContext> {
   middleware(): MiddlewareFn<TContext>
 }
 
-export type Middleware<TContext extends ContextMessageUpdate> =
+export type Middleware<TContext extends TelegrafContext> =
   | MiddlewareFn<TContext>
   | MiddlewareObj<TContext>
 
-export declare class Composer<TContext extends ContextMessageUpdate>
+export declare class Composer<TContext extends TelegrafContext>
   implements MiddlewareObj<TContext> {
   /**
    * Registers a middleware.
@@ -88,21 +88,21 @@ export declare class Composer<TContext extends ContextMessageUpdate>
 
   constructor(...middlewares: ReadonlyArray<Middleware<TContext>>)
 
-  static unwrap<TContext extends ContextMessageUpdate>(
+  static unwrap<TContext extends TelegrafContext>(
     middleware: Middleware<TContext>
   ): MiddlewareFn<TContext>
 
   /**
    * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
    */
-  static compose<TContext extends ContextMessageUpdate>(
+  static compose<TContext extends TelegrafContext>(
     middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
   /**
    * Generates middleware for handling provided update types.
    */
-  static mount<TContext extends ContextMessageUpdate>(
+  static mount<TContext extends TelegrafContext>(
     updateTypes: tt.UpdateType | tt.UpdateType[],
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
@@ -110,7 +110,7 @@ export declare class Composer<TContext extends ContextMessageUpdate>
   /**
    * Generates middleware for handling matching text messages.
    */
-  static hears<TContext extends ContextMessageUpdate>(
+  static hears<TContext extends TelegrafContext>(
     triggers: HearsTriggers,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
@@ -118,7 +118,7 @@ export declare class Composer<TContext extends ContextMessageUpdate>
   /**
    * Generates middleware for handling matching callback queries.
    */
-  static action<TContext extends ContextMessageUpdate>(
+  static action<TContext extends TelegrafContext>(
     triggers: HearsTriggers,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
@@ -126,18 +126,18 @@ export declare class Composer<TContext extends ContextMessageUpdate>
   /**
    * Generates pass thru middleware.
    */
-  static passThru(): MiddlewareFn<ContextMessageUpdate>
+  static passThru(): MiddlewareFn<TelegrafContext>
 
   /**
    * Generates safe version of pass thru middleware.
    */
-  static safePassThru(): MiddlewareFn<ContextMessageUpdate>
+  static safePassThru(): MiddlewareFn<TelegrafContext>
 
   /**
    * Generates optional middleware.
    * @param middleware middleware to run if the predicate returns true
    */
-  static optional<TContext extends ContextMessageUpdate>(
+  static optional<TContext extends TelegrafContext>(
     test: boolean | ((ctx: TContext) => boolean),
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
@@ -145,7 +145,7 @@ export declare class Composer<TContext extends ContextMessageUpdate>
   /**
    * Generates filter middleware.
    */
-  static filter<TContext extends ContextMessageUpdate>(
+  static filter<TContext extends TelegrafContext>(
     test: boolean | ((ctx: TContext) => boolean)
   ): MiddlewareFn<TContext>
 
@@ -153,7 +153,7 @@ export declare class Composer<TContext extends ContextMessageUpdate>
    * @param trueMiddleware middleware to run if the predicate returns true
    * @param falseMiddleware middleware to run if the predicate returns false
    */
-  static branch<TContext extends ContextMessageUpdate>(
+  static branch<TContext extends TelegrafContext>(
     test: boolean | ((ctx: TContext) => boolean),
     trueMiddleware: Middleware<TContext>,
     falseMiddleware: Middleware<TContext>
@@ -162,21 +162,21 @@ export declare class Composer<TContext extends ContextMessageUpdate>
   static reply(
     text: string,
     extra?: tt.ExtraReplyMessage
-  ): MiddlewareFn<ContextMessageUpdate>
+  ): MiddlewareFn<TelegrafContext>
 
   /**
    * Generates middleware that runs in the background.
    */
-  static fork<TContext extends ContextMessageUpdate>(
+  static fork<TContext extends TelegrafContext>(
     middleware: Middleware<TContext>
   ): MiddlewareFn<TContext>
 
-  static log(logFn?: (s: string) => void): MiddlewareFn<ContextMessageUpdate>
+  static log(logFn?: (s: string) => void): MiddlewareFn<TelegrafContext>
 
   /**
    * Generates middleware running only in given chat types.
    */
-  static chatType<TContext extends ContextMessageUpdate>(
+  static chatType<TContext extends TelegrafContext>(
     type: tt.ChatType | tt.ChatType[],
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
@@ -184,14 +184,14 @@ export declare class Composer<TContext extends ContextMessageUpdate>
   /**
    * Generates middleware running only in private chats.
    */
-  static privateChat<TContext extends ContextMessageUpdate>(
+  static privateChat<TContext extends TelegrafContext>(
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
   /**
    * Generates middleware running only in groups and supergroups.
    */
-  static groupChat<TContext extends ContextMessageUpdate>(
+  static groupChat<TContext extends TelegrafContext>(
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 }

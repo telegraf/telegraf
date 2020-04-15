@@ -12,7 +12,7 @@ export interface MiddlewareFn<TContext extends ContextMessageUpdate> {
   to `MiddlewareFn<CustomContext>`.
   Middleware passing the parameter should be a separate type instead.
   */
-  (ctx: TContext, next: () => Promise<unknown>): unknown
+  (ctx: TContext, next: () => Promise<void>): void | Promise<unknown>
 }
 
 export interface MiddlewareObj<TContext extends ContextMessageUpdate> {

@@ -168,8 +168,13 @@ class Markup {
     entities.forEach(entity => {
       const tag = getHTMLTag(entity)
       const openPos = entity.offset
+      const secondPos = openPos + 1
       const closePos = entity.offset + entity.length + 1
-      chars[openPos] += tag.open
+      if (chars[secondPos].match(/.*(<\/.+>)/)) {
+        chars[secondPos] = chars[secondPos].replace(/.*(<\/.+>)/, `$1${tag.open}`)
+      } else {
+        chars[openPos] += tag.open
+      }
       chars[closePos] = tag.close + chars[closePos]
     })
     return chars.join('')

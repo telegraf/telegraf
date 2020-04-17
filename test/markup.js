@@ -221,3 +221,34 @@ test('should generate nested multi markup', (t) => {
   ])
   t.deepEqual(markup, '<s>strike<b>bold<u>under</u></b></s>')
 })
+
+test.only('should generate nested multi markup 2', (t) => {
+  const markup = Markup.formatHTML('×ВЫ НЕ БОТ× и не ×СПАМЩИК× нажмите на кнопку ×Я НЕ БОТ×', [
+    {
+      offset: 1,
+      length: 9,
+      type: 'bold'
+    },
+    {
+      offset: 1,
+      length: 9,
+      type: 'italic'
+    },
+    {
+      offset: 12,
+      length: 7,
+      type: 'italic'
+    },
+    {
+      offset: 19,
+      length: 36,
+      type: 'italic'
+    },
+    {
+      offset: 19,
+      length: 8,
+      type: 'bold'
+    }
+  ])
+  t.deepEqual(markup, '×<b><i>ВЫ НЕ БОТ</i></b>× <i>и не ×С</i><i><b>ПАМЩИК× </b>нажмите на кнопку ×Я НЕ БОТ×</i>')
+})

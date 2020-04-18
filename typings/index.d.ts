@@ -1382,23 +1382,23 @@ export class Markup {
 
   inlineKeyboard(buttons: Buttons[] | Buttons[][], options?: object): Markup & tt.InlineKeyboardMarkup;
 
-  button(text: string, hide: boolean): Button;
+  button(text: string, hide?: boolean): Button;
 
-  contactRequestButton(text: string, hide: boolean): ContactRequestButton;
+  contactRequestButton(text: string, hide?: boolean): ContactRequestButton;
 
-  locationRequestButton(text: string, hide: boolean): LocationRequestButton;
+  locationRequestButton(text: string, hide?: boolean): LocationRequestButton;
 
-  urlButton(text: string, url: string, hide: boolean): UrlButton;
+  urlButton(text: string, url: string, hide?: boolean): UrlButton;
 
-  callbackButton(text: string, data: string, hide: boolean): CallbackButton;
+  callbackButton(text: string, data: string, hide?: boolean): CallbackButton;
 
-  switchToChatButton(text: string, value: string, hide: boolean): SwitchToChatButton;
+  switchToChatButton(text: string, value: string, hide?: boolean): SwitchToChatButton;
 
-  switchToCurrentChatButton(text: string, value: string, hide: boolean): SwitchToCurrentChatButton;
+  switchToCurrentChatButton(text: string, value: string, hide?: boolean): SwitchToCurrentChatButton;
 
-  gameButton(text: string, hide: boolean): GameButton;
+  gameButton(text: string, hide?: boolean): GameButton;
 
-  payButton(text: string, hide: boolean): PayButton;
+  payButton(text: string, hide?: boolean): PayButton;
 
   static removeKeyboard(value?: string): Markup;
 

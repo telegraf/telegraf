@@ -281,6 +281,7 @@ Context shortcuts for **message** update:
 | `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `unpinChatMessage`        | [`telegram.unpinChatMessage`](#unpinchatmessage) |
 | `uploadStickerFile`       | [`telegram.uploadStickerFile`](#uploadstickerfile) |
+| `unbanChatMember`         | [`telegram.unbanChatMember`](#unbanchatmember) |
 
 Context shortcuts for **callback_query** update:
 
@@ -332,6 +333,7 @@ Context shortcuts for **callback_query** update:
 | `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `unpinChatMessage`        | [`telegram.unpinChatMessage`](#unpinchatmessage) |
 | `uploadStickerFile`       | [`telegram.uploadStickerFile`](#uploadstickerfile) |
+| `unbanChatMember`         | [`telegram.unbanChatMember`](#unbanchatmember) |
 
 Context shortcuts for **inline_query** update:
 

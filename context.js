@@ -330,6 +330,11 @@ class TelegrafContext {
     return this.telegram.kickChatMember(this.chat.id, ...args)
   }
 
+  unbanChatMember (...args) {
+    this.assert(this.chat, 'unbanChatMember')
+    return this.telegram.unbanChatMember(this.chat.id, ...args)
+  }
+
   restrictChatMember (...args) {
     this.assert(this.chat, 'restrictChatMember')
     return this.telegram.restrictChatMember(this.chat.id, ...args)

@@ -19,11 +19,19 @@ export interface LocationRequestButton {
   request_location: boolean
 }
 
+type PollType = 'poll' | 'quiz'
+
+export interface PollRequestButton {
+  text: string
+  request_poll: { type?: PollType }
+}
+
 export type KeyboardButton =
-  | string
   | Button
   | ContactRequestButton
   | LocationRequestButton
+  | PollRequestButton
+  | string
 
 export interface UrlButton {
   url: string
@@ -61,6 +69,19 @@ export interface PayButton {
   hide: boolean
 }
 
+interface LoginUrl {
+  url: string
+  forward_text?: string
+  bot_username?: string
+  request_write_access?: boolean
+}
+
+export interface LoginButton {
+  text: string
+  login_url: LoginUrl
+  hide: boolean
+}
+
 export type InlineKeyboardButton =
   | UrlButton
   | CallbackButton
@@ -68,6 +89,7 @@ export type InlineKeyboardButton =
   | SwitchToCurrentChatButton
   | GameButton
   | PayButton
+  | LoginButton
 
 interface KeyboardOptions<TBtn> {
   columns?: number
@@ -123,6 +145,13 @@ export declare class Markup {
 
   payButton(text: string, hide?: boolean): PayButton
 
+  loginButton(
+    text: string,
+    url: string,
+    opts: Omit<LoginUrl, 'url'>,
+    hide?: boolean
+  ): LoginButton
+
   static removeKeyboard(value?: string): Markup
 
   static forceReply(value?: string): Markup
@@ -155,6 +184,12 @@ export declare class Markup {
     hide?: boolean
   ): LocationRequestButton
 
+  static pollRequestButton(
+    text: string,
+    type: PollType,
+    hide?: boolean
+  ): PollRequestButton
+
   static urlButton(text: string, url: string, hide?: boolean): UrlButton
 
   static callbackButton(
@@ -178,6 +213,13 @@ export declare class Markup {
   static gameButton(text: string, hide?: boolean): GameButton
 
   static payButton(text: string, hide?: boolean): PayButton
+
+  static loginButton(
+    text: string,
+    url: string,
+    opts: Omit<LoginUrl, 'url'>,
+    hide?: boolean
+  ): LoginButton
 
   static formatHTML(text: string, entities: Array<tt.MessageEntity>): string
 }

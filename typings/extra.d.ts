@@ -5,19 +5,21 @@ import * as tt from './telegram-types.d'
 export declare class Extra {
   constructor(opts: object)
 
-  load(opts: object): Extra
+  load(opts: object): this
 
-  inReplyTo(messageId: string | number): Extra
+  inReplyTo(messageId: string | number): this
 
-  notifications(value?: boolean): Extra
+  notifications(value?: boolean): this
 
-  webPreview(value?: boolean): Extra
+  webPreview(value?: boolean): this
 
-  markup(markup: any): tt.ExtraEditMessage
+  markup(markup: any): tt.ExtraEditMessage & this
 
-  HTML(value?: boolean): Extra
+  HTML(value?: boolean): this
 
-  markdown(value?: boolean): Extra
+  markdown(value?: boolean): this
+
+  caption(caption: string): this
 
   static load(opts: object): Extra
 
@@ -32,4 +34,6 @@ export declare class Extra {
   static HTML(value?: boolean): Extra
 
   static markdown(value?: boolean): Extra
+
+  static caption(caption: string): Extra
 }

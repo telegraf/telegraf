@@ -170,15 +170,17 @@ export declare class Telegraf<
     hookPath: string
   ): (req: IncomingMessage, res: ServerResponse) => void
 
+  handleUpdates(updates: tt.Update[]): Promise<unknown[]>
+
   /**
    * Handle raw Telegram update. In case you use centralized webhook server, queue, etc.
-   * @param rawUpdate Telegram update payload
-   * @param webhookResponse http.ServerResponse
    */
   handleUpdate(
-    rawUpdate: tt.Update,
+    update: tt.Update,
     webhookResponse?: ServerResponse
-  ): Promise<any>
+  ): Promise<unknown>
+
+  private fetchUpdates(): void
 
   catch(logFn?: Function): void
 }

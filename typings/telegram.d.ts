@@ -22,7 +22,13 @@ export interface TelegramOptions {
   apiRoot?: string
 }
 
-export declare class Telegram {
+declare class ApiClient {
+  protected constructor(token: string, options: object, webhookResponse: any)
+
+  callApi(method: string, data: object): Promise<unknown>
+}
+
+export declare class Telegram extends ApiClient {
   /**
    * Initialize new Telegram app.
    * @param token Bot token

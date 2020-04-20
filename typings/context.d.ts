@@ -399,7 +399,10 @@ export declare class TelegrafContext {
    * @param text New text of the message
    * @param extra Extra params
    */
-  editMessageText(text: string, extra?: tt.ExtraEditMessage): Promise<boolean>
+  editMessageText(
+    text: string,
+    extra?: tt.ExtraEditMessage
+  ): Promise<tt.Message | boolean>
 
   /**
    * Use this method to edit captions of messages sent by the bot or via the bot (for inline bots).

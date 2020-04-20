@@ -1,10 +1,10 @@
 // This is a test file for the TypeScript typings.
 // It is not intended to be used by external users.
-import Telegraf, { Markup, Middleware, ContextMessageUpdate, Extra } from './index';
+import Telegraf, { Markup, Middleware, Context } from './index';
 import * as tt from './telegram-types';
 
 const randomPhoto = 'https://picsum.photos/200/300/?random'
-const sayYoMiddleware: Middleware<ContextMessageUpdate> = ({ reply }, next) => reply('yo').then(() => next && next())
+const sayYoMiddleware: Middleware<Context> = ({ reply }, next) => reply('yo').then(() => next && next())
 
 const {reply} =  Telegraf;
 
@@ -198,10 +198,15 @@ bot.hears('something', async (ctx) => {
 // Markup
 
 const markup = new Markup
-markup.inlineKeyboard([Markup.button('sample')], {})
+markup.keyboard([Markup.button('sample')], {})
 Markup.inlineKeyboard([Markup.callbackButton('sampleText', 'sampleData')], {})
 Markup.inlineKeyboard([Markup.callbackButton('sampleCallbackButton', 'sampleData'), Markup.urlButton('sampleUrlButton', 'https://github.com')], {})
 
 
 // #761
 bot.telegram.sendPhoto(1, randomPhoto, { caption: '*Caption*', parse_mode: 'Markdown' });
+
+const formattedString = Markup.formatHTML("Добрейшего вечерочка дня", [
+  { offset: 0, length: 10, type: "bold" },
+  { offset: 11, length: 9, type: "strikethrough" }
+]);

@@ -150,19 +150,19 @@ export interface StickerData {
 
 type FileId = string
 
-interface InputFileByPath {
+export interface InputFileByPath {
   source: string
 }
 
-interface InputFileByReadableStream {
+export interface InputFileByReadableStream {
   source: NodeJS.ReadableStream
 }
 
-interface InputFileByBuffer {
+export interface InputFileByBuffer {
   source: Buffer
 }
 
-interface InputFileByURL {
+export interface InputFileByURL {
   url: string
   filename: string
 }

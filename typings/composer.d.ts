@@ -3,7 +3,8 @@
 import * as tt from './telegram-types.d'
 import { TelegrafContext } from './context'
 
-type HearsTriggers = string[] | string | RegExp | RegExp[] | Function
+type HearsTriggers<TContext> = string[] | string | RegExp | RegExp[] | ((value: string, ctx: TContext) => RegExpExecArray | null)
+type BranchPredicate<TContext> = boolean | ((ctx: TContext) => boolean | Promise<boolean>)
 
 export interface MiddlewareFn<TContext extends TelegrafContext> {
   /*
@@ -51,7 +52,7 @@ export declare class Composer<TContext extends TelegrafContext>
    * Registers middleware for handling text messages.
    */
   hears(
-    triggers: HearsTriggers,
+    triggers: HearsTriggers<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
@@ -59,7 +60,7 @@ export declare class Composer<TContext extends TelegrafContext>
    * Registers middleware for handling callbackQuery data with regular expressions
    */
   action(
-    triggers: HearsTriggers,
+    triggers: HearsTriggers<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
@@ -111,7 +112,7 @@ export declare class Composer<TContext extends TelegrafContext>
    * Generates middleware for handling matching text messages.
    */
   static hears<TContext extends TelegrafContext>(
-    triggers: HearsTriggers,
+    triggers: HearsTriggers<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
@@ -119,7 +120,7 @@ export declare class Composer<TContext extends TelegrafContext>
    * Generates middleware for handling matching callback queries.
    */
   static action<TContext extends TelegrafContext>(
-    triggers: HearsTriggers,
+    triggers: HearsTriggers<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
@@ -138,7 +139,7 @@ export declare class Composer<TContext extends TelegrafContext>
    * @param middleware middleware to run if the predicate returns true
    */
   static optional<TContext extends TelegrafContext>(
-    test: boolean | ((ctx: TContext) => boolean),
+    predicate: BranchPredicate<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
@@ -146,15 +147,22 @@ export declare class Composer<TContext extends TelegrafContext>
    * Generates filter middleware.
    */
   static filter<TContext extends TelegrafContext>(
-    test: boolean | ((ctx: TContext) => boolean)
+    predicate: BranchPredicate<TContext>
   ): MiddlewareFn<TContext>
+
+  /**
+   * Generates drop middleware.
+   */
+  static drop<TContext extends TelegrafContext>(
+    predicate: BranchPredicate<TContext>
+  ): Middleware<TContext>
 
   /**
    * @param trueMiddleware middleware to run if the predicate returns true
    * @param falseMiddleware middleware to run if the predicate returns false
    */
   static branch<TContext extends TelegrafContext>(
-    test: boolean | ((ctx: TContext) => boolean),
+    predicate: BranchPredicate<TContext>,
     trueMiddleware: Middleware<TContext>,
     falseMiddleware: Middleware<TContext>
   ): MiddlewareFn<TContext>

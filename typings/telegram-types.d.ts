@@ -93,14 +93,14 @@ export type MessageMedia =
 
 export interface InputMediaPhoto {
   type: string
-  media: string
+  media: InputFile
   caption?: string
   parse_mode?: string
 }
 
 export interface InputMediaVideo {
  type: string
- media: string
+ media: InputFile
  thumb?: string | InputFile
  caption?: string
  parse_mode?: string
@@ -112,7 +112,7 @@ export interface InputMediaVideo {
 
 export interface InputMediaAnimation {
  type: string
- media: string
+ media: InputFile
  thumb?: string | InputFile
  caption?: string
  parse_mode?: string
@@ -124,7 +124,7 @@ export interface InputMediaAnimation {
 
 export interface InputMediaAudio {
  type: string
- media: string
+ media: InputFile
  thumb?: string | InputFile
  caption?: string
  parse_mode?: string
@@ -136,7 +136,7 @@ export interface InputMediaAudio {
 
 export interface InputMediaDocument {
  type: string
- media: string
+ media: InputFile
  thumb?: string | InputFile
  caption?: string
  parse_mode?: string
@@ -150,19 +150,19 @@ export interface StickerData {
 
 type FileId = string
 
-interface InputFileByPath {
+export interface InputFileByPath {
   source: string
 }
 
-interface InputFileByReadableStream {
+export interface InputFileByReadableStream {
   source: NodeJS.ReadableStream
 }
 
-interface InputFileByBuffer {
+export interface InputFileByBuffer {
   source: Buffer
 }
 
-interface InputFileByURL {
+export interface InputFileByURL {
   url: string
   filename: string
 }

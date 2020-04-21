@@ -69,7 +69,7 @@ export interface PayButton {
   hide: boolean
 }
 
-interface LoginUrl {
+export interface LoginUrl {
   url: string
   forward_text?: string
   bot_username?: string
@@ -91,7 +91,7 @@ export type InlineKeyboardButton =
   | PayButton
   | LoginButton
 
-interface KeyboardOptions<TBtn> {
+export interface KeyboardOptions<TBtn> {
   columns?: number
   wrap?(btn: TBtn, index: number, currentRow: TBtn[]): boolean
 }

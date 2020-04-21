@@ -13,7 +13,7 @@ import { TelegrafContext } from './context'
 import { Composer } from './composer'
 import { Telegram, TelegramOptions } from './telegram'
 
-interface TelegrafOptions {
+export interface TelegrafOptions {
   /**
    * Telegram options
    */
@@ -25,7 +25,7 @@ interface TelegrafOptions {
   username?: string
 }
 
-interface LaunchPollingOptions {
+export interface LaunchPollingOptions {
   /**
    * Poll timeout in seconds
    */
@@ -47,7 +47,7 @@ interface LaunchPollingOptions {
   stopCallback?: () => void | null
 }
 
-interface LaunchWebhookOptions {
+export interface LaunchWebhookOptions {
   /**
    * Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component).
    */
@@ -185,7 +185,7 @@ export declare class Telegraf<
   catch(logFn?: Function): void
 }
 
-interface TOptions {
+export interface TOptions {
   /**
    * Telegram options
    */

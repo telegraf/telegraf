@@ -3,7 +3,7 @@
 import * as tt from './telegram-types.d'
 import { TelegrafContext } from './context'
 
-type HearsTriggers = string[] | string | RegExp | RegExp[] | ((value: string, ctx: TelegrafContext) => RegExpExecArray | null)
+type HearsTriggers<TContext> = string[] | string | RegExp | RegExp[] | ((value: string, ctx: TContext) => RegExpExecArray | null)
 type BranchPredicate<TContext> = boolean | ((ctx: TContext) => boolean | Promise<boolean>)
 
 export interface MiddlewareFn<TContext extends TelegrafContext> {
@@ -52,7 +52,7 @@ export declare class Composer<TContext extends TelegrafContext>
    * Registers middleware for handling text messages.
    */
   hears(
-    triggers: HearsTriggers,
+    triggers: HearsTriggers<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
@@ -60,7 +60,7 @@ export declare class Composer<TContext extends TelegrafContext>
    * Registers middleware for handling callbackQuery data with regular expressions
    */
   action(
-    triggers: HearsTriggers,
+    triggers: HearsTriggers<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
 
@@ -112,7 +112,7 @@ export declare class Composer<TContext extends TelegrafContext>
    * Generates middleware for handling matching text messages.
    */
   static hears<TContext extends TelegrafContext>(
-    triggers: HearsTriggers,
+    triggers: HearsTriggers<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
@@ -120,7 +120,7 @@ export declare class Composer<TContext extends TelegrafContext>
    * Generates middleware for handling matching callback queries.
    */
   static action<TContext extends TelegrafContext>(
-    triggers: HearsTriggers,
+    triggers: HearsTriggers<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 

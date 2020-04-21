@@ -15,7 +15,8 @@
     ],
     "noEmit": true,
     "forceConsistentCasingInFileNames": true
-  }, "include": [
+  },
+  "include": [
     "typings"
   ]
 }

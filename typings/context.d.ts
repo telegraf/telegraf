@@ -22,10 +22,10 @@ export declare class TelegrafContext {
   match?: RegExpExecArray | null
   me?: string
   message?: tt.IncomingMessage
+  poll?: tt.Poll
+  pollAnswer?: tt.PollAnswer
   preCheckoutQuery?: tt.PreCheckoutQuery
   shippingQuery?: tt.ShippingQuery
-  poll: tt.Poll
-  pollAnswer: tt.PollAnswer
 
   constructor(
     update: tt.Update,

@@ -33,7 +33,7 @@ $ yarn add telegraf
 #### Example
   
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.start((ctx) => ctx.reply('Welcome'))
@@ -44,7 +44,7 @@ bot.launch()
 ```
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.command('oldschool', (ctx) => ctx.reply('Hello'))
@@ -554,7 +554,7 @@ require('https')
 Express.js example integration
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 const express = require('express')
 const expressApp = express()
 
@@ -574,7 +574,7 @@ expressApp.listen(3000, () => {
 Fastify example integration
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 const fastifyApp = require('fastify')()
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -593,7 +593,7 @@ fastifyApp.listen(3000, () => {
 Koa.js example integration
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 const Koa = require('koa')
 const koaBody = require('koa-body')
 
@@ -662,7 +662,7 @@ bot.on('message', (ctx) => {
 To enable Telegram Passport support you can use [`telegram-passport`](https://www.npmjs.com/package/telegram-passport) package:
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 const TelegramPassport = require('telegram-passport')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -744,7 +744,7 @@ $ telegraf -t "bot token" bot.js
 Telegraf API reference
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 ```
 
 ##### Constructor
@@ -2155,7 +2155,7 @@ Telegram markup helper, [see examples](https://github.com/telegraf/telegraf/tree
 Simple scene-based control flow middleware.
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 const session = require('telegraf/session')
 const Stage = require('telegraf/stage')
 const Scene = require('telegraf/scenes/base')

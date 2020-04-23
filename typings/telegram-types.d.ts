@@ -30,7 +30,9 @@ export type UpdateType =
   'inline_query' |
   'message' |
   'pre_checkout_query' |
-  'shipping_query'
+  'shipping_query' |
+  'poll' |
+  'poll_answer'
 
 export type MessageSubTypes =
   'voice' |
@@ -760,12 +762,26 @@ export interface PollOption {
   voter_count: number
 }
 
+export interface PollAnswer {
+  /** Unique poll identifier */
+  poll_id: string
+
+  /** The user, who changed the answer to the poll */
+  user: TT.User
+
+  /** 0-based identifiers of answer options, chosen by the user. May be empty if the user retracted their vote. */
+  option_ids: number[]
+}
+
 export interface Poll {
   /** Unique poll identifier */
   id: string
 
   /** Poll question, 1-255 characters */
   question: string
+
+  /** List of poll options */
+  options: PollOption[]
 
   /** Total number of users that voted in the poll */
   total_voter_count: number

@@ -8,7 +8,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 4.7](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 4.8](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)

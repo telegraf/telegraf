@@ -16,6 +16,14 @@
     "noEmit": true,
     "forceConsistentCasingInFileNames": true
   },
+  "typedocOptions": {
+    "exclude": ["typings/test.ts"],
+    "excludeExternals": true,
+    "includeDeclarations": true,
+    "mode": "file",
+    "out": "telegraf-docs",
+    "readme": "docs/README.md"
+  },
   "include": [
     "typings"
   ]

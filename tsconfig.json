@@ -16,9 +16,7 @@
     "noEmit": true,
     "forceConsistentCasingInFileNames": true
   },
-  "files": [
-    "typings/index.d.ts",
-    "typings/telegram-types.d.ts",
-    "typings/test.ts"
+  "include": [
+    "typings"
   ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "3.37.0",
+  "version": "3.38.0",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -53,6 +53,7 @@
     "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-standard": "^4.0.0",
     "husky": "^4.2.0",
+    "prettier": "^2.0.5",
     "typescript": "^3.0.1"
   },
   "keywords": [

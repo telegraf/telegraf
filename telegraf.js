@@ -213,6 +213,7 @@ module.exports = Object.assign(Telegraf, {
   Extra,
   Markup,
   Router,
+  Telegraf,
   Telegram,
   Stage,
   BaseScene,

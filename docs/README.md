@@ -21,13 +21,13 @@ These accounts serve as an interface for code running somewhere on your server.
 #### Installation
 
 ```bash
-$ npm install telegraf --save
+npm install telegraf --save
 ```
 
 or using yarn
 
 ```bash
-$ yarn add telegraf
+yarn add telegraf
 ```
 
 #### Example
@@ -704,7 +704,7 @@ module.exports = Composer.mount(
 To run modules you can use `telegraf` module runner, it allows you to start Telegraf module easily from the command line.
 
 ```bash
-$ npm install telegraf -g
+npm install telegraf -g
 ```
 
 #### Telegraf CLI usage
@@ -739,7 +739,7 @@ module.exports = bot
 then run it:
 
 ```bash
-$ telegraf -t "bot token" bot.js
+telegraf -t "bot token" bot.js
 ```
 
 ## API reference

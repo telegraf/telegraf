@@ -22,7 +22,8 @@
     "includeDeclarations": true,
     "mode": "file",
     "out": "telegraf-docs",
-    "readme": "docs/README.md"
+    "readme": "docs/README.md",
+    "theme": "docs/theme/"
   },
   "include": [
     "typings"

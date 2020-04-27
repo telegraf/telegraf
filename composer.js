@@ -250,6 +250,7 @@ class Composer {
     return Composer.optional((ctx) => {
       const text = (
         (ctx.message && (ctx.message.caption || ctx.message.text)) ||
+        (ctx.channelPost && (ctx.channelPost.caption || ctx.channelPost.text)) ||
         (ctx.callbackQuery && ctx.callbackQuery.data) ||
         (ctx.inlineQuery && ctx.inlineQuery.query)
       )

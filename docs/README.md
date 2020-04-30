@@ -55,6 +55,11 @@ bot.launch()
 
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
 
+**Resources:**
+
+* [Community chat](https://t.me/TelegrafJSChat)
+* [Community chat (Russian)](https://t.me/telegraf_ru)
+
 **Community bots:**
 
 | Name | Description |

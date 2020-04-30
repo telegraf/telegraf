@@ -168,6 +168,41 @@ class Markup {
     const available = [...entities]
     const opened = []
     const result = []
+    const startMap = (entity) => ({
+      type: {
+        bold: '<b>',
+        italic: '<i>',
+        code: '<code>',
+        pre: (value) => ({
+          language: [
+            `<pre><code class="language-${value.language}">`,
+            '<pre>'
+          ]
+        }),
+        strikethrough: '<s>',
+        underline: '<u>',
+        text_mention: `<a href="tg://user?id=${entity.user && entity.user.id}">`,
+        text_link: `<a href="${entity.url}">`
+      }
+    })
+    const endMap = (entity) => ({
+      type: {
+        bold: '</b>',
+        italic: '</i>',
+        code: '</code>',
+        pre: (value) => ({
+          language: [
+            '<pre>',
+            '</code></pre>'
+          ]
+        }),
+        strikethrough: '</s>',
+        underline: '</u>',
+        text_mention: '</a>',
+        text_link: '</a>'
+      }
+    })
+
     for (let offset = 0; offset < chars.length; offset++) {
       while (true) {
         const index = available.findIndex((entity) => entity.offset === offset)
@@ -175,36 +210,11 @@ class Markup {
           break
         }
         const entity = available[index]
-        switch (entity.type) {
-          case 'bold':
-            result.push('<b>')
-            break
-          case 'italic':
-            result.push('<i>')
-            break
-          case 'code':
-            result.push('<code>')
-            break
-          case 'pre':
-            if (entity.language) {
-              result.push(`<pre><code class="language-${entity.language}">`)
-            } else {
-              result.push('<pre>')
-            }
-            break
-          case 'strikethrough':
-            result.push('<s>')
-            break
-          case 'underline':
-            result.push('<u>')
-            break
-          case 'text_mention':
-            result.push(`<a href="tg://user?id=${entity.user.id}">`)
-            break
-          case 'text_link':
-            result.push(`<a href="${entity.url}">`)
-            break
+        let startResult = startMap(entity).type[entity.type]
+        if (typeof startResult === 'function') {
+          startResult = startResult(entity).language[Number(entity.language)]
         }
+        result.push(startResult)
         opened.unshift(entity)
         available.splice(index, 1)
       }
@@ -217,34 +227,11 @@ class Markup {
           break
         }
         const entity = opened[index]
-        switch (entity.type) {
-          case 'bold':
-            result.push('</b>')
-            break
-          case 'italic':
-            result.push('</i>')
-            break
-          case 'code':
-            result.push('</code>')
-            break
-          case 'pre':
-            if (entity.language) {
-              result.push('</code></pre>')
-            } else {
-              result.push('</pre>')
-            }
-            break
-          case 'strikethrough':
-            result.push('</s>')
-            break
-          case 'underline':
-            result.push('</u>')
-            break
-          case 'text_mention':
-          case 'text_link':
-            result.push('</a>')
-            break
+        let endResult = endMap(entity).type[entity.type]
+        if (typeof endResult === 'function') {
+          endResult = endResult(entity).language[Number(entity.language)]
         }
+        result.push(endResult)
         opened.splice(index, 1)
       }
     }

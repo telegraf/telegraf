@@ -47,7 +47,7 @@
     "ava": "^3.0.0",
     "eslint": "^6.2.2",
     "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-ava": "^10.0.0",
+    "eslint-plugin-ava": "^10.3.0",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-promise": "^4.0.0",

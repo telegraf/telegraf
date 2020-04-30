@@ -108,7 +108,10 @@ class Telegraf extends Composer {
           const { timeout, limit, allowedUpdates, stopCallback } = config.polling || {}
           return this.telegram.deleteWebhook()
             .then(() => this.startPolling(timeout, limit, allowedUpdates, stopCallback))
-            .then(() => debug('Bot started with long-polling'))
+            .then(() => {
+              debug('Bot started with long-polling')
+              return { ok: true, error: null, type: 'long-polling' }
+            })
         }
         if (typeof config.webhook.domain !== 'string' && typeof config.webhook.hookPath !== 'string') {
           throw new Error('Webhook domain or webhook path is required')
@@ -126,7 +129,15 @@ class Telegraf extends Composer {
         }
         return this.telegram
           .setWebhook(`https://${domain}${hookPath}`)
-          .then(() => debug(`Bot started with webhook @ https://${domain}`))
+          .then(() => {
+            debug(`Bot started with webhook @ https://${domain}`)
+            return { ok: true, error: null, type: 'webhook' }
+          })
+      })
+      .catch((err) => {
+        console.error('Launch failed')
+        console.error(err.stack || err.toString())
+        return { ok: false, error: { message: 'Launch failed', code: err.code ? err.code : null } }
       })
   }
 

@@ -182,7 +182,7 @@ export declare class Telegraf<
 
   private fetchUpdates(): void
 
-  catch(logFn?: Function): void
+  catch(onrejected: (reason: any, ctx: TContext) => void | Promise<void>): this
 }
 
 export interface TOptions {

@@ -215,7 +215,7 @@ class Markup {
         endText: '</a>'
       }
     ].find((item) => Object.entries(item.condition)
-      .every(([key, value]) => key === 'language'
+      .every(([key, value]) => typeof value === 'boolean'
         ? Boolean(entity[key]) === value
         : entity[key] === value))
 

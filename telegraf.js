@@ -44,7 +44,7 @@ class Telegraf extends Composer {
   set token (token) {
     this.telegram = new Telegram(token, this.telegram
       ? this.telegram.options
-      : this.options.telegram
+      : this.options
     )
   }
 

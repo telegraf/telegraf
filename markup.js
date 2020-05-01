@@ -168,40 +168,56 @@ class Markup {
     const available = [...entities]
     const opened = []
     const result = []
-    const startMap = (entity) => ({
-      type: {
-        bold: '<b>',
-        italic: '<i>',
-        code: '<code>',
-        pre: (value) => ({
-          language: [
-            `<pre><code class="language-${value.language}">`,
-            '<pre>'
-          ]
-        }),
-        strikethrough: '<s>',
-        underline: '<u>',
-        text_mention: `<a href="tg://user?id=${entity.user && entity.user.id}">`,
-        text_link: `<a href="${entity.url}">`
+    const config = (entity) => [
+      {
+        condition: { type: 'bold' },
+        startText: '<b>',
+        endText: '</b>'
+      },
+      {
+        condition: { type: 'italic' },
+        startText: '<i>',
+        endText: '</i>'
+      },
+      {
+        condition: { type: 'code' },
+        startText: '<code>',
+        endText: '</code>'
+      },
+      {
+        condition: { type: 'pre', language: true },
+        startText: `<pre><code class="language-${entity.language}">`,
+        endText: '</code></pre>'
+      },
+      {
+        condition: { type: 'pre', language: false },
+        startText: '<pre>',
+        endText: '</pre>'
+      },
+      {
+        condition: { type: 'strikethrough' },
+        startText: '<s>',
+        endText: '</s>'
+      },
+      {
+        condition: { type: 'underline' },
+        startText: '<u>',
+        endText: '</u>'
+      },
+      {
+        condition: { type: 'text_mention' },
+        startText: `<a href="tg://user?id=${entity.user && entity.user.id}">`,
+        endText: '</a>'
+      },
+      {
+        condition: { type: 'text_link' },
+        startText: `<a href="${entity.url}">`,
+        endText: '</a>'
       }
-    })
-    const endMap = (entity) => ({
-      type: {
-        bold: '</b>',
-        italic: '</i>',
-        code: '</code>',
-        pre: (value) => ({
-          language: [
-            '<pre>',
-            '</code></pre>'
-          ]
-        }),
-        strikethrough: '</s>',
-        underline: '</u>',
-        text_mention: '</a>',
-        text_link: '</a>'
-      }
-    })
+    ].find((item) => Object.entries(item.condition)
+      .every(([key, value]) => key === 'language'
+        ? Boolean(entity[key]) === value
+        : entity[key] === value))
 
     for (let offset = 0; offset < chars.length; offset++) {
       while (true) {
@@ -210,11 +226,8 @@ class Markup {
           break
         }
         const entity = available[index]
-        let startResult = startMap(entity).type[entity.type]
-        if (typeof startResult === 'function') {
-          startResult = startResult(entity).language[Number(entity.language)]
-        }
-        result.push(startResult)
+        const { startText } = config(entity)
+        result.push(startText)
         opened.unshift(entity)
         available.splice(index, 1)
       }
@@ -227,11 +240,8 @@ class Markup {
           break
         }
         const entity = opened[index]
-        let endResult = endMap(entity).type[entity.type]
-        if (typeof endResult === 'function') {
-          endResult = endResult(entity).language[Number(entity.language)]
-        }
-        result.push(endResult)
+        const { endText } = config(entity)
+        result.push(endText)
         opened.splice(index, 1)
       }
     }

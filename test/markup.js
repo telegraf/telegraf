@@ -252,3 +252,161 @@ test.only('should generate nested multi markup 2', (t) => {
   ])
   t.deepEqual(markup, '×<b><i>11 22 333</i></b>× <i>     ×С</i><i><b>123456× </b>                  ×1 22 333×</i>')
 })
+
+test.only('should generate nested multi markup 3', (t) => {
+  const markup = Markup.formatHTML('bold-italic:\nbold-italic\nbold-italic\n\nbold-underline:\nbold-underline\nbold-underline\n\nbold, bold\nitalic, italic\nunderline, underline\nstrikethrough, strikethrough, strikethrough\nbolditalic bolditalic bold strikethroughunderline italic boldbold\ninline URL\ninline mention of a user\ninline fixed-width code\npre-formatted fixed-width code block\npre-formatted fixed-width code block written in the Python programming language', [
+    {
+      offset: 13,
+      length: 11,
+      type: 'bold'
+    },
+    {
+      offset: 13,
+      length: 11,
+      type: 'italic'
+    },
+    {
+      offset: 25,
+      length: 11,
+      type: 'bold'
+    },
+    {
+      offset: 25,
+      length: 11,
+      type: 'italic'
+    },
+    {
+      offset: 54,
+      length: 14,
+      type: 'bold'
+    },
+    {
+      offset: 54,
+      length: 14,
+      type: 'underline'
+    },
+    {
+      offset: 69,
+      length: 14,
+      type: 'bold'
+    },
+    {
+      offset: 69,
+      length: 14,
+      type: 'underline'
+    },
+    {
+      offset: 85,
+      length: 4,
+      type: 'bold'
+    },
+    {
+      offset: 91,
+      length: 4,
+      type: 'bold'
+    },
+    {
+      offset: 96,
+      length: 6,
+      type: 'italic'
+    },
+    {
+      offset: 104,
+      length: 6,
+      type: 'italic'
+    },
+    {
+      offset: 111,
+      length: 9,
+      type: 'underline'
+    },
+    {
+      offset: 122,
+      length: 9,
+      type: 'underline'
+    },
+    {
+      offset: 132,
+      length: 13,
+      type: 'strikethrough'
+    },
+    {
+      offset: 147,
+      length: 13,
+      type: 'strikethrough'
+    },
+    {
+      offset: 162,
+      length: 13,
+      type: 'strikethrough'
+    },
+    {
+      offset: 176,
+      length: 4,
+      type: 'bold'
+    },
+    {
+      offset: 180,
+      length: 11,
+      type: 'bold'
+    },
+    {
+      offset: 180,
+      length: 11,
+      type: 'italic'
+    },
+    {
+      offset: 191,
+      length: 25,
+      type: 'bold'
+    },
+    {
+      offset: 191,
+      length: 25,
+      type: 'italic'
+    },
+    {
+      offset: 191,
+      length: 25,
+      type: 'strikethrough'
+    },
+    {
+      offset: 216,
+      length: 25,
+      type: 'bold'
+    },
+    {
+      offset: 216,
+      length: 21,
+      type: 'italic'
+    },
+    {
+      offset: 216,
+      length: 21,
+      type: 'underline'
+    },
+    {
+      offset: 242,
+      length: 10,
+      type: 'text_link',
+      url: 'http://www.example.com/'
+    },
+    {
+      offset: 278,
+      length: 23,
+      type: 'code'
+    },
+    {
+      offset: 302,
+      length: 36,
+      type: 'pre'
+    },
+    {
+      offset: 339,
+      length: 79,
+      type: 'pre',
+      language: 'python'
+    }
+  ])
+  t.deepEqual(markup, 'bold-italic:\n<b><i>bold-italic</i></b>\n<b><i>bold-italic</i></b>\n\nbold-underline:\n<b><u>bold-underline</u></b>\n<b><u>bold-underline</u></b>\n\n<b>bold</b>, <b>bold</b>\n<i>italic</i>, <i>italic</i>\n<u>underline</u>, <u>underline</u>\n<s>strikethrough</s>, <s>strikethrough</s>, <s>strikethrough</s>\n<b>bold</b><b><i>italic bold</i></b><b><i><s>italic bold strikethrough</s></i></b><b><i><u>underline italic bold</u></i>bold</b>\n<a href="http://www.example.com/">inline URL</a>\ninline mention of a user\n<code>inline fixed-width code</code>\n<pre>pre-formatted fixed-width code block</pre>\n<pre><code class="language-python">pre-formatted fixed-width code block written in the Python programming language</code></pre>')
+})

@@ -34,9 +34,11 @@ or using `yarn`:
 $ yarn add telegraf
 ```
 
-### Documentation
+### Resources
 
-[Telegraf developer docs](http://telegraf.js.org)
+* [Developer docs](http://telegraf.js.org)
+* [Community chat](https://t.me/TelegrafJSChat)
+* [Community chat (Russian)](https://t.me/telegraf_ru)
 
 ### Examples
   

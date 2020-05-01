@@ -1,4 +1,4 @@
-![Telegraf](header.png)
+![Telegraf](https://raw.githubusercontent.com/telegraf/telegraf/develop/docs/header.png)
 
 ## Introduction
 
@@ -709,7 +709,7 @@ npm install telegraf -g
 
 #### Telegraf CLI usage
 
-```
+```plaintext
 telegraf [opts] <bot-file>
   -t  Bot token [$BOT_TOKEN]
   -d  Webhook domain

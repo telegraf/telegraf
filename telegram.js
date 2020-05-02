@@ -417,8 +417,8 @@ class Telegram extends ApiClient {
     if (!message) {
       throw new Error('Message is required')
     }
-    const type = Object.keys(replicators.copyMethods).find((type) => message[type])
-    if (!type) {
+    const type = Object.keys(replicators).find((type) => message[type])
+    if (!type || type === 'send') {
       throw new Error('Unsupported message type')
     }
     const opts = {
@@ -426,7 +426,7 @@ class Telegram extends ApiClient {
       ...replicators[type](message),
       ...extra
     }
-    return this.callApi(replicators.copyMethods[type], opts)
+    return this.callApi(replicators.send(type), opts)
   }
 }
 

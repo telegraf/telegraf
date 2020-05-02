@@ -1,21 +1,10 @@
 const { formatHTML } = require('../markup')
 
 module.exports = {
-  copyMethods: {
-    audio: 'sendAudio',
-    contact: 'sendContact',
-    document: 'sendDocument',
-    location: 'sendLocation',
-    photo: 'sendPhoto',
-    sticker: 'sendSticker',
-    text: 'sendMessage',
-    venue: 'sendVenue',
-    video: 'sendVideo',
-    video_note: 'sendVideoNote',
-    animation: 'sendAnimation',
-    voice: 'sendVoice',
-    poll: 'sendPoll'
-  },
+  send: (method) => `send${method
+    .split('_')
+    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
+    .join('')}`,
   text: (message) => {
     const entities = message.entities || []
     return {

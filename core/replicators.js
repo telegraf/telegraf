@@ -3,7 +3,7 @@ const { formatHTML } = require('../markup')
 module.exports = {
   send: (method) => `send${(method === 'text' ? 'message' : method)
     .split('_')
-    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
+    .map(([first, ...other]) => `${first.toUpperCase()}${other.join('')}`)
     .join('')}`,
   text: (message) => {
     const entities = message.entities || []

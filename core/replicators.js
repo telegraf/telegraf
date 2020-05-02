@@ -1,10 +1,11 @@
 const { formatHTML } = require('../markup')
 
+const pascalCase = (string) => string.split('_')
+  .map(([first, ...other]) => `${first.toUpperCase()}${other.join('')}`)
+  .join('')
+
 module.exports = {
-  send: (method) => `send${(method === 'text' ? 'message' : method)
-    .split('_')
-    .map(([first, ...other]) => `${first.toUpperCase()}${other.join('')}`)
-    .join('')}`,
+  send: (method) => `send${pascalCase(method === 'text' ? 'message' : method)}`,
   text: (message) => {
     const entities = message.entities || []
     return {

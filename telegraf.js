@@ -137,7 +137,7 @@ class Telegraf extends Composer {
       .catch((err) => {
         console.error('Launch failed')
         console.error(err.stack || err.toString())
-        return { ok: false, error: { message: 'Launch failed', code: err.code ? err.code : null } }
+        throw new Error({ ok: false, error: { message: 'Launch failed', code: err.code ? err.code : null } })
       })
   }
 

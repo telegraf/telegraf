@@ -1,7 +1,7 @@
 const { formatHTML } = require('../markup')
 
 module.exports = {
-  send: (method) => `send${method
+  send: (method) => `send${(method === 'text' ? 'message' : method)
     .split('_')
     .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
     .join('')}`,

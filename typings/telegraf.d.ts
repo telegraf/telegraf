@@ -23,6 +23,11 @@ export interface TelegrafOptions {
    * Bot username
    */
   username?: string
+
+  /**
+   * Channel mode
+   */
+  channelMode?: boolean
 }
 
 export interface LaunchPollingOptions {

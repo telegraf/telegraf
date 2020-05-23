@@ -171,48 +171,48 @@ class Markup {
     const config = (entity) => [
       {
         condition: { type: 'bold' },
-        startText: '<b>',
-        endText: '</b>'
+        openTag: '<b>',
+        closeTag: '</b>'
       },
       {
         condition: { type: 'italic' },
-        startText: '<i>',
-        endText: '</i>'
+        openTag: '<i>',
+        closeTag: '</i>'
       },
       {
         condition: { type: 'code' },
-        startText: '<code>',
-        endText: '</code>'
+        openTag: '<code>',
+        closeTag: '</code>'
       },
       {
         condition: { type: 'pre', language: true },
-        startText: `<pre><code class="language-${entity.language}">`,
-        endText: '</code></pre>'
+        openTag: `<pre><code class="language-${entity.language}">`,
+        closeTag: '</code></pre>'
       },
       {
         condition: { type: 'pre', language: false },
-        startText: '<pre>',
-        endText: '</pre>'
+        openTag: '<pre>',
+        closeTag: '</pre>'
       },
       {
         condition: { type: 'strikethrough' },
-        startText: '<s>',
-        endText: '</s>'
+        openTag: '<s>',
+        closeTag: '</s>'
       },
       {
         condition: { type: 'underline' },
-        startText: '<u>',
-        endText: '</u>'
+        openTag: '<u>',
+        closeTag: '</u>'
       },
       {
         condition: { type: 'text_mention' },
-        startText: `<a href="tg://user?id=${entity.user && entity.user.id}">`,
-        endText: '</a>'
+        openTag: `<a href="tg://user?id=${entity.user && entity.user.id}">`,
+        closeTag: '</a>'
       },
       {
         condition: { type: 'text_link' },
-        startText: `<a href="${entity.url}">`,
-        endText: '</a>'
+        openTag: `<a href="${entity.url}">`,
+        closeTag: '</a>'
       }
     ].find((item) => Object.entries(item.condition)
       .every(([key, value]) => typeof value === 'boolean'
@@ -226,8 +226,8 @@ class Markup {
           break
         }
         const entity = available[index]
-        const { startText } = config(entity)
-        result.push(startText)
+        const { openTag } = config(entity)
+        result.push(openTag)
         opened.unshift(entity)
         available.splice(index, 1)
       }
@@ -240,8 +240,8 @@ class Markup {
           break
         }
         const entity = opened[index]
-        const { endText } = config(entity)
-        result.push(endText)
+        const { closeTag } = config(entity)
+        result.push(closeTag)
         opened.splice(index, 1)
       }
     }

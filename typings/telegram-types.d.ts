@@ -549,23 +549,23 @@ export interface ExtraStopPoll {
 }
 
 export interface IncomingMessage extends TT.Message {
-  audio?: TT.Audio
-  entities?: TT.MessageEntity[]
-  caption?: string
-  document?: TT.Document
-  game?: TT.Game
-  photo?: TT.PhotoSize[]
   animation?: TT.Animation
-  sticker?: TT.Sticker
-  video?: TT.Video
-  video_note?: TT.VideoNote
+  audio?: TT.Audio
+  caption?: string
   contact?: TT.Contact
-  location?: TT.Location
-  venue?: TT.Venue
-  pinned_message?: TT.Message
-  invoice?: TT.Invoice
-  successful_payment?: TT.SuccessfulPayment
   dice?: Dice
+  document?: TT.Document
+  entities?: TT.MessageEntity[]
+  game?: TT.Game
+  invoice?: TT.Invoice
+  location?: TT.Location
+  photo?: TT.PhotoSize[]
+  pinned_message?: TT.Message
+  sticker?: TT.Sticker
+  successful_payment?: TT.SuccessfulPayment
+  venue?: TT.Venue
+  video_note?: TT.VideoNote
+  video?: TT.Video
 }
 
 export interface MessageAudio extends TT.Message {

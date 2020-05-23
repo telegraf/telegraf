@@ -157,6 +157,18 @@ export declare class TelegrafContext {
   reply(text: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
 
   /**
+   * Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound).
+   * On success, the sent Message is returned.
+   * Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future.
+   * @param animation Animation to send.
+   * @param extra Animation extra parameters
+   */
+  replyWithAnimation(
+    animation: tt.InputFile,
+    extra?: tt.ExtraAnimation
+  ): Promise<tt.MessageAnimation>
+
+  /**
    * Use this method to send audio files to the same chat, if you want Telegram clients to display them in the music player.
    * Your audio must be in the .mp3 format.
    * Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.

@@ -137,8 +137,8 @@ export declare class Telegram extends ApiClient {
     chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
-    caption: string,
-    markup: string
+    caption: string | undefined,
+    markup?: tt.InlineKeyboardMarkup
   ): Promise<tt.Message | boolean>
 
   /**
@@ -153,7 +153,7 @@ export declare class Telegram extends ApiClient {
     chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
-    markup: string
+    markup: tt.InlineKeyboardMarkup | undefined
   ): Promise<tt.Message | boolean>
 
   /**

@@ -426,7 +426,7 @@ export declare class TelegrafContext {
    * @param markup Markup of inline keyboard
    */
   editMessageCaption(
-    caption?: string,
+    caption: string | undefined,
     markup?: tt.InlineKeyboardMarkup
   ): Promise<tt.Message | boolean>
 
@@ -436,7 +436,7 @@ export declare class TelegrafContext {
    * @param markup Markup of inline keyboard
    */
   editMessageReplyMarkup(
-    markup?: tt.InlineKeyboardMarkup
+    markup: tt.InlineKeyboardMarkup | undefined
   ): Promise<tt.Message | boolean>
 
   /**

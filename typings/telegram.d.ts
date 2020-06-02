@@ -157,6 +157,27 @@ export declare class Telegram extends ApiClient {
   ): Promise<tt.Message | boolean>
 
   /**
+   * Use this method to edit animation, audio, document, photo, or video messages.
+   * If a message is a part of a message album, then it can be edited only to a photo or a video.
+   * Otherwise, message type can be changed arbitrarily.
+   * When inline message is edited, new file can't be uploaded.
+   * Use previously uploaded file via its file_id or specify a URL.
+   * @returns On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param chatId Required if inlineMessageId is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param media New media of message
+   * @param markup Markup of inline keyboard
+   */
+  editMessageMedia(
+    chatId: number | string | undefined,
+    messageId: number | undefined,
+    inlineMessageId: string | undefined,
+    media: tt.MessageMedia,
+    extra?: tt.ExtraEditMessage
+  ): Promise<tt.Message | boolean>
+
+  /**
    * Use this method to delete a message, including service messages, with the following limitations:
    * - A message can only be deleted if it was sent less than 48 hours ago.
    * - Bots can delete outgoing messages in groups and supergroups.

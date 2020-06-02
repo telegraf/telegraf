@@ -117,9 +117,9 @@ export declare class Telegram extends ApiClient {
    * @param extra Extra params
    */
   editMessageText(
-    chatId: number | string | void,
-    messageId: number | void,
-    inlineMessageId: string | void,
+    chatId: number | string | undefined,
+    messageId: number | undefined,
+    inlineMessageId: string | undefined,
     text: string,
     extra?: tt.ExtraEditMessage
   ): Promise<tt.Message | boolean>
@@ -134,11 +134,11 @@ export declare class Telegram extends ApiClient {
    * @param markup A JSON-serialized object for an inline keyboard.
    */
   editMessageCaption(
-    chatId?: number | string,
-    messageId?: number,
-    inlineMessageId?: string,
-    caption?: string,
-    markup?: string
+    chatId: number | string | undefined,
+    messageId: number | undefined,
+    inlineMessageId: string | undefined,
+    caption: string,
+    markup: string
   ): Promise<tt.Message | boolean>
 
   /**
@@ -150,10 +150,10 @@ export declare class Telegram extends ApiClient {
    * @param markup A JSON-serialized object for an inline keyboard.
    */
   editMessageReplyMarkup(
-    chatId?: number | string,
-    messageId?: number,
-    inlineMessageId?: string,
-    markup?: string
+    chatId: number | string | undefined,
+    messageId: number | undefined,
+    inlineMessageId: string | undefined,
+    markup: string
   ): Promise<tt.Message | boolean>
 
   /**

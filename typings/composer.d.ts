@@ -3,7 +3,7 @@
 import * as tt from './telegram-types.d'
 import { TelegrafContext } from './context'
 
-type HearsTriggers<TContext> = string[] | string | RegExp | RegExp[] | ((value: string, ctx: TContext) => RegExpExecArray | null)
+type HearsTriggers<TContext> = string[] | string | RegExp | RegExp[] | ((value: string, ctx?: TContext) => boolean)
 type BranchPredicate<TContext> = boolean | ((ctx: TContext) => boolean | Promise<boolean>)
 
 export interface MiddlewareFn<TContext extends TelegrafContext> {

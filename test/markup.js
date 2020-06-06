@@ -222,7 +222,7 @@ test('should generate nested multi markup', (t) => {
   t.deepEqual(markup, '<s>strike<b>bold<u>under</u></b></s>')
 })
 
-test.only('should generate nested multi markup 2', (t) => {
+test('should generate nested multi markup 2', (t) => {
   const markup = Markup.formatHTML('×11 22 333×      ×С123456×                   ×1 22 333×', [
     {
       offset: 1,

@@ -41,6 +41,11 @@ class Extra {
     this.parse_mode = value ? 'Markdown' : undefined
     return this
   }
+  
+  markdownv2 (value = true) {
+    this.parse_mode = value ? 'MarkdownV2' : undefined
+    return this
+  }
 
   caption (caption = '') {
     this.caption = caption
@@ -73,6 +78,10 @@ class Extra {
 
   static markdown (value) {
     return new Extra().markdown(value)
+  }
+
+  static markdownv2(value) {
+    return new Extra().markdownv2(value)
   }
 
   static caption (caption) {

@@ -8,7 +8,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 #### Features
 
-- Full [Telegram Bot API 4.6](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 4.8](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -33,7 +33,7 @@ $ yarn add telegraf
 #### Example
   
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.start((ctx) => ctx.reply('Welcome'))
@@ -44,7 +44,7 @@ bot.launch()
 ```
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.command('oldschool', (ctx) => ctx.reply('Hello'))
@@ -55,10 +55,16 @@ bot.launch()
 
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
 
+**Resources:**
+
+* [Community chat](https://t.me/TelegrafJSChat)
+* [Community chat (Russian)](https://t.me/telegraf_ru)
+
 **Community bots:**
 
 | Name | Description |
 | --- | --- |
+| [ChatAdmin](https://github.com/Khuzha/chatAdmin) | Helps to administer the chats  |
 | [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot) | An inline bot that allows you to search for books and share them in a conversation. Powered by Goodreads  |
 | [CaptchaOnlyBot](https://github.com/Piterden/captcha_only_bot) | Configurable question \w set of buttons on a new group user |
 | [ChannelHashBot](https://github.com/YouTwitFace/ChannelHashBot) | Keep track of hashtags that are sent in your group by forwarding them to a channel |
@@ -104,6 +110,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot) | Bot created to help you find and share any video from youtube |
 | [NodeRSSBot](https://github.com/fengkx/NodeRSSBot) | Bot to subscribe RSS feed which allows many configurations |
 | [BibleBot](https://github.com/Kriv-Art/BibleBot) | Bot to get bible verses |
+| [BitcoinDogBot](https://github.com/jibital/bitcoin-dog-bot) | Bitcoin prices, Technical analysis and Alerts! |
 | Send PR to add link to your bot |   |
 
 ## Getting started
@@ -246,34 +253,40 @@ Context shortcuts for **message** update:
 | `getChatAdministrators`   | [`telegram.getChatAdministrators`](#getchatadministrators) |
 | `getChatMember`           | [`telegram.getChatMember`](#getchatmember) |
 | `getChatMembersCount`     | [`telegram.getChatMembersCount`](#getchatmemberscount) |
+| `getMyCommands`           | [`telegram.getMyCommands`](#getmycommands) |
 | `getStickerSet`           | [`telegram.getStickerSet`](#getstickerset) |
 | `leaveChat`               | [`telegram.leaveChat`](#leavechat) |
 | `pinChatMessage`          | [`telegram.pinChatMessage`](#pinchatmessage) |
 | `reply`                   | [`telegram.sendMessage`](#sendmessage) |
 | `replyWithAudio`          | [`telegram.sendAudio`](#sendaudio) |
 | `replyWithChatAction`     | [`telegram.sendChatAction`](#sendchataction) |
+| `replyWithDice`           | [`telegram.sendDice`](#senddice) |
 | `replyWithDocument`       | [`telegram.sendDocument`](#senddocument) |
 | `replyWithGame`           | [`telegram.sendGame`](#sendgame) |
 | `replyWithHTML`           | [`telegram.sendMessage`](#sendmessage) |
 | `replyWithInvoice`        | [`telegram.sendInvoice`](#sendinvoice) |
 | `replyWithLocation`       | [`telegram.sendLocation`](#sendlocation) |
 | `replyWithMarkdown`       | [`telegram.sendMessage`](#sendmessage) |
-| `replyWithPhoto`          | [`telegram.sendPhoto`](#sendphoto) |
 | `replyWithMediaGroup`     | [`telegram.sendMediaGroup`](#sendmediagroup) |
+| `replyWithPhoto`          | [`telegram.sendPhoto`](#sendphoto) |
+| `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
+| `replyWithQuiz`           | [`telegram.sendQuiz`](#sendquiz) |
 | `replyWithSticker`        | [`telegram.sendSticker`](#sendsticker) |
 | `replyWithVideo`          | [`telegram.sendVideo`](#sendvideo) |
 | `replyWithVideoNote`      | [`telegram.sendVideoNote`](#sendvideonote) |
 | `replyWithVoice`          | [`telegram.sendVoice`](#sendvoice) |
-| `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
-| `replyWithQuiz`           | [`telegram.sendQuiz`](#sendquiz) |
-| `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `setChatDescription`      | [`telegram.setChatDescription`](#setchatdescription) |
 | `setChatPhoto`            | [`telegram.setChatPhoto`](#setchatphoto) |
 | `setChatTitle`            | [`telegram.setChatTitle`](#setchattitle) |
+| `setMyCommands`           | [`telegram.setMyCommands`](#setmycommands) |
+| `setPassportDataErrors`   | [`telegram.setPassportDataErrors`](#setpassportdataerrors) |
 | `setStickerPositionInSet` | [`telegram.setStickerPositionInSet`](#setstickerpositioninset) |
+| `setStickerSetThumb`      | [`telegram.setStickerSetThumb`](#setstickersetthumb) |
+| `setStickerSetThumb`      | [`telegram.setStickerSetThumb`](#setstickersetthumb) |
+| `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `unpinChatMessage`        | [`telegram.unpinChatMessage`](#unpinchatmessage) |
 | `uploadStickerFile`       | [`telegram.uploadStickerFile`](#uploadstickerfile) |
-| `setPassportDataErrors`   | [`telegram.setPassportDataErrors`](#setpassportdataerrors) |
+| `unbanChatMember`         | [`telegram.unbanChatMember`](#unbanchatmember) |
 
 Context shortcuts for **callback_query** update:
 
@@ -300,29 +313,32 @@ Context shortcuts for **callback_query** update:
 | `leaveChat`               | [`telegram.leaveChat`](#leavechat) |
 | `pinChatMessage`          | [`telegram.pinChatMessage`](#pinchatmessage) |
 | `reply`                   | [`telegram.sendMessage`](#sendmessage) |
+| `replyWithAnimation`      | [`telegram.sendAnimation`](#sendanimation) |
 | `replyWithAudio`          | [`telegram.sendAudio`](#sendaudio) |
 | `replyWithChatAction`     | [`telegram.sendChatAction`](#sendchataction) |
+| `replyWithDice`           | [`telegram.sendDice`](#senddice) |
 | `replyWithDocument`       | [`telegram.sendDocument`](#senddocument) |
 | `replyWithGame`           | [`telegram.sendGame`](#sendgame) |
 | `replyWithHTML`           | [`telegram.sendMessage`](#sendmessage) |
 | `replyWithInvoice`        | [`telegram.sendInvoice`](#sendinvoice) |
 | `replyWithLocation`       | [`telegram.sendLocation`](#sendlocation) |
 | `replyWithMarkdown`       | [`telegram.sendMessage`](#sendmessage) |
-| `replyWithPhoto`          | [`telegram.sendPhoto`](#sendphoto) |
 | `replyWithMediaGroup`     | [`telegram.sendMediaGroup`](#sendmediagroup) |
+| `replyWithPhoto`          | [`telegram.sendPhoto`](#sendphoto) |
+| `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
 | `replyWithSticker`        | [`telegram.sendSticker`](#sendsticker) |
 | `replyWithVideo`          | [`telegram.sendVideo`](#sendvideo) |
-| `replyWithAnimation`      | [`telegram.sendAnimation`](#sendanimation) |
 | `replyWithVideoNote`      | [`telegram.sendVideoNote`](#sendvideonote) |
 | `replyWithVoice`          | [`telegram.sendVoice`](#sendvoice) |
-| `replyWithPoll`           | [`telegram.sendPoll`](#sendpoll) |
-| `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `setChatDescription`      | [`telegram.setChatDescription`](#setchatdescription) |
 | `setChatPhoto`            | [`telegram.setChatPhoto`](#setchatphoto) |
 | `setChatTitle`            | [`telegram.setChatTitle`](#setchattitle) |
 | `setStickerPositionInSet` | [`telegram.setStickerPositionInSet`](#setstickerpositioninset) |
+| `setStickerSetThumb`      | [`telegram.setStickerSetThumb`](#setstickersetthumb) |
+| `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `unpinChatMessage`        | [`telegram.unpinChatMessage`](#unpinchatmessage) |
 | `uploadStickerFile`       | [`telegram.uploadStickerFile`](#uploadstickerfile) |
+| `unbanChatMember`         | [`telegram.unbanChatMember`](#unbanchatmember) |
 
 Context shortcuts for **inline_query** update:
 
@@ -454,6 +470,7 @@ Available update sub-types:
 
 - `text`
 - `audio`
+- `dice`
 - `document`
 - `photo`
 - `sticker`
@@ -542,7 +559,7 @@ require('https')
 Express.js example integration
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 const express = require('express')
 const expressApp = express()
 
@@ -562,7 +579,7 @@ expressApp.listen(3000, () => {
 Fastify example integration
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 const fastifyApp = require('fastify')()
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -581,7 +598,7 @@ fastifyApp.listen(3000, () => {
 Koa.js example integration
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 const Koa = require('koa')
 const koaBody = require('koa-body')
 
@@ -650,7 +667,7 @@ bot.on('message', (ctx) => {
 To enable Telegram Passport support you can use [`telegram-passport`](https://www.npmjs.com/package/telegram-passport) package:
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 const TelegramPassport = require('telegram-passport')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -732,7 +749,7 @@ $ telegraf -t "bot token" bot.js
 Telegraf API reference
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 ```
 
 ##### Constructor
@@ -1361,6 +1378,19 @@ Use this method to delete bot messages.
 | chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 
+##### setStickerSetThumb
+
+Use this method to set the thumbnail of a sticker set.
+
+`telegram.setStickerSetThumb(name, userId, [thumb]) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#setstickersetthumb)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | `string` | Sticker set name |
+| userId | `string` | User identifier of the sticker set owner |
+| thumb | `File` | A PNG image with the thumbnail, must be up to 128 kilobytes in size and have width and height exactly 100px, or a TGS animation with the thumbnail up to 32 kilobytes in size |
+
 ##### deleteStickerFromSet
 
 Use this method to delete a sticker from a set created by the bot.
@@ -1580,6 +1610,14 @@ Returns basic information about the bot.
 
 `telegram.getMe() => Promise`
 [Official documentation](https://core.telegram.org/bots/api#getme)
+
+##### getMyCommands
+
+Use this method to get the current list of the bot's commands. 
+Requires no parameters. Returns Array of BotCommand on success.
+
+`telegram.getMyCommands() => Promise`
+[Official documentation](https://core.telegram.org/bots/api#getmycommands)
 
 ##### getStickerSet
 
@@ -1824,6 +1862,17 @@ Sends document.
 | firstName | `string` | Contact first name |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendcontact)|
 
+##### sendDice
+
+Sends dice.
+
+`telegram.sendDice(chatId, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#senddice)|
+
 ##### sendDocument
 
 Sends document.
@@ -1995,6 +2044,16 @@ Sends anonymous poll.
 | options | `string[]` | Answer options |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
 
+##### setMyCommands
+
+Use this method to change the list of the bot's commands
+
+`telegram.setMyCommands(commands) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| commands | `object[]` | [List of bot commands](https://core.telegram.org/bots/api#setmycommands) |
+
 ##### sendQuiz
 
 Sends quiz.
@@ -2101,7 +2160,7 @@ Telegram markup helper, [see examples](https://github.com/telegraf/telegraf/tree
 Simple scene-based control flow middleware.
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 const session = require('telegraf/session')
 const Stage = require('telegraf/stage')
 const Scene = require('telegraf/scenes/base')

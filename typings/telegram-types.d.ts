@@ -30,7 +30,9 @@ export type UpdateType =
   'inline_query' |
   'message' |
   'pre_checkout_query' |
-  'shipping_query'
+  'shipping_query' |
+  'poll' |
+  'poll_answer'
 
 export type MessageSubTypes =
   'voice' |
@@ -93,14 +95,14 @@ export type MessageMedia =
 
 export interface InputMediaPhoto {
   type: string
-  media: string
+  media: InputFile
   caption?: string
   parse_mode?: string
 }
 
 export interface InputMediaVideo {
  type: string
- media: string
+ media: InputFile
  thumb?: string | InputFile
  caption?: string
  parse_mode?: string
@@ -112,7 +114,7 @@ export interface InputMediaVideo {
 
 export interface InputMediaAnimation {
  type: string
- media: string
+ media: InputFile
  thumb?: string | InputFile
  caption?: string
  parse_mode?: string
@@ -124,7 +126,7 @@ export interface InputMediaAnimation {
 
 export interface InputMediaAudio {
  type: string
- media: string
+ media: InputFile
  thumb?: string | InputFile
  caption?: string
  parse_mode?: string
@@ -136,7 +138,7 @@ export interface InputMediaAudio {
 
 export interface InputMediaDocument {
  type: string
- media: string
+ media: InputFile
  thumb?: string | InputFile
  caption?: string
  parse_mode?: string
@@ -150,19 +152,19 @@ export interface StickerData {
 
 type FileId = string
 
-interface InputFileByPath {
+export interface InputFileByPath {
   source: string
 }
 
-interface InputFileByReadableStream {
+export interface InputFileByReadableStream {
   source: NodeJS.ReadableStream
 }
 
-interface InputFileByBuffer {
+export interface InputFileByBuffer {
   source: Buffer
 }
 
-interface InputFileByURL {
+export interface InputFileByURL {
   url: string
   filename: string
 }
@@ -173,6 +175,71 @@ export type InputFile =
   InputFileByReadableStream |
   InputFileByBuffer |
   InputFileByURL
+
+/**
+ * Sending video notes by a URL is currently unsupported
+ */
+export type InputFileVideoNote = Exclude<InputFile, InputFileByURL>
+
+export interface ChatPermissions {
+  /** True, if the user is allowed to send text messages, contacts, locations and venues */
+  can_send_messages?: boolean
+
+  /** True, if the user is allowed to send audios, documents, photos, videos, video notes and voice notes, implies can_send_messages */
+  can_send_media_messages?: boolean
+
+  /** True, if the user is allowed to send polls, implies can_send_messages */
+  can_send_polls?: boolean
+
+  /** True, if the user is allowed to send animations, games, stickers and use inline bots, implies can_send_media_messages */
+  can_send_other_messages?: boolean
+
+  /** True, if the user is allowed to add web page previews to their messages, implies can_send_media_messages */
+  can_add_web_page_previews?: boolean
+
+  /** True, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups */
+  can_change_info?: boolean
+
+  /** True, if the user is allowed to invite new users to the chat */
+  can_invite_users?: boolean
+
+  /** True, if the user is allowed to pin messages. Ignored in public supergroups */
+  can_pin_messages?: boolean
+}
+
+export interface ExtraRestrictChatMember {
+  /** New user permissions */
+  permissions: ChatPermissions
+
+  /** Date when restrictions will be lifted for the user, unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever */
+  until_date?: number
+}
+
+export interface ExtraPromoteChatMember {
+  /** Pass True, if the administrator can change chat title, photo and other settings */
+  can_change_info?: boolean
+
+  /** Pass True, if the administrator can create channel posts, channels only */
+  can_post_messages?: boolean
+
+  /** Pass True, if the administrator can edit messages of other users and can pin messages, channels only */
+  can_edit_messages?: boolean
+
+  /** Pass True, if the administrator can delete messages of other users */
+  can_delete_messages?: boolean
+
+  /** Pass True, if the administrator can invite new users to the chat */
+  can_invite_users?: boolean
+
+  /** Pass True, if the administrator can restrict, ban or unban chat members */
+  can_restrict_members?: boolean
+
+  /** Pass True, if the administrator can pin messages, supergroups only */
+  can_pin_messages?: boolean
+
+  /** Pass True, if the administrator can add new administrators with a subset of his own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him) */
+  can_promote_members?: boolean
+}
 
 export interface ExtraReplyMessage {
 
@@ -400,6 +467,26 @@ export interface ExtraVideo extends ExtraReplyMessage {
   disable_web_page_preview?: never
 }
 
+export interface ExtraVideoNote extends ExtraReplyMessage {
+  /**
+   * Duration of sent video in seconds
+   */
+  duration?: number
+
+  /**
+   * Video width and height, i.e. diameter of the video message
+   */
+  length?: number
+
+  /**
+   * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
+   * The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail‘s width and height should not exceed 320.
+   * Ignored if the file is not uploaded using multipart/form-data. Thumbnails can’t be reused and can be only uploaded as a new file,
+   * so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+   */
+  thumb?: InputFile
+}
+
 export interface ExtraVoice extends ExtraReplyMessage {
   /**
    * Voice message caption, 0-1024 characters
@@ -417,23 +504,68 @@ export interface ExtraVoice extends ExtraReplyMessage {
   disable_web_page_preview?: never
 }
 
+export interface ExtraDice extends ExtraReplyMessage {
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#senddice
+   */
+  parse_mode?: never
+
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#senddice
+   */
+  disable_web_page_preview?: never
+}
+
+export interface ExtraPoll {
+  /** True, if the poll needs to be anonymous, defaults to True */
+  is_anonymous?: boolean
+
+  /** True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False */
+  allows_multiple_answers?: boolean
+
+  /** 0-based identifier of the correct answer option, required for polls in quiz mode */
+  correct_option_id?: number
+
+  /** Pass True, if the poll needs to be immediately closed. This can be useful for poll preview. */
+  is_closed?: boolean
+
+  /**	Sends the message silently. Users will receive a notification with no sound. */
+  disable_notification?: boolean
+
+  /** If the message is a reply, ID of the original message */
+  reply_to_message_id?: number
+
+  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+  reply_markup?:
+    | TT.InlineKeyboardMarkup
+    | TT.ReplyKeyboardMarkup
+    | TT.ReplyKeyboardRemove
+    | TT.ForceReply
+}
+
+export interface ExtraStopPoll {
+  /** A JSON-serialized object for a new message inline keyboard. */
+  reply_markup?: TT.InlineKeyboardMarkup
+}
+
 export interface IncomingMessage extends TT.Message {
-  audio?: TT.Audio
-  entities?: TT.MessageEntity[]
-  caption?: string
-  document?: TT.Document
-  game?: TT.Game
-  photo?: TT.PhotoSize[]
   animation?: TT.Animation
-  sticker?: TT.Sticker
-  video?: TT.Video
-  video_note?: TT.VideoNote
+  audio?: TT.Audio
+  caption?: string
   contact?: TT.Contact
-  location?: TT.Location
-  venue?: TT.Venue
-  pinned_message?: TT.Message
+  dice?: Dice
+  document?: TT.Document
+  entities?: TT.MessageEntity[]
+  game?: TT.Game
   invoice?: TT.Invoice
+  location?: TT.Location
+  photo?: TT.PhotoSize[]
+  pinned_message?: TT.Message
+  sticker?: TT.Sticker
   successful_payment?: TT.SuccessfulPayment
+  venue?: TT.Venue
+  video_note?: TT.VideoNote
+  video?: TT.Video
 }
 
 export interface MessageAudio extends TT.Message {
@@ -472,11 +604,23 @@ export interface MessageVideo extends TT.Message {
   video: TT.Video
 }
 
+export interface MessageVideoNote extends TT.Message {
+  video_note: TT.VideoNote
+}
+
 export interface MessageVoice extends TT.Message {
   voice: TT.Voice
 }
 
-export interface NewInvoiceParams {
+export interface MessageDice extends TT.Message {
+  dice: Dice
+}
+
+export interface MessagePoll extends TT.Message {
+  poll: Poll
+}
+
+export interface NewInvoiceParameters {
   /**
    * Product name, 1-32 characters
    */
@@ -583,4 +727,77 @@ export interface ExtraAnswerInlineQuery {
    * Deep-linking parameter for the /start message sent to the bot when user presses the switch button. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed.
    */
   switch_pm_parameter?: string
+}
+
+/**
+ * This object represents a bot command
+ */
+export interface BotCommand {
+  /**
+   * Text of the command, 1-32 characters. Can contain only lowercase English letters, digits and underscores.
+   */
+  command: string
+
+  /**
+   * Description of the command, 3-256 characters.
+   */
+  description: string
+}
+
+/**
+ * This object represents a dice with random value from 1 to 6. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
+ */
+export interface Dice {
+  /**
+   * Value of the dice, 1-6
+   */
+  value: number
+}
+
+export interface PollOption {
+  /** Option text, 1-100 characters */
+  text: string
+
+  /** Number of users that voted for this option */
+  voter_count: number
+}
+
+export interface PollAnswer {
+  /** Unique poll identifier */
+  poll_id: string
+
+  /** The user, who changed the answer to the poll */
+  user: TT.User
+
+  /** 0-based identifiers of answer options, chosen by the user. May be empty if the user retracted their vote. */
+  option_ids: number[]
+}
+
+export interface Poll {
+  /** Unique poll identifier */
+  id: string
+
+  /** Poll question, 1-255 characters */
+  question: string
+
+  /** List of poll options */
+  options: PollOption[]
+
+  /** Total number of users that voted in the poll */
+  total_voter_count: number
+
+  /** True, if the poll is closed */
+  is_closed: boolean
+
+  /** True, if the poll is anonymous */
+  is_anonymous: boolean
+
+  /** Poll type, currently can be “regular” or “quiz” */
+  type: 'regular' | 'quiz'
+
+  /** True, if the poll allows multiple answers */
+  allows_multiple_answers: boolean
+
+  /** 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot. */
+  correct_option_id?: number
 }

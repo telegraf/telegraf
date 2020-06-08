@@ -1,9 +1,10 @@
 // This is a test file for the TypeScript typings.
 // It is not intended to be used by external users.
-import Telegraf, { Markup, Middleware, ContextMessageUpdate, Extra } from './index';
+import Telegraf, { Markup, Middleware, Context } from './index';
+import * as tt from './telegram-types';
 
 const randomPhoto = 'https://picsum.photos/200/300/?random'
-const sayYoMiddleware: Middleware<ContextMessageUpdate> = ({ reply }, next) => reply('yo').then(() => next && next())
+const sayYoMiddleware: Middleware<Context> = ({ reply }, next) => reply('yo').then(() => next && next())
 
 const {reply} =  Telegraf;
 
@@ -60,7 +61,7 @@ bot.launch({
 })
 
 // tt.ExtraXXX
-bot.hears('something', (ctx) => {
+bot.hears('something', async (ctx) => {
     // tt.ExtraReplyMessage
     ctx.reply('Response', {
         parse_mode: "Markdown",
@@ -104,6 +105,14 @@ bot.hears('something', (ctx) => {
         live_period: 60,
         disable_notification: true,
         reply_to_message_id: 0,
+        reply_markup: Markup.inlineKeyboard([])
+    })
+
+    ctx.editMessageLiveLocation(90,90, {
+        reply_markup: Markup.inlineKeyboard([])
+    })
+
+    ctx.stopMessageLiveLocation({
         reply_markup: Markup.inlineKeyboard([])
     })
 
@@ -152,14 +161,52 @@ bot.hears('something', (ctx) => {
         reply_to_message_id: 0,
         reply_markup: Markup.inlineKeyboard([])
     })
+
+    ctx.telegram.sendVideoNote(-1, "", {
+        duration: 0,
+        length: 0,
+        thumb: '',
+        parse_mode: "HTML",
+        disable_notification: false,
+        disable_web_page_preview: false,
+        reply_markup: Markup.inlineKeyboard([]),
+        reply_to_message_id: 0,
+    })
+
+    const setMyCommandsResult: boolean =  await ctx.telegram.setMyCommands([
+        {
+            command: '',
+            description: ''
+        },
+    ])
+
+    const myCommands: tt.BotCommand[] = await ctx.telegram.getMyCommands()
+
+    const messageDice: tt.MessageDice = await ctx.telegram.sendDice(0, {
+        disable_notification: false,
+        reply_markup: Markup.inlineKeyboard([]),
+        reply_to_message_id: 0
+    })
+
+    const replyWithDiceMessage: tt.MessageDice = await ctx.replyWithDice({
+        disable_notification: false,
+        reply_markup: Markup.inlineKeyboard([]),
+        reply_to_message_id: 0
+    })
 })
 
 // Markup
 
 const markup = new Markup
-markup.inlineKeyboard([Markup.button('sample')], {})
+markup.keyboard([Markup.button('sample')], {})
 Markup.inlineKeyboard([Markup.callbackButton('sampleText', 'sampleData')], {})
+Markup.inlineKeyboard([Markup.callbackButton('sampleCallbackButton', 'sampleData'), Markup.urlButton('sampleUrlButton', 'https://github.com')], {})
 
 
 // #761
 bot.telegram.sendPhoto(1, randomPhoto, { caption: '*Caption*', parse_mode: 'Markdown' });
+
+const formattedString = Markup.formatHTML("Добрейшего вечерочка дня", [
+  { offset: 0, length: 10, type: "bold" },
+  { offset: 11, length: 9, type: "strikethrough" }
+]);

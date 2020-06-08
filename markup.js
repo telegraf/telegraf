@@ -163,8 +163,8 @@ class Markup {
     }
   }
 
-  static formatHTML (text, entities) {
-    const chars = [...text]
+  static formatHTML (text = '', entities = []) {
+    const chars = text
     const available = [...entities]
     const opened = []
     const result = []
@@ -186,13 +186,20 @@ class Markup {
             result.push('<code>')
             break
           case 'pre':
-            result.push('<pre>')
+            if (entity.language) {
+              result.push(`<pre><code class="language-${entity.language}">`)
+            } else {
+              result.push('<pre>')
+            }
             break
           case 'strikethrough':
             result.push('<s>')
             break
           case 'underline':
             result.push('<u>')
+            break
+          case 'text_mention':
+            result.push(`<a href="tg://user?id=${entity.user.id}">`)
             break
           case 'text_link':
             result.push(`<a href="${entity.url}">`)
@@ -221,7 +228,11 @@ class Markup {
             result.push('</code>')
             break
           case 'pre':
-            result.push('</pre>')
+            if (entity.language) {
+              result.push('</code></pre>')
+            } else {
+              result.push('</pre>')
+            }
             break
           case 'strikethrough':
             result.push('</s>')
@@ -229,6 +240,7 @@ class Markup {
           case 'underline':
             result.push('</u>')
             break
+          case 'text_mention':
           case 'text_link':
             result.push('</a>')
             break

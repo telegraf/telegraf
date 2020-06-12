@@ -34,6 +34,7 @@ const MessageSubTypes = [
   'invoice',
   'group_chat_created',
   'game',
+  'dice',
   'document',
   'delete_chat_photo',
   'contact',
@@ -329,6 +330,11 @@ class TelegrafContext {
     return this.telegram.kickChatMember(this.chat.id, ...args)
   }
 
+  unbanChatMember (...args) {
+    this.assert(this.chat, 'unbanChatMember')
+    return this.telegram.unbanChatMember(this.chat.id, ...args)
+  }
+
   restrictChatMember (...args) {
     this.assert(this.chat, 'restrictChatMember')
     return this.telegram.restrictChatMember(this.chat.id, ...args)
@@ -417,6 +423,11 @@ class TelegrafContext {
   replyWithAudio (...args) {
     this.assert(this.chat, 'replyWithAudio')
     return this.telegram.sendAudio(this.chat.id, ...args)
+  }
+
+  replyWithDice (...args) {
+    this.assert(this.chat, 'replyWithDice')
+    return this.telegram.sendDice(this.chat.id, ...args)
   }
 
   replyWithDocument (...args) {
@@ -512,6 +523,10 @@ class TelegrafContext {
     return this.telegram.setStickerPositionInSet(sticker, position)
   }
 
+  setStickerSetThumb (...args) {
+    return this.telegram.setStickerSetThumb(...args)
+  }
+
   deleteStickerFromSet (sticker) {
     return this.telegram.deleteStickerFromSet(sticker)
   }
@@ -531,8 +546,20 @@ class TelegrafContext {
     return this.telegram.addStickerToSet(this.from.id, ...args)
   }
 
+  getMyCommands () {
+    return this.telegram.getMyCommands()
+  }
+
+  setMyCommands (...args) {
+    return this.telegram.setMyCommands(...args)
+  }
+
   replyWithMarkdown (markdown, extra) {
     return this.reply(markdown, { parse_mode: 'Markdown', ...extra })
+  }
+
+  replyWithMarkdownV2 (markdown, extra) {
+    return this.reply(markdown, { parse_mode: 'MarkdownV2', ...extra })
   }
 
   replyWithHTML (html, extra) {

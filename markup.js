@@ -163,8 +163,8 @@ class Markup {
     }
   }
 
-  static formatHTML (text, entities) {
-    const chars = [...text]
+  static formatHTML (text = '', entities = []) {
+    const chars = text
     const available = [...entities]
     const opened = []
     const result = []
@@ -186,7 +186,11 @@ class Markup {
             result.push('<code>')
             break
           case 'pre':
-            result.push('<pre>')
+            if (entity.language) {
+              result.push(`<pre><code class="language-${entity.language}">`)
+            } else {
+              result.push('<pre>')
+            }
             break
           case 'strikethrough':
             result.push('<s>')
@@ -224,7 +228,11 @@ class Markup {
             result.push('</code>')
             break
           case 'pre':
-            result.push('</pre>')
+            if (entity.language) {
+              result.push('</code></pre>')
+            } else {
+              result.push('</pre>')
+            }
             break
           case 'strikethrough':
             result.push('</s>')

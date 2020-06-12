@@ -1,9 +1,10 @@
 ![Telegraf](docs/header.png)
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v4.6-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v4.8-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![NPM Version](https://img.shields.io/npm/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![node](https://img.shields.io/node/v/telegraf.svg?style=flat-square)](https://www.npmjs.com/package/telegraf)
 [![Build Status](https://img.shields.io/travis/telegraf/telegraf.svg?branch=master&style=flat-square)](https://travis-ci.org/telegraf/telegraf)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com/)
+[![Community Chat](https://img.shields.io/badge/Community-Chat-blueChat?style=flat-square&logo=telegram)](https://t.me/TelegrafJSChat)
 
 ## Introduction
 
@@ -13,7 +14,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 ### Features
 
-- Full [Telegram Bot API 4.6](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 4.8](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -33,14 +34,16 @@ or using `yarn`:
 $ yarn add telegraf
 ```
 
-### Documentation
+### Resources
 
-[Telegraf developer docs](http://telegraf.js.org)
+* [Developer docs](http://telegraf.js.org)
+* [Community chat](https://t.me/TelegrafJSChat)
+* [Community chat (Russian)](https://t.me/telegraf_ru)
 
 ### Examples
   
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.start((ctx) => ctx.reply('Welcome!'))
@@ -51,7 +54,7 @@ bot.launch()
 ```
 
 ```js
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.command('oldschool', (ctx) => ctx.reply('Hello'))

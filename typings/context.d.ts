@@ -4,7 +4,7 @@ import * as tt from './telegram-types'
 
 import { Telegram } from './telegram'
 
-export declare class TelegrafContext {
+export declare class TelegrafContext<StateType = any> {
   updateType: tt.UpdateType
   updateSubTypes: tt.MessageSubTypes[]
   update: tt.Update
@@ -26,6 +26,7 @@ export declare class TelegrafContext {
   pollAnswer?: tt.PollAnswer
   preCheckoutQuery?: tt.PreCheckoutQuery
   shippingQuery?: tt.ShippingQuery
+  state?: StateType
 
   constructor(
     update: tt.Update,

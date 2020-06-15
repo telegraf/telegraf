@@ -26,7 +26,7 @@ export declare class TelegrafContext {
   pollAnswer?: tt.PollAnswer
   preCheckoutQuery?: tt.PreCheckoutQuery
   shippingQuery?: tt.ShippingQuery
-  state?: StateType
+  state: any
 
   constructor(
     update: tt.Update,

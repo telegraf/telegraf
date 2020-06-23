@@ -82,7 +82,7 @@ export type StageOptions = SceneContextOptions
 export class Stage<TContext extends SceneContextMessageUpdate> extends Composer<
   TContext
 > {
-  constructor(scenes: Scene<TContext>[], options?: Partial<StageOptions>)
+  constructor(scenes?: Scene<TContext>[], options?: Partial<StageOptions>)
 
   register: (...scenes: Scene<TContext>[]) => this
 

@@ -62,16 +62,20 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 **Community bots:**
 
+<!-- Please keep the table sorted -->
 | Name | Description |
 | --- | --- |
-| [ChatAdmin](https://github.com/Khuzha/chatAdmin) | Helps to administer the chats  |
+| [BibleBot](https://github.com/Kriv-Art/BibleBot) | Bot to get bible verses |
+| [BitcoinDogBot](https://github.com/jibital/bitcoin-dog-bot) | Bitcoin prices, Technical analysis and Alerts! |
 | [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot) | An inline bot that allows you to search for books and share them in a conversation. Powered by Goodreads  |
 | [CaptchaOnlyBot](https://github.com/Piterden/captcha_only_bot) | Configurable question \w set of buttons on a new group user |
 | [ChannelHashBot](https://github.com/YouTwitFace/ChannelHashBot) | Keep track of hashtags that are sent in your group by forwarding them to a channel |
+| [ChatAdmin](https://github.com/Khuzha/chatAdmin) | Helps to administer the chats  |
 | [ChatLinkerBot](https://github.com/jt3k/chat-linker) | The bridge between jabber and telegram |
 | [ChessBot](https://github.com/Piterden/chessbot) | Inline chess game in a message |
 | [CounterBot](https://github.com/leodj/telegram-counter-bot) | Keep track of multiple counters and increment, decrement, set and reset them to your hearts content  |
 | [DefendTheCastle](https://github.com/TiagoDanin/Defend-The-Castle) | Telegram Bot Game - Defend The Castle |
+| [DiscordTelegramBridge](https://github.com/daaniiieel/discord-telegram-bridge) | A simple, small and fast discord to telegram bridge written in node.js |
 | [EveMoviesBot](https://github.com/dmbaranov/evemovies-bot) | Track movie torrent releases and get notifications when it's there |
 | [GNU/LinuxIndonesiaBot](https://github.com/bgli/bglibot-js) | BGLI Bot a.k.a Miranda Salma |
 | [GoogleItBot](https://github.com/Edgar-P-yan/google-it-telegram-bot) | Instant inline search |
@@ -82,6 +86,8 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [Memcoin](https://github.com/backmeupplz/memcoin) | Memcoin for the Memconomy |
 | [MetalArchivesBot](https://github.com/amiralies/metalarchives-telegram-bot) | Unofficial metal-archives.com bot |
 | [MidnaBot](https://github.com/wsknorth/midnabot) | Midnabot for telegram |
+| [MineTelegram](https://github.com/hexatester/minetelegram) | Minecraft - Telegram bridge |
+| [NodeRSSBot](https://github.com/fengkx/NodeRSSBot) | Bot to subscribe RSS feed which allows many configurations |
 | [Nyaa.si Bot](https://github.com/ejnshtein/nyaasi-bot) | Nyaa.si torrents |
 | [OCRToolBot](https://github.com/Piterden/tesseract-bot) | Tesseract text from image recognition |
 | [OneQRBot](https://github.com/Khuzha/oneqrbot) | Scan and generate QR |
@@ -108,10 +114,8 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [Watchy](https://github.com/backmeupplz/watchy) |   |
 | [YtSearchBot](https://github.com/Finalgalaxy/yt-search-bot) | Bot to share YouTube fetched videos from any channel |
 | [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot) | Bot created to help you find and share any video from youtube |
-| [NodeRSSBot](https://github.com/fengkx/NodeRSSBot) | Bot to subscribe RSS feed which allows many configurations |
-| [BibleBot](https://github.com/Kriv-Art/BibleBot) | Bot to get bible verses |
-| [BitcoinDogBot](https://github.com/jibital/bitcoin-dog-bot) | Bitcoin prices, Technical analysis and Alerts! |
 | Send PR to add link to your bot |   |
+<!-- Please keep the table sorted -->
 
 ## Getting started
 

@@ -27,6 +27,7 @@
     "lint": "eslint .",
     "test": "ava test/*",
     "precommit": "npm run lint && npm run typecheck && npm test",
+    "typedoc": "typedoc",
     "typecheck": "tsc"
   },
   "type": "commonjs",
@@ -54,6 +55,7 @@
     "eslint-plugin-standard": "^4.0.0",
     "husky": "^4.2.0",
     "prettier": "^2.0.5",
+    "typedoc": "^0.17.4",
     "typescript": "^3.0.1"
   },
   "keywords": [

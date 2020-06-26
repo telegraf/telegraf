@@ -1,97 +1,95 @@
-import * as TT from "telegram-typings";
-export * from "telegram-typings";
+/** @format */
+
+import * as TT from 'telegram-typings'
+export * from 'telegram-typings'
 
 export type ParseMode = 'Markdown' | 'MarkdownV2' | 'HTML'
 
 export type ChatAction =
-  'typing' |
-  'upload_photo' |
-  'record_video' |
-  'upload_video' |
-  'record_audio' |
-  'upload_audio' |
-  'upload_document' |
-  'find_location' |
-  'record_video_note' |
-  'upload_video_note'
+  | 'typing'
+  | 'upload_photo'
+  | 'record_video'
+  | 'upload_video'
+  | 'record_audio'
+  | 'upload_audio'
+  | 'upload_document'
+  | 'find_location'
+  | 'record_video_note'
+  | 'upload_video_note'
 
-export type ChatType =
-  'private' |
-  'group' |
-  'supergroup' |
-  'channel'
+export type ChatType = 'private' | 'group' | 'supergroup' | 'channel'
 
 export type UpdateType =
-  'callback_query' |
-  'channel_post' |
-  'chosen_inline_result' |
-  'edited_channel_post' |
-  'edited_message' |
-  'inline_query' |
-  'message' |
-  'pre_checkout_query' |
-  'shipping_query' |
-  'poll' |
-  'poll_answer'
+  | 'callback_query'
+  | 'channel_post'
+  | 'chosen_inline_result'
+  | 'edited_channel_post'
+  | 'edited_message'
+  | 'inline_query'
+  | 'message'
+  | 'pre_checkout_query'
+  | 'shipping_query'
+  | 'poll'
+  | 'poll_answer'
 
 export type MessageSubTypes =
-  'voice' |
-  'video_note' |
-  'video' |
-  'venue' |
-  'text' |
-  'supergroup_chat_created' |
-  'successful_payment' |
-  'sticker' |
-  'pinned_message' |
-  'photo' |
-  'new_chat_title' |
-  'new_chat_photo' |
-  'new_chat_members' |
-  'migrate_to_chat_id' |
-  'migrate_from_chat_id' |
-  'location' |
-  'left_chat_member' |
-  'invoice' |
-  'group_chat_created' |
-  'game' |
-  'document' |
-  'delete_chat_photo' |
-  'contact' |
-  'channel_chat_created' |
-  'audio' |
-  'passport_data' |
-  'connected_website' |
-  'animation'
+  | 'voice'
+  | 'video_note'
+  | 'video'
+  | 'venue'
+  | 'text'
+  | 'supergroup_chat_created'
+  | 'successful_payment'
+  | 'sticker'
+  | 'pinned_message'
+  | 'photo'
+  | 'new_chat_title'
+  | 'new_chat_photo'
+  | 'new_chat_members'
+  | 'migrate_to_chat_id'
+  | 'migrate_from_chat_id'
+  | 'location'
+  | 'left_chat_member'
+  | 'invoice'
+  | 'group_chat_created'
+  | 'game'
+  | 'document'
+  | 'delete_chat_photo'
+  | 'contact'
+  | 'channel_chat_created'
+  | 'audio'
+  | 'passport_data'
+  | 'connected_website'
+  | 'animation'
 
 export type InlineQueryResult =
-  TT.InlineQueryResultCachedAudio |
-  TT.InlineQueryResultCachedDocument |
-  TT.InlineQueryResultCachedGif |
-  TT.InlineQueryResultCachedMpeg4Gif |
-  TT.InlineQueryResultCachedPhoto |
-  TT.InlineQueryResultCachedSticker |
-  TT.InlineQueryResultCachedVideo |
-  TT.InlineQueryResultCachedVoice |
-  TT.InlineQueryResultArticle |
-  TT.InlineQueryResultAudio |
-  TT.InlineQueryResultContact |
-  TT.InlineQueryResultGame |
-  TT.InlineQueryResultDocument |
-  TT.InlineQueryResultGif |
-  TT.InlineQueryResultLocation |
-  TT.InlineQueryResultMpeg4Gif |
-  TT.InlineQueryResultPhoto |
-  TT.InlineQueryResultVenue |
-  TT.InlineQueryResultVideo |
-  TT.InlineQueryResultVoice
+  | TT.InlineQueryResultCachedAudio
+  | TT.InlineQueryResultCachedDocument
+  | TT.InlineQueryResultCachedGif
+  | TT.InlineQueryResultCachedMpeg4Gif
+  | TT.InlineQueryResultCachedPhoto
+  | TT.InlineQueryResultCachedSticker
+  | TT.InlineQueryResultCachedVideo
+  | TT.InlineQueryResultCachedVoice
+  | TT.InlineQueryResultArticle
+  | TT.InlineQueryResultAudio
+  | TT.InlineQueryResultContact
+  | TT.InlineQueryResultGame
+  | TT.InlineQueryResultDocument
+  | TT.InlineQueryResultGif
+  | TT.InlineQueryResultLocation
+  | TT.InlineQueryResultMpeg4Gif
+  | TT.InlineQueryResultPhoto
+  | TT.InlineQueryResultVenue
+  | TT.InlineQueryResultVideo
+  | TT.InlineQueryResultVoice
 
 export type MessageMedia =
-  InputMediaPhoto |
-  InputMediaVideo |
-  InputMediaAnimation |
-  InputMediaAudio |
-  InputMediaDocument
+  | InputMediaPhoto
+  | InputMediaVideo
+  | InputMediaAnimation
+  | InputMediaAudio
+  | InputMediaDocument
 
 export interface InputMediaPhoto {
   type: string
@@ -101,47 +99,47 @@ export interface InputMediaPhoto {
 }
 
 export interface InputMediaVideo {
- type: string
- media: InputFile
- thumb?: string | InputFile
- caption?: string
- parse_mode?: string
- width?: number
- height?: number
- duration?: number
- supports_streaming?: boolean
+  type: string
+  media: InputFile
+  thumb?: string | InputFile
+  caption?: string
+  parse_mode?: string
+  width?: number
+  height?: number
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaAnimation {
- type: string
- media: InputFile
- thumb?: string | InputFile
- caption?: string
- parse_mode?: string
- width?: number
- height?: number
- duration?: number
- supports_streaming?: boolean
+  type: string
+  media: InputFile
+  thumb?: string | InputFile
+  caption?: string
+  parse_mode?: string
+  width?: number
+  height?: number
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaAudio {
- type: string
- media: InputFile
- thumb?: string | InputFile
- caption?: string
- parse_mode?: string
- performer?: string
- title?: string
- duration?: number
- supports_streaming?: boolean
+  type: string
+  media: InputFile
+  thumb?: string | InputFile
+  caption?: string
+  parse_mode?: string
+  performer?: string
+  title?: string
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaDocument {
- type: string
- media: InputFile
- thumb?: string | InputFile
- caption?: string
- parse_mode?: string
+  type: string
+  media: InputFile
+  thumb?: string | InputFile
+  caption?: string
+  parse_mode?: string
 }
 
 export interface StickerData {
@@ -170,11 +168,17 @@ export interface InputFileByURL {
 }
 
 export type InputFile =
-  FileId |
-  InputFileByPath |
-  InputFileByReadableStream |
-  InputFileByBuffer |
-  InputFileByURL
+  | FileId
+  | InputFileByPath
+  | InputFileByReadableStream
+  | InputFileByBuffer
+  | InputFileByURL
+
+
+export type DiceEmoji = 
+  '🎲' |
+  '🎯' |
+  '🏀'
 
 /**
  * Sending video notes by a URL is currently unsupported
@@ -242,7 +246,6 @@ export interface ExtraPromoteChatMember {
 }
 
 export interface ExtraReplyMessage {
-
   /**
    * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
    */
@@ -266,7 +269,11 @@ export interface ExtraReplyMessage {
   /**
    * Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
    */
-  reply_markup?: TT.InlineKeyboardMarkup | TT.ReplyKeyboardMarkup | TT.ReplyKeyboardRemove | TT.ForceReply
+  reply_markup?:
+    | TT.InlineKeyboardMarkup
+    | TT.ReplyKeyboardMarkup
+    | TT.ReplyKeyboardRemove
+    | TT.ForceReply
 }
 
 export interface ExtraEditMessage extends ExtraReplyMessage {
@@ -410,7 +417,30 @@ export interface ExtraMediaGroup extends ExtraReplyMessage {
 
 export interface ExtraAnimation extends ExtraReplyMessage {
   /**
-   * Animation caption (may also be used when resending animation by file_id), 0-200 characters
+   * Duration of sent animation  in seconds
+   */
+  duration?: number
+
+  /**
+   * Animation  width
+   */
+  width?: number
+
+  /**
+   * Animation  height
+   */
+  height?: number
+
+  /**
+   * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
+   * The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail‘s width and height should not exceed 320.
+   * Ignored if the file is not uploaded using multipart/form-data. Thumbnails can’t be reused and can be only uploaded as a new file,
+   * so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+   */
+  thumb?: InputFile
+
+  /**
+   * Animation  caption (may also be used when resending videos by file_id), 0-1024 characters
    */
   caption?: string
 }
@@ -505,6 +535,11 @@ export interface ExtraVoice extends ExtraReplyMessage {
 }
 
 export interface ExtraDice extends ExtraReplyMessage {
+  /**
+   * Emoji on which the dice throw animation is based. See https://core.telegram.org/bots/api#senddice
+   */
+  emoji?: DiceEmoji
+
   /**
    * Does not exist, see https://core.telegram.org/bots/api#senddice
    */
@@ -745,11 +780,16 @@ export interface BotCommand {
 }
 
 /**
- * This object represents a dice with random value from 1 to 6. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
+ * This object represents a dice with random value from 1 to [5-6]. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
  */
 export interface Dice {
   /**
-   * Value of the dice, 1-6
+   * Emoji of the dice
+   */
+  emoji: DiceEmoji,
+  
+  /**
+   * Value of the dice
    */
   value: number
 }

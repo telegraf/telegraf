@@ -84,6 +84,11 @@ export interface LaunchWebhookOptions {
   cb?: (req: IncomingMessage, res: ServerResponse) => void
 }
 
+export interface LaunchOptions {
+  polling?: LaunchPollingOptions
+  webhook?: LaunchWebhookOptions
+}
+
 export declare class Telegraf<
   TContext extends TelegrafContext
 > extends Composer<TContext> {
@@ -126,10 +131,7 @@ export declare class Telegraf<
    *
    * @param options [See reference to get more]{@link https://telegraf.js.org/#/?id=launch}
    */
-  launch(options?: {
-    polling?: LaunchPollingOptions
-    webhook?: LaunchWebhookOptions
-  }): Promise<void>
+  launch(options?: LaunchOptions): Promise<void>
 
   /**
    * Start poll updates.

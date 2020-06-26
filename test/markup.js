@@ -222,7 +222,7 @@ test('should generate nested multi markup', (t) => {
   t.deepEqual(markup, '<s>strike<b>bold<u>under</u></b></s>')
 })
 
-test.only('should generate nested multi markup 2', (t) => {
+test('should generate nested multi markup 2', (t) => {
   const markup = Markup.formatHTML('×11 22 333×      ×С123456×                   ×1 22 333×', [
     {
       offset: 1,
@@ -253,7 +253,7 @@ test.only('should generate nested multi markup 2', (t) => {
   t.deepEqual(markup, '×<b><i>11 22 333</i></b>× <i>     ×С</i><i><b>123456× </b>                  ×1 22 333×</i>')
 })
 
-test.only('should generate nested multi markup 3', (t) => {
+test('should generate nested multi markup 3', (t) => {
   const markup = Markup.formatHTML('bold-italic:\nbold-italic\nbold-italic\n\nbold-underline:\nbold-underline\nbold-underline\n\nbold, bold\nitalic, italic\nunderline, underline\nstrikethrough, strikethrough, strikethrough\nbolditalic bolditalic bold strikethroughunderline italic boldbold\ninline URL\ninline mention of a user\ninline fixed-width code\npre-formatted fixed-width code block\npre-formatted fixed-width code block written in the Python programming language', [
     {
       offset: 13,
@@ -409,4 +409,25 @@ test.only('should generate nested multi markup 3', (t) => {
     }
   ])
   t.deepEqual(markup, 'bold-italic:\n<b><i>bold-italic</i></b>\n<b><i>bold-italic</i></b>\n\nbold-underline:\n<b><u>bold-underline</u></b>\n<b><u>bold-underline</u></b>\n\n<b>bold</b>, <b>bold</b>\n<i>italic</i>, <i>italic</i>\n<u>underline</u>, <u>underline</u>\n<s>strikethrough</s>, <s>strikethrough</s>, <s>strikethrough</s>\n<b>bold</b><b><i>italic bold</i></b><b><i><s>italic bold strikethrough</s></i></b><b><i><u>underline italic bold</u></i>bold</b>\n<a href="http://www.example.com/">inline URL</a>\ninline mention of a user\n<code>inline fixed-width code</code>\n<pre>pre-formatted fixed-width code block</pre>\n<pre><code class="language-python">pre-formatted fixed-width code block written in the Python programming language</code></pre>')
+})
+
+test('should generate correct HTML with emojis', (t) => {
+  const markup = Markup.formatHTML('👨‍👩‍👧‍👦underline 👩‍👩‍👦‍👦bold 👨‍👨‍👦‍👦italic', [
+    {
+      offset: 0,
+      length: 20,
+      type: 'underline'
+    },
+    {
+      offset: 21,
+      length: 15,
+      type: 'bold'
+    },
+    {
+      offset: 37,
+      length: 17,
+      type: 'italic'
+    }
+  ])
+  t.deepEqual(markup, '<u>👨‍👩‍👧‍👦underline</u> <b>👩‍👩‍👦‍👦bold</b> <i>👨‍👨‍👦‍👦italic</i>')
 })

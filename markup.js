@@ -185,14 +185,14 @@ class Markup {
         closeTag: '</code>'
       },
       {
-        condition: { type: 'pre', language: true },
-        openTag: `<pre><code class="language-${entity.language}">`,
-        closeTag: '</code></pre>'
-      },
-      {
-        condition: { type: 'pre', language: false },
+        condition: { type: 'pre', language: undefined },
         openTag: '<pre>',
         closeTag: '</pre>'
+      },
+      {
+        condition: { type: 'pre' },
+        openTag: `<pre><code class="language-${entity.language}">`,
+        closeTag: '</code></pre>'
       },
       {
         condition: { type: 'strikethrough' },
@@ -215,9 +215,8 @@ class Markup {
         closeTag: '</a>'
       }
     ].find((item) => Object.entries(item.condition)
-      .every(([key, value]) => typeof value === 'boolean'
-        ? Boolean(entity[key]) === value
-        : entity[key] === value))
+      .every(([key, value]) =>
+        entity[key] === value))
 
     for (let offset = 0; offset < chars.length; offset++) {
       while (true) {

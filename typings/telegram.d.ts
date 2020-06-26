@@ -117,9 +117,9 @@ export declare class Telegram extends ApiClient {
    * @param extra Extra params
    */
   editMessageText(
-    chatId: number | string | void,
-    messageId: number | void,
-    inlineMessageId: string | void,
+    chatId: number | string | undefined,
+    messageId: number | undefined,
+    inlineMessageId: string | undefined,
     text: string,
     extra?: tt.ExtraEditMessage
   ): Promise<tt.Message | boolean>
@@ -134,11 +134,11 @@ export declare class Telegram extends ApiClient {
    * @param markup A JSON-serialized object for an inline keyboard.
    */
   editMessageCaption(
-    chatId?: number | string,
-    messageId?: number,
-    inlineMessageId?: string,
-    caption?: string,
-    markup?: string
+    chatId: number | string | undefined,
+    messageId: number | undefined,
+    inlineMessageId: string | undefined,
+    caption: string | undefined,
+    markup?: tt.InlineKeyboardMarkup
   ): Promise<tt.Message | boolean>
 
   /**
@@ -150,10 +150,31 @@ export declare class Telegram extends ApiClient {
    * @param markup A JSON-serialized object for an inline keyboard.
    */
   editMessageReplyMarkup(
-    chatId?: number | string,
-    messageId?: number,
-    inlineMessageId?: string,
-    markup?: string
+    chatId: number | string | undefined,
+    messageId: number | undefined,
+    inlineMessageId: string | undefined,
+    markup: tt.InlineKeyboardMarkup | undefined
+  ): Promise<tt.Message | boolean>
+
+  /**
+   * Use this method to edit animation, audio, document, photo, or video messages.
+   * If a message is a part of a message album, then it can be edited only to a photo or a video.
+   * Otherwise, message type can be changed arbitrarily.
+   * When inline message is edited, new file can't be uploaded.
+   * Use previously uploaded file via its file_id or specify a URL.
+   * @returns On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param chatId Required if inlineMessageId is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param media New media of message
+   * @param markup Markup of inline keyboard
+   */
+  editMessageMedia(
+    chatId: number | string | undefined,
+    messageId: number | undefined,
+    inlineMessageId: string | undefined,
+    media: tt.MessageMedia,
+    extra?: tt.ExtraEditMessage
   ): Promise<tt.Message | boolean>
 
   /**

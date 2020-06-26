@@ -174,6 +174,12 @@ export type InputFile =
   | InputFileByBuffer
   | InputFileByURL
 
+
+export type DiceEmoji = 
+  '🎲' |
+  '🎯' |
+  '🏀'
+
 /**
  * Sending video notes by a URL is currently unsupported
  */
@@ -530,6 +536,11 @@ export interface ExtraVoice extends ExtraReplyMessage {
 
 export interface ExtraDice extends ExtraReplyMessage {
   /**
+   * Emoji on which the dice throw animation is based. See https://core.telegram.org/bots/api#senddice
+   */
+  emoji?: DiceEmoji
+
+  /**
    * Does not exist, see https://core.telegram.org/bots/api#senddice
    */
   parse_mode?: never
@@ -769,11 +780,16 @@ export interface BotCommand {
 }
 
 /**
- * This object represents a dice with random value from 1 to 6. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
+ * This object represents a dice with random value from 1 to [5-6]. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
  */
 export interface Dice {
   /**
-   * Value of the dice, 1-6
+   * Emoji of the dice
+   */
+  emoji: DiceEmoji,
+  
+  /**
+   * Value of the dice
    */
   value: number
 }

@@ -1,10 +1,16 @@
-import { Context, Stage, WizardScene, Composer } from '.';
+/** @format */
 
-const wizardScene = new WizardScene('wizard-scene', {}, (ctx: Context): void => {
-	ctx.reply('wizard!');
-});
+import { Context, Stage, WizardScene, Composer } from '.'
 
-const stage = new Stage([ wizardScene ], { default: 'wizard-scene' });
+const wizardScene = new WizardScene(
+  'wizard-scene',
+  {},
+  (ctx: Context): void => {
+    ctx.reply('wizard!')
+  }
+)
 
-const composer = new Composer();
-composer.use(stage.middleware());
+const stage = new Stage([wizardScene], { default: 'wizard-scene' })
+
+const composer = new Composer()
+composer.use(stage.middleware())

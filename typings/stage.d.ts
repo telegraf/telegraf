@@ -2,6 +2,7 @@
 
 import { TelegrafContext } from './context';
 import { Middleware, Composer, MiddlewareFn } from './composer';
+import { WizardScene, WizardContextMessageUpdate, WizardContext } from './wizard'
 
 export interface SceneContextOptions {
 	sessionName: string;
@@ -67,57 +68,11 @@ export class BaseScene<TContext extends SceneContextMessageUpdate> extends Compo
 	leaveMiddleware: () => Middleware<TContext>;
 }
 
-type Step<TContext extends TelegrafContext> = MiddlewareFn<TContext> | Composer<TContext>;
+export type Step<TContext extends TelegrafContext> = MiddlewareFn<TContext> | Composer<TContext>;
 
-export interface WizardContext<TContext extends WizardContextMessageUpdate> {
-	ctx: TContext;
+export type Scene = BaseScene<SceneContextMessageUpdate> | WizardScene<WizardContextMessageUpdate>;
 
-	options: SceneContextOptions;
-
-	steps: Step<TContext>[];
-
-	cursor: number;
-
-	state: object;
-
-	step: () => number;
-
-	selectStep: (step: number) => this;
-
-	next: () => this;
-
-	back: () => this;
-}
-
-export interface WizardContextMessageUpdate extends TelegrafContext {
-	wizard: WizardContext<this>;
-}
-
-export interface WizardSceneOptions<TContext extends WizardContextMessageUpdate> {
-	handlers: Middleware<TContext>[];
-	leaveHandlers: Middleware<TContext>[];
-	ttl?: number;
-}
-
-export class WizardScene<TContext extends WizardContextMessageUpdate> extends Composer<TContext> {
-	constructor(id: string, options?: Partial<WizardSceneOptions<TContext>>, ...steps: Step<TContext>[]);
-
-	id: string;
-
-	options: WizardSceneOptions<TContext>;
-
-	leaveHandler: Middleware<TContext>;
-
-	ttl?: number;
-
-	leave: (...fns: Middleware<TContext>[]) => this;
-
-	leaveMiddleware: () => Middleware<TContext>;
-}
-
-type StageOptions = SceneContextOptions;
-
-type Scene = BaseScene<SceneContextMessageUpdate> | WizardScene<WizardContextMessageUpdate>;
+export type StageOptions = SceneContextOptions;
 
 declare class Context extends TelegrafContext {
 	scene?: SceneContext<SceneContextMessageUpdate>;

@@ -1,6 +1,7 @@
 /** @format */
 
-export { BaseScene, WizardScene, Stage } from './stage'
+export { BaseScene, Stage } from './stage'
+export { WizardScene } from './wizard'
 export { Composer, Middleware } from './composer'
 export { Extra } from './extra'
 export { Markup } from './markup'

@@ -78,7 +78,7 @@ export interface WizardContext<TContext extends WizardContextMessageUpdate> {
 
   options: SceneContextOptions
 
-  steps: Function[]
+  steps: MiddlewareFn<TContext>[]
 
   cursor: number
 
@@ -111,7 +111,7 @@ export class WizardScene<
   constructor(
     id: string,
     options?: Partial<WizardSceneOptions<TContext>>,
-    ...steps: Function[]
+    ...steps: MiddlewareFn<TContext>[]
   )
 
   id: string

@@ -1,49 +1,59 @@
-import { TelegrafContext } from './context';
-import { Middleware, Composer, MiddlewareFn } from './composer';
+/** @format */
+
+import { TelegrafContext } from './context'
+import { Middleware, Composer, MiddlewareFn } from './composer'
 import { SceneContextOptions, Step } from './stage'
 
 export interface WizardContext<TContext extends WizardContextMessageUpdate> {
-    ctx: TContext;
+  ctx: TContext
 
-    options: SceneContextOptions;
+  options: SceneContextOptions
 
-    steps: Step<TContext>[];
+  steps: Step<TContext>[]
 
-    cursor: number;
+  cursor: number
 
-    state: object;
+  state: object
 
-    step: () => number;
+  step: () => number
 
-    selectStep: (step: number) => this;
+  selectStep: (step: number) => this
 
-    next: () => this;
+  next: () => this
 
-    back: () => this;
+  back: () => this
 }
 
 export interface WizardContextMessageUpdate extends TelegrafContext {
-    wizard: WizardContext<this>;
+  wizard: WizardContext<this>
 }
 
-export interface WizardSceneOptions<TContext extends WizardContextMessageUpdate> {
-    handlers: Middleware<TContext>[];
-    leaveHandlers: Middleware<TContext>[];
-    ttl?: number;
+export interface WizardSceneOptions<
+  TContext extends WizardContextMessageUpdate
+> {
+  handlers: Middleware<TContext>[]
+  leaveHandlers: Middleware<TContext>[]
+  ttl?: number
 }
 
-export class WizardScene<TContext extends WizardContextMessageUpdate> extends Composer<TContext> {
-    constructor(id: string, options?: Partial<WizardSceneOptions<TContext>>, ...steps: Step<TContext>[]);
+export class WizardScene<
+  TContext extends WizardContextMessageUpdate
+> extends Composer<TContext> {
+  constructor(
+    id: string,
+    options?: Partial<WizardSceneOptions<TContext>>,
+    ...steps: Step<TContext>[]
+  )
 
-    id: string;
+  id: string
 
-    options: WizardSceneOptions<TContext>;
+  options: WizardSceneOptions<TContext>
 
-    leaveHandler: Middleware<TContext>;
+  leaveHandler: Middleware<TContext>
 
-    ttl?: number;
+  ttl?: number
 
-    leave: (...fns: Middleware<TContext>[]) => this;
+  leave: (...fns: Middleware<TContext>[]) => this
 
-    leaveMiddleware: () => Middleware<TContext>;
+  leaveMiddleware: () => Middleware<TContext>
 }

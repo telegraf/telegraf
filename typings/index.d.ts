@@ -1,7 +1,6 @@
 /** @format */
 
 export { BaseScene, Stage } from './stage'
-export { WizardScene } from './wizard'
 export { Composer, Middleware } from './composer'
 export { Extra } from './extra'
 export { Markup } from './markup'
@@ -10,3 +9,4 @@ export { session } from './session'
 export { Telegraf, Telegraf as default } from './telegraf'
 export { TelegrafContext as Context } from './context'
 export { Telegram } from './telegram'
+export { WizardScene } from './wizard'

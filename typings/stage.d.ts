@@ -78,10 +78,6 @@ export class BaseScene<
   leaveMiddleware: () => Middleware<TContext>
 }
 
-export type Step<TContext extends TelegrafContext> =
-  | MiddlewareFn<TContext>
-  | Composer<TContext>
-
 export type Scene =
   | BaseScene<SceneContextMessageUpdate>
   | WizardScene<WizardContextMessageUpdate>

@@ -1,15 +1,15 @@
 /** @format */
 
+import { Composer, Middleware } from './composer'
+import { SceneContextOptions } from './stage'
 import { TelegrafContext } from './context'
-import { Middleware, Composer, MiddlewareFn } from './composer'
-import { SceneContextOptions, Step } from './stage'
 
 export interface WizardContext<TContext extends WizardContextMessageUpdate> {
   ctx: TContext
 
   options: SceneContextOptions
 
-  steps: Step<TContext>[]
+  steps: Middleware<TContext>[]
 
   cursor: number
 
@@ -42,7 +42,7 @@ export class WizardScene<
   constructor(
     id: string,
     options?: Partial<WizardSceneOptions<TContext>>,
-    ...steps: Step<TContext>[]
+    ...steps: Middleware<TContext>[]
   )
 
   id: string

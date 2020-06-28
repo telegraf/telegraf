@@ -1,19 +1,14 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "lib": [
-      "es6"
-    ],
-    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "outDir": "lib/",
+    "target": "ES2019",
+    "noImplicitAny": false,
     "noImplicitThis": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
-    "baseUrl": "./",
-    "typeRoots": [
-      "./typings",
-      "./node_modules/@types"
-    ],
-    "noEmit": true,
     "forceConsistentCasingInFileNames": true
   },
   "typedocOptions": {
@@ -25,7 +20,5 @@
     "readme": "docs/README.md",
     "theme": "docs/theme/"
   },
-  "include": [
-    "typings"
-  ]
+  "include": ["src/"]
 }

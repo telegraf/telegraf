@@ -12,7 +12,12 @@
   "bugs": {
     "url": "https://github.com/telegraf/telegraf/issues"
   },
-  "main": "telegraf.js",
+  "main": "lib/telegraf.js",
+  "exports": {
+    ".": "./lib/telegraf.js",
+    "./lib/": "./lib/",
+    "./": "./lib/"
+  },
   "files": [
     "bin/*",
     "core/**/*.js",
@@ -24,11 +29,13 @@
     "telegraf": "./bin/telegraf"
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint src/",
+    "pretest": "tsc",
     "test": "ava test/*",
     "precommit": "npm run lint && npm run typecheck && npm test",
     "typedoc": "typedoc",
-    "typecheck": "tsc"
+    "typecheck": "tsc --noEmit",
+    "prepare": "tsc"
   },
   "type": "commonjs",
   "engines": {

@@ -1,6 +1,6 @@
 // This is a test file for the TypeScript typings.
 // It is not intended to be used by external users.
-import Telegraf, { Markup, Middleware, Context } from './index';
+import Telegraf, { Context, Markup, Middleware, Stage, WizardScene } from '.';
 import * as tt from './telegram-types';
 
 const randomPhoto = 'https://picsum.photos/200/300/?random'
@@ -24,6 +24,15 @@ bot.command('cat', ({ replyWithPhoto }) => replyWithPhoto(randomPhoto))
 bot.command('foo', reply('http://coub.com/view/9cjmt'))
 
 bot.action('bar', reply('i was here'))
+
+const wizardScene = new WizardScene(
+  'wizard-scene',
+  {},
+  (ctx: Context) => {
+    ctx.reply('wizard!')
+  }
+)
+bot.use(new Stage([wizardScene], { default: 'wizard-scene' }))
 
 bot.telegram.sendMessage(process.env.BOT_CLIENT_ID || '', "It works")
 

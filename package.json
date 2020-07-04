@@ -20,10 +20,8 @@
   },
   "files": [
     "bin/*",
-    "core/**/*.js",
-    "scenes/**/*.js",
-    "typings/*.d.ts",
-    "*.js"
+    "lib/**/*.js",
+    "typings/**/*.d.ts"
   ],
   "bin": {
     "telegraf": "./bin/telegraf"

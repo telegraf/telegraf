@@ -30,10 +30,14 @@
     "lint": "eslint src/",
     "pretest": "tsc",
     "test": "ava test/*",
-    "precommit": "npm run lint && npm run typecheck && npm test",
     "typedoc": "typedoc",
     "typecheck": "tsc --noEmit",
     "prepare": "tsc"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test && npm run lint"
+    }
   },
   "type": "commonjs",
   "engines": {

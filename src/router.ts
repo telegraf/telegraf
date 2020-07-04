@@ -41,7 +41,6 @@ class Router<TContext extends Context> implements Middleware.Obj<TContext> {
   }
 
   middleware() {
-    //@ts-ignore
     return Composer.lazy<TContext>((ctx) => {
       return Promise.resolve(this.routeFn(ctx)).then((result) => {
         if (!result || !result.route || !this.handlers.has(result.route)) {

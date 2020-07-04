@@ -174,11 +174,7 @@ export type InputFile =
   | InputFileByBuffer
   | InputFileByURL
 
-
-export type DiceEmoji = 
-  '🎲' |
-  '🎯' |
-  '🏀'
+export type DiceEmoji = '🎲' | '🎯' | '🏀'
 
 /**
  * Sending video notes by a URL is currently unsupported
@@ -786,8 +782,8 @@ export interface Dice {
   /**
    * Emoji of the dice
    */
-  emoji: DiceEmoji,
-  
+  emoji: DiceEmoji
+
   /**
    * Value of the dice
    */

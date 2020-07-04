@@ -190,12 +190,14 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
 
   /**
    * Generates middleware that runs in the background.
+   * @deprecated
    */
   static fork<TContext extends Context>(
     middleware: Middleware<TContext>
   ): Middleware.Fn<TContext> {
     const handler = Composer.unwrap(middleware)
     return (ctx, next) => {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       setImmediate(handler, ctx, Composer.safePassThru())
       return next()
     }
@@ -316,6 +318,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       return entities?.some((entity) =>
         predicate(
           entity,
+          // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
           text.substring(entity.offset, entity.offset + entity.length),
           ctx
         )
@@ -333,19 +336,19 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     if (fns.length === 0) {
       // prettier-ignore
       return Array.isArray(predicate)
-        //@ts-expect-error
+        // @ts-expect-error
         ? Composer.entity(entityType, ...predicate)
-        //@ts-expect-error
+        // @ts-expect-error
         : Composer.entity(entityType, predicate)
     }
     const triggers = normalizeTriggers(predicate)
-    //@ts-expect-error
+    // @ts-expect-error
     return Composer.entity(({ type }, value, ctx) => {
       if (type !== entityType) {
         return false
       }
       for (const trigger of triggers) {
-        //@ts-expect-error
+        // @ts-expect-error
         ctx.match = trigger(value, ctx)
         if (ctx.match) {
           return true
@@ -435,8 +438,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
         (ctx.message && (ctx.message.caption || ctx.message.text)) ||
         (ctx.channelPost &&
           (ctx.channelPost.caption || ctx.channelPost.text)) ||
-        (ctx.callbackQuery && ctx.callbackQuery.data) ||
-        (ctx.inlineQuery && ctx.inlineQuery.query)
+        ctx.callbackQuery?.data ||
+        ctx.inlineQuery?.query
       for (const trigger of triggers) {
         const match = trigger(text, ctx)
         if (match) {
@@ -468,7 +471,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     if (fns.length === 0) {
-      //@ts-expect-error
+      // @ts-expect-error
       return Composer.entity(['bot_command'], command)
     }
     const commands = normalizeTextArguments(command, '/')
@@ -478,7 +481,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
         const groupCommands =
           ctx.me &&
           (ctx.chat.type === 'group' || ctx.chat.type === 'supergroup')
-            ? commands.map((command) => `${command}@${ctx.me}`)
+            ? // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+              commands.map((command) => `${command}@${ctx.me}`)
             : []
         return Composer.entity(
           ({ offset, type }, value) =>

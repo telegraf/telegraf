@@ -48,7 +48,7 @@ class Router<TContext extends Context> implements Middleware.Obj<TContext> {
         }
         Object.assign(ctx, result.context)
         Object.assign(ctx.state, result.state)
-        return this.handlers.get(result.route) || this.otherwiseHandler
+        return this.handlers.get(result.route) ?? this.otherwiseHandler
       })
     })
   }

@@ -1,20 +1,22 @@
 /** @format */
 
-//@ts-ignore
-import Context from './context'
+import type Context from './context'
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Middleware {
-  export interface Fn<TContext extends Context> {
-    /*
-      next's parameter is in a contravariant position, and thus, trying to type it
-      prevents assigning `MiddlewareFn<ContextMessageUpdate>`
-      to `MiddlewareFn<CustomContext>`.
-      Middleware passing the parameter should be a separate type instead.
-    */
-    (ctx: TContext, next: () => Promise<void>): void | Promise<unknown>
-  }
+  /*
+    next's parameter is in a contravariant position, and thus, trying to type it
+    prevents assigning `MiddlewareFn<ContextMessageUpdate>`
+    to `MiddlewareFn<CustomContext>`.
+    Middleware passing the parameter should be a separate type instead.
+  */
+  export type Fn<TContext extends Context> = (
+    ctx: TContext,
+    next: () => Promise<void>
+    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  ) => void | Promise<unknown>
   export interface Obj<TContext extends Context> {
-    middleware(): Fn<TContext>
+    middleware: () => Fn<TContext>
   }
 }
 export type Middleware<TContext extends Context> =

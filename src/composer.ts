@@ -141,7 +141,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   ) {
     const handler = Composer.compose(fns)
     return this.command('start', (ctx, next) => {
-      const startPayload = ctx.message.text.substring(7)
+      const startPayload = ctx.message!.text!.substring(7)
       return handler(Object.assign(ctx, { startPayload }), next)
     })
   }
@@ -298,7 +298,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   ) {
     const updateTypes = normalizeTextArguments(updateType)
     const predicate = (ctx: TContext) =>
-      updateTypes.includes(ctx.updateType!) ||
+      updateTypes.includes(ctx.updateType) ||
+      // @ts-expect-error
       updateTypes.some((type) => ctx.updateSubTypes.includes(type))
     return Composer.optional(predicate, ...fns)
   }
@@ -312,13 +313,13 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       return Composer.entity(({ type }) => entityTypes.includes(type), ...fns)
     }
     return Composer.optional((ctx) => {
-      const message = ctx.message || ctx.channelPost
-      const entities = message && (message.entities || message.caption_entities)
-      const text = message && (message.text || message.caption)
-      return entities?.some((entity) =>
+      const message = ctx.message ?? ctx.channelPost
+      const entities = message?.entities ?? message?.caption_entities ?? []
+      const text = message?.text ?? message?.caption
+      if (text === undefined) return false
+      return entities.some((entity) =>
         predicate(
           entity,
-          // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
           text.substring(entity.offset, entity.offset + entity.length),
           ctx
         )
@@ -435,11 +436,13 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     const handler = Composer.compose(fns)
     return (ctx, next) => {
       const text =
-        (ctx.message && (ctx.message.caption || ctx.message.text)) ||
-        (ctx.channelPost &&
-          (ctx.channelPost.caption || ctx.channelPost.text)) ||
-        ctx.callbackQuery?.data ||
+        ctx.message?.caption ??
+        ctx.message?.text ??
+        ctx.channelPost?.caption ??
+        ctx.channelPost?.text ??
+        ctx.callbackQuery?.data ??
         ctx.inlineQuery?.query
+      if (text === undefined) return next()
       for (const trigger of triggers) {
         const match = trigger(text, ctx)
         if (match) {
@@ -479,8 +482,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       'text',
       Composer.lazy<TContext>((ctx) => {
         const groupCommands =
-          ctx.me &&
-          (ctx.chat.type === 'group' || ctx.chat.type === 'supergroup')
+          ctx.me && ctx.chat?.type.endsWith('group')
             ? // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
               commands.map((command) => `${command}@${ctx.me}`)
             : []
@@ -538,10 +540,11 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     const statuses = Array.isArray(status) ? status : [status]
-    // prettier-ignore
-    return Composer.optional((ctx) => ctx.message && ctx.getChatMember(ctx.message.from.id)
-      .then(member => member && statuses.includes(member.status))
-    , ...fns)
+    return Composer.optional(async (ctx) => {
+      if (ctx.message === undefined) return false
+      const member = await ctx.getChatMember(ctx.message.from!.id)
+      return statuses.includes(member.status)
+    }, ...fns)
   }
 
   static admin<TContext extends Context>(
@@ -561,6 +564,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     const types = Array.isArray(type) ? type : [type]
+    // @ts-expect-error
     // prettier-ignore
     return Composer.optional((ctx) => ctx.chat && types.includes(ctx.chat.type), ...fns)
   }
@@ -580,8 +584,10 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   static gameQuery<TContext extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
-    // prettier-ignore
-    return Composer.mount('callback_query', Composer.optional((ctx) => ctx.callbackQuery.game_short_name, ...fns))
+    return Composer.optional(
+      (ctx) => ctx.callbackQuery?.game_short_name !== undefined,
+      ...fns
+    )
   }
 
   static unwrap<TContext extends Context>(handler: Middleware<TContext>) {

@@ -24,3 +24,6 @@ export type Middleware<TContext extends Context> =
   | Middleware.Obj<TContext>
 
 export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
+
+// prettier-ignore
+export type Tail<T> = T extends [unknown, ...infer U] ? U : never

@@ -31,6 +31,7 @@
     "pretest": "tsc",
     "test": "ava test/*",
     "typedoc": "typedoc",
+    "clean": "git clean -fX lib/",
     "typecheck": "tsc --noEmit",
     "prepare": "tsc"
   },

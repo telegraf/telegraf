@@ -278,7 +278,13 @@ class ApiClient {
       .then((data) => {
         if (!data.ok) {
           debug('API call failed', data)
-          throw new TelegramError(data, { method, payload })
+          
+          return { 
+            ok: false, 
+            method,
+            payload,
+            data
+          };
         }
         return data.result
       })

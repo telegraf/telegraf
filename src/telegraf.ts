@@ -1,25 +1,26 @@
-/* eslint @typescript-eslint/no-var-requires: "warn" */
-import * as http from 'http'
-import * as https from 'https'
 import type * as tt from '../typings/telegram-types'
 import type ApiClient from './core/network/client'
+import BaseScene from './scenes/base'
 import Composer from './composer'
 import Context from './context'
 import crypto from 'crypto'
+import Debug from 'debug'
+import Extra from './extra'
 import generateCallback from './core/network/webhook'
+import http from 'http'
+import https from 'https'
+import Markup from './markup'
 import { promisify } from 'util'
+import Router from './router'
+import session from './session'
+import Stage from './stage'
 import Telegram from './telegram'
 import type { TlsOptions } from 'tls'
 import { URL } from 'url'
-const debug = require('debug')('telegraf:core')
-const Extra = require('./extra')
-const Markup = require('./markup')
-const session = require('./session')
-const Router = require('./router')
-const Stage = require('./stage')
-const BaseScene = require('./scenes/base')
 
-const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
+const debug = Debug('telegraf:core')
+
+const DEFAULT_OPTIONS: Telegraf.Options<any> = {
   telegram: {},
   retryAfter: 1,
   handlerTimeout: 0,
@@ -27,7 +28,7 @@ const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   contextType: Context,
 }
 
-const noop = () => {}
+const noop: () => void = () => undefined
 function always<T>(x: T) {
   return () => x
 }
@@ -96,14 +97,15 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
 
   handleError: (err: any, ctx: TContext) => void = (err) => {
     console.error()
-    console.error((err.stack || err.toString()).replace(/^/gm, '  '))
+    console.error(
+      ('stack' in err ? err.stack : err.toString()).replace(/^/gm, '  ')
+    )
     console.error()
     throw err
   }
 
   constructor(token: string, options?: Partial<Telegraf.Options<TContext>>) {
     super()
-    // @ts-expect-error
     this.options = {
       ...DEFAULT_OPTIONS,
       ...options,
@@ -125,32 +127,35 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
 
   get webhookReply() {
     return this.telegram.webhookReply
-  } /* eslint brace-style: 0 */
+  }
 
   catch(handler: (err: any, ctx: TContext) => void) {
     this.handleError = handler
     return this
   }
 
-  // prettier-ignore
-  webhookCallback (path = '/') {
-    return generateCallback(path, (update, res) => this.handleUpdate(update, res), debug)
+  webhookCallback(path = '/') {
+    return generateCallback(
+      path,
+      (update, res) => this.handleUpdate(update, res),
+      debug
+    )
   }
 
   startPolling(
     timeout = 30,
     limit = 100,
-    allowedUpdates?: tt.UpdateType[],
+    allowedUpdates?: tt.UpdateType[] | tt.UpdateType,
     stopCallback = noop
   ) {
     this.polling.timeout = timeout
     this.polling.limit = limit
-    // prettier-ignore
-    // @ts-expect-error
-    this.polling.allowedUpdates = allowedUpdates
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      ? Array.isArray(allowedUpdates) ? allowedUpdates : [`${allowedUpdates}`]
-      : undefined
+    this.polling.allowedUpdates =
+      allowedUpdates != null
+        ? Array.isArray(allowedUpdates)
+          ? allowedUpdates
+          : [allowedUpdates]
+        : undefined
     this.polling.stopCallback = stopCallback
     if (!this.polling.started) {
       this.polling.started = true
@@ -168,12 +173,13 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
   ) {
     const webhookCb = this.webhookCallback(hookPath)
     const callback: http.RequestListener =
-      cb && typeof cb === 'function'
+      cb != null && typeof cb === 'function'
         ? (req, res) => webhookCb(req, res, () => cb(req, res))
         : webhookCb
-    this.webhookServer = tlsOptions
-      ? https.createServer(tlsOptions, callback)
-      : http.createServer(callback)
+    this.webhookServer =
+      tlsOptions != null
+        ? https.createServer(tlsOptions, callback)
+        : http.createServer(callback)
     this.webhookServer.listen(port, host, () => {
       debug('Webhook listening on port: %s', port)
     })
@@ -183,20 +189,25 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
   launch(config: Telegraf.LaunchOptions = {}) {
     debug('Connecting to Telegram')
     return this.telegram.getMe().then((botInfo) => {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      debug(`Launching @${botInfo.username}`)
+      debug(
+        `Launching ${botInfo.username == null ? 'bot' : '@' + botInfo.username}`
+      )
       this.options.username = botInfo.username
       this.context.botInfo = botInfo
-      if (!config.webhook) {
+      if (config.webhook == null) {
         const { timeout, limit, allowedUpdates, stopCallback } =
           config.polling ?? {}
-        // prettier-ignore
-        return this.telegram.deleteWebhook()
-          .then(() => this.startPolling(timeout, limit, allowedUpdates, stopCallback))
+        return this.telegram
+          .deleteWebhook()
+          .then(() =>
+            this.startPolling(timeout, limit, allowedUpdates, stopCallback)
+          )
           .then(() => debug('Bot started with long-polling'))
       }
-      // prettier-ignore
-      if (typeof config.webhook.domain !== 'string' && typeof config.webhook.hookPath !== 'string') {
+      if (
+        typeof config.webhook.domain !== 'string' &&
+        typeof config.webhook.hookPath !== 'string'
+      ) {
         throw new Error('Webhook domain or webhook path is required')
       }
       let domain = config.webhook.domain ?? ''
@@ -208,7 +219,7 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
         `/telegraf/${crypto.randomBytes(32).toString('hex')}`
       const { port, host, tlsOptions, cb } = config.webhook
       this.startWebhook(hookPath, tlsOptions, port, host, cb)
-      if (!domain) {
+      if (domain == null) {
         debug('Bot started with webhook')
         return
       }
@@ -221,7 +232,7 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
   stop(cb = noop) {
     debug('Stopping bot...')
     return new Promise((resolve) => {
-      if (this.webhookServer) {
+      if (this.webhookServer != null) {
         return this.webhookServer.close(resolve)
       } else if (!this.polling.started) {
         return resolve()
@@ -235,8 +246,9 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
     if (!Array.isArray(updates)) {
       return Promise.reject(new Error('Updates must be an array'))
     }
-    // prettier-ignore
-    const processAll = Promise.all(updates.map((update) => this.handleUpdate(update)))
+    const processAll = Promise.all(
+      updates.map((update) => this.handleUpdate(update))
+    )
     if (this.options.handlerTimeout === 0) {
       return processAll
     }
@@ -262,14 +274,16 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
       return
     }
     const { timeout, limit, offset, allowedUpdates } = this.polling
-    // eslint-disable-next-line
-    this.telegram.getUpdates(timeout, limit, offset, allowedUpdates)
+    this.telegram
+      .getUpdates(timeout, limit, offset, allowedUpdates)
       .catch((err) => {
         if (err.code === 401 || err.code === 409) {
           throw err
         }
-        const wait = err.parameters?.retry_after ?? this.options.retryAfter
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        const wait =
+          typeof 'retry_after' in err.parameters
+            ? Number(err.parameters.retry_after)
+            : this.options.retryAfter
         console.error(`Failed to fetch updates. Waiting: ${wait}s`, err.message)
         return sleep(wait * 1000, [])
       })
@@ -290,6 +304,7 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
         }
         this.fetchUpdates()
       })
+      .catch(noop)
   }
 }
 

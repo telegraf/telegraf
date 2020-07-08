@@ -1,8 +1,11 @@
-import type Telegram from './telegram'
 import type * as tt from '../typings/telegram-types'
-import { Tail } from './types'
+import type ApiClient from './core/network/client'
+import type { Tail } from './types'
+import type Telegram from './telegram'
 
-type Shorthand<FName extends keyof Telegram> = Tail<Parameters<Telegram[FName]>>
+type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
+  Parameters<Telegram[FName]>
+>
 
 const UpdateTypes = [
   'callback_query',
@@ -57,6 +60,7 @@ const MessageSubTypesMapping = {
 }
 
 class TelegrafContext {
+  public botInfo?: tt.User
   readonly updateType: tt.UpdateType
   readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
   /** @deprecated */

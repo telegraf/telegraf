@@ -14,19 +14,33 @@ import TelegramError from './error'
 const debug = require('debug')('telegraf:client')
 const { isStream } = MultipartStream
 
-const WEBHOOK_BLACKLIST = [
-  'getChat',
-  'getChatAdministrators',
-  'getChatMember',
-  'getChatMembersCount',
-  'getFile',
-  'getFileLink',
-  'getGameHighScores',
-  'getMe',
-  'getUserProfilePhotos',
-  'getWebhookInfo',
-  'exportChatInviteLink',
-]
+const WEBHOOK_REPLY_METHOD_WHITELIST = new Set([
+  // methods that always return true on success
+  'addStickerToSet',
+  'answerInlineQuery',
+  'answerPreCheckoutQuery',
+  'answerShippingQuery',
+  'createNewStickerSet',
+  'deleteChatPhoto',
+  'deleteMessage',
+  'deleteStickerFromSet',
+  'deleteWebhook',
+  'kickChatMember',
+  'leaveChat',
+  'pinChatMessage',
+  'promoteChatMember',
+  'restrictChatMember',
+  'sendChatAction',
+  'setChatAdministratorCustomTitle',
+  'setChatDescription',
+  'setChatPermissions',
+  'setChatStickerSet',
+  'setChatTitle',
+  'setMyCommands',
+  'setStickerPositionInSet',
+  'unbanChatMember',
+  'unpinChatMessage',
+])
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ApiClient {
@@ -330,7 +344,7 @@ class ApiClient {
       options.webhookReply &&
       response &&
       !responseEnd &&
-      !WEBHOOK_BLACKLIST.includes(method)
+      WEBHOOK_REPLY_METHOD_WHITELIST.has(method)
     ) {
       debug('Call via webhook', method, payload)
       this.responseEnd = true

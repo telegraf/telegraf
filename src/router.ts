@@ -1,8 +1,8 @@
 /** @format */
 
+import type { Middleware, NonemptyReadonlyArray } from './types'
 import Composer from './composer'
 import type Context from './context'
-import type { Middleware, NonemptyReadonlyArray } from './types'
 
 type RouteFn<TContext extends Context> = (
   ctx: TContext
@@ -19,7 +19,7 @@ class Router<TContext extends Context> implements Middleware.Obj<TContext> {
     private readonly routeFn: RouteFn<TContext>,
     public handlers = new Map<string, Middleware<TContext>>()
   ) {
-    if (!routeFn) {
+    if (typeof routeFn !== 'function') {
       throw new Error('Missing routing function')
     }
   }
@@ -43,7 +43,7 @@ class Router<TContext extends Context> implements Middleware.Obj<TContext> {
   middleware() {
     return Composer.lazy<TContext>((ctx) => {
       return Promise.resolve(this.routeFn(ctx)).then((result) => {
-        if (!result || !result.route || !this.handlers.has(result.route)) {
+        if (result == null) {
           return this.otherwiseHandler
         }
         Object.assign(ctx, result.context)

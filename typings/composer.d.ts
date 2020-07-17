@@ -65,6 +65,14 @@ export declare class Composer<TContext extends TelegrafContext>
   ): this
 
   /**
+   * Registers middleware for handling inlineQuery messages.
+   */
+  inlineQuery(
+    triggrers: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
+
+  /**
    * Registers middleware for handling specified commands.
    */
   command(
@@ -120,6 +128,14 @@ export declare class Composer<TContext extends TelegrafContext>
    * Generates middleware for handling matching callback queries.
    */
   static action<TContext extends TelegrafContext>(
+    triggers: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling matching inline queries.
+   */
+  static inlineQuery<TContext extends TelegrafContext>(
     triggers: HearsTriggers<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>

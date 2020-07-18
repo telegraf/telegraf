@@ -1,6 +1,12 @@
-const Telegraf = require('telegraf')
-const Extra = require('telegraf/extra')
-const Markup = require('telegraf/markup')
+// Normal Node.js syntax
+// const Telegraf = require('telegraf')
+// const Extra = require('telegraf/extra')
+// const Markup = require('telegraf/markup')
+
+// This is way these modules should be imported with the new ES6 syntax
+import Telegraf from 'telegraf';
+import Extra from 'telegraf/extra.js';
+import Markup from 'telegraf/markup.js';
 
 const keyboard = Markup.inlineKeyboard([
   Markup.urlButton('❤️', 'http://telegraf.js.org'),

@@ -173,7 +173,7 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
   ) {
     const webhookCb = this.webhookCallback(hookPath)
     const callback: http.RequestListener =
-      cb != null && typeof cb === 'function'
+      typeof cb === 'function'
         ? (req, res) => webhookCb(req, res, () => cb(req, res))
         : webhookCb
     this.webhookServer =

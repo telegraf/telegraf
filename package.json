@@ -12,22 +12,33 @@
   "bugs": {
     "url": "https://github.com/telegraf/telegraf/issues"
   },
-  "main": "telegraf.js",
+  "main": "lib/telegraf.js",
+  "exports": {
+    ".": "./lib/telegraf.js",
+    "./lib/": "./lib/",
+    "./": "./lib/"
+  },
   "files": [
     "bin/*",
-    "core/**/*.js",
-    "scenes/**/*.js",
-    "typings/*.d.ts",
-    "*.js"
+    "lib/**/*.js",
+    "typings/**/*.d.ts"
   ],
   "bin": {
     "telegraf": "./bin/telegraf"
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint src/",
+    "pretest": "tsc",
     "test": "ava test/*",
-    "precommit": "npm run lint && npm run typecheck && npm test",
-    "typecheck": "tsc"
+    "typedoc": "typedoc",
+    "clean": "git clean -fX lib/",
+    "typecheck": "tsc --noEmit",
+    "prepare": "tsc"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test && npm run lint"
+    }
   },
   "type": "commonjs",
   "engines": {
@@ -44,17 +55,24 @@
   },
   "devDependencies": {
     "@types/node": "^13.1.0",
+    "@types/node-fetch": "^2.5.7",
+    "@typescript-eslint/eslint-plugin": "^3.5.0",
+    "@typescript-eslint/parser": "^3.5.0",
     "ava": "^3.0.0",
-    "eslint": "^6.2.2",
+    "eslint": "^7.4.0",
+    "eslint-config-prettier": "^6.11.0",
     "eslint-config-standard": "^14.1.0",
+    "eslint-config-standard-with-typescript": "^18.0.2",
     "eslint-plugin-ava": "^10.0.0",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-standard": "^4.0.0",
     "husky": "^4.2.0",
     "prettier": "^2.0.5",
-    "typescript": "^3.0.1"
+    "typedoc": "^0.17.4",
+    "typescript": "^4.0.0-beta"
   },
   "keywords": [
     "telegraf",

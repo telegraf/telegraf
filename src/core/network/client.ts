@@ -1,11 +1,14 @@
+/* eslint @typescript-eslint/restrict-template-expressions: [ "error", { "allowAny": true } ] */
+import * as crypto from 'crypto'
+import * as fs from 'fs'
+import type * as http from 'http'
+import * as https from 'https'
+import * as path from 'path'
+import fetch, { RequestInit } from 'node-fetch'
+import MultipartStream from './multipart-stream'
+import TelegramError from './error'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const debug = require('debug')('telegraf:client')
-const crypto = require('crypto')
-const fetch = require('node-fetch').default
-const fs = require('fs')
-const https = require('https')
-const path = require('path')
-const TelegramError = require('./error')
-const MultipartStream = require('./multipart-stream')
 const { isStream } = MultipartStream
 
 const WEBHOOK_BLACKLIST = [
@@ -19,8 +22,17 @@ const WEBHOOK_BLACKLIST = [
   'getMe',
   'getUserProfilePhotos',
   'getWebhookInfo',
-  'exportChatInviteLink'
+  'exportChatInviteLink',
 ]
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+namespace ApiClient {
+  export interface Options {
+    agent?: https.Agent | http.Agent
+    apiRoot: string
+    webhookReply: boolean
+  }
+}
 
 const DEFAULT_EXTENSIONS = {
   audio: 'mp3',
@@ -29,7 +41,7 @@ const DEFAULT_EXTENSIONS = {
   video: 'mp4',
   animation: 'mp4',
   video_note: 'mp4',
-  voice: 'ogg'
+  voice: 'ogg',
 }
 
 const DEFAULT_OPTIONS = {
@@ -37,23 +49,17 @@ const DEFAULT_OPTIONS = {
   webhookReply: true,
   agent: new https.Agent({
     keepAlive: true,
-    keepAliveMsecs: 10000
-  })
+    keepAliveMsecs: 10000,
+  }),
 }
 
 const WEBHOOK_REPLY_STUB = {
   webhook: true,
-  details: 'https://core.telegram.org/bots/api#making-requests-when-getting-updates'
+  details:
+    'https://core.telegram.org/bots/api#making-requests-when-getting-updates',
 }
 
-function safeJSONParse (text) {
-  try {
-    return JSON.parse(text)
-  } catch (err) {
-    debug('JSON parse failed', err)
-  }
-}
-
+// prettier-ignore
 function includesMedia (payload) {
   return Object.keys(payload).some(
     (key) => {
@@ -70,12 +76,12 @@ function includesMedia (payload) {
   )
 }
 
-function buildJSONConfig (payload) {
+function buildJSONConfig(payload): Promise<RequestInit> {
   return Promise.resolve({
     method: 'POST',
     compress: true,
     headers: { 'content-type': 'application/json', connection: 'keep-alive' },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
   })
 }
 
@@ -84,10 +90,10 @@ const FORM_DATA_JSON_FIELDS = [
   'reply_markup',
   'mask_position',
   'shipping_options',
-  'errors'
+  'errors',
 ]
 
-function buildFormDataConfig (payload, agent) {
+function buildFormDataConfig(payload, agent): Promise<RequestInit> {
   for (const field of FORM_DATA_JSON_FIELDS) {
     if (field in payload && typeof payload[field] !== 'string') {
       payload[field] = JSON.stringify(payload[field])
@@ -95,17 +101,23 @@ function buildFormDataConfig (payload, agent) {
   }
   const boundary = crypto.randomBytes(32).toString('hex')
   const formData = new MultipartStream(boundary)
-  const tasks = Object.keys(payload).map((key) => attachFormValue(formData, key, payload[key], agent))
+  const tasks = Object.keys(payload).map((key) =>
+    attachFormValue(formData, key, payload[key], agent)
+  )
   return Promise.all(tasks).then(() => {
     return {
       method: 'POST',
       compress: true,
-      headers: { 'content-type': `multipart/form-data; boundary=${boundary}`, connection: 'keep-alive' },
-      body: formData
+      headers: {
+        'content-type': `multipart/form-data; boundary=${boundary}`,
+        connection: 'keep-alive',
+      },
+      body: formData,
     }
   })
 }
 
+// prettier-ignore
 function attachFormValue (form, id, value, agent) {
   if (!value) {
     return Promise.resolve()
@@ -155,6 +167,7 @@ function attachFormValue (form, id, value, agent) {
   return attachFormMedia(form, value, id, agent)
 }
 
+// prettier-ignore
 function attachFormMedia (form, media, id, agent) {
   let fileName = media.filename || `${id}.${DEFAULT_EXTENSIONS[id] || 'dat'}`
   if (media.url) {
@@ -180,11 +193,12 @@ function attachFormMedia (form, media, id, agent) {
   return Promise.resolve()
 }
 
+// prettier-ignore
 function isKoaResponse (response) {
   return typeof response.set === 'function' && typeof response.header === 'object'
 }
 
-function answerToWebhook (response, payload = {}, options) {
+function answerToWebhook(response, payload, options: ApiClient.Options) {
   if (!includesMedia(payload)) {
     if (isKoaResponse(response)) {
       response.body = payload
@@ -198,63 +212,84 @@ function answerToWebhook (response, payload = {}, options) {
         response.end(JSON.stringify(payload), 'utf-8')
         return resolve(WEBHOOK_REPLY_STUB)
       }
-      response.end(JSON.stringify(payload), 'utf-8', () => resolve(WEBHOOK_REPLY_STUB))
+      response.end(JSON.stringify(payload), 'utf-8', () =>
+        resolve(WEBHOOK_REPLY_STUB)
+      )
     })
   }
 
-  return buildFormDataConfig(payload, options.agent)
-    .then(({ headers, body }) => {
+  return buildFormDataConfig(payload, options.agent).then(
+    ({ headers = {}, body }) => {
       if (isKoaResponse(response)) {
-        Object.keys(headers).forEach(key => response.set(key, headers[key]))
+        Object.keys(headers).forEach((key) => response.set(key, headers[key]))
         response.body = body
         return Promise.resolve(WEBHOOK_REPLY_STUB)
       }
       if (!response.headersSent) {
-        Object.keys(headers).forEach(key => response.setHeader(key, headers[key]))
+        Object.keys(headers).forEach((key) =>
+          response.setHeader(key, headers[key])
+        )
       }
       return new Promise((resolve) => {
         response.on('finish', () => resolve(WEBHOOK_REPLY_STUB))
+        // @ts-expect-error
         body.pipe(response)
       })
-    })
+    }
+  )
 }
 
+// eslint-disable-next-line no-redeclare
 class ApiClient {
-  constructor (token, options, webhookResponse) {
+  readonly options: ApiClient.Options
+  private responseEnd = false
+
+  constructor(
+    public token: string,
+    options?: Partial<ApiClient.Options>,
+    private readonly response?
+  ) {
     this.token = token
     this.options = {
       ...DEFAULT_OPTIONS,
-      ...options
+      ...options,
     }
     if (this.options.apiRoot.startsWith('http://')) {
-      this.options.agent = null
+      this.options.agent = undefined
     }
-    this.response = webhookResponse
   }
 
-  set webhookReply (enable) {
+  set webhookReply(enable: boolean) {
     this.options.webhookReply = enable
   }
 
-  get webhookReply () {
+  get webhookReply() {
     return this.options.webhookReply
   }
 
-  callApi (method, data = {}) {
+  callApi(method: string, data = {}) {
     const { token, options, response, responseEnd } = this
 
     const payload = Object.keys(data)
       .filter((key) => typeof data[key] !== 'undefined' && data[key] !== null)
       .reduce((acc, key) => ({ ...acc, [key]: data[key] }), {})
 
-    if (options.webhookReply && response && !responseEnd && !WEBHOOK_BLACKLIST.includes(method)) {
+    if (
+      options.webhookReply &&
+      response &&
+      !responseEnd &&
+      !WEBHOOK_BLACKLIST.includes(method)
+    ) {
       debug('Call via webhook', method, payload)
       this.responseEnd = true
       return answerToWebhook(response, { method, ...payload }, options)
     }
 
     if (!token) {
-      throw new TelegramError({ error_code: 401, description: 'Bot Token is required' })
+      throw new TelegramError({
+        error_code: 401,
+        description: 'Bot Token is required',
+      })
     }
 
     debug('HTTP call', method, payload)
@@ -267,14 +302,7 @@ class ApiClient {
         config.agent = options.agent
         return fetch(apiUrl, config)
       })
-      .then((res) => res.text())
-      .then((text) => {
-        return safeJSONParse(text) || {
-          error_code: 500,
-          description: 'Unsupported http response from Telegram',
-          response: text
-        }
-      })
+      .then((res) => res.json())
       .then((data) => {
         if (!data.ok) {
           debug('API call failed', data)
@@ -285,4 +313,4 @@ class ApiClient {
   }
 }
 
-module.exports = ApiClient
+export = ApiClient

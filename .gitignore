@@ -38,3 +38,5 @@ node_modules
 .env
 .vscode
 package-lock.json
+/lib
+/telegraf-docs/

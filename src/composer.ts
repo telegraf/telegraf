@@ -17,8 +17,7 @@ function always<T>(x: T) {
 }
 const anoop = always(Promise.resolve())
 
-class Composer<TContext extends Context>
-  implements Middleware.Obj<TContext> {
+class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   private handler: Middleware.Fn<TContext>
 
   constructor(...fns: ReadonlyArray<Middleware<TContext>>) {
@@ -273,15 +272,11 @@ class Composer<TContext extends Context>
     )
   }
 
-  static filter<TContext extends Context>(
-    predicate: Predicate<TContext>
-  ) {
+  static filter<TContext extends Context>(predicate: Predicate<TContext>) {
     return Composer.branch(predicate, Composer.safePassThru(), () => {})
   }
 
-  static drop<TContext extends Context>(
-    predicate: Predicate<TContext>
-  ) {
+  static drop<TContext extends Context>(predicate: Predicate<TContext>) {
     return Composer.branch(predicate, () => {}, Composer.safePassThru())
   }
 
@@ -597,9 +592,7 @@ class Composer<TContext extends Context>
     )
   }
 
-  static unwrap<TContext extends Context>(
-    handler: Middleware<TContext>
-  ) {
+  static unwrap<TContext extends Context>(handler: Middleware<TContext>) {
     if (!handler) {
       throw new Error('Handler is undefined')
     }

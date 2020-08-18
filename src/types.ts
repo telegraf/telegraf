@@ -1,6 +1,6 @@
 /** @format */
 
-import type Context from './context'
+import Context from './context'
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Middleware {
@@ -13,8 +13,7 @@ export namespace Middleware {
   export type Fn<TContext extends Context> = (
     ctx: TContext,
     next: () => Promise<void>
-    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  ) => void | Promise<unknown>
+  ) => void | Promise<void>
   export interface Obj<TContext extends Context> {
     middleware: () => Fn<TContext>
   }
@@ -27,3 +26,9 @@ export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 
 // prettier-ignore
 export type Tail<T> = T extends [unknown, ...infer U] ? U : never
+
+export interface SceneContextOptions {
+  sessionName: string
+  ttl?: number
+  default?: any
+}

@@ -1,6 +1,6 @@
-import type * as tt from '../typings/telegram-types.d'
-import replicators from './core/replicators'
+import * as tt from '../typings/telegram-types.d'
 import ApiClient from './core/network/client'
+import * as replicators from './core/replicators'
 
 class Telegram extends ApiClient {
   /**
@@ -120,7 +120,11 @@ class Telegram extends ApiClient {
     text: string,
     extra?: tt.ExtraEditMessage
   ): Promise<tt.Message> {
-    return this.callApi('sendMessage', { chat_id: chatId, text, ...extra })
+    return this.callApi('sendMessage', {
+      chat_id: chatId,
+      text,
+      ...extra,
+    })
   }
 
   /**
@@ -152,7 +156,10 @@ class Telegram extends ApiClient {
     chatId: number | string,
     action: tt.ChatAction
   ): Promise<boolean> {
-    return this.callApi('sendChatAction', { chat_id: chatId, action })
+    return this.callApi('sendChatAction', {
+      chat_id: chatId,
+      action,
+    })
   }
 
   getUserProfilePhotos(userId: number, offset?: number, limit?: number) {
@@ -187,7 +194,7 @@ class Telegram extends ApiClient {
     longitude: number,
     title: string,
     address: string,
-    extra
+    extra: { [key: string]: any }
   ): Promise<tt.Message> {
     return this.callApi('sendVenue', {
       latitude,
@@ -218,7 +225,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     phoneNumber: string,
     firstName: string,
-    extra
+    extra: { [key: string]: any }
   ): Promise<tt.Message> {
     return this.callApi('sendContact', {
       chat_id: chatId,
@@ -236,7 +243,11 @@ class Telegram extends ApiClient {
     photo: tt.InputFile,
     extra?: tt.ExtraPhoto
   ): Promise<tt.MessagePhoto> {
-    return this.callApi('sendPhoto', { chat_id: chatId, photo, ...extra })
+    return this.callApi('sendPhoto', {
+      chat_id: chatId,
+      photo,
+      ...extra,
+    })
   }
 
   /**
@@ -259,7 +270,11 @@ class Telegram extends ApiClient {
     document: tt.InputFile,
     extra?: tt.ExtraDocument
   ): Promise<tt.MessageDocument> {
-    return this.callApi('sendDocument', { chat_id: chatId, document, ...extra })
+    return this.callApi('sendDocument', {
+      chat_id: chatId,
+      document,
+      ...extra,
+    })
   }
 
   /**
@@ -273,7 +288,11 @@ class Telegram extends ApiClient {
     audio: tt.InputFile,
     extra?: tt.ExtraAudio
   ): Promise<tt.MessageAudio> {
-    return this.callApi('sendAudio', { chat_id: chatId, audio, ...extra })
+    return this.callApi('sendAudio', {
+      chat_id: chatId,
+      audio,
+      ...extra,
+    })
   }
 
   /**
@@ -285,7 +304,11 @@ class Telegram extends ApiClient {
     sticker: tt.InputFile,
     extra?: tt.ExtraSticker
   ): Promise<tt.MessageSticker> {
-    return this.callApi('sendSticker', { chat_id: chatId, sticker, ...extra })
+    return this.callApi('sendSticker', {
+      chat_id: chatId,
+      sticker,
+      ...extra,
+    })
   }
 
   /**
@@ -298,7 +321,11 @@ class Telegram extends ApiClient {
     video: tt.InputFile,
     extra?: tt.ExtraVideo
   ): Promise<tt.MessageVideo> {
-    return this.callApi('sendVideo', { chat_id: chatId, video, ...extra })
+    return this.callApi('sendVideo', {
+      chat_id: chatId,
+      video,
+      ...extra,
+    })
   }
 
   /**
@@ -342,7 +369,11 @@ class Telegram extends ApiClient {
     voice: tt.InputFile,
     extra?: tt.ExtraVoice
   ): Promise<tt.MessageVoice> {
-    return this.callApi('sendVoice', { chat_id: chatId, voice, ...extra })
+    return this.callApi('sendVoice', {
+      chat_id: chatId,
+      voice,
+      ...extra,
+    })
   }
 
   /**
@@ -371,7 +402,11 @@ class Telegram extends ApiClient {
     media: readonly tt.MessageMedia[],
     extra?: tt.ExtraMediaGroup
   ): Promise<readonly tt.Message[]> {
-    return this.callApi('sendMediaGroup', { chat_id: chatId, media, ...extra })
+    return this.callApi('sendMediaGroup', {
+      chat_id: chatId,
+      media,
+      ...extra,
+    })
   }
 
   /**
@@ -446,7 +481,9 @@ class Telegram extends ApiClient {
   getChatAdministrators(
     chatId: number | string
   ): Promise<readonly tt.ChatMember[]> {
-    return this.callApi('getChatAdministrators', { chat_id: chatId })
+    return this.callApi('getChatAdministrators', {
+      chat_id: chatId,
+    })
   }
 
   /**
@@ -458,7 +495,10 @@ class Telegram extends ApiClient {
     chatId: string | number,
     userId: number
   ): Promise<tt.ChatMember> {
-    return this.callApi('getChatMember', { chat_id: chatId, user_id: userId })
+    return this.callApi('getChatMember', {
+      chat_id: chatId,
+      user_id: userId,
+    })
   }
 
   /**
@@ -489,7 +529,10 @@ class Telegram extends ApiClient {
     chatId: number | string,
     permissions: tt.ChatPermissions
   ): Promise<boolean> {
-    return this.callApi('setChatPermissions', { chat_id: chatId, permissions })
+    return this.callApi('setChatPermissions', {
+      chat_id: chatId,
+      permissions,
+    })
   }
 
   /**
@@ -950,7 +993,7 @@ class Telegram extends ApiClient {
     return this.callApi('setMyCommands', { commands })
   }
 
-  setPassportDataErrors(userId: number, errors) {
+  setPassportDataErrors(userId: number, errors: object) {
     return this.callApi('setPassportDataErrors', {
       user_id: userId,
       errors: errors,
@@ -970,8 +1013,9 @@ class Telegram extends ApiClient {
     if (!message) {
       throw new Error('Message is required')
     }
-    // prettier-ignore
-    const type = Object.keys(replicators.copyMethods).find((type) => message[type])
+    const type = Object.keys(replicators.copyMethods).find(
+      (type) => ((message as unknown) as { [key: string]: string })[type]
+    )
     if (!type) {
       throw new Error('Unsupported message type')
     }

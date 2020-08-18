@@ -1,11 +1,13 @@
-/* eslint @typescript-eslint/restrict-template-expressions: [ "error", { "allowAny": true } ] */
+/* eslint @typescript-eslint/restrict-template-expressions: [ "error", { "allowNumber": true, "allowBoolean": true } ] */
 import * as crypto from 'crypto'
 import * as fs from 'fs'
-import type * as http from 'http'
+import * as http from 'http'
 import * as https from 'https'
 import * as path from 'path'
-import fetch, { RequestInit } from 'node-fetch'
+import fetch, { RequestInfo, RequestInit } from 'node-fetch'
+import { hasProp, hasPropType } from '../../util'
 import MultipartStream from './multipart-stream'
+import { ReadStream } from 'fs'
 import TelegramError from './error'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const debug = require('debug')('telegraf:client')
@@ -60,23 +62,27 @@ const WEBHOOK_REPLY_STUB = {
 }
 
 // prettier-ignore
-function includesMedia (payload) {
+function includesMedia (payload: object) {
   return Object.keys(payload).some(
     (key) => {
-      const value = payload[key]
+      const value = (payload as { [k: string]: unknown })[key]
       if (Array.isArray(value)) {
         return value.some(({ media }) => media && typeof media === 'object' && (media.source || media.url))
       }
-      return (typeof value === 'object') && (
-        value.source ||
-        value.url ||
-        (typeof value.media === 'object' && (value.media.source || value.media.url))
+      return (value && typeof value === 'object') && (
+        (hasProp(value, 'source') && value.source) ||
+        (hasProp(value, 'url') && value.url) || (
+          hasPropType(value, 'media', 'object') && (
+            (hasProp(value.media, 'source') && value.media.source) ||
+            (hasProp(value.media, 'url') && value.media.url)
+          )
+        )
       )
     }
   )
 }
 
-function buildJSONConfig(payload): Promise<RequestInit> {
+function buildJSONConfig(payload: unknown): Promise<RequestInit> {
   return Promise.resolve({
     method: 'POST',
     compress: true,
@@ -93,112 +99,133 @@ const FORM_DATA_JSON_FIELDS = [
   'errors',
 ]
 
-function buildFormDataConfig(payload, agent): Promise<RequestInit> {
+async function buildFormDataConfig(
+  payload: object,
+  agent: RequestInit['agent']
+): Promise<RequestInit> {
   for (const field of FORM_DATA_JSON_FIELDS) {
-    if (field in payload && typeof payload[field] !== 'string') {
+    if (hasProp(payload, field) && typeof payload[field] !== 'string') {
       payload[field] = JSON.stringify(payload[field])
     }
   }
   const boundary = crypto.randomBytes(32).toString('hex')
   const formData = new MultipartStream(boundary)
   const tasks = Object.keys(payload).map((key) =>
-    attachFormValue(formData, key, payload[key], agent)
+    attachFormValue(
+      formData,
+      key,
+      (payload as { [k: string]: unknown })[key],
+      agent
+    )
   )
-  return Promise.all(tasks).then(() => {
-    return {
-      method: 'POST',
-      compress: true,
-      headers: {
-        'content-type': `multipart/form-data; boundary=${boundary}`,
-        connection: 'keep-alive',
-      },
-      body: formData,
-    }
-  })
+  await Promise.all(tasks)
+  return {
+    method: 'POST',
+    compress: true,
+    headers: {
+      'content-type': `multipart/form-data; boundary=${boundary}`,
+      connection: 'keep-alive',
+    },
+    body: formData,
+  }
 }
 
 // prettier-ignore
-function attachFormValue (form, id, value, agent) {
+async function attachFormValue (form: MultipartStream, id: string, value: unknown, agent: RequestInit['agent']) {
   if (!value) {
-    return Promise.resolve()
+    return
   }
-  const valueType = typeof value
-  if (valueType === 'string' || valueType === 'boolean' || valueType === 'number') {
+  if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
     form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
       body: `${value}`
     })
-    return Promise.resolve()
+    return
   }
   if (id === 'thumb') {
     const attachmentId = crypto.randomBytes(16).toString('hex')
-    return attachFormMedia(form, value, attachmentId, agent)
-      .then(() => form.addPart({
-        headers: { 'content-disposition': `form-data; name="${id}"` },
-        body: `attach://${attachmentId}`
-      }))
+    await attachFormMedia(form, value as FormMedia, attachmentId, agent)
+    return form.addPart({
+      headers: { 'content-disposition': `form-data; name="${id}"` },
+      body: `attach://${attachmentId}`
+    })
   }
   if (Array.isArray(value)) {
-    return Promise.all(
-      value.map((item) => {
+    const items = await Promise.all(
+      value.map(async (item) => {
         if (typeof item.media !== 'object') {
-          return Promise.resolve(item)
+          return await Promise.resolve(item)
         }
         const attachmentId = crypto.randomBytes(16).toString('hex')
-        return attachFormMedia(form, item.media, attachmentId, agent)
-          .then(() => ({ ...item, media: `attach://${attachmentId}` }))
-      })
-    ).then((items) => form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: JSON.stringify(items)
-    }))
-  }
-  if (typeof value.media !== 'undefined' && typeof value.type !== 'undefined') {
-    const attachmentId = crypto.randomBytes(16).toString('hex')
-    return attachFormMedia(form, value.media, attachmentId, agent)
-      .then(() => form.addPart({
-        headers: { 'content-disposition': `form-data; name="${id}"` },
-        body: JSON.stringify({
-          ...value,
-          media: `attach://${attachmentId}`
-        })
-      }))
-  }
-  return attachFormMedia(form, value, id, agent)
-}
-
-// prettier-ignore
-function attachFormMedia (form, media, id, agent) {
-  let fileName = media.filename || `${id}.${DEFAULT_EXTENSIONS[id] || 'dat'}`
-  if (media.url) {
-    return fetch(media.url, { agent }).then((res) =>
-      form.addPart({
-        headers: { 'content-disposition': `form-data; name="${id}"; filename="${fileName}"` },
-        body: res.body
+        await attachFormMedia(form, item.media, attachmentId, agent)
+        return ({ ...item, media: `attach://${attachmentId}` })
       })
     )
+    return form.addPart({
+      headers: { 'content-disposition': `form-data; name="${id}"` },
+      body: JSON.stringify(items)
+    })
+  }
+  if (value && typeof value === 'object'
+        && hasProp(value, 'media') && hasProp(value, 'type')
+        && typeof value.media !== 'undefined' && typeof value.type !== 'undefined') {
+    const attachmentId = crypto.randomBytes(16).toString('hex')
+    await attachFormMedia(form, value.media as FormMedia, attachmentId, agent)
+    return form.addPart({
+      headers: { 'content-disposition': `form-data; name="${id}"` },
+      body: JSON.stringify({
+        ...value,
+        media: `attach://${attachmentId}`
+      })
+    })
+  }
+  return await attachFormMedia(form, value as FormMedia, id, agent)
+}
+
+interface FormMedia {
+  filename?: string
+  url?: RequestInfo
+  source?: string
+}
+// prettier-ignore
+async function attachFormMedia (form: MultipartStream, media: FormMedia, id: string, agent: RequestInit['agent']) {
+  let fileName = media.filename ?? `${id}.${(DEFAULT_EXTENSIONS as { [key: string]: string })[id] || 'dat'}`
+  if (media.url) {
+    const res = await fetch(media.url, { agent })
+    return form.addPart({
+      headers: { 'content-disposition': `form-data; name="${id}"; filename="${fileName}"` },
+      body: res.body
+    })
   }
   if (media.source) {
+    let mediaSource: string | ReadStream = media.source
     if (fs.existsSync(media.source)) {
-      fileName = media.filename || path.basename(media.source)
-      media.source = fs.createReadStream(media.source)
+      fileName = media.filename ?? path.basename(media.source)
+      mediaSource = fs.createReadStream(media.source)
     }
-    if (isStream(media.source) || Buffer.isBuffer(media.source)) {
+    if (isStream(mediaSource) || Buffer.isBuffer(mediaSource)) {
       form.addPart({
         headers: { 'content-disposition': `form-data; name="${id}"; filename="${fileName}"` },
-        body: media.source
+        body: mediaSource
       })
     }
   }
-  return Promise.resolve()
 }
 
-// prettier-ignore
-function isKoaResponse (response) {
-  return typeof response.set === 'function' && typeof response.header === 'object'
+function isKoaResponse(response: unknown): boolean {
+  return (
+    typeof response === 'object' &&
+    response !== null &&
+    hasPropType(response, 'set', 'function') &&
+    hasPropType(response, 'header', 'object')
+  )
 }
 
-function answerToWebhook(response, payload, options: ApiClient.Options) {
+function answerToWebhook(
+  response: Response,
+  payload: object,
+  options: ApiClient.Options
+) {
   if (!includesMedia(payload)) {
     if (isKoaResponse(response)) {
       response.body = payload
@@ -221,13 +248,15 @@ function answerToWebhook(response, payload, options: ApiClient.Options) {
   return buildFormDataConfig(payload, options.agent).then(
     ({ headers = {}, body }) => {
       if (isKoaResponse(response)) {
-        Object.keys(headers).forEach((key) => response.set(key, headers[key]))
+        Object.keys(headers).forEach((key) =>
+          response.set(key, (headers as { [k: string]: unknown })[key])
+        )
         response.body = body
         return Promise.resolve(WEBHOOK_REPLY_STUB)
       }
       if (!response.headersSent) {
         Object.keys(headers).forEach((key) =>
-          response.setHeader(key, headers[key])
+          response.setHeader(key, (headers as { [k: string]: unknown })[key])
         )
       }
       return new Promise((resolve) => {
@@ -239,6 +268,8 @@ function answerToWebhook(response, payload, options: ApiClient.Options) {
   )
 }
 
+// TODO: what is actually the type of this?
+type Response = any
 // eslint-disable-next-line no-redeclare
 class ApiClient {
   readonly options: ApiClient.Options
@@ -247,7 +278,7 @@ class ApiClient {
   constructor(
     public token: string,
     options?: Partial<ApiClient.Options>,
-    private readonly response?
+    private readonly response?: Response
   ) {
     this.token = token
     this.options = {
@@ -267,12 +298,18 @@ class ApiClient {
     return this.options.webhookReply
   }
 
-  callApi(method: string, data = {}) {
+  callApi(method: string, data: { [k: string]: unknown } = {}): Promise<any> {
     const { token, options, response, responseEnd } = this
 
     const payload = Object.keys(data)
       .filter((key) => typeof data[key] !== 'undefined' && data[key] !== null)
-      .reduce((acc, key) => ({ ...acc, [key]: data[key] }), {})
+      .reduce(
+        (acc, key) => ({
+          ...acc,
+          [key]: data[key],
+        }),
+        {}
+      )
 
     if (
       options.webhookReply &&

@@ -1,27 +1,40 @@
+import { InlineKeyboardButton } from 'telegram-typings'
+
+interface SelectivedMarkup extends Omit<Markup, 'selective'> {
+  selective: boolean
+}
+
 class Markup {
-  forceReply (value = true) {
+  force_reply?: boolean
+  remove_keyboard?: boolean
+  resize_keyboard?: boolean
+  one_time_keyboard?: boolean
+  inline_keyboard?: InlineKeyboardButton[]
+  forceReply(value = true) {
     this.force_reply = value
     return this
   }
 
-  removeKeyboard (value = true) {
+  removeKeyboard(value = true) {
     this.remove_keyboard = value
     return this
   }
 
-  selective (value = true) {
-    this.selective = value
-    return this
+  selective(value = true) {
+    const me = (this as unknown) as SelectivedMarkup
+    me.selective = value
+    return me
   }
 
-  extra (options) {
+  extra(options: { [key: string]: unknown }) {
     return {
       reply_markup: { ...this },
-      ...options
+      ...options,
     }
   }
 
-  keyboard (buttons, options) {
+  // confer https://github.com/telegraf/telegraf/issues/1076
+  keyboard(buttons, options) {
     const keyboard = buildKeyboard(buttons, { columns: 1, ...options })
     if (keyboard && keyboard.length > 0) {
       this.keyboard = keyboard
@@ -29,145 +42,171 @@ class Markup {
     return this
   }
 
-  resize (value = true) {
+  resize(value = true) {
     this.resize_keyboard = value
     return this
   }
 
-  oneTime (value = true) {
+  oneTime(value = true) {
     this.one_time_keyboard = value
     return this
   }
 
-  inlineKeyboard (buttons, options) {
-    const keyboard = buildKeyboard(buttons, { columns: buttons.length, ...options })
+  // confer https://github.com/telegraf/telegraf/issues/1076
+  inlineKeyboard(buttons, options) {
+    const keyboard = buildKeyboard(buttons, {
+      columns: buttons.length,
+      ...options,
+    })
     if (keyboard && keyboard.length > 0) {
       this.inline_keyboard = keyboard
     }
     return this
   }
 
-  button (text, hide) {
+  button(text: string, hide?: boolean) {
     return Markup.button(text, hide)
   }
 
-  contactRequestButton (text, hide) {
+  contactRequestButton(text: string, hide?: boolean) {
     return Markup.contactRequestButton(text, hide)
   }
 
-  locationRequestButton (text, hide) {
+  locationRequestButton(text: string, hide?: boolean) {
     return Markup.locationRequestButton(text, hide)
   }
 
-  urlButton (text, url, hide) {
+  urlButton(text: string, url: string, hide?: boolean) {
     return Markup.urlButton(text, url, hide)
   }
 
-  callbackButton (text, data, hide) {
+  callbackButton(text: string, data: string, hide?: boolean) {
     return Markup.callbackButton(text, data, hide)
   }
 
-  switchToChatButton (text, value, hide) {
+  switchToChatButton(text: string, value: string, hide?: boolean) {
     return Markup.switchToChatButton(text, value, hide)
   }
 
-  switchToCurrentChatButton (text, value, hide) {
+  switchToCurrentChatButton(text: string, value: string, hide?: boolean) {
     return Markup.switchToCurrentChatButton(text, value, hide)
   }
 
-  gameButton (text, hide) {
+  gameButton(text: string, hide?: boolean) {
     return Markup.gameButton(text, hide)
   }
 
-  payButton (text, hide) {
+  payButton(text: string, hide?: boolean) {
     return Markup.payButton(text, hide)
   }
 
-  loginButton (text, url, opts, hide) {
+  loginButton(
+    text: string,
+    url: string,
+    opts?: {
+      forward_text?: string
+      bot_username?: string
+      request_write_access?: boolean
+    },
+    hide?: boolean
+  ) {
     return Markup.loginButton(text, url, opts, hide)
   }
 
-  static removeKeyboard (value) {
+  static removeKeyboard(value?: boolean) {
     return new Markup().removeKeyboard(value)
   }
 
-  static forceReply (value) {
+  static forceReply(value?: boolean) {
     return new Markup().forceReply(value)
   }
 
-  static keyboard (buttons, options) {
+  static keyboard(buttons, options) {
     return new Markup().keyboard(buttons, options)
   }
 
-  static inlineKeyboard (buttons, options) {
+  static inlineKeyboard(buttons, options) {
     return new Markup().inlineKeyboard(buttons, options)
   }
 
-  static resize (value = true) {
+  static resize(value = true) {
     return new Markup().resize(value)
   }
 
-  static selective (value = true) {
+  static selective(value = true) {
     return new Markup().selective(value)
   }
 
-  static oneTime (value = true) {
+  static oneTime(value = true) {
     return new Markup().oneTime(value)
   }
 
-  static button (text, hide = false) {
+  static button(text: string, hide = false) {
     return { text: text, hide: hide }
   }
 
-  static contactRequestButton (text, hide = false) {
+  static contactRequestButton(text: string, hide = false) {
     return { text: text, request_contact: true, hide: hide }
   }
 
-  static locationRequestButton (text, hide = false) {
+  static locationRequestButton(text: string, hide = false) {
     return { text: text, request_location: true, hide: hide }
   }
 
-  static pollRequestButton (text, type, hide = false) {
+  static pollRequestButton(
+    text: string,
+    type?: 'quiz' | 'regular',
+    hide = false
+  ) {
     return { text: text, request_poll: { type }, hide: hide }
   }
 
-  static urlButton (text, url, hide = false) {
+  static urlButton(text: string, url: string, hide = false) {
     return { text: text, url: url, hide: hide }
   }
 
-  static callbackButton (text, data, hide = false) {
+  static callbackButton(text: string, data: string, hide = false) {
     return { text: text, callback_data: data, hide: hide }
   }
 
-  static switchToChatButton (text, value, hide = false) {
+  static switchToChatButton(text: string, value: string, hide = false) {
     return { text: text, switch_inline_query: value, hide: hide }
   }
 
-  static switchToCurrentChatButton (text, value, hide = false) {
+  static switchToCurrentChatButton(text: string, value: string, hide = false) {
     return { text: text, switch_inline_query_current_chat: value, hide: hide }
   }
 
-  static gameButton (text, hide = false) {
+  static gameButton(text: string, hide = false) {
     return { text: text, callback_game: {}, hide: hide }
   }
 
-  static payButton (text, hide = false) {
+  static payButton(text: string, hide = false) {
     return { text: text, pay: true, hide: hide }
   }
 
-  static loginButton (text, url, opts = {}, hide = false) {
+  static loginButton(
+    text: string,
+    url: string,
+    opts: {
+      forward_text?: string
+      bot_username?: string
+      request_write_access?: boolean
+    } = {},
+    hide = false
+  ) {
     return {
       text: text,
       login_url: { ...opts, url: url },
-      hide: hide
+      hide: hide,
     }
   }
 
-  static formatHTML (text = '', entities = []) {
+  static formatHTML(text = '', entities = []) {
     const chars = text
     const available = [...entities]
-    const opened = []
-    const result = []
+    const opened: any = []
+    const result: string[] = []
     for (let offset = 0; offset < chars.length; offset++) {
       while (true) {
         const index = available.findIndex((entity) => entity.offset === offset)
@@ -212,7 +251,9 @@ class Markup {
       result.push(chars[offset])
 
       while (true) {
-        const index = opened.findIndex((entity) => entity.offset + entity.length - 1 === offset)
+        const index = opened.findIndex(
+          (entity) => entity.offset + entity.length - 1 === offset
+        )
         if (index === -1) {
           break
         }
@@ -252,17 +293,21 @@ class Markup {
   }
 }
 
-function buildKeyboard (buttons, options) {
-  const result = []
+function buildKeyboard(buttons: any, options: any): InlineKeyboardButton[][] {
+  const result: any = []
   if (!Array.isArray(buttons)) {
     return result
   }
   if (buttons.find(Array.isArray)) {
-    return buttons.map(row => row.filter((button) => !button.hide))
+    return buttons.map((row) => row.filter((button) => !button.hide))
   }
   const wrapFn = options.wrap
     ? options.wrap
-    : (btn, index, currentRow) => currentRow.length >= options.columns
+    : (
+        btn: InlineKeyboardButton,
+        index: number,
+        currentRow: InlineKeyboardButton[]
+      ) => currentRow.length >= options.columns
   let currentRow = []
   let index = 0
   for (const btn of buttons.filter((button) => !button.hide)) {
@@ -279,4 +324,4 @@ function buildKeyboard (buttons, options) {
   return result
 }
 
-module.exports = Markup
+export = Markup

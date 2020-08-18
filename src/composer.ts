@@ -1,8 +1,8 @@
 /** @format */
 
-import type * as tt from '../typings/telegram-types.d'
-import Context from './context'
-import type { Middleware, NonemptyReadonlyArray } from './types'
+import * as tt from '../typings/telegram-types.d'
+import { Middleware, NonemptyReadonlyArray } from './types'
+import TelegrafContext from './context'
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
@@ -17,7 +17,8 @@ function always<T>(x: T) {
 }
 const anoop = always(Promise.resolve())
 
-class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
+class Composer<TContext extends TelegrafContext>
+  implements Middleware.Obj<TContext> {
   private handler: Middleware.Fn<TContext>
 
   constructor(...fns: ReadonlyArray<Middleware<TContext>>) {
@@ -164,11 +165,11 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return this.handler
   }
 
-  static reply(...args: Parameters<Context['reply']>) {
-    return (ctx: Context) => ctx.reply(...args)
+  static reply(...args: Parameters<TelegrafContext['reply']>) {
+    return (ctx: TelegrafContext) => ctx.reply(...args)
   }
 
-  private static catchAll<TContext extends Context>(
+  private static catchAll<TContext extends TelegrafContext>(
     ...fns: ReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.catch((err) => {
@@ -178,7 +179,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     }, ...fns)
   }
 
-  static catch<TContext extends Context>(
+  static catch<TContext extends TelegrafContext>(
     errorHandler: (err: any, ctx: TContext) => void,
     ...fns: ReadonlyArray<Middleware<TContext>>
   ): Middleware.Fn<TContext> {
@@ -192,7 +193,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
    * Generates middleware that runs in the background.
    * @deprecated
    */
-  static fork<TContext extends Context>(
+  static fork<TContext extends TelegrafContext>(
     middleware: Middleware<TContext>
   ): Middleware.Fn<TContext> {
     const handler = Composer.unwrap(middleware)
@@ -203,7 +204,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     }
   }
 
-  static tap<TContext extends Context>(
+  static tap<TContext extends TelegrafContext>(
     middleware: Middleware<TContext>
   ): Middleware.Fn<TContext> {
     const handler = Composer.unwrap(middleware)
@@ -211,16 +212,18 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       Promise.resolve(handler(ctx, anoop)).then(() => next())
   }
 
-  static passThru(): Middleware.Fn<Context> {
+  static passThru(): Middleware.Fn<TelegrafContext> {
     return (ctx, next) => next()
   }
 
-  private static safePassThru() {
-    // prettier-ignore
-    return (ctx, next) => typeof next === 'function' ? next(ctx) : Promise.resolve()
+  static safePassThru(): Middleware.Fn<TelegrafContext> {
+    return (ctx, next) =>
+      typeof next === 'function'
+        ? (next as (ctx: TelegrafContext) => void)(ctx)
+        : Promise.resolve()
   }
 
-  static lazy<TContext extends Context>(
+  static lazy<TContext extends TelegrafContext>(
     factoryFn: (ctx: TContext) => MaybePromise<Middleware<TContext>>
   ): Middleware.Fn<TContext> {
     if (typeof factoryFn !== 'function') {
@@ -240,7 +243,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
    * @param trueMiddleware middleware to run if the predicate returns true
    * @param falseMiddleware middleware to run if the predicate returns false
    */
-  static branch<TContext extends Context>(
+  static branch<TContext extends TelegrafContext>(
     predicate: Predicate<TContext> | AsyncPredicate<TContext>,
     trueMiddleware: Middleware<TContext>,
     falseMiddleware: Middleware<TContext>
@@ -259,7 +262,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
    * Generates optional middleware.
    * @param middleware middleware to run if the predicate returns true
    */
-  static optional<TContext extends Context>(
+  static optional<TContext extends TelegrafContext>(
     predicate: Predicate<TContext> | AsyncPredicate<TContext>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
@@ -270,16 +273,20 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     )
   }
 
-  static filter<TContext extends Context>(predicate: Predicate<TContext>) {
+  static filter<TContext extends TelegrafContext>(
+    predicate: Predicate<TContext>
+  ) {
     return Composer.branch(predicate, Composer.safePassThru(), () => {})
   }
 
-  static drop<TContext extends Context>(predicate: Predicate<TContext>) {
+  static drop<TContext extends TelegrafContext>(
+    predicate: Predicate<TContext>
+  ) {
     return Composer.branch(predicate, () => {}, Composer.safePassThru())
   }
 
   static dispatch<
-    TContext extends Context,
+    TContext extends TelegrafContext,
     Handlers extends Record<string | number | symbol, Middleware<TContext>>
   >(routeFn: (ctx: TContext) => keyof Handlers, handlers: Handlers) {
     return typeof routeFn === 'function'
@@ -292,7 +299,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   /**
    * Generates middleware for handling provided update types.
    */
-  static mount<TContext extends Context>(
+  static mount<TContext extends TelegrafContext>(
     updateType: MaybeArray<tt.UpdateType | tt.MessageSubTypes>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
@@ -304,7 +311,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return Composer.optional(predicate, ...fns)
   }
 
-  private static entity<TContext extends Context>(
+  private static entity<TContext extends TelegrafContext>(
     predicate: (entity: tt.MessageEntity, s: string, ctx: TContext) => boolean,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ): Middleware<TContext> {
@@ -327,7 +334,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     }, ...fns)
   }
 
-  static entityText<TContext extends Context>(
+  static entityText<TContext extends TelegrafContext>(
     entityType: string,
     predicate: Triggers<TContext>,
     ...fns: NonemptyReadonlyArray<
@@ -359,42 +366,42 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     }, ...fns)
   }
 
-  static email<TContext extends Context>(
+  static email<TContext extends TelegrafContext>(
     email: string,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.entityText('email', email, ...fns)
   }
 
-  static phone<TContext extends Context>(
+  static phone<TContext extends TelegrafContext>(
     number: string,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.entityText('phone_number', number, ...fns)
   }
 
-  static url<TContext extends Context>(
+  static url<TContext extends TelegrafContext>(
     url: string,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.entityText('url', url, ...fns)
   }
 
-  static textLink<TContext extends Context>(
+  static textLink<TContext extends TelegrafContext>(
     link: string,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.entityText('text_link', link, ...fns)
   }
 
-  static textMention<TContext extends Context>(
+  static textMention<TContext extends TelegrafContext>(
     mention: string,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.entityText('text_mention', mention, ...fns)
   }
 
-  static mention<TContext extends Context>(
+  static mention<TContext extends TelegrafContext>(
     mention: string,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
@@ -405,7 +412,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     )
   }
 
-  static hashtag<TContext extends Context>(
+  static hashtag<TContext extends TelegrafContext>(
     hashtag: string,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
@@ -416,7 +423,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     )
   }
 
-  static cashtag<TContext extends Context>(
+  static cashtag<TContext extends TelegrafContext>(
     cashtag: string,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
@@ -427,7 +434,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     )
   }
 
-  private static match<TContext extends Context>(
+  private static match<TContext extends TelegrafContext>(
     triggers: ReadonlyArray<
       (text: string, ctx: TContext) => RegExpExecArray | null
     >,
@@ -456,7 +463,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   /**
    * Generates middleware for handling matching text messages.
    */
-  static hears<TContext extends Context>(
+  static hears<TContext extends TelegrafContext>(
     triggers: Triggers<TContext>,
     ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
   ) {
@@ -469,7 +476,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   /**
    * Generates middleware for handling specified commands.
    */
-  static command<TContext extends Context>(
+  static command<TContext extends TelegrafContext>(
     command: MaybeArray<string>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
@@ -500,7 +507,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   /**
    * Generates middleware for handling matching callback queries.
    */
-  static action<TContext extends Context>(
+  static action<TContext extends TelegrafContext>(
     triggers: Triggers<TContext>,
     ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
   ) {
@@ -513,7 +520,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   /**
    * Generates middleware for handling matching inline queries.
    */
-  static inlineQuery<TContext extends Context>(
+  static inlineQuery<TContext extends TelegrafContext>(
     triggers: Triggers<TContext>,
     ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
   ) {
@@ -523,7 +530,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     )
   }
 
-  static acl<TContext extends Context>(
+  static acl<TContext extends TelegrafContext>(
     userId: MaybeArray<number>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
@@ -535,7 +542,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return Composer.optional((ctx) => !ctx.from || allowed.includes(ctx.from.id), ...fns)
   }
 
-  private static memberStatus<TContext extends Context>(
+  private static memberStatus<TContext extends TelegrafContext>(
     status: MaybeArray<tt.ChatMember['status']>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
@@ -547,19 +554,19 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     }, ...fns)
   }
 
-  static admin<TContext extends Context>(
+  static admin<TContext extends TelegrafContext>(
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.memberStatus(['administrator', 'creator'], ...fns)
   }
 
-  static creator<TContext extends Context>(
+  static creator<TContext extends TelegrafContext>(
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.memberStatus('creator', ...fns)
   }
 
-  static chatType<TContext extends Context>(
+  static chatType<TContext extends TelegrafContext>(
     type: MaybeArray<tt.ChatType>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
@@ -569,19 +576,19 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return Composer.optional((ctx) => ctx.chat && types.includes(ctx.chat.type), ...fns)
   }
 
-  static privateChat<TContext extends Context>(
+  static privateChat<TContext extends TelegrafContext>(
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.chatType('private', ...fns)
   }
 
-  static groupChat<TContext extends Context>(
+  static groupChat<TContext extends TelegrafContext>(
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.chatType(['group', 'supergroup'], ...fns)
   }
 
-  static gameQuery<TContext extends Context>(
+  static gameQuery<TContext extends TelegrafContext>(
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.optional(
@@ -590,14 +597,16 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     )
   }
 
-  static unwrap<TContext extends Context>(handler: Middleware<TContext>) {
+  static unwrap<TContext extends TelegrafContext>(
+    handler: Middleware<TContext>
+  ) {
     if (!handler) {
       throw new Error('Handler is undefined')
     }
     return 'middleware' in handler ? handler.middleware() : handler
   }
 
-  static compose<TContext extends Context>(
+  static compose<TContext extends TelegrafContext>(
     middlewares: ReadonlyArray<Middleware<TContext>>
   ): Middleware.Fn<TContext> {
     if (!Array.isArray(middlewares)) {
@@ -612,8 +621,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return (ctx, next) => {
       let index = -1
       return execute(0, ctx)
-      function execute(i: number, context: TContext) {
-        if (!(context instanceof Context)) {
+      function execute(i: number, context: TContext): Promise<void> {
+        if (!(context instanceof TelegrafContext)) {
           // prettier-ignore
           return Promise.reject(new Error('next(ctx) called with invalid context'))
         }
@@ -642,7 +651,7 @@ function escapeRegExp(s: string) {
   return s.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&')
 }
 
-function normalizeTriggers<TContext extends Context>(
+function normalizeTriggers<TContext extends TelegrafContext>(
   triggers: Triggers<TContext>
 ) {
   if (!Array.isArray(triggers)) {

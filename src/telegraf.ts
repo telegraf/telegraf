@@ -292,6 +292,7 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
         }
         this.fetchUpdates()
       })
+      .catch(noop)
   }
 }
 

@@ -1,3 +1,14 @@
+interface Mapping {
+  string: string
+  number: number
+  bigint: bigint
+  boolean: boolean
+  symbol: symbol
+  undefined: undefined
+  object: object
+  function: Function
+}
+
 /**
  * Checks if a given object has a property with a given name.
  *
@@ -12,10 +23,10 @@
  * @param obj An object to test
  * @param prop The name of the property
  */
-export function hasProp<X extends {}, Y extends PropertyKey>(
-  obj: X,
-  prop: Y
-): obj is X & Record<Y, unknown> {
+export function hasProp<O extends {}, K extends PropertyKey>(
+  obj: O,
+  prop: K
+): obj is O & Record<K, unknown> {
   return prop in obj
 }
 /**
@@ -35,18 +46,11 @@ export function hasProp<X extends {}, Y extends PropertyKey>(
  * @param type The type the property is expected to have
  */
 export function hasPropType<
-  X extends {},
-  Y extends PropertyKey,
-  Z extends
-    | 'string'
-    | 'number'
-    | 'bigint'
-    | 'boolean'
-    | 'symbol'
-    | 'undefined'
-    | 'object'
-    | 'function'
->(obj: X, prop: Y, type: Z): obj is X & Record<Y, Z> {
+  O extends {},
+  K extends PropertyKey,
+  T extends keyof Mapping,
+  V extends Mapping[T]
+>(obj: O, prop: K, type: T): obj is O & Record<K, V> {
   // eslint-disable-next-line valid-typeof
   return hasProp(obj, prop) && type === typeof obj[prop]
 }

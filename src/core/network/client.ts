@@ -218,7 +218,7 @@ function isKoaResponse(response: unknown): boolean {
 
 function answerToWebhook(
   response: Response,
-  payload: object,
+  payload: Record<string, unknown>,
   options: ApiClient.Options
 ) {
   if (!includesMedia(payload)) {

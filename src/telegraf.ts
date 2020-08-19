@@ -133,9 +133,12 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
     return this
   }
 
-  // prettier-ignore
-  webhookCallback (path = '/') {
-    return generateCallback(path, (update: tt.Update, res: any) => this.handleUpdate(update, res), debug)
+  webhookCallback(path = '/') {
+    return generateCallback(
+      path,
+      (update: tt.Update, res: any) => this.handleUpdate(update, res),
+      debug
+    )
   }
 
   startPolling(

@@ -61,25 +61,25 @@ const WEBHOOK_REPLY_STUB = {
     'https://core.telegram.org/bots/api#making-requests-when-getting-updates',
 }
 
-// prettier-ignore
-function includesMedia (payload: Record<string, unknown>) {
-  return Object.keys(payload).some(
-    (key) => {
-      const value = payload[key]
-      if (Array.isArray(value)) {
-        return value.some(({ media }) => media && typeof media === 'object' && (media.source || media.url))
-      }
-      return (value && typeof value === 'object') && (
-        (hasProp(value, 'source') && value.source) ||
-        (hasProp(value, 'url') && value.url) || (
-          hasPropType(value, 'media', 'object') && (
-            (hasProp(value.media, 'source') && value.media.source) ||
-            (hasProp(value.media, 'url') && value.media.url)
-          )
-        )
+function includesMedia(payload: Record<string, unknown>) {
+  return Object.keys(payload).some((key) => {
+    const value = payload[key]
+    if (Array.isArray(value)) {
+      return value.some(
+        ({ media }) =>
+          media && typeof media === 'object' && (media.source || media.url)
       )
     }
-  )
+    return (
+      value &&
+      typeof value === 'object' &&
+      ((hasProp(value, 'source') && value.source) ||
+        (hasProp(value, 'url') && value.url) ||
+        (hasPropType(value, 'media', 'object') &&
+          ((hasProp(value.media, 'source') && value.media.source) ||
+            (hasProp(value.media, 'url') && value.media.url))))
+    )
+  })
 }
 
 function buildJSONConfig(payload: unknown): Promise<RequestInit> {
@@ -125,15 +125,23 @@ async function buildFormDataConfig(
   }
 }
 
-// prettier-ignore
-async function attachFormValue (form: MultipartStream, id: string, value: unknown, agent: RequestInit['agent']) {
+async function attachFormValue(
+  form: MultipartStream,
+  id: string,
+  value: unknown,
+  agent: RequestInit['agent']
+) {
   if (!value) {
     return
   }
-  if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'boolean' ||
+    typeof value === 'number'
+  ) {
     form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: `${value}`
+      body: `${value}`,
     })
     return
   }
@@ -142,7 +150,7 @@ async function attachFormValue (form: MultipartStream, id: string, value: unknow
     await attachFormMedia(form, value as FormMedia, attachmentId, agent)
     return form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: `attach://${attachmentId}`
+      body: `attach://${attachmentId}`,
     })
   }
   if (Array.isArray(value)) {
@@ -153,25 +161,30 @@ async function attachFormValue (form: MultipartStream, id: string, value: unknow
         }
         const attachmentId = crypto.randomBytes(16).toString('hex')
         await attachFormMedia(form, item.media, attachmentId, agent)
-        return ({ ...item, media: `attach://${attachmentId}` })
+        return { ...item, media: `attach://${attachmentId}` }
       })
     )
     return form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: JSON.stringify(items)
+      body: JSON.stringify(items),
     })
   }
-  if (value && typeof value === 'object'
-        && hasProp(value, 'media') && hasProp(value, 'type')
-        && typeof value.media !== 'undefined' && typeof value.type !== 'undefined') {
+  if (
+    value &&
+    typeof value === 'object' &&
+    hasProp(value, 'media') &&
+    hasProp(value, 'type') &&
+    typeof value.media !== 'undefined' &&
+    typeof value.type !== 'undefined'
+  ) {
     const attachmentId = crypto.randomBytes(16).toString('hex')
     await attachFormMedia(form, value.media as FormMedia, attachmentId, agent)
     return form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
       body: JSON.stringify({
         ...value,
-        media: `attach://${attachmentId}`
-      })
+        media: `attach://${attachmentId}`,
+      }),
     })
   }
   return await attachFormMedia(form, value as FormMedia, id, agent)
@@ -182,14 +195,22 @@ interface FormMedia {
   url?: RequestInfo
   source?: string
 }
-// prettier-ignore
-async function attachFormMedia (form: MultipartStream, media: FormMedia, id: string, agent: RequestInit['agent']) {
-  let fileName = media.filename ?? `${id}.${(DEFAULT_EXTENSIONS as { [key: string]: string })[id] || 'dat'}`
+async function attachFormMedia(
+  form: MultipartStream,
+  media: FormMedia,
+  id: string,
+  agent: RequestInit['agent']
+) {
+  let fileName =
+    media.filename ??
+    `${id}.${(DEFAULT_EXTENSIONS as { [key: string]: string })[id] || 'dat'}`
   if (media.url) {
     const res = await fetch(media.url, { agent })
     return form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"; filename="${fileName}"` },
-      body: res.body
+      headers: {
+        'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
+      },
+      body: res.body,
     })
   }
   if (media.source) {
@@ -200,8 +221,10 @@ async function attachFormMedia (form: MultipartStream, media: FormMedia, id: str
     }
     if (isStream(mediaSource) || Buffer.isBuffer(mediaSource)) {
       form.addPart({
-        headers: { 'content-disposition': `form-data; name="${id}"; filename="${fileName}"` },
-        body: mediaSource
+        headers: {
+          'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
+        },
+        body: mediaSource,
       })
     }
   }

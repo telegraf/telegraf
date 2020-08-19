@@ -3,7 +3,7 @@ import d from 'debug'
 const debug = d('telegraf:webhook')
 
 export = function (
-  hookPath: unknown,
+  hookPath: string,
   updateHandler: Function,
   errorHandler: (err: Error) => unknown
 ) {

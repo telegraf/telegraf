@@ -164,7 +164,7 @@ class Markup {
   }
 
   static formatHTML (text = '', entities = []) {
-    const chars = [...text]
+    const chars = text.split('')
     const available = [...entities]
     const opened = []
     const result = []

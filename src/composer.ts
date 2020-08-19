@@ -198,7 +198,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     const handler = Composer.unwrap(middleware)
     return (ctx, next) => {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      setImmediate(handler, ctx, Composer.safePassThru())
+      setImmediate(handler, ctx, Composer.passThru())
       return next()
     }
   }
@@ -213,13 +213,6 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
 
   static passThru(): Middleware.Fn<Context> {
     return (ctx, next) => next()
-  }
-
-  static safePassThru(): Middleware.Fn<Context> {
-    return (ctx, next) =>
-      typeof next === 'function'
-        ? (next as (ctx: Context) => void)(ctx)
-        : Promise.resolve()
   }
 
   static lazy<TContext extends Context>(
@@ -268,16 +261,16 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return Composer.branch(
       predicate,
       Composer.compose(fns),
-      Composer.safePassThru()
+      Composer.passThru()
     )
   }
 
   static filter<TContext extends Context>(predicate: Predicate<TContext>) {
-    return Composer.branch(predicate, Composer.safePassThru(), () => {})
+    return Composer.branch(predicate, Composer.passThru(), () => {})
   }
 
   static drop<TContext extends Context>(predicate: Predicate<TContext>) {
-    return Composer.branch(predicate, () => {}, Composer.safePassThru())
+    return Composer.branch(predicate, () => {}, Composer.passThru())
   }
 
   static dispatch<
@@ -606,7 +599,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       throw new Error('Middlewares must be an array')
     }
     if (middlewares.length === 0) {
-      return Composer.safePassThru()
+      return Composer.passThru()
     }
     if (middlewares.length === 1) {
       return Composer.unwrap(middlewares[0])

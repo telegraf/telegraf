@@ -4,7 +4,7 @@ import d from 'debug'
 import { hasPropType } from '../util'
 import { SceneContextOptions } from '../types'
 import TelegrafContext from '../context'
-const { safePassThru } = Composer
+const { passThru } = Composer
 const debug = d('telegraf:scenes:context')
 
 const noop = () => Promise.resolve()
@@ -88,7 +88,7 @@ class SceneContext<TContext extends TelegrafContext> {
     const handler =
       this.current && this.current.leaveMiddleware
         ? this.current.leaveMiddleware()
-        : safePassThru()
+        : passThru()
     await handler(this.ctx, noop)
     return this.reset()
   }

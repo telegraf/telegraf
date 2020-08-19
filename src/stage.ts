@@ -3,7 +3,7 @@ import BaseScene from './scenes/base'
 import Composer from './composer'
 import SceneContext from './scenes/context'
 import TelegrafContext from './context'
-const { compose, optional, lazy, safePassThru } = Composer
+const { compose, optional, lazy, passThru } = Composer
 
 class Stage<TContext extends TelegrafContext> extends Composer<TContext> {
   options: SceneContextOptions
@@ -38,7 +38,7 @@ class Stage<TContext extends TelegrafContext> extends Composer<TContext> {
         return next()
       },
       super.middleware() as Middleware.Fn<TelegrafContext>,
-      lazy((ctx) => ctx.scene.current || safePassThru()),
+      lazy((ctx) => ctx.scene.current || passThru()),
     ])
     return optional(
       (ctx: { [key: string]: any }) => ctx[this.options.sessionName],

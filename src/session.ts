@@ -20,7 +20,7 @@ export = function <TContext extends TelegrafContext, O>(opts: {
   return async (ctx, next) => {
     const key = options.getSessionKey(ctx)
     if (!key) {
-      return await (next as (ctx: TContext) => Promise<void>)(ctx)
+      return await next()
     }
     const now = Date.now()
     const state = await Promise.resolve(options.store.get(key))
@@ -36,7 +36,7 @@ export = function <TContext extends TelegrafContext, O>(opts: {
         session = { ...newValue }
       },
     })
-    await (next as (ctx: TContext) => Promise<void>)(ctx)
+    await next()
     options.store.set(key, {
       session,
       expires: ttlMs ? now + ttlMs : null,

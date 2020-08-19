@@ -12,11 +12,11 @@ class Extra {
   reply_markup: Markup | undefined
   parse_mode: string | undefined
   static Markup: typeof Markup
-  constructor(opts?: { [key: string]: unknown }) {
+  constructor(opts?: ExtraReplyMessage) {
     this.load(opts)
   }
 
-  load(opts = {}) {
+  load(opts: ExtraReplyMessage = {}) {
     return Object.assign(this, opts)
   }
 

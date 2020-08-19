@@ -7,7 +7,7 @@ class TelegramError extends Error {
   code: number
   response: ErrorPayload
   description: string
-  constructor(readonly payload: ErrorPayload, readonly on?: unknown) {
+  constructor(payload: ErrorPayload, readonly on = {}) {
     super(`${payload.error_code}: ${payload.description}`)
     this.code = payload.error_code
     this.response = payload

@@ -16,7 +16,7 @@ class Extra {
     this.load(opts)
   }
 
-  load(opts = {}) {
+  load(opts: ExtraReplyMessage = {}) {
     return Object.assign(this, opts)
   }
 

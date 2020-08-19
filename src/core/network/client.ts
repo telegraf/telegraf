@@ -320,9 +320,8 @@ class ApiClient {
     const { token, options, response, responseEnd } = this
 
     const payload = Object.fromEntries(
-      Object.keys(data)
-        .filter((key) => typeof data[key] !== 'undefined' && data[key] !== null)
-        .map((key) => [key, data[key]])
+      Object.entries(data)
+        .filter(([key, value]) => value != null)
     )
 
     if (

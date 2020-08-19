@@ -62,10 +62,10 @@ const WEBHOOK_REPLY_STUB = {
 }
 
 // prettier-ignore
-function includesMedia (payload: object) {
+function includesMedia (payload: Record<string, unknown>) {
   return Object.keys(payload).some(
     (key) => {
-      const value = (payload as { [k: string]: unknown })[key]
+      const value = payload[key]
       if (Array.isArray(value)) {
         return value.some(({ media }) => media && typeof media === 'object' && (media.source || media.url))
       }
@@ -100,7 +100,7 @@ const FORM_DATA_JSON_FIELDS = [
 ]
 
 async function buildFormDataConfig(
-  payload: object,
+  payload: Record<string, unknown>,
   agent: RequestInit['agent']
 ): Promise<RequestInit> {
   for (const field of FORM_DATA_JSON_FIELDS) {
@@ -111,12 +111,7 @@ async function buildFormDataConfig(
   const boundary = crypto.randomBytes(32).toString('hex')
   const formData = new MultipartStream(boundary)
   const tasks = Object.keys(payload).map((key) =>
-    attachFormValue(
-      formData,
-      key,
-      (payload as { [k: string]: unknown })[key],
-      agent
-    )
+    attachFormValue(formData, key, payload[key], agent)
   )
   await Promise.all(tasks)
   return {
@@ -301,15 +296,11 @@ class ApiClient {
   callApi(method: string, data: { [k: string]: unknown } = {}): Promise<any> {
     const { token, options, response, responseEnd } = this
 
-    const payload = Object.keys(data)
-      .filter((key) => typeof data[key] !== 'undefined' && data[key] !== null)
-      .reduce(
-        (acc, key) => ({
-          ...acc,
-          [key]: data[key],
-        }),
-        {}
-      )
+    const payload = Object.fromEntries(
+      Object.keys(data)
+        .filter((key) => typeof data[key] !== 'undefined' && data[key] !== null)
+        .map((key) => [key, data[key]])
+    )
 
     if (
       options.webhookReply &&

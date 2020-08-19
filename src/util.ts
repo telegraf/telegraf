@@ -11,7 +11,6 @@
  *
  * @param obj An object to test
  * @param prop The name of the property
- * @param type The type the property is expected to have
  */
 export function hasProp<X extends {}, Y extends PropertyKey>(
   obj: X,

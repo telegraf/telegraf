@@ -1,3 +1,4 @@
+import { ExtraReplyMessage } from '../typings/telegram-types'
 import Markup from './markup'
 import { Message } from 'telegram-typings'
 

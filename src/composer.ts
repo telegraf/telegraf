@@ -196,10 +196,9 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     middleware: Middleware<TContext>
   ): Middleware.Fn<TContext> {
     const handler = Composer.unwrap(middleware)
-    return (ctx, next) => {
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      setImmediate(handler, ctx, Composer.passThru())
-      return next()
+    return async (ctx, next) => {
+      const [, r] = await Promise.all([handler(ctx, anoop), next()])
+      return r
     }
   }
 

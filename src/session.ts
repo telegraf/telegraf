@@ -36,7 +36,7 @@ export = function <TContext extends TelegrafContext, O>(opts: {
         session = { ...newValue }
       },
     })
-    await (next as (ctx: TContext) => Promise<void>)(ctx)
+    await next()
     options.store.set(key, {
       session,
       expires: ttlMs ? now + ttlMs : null,

@@ -1,14 +1,14 @@
+import SceneContext from '../context'
 import TelegrafContext from '../../context'
 import { Middleware } from '../../types'
 
-class WizardContext<TContext extends TelegrafContext> {
-  ctx: TContext
-  steps: Array<Middleware<TContext>>
+class WizardContext<TContext extends SceneContext.Extended<TelegrafContext>> {
   state: any
   cursor: number
-  constructor(ctx: TContext, steps: Array<Middleware<TContext>>) {
-    this.ctx = ctx
-    this.steps = steps
+  constructor(
+    private readonly ctx: TContext,
+    private readonly steps: Array<Middleware<TContext>>
+  ) {
     this.state = ctx.scene.state
     this.cursor = ctx.scene.session.cursor || 0
   }
@@ -30,6 +30,18 @@ class WizardContext<TContext extends TelegrafContext> {
   back() {
     return this.selectStep(this.cursor - 1)
   }
+}
+
+// eslint-disable-next-line
+namespace WizardContext {
+  export interface Extension<
+    TContext extends SceneContext.Extended<TelegrafContext>
+  > {
+    wizard: WizardContext<TContext>
+  }
+  export type Extended<
+    TContext extends SceneContext.Extended<TelegrafContext>
+  > = TContext & Extension<TContext>
 }
 
 export = WizardContext

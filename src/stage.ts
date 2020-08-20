@@ -1,11 +1,12 @@
 import { Middleware, SceneContextOptions } from './types'
 import BaseScene from './scenes/base'
 import Composer from './composer'
+import Context from './context'
 import SceneContext from './scenes/context'
-import TelegrafContext from './context'
-const { compose, optional, lazy, passThru } = Composer
 
-class Stage<TContext extends TelegrafContext> extends Composer<TContext> {
+class Stage<TContext extends Context>
+  extends Composer<SceneContext.Extended<TContext>>
+  implements Middleware.Obj<TContext> {
   options: SceneContextOptions
   scenes: Map<string, BaseScene<TContext>>
   constructor(
@@ -31,37 +32,34 @@ class Stage<TContext extends TelegrafContext> extends Composer<TContext> {
     return this
   }
 
-  middleware(): Middleware.Fn<TContext> {
-    const handler = compose([
-      (ctx: TContext, next) => {
-        ctx.scene = new SceneContext<TContext>(ctx, this.scenes, this.options)
-        return next()
+  middleware() {
+    const handler = Composer.compose<
+      TContext,
+      SceneContext.Extension<TContext>
+    >([
+      (ctx, next) => {
+        const scene = new SceneContext(ctx, this.scenes, this.options)
+        return next(Object.assign(ctx, { scene }))
       },
-      super.middleware() as Middleware.Fn<TelegrafContext>,
-      lazy((ctx) => ctx.scene.current || passThru()),
+      super.middleware(),
+      Composer.lazy((ctx) => ctx.scene.current ?? Composer.passThru()),
     ])
-    return optional(
-      (ctx: { [key: string]: any }) => ctx[this.options.sessionName],
+    return Composer.optional(
+      (ctx: any) => ctx[this.options.sessionName],
       handler
-    ) as Middleware.Fn<TContext>
+    )
   }
 
-  static enter<TContext extends TelegrafContext>(
-    ...args: Parameters<SceneContext<TContext>['enter']>
-  ) {
-    return (ctx: TContext) => ctx.scene.enter(...args)
+  static enter(...args: Parameters<SceneContext<Context>['enter']>) {
+    return (ctx: SceneContext.Extended<Context>) => ctx.scene.enter(...args)
   }
 
-  static reenter<TContext extends TelegrafContext>(
-    ...args: Parameters<SceneContext<TContext>['reenter']>
-  ) {
-    return (ctx: TContext) => ctx.scene.reenter(...args)
+  static reenter(...args: Parameters<SceneContext<Context>['reenter']>) {
+    return (ctx: SceneContext.Extended<Context>) => ctx.scene.reenter(...args)
   }
 
-  static leave<TContext extends TelegrafContext>(
-    ...args: Parameters<SceneContext<TContext>['leave']>
-  ) {
-    return (ctx: TContext) => ctx.scene.leave(...args)
+  static leave(...args: Parameters<SceneContext<Context>['leave']>) {
+    return (ctx: SceneContext.Extended<Context>) => ctx.scene.leave(...args)
   }
 }
 

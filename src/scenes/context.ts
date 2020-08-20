@@ -1,39 +1,28 @@
 import BaseScene from './base'
 import Composer from '../composer'
+import Context from '../context'
 import d from 'debug'
 import { hasPropType } from '../util'
 import { SceneContextOptions } from '../types'
-import TelegrafContext from '../context'
-const { passThru } = Composer
 const debug = d('telegraf:scenes:context')
 
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
-class SceneContext<TContext extends TelegrafContext> {
-  ctx: TContext
-  scenes: Map<string, BaseScene<TContext>>
-  options: SceneContextOptions
+class SceneContext<TContext extends Context> {
   constructor(
-    ctx: TContext,
-    scenes: Map<string, BaseScene<TContext>>,
-    options: SceneContextOptions
-  ) {
-    this.ctx = ctx
-    this.scenes = scenes
-    this.options = options
-  }
+    private readonly ctx: TContext,
+    private readonly scenes: Map<string, BaseScene<TContext>>,
+    private readonly options: SceneContextOptions
+  ) {}
 
   get session() {
     const sessionName = this.options.sessionName
-    let session =
-      (this.ctx as { [sessionName: string]: any })[sessionName].__scenes || {}
+    let session = (this.ctx as any)[sessionName].__scenes ?? {}
     if (session.expires < now()) {
       session = {}
     }
-    ;(this.ctx as { [sessionName: string]: any })[
-      sessionName
-    ].__scenes = session
+    ;(this.ctx as any)[sessionName].__scenes = session
     return session
   }
 
@@ -53,11 +42,11 @@ class SceneContext<TContext extends TelegrafContext> {
 
   reset() {
     const sessionName = this.options.sessionName
-    delete (this.ctx as { [sessionName: string]: any })[sessionName].__scenes
+    delete (this.ctx as any)[sessionName].__scenes
   }
 
   enter(sceneId: string, initialState: any, silent?: boolean) {
-    if (!sceneId || !this.scenes.has(sceneId)) {
+    if (!this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }
     const leave = silent ? noop() : this.leave()
@@ -86,12 +75,21 @@ class SceneContext<TContext extends TelegrafContext> {
   async leave() {
     debug('Leave scene')
     const handler =
-      this.current && this.current.leaveMiddleware
+      this.current?.leaveMiddleware != null
         ? this.current.leaveMiddleware()
-        : passThru()
+        : Composer.passThru()
     await handler(this.ctx, noop)
     return this.reset()
   }
+}
+
+// eslint-disable-next-line
+namespace SceneContext {
+  export interface Extension<TContext extends Context> {
+    scene: SceneContext<TContext>
+  }
+  export type Extended<TContext extends Context> = TContext &
+    Extension<TContext>
 }
 
 export = SceneContext

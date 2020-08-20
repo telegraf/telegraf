@@ -240,7 +240,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     falseMiddleware: Middleware<TContext>
   ) {
     if (typeof predicate !== 'function') {
-      return predicate ? trueMiddleware : falseMiddleware
+      return Composer.unwrap(predicate ? trueMiddleware : falseMiddleware)
     }
     return Composer.lazy<TContext>((ctx) =>
       Promise.resolve(predicate(ctx)).then((value) =>
@@ -591,6 +591,15 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return 'middleware' in handler ? handler.middleware() : handler
   }
 
+  static compose<TContext extends Context, Ext extends object>(
+    middlewares: readonly [
+      Middleware.Ext<Ext, TContext>,
+      ...ReadonlyArray<Middleware<Ext & TContext>>
+    ]
+  ): Middleware.Fn<TContext>
+  static compose<TContext extends Context>(
+    middlewares: ReadonlyArray<Middleware<TContext>>
+  ): Middleware.Fn<TContext>
   static compose<TContext extends Context>(
     middlewares: ReadonlyArray<Middleware<TContext>>
   ): Middleware.Fn<TContext> {

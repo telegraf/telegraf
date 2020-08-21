@@ -318,9 +318,12 @@ class ApiClient {
   callApi(method: string, data: { [k: string]: unknown } = {}): Promise<any> {
     const { token, options, response, responseEnd } = this
 
-    const payload = Object.fromEntries(
-      Object.entries(data).filter(([key, value]) => value != null)
-    )
+    const payload = [
+      ...Object.entries(data).filter(([, value]) => value != null),
+    ].reduce((obj: any, [key, val]) => {
+      obj[key] = val
+      return obj
+    }, {})
 
     if (
       options.webhookReply &&

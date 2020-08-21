@@ -69,7 +69,7 @@ class Extra {
     return new Extra().notifications(value)
   }
 
-  static webPreview(value: boolean | undefined) {
+  static webPreview(value?: boolean) {
     return new Extra().webPreview(value)
   }
 

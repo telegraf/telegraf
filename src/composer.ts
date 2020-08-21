@@ -197,8 +197,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   ): Middleware.Fn<TContext> {
     const handler = Composer.unwrap(middleware)
     return async (ctx, next) => {
-      const [, r] = await Promise.all([handler(ctx, anoop), next()])
-      return r
+      await Promise.all([handler(ctx, anoop), next()])
     }
   }
 

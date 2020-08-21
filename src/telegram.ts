@@ -971,7 +971,7 @@ class Telegram extends ApiClient {
       throw new Error('Message is required')
     }
     const type = Object.keys(replicators.copyMethods).find(
-      (type) => ((message as unknown) as { [key: string]: string })[type]
+      (type) => type in message
     )
     if (!type) {
       throw new Error('Unsupported message type')

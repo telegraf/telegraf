@@ -187,7 +187,7 @@ class Telegram extends ApiClient {
     longitude: number,
     title: string,
     address: string,
-    extra: { [key: string]: any }
+    extra: tt.ExtraVenue
   ): Promise<tt.Message> {
     return this.callApi('sendVenue', {
       latitude,

@@ -13,7 +13,7 @@ export namespace Middleware {
   export type Fn<TContext extends Context> = (
     ctx: TContext,
     next: () => Promise<void>
-  ) => void | Promise<void>
+  ) => Promise<void>
   export interface Obj<TContext extends Context> {
     middleware: () => Fn<TContext>
   }

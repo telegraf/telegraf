@@ -36,7 +36,7 @@ class Extra {
     return this
   }
 
-  markup(markup: Markup | ((m: Markup) => Markup)) {
+  markup(markup: ExtraReplyMessage['reply_markup']) {
     if (typeof markup === 'function') {
       markup = markup(new Markup())
     }

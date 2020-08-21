@@ -26,7 +26,7 @@ class Markup {
     return me
   }
 
-  extra(options: { [key: string]: unknown }) {
+  extra(options: ExtraReplyMessage['reply_markup'] = {}) {
     return {
       reply_markup: { ...this },
       ...options,

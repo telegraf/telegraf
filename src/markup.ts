@@ -1,4 +1,4 @@
-import { InlineKeyboardButton } from 'telegram-typings'
+import * as tt from '../typings/telegram-types'
 
 interface SelectivedMarkup extends Omit<Markup, 'selective'> {
   selective: boolean
@@ -9,7 +9,7 @@ class Markup {
   remove_keyboard?: boolean
   resize_keyboard?: boolean
   one_time_keyboard?: boolean
-  inline_keyboard?: InlineKeyboardButton[]
+  inline_keyboard?: tt.InlineKeyboardButton[]
   forceReply(value = true) {
     this.force_reply = value
     return this
@@ -26,7 +26,7 @@ class Markup {
     return me
   }
 
-  extra(options: ExtraReplyMessage['reply_markup'] = {}) {
+  extra(options: Partial<tt.ExtraReplyMessage['reply_markup']> = {}) {
     return {
       reply_markup: { ...this },
       ...options,
@@ -205,7 +205,7 @@ class Markup {
   static formatHTML(text = '', entities: tt.MessageEntity[] = []) {
     const chars = text
     const available = [...entities]
-    const opened: number[] = []
+    const opened: tt.MessageEntity[] = []
     const result: string[] = []
     for (let offset = 0; offset < chars.length; offset++) {
       while (true) {
@@ -293,7 +293,10 @@ class Markup {
   }
 }
 
-function buildKeyboard(buttons: any, options: any): InlineKeyboardButton[][] {
+function buildKeyboard(
+  buttons: any,
+  options: any
+): tt.InlineKeyboardButton[][] {
   const result: any = []
   if (!Array.isArray(buttons)) {
     return result
@@ -304,9 +307,9 @@ function buildKeyboard(buttons: any, options: any): InlineKeyboardButton[][] {
   const wrapFn = options.wrap
     ? options.wrap
     : (
-        btn: InlineKeyboardButton,
+        btn: tt.InlineKeyboardButton,
         index: number,
-        currentRow: InlineKeyboardButton[]
+        currentRow: tt.InlineKeyboardButton[]
       ) => currentRow.length >= options.columns
   let currentRow = []
   let index = 0

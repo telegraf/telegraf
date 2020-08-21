@@ -1,5 +1,6 @@
 import * as http from 'http'
 import d from 'debug'
+import { Update } from 'telegram-typings'
 const debug = d('telegraf:webhook')
 
 export = function (
@@ -25,7 +26,7 @@ export = function (
       body += chunk.toString()
     })
     req.on('end', () => {
-      let update = {}
+      let update: Update
       try {
         update = JSON.parse(body)
       } catch (error) {

@@ -978,10 +978,10 @@ class Telegram extends ApiClient {
     }
     const opts = {
       chat_id: chatId,
-      ...replicators[type](message),
+      ...(replicators as any)[type](message),
       ...extra,
     }
-    return this.callApi(replicators.copyMethods[type], opts)
+    return this.callApi((replicators as any).copyMethods[type], opts)
   }
 }
 

@@ -2,7 +2,6 @@ import BaseScene from './base'
 import Composer from '../composer'
 import Context from '../context'
 import d from 'debug'
-import { hasPropType } from '../util'
 import { SceneContextOptions } from '../types'
 const debug = d('telegraf:scenes:context')
 
@@ -54,16 +53,18 @@ class SceneContext<TContext extends Context> {
       debug('Enter scene', sceneId, initialState, silent)
       this.session.current = sceneId
       this.state = initialState
-      const ttl = this.current.ttl ?? this.options.ttl
+      const ttl = this.current?.ttl ?? this.options.ttl
       if (ttl) {
         this.session.expires = now() + ttl
       }
-      if (silent) {
+      if (!this.current || silent) {
         return Promise.resolve()
       }
-      const handler = hasPropType(this.current, 'enterMiddleware', 'function')
-        ? this.current.enterMiddleware()
-        : this.current.middleware()
+      const handler =
+        'enterMiddleware' in this.current &&
+        typeof this.current.enterMiddleware === 'function'
+          ? this.current.enterMiddleware()
+          : this.current.middleware()
       return handler(this.ctx, noop)
     })
   }

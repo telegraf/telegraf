@@ -1,5 +1,10 @@
+import * as tt from '../../typings/telegram-types'
 import Markup from '../markup'
 const { formatHTML } = Markup
+
+type Replicate<X, K extends keyof (tt.Message & X)> = Required<
+  Pick<tt.Message & X, K>
+>
 
 export const copyMethods = {
   audio: 'sendAudio',
@@ -16,7 +21,9 @@ export const copyMethods = {
   voice: 'sendVoice',
   poll: 'sendPoll',
 }
-export function text(message) {
+export function text(
+  message: Replicate<tt.ExtraEditMessage, 'entities' | 'reply_markup' | 'text'>
+) {
   const entities = message.entities || []
   return {
     reply_markup: message.reply_markup,
@@ -24,7 +31,9 @@ export function text(message) {
     text: formatHTML(message.text, entities),
   }
 }
-export function contact(message) {
+export function contact(
+  message: Replicate<tt.ExtraContact, 'reply_markup' | 'contact'>
+) {
   return {
     reply_markup: message.reply_markup,
     phone_number: message.contact.phone_number,
@@ -32,14 +41,18 @@ export function contact(message) {
     last_name: message.contact.last_name,
   }
 }
-export function location(message) {
+export function location(
+  message: Replicate<tt.ExtraLocation, 'reply_markup' | 'location'>
+) {
   return {
     reply_markup: message.reply_markup,
     latitude: message.location.latitude,
     longitude: message.location.longitude,
   }
 }
-export function venue(message) {
+export function venue(
+  message: Replicate<tt.ExtraVenue, 'reply_markup' | 'venue'>
+) {
   return {
     reply_markup: message.reply_markup,
     latitude: message.venue.location.latitude,
@@ -49,7 +62,12 @@ export function venue(message) {
     foursquare_id: message.venue.foursquare_id,
   }
 }
-export function voice(message) {
+export function voice(
+  message: Replicate<
+    tt.ExtraVoice,
+    'caption_entities' | 'reply_markup' | 'voice' | 'caption'
+  >
+) {
   const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
@@ -59,7 +77,12 @@ export function voice(message) {
     parse_mode: entities.length > 0 ? 'HTML' : '',
   }
 }
-export function audio(message) {
+export function audio(
+  message: Replicate<
+    tt.ExtraAudio,
+    'caption_entities' | 'reply_markup' | 'audio' | 'caption'
+  >
+) {
   const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
@@ -72,7 +95,12 @@ export function audio(message) {
     parse_mode: entities.length > 0 ? 'HTML' : '',
   }
 }
-export function video(message) {
+export function video(
+  message: Replicate<
+    tt.ExtraVideo,
+    'caption_entities' | 'reply_markup' | 'video' | 'caption'
+  >
+) {
   const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
@@ -86,7 +114,12 @@ export function video(message) {
     supports_streaming: !!message.video.supports_streaming,
   }
 }
-export function document(message) {
+export function document(
+  message: Replicate<
+    tt.ExtraDocument,
+    'caption_entities' | 'reply_markup' | 'document' | 'caption'
+  >
+) {
   const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
@@ -95,13 +128,20 @@ export function document(message) {
     parse_mode: entities.length > 0 ? 'HTML' : '',
   }
 }
-export function sticker(message) {
+export function sticker(
+  message: Replicate<tt.ExtraSticker, 'reply_markup' | 'sticker'>
+) {
   return {
     reply_markup: message.reply_markup,
     sticker: message.sticker.file_id,
   }
 }
-export function photo(message) {
+export function photo(
+  message: Replicate<
+    tt.ExtraPhoto,
+    'caption_entities' | 'reply_markup' | 'photo' | 'caption'
+  >
+) {
   const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
@@ -111,7 +151,9 @@ export function photo(message) {
   }
 }
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export function video_note(message) {
+export function video_note(
+  message: Replicate<tt.ExtraVideoNote, 'reply_markup' | 'video_note'>
+) {
   return {
     reply_markup: message.reply_markup,
     video_note: message.video_note.file_id,
@@ -120,7 +162,9 @@ export function video_note(message) {
     duration: message.video_note.duration,
   }
 }
-export function animation(message) {
+export function animation(
+  message: Replicate<tt.ExtraAnimation, 'reply_markup' | 'animation'>
+) {
   return {
     reply_markup: message.reply_markup,
     animation: message.animation.file_id,
@@ -128,7 +172,7 @@ export function animation(message) {
     duration: message.animation.duration,
   }
 }
-export function poll(message) {
+export function poll(message: Replicate<tt.ExtraPoll, 'poll'>) {
   return {
     question: message.poll.question,
     type: message.poll.type,

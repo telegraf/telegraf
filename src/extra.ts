@@ -85,7 +85,7 @@ class Extra {
     return new Extra().HTML(value)
   }
 
-  static markdown(value: boolean | undefined) {
+  static markdown(value?: boolean) {
     return new Extra().markdown(value)
   }
 

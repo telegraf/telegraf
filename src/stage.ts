@@ -37,7 +37,7 @@ class Stage<TContext extends TelegrafContext> extends Composer<TContext> {
         ctx.scene = new SceneContext<TContext>(ctx, this.scenes, this.options)
         return next()
       },
-      super.middleware() as Middleware.Fn<TelegrafContext>,
+      super.middleware(),
       lazy((ctx) => ctx.scene.current || passThru()),
     ])
     return optional(

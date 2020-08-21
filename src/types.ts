@@ -17,13 +17,16 @@ export namespace Middleware {
   export interface Obj<TContext extends Context> {
     middleware: () => Fn<TContext>
   }
-  export type Ext<
-    Extension extends object,
-    BaseContext extends Context = Context
-  > = <TContext extends BaseContext>(
+  export type ExtFn<BaseContext extends Context, Extension extends object> = <
+    TContext extends BaseContext
+  >(
     ctx: TContext,
     next: (ctx: Extension & TContext) => Promise<void>
   ) => Promise<void>
+  export type Ext<
+    BaseContext extends Context,
+    Extension extends object
+  > = ExtFn<BaseContext, Extension>
 }
 export type Middleware<TContext extends Context> =
   | Middleware.Fn<TContext>

@@ -591,10 +591,10 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return 'middleware' in handler ? handler.middleware() : handler
   }
 
-  static compose<TContext extends Context, Ext extends object>(
+  static compose<TContext extends Context, Extension extends object>(
     middlewares: readonly [
-      Middleware.Ext<Ext, TContext>,
-      ...ReadonlyArray<Middleware<Ext & TContext>>
+      Middleware.Ext<TContext, Extension>,
+      ...ReadonlyArray<Middleware<Extension & TContext>>
     ]
   ): Middleware.Fn<TContext>
   static compose<TContext extends Context>(

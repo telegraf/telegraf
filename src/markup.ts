@@ -34,10 +34,10 @@ class Markup {
   }
 
   // confer https://github.com/telegraf/telegraf/issues/1076
-  keyboard(buttons, options) {
+  keyboard(buttons: any, options: any) {
     const keyboard = buildKeyboard(buttons, { columns: 1, ...options })
     if (keyboard && keyboard.length > 0) {
-      this.keyboard = keyboard
+      ;(this.keyboard as any) = keyboard
     }
     return this
   }
@@ -53,13 +53,13 @@ class Markup {
   }
 
   // confer https://github.com/telegraf/telegraf/issues/1076
-  inlineKeyboard(buttons, options) {
+  inlineKeyboard(buttons: any, options: any) {
     const keyboard = buildKeyboard(buttons, {
       columns: buttons.length,
       ...options,
     })
     if (keyboard && keyboard.length > 0) {
-      this.inline_keyboard = keyboard
+      ;(this.inline_keyboard as any) = keyboard
     }
     return this
   }
@@ -121,11 +121,11 @@ class Markup {
     return new Markup().forceReply(value)
   }
 
-  static keyboard(buttons, options) {
+  static keyboard(buttons: any, options: any) {
     return new Markup().keyboard(buttons, options)
   }
 
-  static inlineKeyboard(buttons, options) {
+  static inlineKeyboard(buttons: any, options: any) {
     return new Markup().inlineKeyboard(buttons, options)
   }
 
@@ -238,10 +238,10 @@ class Markup {
             result.push('<u>')
             break
           case 'text_mention':
-            result.push(`<a href="tg://user?id=${entity.user.id}">`)
+            result.push(`<a href="tg://user?id=${entity.user!.id}">`)
             break
           case 'text_link':
-            result.push(`<a href="${entity.url}">`)
+            result.push(`<a href="${entity.url!}">`)
             break
         }
         opened.unshift(entity)
@@ -302,7 +302,9 @@ function buildKeyboard(
     return result
   }
   if (buttons.find(Array.isArray)) {
-    return buttons.map((row) => row.filter((button) => !button.hide))
+    return buttons.map((row) =>
+      row.filter((button: { hide: boolean }) => !button.hide)
+    )
   }
   const wrapFn = options.wrap
     ? options.wrap

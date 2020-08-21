@@ -62,8 +62,7 @@ const WEBHOOK_REPLY_STUB = {
 }
 
 function includesMedia(payload: Record<string, unknown>) {
-  return Object.keys(payload).some((key) => {
-    const value = payload[key]
+  return Object.values(payload).some((value) => {
     if (Array.isArray(value)) {
       return value.some(
         ({ media }) =>

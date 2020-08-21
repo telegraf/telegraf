@@ -73,7 +73,7 @@ class Extra {
     return new Extra().webPreview(value)
   }
 
-  static load(opts: { [key: string]: unknown } | undefined) {
+  static load(opts: ExtraReplyMessage) {
     return new Extra(opts)
   }
 

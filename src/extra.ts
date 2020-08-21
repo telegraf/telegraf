@@ -97,9 +97,7 @@ class Extra {
     return new Extra().caption(caption)
   }
 
-  static get Markup() {
-    return Markup
-  }
+  static readonly Markup = Markup
 }
 
 export = Extra

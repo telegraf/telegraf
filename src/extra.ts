@@ -44,7 +44,6 @@ class Extra {
     if (typeof markup === 'function') {
       markup = markup(new Markup())
     }
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     this.reply_markup = { ...markup }
     return this
   }

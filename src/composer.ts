@@ -271,11 +271,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   }
 
   static drop<TContext extends Context>(predicate: Predicate<TContext>) {
-    return Composer.branch(
-      predicate,
-      () => Promise.resolve(),
-      Composer.passThru()
-    )
+    return Composer.branch(predicate, anoop, Composer.passThru())
   }
 
   static dispatch<

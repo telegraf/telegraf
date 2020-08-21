@@ -26,7 +26,7 @@ class Markup {
     return me
   }
 
-  extra(options: { [key: string]: unknown }) {
+  extra(options: ExtraReplyMessage['reply_markup'] = {}) {
     return {
       reply_markup: { ...this },
       ...options,
@@ -202,10 +202,10 @@ class Markup {
     }
   }
 
-  static formatHTML(text = '', entities = []) {
+  static formatHTML(text = '', entities: tt.MessageEntity[] = []) {
     const chars = text
     const available = [...entities]
-    const opened: any = []
+    const opened: number[] = []
     const result: string[] = []
     for (let offset = 0; offset < chars.length; offset++) {
       while (true) {

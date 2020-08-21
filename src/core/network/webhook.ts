@@ -4,13 +4,13 @@ const debug = d('telegraf:webhook')
 
 export = function (
   hookPath: string,
-  updateHandler: Function,
-  errorHandler: (err: Error) => unknown
+  updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>,
+  errorHandler: (err: SyntaxError) => void
 ) {
   return (
     req: http.IncomingMessage,
     res: http.ServerResponse,
-    next?: unknown
+    next?: () => void
   ): void => {
     debug('Incoming request', req.method, req.url)
     if (req.method !== 'POST' || req.url !== hookPath) {
@@ -39,7 +39,7 @@ export = function (
             res.end()
           }
         })
-        .catch((err: Error) => {
+        .catch((err: unknown) => {
           debug('Webhook error', err)
           res.writeHead(500)
           res.end()

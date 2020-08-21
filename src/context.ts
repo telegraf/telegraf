@@ -2,7 +2,6 @@ import * as tt from '../typings/telegram-types'
 import ApiClient from './core/network/client'
 import { Tail } from './types'
 import Telegram from './telegram'
-import WizardContext from './scenes/wizard/context'
 
 type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
@@ -60,14 +59,12 @@ const MessageSubTypesMapping = {
   forward_date: 'forward',
 }
 
-class TelegrafContext {
+class Context {
   public botInfo?: tt.User
   readonly updateType: tt.UpdateType
   readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
   /** @deprecated */
   private contextState?: any
-  scene: any
-  wizard!: WizardContext<any>
 
   constructor(
     readonly update: tt.Update,
@@ -83,7 +80,7 @@ class TelegrafContext {
     } else {
       this.updateSubTypes = []
     }
-    Object.getOwnPropertyNames(TelegrafContext.prototype)
+    Object.getOwnPropertyNames(Context.prototype)
       .filter(
         (key) =>
           key !== 'constructor' && typeof (this as any)[key] === 'function'
@@ -604,4 +601,4 @@ class TelegrafContext {
   }
 }
 
-export = TelegrafContext
+export = Context

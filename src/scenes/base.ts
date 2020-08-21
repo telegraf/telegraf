@@ -28,7 +28,7 @@ class BaseScene<TContext extends TelegrafContext> extends Composer<TContext> {
     this.leaveHandler = compose(opts.leaveHandlers)
   }
 
-  set ttl(value) {
+  set ttl(value: number | undefined) {
     this.options.ttl = value
   }
 

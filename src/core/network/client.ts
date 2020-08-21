@@ -266,9 +266,9 @@ function answerToWebhook(
   return buildFormDataConfig(payload, options.agent).then(
     ({ headers = {}, body }) => {
       if (isKoaResponse(response)) {
-        Object.keys(headers).forEach((key) =>
-          response.set(key, (headers as { [k: string]: unknown })[key])
-        )
+        for (const [key, value] of Object.entries(headers)) {
+          response.set(key, value)
+        }
         response.body = body
         return Promise.resolve(WEBHOOK_REPLY_STUB)
       }

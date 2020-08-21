@@ -36,7 +36,7 @@ class Extra {
     return this
   }
 
-  markup(markup: Markup | ((m: Markup) => Markup)) {
+  markup(markup: ExtraReplyMessage['reply_markup']) {
     if (typeof markup === 'function') {
       markup = markup(new Markup())
     }
@@ -65,27 +65,27 @@ class Extra {
     return new Extra().inReplyTo(messageId)
   }
 
-  static notifications(value: boolean | undefined) {
+  static notifications(value?: boolean) {
     return new Extra().notifications(value)
   }
 
-  static webPreview(value: boolean | undefined) {
+  static webPreview(value?: boolean) {
     return new Extra().webPreview(value)
   }
 
-  static load(opts: { [key: string]: unknown } | undefined) {
+  static load(opts: ExtraReplyMessage) {
     return new Extra(opts)
   }
 
-  static markup(markup: Markup | ((m: Markup) => Markup)) {
+  static markup(markup: ExtraReplyMessage['reply_markup']) {
     return new Extra().markup(markup)
   }
 
-  static HTML(value: boolean | undefined) {
+  static HTML(value?: boolean) {
     return new Extra().HTML(value)
   }
 
-  static markdown(value: boolean | undefined) {
+  static markdown(value?: boolean) {
     return new Extra().markdown(value)
   }
 

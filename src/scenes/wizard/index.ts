@@ -1,14 +1,13 @@
 import Composer from '../../composer'
-import TelegrafContext from '../../context'
+import Context from '../../context'
 import { Middleware } from '../../types'
+import SceneContext from '../context'
 import WizardContext from './context'
 const { compose, unwrap } = Composer
 
-type WizardSceneOptions<TContext extends TelegrafContext> =
-  | Middleware.Fn<TContext>
-  | Array<Middleware.Fn<TContext>>
-
-class WizardScene<TContext extends TelegrafContext> extends Composer<TContext> {
+class WizardScene<TContext extends SceneContext.Extended<Context>>
+  extends Composer<TContext>
+  implements Middleware.Obj<WizardContext.Extended<TContext>> {
   id: string
   options: any
   leaveHandler: Middleware.Fn<TContext>
@@ -26,7 +25,7 @@ class WizardScene<TContext extends TelegrafContext> extends Composer<TContext> {
     this.leaveHandler = compose(this.options.leaveHandlers)
   }
 
-  set ttl(value) {
+  set ttl(value: number | undefined) {
     this.options.ttl = value
   }
 
@@ -44,13 +43,12 @@ class WizardScene<TContext extends TelegrafContext> extends Composer<TContext> {
   }
 
   middleware() {
-    return compose([
+    return Composer.compose<TContext, WizardContext.Extension<TContext>>([
       (ctx, next) => {
-        const wizard = new WizardContext(ctx, this.options.steps)
-        ctx.wizard = wizard
-        return next()
+        const wizard = new WizardContext<TContext>(ctx, this.options.steps)
+        return next(Object.assign(ctx, { wizard }))
       },
-      super.middleware() as Middleware.Fn<TelegrafContext>,
+      super.middleware(),
       (ctx, next) => {
         if (!ctx.wizard.step) {
           ctx.wizard.selectStep(0)

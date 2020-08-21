@@ -44,7 +44,9 @@ class Extra {
     if (typeof markup === 'function') {
       markup = markup(new Markup())
     }
-    this.reply_markup = { ...markup }
+    if (markup != null) {
+      this.reply_markup = { ...markup }
+    }
     return this
   }
 

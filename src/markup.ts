@@ -202,7 +202,7 @@ class Markup {
     }
   }
 
-  static formatHTML(text = '', entities = []) {
+  static formatHTML(text = '', entities: tt.MessageEntity[] = []) {
     const chars = text
     const available = [...entities]
     const opened: any = []

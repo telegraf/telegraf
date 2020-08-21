@@ -205,7 +205,7 @@ class Markup {
   static formatHTML(text = '', entities: tt.MessageEntity[] = []) {
     const chars = text
     const available = [...entities]
-    const opened: any = []
+    const opened: number[] = []
     const result: string[] = []
     for (let offset = 0; offset < chars.length; offset++) {
       while (true) {

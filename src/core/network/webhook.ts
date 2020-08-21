@@ -39,7 +39,7 @@ export = function (
             res.end()
           }
         })
-        .catch((err: Error) => {
+        .catch((err: unknown) => {
           debug('Webhook error', err)
           res.writeHead(500)
           res.end()

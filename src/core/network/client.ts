@@ -81,12 +81,17 @@ function includesMedia(payload: Record<string, unknown>) {
   })
 }
 
+function replacer(_: unknown, value: unknown) {
+  if (value == null) return undefined
+  return value
+}
+
 function buildJSONConfig(payload: unknown): Promise<RequestInit> {
   return Promise.resolve({
     method: 'POST',
     compress: true,
     headers: { 'content-type': 'application/json', connection: 'keep-alive' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(payload, replacer),
   })
 }
 
@@ -130,7 +135,7 @@ async function attachFormValue(
   value: unknown,
   agent: RequestInit['agent']
 ) {
-  if (!value) {
+  if (value == null) {
     return
   }
   if (
@@ -315,15 +320,8 @@ class ApiClient {
     return this.options.webhookReply
   }
 
-  callApi(method: string, data: { [k: string]: unknown } = {}): Promise<any> {
+  callApi(method: string, payload = {}): Promise<any> {
     const { token, options, response, responseEnd } = this
-
-    const payload = [
-      ...Object.entries(data).filter(([, value]) => value != null),
-    ].reduce((obj: any, [key, val]) => {
-      obj[key] = val
-      return obj
-    }, {})
 
     if (
       options.webhookReply &&

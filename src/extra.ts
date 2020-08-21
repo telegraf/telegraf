@@ -45,7 +45,7 @@ class Extra {
       markup = markup(new Markup())
     }
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    this.reply_markup = { ...markup } as Markup
+    this.reply_markup = { ...markup } as ExtraReplyMessage['reply_markup']
     return this
   }
 

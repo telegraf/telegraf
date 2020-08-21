@@ -226,10 +226,11 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       )
   }
 
-  static log(
-    logFn: (s: string) => Promise<void> = (s) => Promise.resolve(console.log(s))
-  ) {
-    return Composer.fork((ctx) => logFn(JSON.stringify(ctx.update, null, 2)))
+  static log(logFn: (s: string) => void = console.log): Middleware.Fn<Context> {
+    return (ctx, next) => {
+      logFn(JSON.stringify(ctx.update, null, 2))
+      return next()
+    }
   }
 
   /**

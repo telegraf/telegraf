@@ -2,17 +2,26 @@ import BaseScene from './base'
 import Composer from '../composer'
 import Context from '../context'
 import d from 'debug'
-import { SceneContextOptions } from '../types'
 const debug = d('telegraf:scenes:context')
 
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
+namespace SceneContext {
+  export interface Options {
+    sessionName: string
+    ttl?: number
+    default?: any
+  }
+}
+
+// eslint-disable-next-line no-redeclare
 class SceneContext<TContext extends Context> {
   constructor(
     private readonly ctx: TContext,
     private readonly scenes: Map<string, BaseScene<TContext>>,
-    private readonly options: SceneContextOptions
+    private readonly options: SceneContext.Options
   ) {}
 
   get session() {

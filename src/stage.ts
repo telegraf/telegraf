@@ -1,17 +1,17 @@
-import { Middleware, SceneContextOptions } from './types'
 import BaseScene from './scenes/base'
 import Composer from './composer'
 import Context from './context'
+import { Middleware } from './types'
 import SceneContext from './scenes/context'
 
 class Stage<TContext extends Context>
   extends Composer<SceneContext.Extended<TContext>>
   implements Middleware.Obj<TContext> {
-  options: SceneContextOptions
+  options: SceneContext.Options
   scenes: Map<string, BaseScene<TContext>>
   constructor(
     scenes: Array<BaseScene<TContext>> = [],
-    options?: SceneContextOptions
+    options?: SceneContext.Options
   ) {
     super()
     this.options = {

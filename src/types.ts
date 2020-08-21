@@ -36,9 +36,3 @@ export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 
 // prettier-ignore
 export type Tail<T> = T extends [unknown, ...infer U] ? U : never
-
-export interface SceneContextOptions {
-  sessionName: string
-  ttl?: number
-  default?: any
-}

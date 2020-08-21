@@ -218,7 +218,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     phoneNumber: string,
     firstName: string,
-    extra: { [key: string]: any }
+    extra: tt.ExtraContact
   ): Promise<tt.Message> {
     return this.callApi('sendContact', {
       chat_id: chatId,

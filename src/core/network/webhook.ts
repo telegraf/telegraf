@@ -10,7 +10,7 @@ export = function (
   return (
     req: http.IncomingMessage,
     res: http.ServerResponse,
-    next?: unknown
+    next?: () => void
   ): void => {
     debug('Incoming request', req.method, req.url)
     if (req.method !== 'POST' || req.url !== hookPath) {

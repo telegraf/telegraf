@@ -10,7 +10,7 @@ class Extra {
   reply_to_message_id?: number
   disable_notification?: boolean
   disable_web_page_preview?: boolean
-  reply_markup?: Markup
+  reply_markup?: ExtraReplyMessage['reply_markup']
   parse_mode?: ParseMode
   static Markup: typeof Markup
   constructor(opts?: ExtraReplyMessage) {

@@ -5,7 +5,7 @@ const debug = d('telegraf:webhook')
 export = function (
   hookPath: string,
   updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>,
-  errorHandler: (err: Error) => unknown
+  errorHandler: (err: SyntaxError) => void
 ) {
   return (
     req: http.IncomingMessage,

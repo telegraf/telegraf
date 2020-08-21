@@ -25,7 +25,7 @@ class WizardScene<TContext extends SceneContext.Extended<Context>>
     this.leaveHandler = compose(this.options.leaveHandlers)
   }
 
-  set ttl(value) {
+  set ttl(value: number | undefined) {
     this.options.ttl = value
   }
 

@@ -200,8 +200,9 @@ class Context {
   ): asserts value is T {
     if (value === undefined) {
       throw new Error(
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        `Telegraf: "${method}" isn't available for "${this.updateType}::${this.updateSubTypes}"`
+        `Telegraf: "${method}" isn't available for "${
+          this.updateType
+        }::${this.updateSubTypes.toString()}"`
       )
     }
   }

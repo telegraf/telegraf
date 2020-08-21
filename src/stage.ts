@@ -10,7 +10,7 @@ class Stage<TContext extends Context>
   options: SceneContext.Options
   scenes: Map<string, BaseScene<TContext>>
   constructor(
-    scenes: Array<BaseScene<TContext>> = [],
+    scenes: ReadonlyArray<BaseScene<TContext>> = [],
     options?: SceneContext.Options
   ) {
     super()

@@ -12,7 +12,6 @@ class Extra {
   disable_web_page_preview?: boolean
   reply_markup?: ExtraReplyMessage['reply_markup']
   parse_mode?: ParseMode
-  static Markup: typeof Markup
   constructor(opts?: ExtraReplyMessage) {
     this.load(opts)
   }
@@ -97,8 +96,10 @@ class Extra {
   static caption(caption: string) {
     return new Extra().caption(caption)
   }
-}
 
-Extra.Markup = Markup
+  static get Markup() {
+    return Markup
+  }
+}
 
 export = Extra

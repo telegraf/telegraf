@@ -8,16 +8,14 @@ const { compose, unwrap } = Composer
 class WizardScene<TContext extends SceneContext.Extended<Context>>
   extends Composer<TContext>
   implements Middleware.Obj<WizardContext.Extended<TContext>> {
-  id: string
   options: any
   leaveHandler: Middleware.Fn<TContext>
   constructor(
-    id: string,
-    options: Middleware.Fn<TContext> | Array<Middleware.Fn<TContext>>,
+    readonly id: string,
+    options: Middleware.Fn<TContext> | ReadonlyArray<Middleware.Fn<TContext>>,
     ...steps: Array<Middleware.Fn<TContext>>
   ) {
     super()
-    this.id = id
     this.options =
       typeof options === 'function'
         ? { steps: [options, ...steps], leaveHandlers: [] }
@@ -50,7 +48,7 @@ class WizardScene<TContext extends SceneContext.Extended<Context>>
       },
       super.middleware(),
       (ctx, next) => {
-        if (!ctx.wizard.step) {
+        if (ctx.wizard.step === false) {
           ctx.wizard.selectStep(0)
           return ctx.scene.leave()
         }

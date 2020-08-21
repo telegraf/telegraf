@@ -214,6 +214,12 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return (ctx, next) => next()
   }
 
+  private static safePassThru() {
+    // prettier-ignore
+    // @ts-expect-error
+    return (ctx, next) => typeof next === 'function' ? next(ctx) : Promise.resolve()
+  }
+
   static lazy<TContext extends Context>(
     factoryFn: (ctx: TContext) => MaybePromise<Middleware<TContext>>
   ): Middleware.Fn<TContext> {

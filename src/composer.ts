@@ -267,9 +267,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   }
 
   static filter<TContext extends Context>(predicate: Predicate<TContext>) {
-    return Composer.branch(predicate, Composer.passThru(), () =>
-      Promise.resolve()
-    )
+    return Composer.branch(predicate, Composer.passThru(), anoop)
   }
 
   static drop<TContext extends Context>(predicate: Predicate<TContext>) {

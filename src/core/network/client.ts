@@ -273,9 +273,9 @@ function answerToWebhook(
         return Promise.resolve(WEBHOOK_REPLY_STUB)
       }
       if (!response.headersSent) {
-        Object.keys(headers).forEach((key) =>
-          response.setHeader(key, (headers as { [k: string]: unknown })[key])
-        )
+        for (const [key, value] of Object.entries(headers)) {
+          response.set(key, value)
+        }
       }
       return new Promise((resolve) => {
         response.on('finish', () => resolve(WEBHOOK_REPLY_STUB))
@@ -320,8 +320,7 @@ class ApiClient {
     const { token, options, response, responseEnd } = this
 
     const payload = Object.fromEntries(
-      Object.entries(data)
-        .filter(([key, value]) => value != null)
+      Object.entries(data).filter(([key, value]) => value != null)
     )
 
     if (

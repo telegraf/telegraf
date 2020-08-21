@@ -65,7 +65,7 @@ class Extra {
     return new Extra().inReplyTo(messageId)
   }
 
-  static notifications(value: boolean | undefined) {
+  static notifications(value?: boolean) {
     return new Extra().notifications(value)
   }
 

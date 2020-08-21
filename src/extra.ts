@@ -77,7 +77,7 @@ class Extra {
     return new Extra(opts)
   }
 
-  static markup(markup: Markup | ((m: Markup) => Markup)) {
+  static markup(markup: ExtraReplyMessage['reply_markup']) {
     return new Extra().markup(markup)
   }
 

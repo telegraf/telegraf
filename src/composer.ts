@@ -226,7 +226,9 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       )
   }
 
-  static log(logFn: (s: string) => void = console.log) {
+  static log(
+    logFn: (s: string) => Promise<void> = (s) => Promise.resolve(console.log(s))
+  ) {
     return Composer.fork((ctx) => logFn(JSON.stringify(ctx.update, null, 2)))
   }
 
@@ -265,11 +267,17 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   }
 
   static filter<TContext extends Context>(predicate: Predicate<TContext>) {
-    return Composer.branch(predicate, Composer.passThru(), () => {})
+    return Composer.branch(predicate, Composer.passThru(), () =>
+      Promise.resolve()
+    )
   }
 
   static drop<TContext extends Context>(predicate: Predicate<TContext>) {
-    return Composer.branch(predicate, () => {}, Composer.passThru())
+    return Composer.branch(
+      predicate,
+      () => Promise.resolve(),
+      Composer.passThru()
+    )
   }
 
   static dispatch<

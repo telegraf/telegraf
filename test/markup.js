@@ -273,3 +273,8 @@ test('should generate correct HTML with emojis', (t) => {
   ])
   t.deepEqual(markup, '<u>👨‍👩‍👧‍👦underline</u> <b>👩‍👩‍👦‍👦bold</b> <i>👨‍👨‍👦‍👦italic</i>')
 })
+
+test('should generate correct HTML with HTML-reserved characters', (t) => {
+  const markup = Markup.formatHTML('<b>123</b>', [ { offset: 1, length: 3, type: 'underline' } ])
+  t.deepEqual(markup, '&lt;<u>b&gt;1</u>23&lt;/b&gt;')
+})

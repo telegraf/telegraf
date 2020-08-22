@@ -1,7 +1,7 @@
-import type * as tt from '../typings/telegram-types'
-import type ApiClient from './core/network/client'
-import type { Tail } from './types'
-import type Telegram from './telegram'
+import * as tt from '../typings/telegram-types'
+import ApiClient from './core/network/client'
+import { Tail } from './types'
+import Telegram from './telegram'
 
 type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
@@ -59,7 +59,7 @@ const MessageSubTypesMapping = {
   forward_date: 'forward',
 }
 
-class TelegrafContext {
+class Context {
   public botInfo?: tt.User
   readonly updateType: tt.UpdateType
   readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
@@ -75,14 +75,17 @@ class TelegrafContext {
     // prettier-ignore
     if (this.updateType === 'message' || (this.options.channelMode && this.updateType === 'channel_post')) {
       this.updateSubTypes = MessageSubTypes
-        .filter((key) => key in this.update[this.updateType])
-        .map((type) => MessageSubTypesMapping[type] || type)
+        .filter((key) => key in (this.update as any)[this.updateType])
+        .map((type) => (MessageSubTypesMapping as any)[type] || type)
     } else {
       this.updateSubTypes = []
     }
-    Object.getOwnPropertyNames(TelegrafContext.prototype)
-      .filter((key) => key !== 'constructor' && typeof this[key] === 'function')
-      .forEach((key) => (this[key] = this[key].bind(this)))
+    Object.getOwnPropertyNames(Context.prototype)
+      .filter(
+        (key) =>
+          key !== 'constructor' && typeof (this as any)[key] === 'function'
+      )
+      .forEach((key) => ((this as any)[key] = (this as any)[key].bind(this)))
   }
 
   get me() {
@@ -196,8 +199,11 @@ class TelegrafContext {
     method: string
   ): asserts value is T {
     if (value === undefined) {
-      // eslint-disable-next-line
-      throw new Error(`Telegraf: "${method}" isn't available for "${this.updateType}::${this.updateSubTypes}"`)
+      throw new Error(
+        `Telegraf: "${method}" isn't available for "${
+          this.updateType
+        }::${this.updateSubTypes.toString()}"`
+      )
     }
   }
 
@@ -410,7 +416,7 @@ class TelegrafContext {
     return this.telegram.getChatMembersCount(this.chat.id, ...args)
   }
 
-  setPassportDataErrors(errors) {
+  setPassportDataErrors(errors: object) {
     this.assert(this.from, 'setPassportDataErrors')
     return this.telegram.setPassportDataErrors(this.from.id, errors)
   }
@@ -596,4 +602,4 @@ class TelegrafContext {
   }
 }
 
-export = TelegrafContext
+export = Context

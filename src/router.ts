@@ -1,8 +1,8 @@
 /** @format */
 
-import type { Middleware, NonemptyReadonlyArray } from './types'
+import { Middleware, NonemptyReadonlyArray } from './types'
 import Composer from './composer'
-import type Context from './context'
+import Context from './context'
 
 type RouteFn<TContext extends Context> = (
   ctx: TContext

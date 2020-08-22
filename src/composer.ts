@@ -1,8 +1,8 @@
 /** @format */
 
-import type * as tt from '../typings/telegram-types.d'
+import * as tt from '../typings/telegram-types.d'
+import { Middleware, NonemptyReadonlyArray } from './types'
 import Context from './context'
-import type { Middleware, NonemptyReadonlyArray } from './types'
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
@@ -196,10 +196,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     middleware: Middleware<TContext>
   ): Middleware.Fn<TContext> {
     const handler = Composer.unwrap(middleware)
-    return (ctx, next) => {
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      setImmediate(handler, ctx, Composer.safePassThru())
-      return next()
+    return async (ctx, next) => {
+      await Promise.all([handler(ctx, anoop), next()])
     }
   }
 
@@ -217,6 +215,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
 
   private static safePassThru() {
     // prettier-ignore
+    // @ts-expect-error
     return (ctx, next) => typeof next === 'function' ? next(ctx) : Promise.resolve()
   }
 
@@ -232,8 +231,11 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       )
   }
 
-  static log(logFn: (s: string) => void = console.log) {
-    return Composer.fork((ctx) => logFn(JSON.stringify(ctx.update, null, 2)))
+  static log(logFn: (s: string) => void = console.log): Middleware.Fn<Context> {
+    return (ctx, next) => {
+      logFn(JSON.stringify(ctx.update, null, 2))
+      return next()
+    }
   }
 
   /**
@@ -246,7 +248,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     falseMiddleware: Middleware<TContext>
   ) {
     if (typeof predicate !== 'function') {
-      return predicate ? trueMiddleware : falseMiddleware
+      return Composer.unwrap(predicate ? trueMiddleware : falseMiddleware)
     }
     return Composer.lazy<TContext>((ctx) =>
       Promise.resolve(predicate(ctx)).then((value) =>
@@ -266,16 +268,16 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return Composer.branch(
       predicate,
       Composer.compose(fns),
-      Composer.safePassThru()
+      Composer.passThru()
     )
   }
 
   static filter<TContext extends Context>(predicate: Predicate<TContext>) {
-    return Composer.branch(predicate, Composer.safePassThru(), () => {})
+    return Composer.branch(predicate, Composer.passThru(), anoop)
   }
 
   static drop<TContext extends Context>(predicate: Predicate<TContext>) {
-    return Composer.branch(predicate, () => {}, Composer.safePassThru())
+    return Composer.branch(predicate, anoop, Composer.passThru())
   }
 
   static dispatch<
@@ -597,6 +599,15 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return 'middleware' in handler ? handler.middleware() : handler
   }
 
+  static compose<TContext extends Context, Extension extends object>(
+    middlewares: readonly [
+      Middleware.Ext<TContext, Extension>,
+      ...ReadonlyArray<Middleware<Extension & TContext>>
+    ]
+  ): Middleware.Fn<TContext>
+  static compose<TContext extends Context>(
+    middlewares: ReadonlyArray<Middleware<TContext>>
+  ): Middleware.Fn<TContext>
   static compose<TContext extends Context>(
     middlewares: ReadonlyArray<Middleware<TContext>>
   ): Middleware.Fn<TContext> {
@@ -604,7 +615,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       throw new Error('Middlewares must be an array')
     }
     if (middlewares.length === 0) {
-      return Composer.safePassThru()
+      return Composer.passThru()
     }
     if (middlewares.length === 1) {
       return Composer.unwrap(middlewares[0])
@@ -612,7 +623,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return (ctx, next) => {
       let index = -1
       return execute(0, ctx)
-      function execute(i: number, context: TContext) {
+      function execute(i: number, context: TContext): Promise<void> {
         if (!(context instanceof Context)) {
           // prettier-ignore
           return Promise.reject(new Error('next(ctx) called with invalid context'))

@@ -146,11 +146,6 @@ export declare class Composer<TContext extends TelegrafContext>
   static passThru(): MiddlewareFn<TelegrafContext>
 
   /**
-   * Generates safe version of pass thru middleware.
-   */
-  static safePassThru(): MiddlewareFn<TelegrafContext>
-
-  /**
    * Generates optional middleware.
    * @param middleware middleware to run if the predicate returns true
    */

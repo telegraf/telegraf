@@ -311,6 +311,22 @@ export interface ExtraAudio extends ExtraReplyMessage {
   disable_web_page_preview?: never
 }
 
+export interface ExtraContact
+  extends Pick<
+    ExtraReplyMessage,
+    'disable_notification' | 'reply_to_message_id' | 'reply_markup'
+  > {
+  /**
+   * Contact's last name
+   */
+  last_name?: string
+
+  /**
+   * Additional data about the contact in the form of a vCard, 0-2048 bytes
+   */
+  vcard?: string
+}
+
 export interface ExtraDocument extends ExtraReplyMessage {
   /**
    * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
@@ -451,6 +467,22 @@ export interface ExtraSticker extends ExtraReplyMessage {
    * Does not exist, see https://core.telegram.org/bots/api#sendsticker
    */
   parse_mode?: never
+}
+
+export interface ExtraVenue
+  extends Pick<
+    ExtraReplyMessage,
+    'disable_notification' | 'reply_to_message_id' | 'reply_markup'
+  > {
+  /**
+   * Foursquare identifier of the venue
+   */
+  foursquare_id?: string
+
+  /**
+   * Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
+   */
+  foursquare_type?: string
 }
 
 export interface ExtraVideo extends ExtraReplyMessage {

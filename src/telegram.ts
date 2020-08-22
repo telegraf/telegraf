@@ -1,5 +1,5 @@
-import type * as tt from '../typings/telegram-types.d'
-import replicators from './core/replicators'
+import * as replicators from './core/replicators'
+import * as tt from '../typings/telegram-types.d'
 import ApiClient from './core/network/client'
 
 class Telegram extends ApiClient {
@@ -187,7 +187,7 @@ class Telegram extends ApiClient {
     longitude: number,
     title: string,
     address: string,
-    extra
+    extra: tt.ExtraVenue
   ): Promise<tt.Message> {
     return this.callApi('sendVenue', {
       latitude,
@@ -218,7 +218,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     phoneNumber: string,
     firstName: string,
-    extra
+    extra: tt.ExtraContact
   ): Promise<tt.Message> {
     return this.callApi('sendContact', {
       chat_id: chatId,
@@ -950,7 +950,7 @@ class Telegram extends ApiClient {
     return this.callApi('setMyCommands', { commands })
   }
 
-  setPassportDataErrors(userId: number, errors) {
+  setPassportDataErrors(userId: number, errors: object) {
     return this.callApi('setPassportDataErrors', {
       user_id: userId,
       errors: errors,
@@ -970,17 +970,18 @@ class Telegram extends ApiClient {
     if (!message) {
       throw new Error('Message is required')
     }
-    // prettier-ignore
-    const type = Object.keys(replicators.copyMethods).find((type) => message[type])
+    const type = Object.keys(replicators.copyMethods).find(
+      (type) => type in message
+    )
     if (!type) {
       throw new Error('Unsupported message type')
     }
     const opts = {
       chat_id: chatId,
-      ...replicators[type](message),
+      ...(replicators as any)[type](message),
       ...extra,
     }
-    return this.callApi(replicators.copyMethods[type], opts)
+    return this.callApi((replicators as any).copyMethods[type], opts)
   }
 }
 

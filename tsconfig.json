@@ -5,10 +5,7 @@
     "allowJs": true,
     "outDir": "lib/",
     "target": "ES2019",
-    "noImplicitAny": false,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
+    "strict": true,
     "forceConsistentCasingInFileNames": true
   },
   "typedocOptions": {

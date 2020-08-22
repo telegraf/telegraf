@@ -1,6 +1,6 @@
 /** @format */
 
-import type Context from './context'
+import Context from './context'
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Middleware {
@@ -13,11 +13,20 @@ export namespace Middleware {
   export type Fn<TContext extends Context> = (
     ctx: TContext,
     next: () => Promise<void>
-    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  ) => void | Promise<unknown>
+  ) => Promise<void>
   export interface Obj<TContext extends Context> {
     middleware: () => Fn<TContext>
   }
+  export type ExtFn<BaseContext extends Context, Extension extends object> = <
+    TContext extends BaseContext
+  >(
+    ctx: TContext,
+    next: (ctx: Extension & TContext) => Promise<void>
+  ) => Promise<void>
+  export type Ext<
+    BaseContext extends Context,
+    Extension extends object
+  > = ExtFn<BaseContext, Extension>
 }
 export type Middleware<TContext extends Context> =
   | Middleware.Fn<TContext>

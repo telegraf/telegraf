@@ -3,7 +3,6 @@
 import * as TT from 'typegram'
 export * from 'typegram'
 
-
 export type ChatAction = TT.Opts<'sendChatAction'>['action']
 
 export type ChatType = TT.Chat['type']
@@ -51,7 +50,6 @@ export type MessageSubTypes =
   | 'connected_website'
   | 'animation'
 
-
 export type MessageMedia = TT.InputMedia
 
 export interface StickerData {
@@ -72,16 +70,19 @@ type MakeExtra<
   P extends keyof Omit<TT.Opts<M>, 'chat_id'> // fields to skip
 > = Omit<TT.Opts<M>, 'chat_id' | P>
 
-export type ExtraRestrictChatMember = MakeExtra<'restrictChatMember', 'user_id'>
-export type ExtraPromoteChatMember = MakeExtra<'promoteChatMember', 'user_id'>
-export type ExtraReplyMessage = MakeExtra<'sendMessage', 'text'>
-export type ExtraEditMessage = ExtraReplyMessage
+export type ExtraAnimation = MakeExtra<'sendAnimation', 'animation'>
+export type ExtraAnswerInlineQuery = MakeExtra<
+  'answerInlineQuery',
+  'inline_query_id' | 'results'
+>
 export type ExtraAudio = MakeExtra<'sendAudio', 'audio'>
 export type ExtraContact = MakeExtra<
   'sendContact',
   'phone_number' | 'first_name'
 >
+export type ExtraDice = MakeExtra<'sendDice', never>
 export type ExtraDocument = MakeExtra<'sendDocument', 'document'>
+export type ExtraEditMessage = ExtraReplyMessage
 export type ExtraGame = MakeExtra<'sendGame', 'game_short_name'>
 export interface ExtraInvoice extends ExtraReplyMessage {
   /**
@@ -100,10 +101,14 @@ export interface ExtraInvoice extends ExtraReplyMessage {
   parse_mode?: never
 }
 export type ExtraLocation = MakeExtra<'sendLocation', 'latitude' | 'longitude'>
-export type ExtraPhoto = MakeExtra<'sendPhoto', 'photo'>
 export type ExtraMediaGroup = MakeExtra<'sendMediaGroup', 'media'>
-export type ExtraAnimation = MakeExtra<'sendAnimation', 'animation'>
+export type ExtraPhoto = MakeExtra<'sendPhoto', 'photo'>
+export type ExtraPoll = MakeExtra<'sendPoll', 'question' | 'options' | 'type'>
+export type ExtraPromoteChatMember = MakeExtra<'promoteChatMember', 'user_id'>
+export type ExtraReplyMessage = MakeExtra<'sendMessage', 'text'>
+export type ExtraRestrictChatMember = MakeExtra<'restrictChatMember', 'user_id'>
 export type ExtraSticker = MakeExtra<'sendSticker', 'sticker'>
+export type ExtraStopPoll = MakeExtra<'stopPoll', 'message_id'>
 export type ExtraVenue = MakeExtra<
   'sendVenue',
   'latitude' | 'longitude' | 'title' | 'address'
@@ -111,13 +116,6 @@ export type ExtraVenue = MakeExtra<
 export type ExtraVideo = MakeExtra<'sendVideo', 'video'>
 export type ExtraVideoNote = MakeExtra<'sendVideoNote', 'video_note'>
 export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
-export type ExtraDice = MakeExtra<'sendDice', never>
-export type ExtraPoll = MakeExtra<'sendPoll', 'question' | 'options' | 'type'>
-export type ExtraStopPoll = MakeExtra<'stopPoll', 'message_id'>
-export type ExtraAnswerInlineQuery = MakeExtra<
-  'answerInlineQuery',
-  'inline_query_id' | 'results'
->
 
 export type IncomingMessage = TT.Message
 

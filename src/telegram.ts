@@ -972,13 +972,13 @@ class Telegram extends ApiClient {
     }
     const type = Object.keys(replicators.copyMethods).find(
       (type) => type in message
-    )
+    ) as keyof typeof replicators.copyMethods
     if (!type) {
       throw new Error('Unsupported message type')
     }
     const opts = {
       chat_id: chatId,
-      ...(replicators as any)[type](message),
+      ...replicators[type](message as Required<tt.Message>), // assume we have the necessary fields
       ...extra,
     }
     return this.callApi((replicators as any).copyMethods[type], opts)

@@ -69,7 +69,7 @@ export type DiceEmoji = '🎲' | '🎯' | '🏀'
  */
 export type InputFileVideoNote = Exclude<TT.InputFile, TT.InputFileByURL>
 
-type MakeExtra<
+export type MakeExtra<
   M extends keyof TT.Telegram, // method name
   P extends keyof Omit<TT.Opts<M>, 'chat_id'> // fields to skip
 > = Omit<TT.Opts<M>, 'chat_id' | P>

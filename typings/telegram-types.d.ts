@@ -52,7 +52,6 @@ export type MessageSubTypes =
   | 'connected_website'
   | 'animation'
 
-export type InlineQueryResult = TT.InlineQueryResult
 
 export type MessageMedia = TT.InputMedia
 

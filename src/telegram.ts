@@ -981,7 +981,7 @@ class Telegram extends ApiClient {
       ...replicators[type](message as Required<tt.Message>), // assume we have the necessary fields
       ...extra,
     }
-    return this.callApi((replicators as any).copyMethods[type], opts)
+    return this.callApi(replicators.copyMethods[type], opts)
   }
 }
 

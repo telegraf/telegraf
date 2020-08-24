@@ -67,7 +67,7 @@ export type InputFileVideoNote = Exclude<TT.InputFile, TT.InputFileByURL>
 
 export type MakeExtra<
   M extends keyof TT.Telegram, // method name
-  P extends keyof Omit<TT.Opts<M>, 'chat_id'> // fields to skip
+  P extends keyof Omit<TT.Opts<M>, 'chat_id'> = never // fields to skip
 > = Omit<TT.Opts<M>, 'chat_id' | P>
 
 export type ExtraAnimation = MakeExtra<'sendAnimation', 'animation'>
@@ -80,7 +80,7 @@ export type ExtraContact = MakeExtra<
   'sendContact',
   'phone_number' | 'first_name'
 >
-export type ExtraDice = MakeExtra<'sendDice', never>
+export type ExtraDice = MakeExtra<'sendDice'>
 export type ExtraDocument = MakeExtra<'sendDocument', 'document'>
 export type ExtraEditMessage = ExtraReplyMessage
 export type ExtraGame = MakeExtra<'sendGame', 'game_short_name'>

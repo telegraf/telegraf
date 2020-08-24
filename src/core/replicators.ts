@@ -5,7 +5,7 @@ const { formatHTML } = Markup
 type Replicate<X, K extends keyof (tt.Message & X)> = Required<
   Pick<tt.Message & X, K>
 >
-type Copy<M extends keyof tt.Telegram> = tt.MakeExtra<M, never>
+type Copy<M extends keyof tt.Telegram> = tt.MakeExtra<M>
 
 export const copyMethods = {
   audio: 'sendAudio',
@@ -89,9 +89,7 @@ export function audio(
   return {
     reply_markup: message.reply_markup,
     audio: message.audio.file_id,
-    // FIXME: should directly be sent via file_id, so:
-    // thumb: message.audio.thumb?.file_id,
-    thumb: message.audio.thumb,
+    thumb: message.audio.thumb?.file_id,
     duration: message.audio.duration,
     performer: message.audio.performer,
     title: message.audio.title,
@@ -109,13 +107,12 @@ export function video(
   return {
     reply_markup: message.reply_markup,
     video: message.video.file_id,
-    thumb: message.video.thumb,
+    thumb: message.video.thumb?.file_id,
     caption: formatHTML(message.caption, entities),
     parse_mode: entities.length > 0 ? 'HTML' : undefined,
     duration: message.video.duration,
     width: message.video.width,
     height: message.video.height,
-    supports_streaming: !!message.video.supports_streaming,
   }
 }
 export function document(
@@ -161,7 +158,7 @@ export function video_note(
   return {
     reply_markup: message.reply_markup,
     video_note: message.video_note.file_id,
-    thumb: message.video_note.thumb,
+    thumb: message.video_note.thumb?.file_id,
     length: message.video_note.length,
     duration: message.video_note.duration,
   }
@@ -172,7 +169,7 @@ export function animation(
   return {
     reply_markup: message.reply_markup,
     animation: message.animation.file_id,
-    thumb: message.animation.thumb,
+    thumb: message.animation.thumb?.file_id,
     duration: message.animation.duration,
   }
 }

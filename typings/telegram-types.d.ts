@@ -3,7 +3,6 @@
 import * as TT from 'typegram'
 export * from 'typegram'
 
-export type ParseMode = TT.ParseMode
 
 export type ChatAction = TT.Opts<'sendChatAction'>['action']
 

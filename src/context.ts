@@ -133,12 +133,10 @@ class Context {
   }
 
   get poll() {
-    // @ts-expect-error
     return this.update.poll
   }
 
   get pollAnswer() {
-    // @ts-expect-error
     return this.update.poll_answer
   }
 
@@ -171,7 +169,6 @@ class Context {
   }
 
   get passportData() {
-    // @ts-expect-error
     return this.message?.passport_data
   }
 

@@ -978,7 +978,8 @@ class Telegram extends ApiClient {
     }
     const opts = {
       chat_id: chatId,
-      ...replicators[type](message as Required<tt.Message>), // assume we have the necessary fields
+      // @ts-expect-error
+      ...replicators[type](message), // assume we have the necessary fields
       ...extra,
     }
     return this.callApi(replicators.copyMethods[type], opts)

@@ -2,10 +2,6 @@ import * as tt from '../../typings/telegram-types'
 import Markup from '../markup'
 const { formatHTML } = Markup
 
-type Replicate<X, K extends keyof (tt.Message & X)> = Required<
-  Pick<tt.Message & X, K>
->
-
 export const copyMethods = {
   audio: 'sendAudio',
   contact: 'sendContact',
@@ -23,17 +19,16 @@ export const copyMethods = {
 }
 
 export function text(
-  message: Replicate<tt.ExtraEditMessage, 'entities' | 'reply_markup' | 'text'>
+  message: tt.Message.TextMessage
 ): tt.MakeExtra<'sendMessage'> {
-  const entities = message.entities || []
   return {
     reply_markup: message.reply_markup,
     parse_mode: 'HTML',
-    text: formatHTML(message.text, entities),
+    text: formatHTML(message.text, message.entities),
   }
 }
 export function contact(
-  message: Replicate<tt.ExtraContact, 'reply_markup' | 'contact'>
+  message: tt.Message.ContactMessage
 ): tt.MakeExtra<'sendContact'> {
   return {
     reply_markup: message.reply_markup,
@@ -43,7 +38,7 @@ export function contact(
   }
 }
 export function location(
-  message: Replicate<tt.ExtraLocation, 'reply_markup' | 'location'>
+  message: tt.Message.LocationMessage
 ): tt.MakeExtra<'sendLocation'> {
   return {
     reply_markup: message.reply_markup,
@@ -52,7 +47,7 @@ export function location(
   }
 }
 export function venue(
-  message: Replicate<tt.ExtraVenue, 'reply_markup' | 'venue'>
+  message: tt.Message.VenueMessage
 ): tt.MakeExtra<'sendVenue'> {
   return {
     reply_markup: message.reply_markup,
@@ -64,27 +59,19 @@ export function venue(
   }
 }
 export function voice(
-  message: Replicate<
-    tt.ExtraVoice,
-    'caption_entities' | 'reply_markup' | 'voice' | 'caption'
-  >
+  message: tt.Message.VoiceMessage
 ): tt.MakeExtra<'sendVoice'> {
-  const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
     voice: message.voice.file_id,
     duration: message.voice.duration,
-    caption: formatHTML(message.caption, entities),
+    caption: formatHTML(message.caption, message.caption_entities),
     parse_mode: 'HTML',
   }
 }
 export function audio(
-  message: Replicate<
-    tt.ExtraAudio,
-    'caption_entities' | 'reply_markup' | 'audio' | 'caption'
-  >
+  message: tt.Message.AudioMessage
 ): tt.MakeExtra<'sendAudio'> {
-  const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
     audio: message.audio.file_id,
@@ -92,22 +79,18 @@ export function audio(
     duration: message.audio.duration,
     performer: message.audio.performer,
     title: message.audio.title,
-    caption: formatHTML(message.caption, entities),
+    caption: formatHTML(message.caption, message.caption_entities),
     parse_mode: 'HTML',
   }
 }
 export function video(
-  message: Replicate<
-    tt.ExtraVideo,
-    'caption_entities' | 'reply_markup' | 'video' | 'caption'
-  >
+  message: tt.Message.VideoMessage
 ): tt.MakeExtra<'sendVideo'> {
-  const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
     video: message.video.file_id,
     thumb: message.video.thumb?.file_id,
-    caption: formatHTML(message.caption, entities),
+    caption: formatHTML(message.caption, message.caption_entities),
     parse_mode: 'HTML',
     duration: message.video.duration,
     width: message.video.width,
@@ -115,21 +98,17 @@ export function video(
   }
 }
 export function document(
-  message: Replicate<
-    tt.ExtraDocument,
-    'caption_entities' | 'reply_markup' | 'document' | 'caption'
-  >
+  message: tt.Message.DocumentMessage
 ): tt.MakeExtra<'sendDocument'> {
-  const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
     document: message.document.file_id,
-    caption: formatHTML(message.caption, entities),
+    caption: formatHTML(message.caption, message.caption_entities),
     parse_mode: 'HTML',
   }
 }
 export function sticker(
-  message: Replicate<tt.ExtraSticker, 'reply_markup' | 'sticker'>
+  message: tt.Message.StickerMessage
 ): tt.MakeExtra<'sendSticker'> {
   return {
     reply_markup: message.reply_markup,
@@ -137,22 +116,18 @@ export function sticker(
   }
 }
 export function photo(
-  message: Replicate<
-    tt.ExtraPhoto,
-    'caption_entities' | 'reply_markup' | 'photo' | 'caption'
-  >
+  message: tt.Message.PhotoMessage
 ): tt.MakeExtra<'sendPhoto'> {
-  const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
     photo: message.photo[message.photo.length - 1].file_id,
     parse_mode: 'HTML',
-    caption: formatHTML(message.caption, entities),
+    caption: formatHTML(message.caption, message.caption_entities),
   }
 }
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export function video_note(
-  message: Replicate<tt.ExtraVideoNote, 'reply_markup' | 'video_note'>
+  message: tt.Message.VideoNoteMessage
 ): tt.MakeExtra<'sendVideoNote'> {
   return {
     reply_markup: message.reply_markup,
@@ -163,7 +138,7 @@ export function video_note(
   }
 }
 export function animation(
-  message: Replicate<tt.ExtraAnimation, 'reply_markup' | 'animation'>
+  message: tt.Message.AnimationMessage
 ): tt.MakeExtra<'sendAnimation'> {
   return {
     reply_markup: message.reply_markup,
@@ -173,7 +148,7 @@ export function animation(
   }
 }
 export function poll(
-  message: Replicate<tt.ExtraPoll, 'poll'>
+  message: tt.Message.PollMessage
 ): tt.MakeExtra<'sendPoll'> {
   return {
     question: message.poll.question,

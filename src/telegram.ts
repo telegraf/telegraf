@@ -734,8 +734,8 @@ class Telegram extends ApiClient {
       message_id: messageId,
       inline_message_id: inlineMessageId,
       parse_mode: extra.parse_mode,
-      // prettier-ignore
-      reply_markup: extra.parse_mode || extra.reply_markup ? extra.reply_markup : extra
+      reply_markup:
+        extra.parse_mode || extra.reply_markup ? extra.reply_markup : extra,
     })
   }
 
@@ -972,16 +972,17 @@ class Telegram extends ApiClient {
     }
     const type = Object.keys(replicators.copyMethods).find(
       (type) => type in message
-    )
+    ) as keyof typeof replicators.copyMethods
     if (!type) {
       throw new Error('Unsupported message type')
     }
     const opts = {
       chat_id: chatId,
-      ...(replicators as any)[type](message),
+      // @ts-expect-error
+      ...replicators[type](message), // assume we have the necessary fields
       ...extra,
     }
-    return this.callApi((replicators as any).copyMethods[type], opts)
+    return this.callApi(replicators.copyMethods[type], opts)
   }
 }
 

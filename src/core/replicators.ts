@@ -5,7 +5,6 @@ const { formatHTML } = Markup
 type Replicate<X, K extends keyof (tt.Message & X)> = Required<
   Pick<tt.Message & X, K>
 >
-type Copy<M extends keyof tt.Telegram> = tt.MakeExtra<M>
 
 export const copyMethods = {
   audio: 'sendAudio',
@@ -25,7 +24,7 @@ export const copyMethods = {
 
 export function text(
   message: Replicate<tt.ExtraEditMessage, 'entities' | 'reply_markup' | 'text'>
-): Copy<'sendMessage'> {
+): tt.MakeExtra<'sendMessage'> {
   const entities = message.entities || []
   return {
     reply_markup: message.reply_markup,
@@ -35,7 +34,7 @@ export function text(
 }
 export function contact(
   message: Replicate<tt.ExtraContact, 'reply_markup' | 'contact'>
-): Copy<'sendContact'> {
+): tt.MakeExtra<'sendContact'> {
   return {
     reply_markup: message.reply_markup,
     phone_number: message.contact.phone_number,
@@ -45,7 +44,7 @@ export function contact(
 }
 export function location(
   message: Replicate<tt.ExtraLocation, 'reply_markup' | 'location'>
-): Copy<'sendLocation'> {
+): tt.MakeExtra<'sendLocation'> {
   return {
     reply_markup: message.reply_markup,
     latitude: message.location.latitude,
@@ -54,7 +53,7 @@ export function location(
 }
 export function venue(
   message: Replicate<tt.ExtraVenue, 'reply_markup' | 'venue'>
-): Copy<'sendVenue'> {
+): tt.MakeExtra<'sendVenue'> {
   return {
     reply_markup: message.reply_markup,
     latitude: message.venue.location.latitude,
@@ -69,7 +68,7 @@ export function voice(
     tt.ExtraVoice,
     'caption_entities' | 'reply_markup' | 'voice' | 'caption'
   >
-): Copy<'sendVoice'> {
+): tt.MakeExtra<'sendVoice'> {
   const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
@@ -84,7 +83,7 @@ export function audio(
     tt.ExtraAudio,
     'caption_entities' | 'reply_markup' | 'audio' | 'caption'
   >
-): Copy<'sendAudio'> {
+): tt.MakeExtra<'sendAudio'> {
   const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
@@ -102,7 +101,7 @@ export function video(
     tt.ExtraVideo,
     'caption_entities' | 'reply_markup' | 'video' | 'caption'
   >
-): Copy<'sendVideo'> {
+): tt.MakeExtra<'sendVideo'> {
   const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
@@ -120,7 +119,7 @@ export function document(
     tt.ExtraDocument,
     'caption_entities' | 'reply_markup' | 'document' | 'caption'
   >
-): Copy<'sendDocument'> {
+): tt.MakeExtra<'sendDocument'> {
   const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
@@ -131,7 +130,7 @@ export function document(
 }
 export function sticker(
   message: Replicate<tt.ExtraSticker, 'reply_markup' | 'sticker'>
-): Copy<'sendSticker'> {
+): tt.MakeExtra<'sendSticker'> {
   return {
     reply_markup: message.reply_markup,
     sticker: message.sticker.file_id,
@@ -142,7 +141,7 @@ export function photo(
     tt.ExtraPhoto,
     'caption_entities' | 'reply_markup' | 'photo' | 'caption'
   >
-): Copy<'sendPhoto'> {
+): tt.MakeExtra<'sendPhoto'> {
   const entities = message.caption_entities || []
   return {
     reply_markup: message.reply_markup,
@@ -154,7 +153,7 @@ export function photo(
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export function video_note(
   message: Replicate<tt.ExtraVideoNote, 'reply_markup' | 'video_note'>
-): Copy<'sendVideoNote'> {
+): tt.MakeExtra<'sendVideoNote'> {
   return {
     reply_markup: message.reply_markup,
     video_note: message.video_note.file_id,
@@ -165,7 +164,7 @@ export function video_note(
 }
 export function animation(
   message: Replicate<tt.ExtraAnimation, 'reply_markup' | 'animation'>
-): Copy<'sendAnimation'> {
+): tt.MakeExtra<'sendAnimation'> {
   return {
     reply_markup: message.reply_markup,
     animation: message.animation.file_id,
@@ -175,7 +174,7 @@ export function animation(
 }
 export function poll(
   message: Replicate<tt.ExtraPoll, 'poll'>
-): Copy<'sendPoll'> {
+): tt.MakeExtra<'sendPoll'> {
   return {
     question: message.poll.question,
     type: message.poll.type,

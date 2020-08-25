@@ -97,46 +97,57 @@ class Context {
   }
 
   get message() {
+    if (!('message' in this.update)) return undefined
     return this.update.message
   }
 
   get editedMessage() {
+    if (!('edited_message' in this.update)) return undefined
     return this.update.edited_message
   }
 
   get inlineQuery() {
+    if (!('inline_query' in this.update)) return undefined
     return this.update.inline_query
   }
 
   get shippingQuery() {
+    if (!('shipping_query' in this.update)) return undefined
     return this.update.shipping_query
   }
 
   get preCheckoutQuery() {
+    if (!('pre_checkout_query' in this.update)) return undefined
     return this.update.pre_checkout_query
   }
 
   get chosenInlineResult() {
+    if (!('chosen_inline_result' in this.update)) return undefined
     return this.update.chosen_inline_result
   }
 
   get channelPost() {
+    if (!('channel_post' in this.update)) return undefined
     return this.update.channel_post
   }
 
   get editedChannelPost() {
+    if (!('edited_channel_post' in this.update)) return undefined
     return this.update.edited_channel_post
   }
 
   get callbackQuery() {
+    if (!('callback_query' in this.update)) return undefined
     return this.update.callback_query
   }
 
   get poll() {
+    if (!('poll' in this.update)) return undefined
     return this.update.poll
   }
 
   get pollAnswer() {
+    if (!('poll_answer' in this.update)) return undefined
     return this.update.poll_answer
   }
 
@@ -169,6 +180,8 @@ class Context {
   }
 
   get passportData() {
+    if (this.message == null) return undefined
+    if (!('passport_data' in this.message)) return undefined
     return this.message?.passport_data
   }
 

@@ -50,6 +50,7 @@ export type MessageSubTypes =
   | 'connected_website'
   | 'animation'
 
+/** @deprecated use `InputMedia` */
 export type MessageMedia = TT.InputMedia
 
 export interface StickerData {
@@ -124,57 +125,32 @@ export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
 
 export type IncomingMessage = TT.Message
 
-export interface MessageAudio extends TT.Message {
-  audio: TT.Audio
-}
-
-export interface MessageDocument extends TT.Message {
-  document: TT.Document
-}
-
-export interface MessageGame extends TT.Message {
-  game: TT.Game
-}
-
-export interface MessageInvoice extends TT.Message {
-  invoice: TT.Invoice
-}
-
-export interface MessageLocation extends TT.Message {
-  location: TT.Location
-}
-
-export interface MessagePhoto extends TT.Message {
-  photo: TT.PhotoSize[]
-}
-
-export interface MessageAnimation extends TT.Message {
-  animation: TT.Animation
-}
-
-export interface MessageSticker extends TT.Message {
-  sticker: TT.Sticker
-}
-
-export interface MessageVideo extends TT.Message {
-  video: TT.Video
-}
-
-export interface MessageVideoNote extends TT.Message {
-  video_note: TT.VideoNote
-}
-
-export interface MessageVoice extends TT.Message {
-  voice: TT.Voice
-}
-
-export interface MessageDice extends TT.Message {
-  dice: TT.Dice
-}
-
-export interface MessagePoll extends TT.Message {
-  poll: TT.Poll
-}
+/** @deprecated use `Message.AudioMessage` */
+export type MessageAudio = TT.Message.AudioMessage
+/** @deprecated use `Message.DocumentMessage` */
+export type MessageDocument = TT.Message.DocumentMessage
+/** @deprecated use `Message.GameMessage` */
+export type MessageGame = TT.Message.GameMessage
+/** @deprecated use `Message.InvoiceMessage` */
+export type MessageInvoice = TT.Message.InvoiceMessage
+/** @deprecated use `Message.LocationMessage` */
+export type MessageLocation = TT.Message.LocationMessage
+/** @deprecated use `Message.PhotoMessage` */
+export type MessagePhoto = TT.Message.PhotoMessage
+/** @deprecated use `Message.AnimationMessage` */
+export type MessageAnimation = TT.Message.AnimationMessage
+/** @deprecated use `Message.StickerMessage` */
+export type MessageSticker = TT.Message.StickerMessage
+/** @deprecated use `Message.VideoMessage` */
+export type MessageVideo = TT.Message.VideoMessage
+/** @deprecated use `Message.VideoNoteMessage` */
+export type MessageVideoNote = TT.Message.VideoNoteMessage
+/** @deprecated use `Message.VoiceMessage` */
+export type MessageVoice = TT.Message.VoiceMessage
+/** @deprecated use `Message.DiceMessage` */
+export type MessageDice = TT.Message.DiceMessage
+/** @deprecated use `Message.PollMessage` */
+export type MessagePoll = TT.Message.PollMessage
 
 export interface NewInvoiceParameters {
   /**

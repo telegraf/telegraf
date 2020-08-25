@@ -65,10 +65,15 @@ export type DiceEmoji = '🎲' | '🎯' | '🏀'
  */
 export type InputFileVideoNote = Exclude<TT.InputFile, TT.InputFileByURL>
 
+/**
+ * Create an `Extra*` type from the arguments of a given method `M extends keyof Telegram` but `Omit`ting fields with key `K` from it.
+ *
+ * Note that `chat_id` may not be specified in `K` because it is `Omit`ted by default.
+ */
 export type MakeExtra<
-  M extends keyof TT.Telegram, // method name
-  P extends keyof Omit<TT.Opts<M>, 'chat_id'> = never // fields to skip
-> = Omit<TT.Opts<M>, 'chat_id' | P>
+  M extends keyof TT.Telegram,
+  K extends keyof Omit<TT.Opts<M>, 'chat_id'> = never
+> = Omit<TT.Opts<M>, 'chat_id' | K>
 
 export type ExtraAnimation = MakeExtra<'sendAnimation', 'animation'>
 export type ExtraAnswerInlineQuery = MakeExtra<

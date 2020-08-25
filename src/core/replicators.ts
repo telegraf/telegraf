@@ -28,7 +28,7 @@ export function text(
   const entities = message.entities || []
   return {
     reply_markup: message.reply_markup,
-    parse_mode: entities.length > 0 ? 'HTML' : undefined,
+    parse_mode: 'HTML',
     text: formatHTML(message.text, entities),
   }
 }
@@ -75,7 +75,7 @@ export function voice(
     voice: message.voice.file_id,
     duration: message.voice.duration,
     caption: formatHTML(message.caption, entities),
-    parse_mode: entities.length > 0 ? 'HTML' : undefined,
+    parse_mode: 'HTML',
   }
 }
 export function audio(
@@ -93,7 +93,7 @@ export function audio(
     performer: message.audio.performer,
     title: message.audio.title,
     caption: formatHTML(message.caption, entities),
-    parse_mode: entities.length > 0 ? 'HTML' : undefined,
+    parse_mode: 'HTML',
   }
 }
 export function video(
@@ -108,7 +108,7 @@ export function video(
     video: message.video.file_id,
     thumb: message.video.thumb?.file_id,
     caption: formatHTML(message.caption, entities),
-    parse_mode: entities.length > 0 ? 'HTML' : undefined,
+    parse_mode: 'HTML',
     duration: message.video.duration,
     width: message.video.width,
     height: message.video.height,
@@ -125,7 +125,7 @@ export function document(
     reply_markup: message.reply_markup,
     document: message.document.file_id,
     caption: formatHTML(message.caption, entities),
-    parse_mode: entities.length > 0 ? 'HTML' : undefined,
+    parse_mode: 'HTML',
   }
 }
 export function sticker(
@@ -146,7 +146,7 @@ export function photo(
   return {
     reply_markup: message.reply_markup,
     photo: message.photo[message.photo.length - 1].file_id,
-    parse_mode: entities.length > 0 ? 'HTML' : undefined,
+    parse_mode: 'HTML',
     caption: formatHTML(message.caption, entities),
   }
 }

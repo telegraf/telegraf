@@ -17,6 +17,19 @@ function always<T>(x: T) {
 }
 const anoop = always(Promise.resolve())
 
+function getEntities(msg: tt.Message | undefined) {
+  if (msg == null) return []
+  if ('caption_entities' in msg) return msg.caption_entities ?? []
+  if ('entities' in msg) return msg.entities ?? []
+  return []
+}
+function getText(msg: tt.Message | undefined) {
+  if (msg == null) return undefined
+  if ('caption' in msg) return msg.caption
+  if ('text' in msg) return msg.text
+  return undefined
+}
+
 class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   private handler: Middleware.Fn<TContext>
 
@@ -141,7 +154,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   ) {
     const handler = Composer.compose(fns)
     return this.command('start', (ctx, next) => {
-      const startPayload = ctx.message!.text!.substring(7)
+      // @ts-expect-error
+      const startPayload = ctx.message.text.substring(7)
       return handler(Object.assign(ctx, { startPayload }), next)
     })
   }
@@ -316,8 +330,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     }
     return Composer.optional((ctx) => {
       const message = ctx.message ?? ctx.channelPost
-      const entities = message?.entities ?? message?.caption_entities ?? []
-      const text = message?.text ?? message?.caption
+      const entities = getEntities(message)
+      const text = getText(message)
       if (text === undefined) return false
       return entities.some((entity) =>
         predicate(
@@ -438,10 +452,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     const handler = Composer.compose(fns)
     return (ctx, next) => {
       const text =
-        ctx.message?.caption ??
-        ctx.message?.text ??
-        ctx.channelPost?.caption ??
-        ctx.channelPost?.text ??
+        getText(ctx.message) ??
+        getText(ctx.channelPost) ??
         ctx.callbackQuery?.data ??
         ctx.inlineQuery?.query
       if (text === undefined) return next()
@@ -544,7 +556,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     const statuses = Array.isArray(status) ? status : [status]
     return Composer.optional(async (ctx) => {
       if (ctx.message === undefined) return false
-      const member = await ctx.getChatMember(ctx.message.from!.id)
+      const member = await ctx.getChatMember(ctx.message.from.id)
       return statuses.includes(member.status)
     }, ...fns)
   }
@@ -587,7 +599,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.optional(
-      (ctx) => ctx.callbackQuery?.game_short_name !== undefined,
+      (ctx) =>
+        ctx.callbackQuery != null && 'game_short_name' in ctx.callbackQuery,
       ...fns
     )
   }

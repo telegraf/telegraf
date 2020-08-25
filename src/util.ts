@@ -24,10 +24,10 @@ interface Mapping {
  * @param prop The name of the property
  */
 export function hasProp<O extends {}, K extends PropertyKey>(
-  obj: O,
+  obj: O | undefined,
   prop: K
 ): obj is O & Record<K, unknown> {
-  return prop in obj
+  return obj !== undefined && prop in obj
 }
 /**
  * Checks if a given object has a property with a given name.
@@ -50,7 +50,7 @@ export function hasPropType<
   K extends PropertyKey,
   T extends keyof Mapping,
   V extends Mapping[T]
->(obj: O, prop: K, type: T): obj is O & Record<K, V> {
+>(obj: O | undefined, prop: K, type: T): obj is O & Record<K, V> {
   // eslint-disable-next-line valid-typeof
   return hasProp(obj, prop) && type === typeof obj[prop]
 }

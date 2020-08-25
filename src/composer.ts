@@ -3,6 +3,7 @@
 import * as tt from '../typings/telegram-types.d'
 import { Middleware, NonemptyReadonlyArray } from './types'
 import Context from './context'
+import { hasProp } from './util'
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
@@ -454,7 +455,9 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       const text =
         getText(ctx.message) ??
         getText(ctx.channelPost) ??
-        ctx.callbackQuery?.data ??
+        (hasProp(ctx?.callbackQuery, 'data')
+          ? ctx.callbackQuery?.data
+          : undefined) ??
         ctx.inlineQuery?.query
       if (text === undefined) return next()
       for (const trigger of triggers) {

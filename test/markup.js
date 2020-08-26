@@ -1,6 +1,5 @@
 const test = require('ava')
-const Telegraf = require('../')
-const { Markup } = Telegraf
+const Markup = require('../lib/markup')
 
 test('should generate removeKeyboard markup', (t) => {
   const markup = { ...Markup.removeKeyboard() }
@@ -275,6 +274,6 @@ test('should generate correct HTML with emojis', (t) => {
 })
 
 test('should generate correct HTML with HTML-reserved characters', (t) => {
-  const markup = Markup.formatHTML('<b>123</b>', [ { offset: 1, length: 3, type: 'underline' } ])
+  const markup = Markup.formatHTML('<b>123</b>', [{ offset: 1, length: 3, type: 'underline' }])
   t.deepEqual(markup, '&lt;<u>b&gt;1</u>23&lt;/b&gt;')
 })

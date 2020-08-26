@@ -4,7 +4,7 @@ import Context from './context'
 import { Middleware } from './types'
 import SceneContext from './scenes/context'
 
-class Stage<TContext extends Context>
+export class Stage<TContext extends Context>
   extends Composer<SceneContext.Extended<TContext>>
   implements Middleware.Obj<TContext> {
   options: SceneContext.Options
@@ -62,5 +62,3 @@ class Stage<TContext extends Context>
     return (ctx: SceneContext.Extended<Context>) => ctx.scene.leave(...args)
   }
 }
-
-export = Stage

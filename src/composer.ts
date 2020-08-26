@@ -34,7 +34,8 @@ function getText(
   return undefined
 }
 
-class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
+export class Composer<TContext extends Context>
+  implements Middleware.Obj<TContext> {
   private handler: Middleware.Fn<TContext>
 
   constructor(...fns: ReadonlyArray<Middleware<TContext>>) {
@@ -702,4 +703,4 @@ function normalizeTextArguments(argument: MaybeArray<string>, prefix = '') {
     .map((arg) => prefix && typeof arg === 'string' && !arg.startsWith(prefix) ? `${prefix}${arg}` : arg)
 }
 
-export = Composer
+export default Composer

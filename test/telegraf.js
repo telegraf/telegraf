@@ -1,6 +1,6 @@
 const test = require('ava')
-const Telegraf = require('../')
-const { session } = Telegraf
+const { Telegraf } = require('../')
+const session = require('../lib/session')
 
 const BaseTextMessage = {
   chat: { id: 1 },

@@ -12,11 +12,9 @@
   "bugs": {
     "url": "https://github.com/telegraf/telegraf/issues"
   },
-  "main": "lib/telegraf.js",
+  "main": "lib/index.js",
   "exports": {
-    ".": "./lib/telegraf.js",
-    "./lib/": "./lib/",
-    "./": "./lib/"
+    "require": "./lib/index.js"
   },
   "files": [
     "bin/*",
@@ -42,7 +40,7 @@
   },
   "type": "commonjs",
   "engines": {
-    "node": ">=8"
+    "node": ">=12"
   },
   "types": "./typings/index.d.ts",
   "dependencies": {

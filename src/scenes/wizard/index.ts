@@ -5,7 +5,7 @@ import SceneContext from '../context'
 import WizardContext from './context'
 const { compose, unwrap } = Composer
 
-class WizardScene<TContext extends SceneContext.Extended<Context>>
+export class WizardScene<TContext extends SceneContext.Extended<Context>>
   extends Composer<TContext>
   implements Middleware.Obj<WizardContext.Extended<TContext>> {
   options: any
@@ -57,5 +57,3 @@ class WizardScene<TContext extends SceneContext.Extended<Context>>
     ])
   }
 }
-
-export = WizardScene

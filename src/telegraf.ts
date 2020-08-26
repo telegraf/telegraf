@@ -3,18 +3,12 @@ import * as http from 'http'
 import * as https from 'https'
 import * as tt from '../typings/telegram-types'
 import ApiClient from './core/network/client'
-import BaseScene from './scenes/base'
 import Composer from './composer'
 import Context from './context'
 import crypto from 'crypto'
 import d from 'debug'
-import Extra from './extra'
 import generateCallback from './core/network/webhook'
-import Markup from './markup'
 import { promisify } from 'util'
-import Router from './router'
-import session from './session'
-import Stage from './stage'
 import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
@@ -81,7 +75,9 @@ namespace Telegraf {
 const allowedUpdates: tt.UpdateType[] | undefined = undefined
 
 // eslint-disable-next-line no-redeclare
-class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
+export class Telegraf<TContext extends Context = Context> extends Composer<
+  TContext
+> {
   private readonly options: Telegraf.Options<TContext>
   private webhookServer?: http.Server | https.Server
   public telegram: Telegram
@@ -298,17 +294,3 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
       .catch(noop)
   }
 }
-
-export = Object.assign(Telegraf, {
-  Context,
-  Composer,
-  default: Telegraf,
-  Extra,
-  Markup,
-  Router,
-  Telegraf,
-  Telegram,
-  Stage,
-  BaseScene,
-  session,
-})

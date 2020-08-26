@@ -1,4 +1,4 @@
-import * as tt from '../../typings/telegram-types'
+import * as tt from '../telegram-types'
 import Markup from '../markup'
 const { formatHTML } = Markup
 

@@ -1,4 +1,4 @@
-import * as tt from '../typings/telegram-types'
+import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 import { Tail } from './types'
 import Telegram from './telegram'

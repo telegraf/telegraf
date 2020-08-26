@@ -1,7 +1,7 @@
 /* eslint @typescript-eslint/no-var-requires: "warn" */
 import * as http from 'http'
 import * as https from 'https'
-import * as tt from '../typings/telegram-types'
+import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 import Composer from './composer'
 import Context from './context'

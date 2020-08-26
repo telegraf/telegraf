@@ -1,4 +1,4 @@
-import { ExtraReplyMessage, ParseMode } from '../typings/telegram-types'
+import { ExtraReplyMessage, ParseMode } from './telegram-types'
 import Markup from './markup'
 import { Message } from 'typegram'
 

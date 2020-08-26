@@ -51,7 +51,7 @@
     "module-alias": "^2.2.2",
     "node-fetch": "^2.2.0",
     "sandwich-stream": "^2.0.1",
-    "typegram": "github:KnorpelSenf/typegram#f53af9c5622c06fbbdf79b12194ac0c100d99673"
+    "typegram": "^2.0.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.5",

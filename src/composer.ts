@@ -17,16 +17,20 @@ function always<T>(x: T) {
 }
 const anoop = always(Promise.resolve())
 
-function getEntities(msg: tt.Message | undefined) {
+function getEntities(msg: tt.Message | undefined): tt.MessageEntity[] {
   if (msg == null) return []
   if ('caption_entities' in msg) return msg.caption_entities ?? []
   if ('entities' in msg) return msg.entities ?? []
   return []
 }
-function getText(msg: tt.Message | undefined) {
+function getText(
+  msg: tt.Message | tt.CallbackQuery | undefined
+): string | undefined {
   if (msg == null) return undefined
   if ('caption' in msg) return msg.caption
   if ('text' in msg) return msg.text
+  if ('data' in msg) return msg.data
+  if ('game_short_name' in msg) return msg.game_short_name
   return undefined
 }
 
@@ -454,7 +458,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       const text =
         getText(ctx.message) ??
         getText(ctx.channelPost) ??
-        ctx.callbackQuery?.data ??
+        getText(ctx.callbackQuery) ??
         ctx.inlineQuery?.query
       if (text === undefined) return next()
       for (const trigger of triggers) {

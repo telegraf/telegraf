@@ -29,7 +29,7 @@
     "pretest": "tsc",
     "test": "ava test/*",
     "typedoc": "typedoc",
-    "clean": "git clean -fX lib/",
+    "clean": "git clean -fX lib/ typings/",
     "typecheck": "tsc --noEmit",
     "prepare": "tsc"
   },

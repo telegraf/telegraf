@@ -1,6 +1,6 @@
 /** @format */
 
-import * as tt from '../typings/telegram-types.d'
+import * as tt from './telegram-types'
 import { Middleware, NonemptyReadonlyArray } from './types'
 import Context from './context'
 

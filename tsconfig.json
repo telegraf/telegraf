@@ -3,6 +3,8 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "allowJs": true,
+    "declaration": true,
+    "declarationDir": "typings/",
     "outDir": "lib/",
     "target": "ES2019",
     "strict": true,

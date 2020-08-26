@@ -1,5 +1,5 @@
 import * as replicators from './core/replicators'
-import * as tt from '../typings/telegram-types.d'
+import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 
 class Telegram extends ApiClient {

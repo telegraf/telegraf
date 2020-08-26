@@ -1,6 +1,5 @@
 const test = require('ava')
-const Telegraf = require('../')
-const { Composer } = Telegraf
+const { Composer, Telegraf } = require('../')
 
 const baseMessage = { chat: { id: 1 }, from: { id: 42, username: 'telegraf' } }
 const baseGroupMessage = { chat: { id: 1, type: 'group' } }

@@ -59,7 +59,7 @@ const MessageSubTypesMapping = {
   forward_date: 'forward',
 }
 
-class Context {
+export class Context {
   public botInfo?: tt.User
   readonly updateType: tt.UpdateType
   readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
@@ -612,4 +612,4 @@ class Context {
   }
 }
 
-export = Context
+export default Context

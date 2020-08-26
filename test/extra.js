@@ -1,6 +1,6 @@
 const test = require('ava')
-const Telegraf = require('../')
-const { Extra, Markup } = Telegraf
+const Extra = require('../lib/extra')
+const Markup = require('../lib/markup')
 
 test('should generate default options from contructor', (t) => {
   const extra = { ...new Extra({ parse_mode: 'LaTeX' }) }

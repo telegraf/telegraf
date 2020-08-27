@@ -16,7 +16,7 @@ export const copyMethods = {
   animation: 'sendAnimation',
   voice: 'sendVoice',
   poll: 'sendPoll',
-}
+} as const
 
 export function text(
   message: tt.Message.TextMessage

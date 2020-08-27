@@ -59,8 +59,6 @@ export interface StickerData {
   mask_position: TT.MaskPosition
 }
 
-export type DiceEmoji = '🎲' | '🎯' | '🏀'
-
 /**
  * Sending video notes by a URL is currently unsupported
  */
@@ -124,33 +122,6 @@ export type ExtraVideoNote = MakeExtra<'sendVideoNote', 'video_note'>
 export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
 
 export type IncomingMessage = TT.Message
-
-/** @deprecated use `Message.AudioMessage` */
-export type MessageAudio = TT.Message.AudioMessage
-/** @deprecated use `Message.DocumentMessage` */
-export type MessageDocument = TT.Message.DocumentMessage
-/** @deprecated use `Message.GameMessage` */
-export type MessageGame = TT.Message.GameMessage
-/** @deprecated use `Message.InvoiceMessage` */
-export type MessageInvoice = TT.Message.InvoiceMessage
-/** @deprecated use `Message.LocationMessage` */
-export type MessageLocation = TT.Message.LocationMessage
-/** @deprecated use `Message.PhotoMessage` */
-export type MessagePhoto = TT.Message.PhotoMessage
-/** @deprecated use `Message.AnimationMessage` */
-export type MessageAnimation = TT.Message.AnimationMessage
-/** @deprecated use `Message.StickerMessage` */
-export type MessageSticker = TT.Message.StickerMessage
-/** @deprecated use `Message.VideoMessage` */
-export type MessageVideo = TT.Message.VideoMessage
-/** @deprecated use `Message.VideoNoteMessage` */
-export type MessageVideoNote = TT.Message.VideoNoteMessage
-/** @deprecated use `Message.VoiceMessage` */
-export type MessageVoice = TT.Message.VoiceMessage
-/** @deprecated use `Message.DiceMessage` */
-export type MessageDice = TT.Message.DiceMessage
-/** @deprecated use `Message.PollMessage` */
-export type MessagePoll = TT.Message.PollMessage
 
 export interface NewInvoiceParameters {
   /**

@@ -426,7 +426,7 @@ export class Context {
     return this.telegram.getChatMembersCount(this.chat.id, ...args)
   }
 
-  setPassportDataErrors(errors: object) {
+  setPassportDataErrors(errors: readonly tt.PassportElementError[]) {
     this.assert(this.from, 'setPassportDataErrors')
     return this.telegram.setPassportDataErrors(this.from.id, errors)
   }

@@ -6,6 +6,8 @@ const escapeHTML = (string) => {
     .replace(/"/g, '&quot;')
 }
 
+const pushToString = (string, index, substring) => `${string.slice(0, index)}${substring}${string.slice(index)}`
+
 class Markup {
   forceReply (value = true) {
     this.force_reply = value
@@ -171,92 +173,52 @@ class Markup {
     }
   }
 
-  static formatHTML (text = '', entities = []) {
-    const chars = text
-    const available = [...entities]
-    const opened = []
-    const result = []
-    for (let offset = 0; offset < chars.length; offset++) {
-      while (true) {
-        const index = available.findIndex((entity) => entity.offset === offset)
-        if (index === -1) {
+  static formatHTML(text = '', entities = []) {
+    let item = []
+    let additionalOffset = 0
+    
+    text = escapeHTML(text)
+    for (const entity of entities) {
+      switch (entity.type) {
+        case "bold":
+          item = ["<b>", "</b>"]
           break
-        }
-        const entity = available[index]
-        switch (entity.type) {
-          case 'bold':
-            result.push('<b>')
-            break
-          case 'italic':
-            result.push('<i>')
-            break
-          case 'code':
-            result.push('<code>')
-            break
-          case 'pre':
-            if (entity.language) {
-              result.push(`<pre><code class="language-${entity.language}">`)
-            } else {
-              result.push('<pre>')
-            }
-            break
-          case 'strikethrough':
-            result.push('<s>')
-            break
-          case 'underline':
-            result.push('<u>')
-            break
-          case 'text_mention':
-            result.push(`<a href="tg://user?id=${entity.user.id}">`)
-            break
-          case 'text_link':
-            result.push(`<a href="${entity.url}">`)
-            break
-        }
-        opened.unshift(entity)
-        available.splice(index, 1)
-      }
-
-      result.push(escapeHTML(chars[offset]))
-
-      while (true) {
-        const index = opened.findIndex((entity) => entity.offset + entity.length - 1 === offset)
-        if (index === -1) {
+        case "italic":
+          item = ["<i>", "</i>"]
           break
-        }
-        const entity = opened[index]
-        switch (entity.type) {
-          case 'bold':
-            result.push('</b>')
-            break
-          case 'italic':
-            result.push('</i>')
-            break
-          case 'code':
-            result.push('</code>')
-            break
-          case 'pre':
-            if (entity.language) {
-              result.push('</code></pre>')
-            } else {
-              result.push('</pre>')
-            }
-            break
-          case 'strikethrough':
-            result.push('</s>')
-            break
-          case 'underline':
-            result.push('</u>')
-            break
-          case 'text_mention':
-          case 'text_link':
-            result.push('</a>')
-            break
-        }
-        opened.splice(index, 1)
+        case "code":
+          item = ["<code>", "</code>"]
+          break
+        case "pre":
+          if (entity.language) {
+            item = [`<pre><code class="language-${entity.language}">`, "</pre>"]
+          } else {
+            item = ["<pre>", "</pre>"]
+          }
+          break
+        case "strikethrough":
+          item = ["<s>", "</s>"]
+          break
+        case "underline":
+          item = ["<u>", "</u>"]
+          break
+        case "text_mention":
+          item = [`<a href="tg://user?id=${entity.user.id}">`, "</a>"]
+          break
+        case "text_link":
+          item = [`<a href="${entity.url}">`, "</a>"]
+          break
       }
+      text = pushToString(text, entity.offset + additionalOffset, item[0])
+      additionalOffset += item[0].length
+      text = pushToString(
+        text,
+        entity.offset + additionalOffset + entity.length,
+        item[1]
+      )
+      additionalOffset += item[1].length
     }
-    return result.join('')
+    return text
   }
 }
 

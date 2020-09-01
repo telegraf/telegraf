@@ -764,11 +764,10 @@ Consequently, you can change the type of `ctx` to fit your needs in order for yo
 This is done through Generics:
 
 ```ts
-const { Telegraf } = require('telegraf')
-const { TelegrafContext } = require('telegraf/typings/context')
+import { Context, Telegraf } from "telegraf";
 
 // Define your own context type
-interface MyContext extends TelegrafContext {
+interface MyContext extends Context {
   myProp?: string
   myOtherProp?: number
 }
@@ -791,9 +790,8 @@ If you are using session middleware, you need to define your session property on
 This could look like this:
 
 ```ts
-const { Telegraf } = require('telegraf')
-const session = require('telegraf/session')
-const { TelegrafContext } = require('telegraf/typings/context')
+import { Context, Telegraf } from 'telegraf'
+import session from 'telegraf/session'
 
 interface SessionData {
   lastMessageId?: number
@@ -802,7 +800,7 @@ interface SessionData {
 }
 
 // Define your own context type
-interface MyContext extends TelegrafContext {
+interface MyContext extends Context {
   session: SessionData
   // ... more props go here
 }
@@ -821,6 +819,7 @@ bot.use((ctx, next) => {
 })
 bot.on('photo', (ctx, next) => {
   ctx.session.photoCount = 1 + (ctx.session.photoCount ?? 0)
+  next()
 })
 // ...
 ```

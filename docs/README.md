@@ -749,6 +749,82 @@ then run it:
 telegraf -t "bot token" bot.js
 ```
 
+#### Usage with TypeScript
+
+Telegraf is written in TypeScript and therefore ships with declaration files for the entire library.
+Moreover, it includes types for the complete Telegram API via the `typegram` package.
+While most types of Telegraf's API surface are self-explanatory, there's some notable things to keep in mind.
+
+##### Custom Context Type and Middleware
+
+Recap from the above section about Middleware that `ctx` is the context object that holds information about the incoming update, as well as a number of convenience functions such as `ctx.reply`.
+
+The exact shape of `ctx` can vary based on the installed middleware.
+Some custom middleware might register properties on the context object that Telegraf is not aware of.
+Consequently, you can change the type of `ctx` to fit your needs in order for you to have proper TypeScript types for your data.
+This is done through Generics:
+
+```ts
+import { Context, Telegraf } from "telegraf";
+
+// Define your own context type
+interface MyContext extends Context {
+  myProp?: string
+  myOtherProp?: number
+}
+
+// Create your bot and tell it about your context type
+const bot = new Telegraf<MyContext>('SECRET TOKEN')
+
+// Register middleware and launch your bot as usual
+bot.use((ctx, next) => {
+  // Yay, `myProp` is now available here as `string | undefined`!
+  ctx.myProp = ctx.chat?.first_name?.toUpperCase()
+  return next()
+})
+// ...
+```
+
+##### Session Middleware
+
+If you are using session middleware, you need to define your session property on your custom context object.
+This could look like this:
+
+```ts
+import { Context, Telegraf } from 'telegraf'
+import session from 'telegraf/session'
+
+interface SessionData {
+  lastMessageId?: number
+  photoCount?: number
+  // ... more session data go here
+}
+
+// Define your own context type
+interface MyContext extends Context {
+  session: SessionData
+  // ... more props go here
+}
+
+// Create your bot and tell it about your context type
+const bot = new Telegraf<MyContext>('SECRET TOKEN')
+
+// Make session data available
+bot.use(session())
+// Register middleware and launch your bot as usual
+bot.use((ctx, next) => {
+  // Yay, `session` is now available here as `SessionData`!
+  if (ctx.message !== undefined)
+    ctx.session.lastMessageId = ctx.message.message_id
+  return next()
+})
+bot.on('photo', (ctx, next) => {
+  ctx.session.photoCount = 1 + (ctx.session.photoCount ?? 0)
+  return next()
+})
+// ...
+```
+
 ## API reference
 
 #### Telegraf

@@ -815,11 +815,11 @@ bot.use((ctx, next) => {
   // Yay, `session` is now available here as `SessionData`!
   if (ctx.message !== undefined)
     ctx.session.lastMessageId = ctx.message.message_id
-  next()
+  return next()
 })
 bot.on('photo', (ctx, next) => {
   ctx.session.photoCount = 1 + (ctx.session.photoCount ?? 0)
-  next()
+  return next()
 })
 // ...
 ```

@@ -173,6 +173,7 @@ bot.launch()
 - [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)
 - [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
 - [statsd integration](https://github.com/telegraf/telegraf-statsd)
+- [Router via decorators](https://www.npmjs.com/package/telegraf-controllers)
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
 
 #### Error handling

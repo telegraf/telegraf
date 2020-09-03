@@ -14,6 +14,7 @@
   },
   "main": "lib/index.js",
   "exports": {
+    "import": "./lib/index.mjs",
     "require": "./lib/index.js"
   },
   "files": [
@@ -31,7 +32,7 @@
     "typedoc": "typedoc",
     "clean": "git clean -fX lib/ typings/",
     "typecheck": "tsc --noEmit",
-    "prepare": "tsc"
+    "prepare": "tsc && mjs-entry src/index.ts >lib/index.mjs"
   },
   "husky": {
     "hooks": {
@@ -69,6 +70,7 @@
     "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-standard": "^4.0.0",
     "husky": "^4.2.0",
+    "mjs-entry": "gist:de6257751f54b3c66319bae8d2a8aea0",
     "prettier": "^2.0.5",
     "typedoc": "^0.17.4",
     "typescript": "4.0.2"

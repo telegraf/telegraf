@@ -779,7 +779,7 @@ const bot = new Telegraf<MyContext>('SECRET TOKEN')
 bot.use((ctx, next) => {
   // Yay, `myProp` is now available here as `string | undefined`!
   ctx.myProp = ctx.chat?.first_name?.toUpperCase()
-  next()
+  return next()
 })
 // ...
 ```

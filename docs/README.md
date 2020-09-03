@@ -66,6 +66,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | Name | Description |
 | --- | --- |
 | [BibleBot](https://github.com/Kriv-Art/BibleBot) | Bot to get bible verses |
+| [BibleQuizzleBot](https://github.com/Samleo8/BibleQuizzle) | Bible quiz game - group fun similar to Quizzarium |
 | [BitcoinDogBot](https://github.com/jibital/bitcoin-dog-bot) | Bitcoin prices, Technical analysis and Alerts! |
 | [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot) | An inline bot that allows you to search for books and share them in a conversation. Powered by Goodreads  |
 | [CaptchaOnlyBot](https://github.com/Piterden/captcha_only_bot) | Configurable question \w set of buttons on a new group user |

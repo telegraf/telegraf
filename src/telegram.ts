@@ -678,7 +678,7 @@ class Telegram extends ApiClient {
     messageId: number | undefined,
     inlineMessageId: string | undefined,
     text: string,
-    extra?: tt.ExtraEditMessage
+    extra?: tt.ExtraEditMessageText
   ) {
     return this.callApi('editMessageText', {
       text,
@@ -740,6 +740,7 @@ class Telegram extends ApiClient {
       message_id: messageId,
       inline_message_id: inlineMessageId,
       media: { ...media, parse_mode: extra.parse_mode },
+      // @ts-expect-error
       reply_markup: extra.reply_markup ?? extra,
     })
   }
@@ -766,13 +767,12 @@ class Telegram extends ApiClient {
     })
   }
 
-  // FIXME: parameter order inconsistent with other edit* methods
   editMessageLiveLocation(
-    latitude: number,
-    longitude: number,
     chatId: number | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
+    latitude: number,
+    longitude: number,
     markup?: tt.InlineKeyboardMarkup
   ) {
     return this.callApi('editMessageLiveLocation', {

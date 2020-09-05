@@ -86,7 +86,12 @@ export type ExtraContact = MakeExtra<
 >
 export type ExtraDice = MakeExtra<'sendDice'>
 export type ExtraDocument = MakeExtra<'sendDocument', 'document'>
+/** @deprecated */
 export type ExtraEditMessage = ExtraReplyMessage
+export type ExtraEditMessageText = MakeExtra<
+  'editMessageText',
+  'message_id' | 'inline_message_id'
+>
 export type ExtraGame = MakeExtra<'sendGame', 'game_short_name'>
 export interface ExtraInvoice extends ExtraReplyMessage {
   /**

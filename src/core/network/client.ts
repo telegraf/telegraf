@@ -248,7 +248,7 @@ function answerToWebhook(
   response: Response,
   payload: Record<string, unknown>,
   options: ApiClient.Options
-) {
+): Promise<typeof WEBHOOK_REPLY_STUB> {
   if (!includesMedia(payload)) {
     if (isKoaResponse(response)) {
       response.body = payload
@@ -347,6 +347,8 @@ class ApiClient {
     }
 
     debug('HTTP call', method, payload)
+    // I hate these `?? {}`, but I don't know how to
+    // make empty payload `{}` instead of `undefined`
     const buildConfig = includesMedia(payload ?? {})
       ? buildFormDataConfig({ method, ...(payload ?? {}) }, options.agent)
       : buildJSONConfig(payload)

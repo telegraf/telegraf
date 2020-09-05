@@ -245,7 +245,7 @@ export class Context {
     )
   }
 
-  editMessageText(text: string, extra?: tt.ExtraEditMessage) {
+  editMessageText(text: string, extra?: tt.ExtraEditMessageText) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageText')
     return this.telegram.editMessageText(
       this.chat?.id,
@@ -307,11 +307,11 @@ export class Context {
       'editMessageLiveLocation'
     )
     return this.telegram.editMessageLiveLocation(
-      latitude,
-      longitude,
       this.chat?.id,
       this.callbackQuery?.message?.message_id,
       this.inlineMessageId,
+      latitude,
+      longitude,
       markup
     )
   }

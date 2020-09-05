@@ -53,12 +53,6 @@ export type MessageSubTypes =
 /** @deprecated use `InputMedia` */
 export type MessageMedia = TT.InputMedia
 
-export interface StickerData {
-  png_sticker: string | Buffer
-  emojis: string
-  mask_position: TT.MaskPosition
-}
-
 /**
  * Sending video notes by a URL is currently unsupported
  */
@@ -74,6 +68,10 @@ export type MakeExtra<
   K extends keyof Omit<TT.Opts<M>, 'chat_id'> = never
 > = Omit<TT.Opts<M>, 'chat_id' | K>
 
+export type ExtraAddStickerToSet = MakeExtra<
+  'addStickerToSet',
+  'name' | 'user_id'
+>
 export type ExtraAnimation = MakeExtra<'sendAnimation', 'animation'>
 export type ExtraAnswerInlineQuery = MakeExtra<
   'answerInlineQuery',
@@ -83,6 +81,10 @@ export type ExtraAudio = MakeExtra<'sendAudio', 'audio'>
 export type ExtraContact = MakeExtra<
   'sendContact',
   'phone_number' | 'first_name'
+>
+export type ExtraCreateNewStickerSet = MakeExtra<
+  'createNewStickerSet',
+  'name' | 'title' | 'user_id'
 >
 export type ExtraDice = MakeExtra<'sendDice'>
 export type ExtraDocument = MakeExtra<'sendDocument', 'document'>

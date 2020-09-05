@@ -853,7 +853,7 @@ class Telegram extends ApiClient {
     ownerId: number,
     name: string,
     title: string,
-    stickerData: tt.StickerData
+    stickerData: tt.ExtraCreateNewStickerSet
   ) {
     return this.callApi('createNewStickerSet', {
       name,
@@ -868,7 +868,11 @@ class Telegram extends ApiClient {
    * @param ownerId User identifier of sticker set owner
    * @param name Sticker set name
    */
-  addStickerToSet(ownerId: number, name: string, stickerData: tt.StickerData) {
+  addStickerToSet(
+    ownerId: number,
+    name: string,
+    stickerData: tt.ExtraAddStickerToSet
+  ) {
     return this.callApi('addStickerToSet', {
       name,
       user_id: ownerId,

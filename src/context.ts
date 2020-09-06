@@ -60,7 +60,7 @@ const MessageSubTypesMapping = {
 }
 
 export class Context {
-  public botInfo?: tt.User
+  public botInfo?: tt.UserFromGetMe
   readonly updateType: tt.UpdateType
   readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
   /** @deprecated */

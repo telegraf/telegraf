@@ -183,7 +183,6 @@ export class Telegraf<TContext extends Context = Context> extends Composer<
   launch(config: Telegraf.LaunchOptions = {}) {
     debug('Connecting to Telegram')
     return this.telegram.getMe().then((botInfo) => {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       debug(`Launching @${botInfo.username}`)
       this.options.username = botInfo.username
       this.context.botInfo = botInfo

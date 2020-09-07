@@ -60,7 +60,7 @@ const WEBHOOK_REPLY_STUB = {
   webhook: true,
   details:
     'https://core.telegram.org/bots/api#making-requests-when-getting-updates',
-}
+} as const
 
 function includesMedia(payload: Record<string, unknown>) {
   return Object.values(payload).some((value) => {
@@ -347,10 +347,8 @@ class ApiClient {
     }
 
     debug('HTTP call', method, payload)
-    // I hate these `?? {}`, but I don't know how to
-    // make empty payload `{}` instead of `undefined`
-    const buildConfig = includesMedia(payload ?? {})
-      ? buildFormDataConfig({ method, ...(payload ?? {}) }, options.agent)
+    const buildConfig = includesMedia(payload)
+      ? buildFormDataConfig({ method, ...payload }, options.agent)
       : buildJSONConfig(payload)
     return buildConfig
       .then((config) => {

@@ -7,7 +7,7 @@ class Telegram extends ApiClient {
    * Get basic information about the bot
    */
   getMe() {
-    return this.callApi('getMe', undefined)
+    return this.callApi('getMe', {})
   }
 
   /**
@@ -50,7 +50,7 @@ class Telegram extends ApiClient {
   }
 
   getWebhookInfo() {
-    return this.callApi('getWebhookInfo', undefined)
+    return this.callApi('getWebhookInfo', {})
   }
 
   getGameHighScores(
@@ -109,7 +109,7 @@ class Telegram extends ApiClient {
   }
 
   deleteWebhook() {
-    return this.callApi('deleteWebhook', undefined)
+    return this.callApi('deleteWebhook', {})
   }
 
   /**
@@ -908,7 +908,7 @@ class Telegram extends ApiClient {
    * Get the current list of the bot's commands.
    */
   getMyCommands() {
-    return this.callApi('getMyCommands', undefined)
+    return this.callApi('getMyCommands', {})
   }
 
   /**

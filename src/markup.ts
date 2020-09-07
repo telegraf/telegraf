@@ -308,13 +308,13 @@ class Markup {
 
       result.push(chars[offset])
 
-      while (true) {
-        const index = opened.findIndex(
+      for (
+        let index = 0;
+        index >= 0;
+        index = opened.findIndex(
           (entity) => entity.offset + entity.length - 1 === offset
         )
-        if (index === -1) {
-          break
-        }
+      ) {
         const entity = opened[index]
         switch (entity.type) {
           case 'bold':

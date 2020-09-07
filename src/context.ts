@@ -60,7 +60,7 @@ const MessageSubTypesMapping = {
 }
 
 export class Context {
-  public botInfo?: tt.User
+  public botInfo?: tt.UserFromGetMe
   readonly updateType: tt.UpdateType
   readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
   readonly state: Record<string | symbol, any> = {}
@@ -233,7 +233,7 @@ export class Context {
     )
   }
 
-  editMessageText(text: string, extra?: tt.ExtraEditMessage) {
+  editMessageText(text: string, extra?: tt.ExtraEditMessageText) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageText')
     return this.telegram.editMessageText(
       this.chat?.id,
@@ -295,11 +295,11 @@ export class Context {
       'editMessageLiveLocation'
     )
     return this.telegram.editMessageLiveLocation(
-      latitude,
-      longitude,
       this.chat?.id,
       this.callbackQuery?.message?.message_id,
       this.inlineMessageId,
+      latitude,
+      longitude,
       markup
     )
   }
@@ -414,7 +414,7 @@ export class Context {
     return this.telegram.getChatMembersCount(this.chat.id, ...args)
   }
 
-  setPassportDataErrors(errors: object) {
+  setPassportDataErrors(errors: readonly tt.PassportElementError[]) {
     this.assert(this.from, 'setPassportDataErrors')
     return this.telegram.setPassportDataErrors(this.from.id, errors)
   }

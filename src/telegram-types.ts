@@ -53,14 +53,6 @@ export type MessageSubTypes =
 /** @deprecated use `InputMedia` */
 export type MessageMedia = TT.InputMedia
 
-export interface StickerData {
-  png_sticker: string | Buffer
-  emojis: string
-  mask_position: TT.MaskPosition
-}
-
-export type DiceEmoji = '🎲' | '🎯' | '🏀'
-
 /**
  * Sending video notes by a URL is currently unsupported
  */
@@ -76,6 +68,10 @@ export type MakeExtra<
   K extends keyof Omit<TT.Opts<M>, 'chat_id'> = never
 > = Omit<TT.Opts<M>, 'chat_id' | K>
 
+export type ExtraAddStickerToSet = MakeExtra<
+  'addStickerToSet',
+  'name' | 'user_id'
+>
 export type ExtraAnimation = MakeExtra<'sendAnimation', 'animation'>
 export type ExtraAnswerInlineQuery = MakeExtra<
   'answerInlineQuery',
@@ -86,9 +82,18 @@ export type ExtraContact = MakeExtra<
   'sendContact',
   'phone_number' | 'first_name'
 >
+export type ExtraCreateNewStickerSet = MakeExtra<
+  'createNewStickerSet',
+  'name' | 'title' | 'user_id'
+>
 export type ExtraDice = MakeExtra<'sendDice'>
 export type ExtraDocument = MakeExtra<'sendDocument', 'document'>
+/** @deprecated */
 export type ExtraEditMessage = ExtraReplyMessage
+export type ExtraEditMessageText = MakeExtra<
+  'editMessageText',
+  'message_id' | 'inline_message_id'
+>
 export type ExtraGame = MakeExtra<'sendGame', 'game_short_name'>
 export interface ExtraInvoice extends ExtraReplyMessage {
   /**
@@ -124,33 +129,6 @@ export type ExtraVideoNote = MakeExtra<'sendVideoNote', 'video_note'>
 export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
 
 export type IncomingMessage = TT.Message
-
-/** @deprecated use `Message.AudioMessage` */
-export type MessageAudio = TT.Message.AudioMessage
-/** @deprecated use `Message.DocumentMessage` */
-export type MessageDocument = TT.Message.DocumentMessage
-/** @deprecated use `Message.GameMessage` */
-export type MessageGame = TT.Message.GameMessage
-/** @deprecated use `Message.InvoiceMessage` */
-export type MessageInvoice = TT.Message.InvoiceMessage
-/** @deprecated use `Message.LocationMessage` */
-export type MessageLocation = TT.Message.LocationMessage
-/** @deprecated use `Message.PhotoMessage` */
-export type MessagePhoto = TT.Message.PhotoMessage
-/** @deprecated use `Message.AnimationMessage` */
-export type MessageAnimation = TT.Message.AnimationMessage
-/** @deprecated use `Message.StickerMessage` */
-export type MessageSticker = TT.Message.StickerMessage
-/** @deprecated use `Message.VideoMessage` */
-export type MessageVideo = TT.Message.VideoMessage
-/** @deprecated use `Message.VideoNoteMessage` */
-export type MessageVideoNote = TT.Message.VideoNoteMessage
-/** @deprecated use `Message.VoiceMessage` */
-export type MessageVoice = TT.Message.VoiceMessage
-/** @deprecated use `Message.DiceMessage` */
-export type MessageDice = TT.Message.DiceMessage
-/** @deprecated use `Message.PollMessage` */
-export type MessagePoll = TT.Message.PollMessage
 
 export interface NewInvoiceParameters {
   /**

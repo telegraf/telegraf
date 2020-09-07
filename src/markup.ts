@@ -2,12 +2,12 @@ import {
   ForceReply,
   InlineKeyboardButton,
   InlineKeyboardMarkup,
+  KeyboardButton,
   MessageEntity,
   ReplyKeyboardMarkup,
   ReplyKeyboardRemove,
-} from './telegram-types'
+} from 'typegram'
 import { is2D } from './util'
-import { KeyboardButton } from 'typegram'
 
 // functions for HTML tag escaping based on https://stackoverflow.com/a/5499821/
 const tagsToEscape = {
@@ -18,7 +18,7 @@ const tagsToEscape = {
 function escapeTag(tag: string): string {
   return tagsToEscape[tag as '&' | '<' | '>'] ?? tag
 }
-export function escapeHTML(str: string): string {
+function escapeHTML(str: string): string {
   return str.replace(/[&<>]/g, escapeTag)
 }
 
@@ -30,7 +30,7 @@ type Hideable<B> = B & { hide: boolean }
 type HideableKBtn = Hideable<KeyboardButton>
 type HideableIKBtn = Hideable<InlineKeyboardButton>
 
-class Markup {
+export class Markup {
   public readonly reply_markup: MarkupBuilder = {}
 
   forceReply(value: boolean = true) {
@@ -57,10 +57,13 @@ class Markup {
     buttons: HideableKBtn[] | HideableKBtn[][],
     options: Partial<KeyboardBuildingOptions<HideableKBtn>>
   ) {
-    this.reply_markup.keyboard = buildKeyboard(buttons, {
+    const keyboard = buildKeyboard(buttons, {
       columns: 1,
       ...options,
     })
+    if (keyboard.length > 0) {
+      this.reply_markup.keyboard = keyboard
+    }
     return this
   }
 
@@ -78,10 +81,13 @@ class Markup {
     buttons: HideableIKBtn[] | HideableIKBtn[][],
     options: Partial<KeyboardBuildingOptions<HideableIKBtn>>
   ) {
-    this.reply_markup.inline_keyboard = buildKeyboard(buttons, {
+    const keyboard = buildKeyboard(buttons, {
       columns: buttons.length,
       ...options,
     })
+    if (keyboard.length > 0) {
+      this.reply_markup.inline_keyboard = keyboard
+    }
     return this
   }
 
@@ -266,11 +272,10 @@ class Markup {
     const opened: MessageEntity[] = []
     const result: string[] = []
     for (let offset = 0; offset < chars.length; offset++) {
-      while (true) {
-        const index = available.findIndex((entity) => entity.offset === offset)
-        if (index === -1) {
-          break
-        }
+      let index: number
+      while (
+        (index = available.findIndex((entity) => entity.offset === offset)) >= 0
+      ) {
         const entity = available[index]
         switch (entity.type) {
           case 'bold':
@@ -306,14 +311,12 @@ class Markup {
         available.splice(index, 1)
       }
 
-      result.push(chars[offset])
+      result.push(escapeHTML(chars[offset]))
 
-      for (
-        let index = 0;
-        index >= 0;
-        index = opened.findIndex(
+      while (
+        (index = opened.findIndex(
           (entity) => entity.offset + entity.length - 1 === offset
-        )
+        )) >= 0
       ) {
         const entity = opened[index]
         switch (entity.type) {
@@ -388,4 +391,4 @@ function buildKeyboard<B extends HideableKBtn | HideableIKBtn>(
   return result
 }
 
-module.exports = Markup
+export default Markup

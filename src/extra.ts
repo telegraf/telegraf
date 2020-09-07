@@ -43,7 +43,7 @@ class Extra {
     if (typeof markup === 'function') {
       markup = markup(new Markup())
     }
-    this.reply_markup = markup != null ? { ...markup.reply_markup } : undefined
+    this.reply_markup = markup != null ? { ...markup } : undefined
     return this
   }
 

@@ -1,6 +1,6 @@
 const test = require('ava')
 const Extra = require('../lib/extra')
-const Markup = require('../lib/markup')
+const { Markup } = require('../lib/markup')
 
 test('should generate default options from contructor', (t) => {
   const extra = { ...new Extra({ parse_mode: 'LaTeX' }) }
@@ -38,12 +38,12 @@ test('should generate web preview options', (t) => {
 })
 
 test('should generate markup options', (t) => {
-  const extra = { ...Extra.markup(Markup.removeKeyboard()) }
+  const extra = { ...Extra.markup(Markup.removeKeyboard()).reply_markup }
   t.deepEqual(extra, { reply_markup: { remove_keyboard: true } })
 })
 
 test('should generate markup options in functional style', (t) => {
-  const extra = { ...Extra.markdown().markup((markup) => markup.removeKeyboard()) }
+  const extra = { ...Extra.markdown().markup((markup) => markup.removeKeyboard().reply_markup) }
   t.deepEqual(extra, { parse_mode: 'Markdown', reply_markup: { remove_keyboard: true } })
 })
 

@@ -6,6 +6,7 @@ import * as https from 'https'
 import * as path from 'path'
 import fetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { hasProp, hasPropType } from '../../util'
+import { Opts, Telegram } from 'typegram'
 import MultipartStream from './multipart-stream'
 import { ReadStream } from 'fs'
 import TelegramError from './error'
@@ -59,7 +60,7 @@ const WEBHOOK_REPLY_STUB = {
   webhook: true,
   details:
     'https://core.telegram.org/bots/api#making-requests-when-getting-updates',
-}
+} as const
 
 function includesMedia(payload: Record<string, unknown>) {
   return Object.values(payload).some((value) => {
@@ -247,7 +248,7 @@ function answerToWebhook(
   response: Response,
   payload: Record<string, unknown>,
   options: ApiClient.Options
-) {
+): Promise<typeof WEBHOOK_REPLY_STUB> {
   if (!includesMedia(payload)) {
     if (isKoaResponse(response)) {
       response.body = payload
@@ -320,7 +321,10 @@ class ApiClient {
     return this.options.webhookReply
   }
 
-  callApi(method: string, payload = {}): Promise<any> {
+  callApi<M extends keyof Telegram>(
+    method: M,
+    payload: Opts<M>
+  ): Promise<ReturnType<Telegram[M]>> {
     const { token, options, response, responseEnd } = this
 
     if (
@@ -331,6 +335,7 @@ class ApiClient {
     ) {
       debug('Call via webhook', method, payload)
       this.responseEnd = true
+      // @ts-expect-error
       return answerToWebhook(response, { method, ...payload }, options)
     }
 

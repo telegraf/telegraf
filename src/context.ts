@@ -63,8 +63,7 @@ export class Context {
   public botInfo?: tt.User
   readonly updateType: tt.UpdateType
   readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
-  /** @deprecated */
-  private contextState?: any
+  readonly state: Record<string | symbol, any> = {}
 
   constructor(
     readonly update: tt.Update,
@@ -183,17 +182,6 @@ export class Context {
     if (this.message == null) return undefined
     if (!('passport_data' in this.message)) return undefined
     return this.message?.passport_data
-  }
-
-  get state() {
-    if (!this.contextState) {
-      this.contextState = {}
-    }
-    return this.contextState
-  }
-
-  set state(value) {
-    this.contextState = { ...value }
   }
 
   get webhookReply(): boolean {

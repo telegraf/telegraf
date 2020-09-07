@@ -168,15 +168,24 @@ class Markup {
     return new Markup().oneTime(value)
   }
 
-  static button(text: string, hide = false) {
+  static button(
+    text: string,
+    hide = false
+  ): Hideable<KeyboardButton.CommonButton> {
     return { text: text, hide: hide }
   }
 
-  static contactRequestButton(text: string, hide = false) {
+  static contactRequestButton(
+    text: string,
+    hide = false
+  ): Hideable<KeyboardButton.RequestContactButton> {
     return { text: text, request_contact: true, hide: hide }
   }
 
-  static locationRequestButton(text: string, hide = false) {
+  static locationRequestButton(
+    text: string,
+    hide = false
+  ): Hideable<KeyboardButton.RequestLocationButton> {
     return { text: text, request_location: true, hide: hide }
   }
 
@@ -184,31 +193,53 @@ class Markup {
     text: string,
     type?: 'quiz' | 'regular',
     hide = false
-  ) {
+  ): Hideable<KeyboardButton.RequestPollButton> {
     return { text: text, request_poll: { type }, hide: hide }
   }
 
-  static urlButton(text: string, url: string, hide = false) {
+  static urlButton(
+    text: string,
+    url: string,
+    hide = false
+  ): Hideable<InlineKeyboardButton.UrlButton> {
     return { text: text, url: url, hide: hide }
   }
 
-  static callbackButton(text: string, data: string, hide = false) {
+  static callbackButton(
+    text: string,
+    data: string,
+    hide = false
+  ): Hideable<InlineKeyboardButton.CallbackButton> {
     return { text: text, callback_data: data, hide: hide }
   }
 
-  static switchToChatButton(text: string, value: string, hide = false) {
+  static switchToChatButton(
+    text: string,
+    value: string,
+    hide = false
+  ): Hideable<InlineKeyboardButton.SwitchInlineButton> {
     return { text: text, switch_inline_query: value, hide: hide }
   }
 
-  static switchToCurrentChatButton(text: string, value: string, hide = false) {
+  static switchToCurrentChatButton(
+    text: string,
+    value: string,
+    hide = false
+  ): Hideable<InlineKeyboardButton.SwitchInlineCurrentChatButton> {
     return { text: text, switch_inline_query_current_chat: value, hide: hide }
   }
 
-  static gameButton(text: string, hide = false) {
+  static gameButton(
+    text: string,
+    hide = false
+  ): Hideable<InlineKeyboardButton.GameButton> {
     return { text: text, callback_game: {}, hide: hide }
   }
 
-  static payButton(text: string, hide = false) {
+  static payButton(
+    text: string,
+    hide = false
+  ): Hideable<InlineKeyboardButton.PayButton> {
     return { text: text, pay: true, hide: hide }
   }
 
@@ -221,7 +252,7 @@ class Markup {
       request_write_access?: boolean
     } = {},
     hide = false
-  ) {
+  ): Hideable<InlineKeyboardButton.LoginButton> {
     return {
       text: text,
       login_url: { ...opts, url: url },

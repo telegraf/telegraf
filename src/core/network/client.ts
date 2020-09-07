@@ -298,7 +298,7 @@ class ApiClient {
   private responseEnd = false
 
   constructor(
-    public token: string,
+    readonly token: string,
     options?: Partial<ApiClient.Options>,
     private readonly response?: Response
   ) {

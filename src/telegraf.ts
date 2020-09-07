@@ -1,4 +1,3 @@
-/* eslint @typescript-eslint/no-var-requires: "warn" */
 import * as http from 'http'
 import * as https from 'https'
 import * as tt from './telegram-types'
@@ -91,7 +90,7 @@ export class Telegraf<TContext extends Context = Context> extends Composer<
     timeout: 30,
   }
 
-  handleError: (err: any, ctx: TContext) => void = (err) => {
+  private handleError: (err: any, ctx: TContext) => void = (err) => {
     console.error()
     console.error((err.stack || err.toString()).replace(/^/gm, '  '))
     console.error()
@@ -106,10 +105,6 @@ export class Telegraf<TContext extends Context = Context> extends Composer<
       ...options,
     }
     this.telegram = new Telegram(token, this.options.telegram)
-  }
-
-  set token(token: string) {
-    this.telegram.token = token
   }
 
   get token() {
@@ -137,20 +132,15 @@ export class Telegraf<TContext extends Context = Context> extends Composer<
     )
   }
 
-  startPolling(
+  private startPolling(
     timeout = 30,
     limit = 100,
-    allowedUpdates?: tt.UpdateType[],
+    allowedUpdates: tt.UpdateType[] = [],
     stopCallback = noop
   ) {
     this.polling.timeout = timeout
     this.polling.limit = limit
-    // prettier-ignore
-    // @ts-expect-error
     this.polling.allowedUpdates = allowedUpdates
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      ? Array.isArray(allowedUpdates) ? allowedUpdates : [`${allowedUpdates}`]
-      : undefined
     this.polling.stopCallback = stopCallback
     if (!this.polling.started) {
       this.polling.started = true
@@ -159,7 +149,7 @@ export class Telegraf<TContext extends Context = Context> extends Composer<
     return this
   }
 
-  startWebhook(
+  private startWebhook(
     hookPath: string,
     tlsOptions?: TlsOptions,
     port?: number,
@@ -256,13 +246,12 @@ export class Telegraf<TContext extends Context = Context> extends Composer<
     }
   }
 
-  fetchUpdates() {
+  private fetchUpdates() {
     if (!this.polling.started) {
-      this.polling?.stopCallback()
+      this.polling.stopCallback()
       return
     }
     const { timeout, limit, offset, allowedUpdates } = this.polling
-    // eslint-disable-next-line
     this.telegram
       .getUpdates(timeout, limit, offset, allowedUpdates)
       .catch((err) => {

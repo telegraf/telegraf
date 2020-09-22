@@ -42,11 +42,6 @@ test('should generate markup options', (t) => {
   t.deepEqual(extra, { reply_markup: { remove_keyboard: true } })
 })
 
-test('should generate markup options in functional style', (t) => {
-  const extra = { ...Extra.markdown().markup((markup) => markup.removeKeyboard().reply_markup) }
-  t.deepEqual(extra, { parse_mode: 'Markdown', reply_markup: { remove_keyboard: true } })
-})
-
 test('should generate caption options', (t) => {
   const extra = { ...Extra.markdown().caption('text') }
   t.deepEqual(extra, { parse_mode: 'Markdown', caption: 'text' })

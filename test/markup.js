@@ -13,12 +13,12 @@ test('should generate forceReply markup', (t) => {
 
 test('should generate resizeKeyboard markup', (t) => {
   const markup = { ...Markup.keyboard([]).resize().reply_markup }
-  t.deepEqual(markup, { resize_keyboard: true })
+  t.deepEqual(markup, { keyboard: [], resize_keyboard: true })
 })
 
 test('should generate oneTimeKeyboard markup', (t) => {
   const markup = { ...Markup.keyboard([]).oneTime().reply_markup }
-  t.deepEqual(markup, { one_time_keyboard: true })
+  t.deepEqual(markup, { keyboard: [], one_time_keyboard: true })
 })
 
 test('should generate selective hide markup', (t) => {
@@ -28,7 +28,7 @@ test('should generate selective hide markup', (t) => {
 
 test('should generate selective one time keyboard markup', (t) => {
   const markup = { ...Markup.keyboard().selective().oneTime().reply_markup }
-  t.deepEqual(markup, { selective: true, one_time_keyboard: true })
+  t.deepEqual(markup, { keyboard: [], selective: true, one_time_keyboard: true })
 })
 
 test('should generate keyboard markup', (t) => {
@@ -99,7 +99,7 @@ test('should generate inline keyboard markup with default setting', (t) => {
 })
 
 test('should generate extra from keyboard markup', (t) => {
-  const markup = { ...Markup.inlineKeyboard(['one', 'two', 'three', 'four']).extra() }
+  const markup = { ...Markup.inlineKeyboard(['one', 'two', 'three', 'four']) }
   t.deepEqual(markup, {
     reply_markup: {
       inline_keyboard: [[

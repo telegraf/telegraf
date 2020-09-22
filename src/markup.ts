@@ -22,107 +22,65 @@ function escapeHTML(str: string): string {
   return str.replace(/[&<>]/g, escapeTag)
 }
 
-type MarkupBuilder = Partial<
-  InlineKeyboardMarkup & ReplyKeyboardMarkup & ReplyKeyboardRemove & ForceReply
->
-
 type Hideable<B> = B & { hide: boolean }
 type HideableKBtn = Hideable<KeyboardButton>
 type HideableIKBtn = Hideable<InlineKeyboardButton>
 
-export class Markup {
-  public readonly reply_markup: MarkupBuilder = {}
+export class Markup<
+  TMarkup extends
+    | InlineKeyboardMarkup
+    | ReplyKeyboardMarkup
+    | ReplyKeyboardRemove
+    | ForceReply
+> {
+  private constructor(readonly reply_markup: TMarkup) {}
 
-  forceReply(value: boolean = true) {
-    this.reply_markup.force_reply = !value ? undefined : value
-    return this
-  }
-
-  removeKeyboard(value = true) {
-    this.reply_markup.remove_keyboard = !value ? undefined : value
-    return this
-  }
-
-  selective(value = true) {
+  selective<TMarkup extends ForceReply | ReplyKeyboardMarkup>(
+    this: Markup<TMarkup>,
+    value = true
+  ) {
     this.reply_markup.selective = value
     return this
   }
 
-  extra(options: MarkupBuilder): { reply_markup: MarkupBuilder } {
-    Object.assign(this.reply_markup, options)
-    return { reply_markup: this.reply_markup }
+  resize(this: Markup<ReplyKeyboardMarkup>, value = true) {
+    this.reply_markup.resize_keyboard = value
+    return this
   }
 
-  keyboard(
+  oneTime(this: Markup<ReplyKeyboardMarkup>, value = true) {
+    this.reply_markup.one_time_keyboard = value
+    return this
+  }
+
+  static removeKeyboard() {
+    return new Markup({ remove_keyboard: true })
+  }
+
+  static forceReply() {
+    return new Markup({ force_reply: true })
+  }
+
+  static keyboard(
     buttons: HideableKBtn[] | HideableKBtn[][],
-    options: Partial<KeyboardBuildingOptions<HideableKBtn>>
+    options?: Partial<KeyboardBuildingOptions<HideableKBtn>>
   ) {
     const keyboard = buildKeyboard(buttons, {
       columns: 1,
       ...options,
     })
-    if (keyboard.length > 0) {
-      this.reply_markup.keyboard = keyboard
-    }
-    return this
-  }
-
-  resize(value = true) {
-    this.reply_markup.resize_keyboard = value
-    return this
-  }
-
-  oneTime(value = true) {
-    this.reply_markup.one_time_keyboard = value
-    return this
-  }
-
-  inlineKeyboard(
-    buttons: HideableIKBtn[] | HideableIKBtn[][],
-    options: Partial<KeyboardBuildingOptions<HideableIKBtn>>
-  ) {
-    const keyboard = buildKeyboard(buttons, {
-      columns: buttons.length,
-      ...options,
-    })
-    if (keyboard.length > 0) {
-      this.reply_markup.inline_keyboard = keyboard
-    }
-    return this
-  }
-
-  static removeKeyboard(value?: boolean) {
-    return new Markup().removeKeyboard(value)
-  }
-
-  static forceReply(value?: boolean) {
-    return new Markup().forceReply(value)
-  }
-
-  static keyboard(
-    buttons: HideableKBtn[] | HideableKBtn[][],
-    options: Partial<KeyboardBuildingOptions<HideableKBtn>>
-  ) {
-    return new Markup().keyboard(buttons, options)
+    return new Markup({ keyboard })
   }
 
   static inlineKeyboard(
     buttons: HideableIKBtn[] | HideableIKBtn[][],
-    options: Partial<KeyboardBuildingOptions<HideableIKBtn>>
+    options?: Partial<KeyboardBuildingOptions<HideableIKBtn>>
   ) {
-    return new Markup().inlineKeyboard(buttons, options)
-  }
-
-  static resize(value = true) {
-    return new Markup().resize(value)
-  }
-
-  static selective(value = true) {
-    return new Markup().selective(value)
-  }
-
-  static oneTime(value = true) {
-    return new Markup().oneTime(value)
+    const inlineKeyboard = buildKeyboard(buttons, {
+      columns: buttons.length,
+      ...options,
+    })
+    return new Markup({ inline_keyboard: inlineKeyboard })
   }
 
   static button(

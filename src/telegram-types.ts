@@ -90,6 +90,10 @@ export type ExtraDice = MakeExtra<'sendDice'>
 export type ExtraDocument = MakeExtra<'sendDocument', 'document'>
 /** @deprecated */
 export type ExtraEditMessage = ExtraReplyMessage
+export type ExtraEditMessageCaption = MakeExtra<
+  'editMessageCaption',
+  'message_id' | 'inline_message_id' | 'caption'
+>
 export type ExtraEditMessageText = MakeExtra<
   'editMessageText',
   'message_id' | 'inline_message_id'

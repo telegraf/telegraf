@@ -91,55 +91,6 @@ export class Markup {
     return this
   }
 
-  button(text: string, hide?: boolean) {
-    return Markup.button(text, hide)
-  }
-
-  contactRequestButton(text: string, hide?: boolean) {
-    return Markup.contactRequestButton(text, hide)
-  }
-
-  locationRequestButton(text: string, hide?: boolean) {
-    return Markup.locationRequestButton(text, hide)
-  }
-
-  urlButton(text: string, url: string, hide?: boolean) {
-    return Markup.urlButton(text, url, hide)
-  }
-
-  callbackButton(text: string, data: string, hide?: boolean) {
-    return Markup.callbackButton(text, data, hide)
-  }
-
-  switchToChatButton(text: string, value: string, hide?: boolean) {
-    return Markup.switchToChatButton(text, value, hide)
-  }
-
-  switchToCurrentChatButton(text: string, value: string, hide?: boolean) {
-    return Markup.switchToCurrentChatButton(text, value, hide)
-  }
-
-  gameButton(text: string, hide?: boolean) {
-    return Markup.gameButton(text, hide)
-  }
-
-  payButton(text: string, hide?: boolean) {
-    return Markup.payButton(text, hide)
-  }
-
-  loginButton(
-    text: string,
-    url: string,
-    opts?: {
-      forward_text?: string
-      bot_username?: string
-      request_write_access?: boolean
-    },
-    hide?: boolean
-  ) {
-    return Markup.loginButton(text, url, opts, hide)
-  }
-
   static removeKeyboard(value?: boolean) {
     return new Markup().removeKeyboard(value)
   }

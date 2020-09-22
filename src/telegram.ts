@@ -703,16 +703,14 @@ class Telegram extends ApiClient {
     messageId: number | undefined,
     inlineMessageId: string | undefined,
     caption: string | undefined,
-    extra: any = {}
+    extra: tt.ExtraEditMessageCaption = {}
   ) {
     return this.callApi('editMessageCaption', {
       caption,
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      parse_mode: extra.parse_mode,
-      reply_markup:
-        extra.parse_mode || extra.reply_markup ? extra.reply_markup : extra,
+      ...extra,
     })
   }
 

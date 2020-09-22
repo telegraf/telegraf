@@ -246,7 +246,7 @@ export class Context {
 
   editMessageCaption(
     caption: string | undefined,
-    extra?: tt.InlineKeyboardMarkup
+    extra?: tt.ExtraEditMessageCaption
   ) {
     this.assert(
       this.callbackQuery ?? this.inlineMessageId,

@@ -94,6 +94,10 @@ export type ExtraEditMessageCaption = MakeExtra<
   'editMessageCaption',
   'message_id' | 'inline_message_id' | 'caption'
 >
+export type ExtraEditMessageMedia = MakeExtra<
+  'editMessageMedia',
+  'message_id' | 'inline_message_id' | 'media'
+>
 export type ExtraEditMessageText = MakeExtra<
   'editMessageText',
   'message_id' | 'inline_message_id'

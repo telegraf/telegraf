@@ -730,16 +730,15 @@ class Telegram extends ApiClient {
     chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
-    media: tt.MessageMedia,
-    extra: tt.ExtraEditMessage = {}
+    media: tt.InputMedia,
+    extra: tt.ExtraEditMessageMedia = {}
   ) {
     return this.callApi('editMessageMedia', {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      media: { ...media, parse_mode: extra.parse_mode },
-      // @ts-expect-error
-      reply_markup: extra.reply_markup ?? extra,
+      media,
+      ...extra,
     })
   }
 

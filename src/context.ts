@@ -261,7 +261,7 @@ export class Context {
     )
   }
 
-  editMessageMedia(media: tt.MessageMedia, extra?: tt.ExtraEditMessage) {
+  editMessageMedia(media: tt.InputMedia, extra?: tt.ExtraEditMessageMedia) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageMedia')
     return this.telegram.editMessageMedia(
       this.chat?.id,

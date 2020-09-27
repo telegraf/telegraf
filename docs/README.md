@@ -81,6 +81,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [DiscordTelegramBridge](https://github.com/daaniiieel/discord-telegram-bridge) | A simple, small and fast discord to telegram bridge written in node.js |
 | [EveMoviesBot](https://github.com/dmbaranov/evemovies-bot) | Track movie torrent releases and get notifications when it's there |
 | [GNU/LinuxIndonesiaBot](https://github.com/bgli/bglibot-js) | BGLI Bot a.k.a Miranda Salma |
+| [GoodReaderBot](https://github.com/jhenriquez/GoodReaderBot) | A telegram bot to search and share books from Goodreads. |
 | [GoogleItBot](https://github.com/Edgar-P-yan/google-it-telegram-bot) | Instant inline search |
 | [GroupsAdminBot](https://github.com/Azhant/AdminBot) | Telegram groups administrator bot |
 | [KitchenTimerBot](https://github.com/DZamataev/kitchen-timer-bot) | Bot for setting up multiple timers for cooking |

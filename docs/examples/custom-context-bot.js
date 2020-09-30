@@ -2,7 +2,7 @@ const Telegraf = require('telegraf')
 
 class CustomContext extends Telegraf.Context {
   constructor (update, telegram, options) {
-    console.log('Creating contexy for %j', update)
+    console.log('Creating context for %j', update)
     super(update, telegram, options)
   }
 

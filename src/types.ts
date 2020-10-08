@@ -28,6 +28,7 @@ export namespace Middleware {
     Extension extends object
   > = ExtFn<BaseContext, Extension>
 }
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type Middleware<TContext extends Context> =
   | Middleware.Fn<TContext>
   | Middleware.Obj<TContext>

@@ -1,4 +1,4 @@
-import { hasPropType } from '../../util'
+import { hasPropType } from '../helpers/check-utils'
 import SandwichStream from 'sandwich-stream'
 import stream from 'stream'
 const CRNL = '\r\n'

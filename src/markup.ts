@@ -12,14 +12,14 @@ type Hideable<B> = B & { hide: boolean }
 type HideableKBtn = Hideable<KeyboardButton>
 type HideableIKBtn = Hideable<InlineKeyboardButton>
 
-export class Markup<
+class Markup<
   T extends
     | InlineKeyboardMarkup
     | ReplyKeyboardMarkup
     | ReplyKeyboardRemove
     | ForceReply
 > {
-  private constructor(readonly reply_markup: T) {}
+  constructor(readonly reply_markup: T) {}
 
   selective<T extends ForceReply | ReplyKeyboardMarkup>(
     this: Markup<T>,
@@ -37,36 +37,6 @@ export class Markup<
   oneTime(this: Markup<ReplyKeyboardMarkup>, value = true) {
     this.reply_markup.one_time_keyboard = value
     return this
-  }
-
-  static removeKeyboard() {
-    return new Markup({ remove_keyboard: true })
-  }
-
-  static forceReply() {
-    return new Markup({ force_reply: true })
-  }
-
-  static keyboard(
-    buttons: HideableKBtn[] | HideableKBtn[][],
-    options?: Partial<KeyboardBuildingOptions<HideableKBtn>>
-  ) {
-    const keyboard = buildKeyboard(buttons, {
-      columns: 1,
-      ...options,
-    })
-    return new Markup({ keyboard })
-  }
-
-  static inlineKeyboard(
-    buttons: HideableIKBtn[] | HideableIKBtn[][],
-    options?: Partial<KeyboardBuildingOptions<HideableIKBtn>>
-  ) {
-    const inlineKeyboard = buildKeyboard(buttons, {
-      columns: buttons.length,
-      ...options,
-    })
-    return new Markup({ inline_keyboard: inlineKeyboard })
   }
 
   static button(
@@ -162,6 +132,36 @@ export class Markup<
   }
 }
 
+export function removeKeyboard() {
+  return new Markup({ remove_keyboard: true })
+}
+
+export function forceReply() {
+  return new Markup({ force_reply: true })
+}
+
+export function keyboard(
+  buttons: HideableKBtn[] | HideableKBtn[][],
+  options?: Partial<KeyboardBuildingOptions<HideableKBtn>>
+) {
+  const keyboard = buildKeyboard(buttons, {
+    columns: 1,
+    ...options,
+  })
+  return new Markup({ keyboard })
+}
+
+export function inlineKeyboard(
+  buttons: HideableIKBtn[] | HideableIKBtn[][],
+  options?: Partial<KeyboardBuildingOptions<HideableIKBtn>>
+) {
+  const inlineKeyboard = buildKeyboard(buttons, {
+    columns: buttons.length,
+    ...options,
+  })
+  return new Markup({ inline_keyboard: inlineKeyboard })
+}
+
 interface KeyboardBuildingOptions<B extends HideableKBtn | HideableIKBtn> {
   wrap?: (btn: B, index: number, currentRow: B[]) => boolean
   columns: number
@@ -198,5 +198,3 @@ function buildKeyboard<B extends HideableKBtn | HideableIKBtn>(
   }
   return result
 }
-
-export default Markup

@@ -1,5 +1,5 @@
 const test = require('ava')
-const { Markup } = require('../lib/markup')
+const Markup = require('../lib/markup')
 
 test('should generate removeKeyboard markup', (t) => {
   const markup = { ...Markup.removeKeyboard().reply_markup }

@@ -118,41 +118,41 @@ test('should generate standard button markup', (t) => {
 })
 
 test('should generate cb button markup', (t) => {
-  const markup = { ...Markup.callbackButton('foo', 'bar') }
+  const markup = { ...Markup.button.callback('foo', 'bar') }
   t.deepEqual(markup, { text: 'foo', callback_data: 'bar', hide: false })
 })
 
 test('should generate url button markup', (t) => {
-  const markup = { ...Markup.urlButton('foo', 'https://bar.tld') }
+  const markup = { ...Markup.button.url('foo', 'https://bar.tld') }
   t.deepEqual(markup, { text: 'foo', url: 'https://bar.tld', hide: false })
 })
 
 test('should generate location request button markup', (t) => {
-  const markup = { ...Markup.locationRequestButton('send location') }
+  const markup = { ...Markup.button.locationRequest('send location') }
   t.deepEqual(markup, { text: 'send location', request_location: true, hide: false })
 })
 
 test('should generate contact request button markup', (t) => {
-  const markup = { ...Markup.contactRequestButton('send contact') }
+  const markup = { ...Markup.button.contactRequest('send contact') }
   t.deepEqual(markup, { text: 'send contact', request_contact: true, hide: false })
 })
 
 test('should generate switch inline query button markup', (t) => {
-  const markup = { ...Markup.switchToChatButton('play now', 'foo') }
+  const markup = { ...Markup.button.switchToChat('play now', 'foo') }
   t.deepEqual(markup, { text: 'play now', switch_inline_query: 'foo', hide: false })
 })
 
 test('should generate switch inline query button markup for chat', (t) => {
-  const markup = { ...Markup.switchToCurrentChatButton('play now', 'foo') }
+  const markup = { ...Markup.button.switchToCurrentChat('play now', 'foo') }
   t.deepEqual(markup, { text: 'play now', switch_inline_query_current_chat: 'foo', hide: false })
 })
 
 test('should generate game button markup', (t) => {
-  const markup = { ...Markup.gameButton('play') }
+  const markup = { ...Markup.button.game('play') }
   t.deepEqual(markup, { text: 'play', callback_game: {}, hide: false })
 })
 
 test('should generate hidden game button markup', (t) => {
-  const markup = { ...Markup.gameButton('play again', true) }
+  const markup = { ...Markup.button.game('play again', true) }
   t.deepEqual(markup, { text: 'play again', callback_game: {}, hide: true })
 })

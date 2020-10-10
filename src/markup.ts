@@ -8,7 +8,7 @@ import {
 } from 'typegram'
 import { is2D } from './core/helpers/check-utils'
 
-type Hideable<B> = B & { hide: boolean }
+type Hideable<B> = B & { hide?: boolean }
 type HideableKBtn = Hideable<KeyboardButton>
 type HideableIKBtn = Hideable<InlineKeyboardButton>
 
@@ -38,29 +38,33 @@ class Markup<
     this.reply_markup.one_time_keyboard = value
     return this
   }
+}
 
-  static button(
-    text: string,
-    hide = false
-  ): Hideable<KeyboardButton.CommonButton> {
-    return { text: text, hide: hide }
-  }
+// eslint-disable-next-line import/export
+export function button(
+  text: string,
+  hide = false
+): Hideable<KeyboardButton.CommonButton> {
+  return { text: text, hide: hide }
+}
 
-  static contactRequestButton(
+// eslint-disable-next-line
+export namespace button {
+  export function contactRequest(
     text: string,
     hide = false
   ): Hideable<KeyboardButton.RequestContactButton> {
     return { text: text, request_contact: true, hide: hide }
   }
 
-  static locationRequestButton(
+  export function locationRequest(
     text: string,
     hide = false
   ): Hideable<KeyboardButton.RequestLocationButton> {
     return { text: text, request_location: true, hide: hide }
   }
 
-  static pollRequestButton(
+  export function pollRequest(
     text: string,
     type?: 'quiz' | 'regular',
     hide = false
@@ -68,7 +72,7 @@ class Markup<
     return { text: text, request_poll: { type }, hide: hide }
   }
 
-  static urlButton(
+  export function url(
     text: string,
     url: string,
     hide = false
@@ -76,7 +80,7 @@ class Markup<
     return { text: text, url: url, hide: hide }
   }
 
-  static callbackButton(
+  export function callback(
     text: string,
     data: string,
     hide = false
@@ -84,7 +88,7 @@ class Markup<
     return { text: text, callback_data: data, hide: hide }
   }
 
-  static switchToChatButton(
+  export function switchToChat(
     text: string,
     value: string,
     hide = false
@@ -92,7 +96,7 @@ class Markup<
     return { text: text, switch_inline_query: value, hide: hide }
   }
 
-  static switchToCurrentChatButton(
+  export function switchToCurrentChat(
     text: string,
     value: string,
     hide = false
@@ -100,21 +104,21 @@ class Markup<
     return { text: text, switch_inline_query_current_chat: value, hide: hide }
   }
 
-  static gameButton(
+  export function game(
     text: string,
     hide = false
   ): Hideable<InlineKeyboardButton.GameButton> {
     return { text: text, callback_game: {}, hide: hide }
   }
 
-  static payButton(
+  export function pay(
     text: string,
     hide = false
   ): Hideable<InlineKeyboardButton.PayButton> {
     return { text: text, pay: true, hide: hide }
   }
 
-  static loginButton(
+  export function login(
     text: string,
     url: string,
     opts: {

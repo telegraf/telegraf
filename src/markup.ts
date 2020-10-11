@@ -144,6 +144,11 @@ export function forceReply() {
   return new Markup({ force_reply: true })
 }
 
+export function keyboard(buttons: HideableKBtn[][]): Markup<ReplyKeyboardMarkup>
+export function keyboard(
+  buttons: HideableKBtn[],
+  options?: Partial<KeyboardBuildingOptions<HideableKBtn>>
+): Markup<ReplyKeyboardMarkup>
 export function keyboard(
   buttons: HideableKBtn[] | HideableKBtn[][],
   options?: Partial<KeyboardBuildingOptions<HideableKBtn>>
@@ -155,6 +160,13 @@ export function keyboard(
   return new Markup({ keyboard })
 }
 
+export function inlineKeyboard(
+  buttons: HideableIKBtn[][]
+): Markup<InlineKeyboardMarkup>
+export function inlineKeyboard(
+  buttons: HideableIKBtn[],
+  options?: Partial<KeyboardBuildingOptions<HideableIKBtn>>
+): Markup<InlineKeyboardMarkup>
 export function inlineKeyboard(
   buttons: HideableIKBtn[] | HideableIKBtn[][],
   options?: Partial<KeyboardBuildingOptions<HideableIKBtn>>

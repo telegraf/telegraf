@@ -24,19 +24,28 @@ class Markup<
   selective<T extends ForceReply | ReplyKeyboardMarkup>(
     this: Markup<T>,
     value = true
-  ) {
-    this.reply_markup.selective = value
-    return this
+  ): Markup<T> {
+    return new Markup<T>({ ...this.reply_markup, selective: value })
   }
 
-  resize(this: Markup<ReplyKeyboardMarkup>, value = true) {
-    this.reply_markup.resize_keyboard = value
-    return this
+  resize(
+    this: Markup<ReplyKeyboardMarkup>,
+    value = true
+  ): Markup<ReplyKeyboardMarkup> {
+    return new Markup<ReplyKeyboardMarkup>({
+      ...this.reply_markup,
+      resize_keyboard: value,
+    })
   }
 
-  oneTime(this: Markup<ReplyKeyboardMarkup>, value = true) {
-    this.reply_markup.one_time_keyboard = value
-    return this
+  oneTime(
+    this: Markup<ReplyKeyboardMarkup>,
+    value = true
+  ): Markup<ReplyKeyboardMarkup> {
+    return new Markup<ReplyKeyboardMarkup>({
+      ...this.reply_markup,
+      one_time_keyboard: value,
+    })
   }
 }
 
@@ -45,23 +54,23 @@ export function button(
   text: string,
   hide = false
 ): Hideable<KeyboardButton.CommonButton> {
-  return { text: text, hide: hide }
+  return { text, hide }
 }
 
-// eslint-disable-next-line
+// eslint-disable-next-line import/export, @typescript-eslint/no-namespace
 export namespace button {
   export function contactRequest(
     text: string,
     hide = false
   ): Hideable<KeyboardButton.RequestContactButton> {
-    return { text: text, request_contact: true, hide: hide }
+    return { text, request_contact: true, hide }
   }
 
   export function locationRequest(
     text: string,
     hide = false
   ): Hideable<KeyboardButton.RequestLocationButton> {
-    return { text: text, request_location: true, hide: hide }
+    return { text, request_location: true, hide }
   }
 
   export function pollRequest(
@@ -69,7 +78,7 @@ export namespace button {
     type?: 'quiz' | 'regular',
     hide = false
   ): Hideable<KeyboardButton.RequestPollButton> {
-    return { text: text, request_poll: { type }, hide: hide }
+    return { text, request_poll: { type }, hide }
   }
 
   export function url(
@@ -77,7 +86,7 @@ export namespace button {
     url: string,
     hide = false
   ): Hideable<InlineKeyboardButton.UrlButton> {
-    return { text: text, url: url, hide: hide }
+    return { text, url, hide }
   }
 
   export function callback(
@@ -85,7 +94,7 @@ export namespace button {
     data: string,
     hide = false
   ): Hideable<InlineKeyboardButton.CallbackButton> {
-    return { text: text, callback_data: data, hide: hide }
+    return { text, callback_data: data, hide }
   }
 
   export function switchToChat(
@@ -93,7 +102,7 @@ export namespace button {
     value: string,
     hide = false
   ): Hideable<InlineKeyboardButton.SwitchInlineButton> {
-    return { text: text, switch_inline_query: value, hide: hide }
+    return { text, switch_inline_query: value, hide }
   }
 
   export function switchToCurrentChat(
@@ -101,21 +110,21 @@ export namespace button {
     value: string,
     hide = false
   ): Hideable<InlineKeyboardButton.SwitchInlineCurrentChatButton> {
-    return { text: text, switch_inline_query_current_chat: value, hide: hide }
+    return { text, switch_inline_query_current_chat: value, hide }
   }
 
   export function game(
     text: string,
     hide = false
   ): Hideable<InlineKeyboardButton.GameButton> {
-    return { text: text, callback_game: {}, hide: hide }
+    return { text, callback_game: {}, hide }
   }
 
   export function pay(
     text: string,
     hide = false
   ): Hideable<InlineKeyboardButton.PayButton> {
-    return { text: text, pay: true, hide: hide }
+    return { text, pay: true, hide }
   }
 
   export function login(
@@ -129,19 +138,19 @@ export namespace button {
     hide = false
   ): Hideable<InlineKeyboardButton.LoginButton> {
     return {
-      text: text,
-      login_url: { ...opts, url: url },
-      hide: hide,
+      text,
+      login_url: { ...opts, url },
+      hide,
     }
   }
 }
 
-export function removeKeyboard() {
-  return new Markup({ remove_keyboard: true })
+export function removeKeyboard(): Markup<ReplyKeyboardRemove> {
+  return new Markup<ReplyKeyboardRemove>({ remove_keyboard: true })
 }
 
-export function forceReply() {
-  return new Markup({ force_reply: true })
+export function forceReply(): Markup<ForceReply> {
+  return new Markup<ForceReply>({ force_reply: true })
 }
 
 export function keyboard(buttons: HideableKBtn[][]): Markup<ReplyKeyboardMarkup>
@@ -152,12 +161,12 @@ export function keyboard(
 export function keyboard(
   buttons: HideableKBtn[] | HideableKBtn[][],
   options?: Partial<KeyboardBuildingOptions<HideableKBtn>>
-) {
+): Markup<ReplyKeyboardMarkup> {
   const keyboard = buildKeyboard(buttons, {
     columns: 1,
     ...options,
   })
-  return new Markup({ keyboard })
+  return new Markup<ReplyKeyboardMarkup>({ keyboard })
 }
 
 export function inlineKeyboard(
@@ -170,12 +179,12 @@ export function inlineKeyboard(
 export function inlineKeyboard(
   buttons: HideableIKBtn[] | HideableIKBtn[][],
   options?: Partial<KeyboardBuildingOptions<HideableIKBtn>>
-) {
+): Markup<InlineKeyboardMarkup> {
   const inlineKeyboard = buildKeyboard(buttons, {
     columns: buttons.length,
     ...options,
   })
-  return new Markup({ inline_keyboard: inlineKeyboard })
+  return new Markup<InlineKeyboardMarkup>({ inline_keyboard: inlineKeyboard })
 }
 
 interface KeyboardBuildingOptions<B extends HideableKBtn | HideableIKBtn> {
@@ -197,7 +206,7 @@ function buildKeyboard<B extends HideableKBtn | HideableIKBtn>(
   const wrapFn =
     options.wrap !== undefined
       ? options.wrap
-      : (btn: B, index: number, currentRow: B[]) =>
+      : (_btn: B, _index: number, currentRow: B[]) =>
           currentRow.length >= options.columns
   let currentRow = []
   let index = 0

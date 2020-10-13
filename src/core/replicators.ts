@@ -1,5 +1,5 @@
 import * as tt from '../telegram-types'
-import { formatHTML } from './helpers/formatting-utils'
+import { formatHTML } from './helpers/formatting'
 
 export const copyMethods = {
   audio: 'sendAudio',

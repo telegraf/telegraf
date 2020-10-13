@@ -6,7 +6,7 @@ import {
   ReplyKeyboardMarkup,
   ReplyKeyboardRemove,
 } from 'typegram'
-import { is2D } from './core/helpers/check-utils'
+import { is2D } from './core/helpers/check'
 
 type Hideable<B> = B & { hide?: boolean }
 type HideableKBtn = Hideable<KeyboardButton>

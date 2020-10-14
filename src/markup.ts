@@ -24,24 +24,18 @@ class Markup<
   selective<T extends ForceReply | ReplyKeyboardMarkup>(
     this: Markup<T>,
     value = true
-  ): Markup<T> {
+  ) {
     return new Markup<T>({ ...this.reply_markup, selective: value })
   }
 
-  resize(
-    this: Markup<ReplyKeyboardMarkup>,
-    value = true
-  ): Markup<ReplyKeyboardMarkup> {
+  resize(this: Markup<ReplyKeyboardMarkup>, value = true) {
     return new Markup<ReplyKeyboardMarkup>({
       ...this.reply_markup,
       resize_keyboard: value,
     })
   }
 
-  oneTime(
-    this: Markup<ReplyKeyboardMarkup>,
-    value = true
-  ): Markup<ReplyKeyboardMarkup> {
+  oneTime(this: Markup<ReplyKeyboardMarkup>, value = true) {
     return new Markup<ReplyKeyboardMarkup>({
       ...this.reply_markup,
       one_time_keyboard: value,

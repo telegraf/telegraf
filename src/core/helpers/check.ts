@@ -54,3 +54,18 @@ export function hasPropType<
   // eslint-disable-next-line valid-typeof
   return hasProp(obj, prop) && type === typeof obj[prop]
 }
+
+/**
+ * Checks if the supplied array has two dimensions or not.
+ *
+ * Example invocations:
+ * is2D([]) // false
+ * is2D([[]]) // true
+ * is2D([[], []]) // true
+ * is2D([42]) // false
+ *
+ * @param arr an array with one or two dimensions
+ */
+export function is2D<E>(arr: E[] | E[][]): arr is E[][] {
+  return Array.isArray(arr[0])
+}

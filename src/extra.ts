@@ -1,5 +1,5 @@
+import * as Markup from './markup'
 import { ExtraReplyMessage, ParseMode } from './telegram-types'
-import Markup from './markup'
 import { Message } from 'typegram'
 
 interface CaptionedExtra extends Omit<Extra, 'caption'> {
@@ -35,14 +35,7 @@ class Extra {
     return this
   }
 
-  markup(
-    markup:
-      | ExtraReplyMessage['reply_markup']
-      | ((m: Markup) => ExtraReplyMessage['reply_markup'])
-  ) {
-    if (typeof markup === 'function') {
-      markup = markup(new Markup())
-    }
+  markup(markup: ExtraReplyMessage['reply_markup']) {
     this.reply_markup = markup != null ? { ...markup } : undefined
     return this
   }

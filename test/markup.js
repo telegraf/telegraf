@@ -113,7 +113,7 @@ test('should generate extra from keyboard markup', (t) => {
 })
 
 test('should generate standard button markup', (t) => {
-  const markup = { ...Markup.button('foo') }
+  const markup = { ...Markup.button.text('foo') }
   t.deepEqual(markup, { text: 'foo', hide: false })
 })
 

@@ -653,7 +653,7 @@ export class Composer<TContext extends Context>
         index = i
         const handler = middlewares[i] ? Composer.unwrap(middlewares[i]) : next
         if (!handler) {
-          return await Promise.resolve()
+          return
         }
         try {
           return await Promise.resolve(

@@ -638,28 +638,31 @@ export class Composer<TContext extends Context>
     if (middlewares.length === 1) {
       return Composer.unwrap(middlewares[0])
     }
-    return (ctx, next) => {
+    return async (ctx, next) => {
       let index = -1
-      return execute(0, ctx)
-      function execute(i: number, context: TContext): Promise<void> {
+      return await execute(0, ctx)
+      async function execute(i: number, context: TContext): Promise<unknown> {
         if (!(context instanceof Context)) {
-          // prettier-ignore
-          return Promise.reject(new Error('next(ctx) called with invalid context'))
+          return await Promise.reject(
+            new Error('next(ctx) called with invalid context')
+          )
         }
         if (i <= index) {
-          return Promise.reject(new Error('next() called multiple times'))
+          return await Promise.reject(new Error('next() called multiple times'))
         }
         index = i
         const handler = middlewares[i] ? Composer.unwrap(middlewares[i]) : next
         if (!handler) {
-          return Promise.resolve()
+          return await Promise.resolve()
         }
         try {
-          return Promise.resolve(
-            handler(context, (ctx = context) => execute(i + 1, ctx))
+          return await Promise.resolve(
+            handler(context, async (ctx = context) => {
+              await execute(i + 1, ctx)
+            })
           )
         } catch (err) {
-          return Promise.reject(err)
+          return await Promise.reject(err)
         }
       }
     }

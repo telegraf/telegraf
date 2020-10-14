@@ -13,7 +13,7 @@ export namespace Middleware {
   export type Fn<TContext extends Context> = (
     ctx: TContext,
     next: () => Promise<void>
-  ) => Promise<void>
+  ) => unknown
   export interface Obj<TContext extends Context> {
     middleware: () => Fn<TContext>
   }
@@ -22,7 +22,7 @@ export namespace Middleware {
   >(
     ctx: TContext,
     next: (ctx: Extension & TContext) => Promise<void>
-  ) => Promise<void>
+  ) => unknown
   export type Ext<
     BaseContext extends Context,
     Extension extends object

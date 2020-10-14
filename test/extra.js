@@ -38,13 +38,8 @@ test('should generate web preview options', (t) => {
 })
 
 test('should generate markup options', (t) => {
-  const extra = { ...Extra.markup(Markup.removeKeyboard()) }
+  const extra = { ...Extra.markup(Markup.removeKeyboard().reply_markup) }
   t.deepEqual(extra, { reply_markup: { remove_keyboard: true } })
-})
-
-test('should generate markup options in functional style', (t) => {
-  const extra = { ...Extra.markdown().markup((markup) => markup.removeKeyboard()) }
-  t.deepEqual(extra, { parse_mode: 'Markdown', reply_markup: { remove_keyboard: true } })
 })
 
 test('should generate caption options', (t) => {

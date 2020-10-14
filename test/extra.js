@@ -38,7 +38,7 @@ test('should generate web preview options', (t) => {
 })
 
 test('should generate markup options', (t) => {
-  const extra = { ...Extra.markup(Markup.removeKeyboard()).reply_markup }
+  const extra = { ...Extra.markup(Markup.removeKeyboard().reply_markup) }
   t.deepEqual(extra, { reply_markup: { remove_keyboard: true } })
 })
 

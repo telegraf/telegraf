@@ -1,5 +1,5 @@
 const test = require('ava')
-const { formatHTML } = require('../lib/core/helpers/formatting-utils')
+const { formatHTML } = require('../lib/core/helpers/formatting')
 
 test('should generate markup', (t) => {
   const markup = formatHTML('strike', [

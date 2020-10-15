@@ -643,9 +643,7 @@ export class Composer<TContext extends Context>
       return await execute(0, ctx)
       async function execute(i: number, context: TContext): Promise<unknown> {
         if (!(context instanceof Context)) {
-          return await Promise.reject(
-            new Error('next(ctx) called with invalid context')
-          )
+          throw new Error('next(ctx) called with invalid context')
         }
         if (i <= index) {
           return await Promise.reject(new Error('next() called multiple times'))

@@ -641,12 +641,12 @@ export class Composer<TContext extends Context>
     return async (ctx, next) => {
       let index = -1
       return await execute(0, ctx)
-      async function execute(i: number, context: TContext): Promise<unknown> {
+      async function execute(i: number, context: TContext): Promise<void> {
         if (!(context instanceof Context)) {
           throw new Error('next(ctx) called with invalid context')
         }
         if (i <= index) {
-          return await Promise.reject(new Error('next() called multiple times'))
+          throw new Error('next() called multiple times')
         }
         index = i
         const handler = middlewares[i] ? Composer.unwrap(middlewares[i]) : next

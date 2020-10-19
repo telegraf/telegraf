@@ -653,15 +653,9 @@ export class Composer<TContext extends Context>
         if (!handler) {
           return
         }
-        try {
-          return await Promise.resolve(
-            handler(context, async (ctx = context) => {
-              await execute(i + 1, ctx)
-            })
-          )
-        } catch (err) {
-          return await Promise.reject(err)
-        }
+        await handler(context, async (ctx = context) => {
+          await execute(i + 1, ctx)
+        })
       }
     }
   }

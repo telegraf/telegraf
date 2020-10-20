@@ -638,9 +638,9 @@ export class Composer<TContext extends Context>
     if (middlewares.length === 1) {
       return Composer.unwrap(middlewares[0])
     }
-    return async (ctx, next) => {
+    return (ctx, next) => {
       let index = -1
-      return await execute(0, ctx)
+      return execute(0, ctx)
       async function execute(i: number, context: TContext): Promise<void> {
         if (!(context instanceof Context)) {
           throw new Error('next(ctx) called with invalid context')

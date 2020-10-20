@@ -13,7 +13,8 @@ export namespace Middleware {
   export type Fn<TContext extends Context> = (
     ctx: TContext,
     next: () => Promise<void>
-  ) => unknown
+    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  ) => Promise<unknown> | void
   export interface Obj<TContext extends Context> {
     middleware: () => Fn<TContext>
   }
@@ -22,7 +23,8 @@ export namespace Middleware {
   >(
     ctx: TContext,
     next: (ctx: Extension & TContext) => Promise<void>
-  ) => unknown
+    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  ) => Promise<unknown> | void
   export type Ext<
     BaseContext extends Context,
     Extension extends object

@@ -529,6 +529,8 @@ Supported update types:
 - `chosen_inline_result`
 - `channel_post`
 - `edited_channel_post`
+- `poll`
+- `poll_answer`
 
 Available update sub-types:
 

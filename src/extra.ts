@@ -40,13 +40,18 @@ class Extra {
     return this
   }
 
-  HTML(value = true) {
-    this.parse_mode = value ? 'HTML' : undefined
+  markdown(value = true) {
+    this.parse_mode = value ? 'Markdown' : undefined
     return this
   }
 
-  markdown(value = true) {
-    this.parse_mode = value ? 'Markdown' : undefined
+  markdownV2(value = true) {
+    this.parse_mode = value ? 'MarkdownV2' : undefined
+    return this
+  }
+
+  HTML(value = true) {
+    this.parse_mode = value ? 'HTML' : undefined
     return this
   }
 
@@ -76,12 +81,16 @@ class Extra {
     return new Extra().markup(markup)
   }
 
-  static HTML(value?: boolean) {
-    return new Extra().HTML(value)
-  }
-
   static markdown(value?: boolean) {
     return new Extra().markdown(value)
+  }
+
+  static markdownV2(value?: boolean) {
+    return new Extra().markdownV2(value)
+  }
+
+  static HTML(value?: boolean) {
+    return new Extra().HTML(value)
   }
 
   static caption(caption: string) {

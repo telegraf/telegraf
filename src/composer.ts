@@ -207,19 +207,6 @@ export class Composer<TContext extends Context>
       .catch((err) => errorHandler(err, ctx))
   }
 
-  /**
-   * Generates middleware that runs in the background.
-   * @deprecated
-   */
-  static fork<TContext extends Context>(
-    middleware: Middleware<TContext>
-  ): Middleware.Fn<TContext> {
-    const handler = Composer.unwrap(middleware)
-    return async (ctx, next) => {
-      await Promise.all([handler(ctx, anoop), next()])
-    }
-  }
-
   static tap<TContext extends Context>(
     middleware: Middleware<TContext>
   ): Middleware.Fn<TContext> {
@@ -230,12 +217,6 @@ export class Composer<TContext extends Context>
 
   static passThru(): Middleware.Fn<Context> {
     return (ctx, next) => next()
-  }
-
-  private static safePassThru() {
-    // prettier-ignore
-    // @ts-expect-error
-    return (ctx, next) => typeof next === 'function' ? next(ctx) : Promise.resolve()
   }
 
   static lazy<TContext extends Context>(

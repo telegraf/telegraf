@@ -3,6 +3,7 @@
 import * as tt from './telegram-types'
 import { Middleware, NonemptyReadonlyArray } from './types'
 import Context from './context'
+import { hasProp } from './core/helpers/check'
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
@@ -159,8 +160,9 @@ export class Composer<TContext extends Context>
   ) {
     const handler = Composer.compose(fns)
     return this.command('start', (ctx, next) => {
-      // @ts-expect-error
-      const startPayload = ctx.message.text.substring(7)
+      const startPayload = hasProp(ctx.message, 'text')
+        ? ctx.message.text.substring(7)
+        : ''
       return handler(Object.assign(ctx, { startPayload }), next)
     })
   }
@@ -320,7 +322,7 @@ export class Composer<TContext extends Context>
     const updateTypes = normalizeTextArguments(updateType)
     const predicate = (ctx: TContext) =>
       updateTypes.includes(ctx.updateType) ||
-      // @ts-expect-error
+      // @ts-expect-error `type` is a string and not a union of literals
       updateTypes.some((type) => ctx.updateSubTypes.includes(type))
     return Composer.optional(predicate, ...fns)
   }

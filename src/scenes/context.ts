@@ -16,7 +16,6 @@ namespace SceneContext {
   }
 }
 
-// eslint-disable-next-line no-redeclare
 class SceneContext<TContext extends Context> {
   constructor(
     private readonly ctx: TContext,
@@ -53,29 +52,28 @@ class SceneContext<TContext extends Context> {
     delete (this.ctx as any)[sessionName].__scenes
   }
 
-  enter(sceneId: string, initialState: any, silent?: boolean) {
+  async enter(sceneId: string, initialState: any, silent?: boolean) {
     if (!this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }
     const leave = silent ? noop() : this.leave()
-    return leave.then(() => {
-      debug('Enter scene', sceneId, initialState, silent)
-      this.session.current = sceneId
-      this.state = initialState
-      const ttl = this.current?.ttl ?? this.options.ttl
-      if (ttl) {
-        this.session.expires = now() + ttl
-      }
-      if (!this.current || silent) {
-        return Promise.resolve()
-      }
-      const handler =
-        'enterMiddleware' in this.current &&
-        typeof this.current.enterMiddleware === 'function'
-          ? this.current.enterMiddleware()
-          : this.current.middleware()
-      return handler(this.ctx, noop)
-    })
+    await leave
+    debug('Enter scene', sceneId, initialState, silent)
+    this.session.current = sceneId
+    this.state = initialState
+    const ttl = this.current?.ttl ?? this.options.ttl
+    if (ttl) {
+      this.session.expires = now() + ttl
+    }
+    if (!this.current || silent) {
+      return
+    }
+    const handler =
+      'enterMiddleware' in this.current &&
+      typeof this.current.enterMiddleware === 'function'
+        ? this.current.enterMiddleware()
+        : this.current.middleware()
+    return handler(this.ctx, noop)
   }
 
   reenter() {

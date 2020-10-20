@@ -73,7 +73,6 @@ namespace Telegraf {
 
 const allowedUpdates: tt.UpdateType[] | undefined = undefined
 
-// eslint-disable-next-line no-redeclare
 export class Telegraf<TContext extends Context = Context> extends Composer<
   TContext
 > {
@@ -170,54 +169,58 @@ export class Telegraf<TContext extends Context = Context> extends Composer<
     return this
   }
 
-  launch(config: Telegraf.LaunchOptions = {}) {
+  async launch(config: Telegraf.LaunchOptions = {}) {
     debug('Connecting to Telegram')
-    return this.telegram.getMe().then((botInfo) => {
-      debug(`Launching @${botInfo.username}`)
-      this.options.username = botInfo.username
-      this.context.botInfo = botInfo
-      if (!config.webhook) {
-        const { timeout, limit, allowedUpdates, stopCallback } =
-          config.polling ?? {}
-        // prettier-ignore
-        return this.telegram.deleteWebhook()
-          .then(() => this.startPolling(timeout, limit, allowedUpdates, stopCallback))
-          .then(() => debug('Bot started with long-polling'))
-      }
-      // prettier-ignore
-      if (typeof config.webhook.domain !== 'string' && typeof config.webhook.hookPath !== 'string') {
-        throw new Error('Webhook domain or webhook path is required')
-      }
-      let domain = config.webhook.domain ?? ''
-      if (domain.startsWith('https://') || domain.startsWith('http://')) {
-        domain = new URL(domain).host
-      }
-      const hookPath =
-        config.webhook.hookPath ??
-        `/telegraf/${crypto.randomBytes(32).toString('hex')}`
-      const { port, host, tlsOptions, cb } = config.webhook
-      this.startWebhook(hookPath, tlsOptions, port, host, cb)
-      if (!domain) {
-        debug('Bot started with webhook')
-        return
-      }
-      return this.telegram
-        .setWebhook(`https://${domain}${hookPath}`)
-        .then(() => debug(`Bot started with webhook @ https://${domain}`))
-    })
+    const botInfo = await this.telegram.getMe()
+    debug(`Launching @${botInfo.username}`)
+    this.options.username = botInfo.username
+    this.context.botInfo = botInfo
+    if (!config.webhook) {
+      const { timeout, limit, allowedUpdates, stopCallback } =
+        config.polling ?? {}
+      await this.telegram.deleteWebhook()
+      this.startPolling(timeout, limit, allowedUpdates, stopCallback)
+      debug('Bot started with long-polling')
+      return
+    }
+    if (
+      typeof config.webhook.domain !== 'string' &&
+      typeof config.webhook.hookPath !== 'string'
+    ) {
+      throw new Error('Webhook domain or webhook path is required')
+    }
+    let domain = config.webhook.domain ?? ''
+    if (domain.startsWith('https://') || domain.startsWith('http://')) {
+      domain = new URL(domain).host
+    }
+    const hookPath =
+      config.webhook.hookPath ??
+      `/telegraf/${crypto.randomBytes(32).toString('hex')}`
+    const { port, host, tlsOptions, cb } = config.webhook
+    this.startWebhook(hookPath, tlsOptions, port, host, cb)
+    if (!domain) {
+      debug('Bot started with webhook')
+      return
+    }
+    await this.telegram.setWebhook(`https://${domain}${hookPath}`)
+    debug(`Bot started with webhook @ https://${domain}`)
   }
 
-  stop(cb = noop) {
+  async stop() {
     debug('Stopping bot...')
-    return new Promise((resolve) => {
+    await new Promise((resolve, reject) => {
       if (this.webhookServer) {
-        return this.webhookServer.close(resolve)
+        this.webhookServer.close((err) => {
+          if (err) reject(err)
+          else resolve()
+        })
       } else if (!this.polling.started) {
-        return resolve()
+        resolve()
+      } else {
+        this.polling.stopCallback = resolve
+        this.polling.started = false
       }
-      this.polling.stopCallback = resolve
-      this.polling.started = false
-    }).then(cb)
+    })
   }
 
   handleUpdates(updates: readonly tt.Update[]) {

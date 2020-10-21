@@ -17,14 +17,19 @@ test('should generate inReplyTo options', (t) => {
   t.deepEqual(extra, { reply_to_message_id: 42 })
 })
 
-test('should generate HTML options', (t) => {
-  const extra = { ...Extra.HTML() }
-  t.deepEqual(extra, { parse_mode: 'HTML' })
-})
-
 test('should generate Markdown options', (t) => {
   const extra = { ...Extra.markdown() }
   t.deepEqual(extra, { parse_mode: 'Markdown' })
+})
+
+test('should generate MarkdownV2 options', (t) => {
+  const extra = { ...Extra.markdownV2() }
+  t.deepEqual(extra, { parse_mode: 'MarkdownV2' })
+})
+
+test('should generate HTML options', (t) => {
+  const extra = { ...Extra.HTML() }
+  t.deepEqual(extra, { parse_mode: 'HTML' })
 })
 
 test('should generate notifications options', (t) => {

@@ -563,15 +563,15 @@ export class Context {
     return this.telegram.setMyCommands(commands)
   }
 
-  replyWithMarkdown(markdown: string, extra?: tt.ExtraEditMessage) {
+  replyWithMarkdown(markdown: string, extra?: tt.ExtraReplyMessage) {
     return this.reply(markdown, { parse_mode: 'Markdown', ...extra })
   }
 
-  replyWithMarkdownV2(markdown: string, extra?: tt.ExtraEditMessage) {
+  replyWithMarkdownV2(markdown: string, extra?: tt.ExtraReplyMessage) {
     return this.reply(markdown, { parse_mode: 'MarkdownV2', ...extra })
   }
 
-  replyWithHTML(html: string, extra?: tt.ExtraEditMessage) {
+  replyWithHTML(html: string, extra?: tt.ExtraReplyMessage) {
     return this.reply(html, { parse_mode: 'HTML', ...extra })
   }
 

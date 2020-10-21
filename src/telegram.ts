@@ -120,7 +120,7 @@ class Telegram extends ApiClient {
   sendMessage(
     chatId: number | string,
     text: string,
-    extra?: tt.ExtraEditMessage
+    extra?: tt.ExtraReplyMessage
   ) {
     return this.callApi('sendMessage', { chat_id: chatId, text, ...extra })
   }

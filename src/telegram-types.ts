@@ -50,9 +50,6 @@ export type MessageSubTypes =
   | 'connected_website'
   | 'animation'
 
-/** @deprecated use `InputMedia` */
-export type MessageMedia = TT.InputMedia
-
 /**
  * Sending video notes by a URL is currently unsupported
  */
@@ -88,8 +85,6 @@ export type ExtraCreateNewStickerSet = MakeExtra<
 >
 export type ExtraDice = MakeExtra<'sendDice'>
 export type ExtraDocument = MakeExtra<'sendDocument', 'document'>
-/** @deprecated */
-export type ExtraEditMessage = ExtraReplyMessage
 export type ExtraEditMessageCaption = MakeExtra<
   'editMessageCaption',
   'message_id' | 'inline_message_id' | 'caption'

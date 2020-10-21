@@ -209,7 +209,6 @@ export class Composer<TContext extends Context>
 
   /**
    * Generates middleware that runs in the background.
-   * @deprecated
    */
   static fork<TContext extends Context>(
     middleware: Middleware<TContext>
@@ -230,12 +229,6 @@ export class Composer<TContext extends Context>
 
   static passThru(): Middleware.Fn<Context> {
     return (ctx, next) => next()
-  }
-
-  private static safePassThru() {
-    // prettier-ignore
-    // @ts-expect-error
-    return (ctx, next) => typeof next === 'function' ? next(ctx) : Promise.resolve()
   }
 
   static lazy<TContext extends Context>(

@@ -147,7 +147,7 @@ Middleware normally takes the two parameters: **`ctx`** and **`next`**.
 
 **`ctx`** is the context for one [Telegram update](https://core.telegram.org/bots/api#update). It contains mainly two things:
 
-- the update object, it contains for example the incoming message and the respective the chat, and
+- the update object, containing for example the incoming message and the respective chat, and
 - a number of useful methods for reacting to the update, such as replying to the message or answering a callback query.
 
 See  [the context section](https://telegraf.js.org/#/?id=context) below for a detailed overview.

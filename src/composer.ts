@@ -207,6 +207,18 @@ export class Composer<TContext extends Context>
       .catch((err) => errorHandler(err, ctx))
   }
 
+  /**
+   * Generates middleware that runs in the background.
+   */
+  static fork<TContext extends Context>(
+    middleware: Middleware<TContext>
+  ): Middleware.Fn<TContext> {
+    const handler = Composer.unwrap(middleware)
+    return async (ctx, next) => {
+      await Promise.all([handler(ctx, anoop), next()])
+    }
+  }
+
   static tap<TContext extends Context>(
     middleware: Middleware<TContext>
   ): Middleware.Fn<TContext> {

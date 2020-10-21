@@ -178,6 +178,12 @@ test.cb('should handle text triggers', (t) => {
   bot.handleUpdate({ message: { text: 'hello world', ...baseMessage } })
 })
 
+test.cb('should handle fork', (t) => {
+  const bot = new Telegraf()
+  bot.use(Telegraf.fork(() => t.end()))
+  bot.handleUpdate({ message: { voice: {}, ...baseMessage } })
+})
+
 test.cb('Composer.branch should work with value', (t) => {
   const bot = new Telegraf()
   bot.use(Composer.branch(true, () => t.end()))

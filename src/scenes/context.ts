@@ -73,7 +73,7 @@ class SceneContext<TContext extends Context> {
       typeof this.current.enterMiddleware === 'function'
         ? this.current.enterMiddleware()
         : this.current.middleware()
-    return handler(this.ctx, noop)
+    return await handler(this.ctx, noop)
   }
 
   reenter() {

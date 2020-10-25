@@ -1,23 +1,17 @@
-/* eslint @typescript-eslint/no-var-requires: "warn" */
 import * as http from 'http'
 import * as https from 'https'
-import type * as tt from '../typings/telegram-types'
-import type ApiClient from './core/network/client'
+import * as tt from './telegram-types'
+import ApiClient from './core/network/client'
 import Composer from './composer'
 import Context from './context'
 import crypto from 'crypto'
+import d from 'debug'
 import generateCallback from './core/network/webhook'
 import { promisify } from 'util'
 import Telegram from './telegram'
-import type { TlsOptions } from 'tls'
+import { TlsOptions } from 'tls'
 import { URL } from 'url'
-const debug = require('debug')('telegraf:core')
-const Extra = require('./extra')
-const Markup = require('./markup')
-const session = require('./session')
-const Router = require('./router')
-const Stage = require('./stage')
-const BaseScene = require('./scenes/base')
+const debug = d('telegraf:core')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   telegram: {},
@@ -80,7 +74,9 @@ namespace Telegraf {
 const allowedUpdates: tt.UpdateType[] | undefined = undefined
 
 // eslint-disable-next-line no-redeclare
-class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
+export class Telegraf<TContext extends Context = Context> extends Composer<
+  TContext
+> {
   private readonly options: Telegraf.Options<TContext>
   private webhookServer?: http.Server | https.Server
   public telegram: Telegram
@@ -94,7 +90,7 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
     timeout: 30,
   }
 
-  handleError: (err: any, ctx: TContext) => void = (err) => {
+  private handleError: (err: any, ctx: TContext) => void = (err) => {
     console.error()
     console.error((err.stack || err.toString()).replace(/^/gm, '  '))
     console.error()
@@ -109,10 +105,6 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
       ...options,
     }
     this.telegram = new Telegram(token, this.options.telegram)
-  }
-
-  set token(token: string) {
-    this.telegram.token = token
   }
 
   get token() {
@@ -132,25 +124,23 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
     return this
   }
 
-  // prettier-ignore
-  webhookCallback (path = '/') {
-    return generateCallback(path, (update, res) => this.handleUpdate(update, res), debug)
+  webhookCallback(path = '/') {
+    return generateCallback(
+      path,
+      (update: tt.Update, res: any) => this.handleUpdate(update, res),
+      debug
+    )
   }
 
-  startPolling(
+  private startPolling(
     timeout = 30,
     limit = 100,
-    allowedUpdates?: tt.UpdateType[],
+    allowedUpdates: tt.UpdateType[] = [],
     stopCallback = noop
   ) {
     this.polling.timeout = timeout
     this.polling.limit = limit
-    // prettier-ignore
-    // @ts-expect-error
     this.polling.allowedUpdates = allowedUpdates
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      ? Array.isArray(allowedUpdates) ? allowedUpdates : [`${allowedUpdates}`]
-      : undefined
     this.polling.stopCallback = stopCallback
     if (!this.polling.started) {
       this.polling.started = true
@@ -159,7 +149,7 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
     return this
   }
 
-  startWebhook(
+  private startWebhook(
     hookPath: string,
     tlsOptions?: TlsOptions,
     port?: number,
@@ -183,7 +173,6 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
   launch(config: Telegraf.LaunchOptions = {}) {
     debug('Connecting to Telegram')
     return this.telegram.getMe().then((botInfo) => {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       debug(`Launching @${botInfo.username}`)
       this.options.username = botInfo.username
       this.context.botInfo = botInfo
@@ -243,7 +232,7 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
     return Promise.race([processAll, sleep(this.options.handlerTimeout)])
   }
 
-  async handleUpdate(update: tt.Update, webhookResponse?) {
+  async handleUpdate(update: tt.Update, webhookResponse?: any) {
     debug('Processing update', update.update_id)
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
     const TelegrafContext = this.options.contextType
@@ -256,14 +245,14 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
     }
   }
 
-  fetchUpdates() {
+  private fetchUpdates() {
     if (!this.polling.started) {
-      this.polling?.stopCallback()
+      this.polling.stopCallback()
       return
     }
     const { timeout, limit, offset, allowedUpdates } = this.polling
-    // eslint-disable-next-line
-    this.telegram.getUpdates(timeout, limit, offset, allowedUpdates)
+    this.telegram
+      .getUpdates(timeout, limit, offset, allowedUpdates)
       .catch((err) => {
         if (err.code === 401 || err.code === 409) {
           throw err
@@ -290,19 +279,6 @@ class Telegraf<TContext extends Context = Context> extends Composer<TContext> {
         }
         this.fetchUpdates()
       })
+      .catch(noop)
   }
 }
-
-export = Object.assign(Telegraf, {
-  Context,
-  Composer,
-  default: Telegraf,
-  Extra,
-  Markup,
-  Router,
-  Telegraf,
-  Telegram,
-  Stage,
-  BaseScene,
-  session,
-})

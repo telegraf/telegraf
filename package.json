@@ -12,15 +12,15 @@
   "bugs": {
     "url": "https://github.com/telegraf/telegraf/issues"
   },
-  "main": "lib/telegraf.js",
+  "main": "lib/index.js",
   "exports": {
-    ".": "./lib/telegraf.js",
-    "./lib/": "./lib/",
-    "./": "./lib/"
+    "import": "./lib/index.mjs",
+    "require": "./lib/index.js"
   },
   "files": [
     "bin/*",
     "lib/**/*.js",
+    "lib/index.mjs",
     "typings/**/*.d.ts"
   ],
   "bin": {
@@ -31,9 +31,9 @@
     "pretest": "tsc",
     "test": "ava test/*",
     "typedoc": "typedoc",
-    "clean": "git clean -fX lib/",
+    "clean": "git clean -fX lib/ typings/",
     "typecheck": "tsc --noEmit",
-    "prepare": "tsc"
+    "prepare": "tsc && mjs-entry src/index.ts >lib/index.mjs"
   },
   "husky": {
     "hooks": {
@@ -42,37 +42,39 @@
   },
   "type": "commonjs",
   "engines": {
-    "node": ">=8"
+    "node": ">=12"
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "debug": "^4.0.1",
-    "minimist": "^1.2.0",
+    "debug": "^4.2.0",
+    "minimist": "^1.2.5",
     "module-alias": "^2.2.2",
-    "node-fetch": "^2.2.0",
-    "sandwich-stream": "^2.0.1",
-    "telegram-typings": "^3.6.0"
+    "node-fetch": "^2.6.1",
+    "sandwich-stream": "^2.0.2",
+    "typegram": "^2.2.2"
   },
   "devDependencies": {
-    "@types/node": "^13.1.0",
+    "@types/debug": "^4.1.5",
+    "@types/node": "^14.11.7",
     "@types/node-fetch": "^2.5.7",
-    "@typescript-eslint/eslint-plugin": "^3.5.0",
-    "@typescript-eslint/parser": "^3.5.0",
-    "ava": "^3.0.0",
-    "eslint": "^7.4.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-config-standard-with-typescript": "^18.0.2",
-    "eslint-plugin-ava": "^10.0.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-node": "^11.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
+    "@typescript-eslint/parser": "^4.4.0",
+    "ava": "^3.13.0",
+    "eslint": "^7.10.0",
+    "eslint-config-prettier": "^6.12.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-config-standard-with-typescript": "^19.0.1",
+    "eslint-plugin-ava": "^11.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "eslint-plugin-promise": "^4.0.0",
-    "eslint-plugin-standard": "^4.0.0",
-    "husky": "^4.2.0",
-    "prettier": "^2.0.5",
-    "typedoc": "^0.17.4",
-    "typescript": "^4.0.0-beta"
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "husky": "^4.3.0",
+    "mjs-entry": "gist:de6257751f54b3c66319bae8d2a8aea0",
+    "prettier": "^2.1.2",
+    "typedoc": "^0.19.2",
+    "typescript": "4.0.3"
   },
   "keywords": [
     "telegraf",

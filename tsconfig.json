@@ -3,12 +3,11 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "allowJs": true,
+    "declaration": true,
+    "declarationDir": "typings/",
     "outDir": "lib/",
     "target": "ES2019",
-    "noImplicitAny": false,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
+    "strict": true,
     "forceConsistentCasingInFileNames": true
   },
   "typedocOptions": {

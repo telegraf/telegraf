@@ -1,8 +1,8 @@
 /** @format */
 
-import type * as tt from '../typings/telegram-types.d'
+import * as tt from './telegram-types'
+import { Middleware, NonemptyReadonlyArray } from './types'
 import Context from './context'
-import type { Middleware, NonemptyReadonlyArray } from './types'
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
@@ -17,7 +17,25 @@ function always<T>(x: T) {
 }
 const anoop = always(Promise.resolve())
 
-class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
+function getEntities(msg: tt.Message | undefined): tt.MessageEntity[] {
+  if (msg == null) return []
+  if ('caption_entities' in msg) return msg.caption_entities ?? []
+  if ('entities' in msg) return msg.entities ?? []
+  return []
+}
+function getText(
+  msg: tt.Message | tt.CallbackQuery | undefined
+): string | undefined {
+  if (msg == null) return undefined
+  if ('caption' in msg) return msg.caption
+  if ('text' in msg) return msg.text
+  if ('data' in msg) return msg.data
+  if ('game_short_name' in msg) return msg.game_short_name
+  return undefined
+}
+
+export class Composer<TContext extends Context>
+  implements Middleware.Obj<TContext> {
   private handler: Middleware.Fn<TContext>
 
   constructor(...fns: ReadonlyArray<Middleware<TContext>>) {
@@ -141,7 +159,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
   ) {
     const handler = Composer.compose(fns)
     return this.command('start', (ctx, next) => {
-      const startPayload = ctx.message!.text!.substring(7)
+      // @ts-expect-error
+      const startPayload = ctx.message.text.substring(7)
       return handler(Object.assign(ctx, { startPayload }), next)
     })
   }
@@ -190,16 +209,13 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
 
   /**
    * Generates middleware that runs in the background.
-   * @deprecated
    */
   static fork<TContext extends Context>(
     middleware: Middleware<TContext>
   ): Middleware.Fn<TContext> {
     const handler = Composer.unwrap(middleware)
-    return (ctx, next) => {
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      setImmediate(handler, ctx, Composer.safePassThru())
-      return next()
+    return async (ctx, next) => {
+      await Promise.all([handler(ctx, anoop), next()])
     }
   }
 
@@ -215,11 +231,6 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return (ctx, next) => next()
   }
 
-  private static safePassThru() {
-    // prettier-ignore
-    return (ctx, next) => typeof next === 'function' ? next(ctx) : Promise.resolve()
-  }
-
   static lazy<TContext extends Context>(
     factoryFn: (ctx: TContext) => MaybePromise<Middleware<TContext>>
   ): Middleware.Fn<TContext> {
@@ -232,8 +243,11 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       )
   }
 
-  static log(logFn: (s: string) => void = console.log) {
-    return Composer.fork((ctx) => logFn(JSON.stringify(ctx.update, null, 2)))
+  static log(logFn: (s: string) => void = console.log): Middleware.Fn<Context> {
+    return (ctx, next) => {
+      logFn(JSON.stringify(ctx.update, null, 2))
+      return next()
+    }
   }
 
   /**
@@ -246,7 +260,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     falseMiddleware: Middleware<TContext>
   ) {
     if (typeof predicate !== 'function') {
-      return predicate ? trueMiddleware : falseMiddleware
+      return Composer.unwrap(predicate ? trueMiddleware : falseMiddleware)
     }
     return Composer.lazy<TContext>((ctx) =>
       Promise.resolve(predicate(ctx)).then((value) =>
@@ -266,16 +280,16 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return Composer.branch(
       predicate,
       Composer.compose(fns),
-      Composer.safePassThru()
+      Composer.passThru()
     )
   }
 
   static filter<TContext extends Context>(predicate: Predicate<TContext>) {
-    return Composer.branch(predicate, Composer.safePassThru(), () => {})
+    return Composer.branch(predicate, Composer.passThru(), anoop)
   }
 
   static drop<TContext extends Context>(predicate: Predicate<TContext>) {
-    return Composer.branch(predicate, () => {}, Composer.safePassThru())
+    return Composer.branch(predicate, anoop, Composer.passThru())
   }
 
   static dispatch<
@@ -314,8 +328,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     }
     return Composer.optional((ctx) => {
       const message = ctx.message ?? ctx.channelPost
-      const entities = message?.entities ?? message?.caption_entities ?? []
-      const text = message?.text ?? message?.caption
+      const entities = getEntities(message)
+      const text = getText(message)
       if (text === undefined) return false
       return entities.some((entity) =>
         predicate(
@@ -436,11 +450,9 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     const handler = Composer.compose(fns)
     return (ctx, next) => {
       const text =
-        ctx.message?.caption ??
-        ctx.message?.text ??
-        ctx.channelPost?.caption ??
-        ctx.channelPost?.text ??
-        ctx.callbackQuery?.data ??
+        getText(ctx.message) ??
+        getText(ctx.channelPost) ??
+        getText(ctx.callbackQuery) ??
         ctx.inlineQuery?.query
       if (text === undefined) return next()
       for (const trigger of triggers) {
@@ -542,7 +554,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     const statuses = Array.isArray(status) ? status : [status]
     return Composer.optional(async (ctx) => {
       if (ctx.message === undefined) return false
-      const member = await ctx.getChatMember(ctx.message.from!.id)
+      const member = await ctx.getChatMember(ctx.message.from.id)
       return statuses.includes(member.status)
     }, ...fns)
   }
@@ -585,7 +597,8 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return Composer.optional(
-      (ctx) => ctx.callbackQuery?.game_short_name !== undefined,
+      (ctx) =>
+        ctx.callbackQuery != null && 'game_short_name' in ctx.callbackQuery,
       ...fns
     )
   }
@@ -597,6 +610,15 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return 'middleware' in handler ? handler.middleware() : handler
   }
 
+  static compose<TContext extends Context, Extension extends object>(
+    middlewares: readonly [
+      Middleware.Ext<TContext, Extension>,
+      ...ReadonlyArray<Middleware<Extension & TContext>>
+    ]
+  ): Middleware.Fn<TContext>
+  static compose<TContext extends Context>(
+    middlewares: ReadonlyArray<Middleware<TContext>>
+  ): Middleware.Fn<TContext>
   static compose<TContext extends Context>(
     middlewares: ReadonlyArray<Middleware<TContext>>
   ): Middleware.Fn<TContext> {
@@ -604,7 +626,7 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
       throw new Error('Middlewares must be an array')
     }
     if (middlewares.length === 0) {
-      return Composer.safePassThru()
+      return Composer.passThru()
     }
     if (middlewares.length === 1) {
       return Composer.unwrap(middlewares[0])
@@ -612,26 +634,21 @@ class Composer<TContext extends Context> implements Middleware.Obj<TContext> {
     return (ctx, next) => {
       let index = -1
       return execute(0, ctx)
-      function execute(i: number, context: TContext) {
+      async function execute(i: number, context: TContext): Promise<void> {
         if (!(context instanceof Context)) {
-          // prettier-ignore
-          return Promise.reject(new Error('next(ctx) called with invalid context'))
+          throw new Error('next(ctx) called with invalid context')
         }
         if (i <= index) {
-          return Promise.reject(new Error('next() called multiple times'))
+          throw new Error('next() called multiple times')
         }
         index = i
         const handler = middlewares[i] ? Composer.unwrap(middlewares[i]) : next
         if (!handler) {
-          return Promise.resolve()
+          return
         }
-        try {
-          return Promise.resolve(
-            handler(context, (ctx = context) => execute(i + 1, ctx))
-          )
-        } catch (err) {
-          return Promise.reject(err)
-        }
+        await handler(context, async (ctx = context) => {
+          await execute(i + 1, ctx)
+        })
       }
     }
   }
@@ -674,4 +691,4 @@ function normalizeTextArguments(argument: MaybeArray<string>, prefix = '') {
     .map((arg) => prefix && typeof arg === 'string' && !arg.startsWith(prefix) ? `${prefix}${arg}` : arg)
 }
 
-export = Composer
+export default Composer

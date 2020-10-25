@@ -1,6 +1,6 @@
 const test = require('ava')
-const Telegraf = require('../')
-const { Extra, Markup } = Telegraf
+const Extra = require('../lib/extra')
+const Markup = require('../lib/markup')
 
 test('should generate default options from contructor', (t) => {
   const extra = { ...new Extra({ parse_mode: 'LaTeX' }) }
@@ -17,14 +17,19 @@ test('should generate inReplyTo options', (t) => {
   t.deepEqual(extra, { reply_to_message_id: 42 })
 })
 
-test('should generate HTML options', (t) => {
-  const extra = { ...Extra.HTML() }
-  t.deepEqual(extra, { parse_mode: 'HTML' })
-})
-
 test('should generate Markdown options', (t) => {
   const extra = { ...Extra.markdown() }
   t.deepEqual(extra, { parse_mode: 'Markdown' })
+})
+
+test('should generate MarkdownV2 options', (t) => {
+  const extra = { ...Extra.markdownV2() }
+  t.deepEqual(extra, { parse_mode: 'MarkdownV2' })
+})
+
+test('should generate HTML options', (t) => {
+  const extra = { ...Extra.HTML() }
+  t.deepEqual(extra, { parse_mode: 'HTML' })
 })
 
 test('should generate notifications options', (t) => {
@@ -38,13 +43,8 @@ test('should generate web preview options', (t) => {
 })
 
 test('should generate markup options', (t) => {
-  const extra = { ...Extra.markup(Markup.removeKeyboard()) }
+  const extra = { ...Extra.markup(Markup.removeKeyboard().reply_markup) }
   t.deepEqual(extra, { reply_markup: { remove_keyboard: true } })
-})
-
-test('should generate markup options in functional style', (t) => {
-  const extra = { ...Extra.markdown().markup((markup) => markup.removeKeyboard()) }
-  t.deepEqual(extra, { parse_mode: 'Markdown', reply_markup: { remove_keyboard: true } })
 })
 
 test('should generate caption options', (t) => {

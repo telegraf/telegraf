@@ -1,7 +1,18 @@
-const debug = require('debug')('telegraf:webhook')
+import * as http from 'http'
+import d from 'debug'
+import { Update } from 'typegram'
+const debug = d('telegraf:webhook')
 
-module.exports = function (hookPath, updateHandler, errorHandler) {
-  return (req, res, next) => {
+export = function (
+  hookPath: string,
+  updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>,
+  errorHandler: (err: SyntaxError) => void
+) {
+  return (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    next?: () => void
+  ): void => {
     debug('Incoming request', req.method, req.url)
     if (req.method !== 'POST' || req.url !== hookPath) {
       if (typeof next === 'function') {
@@ -11,11 +22,11 @@ module.exports = function (hookPath, updateHandler, errorHandler) {
       return res.end()
     }
     let body = ''
-    req.on('data', (chunk) => {
+    req.on('data', (chunk: string) => {
       body += chunk.toString()
     })
     req.on('end', () => {
-      let update = {}
+      let update: Update
       try {
         update = JSON.parse(body)
       } catch (error) {
@@ -29,7 +40,7 @@ module.exports = function (hookPath, updateHandler, errorHandler) {
             res.end()
           }
         })
-        .catch((err) => {
+        .catch((err: unknown) => {
           debug('Webhook error', err)
           res.writeHead(500)
           res.end()

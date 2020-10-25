@@ -1,20 +1,20 @@
-import type * as tt from '../typings/telegram-types.d'
-import replicators from './core/replicators'
+import * as replicators from './core/replicators'
+import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 
 class Telegram extends ApiClient {
   /**
    * Get basic information about the bot
    */
-  getMe(): Promise<tt.User> {
-    return this.callApi('getMe')
+  getMe() {
+    return this.callApi('getMe', {})
   }
 
   /**
    * Get basic info about a file and prepare it for downloading
    * @param fileId Id of file to get link to
    */
-  getFile(fileId: string): Promise<tt.File> {
+  getFile(fileId: string) {
     return this.callApi('getFile', { file_id: fileId })
   }
 
@@ -40,15 +40,17 @@ class Telegram extends ApiClient {
     limit: number,
     offset: number,
     allowedUpdates: readonly tt.UpdateType[] | undefined
-  ): Promise<tt.Update[]> {
-    const url = `getUpdates?offset=${offset}&limit=${limit}&timeout=${timeout}`
-    return this.callApi(url, {
+  ) {
+    return this.callApi('getUpdates', {
       allowed_updates: allowedUpdates,
+      limit,
+      offset,
+      timeout,
     })
   }
 
-  getWebhookInfo(): Promise<tt.WebhookInfo> {
-    return this.callApi('getWebhookInfo')
+  getWebhookInfo() {
+    return this.callApi('getWebhookInfo', {})
   }
 
   getGameHighScores(
@@ -56,7 +58,7 @@ class Telegram extends ApiClient {
     inlineMessageId: string | undefined,
     chatId: number | undefined,
     messageId: number | undefined
-  ): Promise<tt.GameHighScore[]> {
+  ) {
     return this.callApi('getGameHighScores', {
       user_id: userId,
       inline_message_id: inlineMessageId,
@@ -72,8 +74,8 @@ class Telegram extends ApiClient {
     chatId: number | undefined,
     messageId: number | undefined,
     editMessage = true,
-    force?: boolean
-  ): Promise<tt.Message | boolean> {
+    force = false
+  ) {
     return this.callApi('setGameScore', {
       force,
       score,
@@ -106,8 +108,8 @@ class Telegram extends ApiClient {
     })
   }
 
-  deleteWebhook(): Promise<boolean> {
-    return this.callApi('deleteWebhook')
+  deleteWebhook() {
+    return this.callApi('deleteWebhook', {})
   }
 
   /**
@@ -118,8 +120,8 @@ class Telegram extends ApiClient {
   sendMessage(
     chatId: number | string,
     text: string,
-    extra?: tt.ExtraEditMessage
-  ): Promise<tt.Message> {
+    extra?: tt.ExtraReplyMessage
+  ) {
     return this.callApi('sendMessage', { chat_id: chatId, text, ...extra })
   }
 
@@ -134,7 +136,7 @@ class Telegram extends ApiClient {
     fromChatId: number | string,
     messageId: number,
     extra?: { disable_notification?: boolean }
-  ): Promise<tt.Message> {
+  ) {
     return this.callApi('forwardMessage', {
       chat_id: chatId,
       from_chat_id: fromChatId,
@@ -148,10 +150,7 @@ class Telegram extends ApiClient {
    * The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status).
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
-  sendChatAction(
-    chatId: number | string,
-    action: tt.ChatAction
-  ): Promise<boolean> {
+  sendChatAction(chatId: number | string, action: tt.ChatAction) {
     return this.callApi('sendChatAction', { chat_id: chatId, action })
   }
 
@@ -172,7 +171,7 @@ class Telegram extends ApiClient {
     latitude: number,
     longitude: number,
     extra?: tt.ExtraLocation
-  ): Promise<tt.MessageLocation> {
+  ) {
     return this.callApi('sendLocation', {
       chat_id: chatId,
       latitude,
@@ -187,8 +186,8 @@ class Telegram extends ApiClient {
     longitude: number,
     title: string,
     address: string,
-    extra
-  ): Promise<tt.Message> {
+    extra: tt.ExtraVenue
+  ) {
     return this.callApi('sendVenue', {
       latitude,
       longitude,
@@ -206,7 +205,7 @@ class Telegram extends ApiClient {
     chatId: number,
     invoice: tt.NewInvoiceParameters,
     extra?: tt.ExtraInvoice
-  ): Promise<tt.MessageInvoice> {
+  ) {
     return this.callApi('sendInvoice', {
       chat_id: chatId,
       ...invoice,
@@ -218,8 +217,8 @@ class Telegram extends ApiClient {
     chatId: number | string,
     phoneNumber: string,
     firstName: string,
-    extra
-  ): Promise<tt.Message> {
+    extra: tt.ExtraContact
+  ) {
     return this.callApi('sendContact', {
       chat_id: chatId,
       phone_number: phoneNumber,
@@ -235,7 +234,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     photo: tt.InputFile,
     extra?: tt.ExtraPhoto
-  ): Promise<tt.MessagePhoto> {
+  ) {
     return this.callApi('sendPhoto', { chat_id: chatId, photo, ...extra })
   }
 
@@ -243,10 +242,7 @@ class Telegram extends ApiClient {
    * Send a dice, which will have a random value from 1 to 6.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
-  sendDice(
-    chatId: number | string,
-    extra?: tt.ExtraDice
-  ): Promise<tt.MessageDice> {
+  sendDice(chatId: number | string, extra?: tt.ExtraDice) {
     return this.callApi('sendDice', { chat_id: chatId, ...extra })
   }
 
@@ -258,7 +254,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     document: tt.InputFile,
     extra?: tt.ExtraDocument
-  ): Promise<tt.MessageDocument> {
+  ) {
     return this.callApi('sendDocument', { chat_id: chatId, document, ...extra })
   }
 
@@ -272,7 +268,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     audio: tt.InputFile,
     extra?: tt.ExtraAudio
-  ): Promise<tt.MessageAudio> {
+  ) {
     return this.callApi('sendAudio', { chat_id: chatId, audio, ...extra })
   }
 
@@ -284,7 +280,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     sticker: tt.InputFile,
     extra?: tt.ExtraSticker
-  ): Promise<tt.MessageSticker> {
+  ) {
     return this.callApi('sendSticker', { chat_id: chatId, sticker, ...extra })
   }
 
@@ -297,7 +293,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     video: tt.InputFile,
     extra?: tt.ExtraVideo
-  ): Promise<tt.MessageVideo> {
+  ) {
     return this.callApi('sendVideo', { chat_id: chatId, video, ...extra })
   }
 
@@ -309,7 +305,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     animation: tt.InputFile,
     extra?: tt.ExtraAnimation
-  ): Promise<tt.MessageAnimation> {
+  ) {
     return this.callApi('sendAnimation', {
       chat_id: chatId,
       animation,
@@ -325,7 +321,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     videoNote: tt.InputFileVideoNote,
     extra?: tt.ExtraVideoNote
-  ): Promise<tt.MessageVideoNote> {
+  ) {
     return this.callApi('sendVideoNote', {
       chat_id: chatId,
       video_note: videoNote,
@@ -341,7 +337,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     voice: tt.InputFile,
     extra?: tt.ExtraVoice
-  ): Promise<tt.MessageVoice> {
+  ) {
     return this.callApi('sendVoice', { chat_id: chatId, voice, ...extra })
   }
 
@@ -349,11 +345,7 @@ class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target chat
    * @param gameShortName Short name of the game, serves as the unique identifier for the game. Set up your games via Botfather.
    */
-  sendGame(
-    chatId: number | string,
-    gameName: string,
-    extra?: tt.ExtraGame
-  ): Promise<tt.MessageGame> {
+  sendGame(chatId: number, gameName: string, extra?: tt.ExtraGame) {
     return this.callApi('sendGame', {
       chat_id: chatId,
       game_short_name: gameName,
@@ -368,9 +360,9 @@ class Telegram extends ApiClient {
    */
   sendMediaGroup(
     chatId: number | string,
-    media: readonly tt.MessageMedia[],
+    media: ReadonlyArray<tt.InputMediaPhoto | tt.InputMediaVideo>,
     extra?: tt.ExtraMediaGroup
-  ): Promise<readonly tt.Message[]> {
+  ) {
     return this.callApi('sendMediaGroup', { chat_id: chatId, media, ...extra })
   }
 
@@ -385,7 +377,7 @@ class Telegram extends ApiClient {
     question: string,
     options: readonly string[],
     extra: tt.ExtraPoll
-  ): Promise<tt.MessagePoll> {
+  ) {
     return this.callApi('sendPoll', {
       chat_id: chatId,
       type: 'regular',
@@ -406,7 +398,7 @@ class Telegram extends ApiClient {
     question: string,
     options: readonly string[],
     extra: tt.ExtraPoll
-  ): Promise<tt.MessagePoll> {
+  ) {
     return this.callApi('sendPoll', {
       chat_id: chatId,
       type: 'quiz',
@@ -424,7 +416,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     messageId: number,
     extra: tt.ExtraStopPoll
-  ): Promise<tt.Poll> {
+  ) {
     return this.callApi('stopPoll', {
       chat_id: chatId,
       message_id: messageId,
@@ -436,16 +428,14 @@ class Telegram extends ApiClient {
    * Get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.)
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    */
-  getChat(chatId: number | string): Promise<tt.Chat> {
+  getChat(chatId: number | string) {
     return this.callApi('getChat', { chat_id: chatId })
   }
 
   /**
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    */
-  getChatAdministrators(
-    chatId: number | string
-  ): Promise<readonly tt.ChatMember[]> {
+  getChatAdministrators(chatId: number | string) {
     return this.callApi('getChatAdministrators', { chat_id: chatId })
   }
 
@@ -454,10 +444,7 @@ class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    * @param userId Unique identifier of the target user
    */
-  getChatMember(
-    chatId: string | number,
-    userId: number
-  ): Promise<tt.ChatMember> {
+  getChatMember(chatId: string | number, userId: number) {
     return this.callApi('getChatMember', { chat_id: chatId, user_id: userId })
   }
 
@@ -465,7 +452,7 @@ class Telegram extends ApiClient {
    * Get the number of members in a chat
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    */
-  getChatMembersCount(chatId: string | number): Promise<number> {
+  getChatMembersCount(chatId: string | number) {
     return this.callApi('getChatMembersCount', { chat_id: chatId })
   }
 
@@ -477,7 +464,7 @@ class Telegram extends ApiClient {
     inlineQueryId: string,
     results: readonly tt.InlineQueryResult[],
     extra?: tt.ExtraAnswerInlineQuery
-  ): Promise<boolean> {
+  ) {
     return this.callApi('answerInlineQuery', {
       inline_query_id: inlineQueryId,
       results,
@@ -485,10 +472,7 @@ class Telegram extends ApiClient {
     })
   }
 
-  setChatPermissions(
-    chatId: number | string,
-    permissions: tt.ChatPermissions
-  ): Promise<boolean> {
+  setChatPermissions(chatId: number | string, permissions: tt.ChatPermissions) {
     return this.callApi('setChatPermissions', { chat_id: chatId, permissions })
   }
 
@@ -497,11 +481,7 @@ class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
    * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
    */
-  kickChatMember(
-    chatId: number | string,
-    userId: number,
-    untilDate?: number
-  ): Promise<boolean> {
+  kickChatMember(chatId: number | string, userId: number, untilDate?: number) {
     return this.callApi('kickChatMember', {
       chat_id: chatId,
       user_id: userId,
@@ -517,7 +497,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     userId: number,
     extra: tt.ExtraPromoteChatMember
-  ): Promise<boolean> {
+  ) {
     return this.callApi('promoteChatMember', {
       chat_id: chatId,
       user_id: userId,
@@ -532,8 +512,8 @@ class Telegram extends ApiClient {
   restrictChatMember(
     chatId: string | number,
     userId: number,
-    extra?: tt.ExtraRestrictChatMember
-  ): Promise<boolean> {
+    extra: tt.ExtraRestrictChatMember
+  ) {
     return this.callApi('restrictChatMember', {
       chat_id: chatId,
       user_id: userId,
@@ -545,7 +525,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     userId: number,
     title: string
-  ): Promise<boolean> {
+  ) {
     return this.callApi('setChatAdministratorCustomTitle', {
       chat_id: chatId,
       user_id: userId,
@@ -557,7 +537,7 @@ class Telegram extends ApiClient {
    * Export an invite link to a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
-  exportChatInviteLink(chatId: number | string): Promise<string> {
+  exportChatInviteLink(chatId: number | string) {
     return this.callApi('exportChatInviteLink', { chat_id: chatId })
   }
 
@@ -565,7 +545,7 @@ class Telegram extends ApiClient {
     return this.callApi('setChatPhoto', { chat_id: chatId, photo })
   }
 
-  deleteChatPhoto(chatId: number | string): Promise<boolean> {
+  deleteChatPhoto(chatId: number | string) {
     return this.callApi('deleteChatPhoto', { chat_id: chatId })
   }
 
@@ -574,14 +554,11 @@ class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
    * @param title New chat title, 1-255 characters
    */
-  setChatTitle(chatId: number | string, title: string): Promise<boolean> {
+  setChatTitle(chatId: number | string, title: string) {
     return this.callApi('setChatTitle', { chat_id: chatId, title })
   }
 
-  setChatDescription(
-    chatId: number | string,
-    description?: string
-  ): Promise<boolean> {
+  setChatDescription(chatId: number | string, description?: string) {
     return this.callApi('setChatDescription', { chat_id: chatId, description })
   }
 
@@ -593,7 +570,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     messageId: number,
     extra?: { disable_notification?: boolean }
-  ): Promise<boolean> {
+  ) {
     return this.callApi('pinChatMessage', {
       chat_id: chatId,
       message_id: messageId,
@@ -605,7 +582,7 @@ class Telegram extends ApiClient {
    * Unpin a message in a group, a supergroup, or a channel. The bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' admin right in the supergroup or 'can_edit_messages' admin right in the channel.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
-  unpinChatMessage(chatId: number | string): Promise<boolean> {
+  unpinChatMessage(chatId: number | string) {
     return this.callApi('unpinChatMessage', { chat_id: chatId })
   }
 
@@ -613,7 +590,7 @@ class Telegram extends ApiClient {
    * Use this method for your bot to leave a group, supergroup or channel
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    */
-  leaveChat(chatId: number | string): Promise<boolean> {
+  leaveChat(chatId: number | string) {
     return this.callApi('leaveChat', { chat_id: chatId })
   }
 
@@ -622,7 +599,7 @@ class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format @username)
    * @param userId Unique identifier of the target user
    */
-  unbanChatMember(chatId: number | string, userId: number): Promise<boolean> {
+  unbanChatMember(chatId: number | string, userId: number) {
     return this.callApi('unbanChatMember', { chat_id: chatId, user_id: userId })
   }
 
@@ -660,7 +637,7 @@ class Telegram extends ApiClient {
     ok: boolean,
     shippingOptions: readonly tt.ShippingOption[] | undefined,
     errorMessage: string | undefined
-  ): Promise<boolean> {
+  ) {
     return this.callApi('answerShippingQuery', {
       ok,
       shipping_query_id: shippingQueryId,
@@ -680,7 +657,7 @@ class Telegram extends ApiClient {
     preCheckoutQueryId: string,
     ok: boolean,
     errorMessage?: string
-  ): Promise<boolean> {
+  ) {
     return this.callApi('answerPreCheckoutQuery', {
       ok,
       pre_checkout_query_id: preCheckoutQueryId,
@@ -701,8 +678,8 @@ class Telegram extends ApiClient {
     messageId: number | undefined,
     inlineMessageId: string | undefined,
     text: string,
-    extra?: tt.ExtraEditMessage
-  ): Promise<tt.Message | boolean> {
+    extra?: tt.ExtraEditMessageText
+  ) {
     return this.callApi('editMessageText', {
       text,
       chat_id: chatId,
@@ -726,16 +703,14 @@ class Telegram extends ApiClient {
     messageId: number | undefined,
     inlineMessageId: string | undefined,
     caption: string | undefined,
-    extra: any = {}
-  ): Promise<tt.Message | boolean> {
+    extra: tt.ExtraEditMessageCaption = {}
+  ) {
     return this.callApi('editMessageCaption', {
       caption,
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      parse_mode: extra.parse_mode,
-      // prettier-ignore
-      reply_markup: extra.parse_mode || extra.reply_markup ? extra.reply_markup : extra
+      ...extra,
     })
   }
 
@@ -755,15 +730,15 @@ class Telegram extends ApiClient {
     chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
-    media: tt.MessageMedia,
-    extra: tt.ExtraEditMessage = {}
-  ): Promise<tt.Message | boolean> {
+    media: tt.InputMedia,
+    extra: tt.ExtraEditMessageMedia = {}
+  ) {
     return this.callApi('editMessageMedia', {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      media: { ...media, parse_mode: extra.parse_mode },
-      reply_markup: extra.reply_markup ?? extra,
+      media,
+      ...extra,
     })
   }
 
@@ -780,7 +755,7 @@ class Telegram extends ApiClient {
     messageId: number | undefined,
     inlineMessageId: string | undefined,
     markup: tt.InlineKeyboardMarkup | undefined
-  ): Promise<tt.Message | boolean> {
+  ) {
     return this.callApi('editMessageReplyMarkup', {
       chat_id: chatId,
       message_id: messageId,
@@ -789,15 +764,14 @@ class Telegram extends ApiClient {
     })
   }
 
-  // FIXME: parameter order inconsistent with other edit* methods
   editMessageLiveLocation(
-    latitude: number,
-    longitude: number,
-    chatId: number | string | undefined,
+    chatId: number | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
+    latitude: number,
+    longitude: number,
     markup?: tt.InlineKeyboardMarkup
-  ): Promise<tt.Message | boolean> {
+  ) {
     return this.callApi('editMessageLiveLocation', {
       latitude,
       longitude,
@@ -831,28 +805,25 @@ class Telegram extends ApiClient {
    * - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
-  deleteMessage(chatId: number | string, messageId: number): Promise<boolean> {
+  deleteMessage(chatId: number | string, messageId: number) {
     return this.callApi('deleteMessage', {
       chat_id: chatId,
       message_id: messageId,
     })
   }
 
-  setChatStickerSet(
-    chatId: number | string,
-    setName: string
-  ): Promise<boolean> {
+  setChatStickerSet(chatId: number | string, setName: string) {
     return this.callApi('setChatStickerSet', {
       chat_id: chatId,
       sticker_set_name: setName,
     })
   }
 
-  deleteChatStickerSet(chatId: number | string): Promise<boolean> {
+  deleteChatStickerSet(chatId: number | string) {
     return this.callApi('deleteChatStickerSet', { chat_id: chatId })
   }
 
-  getStickerSet(name: string): Promise<tt.StickerSet> {
+  getStickerSet(name: string) {
     return this.callApi('getStickerSet', { name })
   }
 
@@ -862,10 +833,7 @@ class Telegram extends ApiClient {
    * @param ownerId User identifier of sticker file owner
    * @param stickerFile Png image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px.
    */
-  uploadStickerFile(
-    ownerId: number,
-    stickerFile: tt.InputFile
-  ): Promise<tt.File> {
+  uploadStickerFile(ownerId: number, stickerFile: tt.InputFile) {
     return this.callApi('uploadStickerFile', {
       user_id: ownerId,
       png_sticker: stickerFile,
@@ -882,8 +850,8 @@ class Telegram extends ApiClient {
     ownerId: number,
     name: string,
     title: string,
-    stickerData: tt.StickerData
-  ): Promise<boolean> {
+    stickerData: tt.ExtraCreateNewStickerSet
+  ) {
     return this.callApi('createNewStickerSet', {
       name,
       title,
@@ -900,13 +868,11 @@ class Telegram extends ApiClient {
   addStickerToSet(
     ownerId: number,
     name: string,
-    stickerData: tt.StickerData,
-    isMasks: boolean
-  ): Promise<boolean> {
+    stickerData: tt.ExtraAddStickerToSet
+  ) {
     return this.callApi('addStickerToSet', {
       name,
       user_id: ownerId,
-      is_masks: isMasks,
       ...stickerData,
     })
   }
@@ -916,14 +882,14 @@ class Telegram extends ApiClient {
    * @param sticker File identifier of the sticker
    * @param position New sticker position in the set, zero-based
    */
-  setStickerPositionInSet(sticker: string, position: number): Promise<boolean> {
+  setStickerPositionInSet(sticker: string, position: number) {
     return this.callApi('setStickerPositionInSet', {
       sticker,
       position,
     })
   }
 
-  setStickerSetThumb(name: string, userId: number, thumb?: tt.InputFile) {
+  setStickerSetThumb(name: string, userId: number, thumb: tt.InputFile) {
     return this.callApi('setStickerSetThumb', { name, user_id: userId, thumb })
   }
 
@@ -931,26 +897,29 @@ class Telegram extends ApiClient {
    * Delete a sticker from a set created by the bot.
    * @param sticker File identifier of the sticker
    */
-  deleteStickerFromSet(sticker: string): Promise<boolean> {
+  deleteStickerFromSet(sticker: string) {
     return this.callApi('deleteStickerFromSet', { sticker })
   }
 
   /**
    * Get the current list of the bot's commands.
    */
-  getMyCommands(): Promise<tt.BotCommand[]> {
-    return this.callApi('getMyCommands')
+  getMyCommands() {
+    return this.callApi('getMyCommands', {})
   }
 
   /**
    * Change the list of the bot's commands.
    * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
    */
-  setMyCommands(commands: readonly tt.BotCommand[]): Promise<boolean> {
+  setMyCommands(commands: readonly tt.BotCommand[]) {
     return this.callApi('setMyCommands', { commands })
   }
 
-  setPassportDataErrors(userId: number, errors) {
+  setPassportDataErrors(
+    userId: number,
+    errors: readonly tt.PassportElementError[]
+  ) {
     return this.callApi('setPassportDataErrors', {
       user_id: userId,
       errors: errors,
@@ -958,26 +927,28 @@ class Telegram extends ApiClient {
   }
 
   /**
-   * Send copy of exists message.
+   * Send copy of existing message.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param message Received message object
    */
   sendCopy(
     chatId: number | string,
-    message?: tt.Message,
+    message: tt.Message,
     extra?: object
   ): Promise<tt.Message> {
     if (!message) {
       throw new Error('Message is required')
     }
-    // prettier-ignore
-    const type = Object.keys(replicators.copyMethods).find((type) => message[type])
+    const type = Object.keys(replicators.copyMethods).find(
+      (type) => type in message
+    ) as keyof typeof replicators.copyMethods
     if (!type) {
       throw new Error('Unsupported message type')
     }
     const opts = {
       chat_id: chatId,
-      ...replicators[type](message),
+      // @ts-expect-error
+      ...replicators[type](message), // assume we have the necessary fields
       ...extra,
     }
     return this.callApi(replicators.copyMethods[type], opts)

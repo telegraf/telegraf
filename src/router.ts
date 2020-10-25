@@ -1,8 +1,8 @@
 /** @format */
 
-import type { Middleware, NonemptyReadonlyArray } from './types'
+import { Middleware, NonemptyReadonlyArray } from './types'
 import Composer from './composer'
-import type Context from './context'
+import Context from './context'
 
 type RouteFn<TContext extends Context> = (
   ctx: TContext
@@ -12,7 +12,8 @@ type RouteFn<TContext extends Context> = (
   state?: Partial<TContext['state']>
 } | null
 
-class Router<TContext extends Context> implements Middleware.Obj<TContext> {
+export class Router<TContext extends Context>
+  implements Middleware.Obj<TContext> {
   private otherwiseHandler: Middleware<TContext> = Composer.passThru()
 
   constructor(
@@ -53,5 +54,3 @@ class Router<TContext extends Context> implements Middleware.Obj<TContext> {
     })
   }
 }
-
-export = Router

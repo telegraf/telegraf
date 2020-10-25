@@ -1,7 +1,7 @@
-import type * as tt from '../typings/telegram-types'
-import type ApiClient from './core/network/client'
-import type { Tail } from './types'
-import type Telegram from './telegram'
+import * as tt from './telegram-types'
+import ApiClient from './core/network/client'
+import { Tail } from './types'
+import Telegram from './telegram'
 
 type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
@@ -59,12 +59,11 @@ const MessageSubTypesMapping = {
   forward_date: 'forward',
 }
 
-class TelegrafContext {
-  public botInfo?: tt.User
+export class Context {
+  public botInfo?: tt.UserFromGetMe
   readonly updateType: tt.UpdateType
   readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
-  /** @deprecated */
-  private contextState?: any
+  readonly state: Record<string | symbol, any> = {}
 
   constructor(
     readonly update: tt.Update,
@@ -75,14 +74,17 @@ class TelegrafContext {
     // prettier-ignore
     if (this.updateType === 'message' || (this.options.channelMode && this.updateType === 'channel_post')) {
       this.updateSubTypes = MessageSubTypes
-        .filter((key) => key in this.update[this.updateType])
-        .map((type) => MessageSubTypesMapping[type] || type)
+        .filter((key) => key in (this.update as any)[this.updateType])
+        .map((type) => (MessageSubTypesMapping as any)[type] || type)
     } else {
       this.updateSubTypes = []
     }
-    Object.getOwnPropertyNames(TelegrafContext.prototype)
-      .filter((key) => key !== 'constructor' && typeof this[key] === 'function')
-      .forEach((key) => (this[key] = this[key].bind(this)))
+    Object.getOwnPropertyNames(Context.prototype)
+      .filter(
+        (key) =>
+          key !== 'constructor' && typeof (this as any)[key] === 'function'
+      )
+      .forEach((key) => ((this as any)[key] = (this as any)[key].bind(this)))
   }
 
   get me() {
@@ -94,48 +96,57 @@ class TelegrafContext {
   }
 
   get message() {
+    if (!('message' in this.update)) return undefined
     return this.update.message
   }
 
   get editedMessage() {
+    if (!('edited_message' in this.update)) return undefined
     return this.update.edited_message
   }
 
   get inlineQuery() {
+    if (!('inline_query' in this.update)) return undefined
     return this.update.inline_query
   }
 
   get shippingQuery() {
+    if (!('shipping_query' in this.update)) return undefined
     return this.update.shipping_query
   }
 
   get preCheckoutQuery() {
+    if (!('pre_checkout_query' in this.update)) return undefined
     return this.update.pre_checkout_query
   }
 
   get chosenInlineResult() {
+    if (!('chosen_inline_result' in this.update)) return undefined
     return this.update.chosen_inline_result
   }
 
   get channelPost() {
+    if (!('channel_post' in this.update)) return undefined
     return this.update.channel_post
   }
 
   get editedChannelPost() {
+    if (!('edited_channel_post' in this.update)) return undefined
     return this.update.edited_channel_post
   }
 
   get callbackQuery() {
+    if (!('callback_query' in this.update)) return undefined
     return this.update.callback_query
   }
 
   get poll() {
-    // @ts-expect-error
+    if (!('poll' in this.update)) return undefined
     return this.update.poll
   }
 
   get pollAnswer() {
-    // @ts-expect-error
+    if (!('poll_answer' in this.update)) return undefined
     return this.update.poll_answer
   }
 
@@ -168,19 +179,9 @@ class TelegrafContext {
   }
 
   get passportData() {
-    // @ts-expect-error
+    if (this.message == null) return undefined
+    if (!('passport_data' in this.message)) return undefined
     return this.message?.passport_data
-  }
-
-  get state() {
-    if (!this.contextState) {
-      this.contextState = {}
-    }
-    return this.contextState
-  }
-
-  set state(value) {
-    this.contextState = { ...value }
   }
 
   get webhookReply(): boolean {
@@ -196,8 +197,11 @@ class TelegrafContext {
     method: string
   ): asserts value is T {
     if (value === undefined) {
-      // eslint-disable-next-line
-      throw new Error(`Telegraf: "${method}" isn't available for "${this.updateType}::${this.updateSubTypes}"`)
+      throw new Error(
+        `Telegraf: "${method}" isn't available for "${
+          this.updateType
+        }::${this.updateSubTypes.toString()}"`
+      )
     }
   }
 
@@ -229,7 +233,7 @@ class TelegrafContext {
     )
   }
 
-  editMessageText(text: string, extra?: tt.ExtraEditMessage) {
+  editMessageText(text: string, extra?: tt.ExtraEditMessageText) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageText')
     return this.telegram.editMessageText(
       this.chat?.id,
@@ -242,7 +246,7 @@ class TelegrafContext {
 
   editMessageCaption(
     caption: string | undefined,
-    extra?: tt.InlineKeyboardMarkup
+    extra?: tt.ExtraEditMessageCaption
   ) {
     this.assert(
       this.callbackQuery ?? this.inlineMessageId,
@@ -257,7 +261,7 @@ class TelegrafContext {
     )
   }
 
-  editMessageMedia(media: tt.MessageMedia, extra?: tt.ExtraEditMessage) {
+  editMessageMedia(media: tt.InputMedia, extra?: tt.ExtraEditMessageMedia) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageMedia')
     return this.telegram.editMessageMedia(
       this.chat?.id,
@@ -291,11 +295,11 @@ class TelegrafContext {
       'editMessageLiveLocation'
     )
     return this.telegram.editMessageLiveLocation(
-      latitude,
-      longitude,
       this.chat?.id,
       this.callbackQuery?.message?.message_id,
       this.inlineMessageId,
+      latitude,
+      longitude,
       markup
     )
   }
@@ -410,7 +414,7 @@ class TelegrafContext {
     return this.telegram.getChatMembersCount(this.chat.id, ...args)
   }
 
-  setPassportDataErrors(errors) {
+  setPassportDataErrors(errors: readonly tt.PassportElementError[]) {
     this.assert(this.from, 'setPassportDataErrors')
     return this.telegram.setPassportDataErrors(this.from.id, errors)
   }
@@ -559,15 +563,15 @@ class TelegrafContext {
     return this.telegram.setMyCommands(commands)
   }
 
-  replyWithMarkdown(markdown: string, extra?: tt.ExtraEditMessage) {
+  replyWithMarkdown(markdown: string, extra?: tt.ExtraReplyMessage) {
     return this.reply(markdown, { parse_mode: 'Markdown', ...extra })
   }
 
-  replyWithMarkdownV2(markdown: string, extra?: tt.ExtraEditMessage) {
+  replyWithMarkdownV2(markdown: string, extra?: tt.ExtraReplyMessage) {
     return this.reply(markdown, { parse_mode: 'MarkdownV2', ...extra })
   }
 
-  replyWithHTML(html: string, extra?: tt.ExtraEditMessage) {
+  replyWithHTML(html: string, extra?: tt.ExtraReplyMessage) {
     return this.reply(html, { parse_mode: 'HTML', ...extra })
   }
 
@@ -596,4 +600,4 @@ class TelegrafContext {
   }
 }
 
-export = TelegrafContext
+export default Context

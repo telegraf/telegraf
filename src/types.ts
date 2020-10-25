@@ -1,6 +1,6 @@
 /** @format */
 
-import type Context from './context'
+import Context from './context'
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Middleware {
@@ -14,16 +14,27 @@ export namespace Middleware {
     ctx: TContext,
     next: () => Promise<void>
     // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  ) => void | Promise<unknown>
+  ) => Promise<unknown> | void
   export interface Obj<TContext extends Context> {
     middleware: () => Fn<TContext>
   }
+  export type ExtFn<BaseContext extends Context, Extension extends object> = <
+    TContext extends BaseContext
+  >(
+    ctx: TContext,
+    next: (ctx: Extension & TContext) => Promise<void>
+    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  ) => Promise<unknown> | void
+  export type Ext<
+    BaseContext extends Context,
+    Extension extends object
+  > = ExtFn<BaseContext, Extension>
 }
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type Middleware<TContext extends Context> =
   | Middleware.Fn<TContext>
   | Middleware.Obj<TContext>
 
 export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 
-// prettier-ignore
 export type Tail<T> = T extends [unknown, ...infer U] ? U : never

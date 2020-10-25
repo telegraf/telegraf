@@ -56,8 +56,9 @@ class SceneContext<TContext extends Context> {
     if (!this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }
-    const leave = silent ? noop() : this.leave()
-    await leave
+    if (!silent) {
+      await this.leave()
+    }
     debug('Enter scene', sceneId, initialState, silent)
     this.session.current = sceneId
     this.state = initialState

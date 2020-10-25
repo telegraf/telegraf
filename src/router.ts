@@ -42,7 +42,7 @@ export class Router<TContext extends Context>
   }
 
   middleware() {
-    return Composer.lazy<TContext>(async (ctx) => {
+    return Composer.lazy<TContext>((ctx) => {
       const result = this.routeFn(ctx)
       if (result == null) {
         return this.otherwiseHandler

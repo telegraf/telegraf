@@ -3,7 +3,6 @@
 import * as tt from './telegram-types'
 import { Middleware, NonemptyReadonlyArray } from './types'
 import Context from './context'
-import { hasProp } from './core/helpers/check'
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
@@ -160,9 +159,8 @@ export class Composer<TContext extends Context>
   ) {
     const handler = Composer.compose(fns)
     return this.command('start', (ctx, next) => {
-      const startPayload = hasProp(ctx.message, 'text')
-        ? ctx.message.text.substring(7)
-        : ''
+      // @ts-expect-error we know that ctx.message.text !== undefined but TypeScript does not
+      const startPayload = ctx.message.text.substring(7)
       return handler(Object.assign(ctx, { startPayload }), next)
     })
   }

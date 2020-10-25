@@ -39,6 +39,7 @@ $ yarn add telegraf
 * [Developer docs](http://telegraf.js.org)
 * [Community chat](https://t.me/TelegrafJSChat)
 * [Community chat (Russian)](https://t.me/telegraf_ru)
+* [Community chat (Ethiopian)](https://t.me/telegraf_et)
 
 ### Examples
   

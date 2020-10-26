@@ -23,14 +23,12 @@ class Telegram extends ApiClient {
    */
   async getFileLink(fileId: string | tt.File) {
     if (typeof fileId === 'string') {
-      return await this.getFile(fileId)
+      fileId = await this.getFile(fileId)
+    } else if (fileId.file_path === undefined) {
+      fileId = await this.getFile(fileId.file_id)
     }
-    if (fileId.file_path !== undefined) {
-      return fileId
-    }
-    const file = await this.getFile(fileId.file_id)
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return `${this.options.apiRoot}/file/bot${this.token}/${file.file_path}`
+    return `${this.options.apiRoot}/file/bot${this.token}/${fileId.file_path}`
   }
 
   getUpdates(

@@ -244,7 +244,7 @@ function isKoaResponse(response: unknown): boolean {
   )
 }
 
-function answerToWebhook(
+async function answerToWebhook(
   response: Response,
   payload: Record<string, unknown>,
   options: ApiClient.Options
@@ -252,48 +252,47 @@ function answerToWebhook(
   if (!includesMedia(payload)) {
     if (isKoaResponse(response)) {
       response.body = payload
-      return Promise.resolve(WEBHOOK_REPLY_STUB)
+      return WEBHOOK_REPLY_STUB
     }
     if (!response.headersSent) {
       response.setHeader('content-type', 'application/json')
     }
-    return new Promise((resolve) => {
-      if (response.end.length === 2) {
-        response.end(JSON.stringify(payload), 'utf-8')
-        return resolve(WEBHOOK_REPLY_STUB)
-      }
-      response.end(JSON.stringify(payload), 'utf-8', () =>
-        resolve(WEBHOOK_REPLY_STUB)
+    if (response.end.length === 2) {
+      response.end(JSON.stringify(payload), 'utf-8')
+    } else {
+      await new Promise((resolve) =>
+        response.end(JSON.stringify(payload), 'utf-8', resolve)
       )
-    })
+    }
+    return WEBHOOK_REPLY_STUB
   }
 
-  return buildFormDataConfig(payload, options.agent).then(
-    ({ headers = {}, body }) => {
-      if (isKoaResponse(response)) {
-        for (const [key, value] of Object.entries(headers)) {
-          response.set(key, value)
-        }
-        response.body = body
-        return Promise.resolve(WEBHOOK_REPLY_STUB)
-      }
-      if (!response.headersSent) {
-        for (const [key, value] of Object.entries(headers)) {
-          response.set(key, value)
-        }
-      }
-      return new Promise((resolve) => {
-        response.on('finish', () => resolve(WEBHOOK_REPLY_STUB))
-        // @ts-expect-error
-        body.pipe(response)
-      })
-    }
+  const { headers = {}, body } = await buildFormDataConfig(
+    payload,
+    options.agent
   )
+  if (isKoaResponse(response)) {
+    for (const [key, value] of Object.entries(headers)) {
+      response.set(key, value)
+    }
+    response.body = body
+    return WEBHOOK_REPLY_STUB
+  }
+  if (!response.headersSent) {
+    for (const [key, value] of Object.entries(headers)) {
+      response.set(key, value)
+    }
+  }
+  await new Promise((resolve) => {
+    response.on('finish', resolve)
+    // @ts-expect-error
+    body.pipe(response)
+  })
+  return WEBHOOK_REPLY_STUB
 }
 
 // TODO: what is actually the type of this?
 type Response = any
-// eslint-disable-next-line no-redeclare
 class ApiClient {
   readonly options: ApiClient.Options
   private responseEnd = false
@@ -321,7 +320,7 @@ class ApiClient {
     return this.options.webhookReply
   }
 
-  callApi<M extends keyof Telegram>(
+  async callApi<M extends keyof Telegram>(
     method: M,
     payload: Opts<M>
   ): Promise<ReturnType<Telegram[M]>> {
@@ -336,7 +335,7 @@ class ApiClient {
       debug('Call via webhook', method, payload)
       this.responseEnd = true
       // @ts-expect-error
-      return answerToWebhook(response, { method, ...payload }, options)
+      return await answerToWebhook(response, { method, ...payload }, options)
     }
 
     if (!token) {
@@ -350,20 +349,16 @@ class ApiClient {
     const buildConfig = includesMedia(payload)
       ? buildFormDataConfig({ method, ...payload }, options.agent)
       : buildJSONConfig(payload)
-    return buildConfig
-      .then((config) => {
-        const apiUrl = `${options.apiRoot}/bot${token}/${method}`
-        config.agent = options.agent
-        return fetch(apiUrl, config)
-      })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.ok) {
-          debug('API call failed', data)
-          throw new TelegramError(data, { method, payload })
-        }
-        return data.result
-      })
+    const config = await buildConfig
+    const apiUrl = `${options.apiRoot}/bot${token}/${method}`
+    config.agent = options.agent
+    const res = await fetch(apiUrl, config)
+    const data = await res.json()
+    if (!data.ok) {
+      debug('API call failed', data)
+      throw new TelegramError(data, { method, payload })
+    }
+    return data.result
   }
 }
 

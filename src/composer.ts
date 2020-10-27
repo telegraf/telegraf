@@ -618,9 +618,6 @@ export class Composer<TContext extends Context>
   ): Middleware.Fn<TContext>
   static compose<TContext extends Context>(
     middlewares: ReadonlyArray<Middleware<TContext>>
-  ): Middleware.Fn<TContext>
-  static compose<TContext extends Context>(
-    middlewares: ReadonlyArray<Middleware<TContext>>
   ): Middleware.Fn<TContext> {
     if (!Array.isArray(middlewares)) {
       throw new Error('Middlewares must be an array')

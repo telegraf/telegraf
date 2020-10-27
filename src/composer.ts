@@ -159,7 +159,7 @@ export class Composer<TContext extends Context>
   ) {
     const handler = Composer.compose(fns)
     return this.command('start', (ctx, next) => {
-      // @ts-expect-error
+      // @ts-expect-error we know that ctx.message.text !== undefined but TypeScript does not
       const startPayload = ctx.message.text.substring(7)
       return handler(Object.assign(ctx, { startPayload }), next)
     })
@@ -313,7 +313,7 @@ export class Composer<TContext extends Context>
     const updateTypes = normalizeTextArguments(updateType)
     const predicate = (ctx: TContext) =>
       updateTypes.includes(ctx.updateType) ||
-      // @ts-expect-error
+      // @ts-expect-error `type` is a string and not a union of literals
       updateTypes.some((type) => ctx.updateSubTypes.includes(type))
     return Composer.optional(predicate, ...fns)
   }

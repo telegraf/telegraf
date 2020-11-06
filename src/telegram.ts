@@ -112,11 +112,10 @@ class Telegram extends ApiClient {
 
   /**
    * Remove webhook integration
-   * @param dropPendingUpdates Whether to drop pending updates
    */
-  deleteWebhook(dropPendingUpdates?: boolean) {
+  deleteWebhook(extra?: { drop_pending_updates?: boolean }) {
     return this.callApi('deleteWebhook', {
-      drop_pending_updates: dropPendingUpdates,
+      ...extra,
     })
   }
 
@@ -617,17 +616,16 @@ class Telegram extends ApiClient {
    * Unban a user from a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format @username)
    * @param userId Unique identifier of the target user
-   * @param onlyIfBanned Do nothing if the user is not banned
    */
   unbanChatMember(
     chatId: number | string,
     userId: number,
-    onlyIfBanned?: boolean
+    extra?: { only_if_banned?: boolean }
   ) {
     return this.callApi('unbanChatMember', {
       chat_id: chatId,
       user_id: userId,
-      only_if_banned: onlyIfBanned,
+      ...extra,
     })
   }
 

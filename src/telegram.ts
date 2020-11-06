@@ -1,7 +1,6 @@
 import * as replicators from './core/replicators'
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
-import util from 'util'
 
 class Telegram extends ApiClient {
   /**
@@ -955,6 +954,7 @@ class Telegram extends ApiClient {
 
   /**
    * Send copy of existing message.
+   * @deprecated use `copyMessage` instead
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param message Received message object
    */
@@ -962,7 +962,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     message: tt.Message,
     extra?: object
-  ): Promise<tt.Message> {
+  ): Promise<tt.MessageId> {
     if (!message) {
       throw new Error('Message is required')
     }
@@ -986,7 +986,6 @@ class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param fromChatId Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
    * @param messageId Message identifier in the chat specified in from_chat_id
-   * @deprecated Use copyMessage() instead
    */
   copyMessage(
     chatId: number | string,
@@ -1016,10 +1015,5 @@ class Telegram extends ApiClient {
     return this.callApi('close', {})
   }
 }
-
-Telegram.prototype.sendCopy = util.deprecate(
-  Telegram.prototype.sendCopy,
-  '⚠️ Telegraf: sendCopy() is deprecated, use copyMessage() instead'
-)
 
 export = Telegram

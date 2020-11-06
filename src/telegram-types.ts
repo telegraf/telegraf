@@ -79,6 +79,10 @@ export type ExtraContact = MakeExtra<
   'sendContact',
   'phone_number' | 'first_name'
 >
+export type ExtraCopyMessage = MakeExtra<
+  'copyMessage',
+  'from_chat_id' | 'message_id'
+>
 export type ExtraCreateNewStickerSet = MakeExtra<
   'createNewStickerSet',
   'name' | 'title' | 'user_id'
@@ -89,6 +93,10 @@ export type ExtraEditMessageCaption = MakeExtra<
   'editMessageCaption',
   'message_id' | 'inline_message_id' | 'caption'
 >
+export type ExtraEditMessageLiveLocation = MakeExtra<
+  'editMessageLiveLocation',
+  'message_id' | 'inline_message_id' | 'latitude' | 'longitude'
+>
 export type ExtraEditMessageMedia = MakeExtra<
   'editMessageMedia',
   'message_id' | 'inline_message_id' | 'media'
@@ -96,10 +104,6 @@ export type ExtraEditMessageMedia = MakeExtra<
 export type ExtraEditMessageText = MakeExtra<
   'editMessageText',
   'message_id' | 'inline_message_id'
->
-export type ExtraEditMessageLiveLocation = MakeExtra<
-  'editMessageLiveLocation',
-  'message_id' | 'inline_message_id' | 'latitude' | 'longitude'
 >
 export type ExtraGame = MakeExtra<'sendGame', 'game_short_name'>
 export interface ExtraInvoice extends ExtraReplyMessage {
@@ -134,10 +138,6 @@ export type ExtraVenue = MakeExtra<
 export type ExtraVideo = MakeExtra<'sendVideo', 'video'>
 export type ExtraVideoNote = MakeExtra<'sendVideoNote', 'video_note'>
 export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
-export type ExtraCopyMessage = MakeExtra<
-  'copyMessage',
-  'from_chat_id' | 'message_id'
->
 
 export type IncomingMessage = TT.Message
 

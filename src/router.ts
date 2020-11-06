@@ -43,14 +43,13 @@ export class Router<TContext extends Context>
 
   middleware() {
     return Composer.lazy<TContext>((ctx) => {
-      return Promise.resolve(this.routeFn(ctx)).then((result) => {
-        if (result == null) {
-          return this.otherwiseHandler
-        }
-        Object.assign(ctx, result.context)
-        Object.assign(ctx.state, result.state)
-        return this.handlers.get(result.route) ?? this.otherwiseHandler
-      })
+      const result = this.routeFn(ctx)
+      if (result == null) {
+        return this.otherwiseHandler
+      }
+      Object.assign(ctx, result.context)
+      Object.assign(ctx.state, result.state)
+      return this.handlers.get(result.route) ?? this.otherwiseHandler
     })
   }
 }

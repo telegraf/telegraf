@@ -1570,15 +1570,15 @@ Use this method to edit media of messages sent by the bot or via the bot.
 
 Use this method to edit live location messages sent by the bot or via the bot.
 
-`telegram.editMessageLiveLocation(latitude, longitude, chatId, messageId, inlineMessageId, [extra]) => Promise`
+`telegram.editMessageLiveLocation(chatId, messageId, inlineMessageId, latitude, longitude, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| latitude | `string` | Latitude of new location |
-| longitude | `string` | Longitude of new location |
 | chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 | inlineMessageId | `string` | Inline message id |
+| latitude | `string` | Latitude of new location |
+| longitude | `string` | Longitude of new location |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagelivelocation)|
 
 ##### editMessageReplyMarkup

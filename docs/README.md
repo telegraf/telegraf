@@ -10,7 +10,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 
 #### Features
 
-- Full [Telegram Bot API 4.9](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 5.0](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)

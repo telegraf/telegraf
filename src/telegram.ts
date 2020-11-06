@@ -86,27 +86,11 @@ class Telegram extends ApiClient {
   /**
    * Specify a url to receive incoming updates via an outgoing webhook
    * @param url HTTPS url to send updates to. Use an empty string to remove webhook integration
-   * @param certificate Upload your public key certificate so that the root certificate in use can be checked
-   * @param maxConnections Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100
-   * @param allowedUpdates List the types of updates you want your bot to receive
-   * @param ipAddress The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS
-   * @param dropPendingUpdates Whether to drop pending updates
    */
-  setWebhook(
-    url: string,
-    certificate?: tt.InputFile,
-    maxConnections?: number,
-    allowedUpdates?: readonly tt.UpdateType[],
-    ipAddress?: string,
-    dropPendingUpdates?: boolean
-  ) {
+  setWebhook(url: string, extra?: tt.ExtraSetWebhook) {
     return this.callApi('setWebhook', {
       url,
-      certificate,
-      max_connections: maxConnections,
-      allowed_updates: allowedUpdates,
-      ip_address: ipAddress,
-      drop_pending_updates: dropPendingUpdates,
+      ...extra,
     })
   }
 

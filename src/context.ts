@@ -288,7 +288,7 @@ export class Context {
   editMessageLiveLocation(
     latitude: number,
     longitude: number,
-    markup?: tt.InlineKeyboardMarkup
+    extra?: tt.ExtraEditMessageLiveLocation
   ) {
     this.assert(
       this.callbackQuery ?? this.inlineMessageId,
@@ -300,7 +300,7 @@ export class Context {
       this.inlineMessageId,
       latitude,
       longitude,
-      markup
+      extra
     )
   }
 
@@ -387,6 +387,11 @@ export class Context {
   unpinChatMessage(...args: Shorthand<'unpinChatMessage'>) {
     this.assert(this.chat, 'unpinChatMessage')
     return this.telegram.unpinChatMessage(this.chat.id, ...args)
+  }
+
+  unpinAllChatMessages(...args: Shorthand<'unpinAllChatMessages'>) {
+    this.assert(this.chat, 'unpinAllChatMessages')
+    return this.telegram.unpinAllChatMessages(this.chat.id, ...args)
   }
 
   leaveChat(...args: Shorthand<'leaveChat'>) {
@@ -592,6 +597,16 @@ export class Context {
   ) {
     this.assert(this.message, 'forwardMessage')
     return this.telegram.forwardMessage(
+      chatId,
+      this.message.chat.id,
+      this.message.message_id,
+      extra
+    )
+  }
+
+  copyMessage(chatId: string | number, extra?: tt.ExtraCopyMessage) {
+    this.assert(this.message, 'copyMessage')
+    return this.telegram.copyMessage(
       chatId,
       this.message.chat.id,
       this.message.message_id,

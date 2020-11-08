@@ -79,6 +79,10 @@ export type ExtraContact = MakeExtra<
   'sendContact',
   'phone_number' | 'first_name'
 >
+export type ExtraCopyMessage = MakeExtra<
+  'copyMessage',
+  'from_chat_id' | 'message_id'
+>
 export type ExtraCreateNewStickerSet = MakeExtra<
   'createNewStickerSet',
   'name' | 'title' | 'user_id'
@@ -88,6 +92,10 @@ export type ExtraDocument = MakeExtra<'sendDocument', 'document'>
 export type ExtraEditMessageCaption = MakeExtra<
   'editMessageCaption',
   'message_id' | 'inline_message_id' | 'caption'
+>
+export type ExtraEditMessageLiveLocation = MakeExtra<
+  'editMessageLiveLocation',
+  'message_id' | 'inline_message_id' | 'latitude' | 'longitude'
 >
 export type ExtraEditMessageMedia = MakeExtra<
   'editMessageMedia',
@@ -121,6 +129,7 @@ export type ExtraPoll = MakeExtra<'sendPoll', 'question' | 'options' | 'type'>
 export type ExtraPromoteChatMember = MakeExtra<'promoteChatMember', 'user_id'>
 export type ExtraReplyMessage = MakeExtra<'sendMessage', 'text'>
 export type ExtraRestrictChatMember = MakeExtra<'restrictChatMember', 'user_id'>
+export type ExtraSetWebhook = MakeExtra<'setWebhook', 'url'>
 export type ExtraSticker = MakeExtra<'sendSticker', 'sticker'>
 export type ExtraStopPoll = MakeExtra<'stopPoll', 'message_id'>
 export type ExtraVenue = MakeExtra<

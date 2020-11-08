@@ -86,26 +86,21 @@ class Telegram extends ApiClient {
   /**
    * Specify a url to receive incoming updates via an outgoing webhook
    * @param url HTTPS url to send updates to. Use an empty string to remove webhook integration
-   * @param certificate Upload your public key certificate so that the root certificate in use can be checked
-   * @param maxConnections Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100
-   * @param allowedUpdates List the types of updates you want your bot to receive
    */
-  setWebhook(
-    url: string,
-    certificate?: tt.InputFile,
-    maxConnections?: number,
-    allowedUpdates?: readonly tt.UpdateType[]
-  ) {
+  setWebhook(url: string, extra?: tt.ExtraSetWebhook) {
     return this.callApi('setWebhook', {
       url,
-      certificate,
-      max_connections: maxConnections,
-      allowed_updates: allowedUpdates,
+      ...extra,
     })
   }
 
-  deleteWebhook() {
-    return this.callApi('deleteWebhook', {})
+  /**
+   * Remove webhook integration
+   */
+  deleteWebhook(extra?: { drop_pending_updates?: boolean }) {
+    return this.callApi('deleteWebhook', {
+      ...extra,
+    })
   }
 
   /**
@@ -578,8 +573,19 @@ class Telegram extends ApiClient {
    * Unpin a message in a group, a supergroup, or a channel. The bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' admin right in the supergroup or 'can_edit_messages' admin right in the channel.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
-  unpinChatMessage(chatId: number | string) {
-    return this.callApi('unpinChatMessage', { chat_id: chatId })
+  unpinChatMessage(chatId: number | string, messageId?: number) {
+    return this.callApi('unpinChatMessage', {
+      chat_id: chatId,
+      message_id: messageId,
+    })
+  }
+
+  /**
+   * Clear the list of pinned messages in a chat
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   */
+  unpinAllChatMessages(chatId: number | string) {
+    return this.callApi('unpinAllChatMessages', { chat_id: chatId })
   }
 
   /**
@@ -595,8 +601,16 @@ class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format @username)
    * @param userId Unique identifier of the target user
    */
-  unbanChatMember(chatId: number | string, userId: number) {
-    return this.callApi('unbanChatMember', { chat_id: chatId, user_id: userId })
+  unbanChatMember(
+    chatId: number | string,
+    userId: number,
+    extra?: { only_if_banned?: boolean }
+  ) {
+    return this.callApi('unbanChatMember', {
+      chat_id: chatId,
+      user_id: userId,
+      ...extra,
+    })
   }
 
   answerCbQuery(
@@ -766,7 +780,7 @@ class Telegram extends ApiClient {
     inlineMessageId: string | undefined,
     latitude: number,
     longitude: number,
-    markup?: tt.InlineKeyboardMarkup
+    extra?: tt.ExtraEditMessageLiveLocation
   ) {
     return this.callApi('editMessageLiveLocation', {
       latitude,
@@ -774,7 +788,7 @@ class Telegram extends ApiClient {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      reply_markup: markup,
+      ...extra,
     })
   }
 
@@ -924,6 +938,7 @@ class Telegram extends ApiClient {
 
   /**
    * Send copy of existing message.
+   * @deprecated use `copyMessage` instead
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param message Received message object
    */
@@ -931,7 +946,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     message: tt.Message,
     extra?: object
-  ): Promise<tt.Message> {
+  ): Promise<tt.MessageId> {
     if (!message) {
       throw new Error('Message is required')
     }
@@ -948,6 +963,40 @@ class Telegram extends ApiClient {
       ...extra,
     }
     return this.callApi(replicators.copyMethods[type], opts)
+  }
+
+  /**
+   * Send copy of existing message
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param fromChatId Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+   * @param messageId Message identifier in the chat specified in from_chat_id
+   */
+  copyMessage(
+    chatId: number | string,
+    fromChatId: number | string,
+    messageId: number,
+    extra?: tt.ExtraCopyMessage
+  ) {
+    return this.callApi('copyMessage', {
+      chat_id: chatId,
+      from_chat_id: fromChatId,
+      message_id: messageId,
+      ...extra,
+    })
+  }
+
+  /**
+   * Log out from the cloud Bot API server before launching the bot locally
+   */
+  logOut() {
+    return this.callApi('logOut', {})
+  }
+
+  /**
+   * Close the bot instance before moving it from one local server to another
+   */
+  close() {
+    return this.callApi('close', {})
   }
 }
 

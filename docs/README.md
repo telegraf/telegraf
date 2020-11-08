@@ -10,7 +10,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 
 #### Features
 
-- Full [Telegram Bot API 4.9](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 5.0](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -1570,17 +1570,16 @@ Use this method to edit media of messages sent by the bot or via the bot.
 
 Use this method to edit live location messages sent by the bot or via the bot.
 
-`telegram.editMessageLiveLocation(latitude, longitude, chatId, messageId, inlineMessageId, [markup]) => Promise`
-[Official documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
+`telegram.editMessageLiveLocation(chatId, messageId, inlineMessageId, latitude, longitude, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| latitude | `string` | Latitude of new location |
-| longitude | `string` | Longitude of new location |
 | chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 | inlineMessageId | `string` | Inline message id |
-| [markup] | `object` | Keyboard markup |
+| latitude | `string` | Latitude of new location |
+| longitude | `string` | Longitude of new location |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagelivelocation)|
 
 ##### editMessageReplyMarkup
 
@@ -1635,6 +1634,19 @@ Sends message copy.
 | chatId | `number/string` | Target Chat id |
 | message | `object` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
+
+##### copyMessage
+
+Send copy of existing message.
+
+`telegram.copyMessage(chatId, fromChatId, messageId, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Target Chat id |
+| fromChatId | `number/string` | Source Chat id |
+| messageId | `number` | Message id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#copymessage)|
 
 ##### getWebhookInfo
 
@@ -1924,8 +1936,20 @@ Use this method to pin a message in a supergroup.
 
 Use this method to unpin a message in a supergroup chat.
 
-`telegram.unpinChatMessage(chatId) => Promise`
+`telegram.unpinChatMessage(chatId, [messageId]) => Promise`
 [Official documentation](https://core.telegram.org/bots/api#unpinchatmessage)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| [messageId] | `number` | Message id |
+
+##### unpinAllChatMessages
+
+Use this method clear the list of pinned messages in a chat.
+
+`telegram.unpinAllChatMessages(chatId) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#unpinallchatmessages)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1946,8 +1970,11 @@ Use this method for your bot to leave a group, supergroup or channel.
 
 Removes webhook integration.
 
-`telegram.deleteWebhook() => Promise`
-[Official documentation](https://core.telegram.org/bots/api#deletewebhook)
+`telegram.deleteWebhook([extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#deletewebhook)|
 
 ##### sendAudio
 
@@ -2247,27 +2274,24 @@ Use this method to upload a .png file with a sticker for later use in createNewS
 
 Specifies an url to receive incoming updates via an outgoing webhook.
 
-`telegram.setWebhook(url, [cert], [maxConnections], [allowedUpdates]) => Promise`
-[Official documentation](https://core.telegram.org/bots/api#setwebhook)
+`telegram.setWebhook(url, [extra]) => Promise`
 
 | Param | Type | Description |
 | ---  | --- | --- |
 | url  | `string` | Public url for webhook |
-| [cert] | `File` | SSL public certificate |
-| [maxConnections] | `number` | Maximum allowed number of simultaneous HTTPS connections to the webhook |
-| [allowedUpdates] | `string[]` | List the types of updates you want your bot to receive |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#setwebhook)|
 
 ##### unbanChatMember
 
 Use this method to unban a previously kicked user in a supergroup.
 
-`telegram.unbanChatMember(chatId, userId) => Promise`
-[Official documentation](https://core.telegram.org/bots/api#unbanchatmember)
+`telegram.unbanChatMember(chatId, userId, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | userId | `number` | User id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#unbanchatmember)|
 
 
 ##### setPassportDataErrors
@@ -2282,6 +2306,20 @@ until the errors are fixed (the contents of the field for which you returned the
 | Param | Type | Description |
 | ---  | --- | --- |
 | [errors] | `PassportElementError[]` | An array describing the errors |
+
+##### logOut
+
+Log out from the cloud Bot API server before launching the bot locally.
+
+`telegram.logOut() => Promise`
+[Official documentation](https://core.telegram.org/bots/api#logout)
+
+##### close
+
+Close the bot instance before moving it from one local server to another.
+
+`telegram.close() => Promise`
+[Official documentation](https://core.telegram.org/bots/api#close)
 
 #### Extra
 

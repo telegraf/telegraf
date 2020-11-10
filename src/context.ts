@@ -7,6 +7,16 @@ type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
 
+type UnionToIntersection<U> = (
+  U extends unknown ? (k: U) => void : never
+) extends (k: infer I) => void
+  ? I
+  : never
+
+type Deunionize<T extends object> = T & Partial<UnionToIntersection<T>>
+
+const deunionize = <T extends object>(t: T): Deunionize<T> => t
+
 const UpdateTypes = [
   'callback_query',
   'channel_post',
@@ -97,12 +107,12 @@ export class Context {
 
   get message() {
     if (!('message' in this.update)) return undefined
-    return this.update.message
+    return deunionize(this.update.message)
   }
 
   get editedMessage() {
     if (!('edited_message' in this.update)) return undefined
-    return this.update.edited_message
+    return deunionize(this.update.edited_message)
   }
 
   get inlineQuery() {
@@ -127,17 +137,17 @@ export class Context {
 
   get channelPost() {
     if (!('channel_post' in this.update)) return undefined
-    return this.update.channel_post
+    return deunionize(this.update.channel_post)
   }
 
   get editedChannelPost() {
     if (!('edited_channel_post' in this.update)) return undefined
-    return this.update.edited_channel_post
+    return deunionize(this.update.edited_channel_post)
   }
 
   get callbackQuery() {
     if (!('callback_query' in this.update)) return undefined
-    return this.update.callback_query
+    return deunionize(this.update.callback_query)
   }
 
   get poll() {

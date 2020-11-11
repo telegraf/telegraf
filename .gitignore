@@ -41,3 +41,4 @@ package-lock.json
 /lib
 /telegraf-docs/
 /typings/
+tsconfig.tsbuildinfo

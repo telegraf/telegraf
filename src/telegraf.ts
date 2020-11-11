@@ -208,7 +208,7 @@ export class Telegraf<TContext extends Context = Context> extends Composer<
 
   async stop() {
     debug('Stopping bot...')
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       if (this.webhookServer) {
         this.webhookServer.close((err) => {
           if (err) reject(err)

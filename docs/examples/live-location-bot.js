@@ -1,4 +1,4 @@
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
 
 function sendLiveLocation (ctx) {
   let lat = 42.0

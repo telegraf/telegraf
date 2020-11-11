@@ -1,9 +1,8 @@
-const Telegraf = require('telegraf')
-const { Extra, Markup } = Telegraf
+const { Telegraf, Markup } = require('telegraf')
 
 const keyboard = Markup.keyboard([
-  Markup.pollRequestButton('Create poll', 'regular'),
-  Markup.pollRequestButton('Create quiz', 'quiz')
+  Markup.button.pollRequest('Create poll', 'regular'),
+  Markup.button.pollRequest('Create quiz', 'quiz')
 ])
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -11,7 +10,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.on('poll', (ctx) => console.log('Poll update', ctx.poll))
 bot.on('poll_answer', (ctx) => console.log('Poll answer', ctx.pollAnswer))
 
-bot.start((ctx) => ctx.reply('supported commands: /poll /quiz', Extra.markup(keyboard)))
+bot.start((ctx) => ctx.reply('supported commands: /poll /quiz', keyboard))
 
 bot.command('poll', (ctx) =>
   ctx.replyWithPoll(

@@ -2,12 +2,14 @@
   "compilerOptions": {
     "module": "commonjs",
     "esModuleInterop": true,
-    "allowJs": true,
+    "composite": true,
     "declaration": true,
     "declarationDir": "typings/",
     "outDir": "lib/",
+    "rootDir": "src/",
     "target": "ES2019",
     "strict": true,
+    "tsBuildInfoFile": "typings/tsconfig.tsbuildinfo",
     "forceConsistentCasingInFileNames": true
   },
   "typedocOptions": {

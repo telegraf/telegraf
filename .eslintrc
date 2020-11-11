@@ -1,7 +1,7 @@
 {
   "extends": ["standard-with-typescript"],
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": ["./tsconfig.json", "docs/examples/tsconfig.json"]
   },
   "overrides": [
     {

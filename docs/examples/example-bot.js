@@ -1,6 +1,4 @@
-const Telegraf = require('telegraf')
-const Extra = require('telegraf/extra')
-const session = require('telegraf/session')
+const { Telegraf, session } = require('telegraf')
 const { reply, fork } = Telegraf
 
 const randomPhoto = 'https://picsum.photos/200/300/?random'
@@ -14,9 +12,9 @@ bot.use(session())
 
 // Register logger middleware
 bot.use((ctx, next) => {
-  const start = new Date()
+  const start = Date.now()
   return next().then(() => {
-    const ms = new Date() - start
+    const ms = Date.now() - start
     console.log('response time %sms', ms)
   })
 })
@@ -48,7 +46,7 @@ bot.hears('Hey', sayYoMiddleware, (ctx) => {
 // Command handling
 bot.command('answer', sayYoMiddleware, (ctx) => {
   console.log(ctx.message)
-  return ctx.reply('*42*', Extra.markdown())
+  return ctx.replyWithMarkdownV2('*42*')
 })
 
 bot.command('cat', ({ replyWithPhoto }) => replyWithPhoto(randomPhoto))

@@ -36,8 +36,8 @@ class MultipartStream extends SandwichStream {
     stream: unknown
   ): stream is { pipe: MultipartStream['pipe'] } {
     return (
-      stream &&
       typeof stream === 'object' &&
+      stream !== null &&
       hasPropType(stream, 'pipe', 'function')
     )
   }

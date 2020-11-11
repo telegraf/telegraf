@@ -65,7 +65,7 @@ export class Composer<TContext extends Context>
    */
   hears(
     triggers: Triggers<TContext>,
-    ...fns: ReadonlyArray<Middleware<TContext>>
+    ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
   ) {
     return this.use(Composer.hears(triggers, ...fns))
   }
@@ -85,7 +85,7 @@ export class Composer<TContext extends Context>
    */
   action(
     triggers: Triggers<TContext>,
-    ...fns: ReadonlyArray<Middleware<TContext>>
+    ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
   ) {
     return this.use(Composer.action(triggers, ...fns))
   }

@@ -1,9 +1,4 @@
-const Telegraf = require('telegraf')
-const Composer = require('telegraf/composer')
-const session = require('telegraf/session')
-const Stage = require('telegraf/stage')
-const Markup = require('telegraf/markup')
-const WizardScene = require('telegraf/scenes/wizard')
+const { Composer, Telegraf, Markup, session, Stage, WizardScene } = require('telegraf')
 
 const stepHandler = new Composer()
 stepHandler.action('next', (ctx) => {
@@ -19,9 +14,9 @@ stepHandler.use((ctx) => ctx.replyWithMarkdown('Press `Next` button or type /nex
 const superWizard = new WizardScene('super-wizard',
   (ctx) => {
     ctx.reply('Step 1', Markup.inlineKeyboard([
-      Markup.urlButton('❤️', 'http://telegraf.js.org'),
-      Markup.callbackButton('➡️ Next', 'next')
-    ]).extra())
+      Markup.button.url('❤️', 'http://telegraf.js.org'),
+      Markup.button.callback('➡️ Next', 'next')
+    ]))
     return ctx.wizard.next()
   },
   stepHandler,

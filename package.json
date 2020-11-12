@@ -31,7 +31,7 @@
     "pretest": "tsc",
     "test": "ava test/*",
     "typedoc": "typedoc",
-    "clean": "git clean -fX lib/ typings/",
+    "clean": "git clean -fX docs/build/ lib/ typings/",
     "typecheck": "tsc --noEmit",
     "prepare": "tsc && mjs-entry src/index.ts >lib/index.mjs"
   },

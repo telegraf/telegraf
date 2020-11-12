@@ -39,5 +39,6 @@ node_modules
 .vscode
 package-lock.json
 /lib
+/docs/build
 /telegraf-docs/
 /typings/

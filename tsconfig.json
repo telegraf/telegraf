@@ -11,11 +11,9 @@
     "forceConsistentCasingInFileNames": true
   },
   "typedocOptions": {
-    "exclude": ["typings/test.ts"],
     "excludeExternals": true,
-    "includeDeclarations": true,
     "mode": "file",
-    "out": "telegraf-docs",
+    "out": "docs/build/",
     "readme": "docs/README.md",
     "theme": "docs/theme/"
   },

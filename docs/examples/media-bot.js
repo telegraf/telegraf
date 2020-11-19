@@ -1,5 +1,4 @@
-const Telegraf = require('telegraf')
-const Extra = require('telegraf/extra')
+const { Telegraf, Markup } = require('telegraf')
 const fs = require('fs')
 
 const AnimationUrl1 = 'https://media.giphy.com/media/ya4eevXU490Iw/giphy.gif'
@@ -17,7 +16,7 @@ bot.command('pipe_animation', (ctx) => ctx.replyWithAnimation({ url: AnimationUr
 
 bot.command('caption', (ctx) => ctx.replyWithPhoto(
   'https://picsum.photos/200/300/?random',
-  Extra.caption('Caption *text*').markdown()
+  { caption: 'Caption *text*', parse_mode: 'Markdown' }
 ))
 
 bot.command('album', (ctx) => {
@@ -55,11 +54,12 @@ bot.command('album', (ctx) => {
   ])
 })
 
-bot.command('edit_media', (ctx) => ctx.replyWithAnimation(AnimationUrl1, Extra.markup((m) =>
-  m.inlineKeyboard([
-    m.callbackButton('Change media', 'swap_media')
+bot.command('edit_media', (ctx) => ctx.replyWithAnimation(
+  AnimationUrl1,
+  Markup.inlineKeyboard([
+    Markup.button.callback('Change media', 'swap_media')
   ])
-)))
+))
 
 bot.action('swap_media', (ctx) => ctx.editMessageMedia({
   type: 'animation',

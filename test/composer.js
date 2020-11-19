@@ -1,6 +1,5 @@
 const test = require('ava')
-const Telegraf = require('../')
-const { Composer } = Telegraf
+const { Composer, Telegraf } = require('../')
 
 const baseMessage = { chat: { id: 1 }, from: { id: 42, username: 'telegraf' } }
 const baseGroupMessage = { chat: { id: 1, type: 'group' } }
@@ -119,11 +118,11 @@ test('should throw error then called with undefined middleware', (t) => {
   })
 })
 
-test.cb('should throw error then called with invalid middleware', (t) => {
+test('should throw error then called with invalid middleware', (t) => {
   const bot = new Telegraf()
-  bot.catch((e) => t.end())
-  bot.on('text', 'foo')
-  bot.handleUpdate({ message: { text: 'hello', ...baseMessage } })
+  t.throws(() => {
+    bot.on('text', 'foo')
+  })
 })
 
 test.cb('should throw error then "next()" called twice', (t) => {

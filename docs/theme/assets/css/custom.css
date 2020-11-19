@@ -1,0 +1,54 @@
+/** @format */
+code.language-bash::before {
+  content: '$';
+  margin-left: 5px;
+  display: inline-block;
+  margin-right: 10px;
+  user-select: none;
+}
+
+.tsd-navigation [href='classes/apiclient.html'],
+.tsd-navigation .tsd-kind-interface,
+.tsd-navigation .tsd-kind-type-alias {
+  display: none;
+}
+
+a > h2:hover::after,
+a > h3:hover::after,
+a > h4:hover::after,
+a > h5:hover::after {
+  content: '🔗';
+  opacity: 0.2;
+}
+
+a {
+  color: #e74625;
+}
+
+.hljs-keyword {
+  color: #07a;
+}
+
+.hljs-subst > .hljs-keyword {
+  color: inherit;
+}
+
+nav .tsd-kind-class,
+.tsd-legend > .tsd-kind-constructor,
+.tsd-legend > .tsd-kind-method,
+.tsd-index-list > .tsd-kind-class,
+.tsd-index-list > .tsd-kind-constructor,
+.tsd-index-list > .tsd-kind-method,
+.tsd-kind-constructor > .tsd-signature::before,
+.tsd-kind-method > .tsd-signature::before {
+  filter: hue-rotate(-199.8deg);
+}
+
+nav .tsd-kind-class .tsd-kind-property {
+  filter: hue-rotate(199.8deg);
+}
+
+.tsd-index-list .tsd-kind-type-alias > a,
+.tsd-index-list .tsd-kind-function > a {
+  color: #b54dff;
+}

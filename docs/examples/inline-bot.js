@@ -1,6 +1,5 @@
-const Telegraf = require('telegraf')
-const Markup = require('telegraf/markup')
-const fetch = require('node-fetch')
+const { Telegraf, Markup } = require('telegraf')
+const fetch = require('node-fetch').default
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
@@ -20,7 +19,7 @@ bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => {
         message_text: title
       },
       reply_markup: Markup.inlineKeyboard([
-        Markup.urlButton('Go to recipe', href)
+        Markup.button.url('Go to recipe', href)
       ])
     }))
   return answerInlineQuery(recipes)

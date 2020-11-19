@@ -1,4 +1,5 @@
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
+// @ts-expect-error not a dependency of Telegraf
 const HttpsProxyAgent = require('https-proxy-agent')
 
 const { BOT_TOKEN, HTTPS_PROXY_HOST, HTTPS_PROXY_PORT } = process.env

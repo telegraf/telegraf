@@ -1,4 +1,4 @@
-![Telegraf](header.png)
+![Telegraf](https://raw.githubusercontent.com/telegraf/telegraf/develop/docs/header.png)
 
 ## Introduction
 
@@ -6,14 +6,16 @@ Bots are special [Telegram](https://telegram.org) accounts designed to handle me
 Users can interact with bots by sending them command messages in private or group chats. 
 These accounts serve as an interface for code running somewhere on your server.
 
+Telegraf is a library that makes it simple for you to develop your own Telegram bots using JavaScript or [TypeScript](https://www.typescriptlang.org/).
+
 #### Features
 
-- Full [Telegram Bot API 4.8](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 5.0](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
 - Incredibly fast
-- [now](https://now.sh)/[Firebase](https://firebase.google.com/products/functions/)/[Glitch](https://dashing-light.glitch.me)/[Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction)/[AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)/Whatever ready
+- [Firebase](https://firebase.google.com/products/functions/)/[Glitch](https://dashing-light.glitch.me)/[Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction)/[AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)/Whatever ready
 - `http/https/fastify/Connect.js/express.js` compatible webhooks
 - Easy to extend
 - `TypeScript` typings
@@ -21,13 +23,13 @@ These accounts serve as an interface for code running somewhere on your server.
 #### Installation
 
 ```bash
-$ npm install telegraf --save
+npm install telegraf --save
 ```
 
 or using yarn
 
 ```bash
-$ yarn add telegraf
+yarn add telegraf
 ```
 
 #### Example
@@ -55,18 +57,28 @@ bot.launch()
 
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
 
+**Resources:**
+
+* [Community chat](https://t.me/TelegrafJSChat)
+* [Community chat (Russian)](https://t.me/telegraf_ru)
+
 **Community bots:**
 
+<!-- Please keep the table sorted -->
 | Name | Description |
 | --- | --- |
-| [ChatAdmin](https://github.com/Khuzha/chatAdmin) | Helps to administer the chats  |
+| [BibleBot](https://github.com/Kriv-Art/BibleBot) | Bot to get bible verses |
+| [BibleQuizzleBot](https://github.com/Samleo8/BibleQuizzle) | Bible quiz game - group fun similar to Quizzarium |
+| [BitcoinDogBot](https://github.com/jibital/bitcoin-dog-bot) | Bitcoin prices, Technical analysis and Alerts! |
 | [BooksAndBot](https://github.com/dmtrbrl/BooksAndBot) | An inline bot that allows you to search for books and share them in a conversation. Powered by Goodreads  |
 | [CaptchaOnlyBot](https://github.com/Piterden/captcha_only_bot) | Configurable question \w set of buttons on a new group user |
 | [ChannelHashBot](https://github.com/YouTwitFace/ChannelHashBot) | Keep track of hashtags that are sent in your group by forwarding them to a channel |
+| [ChatAdmin](https://github.com/Khuzha/chatAdmin) | Helps to administer the chats  |
 | [ChatLinkerBot](https://github.com/jt3k/chat-linker) | The bridge between jabber and telegram |
 | [ChessBot](https://github.com/Piterden/chessbot) | Inline chess game in a message |
 | [CounterBot](https://github.com/leodj/telegram-counter-bot) | Keep track of multiple counters and increment, decrement, set and reset them to your hearts content  |
 | [DefendTheCastle](https://github.com/TiagoDanin/Defend-The-Castle) | Telegram Bot Game - Defend The Castle |
+| [DiscordTelegramBridge](https://github.com/daaniiieel/discord-telegram-bridge) | A simple, small and fast discord to telegram bridge written in node.js |
 | [EveMoviesBot](https://github.com/dmbaranov/evemovies-bot) | Track movie torrent releases and get notifications when it's there |
 | [GNU/LinuxIndonesiaBot](https://github.com/bgli/bglibot-js) | BGLI Bot a.k.a Miranda Salma |
 | [GoogleItBot](https://github.com/Edgar-P-yan/google-it-telegram-bot) | Instant inline search |
@@ -77,6 +89,8 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [Memcoin](https://github.com/backmeupplz/memcoin) | Memcoin for the Memconomy |
 | [MetalArchivesBot](https://github.com/amiralies/metalarchives-telegram-bot) | Unofficial metal-archives.com bot |
 | [MidnaBot](https://github.com/wsknorth/midnabot) | Midnabot for telegram |
+| [MineTelegram](https://github.com/hexatester/minetelegram) | Minecraft - Telegram bridge |
+| [NodeRSSBot](https://github.com/fengkx/NodeRSSBot) | Bot to subscribe RSS feed which allows many configurations |
 | [Nyaa.si Bot](https://github.com/ejnshtein/nyaasi-bot) | Nyaa.si torrents |
 | [OCRToolBot](https://github.com/Piterden/tesseract-bot) | Tesseract text from image recognition |
 | [OneQRBot](https://github.com/Khuzha/oneqrbot) | Scan and generate QR |
@@ -103,10 +117,8 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [Watchy](https://github.com/backmeupplz/watchy) |   |
 | [YtSearchBot](https://github.com/Finalgalaxy/yt-search-bot) | Bot to share YouTube fetched videos from any channel |
 | [YTubevideoBot](https://github.com/n1ghtw0lff/YTubevideoBot) | Bot created to help you find and share any video from youtube |
-| [NodeRSSBot](https://github.com/fengkx/NodeRSSBot) | Bot to subscribe RSS feed which allows many configurations |
-| [BibleBot](https://github.com/Kriv-Art/BibleBot) | Bot to get bible verses |
-| [BitcoinDogBot](https://github.com/jibital/bitcoin-dog-bot) | Bitcoin prices, Technical analysis and Alerts! |
 | Send PR to add link to your bot |   |
+<!-- Please keep the table sorted -->
 
 ## Getting started
 
@@ -122,7 +134,7 @@ BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsT
 
 A Telegraf bot is an object containing an array of middlewares which are composed 
 and executed in a stack-like manner upon request. Is similar to many other middleware systems 
-that you may have encountered such as Koa, Ruby's Rack, Connect.
+that you may have encountered such as Express, Koa, Ruby's Rack, Connect.
 
 #### Middleware
 
@@ -131,9 +143,19 @@ It allows you to modify requests and responses as they pass between the Telegram
 
 You can imagine middleware as a chain of logic connection your bot to the Telegram request.
 
-Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram update, 
-`next` is a function that is invoked to execute the downstream middleware. 
-It returns a Promise with a then function for running code after completion.
+Middleware normally takes the two parameters: **`ctx`** and **`next`**.
+
+**`ctx`** is the context for one [Telegram update](https://core.telegram.org/bots/api#update). It contains mainly two things:
+
+- the update object, containing for example the incoming message and the respective chat, and
+- a number of useful methods for reacting to the update, such as replying to the message or answering a callback query.
+
+See  [the context section](https://telegraf.js.org/#/?id=context) below for a detailed overview.
+
+**`next`** is a function that is invoked to execute the downstream middleware.
+It returns a `Promise` with a function `then` for running code after completion.
+
+Here is a simple example for how to use middleware to track the response time, using `async` and `await` to deal with the `Promise`.
 
 ```js
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -149,16 +171,36 @@ bot.on('text', (ctx) => ctx.reply('Hello World'))
 bot.launch()
 ```
 
+Note how the function `next` is used to invoke the subsequent layers of the middleware stack, performing the actual processing of the update (in this case, replying with “Hello World”).
+
+##### What you can do with middleware
+
+Middleware is an extremely flexible concept that can be used for a myriad of things, including these:
+
+- storing data per chat, per user, you name it
+- allowing access to old messages (by storing them)
+- making internationalization available
+- rate limiting
+- tracking response times (see above)
+- much more
+
+All important kinds of middleware have already been implemented, and the community keeps on adding more.
+Just install a package via `npm`, add it to your bot and you're ready to go.
+
+Here is a list of
+
 ##### Known middleware
 
-- [Internationalization](https://github.com/telegraf/telegraf-i18n)
-- [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
-- [Local powered session (via lowdb)](https://github.com/RealSpeaker/telegraf-session-local)
-- [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)
-- [Menus via inline keyboards](https://github.com/EdJoPaTo/telegraf-inline-menu)
+- [Internationalization](https://github.com/telegraf/telegraf-i18n)—simplifies selecting the right translation to use when responding to a user.
+- [Redis powered session](https://github.com/telegraf/telegraf-session-redis)—store session data using Redis.
+- [Local powered session (via lowdb)](https://github.com/RealSpeaker/telegraf-session-local)—store session data in a local file.
+- [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)—apply rate limitting to chats or users.
+- [Bottleneck powered throttling](https://github.com/KnightNiwrem/telegraf-throttler)—apply throttling to both incoming updates and outgoing API calls.
+- [Menus via inline keyboards](https://github.com/EdJoPaTo/telegraf-inline-menu)—simplify creating interfaces based on menus.
+- [Stateless Questions](https://github.com/EdJoPaTo/telegraf-stateless-question)—create stateless questions to Telegram users working in privacy mode.
 - [Natural language processing via wit.ai](https://github.com/telegraf/telegraf-wit)
 - [Natural language processing via recast.ai](https://github.com/telegraf/telegraf-recast)
-- [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)
+- [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)—add experiments to see how different versions of a feature are used.
 - [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
 - [statsd integration](https://github.com/telegraf/telegraf-statsd)
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
@@ -167,7 +209,7 @@ bot.launch()
 
 By default Telegraf will print all errors to `stderr` and rethrow error.
 
-To perform custom error-handling logic use following snippet:
+To perform custom error-handling logic, use following snippet:
 
 ```js
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -230,6 +272,9 @@ bot.on('text', (ctx) => {
 
 bot.launch()
 ```
+
+If you're using TypeScript, have a look at the section below about usage with TypeScript.
+(You need to extend the type of the context.)
 
 ##### Shortcuts
 
@@ -416,6 +461,24 @@ bot.launch()
 
 #### Session
 
+Sessions are used to store data per user or per chat (or per whatever if you want, this is the *session key*).
+
+Think of a session as an object that can hold any kind of information you provide.
+This could be the ID of the last message of the bot, or simply a counter about how many photos a user already sent to the bot.
+
+You can use session middleware to add sessions support to your bot.
+This will do the heavy lifting for you.
+Using session middleware will result in a sequence like this:
+
+1) A new update comes in.
+2) The session middleware loads the current session data for the respective chat/user/whatever.
+3) The session middleware makes that session data available on the context object `ctx`.
+4) Your middleware stack is run, all of your code can do its work.
+5) The session middleware takes back control and checks how you altered the session data on the `ctx` object.
+6) The session middleware write the session back to your storage, i.e. a file, a database, an in-memory storage, or even a cloud storage solution.
+
+Here is a simple example of how the built-in session middleware of Telegraf can be used to count photos.
+
 ```js
 const session = require('telegraf/session')
 
@@ -429,6 +492,10 @@ bot.on('text', (ctx) => {
 
 bot.launch()
 ```
+
+In this example, the session middleware just stores the counters in-memory.
+This means that all counters will be lost when you stop your bot.
+If you want to store data even across restarts, you need to use *persistent sessions*.
 
 **Note: For persistent sessions you can use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
 
@@ -449,6 +516,8 @@ bot.launch()
 
 #### Update types
 
+You can react to several different types of updates (and even sub-types of them), see the example below.
+
 Supported update types:
 
 - `message`
@@ -460,6 +529,8 @@ Supported update types:
 - `chosen_inline_result`
 - `channel_post`
 - `edited_channel_post`
+- `poll`
+- `poll_answer`
 
 Available update sub-types:
 
@@ -539,7 +610,7 @@ bot.startWebhook('/secret-path', tlsOptions, 8443)
 bot.startWebhook('/secret-path', null, 5000)
 ```
 
-Use webhookCallback() if you want to attach telegraf to existing http server
+Use `webhookCallback()` if you want to attach Telegraf to an existing http server.
 
 ```js
 require('http')
@@ -551,7 +622,7 @@ require('https')
   .listen(8443)
 ```
 
-Express.js example integration
+##### Express.js example integration
 
 ```js
 const { Telegraf } = require('telegraf')
@@ -571,16 +642,20 @@ expressApp.listen(3000, () => {
 })
 ```
 
-Fastify example integration
+##### Fastify example integration
+
+You can use `fastify-telegraf` package
 
 ```js
 const { Telegraf } = require('telegraf')
 const fastifyApp = require('fastify')()
+const fastifyTelegraf = require('fastify-telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.on('text', ({ reply }) => reply('Hello'))
-fastifyApp.use(bot.webhookCallback('/secret-path'))
+
+fastifyApp.register(fastifyTelegraf, { bot, path: '/secret-path' })
 // Set telegram webhook
 // npm install -g localtunnel && lt --port 3000
 bot.telegram.setWebhook('https://------.localtunnel.me/secret-path')
@@ -590,7 +665,7 @@ fastifyApp.listen(3000, () => {
 })
 ```
 
-Koa.js example integration
+##### Koa.js example integration
 
 ```js
 const { Telegraf } = require('telegraf')
@@ -626,7 +701,7 @@ Supported file sources:
 - `Buffer`
 - `ReadStream`
 
-Also you can provide optional name of file as `filename`.
+Also, you can provide an optional name of a file as `filename` when you send the file.
 
 ```js
 bot.on('message', (ctx) => {
@@ -681,7 +756,7 @@ bot.on('passport_data', (ctx) => {
 
 Telegraf Modules is higher level abstraction for writing modular Telegram bots.
 
-Module is simple js file with exported Telegraf middleware:
+A module is simply a .js file that exports Telegraf middleware:
 
 ```js
 module.exports = (ctx) => ctx.reply('Hello from Telegraf Module!')
@@ -696,15 +771,15 @@ module.exports = Composer.mount(
 )
 ```
 
-To run modules you can use `telegraf` module runner, it allows you to start Telegraf module easily from the command line.
+To run modules, you can use `telegraf` module runner, it allows you to start Telegraf module easily from the command line.
 
 ```bash
-$ npm install telegraf -g
+npm install telegraf -g
 ```
 
 #### Telegraf CLI usage
 
-```
+```plaintext
 telegraf [opts] <bot-file>
   -t  Bot token [$BOT_TOKEN]
   -d  Webhook domain
@@ -734,7 +809,83 @@ module.exports = bot
 then run it:
 
 ```bash
-$ telegraf -t "bot token" bot.js
+telegraf -t "bot token" bot.js
+```
+
+#### Usage with TypeScript
+
+Telegraf is written in TypeScript and therefore ships with declaration files for the entire library.
+Moreover, it includes types for the complete Telegram API via the [`typegram`](https://github.com/KnorpelSenf/typegram) package.
+While most types of Telegraf's API surface are self-explanatory, there's some notable things to keep in mind.
+
+##### Custom Context Type and Middleware
+
+Recap from the above section about Middleware that `ctx` is the context object that holds information about the incoming update, as well as a number of convenience functions such as `ctx.reply`.
+
+The exact shape of `ctx` can vary based on the installed middleware.
+Some custom middleware might register properties on the context object that Telegraf is not aware of.
+Consequently, you can change the type of `ctx` to fit your needs in order for you to have proper TypeScript types for your data.
+This is done through Generics:
+
+```ts
+import { Context, Telegraf } from "telegraf";
+
+// Define your own context type
+interface MyContext extends Context {
+  myProp?: string
+  myOtherProp?: number
+}
+
+// Create your bot and tell it about your context type
+const bot = new Telegraf<MyContext>('SECRET TOKEN')
+
+// Register middleware and launch your bot as usual
+bot.use((ctx, next) => {
+  // Yay, `myProp` is now available here as `string | undefined`!
+  ctx.myProp = ctx.chat?.first_name?.toUpperCase()
+  return next()
+})
+// ...
+```
+
+##### Session Middleware
+
+If you are using session middleware, you need to define your session property on your custom context object.
+This could look like this:
+
+```ts
+import { Context, Telegraf } from 'telegraf'
+import session from 'telegraf/session'
+
+interface SessionData {
+  lastMessageId?: number
+  photoCount?: number
+  // ... more session data go here
+}
+
+// Define your own context type
+interface MyContext extends Context {
+  session: SessionData
+  // ... more props go here
+}
+
+// Create your bot and tell it about your context type
+const bot = new Telegraf<MyContext>('SECRET TOKEN')
+
+// Make session data available
+bot.use(session())
+// Register middleware and launch your bot as usual
+bot.use((ctx, next) => {
+  // Yay, `session` is now available here as `SessionData`!
+  if (ctx.message !== undefined)
+    ctx.session.lastMessageId = ctx.message.message_id
+  return next()
+})
+bot.on('photo', (ctx, next) => {
+  ctx.session.photoCount = 1 + (ctx.session.photoCount ?? 0)
+  return next()
+})
+// ...
 ```
 
 ## API reference
@@ -1088,12 +1239,6 @@ Generates pass thru middleware.
 
 `Telegraf.passThru() => function`
 
-##### Telegraf.safePassThru
-
-Generates safe version of pass thru middleware.
-
-`Telegraf.safePassThru() => function`
-
 ##### Telegraf.optional
 
 Generates optional middleware.
@@ -1429,17 +1574,16 @@ Use this method to edit media of messages sent by the bot or via the bot.
 
 Use this method to edit live location messages sent by the bot or via the bot.
 
-`telegram.editMessageLiveLocation(latitude, longitude, chatId, messageId, inlineMessageId, [markup]) => Promise`
-[Official documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
+`telegram.editMessageLiveLocation(chatId, messageId, inlineMessageId, latitude, longitude, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| latitude | `string` | Latitude of new location |
-| longitude | `string` | Longitude of new location |
 | chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 | inlineMessageId | `string` | Inline message id |
-| [markup] | `object` | Keyboard markup |
+| latitude | `string` | Latitude of new location |
+| longitude | `string` | Longitude of new location |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagelivelocation)|
 
 ##### editMessageReplyMarkup
 
@@ -1494,6 +1638,19 @@ Sends message copy.
 | chatId | `number/string` | Target Chat id |
 | message | `object` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
+
+##### copyMessage
+
+Send copy of existing message.
+
+`telegram.copyMessage(chatId, fromChatId, messageId, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Target Chat id |
+| fromChatId | `number/string` | Source Chat id |
+| messageId | `number` | Message id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#copymessage)|
 
 ##### getWebhookInfo
 
@@ -1783,8 +1940,20 @@ Use this method to pin a message in a supergroup.
 
 Use this method to unpin a message in a supergroup chat.
 
-`telegram.unpinChatMessage(chatId) => Promise`
+`telegram.unpinChatMessage(chatId, [messageId]) => Promise`
 [Official documentation](https://core.telegram.org/bots/api#unpinchatmessage)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| [messageId] | `number` | Message id |
+
+##### unpinAllChatMessages
+
+Use this method clear the list of pinned messages in a chat.
+
+`telegram.unpinAllChatMessages(chatId) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#unpinallchatmessages)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1805,8 +1974,11 @@ Use this method for your bot to leave a group, supergroup or channel.
 
 Removes webhook integration.
 
-`telegram.deleteWebhook() => Promise`
-[Official documentation](https://core.telegram.org/bots/api#deletewebhook)
+`telegram.deleteWebhook([extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#deletewebhook)|
 
 ##### sendAudio
 
@@ -2106,27 +2278,24 @@ Use this method to upload a .png file with a sticker for later use in createNewS
 
 Specifies an url to receive incoming updates via an outgoing webhook.
 
-`telegram.setWebhook(url, [cert], [maxConnections], [allowedUpdates]) => Promise`
-[Official documentation](https://core.telegram.org/bots/api#setwebhook)
+`telegram.setWebhook(url, [extra]) => Promise`
 
 | Param | Type | Description |
 | ---  | --- | --- |
 | url  | `string` | Public url for webhook |
-| [cert] | `File` | SSL public certificate |
-| [maxConnections] | `number` | Maximum allowed number of simultaneous HTTPS connections to the webhook |
-| [allowedUpdates] | `string[]` | List the types of updates you want your bot to receive |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#setwebhook)|
 
 ##### unbanChatMember
 
 Use this method to unban a previously kicked user in a supergroup.
 
-`telegram.unbanChatMember(chatId, userId) => Promise`
-[Official documentation](https://core.telegram.org/bots/api#unbanchatmember)
+`telegram.unbanChatMember(chatId, userId, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | userId | `number` | User id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#unbanchatmember)|
 
 
 ##### setPassportDataErrors
@@ -2141,6 +2310,20 @@ until the errors are fixed (the contents of the field for which you returned the
 | Param | Type | Description |
 | ---  | --- | --- |
 | [errors] | `PassportElementError[]` | An array describing the errors |
+
+##### logOut
+
+Log out from the cloud Bot API server before launching the bot locally.
+
+`telegram.logOut() => Promise`
+[Official documentation](https://core.telegram.org/bots/api#logout)
+
+##### close
+
+Close the bot instance before moving it from one local server to another.
+
+`telegram.close() => Promise`
+[Official documentation](https://core.telegram.org/bots/api#close)
 
 #### Extra
 

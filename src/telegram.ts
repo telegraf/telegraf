@@ -19,7 +19,7 @@ class Telegram extends ApiClient {
   }
 
   /**
-   * Get download link to a file
+   * Get download link or path to a file
    */
   async getFileLink(fileId: string | tt.File) {
     if (typeof fileId === 'string') {
@@ -27,6 +27,12 @@ class Telegram extends ApiClient {
     } else if (fileId.file_path === undefined) {
       fileId = await this.getFile(fileId.file_id)
     }
+
+    // Local bot API instances return the absolute path to the file
+    if (fileId.file_path?.startsWith('/')) {
+      return fileId.file_path
+    }
+
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return `${this.options.apiRoot}/file/bot${this.token}/${fileId.file_path}`
   }

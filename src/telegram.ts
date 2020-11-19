@@ -30,7 +30,7 @@ class Telegram extends ApiClient {
 
     // Local bot API instances return the absolute path to the file
     if (fileId.file_path?.startsWith('/')) {
-      return fileId.file_path
+      return 'file://' + fileId.file_path
     }
 
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

@@ -1748,7 +1748,7 @@ Returns basic info about a file and prepare it for downloading.
 
 ##### getFileLink
 
-Returns link or path to file.
+Returns link to file.
 
 `telegram.getFileLink(fileId) => Promise`
 

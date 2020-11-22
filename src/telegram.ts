@@ -19,7 +19,7 @@ class Telegram extends ApiClient {
   }
 
   /**
-   * Get download link or path to a file
+   * Get download link to a file
    */
   async getFileLink(fileId: string | tt.File) {
     if (typeof fileId === 'string') {

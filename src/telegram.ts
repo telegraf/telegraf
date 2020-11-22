@@ -1,6 +1,7 @@
 import * as replicators from './core/replicators'
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
+import { isAbsolute } from 'path'
 
 class Telegram extends ApiClient {
   /**
@@ -29,7 +30,7 @@ class Telegram extends ApiClient {
     }
 
     // Local bot API instances return the absolute path to the file
-    if (fileId.file_path?.startsWith('/')) {
+    if (fileId.file_path && isAbsolute(fileId.file_path)) {
       return fileId.file_path
     }
 

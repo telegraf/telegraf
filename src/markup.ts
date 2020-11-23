@@ -5,7 +5,7 @@ import {
   KeyboardButton,
   ReplyKeyboardMarkup,
   ReplyKeyboardRemove,
-} from 'typegram'
+} from './telegram-types'
 import { is2D } from './core/helpers/check'
 
 type Hideable<B> = B & { hide?: boolean }

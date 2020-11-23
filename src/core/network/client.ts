@@ -6,7 +6,7 @@ import * as https from 'https'
 import * as path from 'path'
 import fetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { hasProp, hasPropType } from '../helpers/check'
-import { Opts, Telegram } from 'typegram'
+import { Opts, Telegram } from '../../telegram-types'
 import MultipartStream from './multipart-stream'
 import { ReadStream } from 'fs'
 import TelegramError from './error'
@@ -105,9 +105,9 @@ const FORM_DATA_JSON_FIELDS = [
 ]
 
 async function buildFormDataConfig(
-  payload: Record<string, unknown>,
+  payload: { [key: string]: unknown },
   agent: RequestInit['agent']
-): Promise<RequestInit> {
+) {
   for (const field of FORM_DATA_JSON_FIELDS) {
     if (hasProp(payload, field) && typeof payload[field] !== 'string') {
       payload[field] = JSON.stringify(payload[field])
@@ -285,7 +285,6 @@ async function answerToWebhook(
   }
   await new Promise((resolve) => {
     response.on('finish', resolve)
-    // @ts-expect-error
     body.pipe(response)
   })
   return WEBHOOK_REPLY_STUB
@@ -346,10 +345,11 @@ class ApiClient {
     }
 
     debug('HTTP call', method, payload)
-    const buildConfig = includesMedia(payload)
-      ? buildFormDataConfig({ method, ...payload }, options.agent)
-      : buildJSONConfig(payload)
-    const config = await buildConfig
+
+    const config: RequestInit = includesMedia(payload)
+      ? // @ts-expect-error
+        await buildFormDataConfig({ method, ...payload }, options.agent)
+      : await buildJSONConfig(payload)
     const apiUrl = `${options.apiRoot}/bot${token}/${method}`
     config.agent = options.agent
     const res = await fetch(apiUrl, config)

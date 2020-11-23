@@ -1,6 +1,7 @@
 import * as replicators from './core/replicators'
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
+import { isAbsolute } from 'path'
 
 class Telegram extends ApiClient {
   /**
@@ -27,6 +28,12 @@ class Telegram extends ApiClient {
     } else if (fileId.file_path === undefined) {
       fileId = await this.getFile(fileId.file_id)
     }
+
+    // Local bot API instances return the absolute path to the file
+    if (fileId.file_path && isAbsolute(fileId.file_path)) {
+      return new URL(fileId.file_path.replace(/^\/?/, '/'), 'file:')
+    }
+
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return `${this.options.apiRoot}/file/bot${this.token}/${fileId.file_path}`
   }

@@ -12,9 +12,9 @@ const invoice = {
     { label: 'Working Time Machine', amount: 4200 },
     { label: 'Gift wrapping', amount: 1000 }
   ],
-  payload: {
+  payload: JSON.stringify({
     coupon: 'BLACK FRIDAY'
-  }
+  })
 }
 
 const shippingOptions = [
@@ -38,7 +38,7 @@ const replyOptions = Markup.inlineKeyboard([
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.start(({ replyWithInvoice }) => replyWithInvoice(invoice))
 bot.command('buy', ({ replyWithInvoice }) => replyWithInvoice(invoice, replyOptions))
-bot.on('shipping_query', ({ answerShippingQuery }) => answerShippingQuery(true, shippingOptions))
+bot.on('shipping_query', ({ answerShippingQuery }) => answerShippingQuery(true, shippingOptions, undefined))
 bot.on('pre_checkout_query', ({ answerPreCheckoutQuery }) => answerPreCheckoutQuery(true))
 bot.on('successful_payment', () => console.log('Woohoo'))
 bot.launch()

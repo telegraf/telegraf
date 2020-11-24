@@ -73,9 +73,9 @@ namespace Telegraf {
 
 const allowedUpdates: tt.UpdateType[] | undefined = undefined
 
-export class Telegraf<TContext extends Context = Context> extends Composer<
-  TContext
-> {
+export class Telegraf<
+  TContext extends Context = Context
+> extends Composer<TContext> {
   private readonly options: Telegraf.Options<TContext>
   private webhookServer?: http.Server | https.Server
   public telegram: Telegram

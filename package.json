@@ -27,7 +27,6 @@
     "telegraf": "./bin/telegraf"
   },
   "scripts": {
-    "pretest": "npm run typecheck",
     "prepare": "npm run build",
     "build": "npm run build:lib && npm run build:docs",
     "build:lib": "tsc && mjs-entry src/index.ts > lib/index.mjs",

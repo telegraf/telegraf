@@ -27,8 +27,8 @@
     "telegraf": "./bin/telegraf"
   },
   "scripts": {
-    "lint": "eslint src/",
-    "pretest": "tsc",
+    "lint": "eslint .",
+    "pretest": "tsc --build docs/examples",
     "test": "ava test/*",
     "typedoc": "typedoc",
     "clean": "git clean -fX docs/build/ lib/ typings/",
@@ -51,7 +51,7 @@
     "module-alias": "^2.2.2",
     "node-fetch": "^2.6.1",
     "sandwich-stream": "^2.0.2",
-    "typegram": "^2.3.0"
+    "typegram": "^3.0.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.5",
@@ -74,7 +74,7 @@
     "mjs-entry": "gist:de6257751f54b3c66319bae8d2a8aea0",
     "prettier": "2.2.0",
     "typedoc": "^0.19.2",
-    "typescript": "4.0.3"
+    "typescript": "^4.1.2"
   },
   "keywords": [
     "telegraf",

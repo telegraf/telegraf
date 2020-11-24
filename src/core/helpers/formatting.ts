@@ -1,4 +1,4 @@
-import { MessageEntity } from 'typegram'
+import { MessageEntity } from '../../telegram-types'
 
 // functions for HTML tag escaping based on https://stackoverflow.com/a/5499821/
 const tagsToEscape = {

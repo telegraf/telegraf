@@ -1,5 +1,7 @@
+// @ts-expect-error not a dependency of Telegraf
 const fastify = require('fastify')
 const { Telegraf } = require('telegraf')
+// @ts-expect-error not a dependency of Telegraf
 const telegrafPlugin = require('fastify-telegraf')
 
 const { BOT_TOKEN, WEBHOOK_URL } = process.env

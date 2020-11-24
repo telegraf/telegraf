@@ -1,4 +1,5 @@
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
+// @ts-expect-error not a dependency of Telegraf
 const express = require('express')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)

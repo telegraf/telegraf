@@ -234,7 +234,7 @@ class Telegram extends ApiClient {
    */
   sendPhoto(
     chatId: number | string,
-    photo: tt.InputFile,
+    photo: tt.Opts<'sendPhoto'>['photo'],
     extra?: tt.ExtraPhoto
   ) {
     return this.callApi('sendPhoto', { chat_id: chatId, photo, ...extra })
@@ -254,7 +254,7 @@ class Telegram extends ApiClient {
    */
   sendDocument(
     chatId: number | string,
-    document: tt.InputFile,
+    document: tt.Opts<'sendDocument'>['document'],
     extra?: tt.ExtraDocument
   ) {
     return this.callApi('sendDocument', { chat_id: chatId, document, ...extra })
@@ -268,7 +268,7 @@ class Telegram extends ApiClient {
    */
   sendAudio(
     chatId: number | string,
-    audio: tt.InputFile,
+    audio: tt.Opts<'sendAudio'>['audio'],
     extra?: tt.ExtraAudio
   ) {
     return this.callApi('sendAudio', { chat_id: chatId, audio, ...extra })
@@ -280,7 +280,7 @@ class Telegram extends ApiClient {
    */
   sendSticker(
     chatId: number | string,
-    sticker: tt.InputFile,
+    sticker: tt.Opts<'sendSticker'>['sticker'],
     extra?: tt.ExtraSticker
   ) {
     return this.callApi('sendSticker', { chat_id: chatId, sticker, ...extra })
@@ -293,7 +293,7 @@ class Telegram extends ApiClient {
    */
   sendVideo(
     chatId: number | string,
-    video: tt.InputFile,
+    video: tt.Opts<'sendVideo'>['video'],
     extra?: tt.ExtraVideo
   ) {
     return this.callApi('sendVideo', { chat_id: chatId, video, ...extra })
@@ -305,7 +305,7 @@ class Telegram extends ApiClient {
    */
   sendAnimation(
     chatId: number | string,
-    animation: tt.InputFile,
+    animation: tt.Opts<'sendAnimation'>['animation'],
     extra?: tt.ExtraAnimation
   ) {
     return this.callApi('sendAnimation', {
@@ -321,7 +321,7 @@ class Telegram extends ApiClient {
    */
   sendVideoNote(
     chatId: number | string,
-    videoNote: tt.InputFileVideoNote,
+    videoNote: string | tt.InputFileVideoNote,
     extra?: tt.ExtraVideoNote
   ) {
     return this.callApi('sendVideoNote', {
@@ -337,7 +337,7 @@ class Telegram extends ApiClient {
    */
   sendVoice(
     chatId: number | string,
-    voice: tt.InputFile,
+    voice: tt.Opts<'sendVoice'>['voice'],
     extra?: tt.ExtraVoice
   ) {
     return this.callApi('sendVoice', { chat_id: chatId, voice, ...extra })
@@ -543,7 +543,10 @@ class Telegram extends ApiClient {
     return this.callApi('exportChatInviteLink', { chat_id: chatId })
   }
 
-  setChatPhoto(chatId: number | string, photo: tt.InputFile) {
+  setChatPhoto(
+    chatId: number | string,
+    photo: tt.Opts<'setChatPhoto'>['photo']
+  ) {
     return this.callApi('setChatPhoto', { chat_id: chatId, photo })
   }
 
@@ -854,7 +857,10 @@ class Telegram extends ApiClient {
    * @param ownerId User identifier of sticker file owner
    * @param stickerFile Png image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px.
    */
-  uploadStickerFile(ownerId: number, stickerFile: tt.InputFile) {
+  uploadStickerFile(
+    ownerId: number,
+    stickerFile: tt.Opts<'uploadStickerFile'>['png_sticker']
+  ) {
     return this.callApi('uploadStickerFile', {
       user_id: ownerId,
       png_sticker: stickerFile,
@@ -910,7 +916,11 @@ class Telegram extends ApiClient {
     })
   }
 
-  setStickerSetThumb(name: string, userId: number, thumb: tt.InputFile) {
+  setStickerSetThumb(
+    name: string,
+    userId: number,
+    thumb: tt.Opts<'setStickerSetThumb'>['thumb']
+  ) {
     return this.callApi('setStickerSetThumb', { name, user_id: userId, thumb })
   }
 

@@ -34,6 +34,7 @@
     "typecheck": "npm run typecheck:lib && npm run typecheck:docs",
     "typecheck:lib": "tsc --noEmit",
     "typecheck:docs": "tsc --build docs/examples",
+    "pretest": "npm run build:lib",
     "test": "ava test/*",
     "lint": "eslint .",
     "clean": "git clean -fX docs/build/ lib/ typings/"

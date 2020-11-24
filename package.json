@@ -27,16 +27,13 @@
     "telegraf": "./bin/telegraf"
   },
   "scripts": {
-    "prepare": "npm run build",
-    "build": "npm run build:lib && npm run build:docs",
-    "build:lib": "tsc && mjs-entry src/index.ts > lib/index.mjs",
+    "prepare": "npm run build && npm run build:docs && mjs-entry src/index.ts > lib/index.mjs",
+    "build": "tsc --build docs/examples",
     "build:docs": "typedoc",
-    "typecheck": "npm run typecheck:lib && npm run typecheck:docs",
-    "typecheck:lib": "tsc --noEmit",
-    "typecheck:docs": "tsc --build docs/examples",
-    "pretest": "npm run build:lib",
+    "typecheck": "tsc --noEmit",
+    "pretest": "npm run build",
     "test": "ava test/*",
-    "lint": "eslint .",
+    "lint": "eslint --cache .",
     "clean": "git clean -fX docs/build/ lib/ typings/"
   },
   "husky": {

@@ -30,8 +30,12 @@ class Telegram extends ApiClient {
     }
 
     // Local bot API instances return the absolute path to the file
-    if (fileId.file_path && isAbsolute(fileId.file_path)) {
-      return new URL(fileId.file_path.replace(/^\/?/, '/'), 'file:')
+    if (fileId.file_path !== undefined && isAbsolute(fileId.file_path)) {
+      const url = new URL(this.options.apiRoot)
+      url.port = ''
+      url.pathname = fileId.file_path
+      url.protocol = 'file:'
+      return url
     }
 
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

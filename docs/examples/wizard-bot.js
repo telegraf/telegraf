@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { Composer, Telegraf, Markup, session, Stage, WizardScene } = require('telegraf')
 
 const stepHandler = new Composer()

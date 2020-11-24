@@ -1,3 +1,4 @@
+// @ts-nocheck
 const { Telegraf, session, Stage, BaseScene: Scene } = require('telegraf')
 
 // Handler factoriess

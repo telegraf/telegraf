@@ -74,4 +74,5 @@ bot.hears(/reverse (.+)/, ({ match, reply }) =>
 )
 
 // Launch bot
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bot.launch()

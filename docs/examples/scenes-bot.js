@@ -1,7 +1,7 @@
 // @ts-nocheck
 const { Telegraf, session, Stage, BaseScene: Scene } = require('telegraf')
 
-// Handler factoriess
+// Handler factories
 const { enter, leave } = Stage
 
 // Greeter scene

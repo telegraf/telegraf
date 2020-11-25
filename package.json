@@ -30,7 +30,6 @@
     "prepare": "npm run build && mjs-entry src/index.ts > lib/index.mjs",
     "build": "tsc --build docs/examples",
     "build:docs": "typedoc",
-    "typecheck": "tsc --noEmit",
     "pretest": "npm run build",
     "test": "ava test/*",
     "lint": "eslint --cache .",

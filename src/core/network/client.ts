@@ -251,6 +251,7 @@ async function answerToWebhook(
 ): Promise<typeof WEBHOOK_REPLY_STUB> {
   if (!includesMedia(payload)) {
     if (isKoaResponse(response)) {
+      // @ts-expect-error
       response.body = payload
       return WEBHOOK_REPLY_STUB
     }
@@ -260,7 +261,7 @@ async function answerToWebhook(
     if (response.end.length === 2) {
       response.end(JSON.stringify(payload), 'utf-8')
     } else {
-      await new Promise((resolve) =>
+      await new Promise<void>((resolve) =>
         response.end(JSON.stringify(payload), 'utf-8', resolve)
       )
     }
@@ -273,13 +274,16 @@ async function answerToWebhook(
   )
   if (isKoaResponse(response)) {
     for (const [key, value] of Object.entries(headers)) {
+      // @ts-expect-error
       response.set(key, value)
     }
+    // @ts-expect-error
     response.body = body
     return WEBHOOK_REPLY_STUB
   }
   if (!response.headersSent) {
     for (const [key, value] of Object.entries(headers)) {
+      // @ts-expect-error
       response.set(key, value)
     }
   }
@@ -290,8 +294,7 @@ async function answerToWebhook(
   return WEBHOOK_REPLY_STUB
 }
 
-// TODO: what is actually the type of this?
-type Response = any
+type Response = http.ServerResponse
 class ApiClient {
   readonly options: ApiClient.Options
   private responseEnd = false
@@ -327,7 +330,8 @@ class ApiClient {
 
     if (
       options.webhookReply &&
-      response &&
+      response !== undefined &&
+      !response.writableEnded &&
       !responseEnd &&
       !WEBHOOK_BLACKLIST.includes(method)
     ) {

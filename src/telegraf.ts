@@ -235,7 +235,7 @@ export class Telegraf<
     return Promise.race([processAll, sleep(this.options.handlerTimeout)])
   }
 
-  async handleUpdate(update: tt.Update, webhookResponse?: any) {
+  async handleUpdate(update: tt.Update, webhookResponse?: http.ServerResponse) {
     debug('Processing update', update.update_id)
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
     const TelegrafContext = this.options.contextType
@@ -245,6 +245,10 @@ export class Telegraf<
       await this.middleware()(ctx, anoop)
     } catch (err) {
       return this.handleError(err, ctx)
+    } finally {
+      if (webhookResponse !== undefined && !webhookResponse.writableEnded) {
+        webhookResponse.end()
+      }
     }
   }
 

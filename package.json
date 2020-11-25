@@ -27,13 +27,13 @@
     "telegraf": "./bin/telegraf"
   },
   "scripts": {
-    "lint": "eslint .",
-    "pretest": "tsc --build docs/examples",
+    "prepare": "npm run build && mjs-entry src/index.ts > lib/index.mjs",
+    "build": "tsc --build docs/examples",
+    "build:docs": "typedoc",
+    "pretest": "npm run build",
     "test": "ava test/*",
-    "typedoc": "typedoc",
-    "clean": "git clean -fX docs/build/ lib/ typings/",
-    "typecheck": "tsc --noEmit",
-    "prepare": "tsc && mjs-entry src/index.ts >lib/index.mjs"
+    "lint": "eslint --cache .",
+    "clean": "git clean -fX docs/build/ lib/ typings/"
   },
   "husky": {
     "hooks": {

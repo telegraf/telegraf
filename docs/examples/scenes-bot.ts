@@ -1,5 +1,11 @@
-// @ts-nocheck
-const { Telegraf, session, Stage, BaseScene: Scene } = require('telegraf')
+/* eslint-disable @typescript-eslint/no-floating-promises */
+import {
+  BaseScene as Scene,
+  SceneContext,
+  session,
+  Stage,
+  Telegraf,
+} from 'telegraf'
 
 // Handler factories
 const { enter, leave } = Stage
@@ -19,7 +25,7 @@ echoScene.command('back', leave())
 echoScene.on('text', (ctx) => ctx.reply(ctx.message.text))
 echoScene.on('message', (ctx) => ctx.reply('Only text messages please'))
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf<SceneContext>(process.env.BOT_TOKEN)
 const stage = new Stage([greeterScene, echoScene], { ttl: 10 })
 bot.use(session())
 bot.use(stage.middleware())

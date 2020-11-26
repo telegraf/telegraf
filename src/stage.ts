@@ -1,30 +1,41 @@
+import SceneCxt, { SceneSession } from './scenes/context'
+import WizardCtx, { WizardSession } from './scenes/wizard/context'
 import BaseScene from './scenes/base'
 import Composer from './composer'
 import Context from './context'
 import { Middleware } from './types'
-import SceneContext from './scenes/context'
 
-export class Stage<TContext extends Context>
-  extends Composer<SceneContext.Extended<TContext>>
-  implements Middleware.Obj<TContext> {
-  options: SceneContext.Options
-  scenes: Map<string, BaseScene<TContext>>
+export type SceneContext<
+  S extends SceneSession = SceneSession,
+  C extends Context = Context
+> = SceneCxt.Extended<S, C>
+export type WizardContext<
+  S extends WizardSession = WizardSession,
+  C extends SceneCxt.Extended<S, Context> = SceneCxt.Extended<S, Context>
+> = WizardCtx.Extended<S, C>
+
+export class Stage<S extends SceneSession, C extends Context>
+  extends Composer<SceneCxt.Extended<S, C>>
+  implements Middleware.Obj<C> {
+  options: SceneCxt.Options<S>
+  scenes: Map<string, BaseScene<C>>
+
   constructor(
-    scenes: ReadonlyArray<BaseScene<TContext>> = [],
-    options?: SceneContext.Options
+    scenes: ReadonlyArray<BaseScene<C>> = [],
+    options?: Partial<SceneCxt.Options<S>>
   ) {
     super()
     this.options = {
       sessionName: 'session',
       ...options,
     }
-    this.scenes = new Map()
+    this.scenes = new Map<string, BaseScene<C>>()
     scenes.forEach((scene) => this.register(scene))
   }
 
-  register(...scenes: Array<BaseScene<TContext>>) {
+  register(...scenes: ReadonlyArray<BaseScene<C>>) {
     scenes.forEach((scene) => {
-      if (!scene || !scene.id || typeof scene.middleware !== 'function') {
+      if (!scene?.id || typeof scene.middleware !== 'function') {
         throw new Error('telegraf: Unsupported scene')
       }
       this.scenes.set(scene.id, scene)
@@ -33,12 +44,9 @@ export class Stage<TContext extends Context>
   }
 
   middleware() {
-    const handler = Composer.compose<
-      TContext,
-      SceneContext.Extension<TContext>
-    >([
+    const handler = Composer.compose<C, SceneCxt.Extension<S, C>>([
       (ctx, next) => {
-        const scene = new SceneContext(ctx, this.scenes, this.options)
+        const scene = new SceneCxt<S, C>(ctx, this.scenes, this.options)
         return next(Object.assign(ctx, { scene }))
       },
       super.middleware(),
@@ -52,15 +60,24 @@ export class Stage<TContext extends Context>
     )
   }
 
-  static enter(...args: Parameters<SceneContext<Context>['enter']>) {
-    return (ctx: SceneContext.Extended<Context>) => ctx.scene.enter(...args)
+  static enter<
+    S extends SceneSession = SceneSession,
+    C extends Context = Context
+  >(...args: Parameters<SceneCxt<S, C>['enter']>) {
+    return (ctx: SceneCxt.Extended<S, C>) => ctx.scene.enter(...args)
   }
 
-  static reenter(...args: Parameters<SceneContext<Context>['reenter']>) {
-    return (ctx: SceneContext.Extended<Context>) => ctx.scene.reenter(...args)
+  static reenter<
+    S extends SceneSession = SceneSession,
+    C extends Context = Context
+  >(...args: Parameters<SceneCxt<S, C>['reenter']>) {
+    return (ctx: SceneCxt.Extended<S, C>) => ctx.scene.reenter(...args)
   }
 
-  static leave(...args: Parameters<SceneContext<Context>['leave']>) {
-    return (ctx: SceneContext.Extended<Context>) => ctx.scene.leave(...args)
+  static leave<
+    S extends SceneSession = SceneSession,
+    C extends Context = Context
+  >(...args: Parameters<SceneCxt<S, C>['leave']>) {
+    return (ctx: SceneCxt.Extended<S, C>) => ctx.scene.leave(...args)
   }
 }

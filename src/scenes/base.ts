@@ -1,23 +1,22 @@
 import Composer from '../composer'
+import Context from '../context'
 import { Middleware } from '../types'
-import TelegrafContext from '../context'
 const { compose } = Composer
 
-interface SceneOptions<TContext extends TelegrafContext> {
+export interface SceneOptions<C extends Context> {
   ttl?: number
-  enterHandler: Middleware.Fn<TContext>
-  leaveHandler: Middleware.Fn<TContext>
+  handlers: ReadonlyArray<Middleware.Fn<C>>
+  enterHandlers: ReadonlyArray<Middleware.Fn<C>>
+  leaveHandlers: ReadonlyArray<Middleware.Fn<C>>
 }
 
-export class BaseScene<
-  TContext extends TelegrafContext
-> extends Composer<TContext> {
+export class BaseScene<C extends Context> extends Composer<C> {
   id: string
-  options: SceneOptions<TContext>
-  enterHandler: Middleware.Fn<TContext>
-  leaveHandler: Middleware.Fn<TContext>
-  constructor(id: string, options: SceneOptions<TContext>) {
-    const opts = {
+  ttl?: number
+  enterHandler: Middleware.Fn<C>
+  leaveHandler: Middleware.Fn<C>
+  constructor(id: string, options?: SceneOptions<C>) {
+    const opts: SceneOptions<C> = {
       handlers: [],
       enterHandlers: [],
       leaveHandlers: [],
@@ -25,25 +24,17 @@ export class BaseScene<
     }
     super(...opts.handlers)
     this.id = id
-    this.options = opts
+    this.ttl = opts.ttl
     this.enterHandler = compose(opts.enterHandlers)
     this.leaveHandler = compose(opts.leaveHandlers)
   }
 
-  set ttl(value: number | undefined) {
-    this.options.ttl = value
-  }
-
-  get ttl() {
-    return this.options.ttl
-  }
-
-  enter(...fns: Array<Middleware<TContext>>) {
+  enter(...fns: Array<Middleware<C>>) {
     this.enterHandler = compose([this.enterHandler, ...fns])
     return this
   }
 
-  leave(...fns: Array<Middleware<TContext>>) {
+  leave(...fns: Array<Middleware<C>>) {
     this.leaveHandler = compose([this.leaveHandler, ...fns])
     return this
   }

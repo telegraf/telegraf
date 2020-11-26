@@ -1,37 +1,51 @@
-// @ts-nocheck
-const { Composer, Telegraf, Markup, session, Stage, WizardScene } = require('telegraf')
+/* eslint-disable @typescript-eslint/no-floating-promises */
+import {
+  Composer,
+  Markup,
+  session,
+  Stage,
+  Telegraf,
+  WizardContext,
+  WizardScene,
+} from 'telegraf'
 
-const stepHandler = new Composer()
-stepHandler.action('next', (ctx) => {
-  ctx.reply('Step 2. Via inline button')
+const stepHandler = new Composer<WizardContext>()
+stepHandler.action('next', async (ctx) => {
+  await ctx.reply('Step 2. Via inline button')
   return ctx.wizard.next()
 })
-stepHandler.command('next', (ctx) => {
-  ctx.reply('Step 2. Via command')
+stepHandler.command('next', async (ctx) => {
+  await ctx.reply('Step 2. Via command')
   return ctx.wizard.next()
 })
-stepHandler.use((ctx) => ctx.replyWithMarkdown('Press `Next` button or type /next'))
+stepHandler.use((ctx) =>
+  ctx.replyWithMarkdown('Press `Next` button or type /next')
+)
 
-const superWizard = new WizardScene('super-wizard',
-  (ctx) => {
-    ctx.reply('Step 1', Markup.inlineKeyboard([
-      Markup.button.url('❤️', 'http://telegraf.js.org'),
-      Markup.button.callback('➡️ Next', 'next')
-    ]))
+const superWizard = new WizardScene(
+  'super-wizard',
+  async (ctx) => {
+    await ctx.reply(
+      'Step 1',
+      Markup.inlineKeyboard([
+        Markup.button.url('❤️', 'http://telegraf.js.org'),
+        Markup.button.callback('➡️ Next', 'next'),
+      ])
+    )
     return ctx.wizard.next()
   },
   stepHandler,
-  (ctx) => {
-    ctx.reply('Step 3')
+  async (ctx) => {
+    await ctx.reply('Step 3')
     return ctx.wizard.next()
   },
-  (ctx) => {
-    ctx.reply('Step 4')
+  async (ctx) => {
+    await ctx.reply('Step 4')
     return ctx.wizard.next()
   },
-  (ctx) => {
-    ctx.reply('Done')
-    return ctx.scene.leave()
+  async (ctx) => {
+    await ctx.reply('Done')
+    return await ctx.scene.leave()
   }
 )
 

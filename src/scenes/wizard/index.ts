@@ -1,49 +1,49 @@
+import BaseScene, { SceneOptions } from '../base'
+import WizardContext, { WizardSession } from './context'
 import Composer from '../../composer'
 import Context from '../../context'
 import { Middleware } from '../../types'
 import SceneContext from '../context'
-import WizardContext from './context'
-const { compose, unwrap } = Composer
 
-export class WizardScene<TContext extends SceneContext.Extended<Context>>
-  extends Composer<TContext>
-  implements Middleware.Obj<WizardContext.Extended<TContext>> {
-  options: any
-  leaveHandler: Middleware.Fn<TContext>
+export class WizardScene<
+    S extends WizardSession = WizardSession,
+    C extends WizardContext.Extended<
+      S,
+      SceneContext.Extended<S, Context>
+    > = WizardContext.Extended<S, SceneContext.Extended<S, Context>>
+  >
+  extends BaseScene<C>
+  implements Middleware.Obj<WizardContext.Extended<S, C>> {
+  steps: Array<Middleware<C>>
+
+  constructor(id: string, ...steps: Array<Middleware<C>>)
   constructor(
-    readonly id: string,
-    options: Middleware.Fn<TContext> | ReadonlyArray<Middleware.Fn<TContext>>,
-    ...steps: Array<Middleware.Fn<TContext>>
+    id: string,
+    options: SceneOptions<C>,
+    ...steps: Array<Middleware<C>>
+  )
+  constructor(
+    id: string,
+    options: SceneOptions<C> | Middleware<C>,
+    ...steps: Array<Middleware<C>>
   ) {
-    super()
-    this.options =
-      typeof options === 'function'
-        ? { steps: [options, ...steps], leaveHandlers: [] }
-        : { steps: steps, leaveHandlers: [], ...options }
-    this.leaveHandler = compose(this.options.leaveHandlers)
-  }
-
-  set ttl(value: number | undefined) {
-    this.options.ttl = value
-  }
-
-  get ttl() {
-    return this.options.ttl
-  }
-
-  leave(...fns: Array<Middleware.Fn<TContext>>) {
-    this.leaveHandler = compose([this.leaveHandler, ...fns])
-    return this
-  }
-
-  leaveMiddleware() {
-    return this.leaveHandler
+    let opts: SceneOptions<C> | undefined
+    let s: Array<Middleware<C>>
+    if (typeof options === 'function' || 'middleware' in options) {
+      opts = undefined
+      s = [options, ...steps]
+    } else {
+      opts = options
+      s = steps
+    }
+    super(id, opts)
+    this.steps = s
   }
 
   middleware() {
-    return Composer.compose<TContext, WizardContext.Extension<TContext>>([
+    return Composer.compose<C, WizardContext.Extension<S, C>>([
       (ctx, next) => {
-        const wizard = new WizardContext<TContext>(ctx, this.options.steps)
+        const wizard = new WizardContext<S, C>(ctx, this.steps)
         return next(Object.assign(ctx, { wizard }))
       },
       super.middleware(),
@@ -52,7 +52,7 @@ export class WizardScene<TContext extends SceneContext.Extended<Context>>
           ctx.wizard.selectStep(0)
           return ctx.scene.leave()
         }
-        return unwrap(ctx.wizard.step)(ctx, next)
+        return Composer.unwrap(ctx.wizard.step)(ctx, next)
       },
     ])
   }

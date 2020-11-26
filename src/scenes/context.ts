@@ -7,35 +7,53 @@ const debug = d('telegraf:scenes:context')
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
-namespace SceneContext {
-  export interface Options {
-    sessionName: string
-    ttl?: number
-    default?: any
-  }
+export interface SceneSession {
+  current?: string
+  expires?: number
+  state?: object
 }
 
-class SceneContext<TContext extends Context> {
+// eslint-disable-next-line @typescript-eslint/no-namespace
+namespace SceneContext {
+  export interface Options<D = {}> {
+    sessionName: string
+    ttl?: number
+    default?: string
+    defaultSession?: D
+  }
+  export interface Extension<S extends SceneSession, C extends Context> {
+    scene: SceneContext<S, C>
+  }
+  export type Extended<S extends SceneSession, C extends Context> = C &
+    Extension<S, C>
+}
+
+class SceneContext<S extends SceneSession, C extends Context> {
+  private readonly options: SceneContext.Options<S> = {
+    sessionName: 'session',
+  }
+
   constructor(
-    private readonly ctx: TContext,
-    private readonly scenes: Map<string, BaseScene<TContext>>,
-    private readonly options: SceneContext.Options
-  ) {}
+    private readonly ctx: C,
+    private readonly scenes: Map<string, BaseScene<C>>,
+    options: Partial<SceneContext.Options<S>>
+  ) {
+    this.options = { sessionName: 'session', ...options }
+  }
 
   get session() {
     const sessionName = this.options.sessionName
-    let session = (this.ctx as any)[sessionName].__scenes ?? {}
-    if (session.expires < now()) {
-      session = {}
+    let session: S = (this.ctx as any)[sessionName].__scenes ?? {}
+    if (session.expires !== undefined && session.expires < now()) {
+      // @ts-expect-error the default session object may not be given
+      session = this.options.defaultSession ?? {}
     }
     ;(this.ctx as any)[sessionName].__scenes = session
     return session
   }
 
   get state() {
-    this.session.state = this.session.state || {}
-    return this.session.state
+    return (this.session.state ??= {})
   }
 
   set state(value) {
@@ -43,8 +61,10 @@ class SceneContext<TContext extends Context> {
   }
 
   get current() {
-    const sceneId = this.session.current || this.options.default
-    return sceneId && this.scenes.has(sceneId) ? this.scenes.get(sceneId) : null
+    const sceneId = this.session.current ?? this.options.default
+    return sceneId === undefined || !this.scenes.has(sceneId)
+      ? undefined
+      : this.scenes.get(sceneId)
   }
 
   reset() {
@@ -52,7 +72,11 @@ class SceneContext<TContext extends Context> {
     delete (this.ctx as any)[sessionName].__scenes
   }
 
-  async enter(sceneId: string, initialState: any, silent?: boolean) {
+  async enter(
+    sceneId: string,
+    initialState: object = {},
+    silent: boolean = false
+  ) {
     if (!this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }
@@ -63,7 +87,7 @@ class SceneContext<TContext extends Context> {
     this.session.current = sceneId
     this.state = initialState
     const ttl = this.current?.ttl ?? this.options.ttl
-    if (ttl) {
+    if (ttl !== undefined) {
       this.session.expires = now() + ttl
     }
     if (!this.current || silent) {
@@ -78,13 +102,19 @@ class SceneContext<TContext extends Context> {
   }
 
   reenter() {
-    return this.enter(this.session.current, this.state)
+    return this.session.current === undefined
+      ? undefined
+      : this.enter(this.session.current, this.state)
   }
 
   async leave() {
     debug('Leave scene')
+    if (!this.current) {
+      return
+    }
     const handler =
-      this.current?.leaveMiddleware != null
+      'leaveMiddleware' in this.current &&
+      typeof this.current.leaveMiddleware === 'function'
         ? this.current.leaveMiddleware()
         : Composer.passThru()
     await handler(this.ctx, noop)
@@ -92,13 +122,4 @@ class SceneContext<TContext extends Context> {
   }
 }
 
-// eslint-disable-next-line
-namespace SceneContext {
-  export interface Extension<TContext extends Context> {
-    scene: SceneContext<TContext>
-  }
-  export type Extended<TContext extends Context> = TContext &
-    Extension<TContext>
-}
-
-export = SceneContext
+export default SceneContext

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { Context, session, Telegraf } from 'telegraf'
 
 const { reply, fork } = Telegraf
@@ -74,5 +75,4 @@ bot.hears(/reverse (.+)/, ({ match, reply }) =>
 )
 
 // Launch bot
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bot.launch()

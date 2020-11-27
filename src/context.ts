@@ -13,9 +13,9 @@ type UnionToIntersection<U> = (
   ? I
   : never
 
-type Deunionize<T extends object> = T & Partial<UnionToIntersection<T>>
+// type Deunionize<T extends object> = T & Partial<UnionToIntersection<T>>
 
-const deunionize = <T extends object>(t: T): Deunionize<T> => t
+// const deunionize = <T extends object>(t: T): Deunionize<T> => t
 
 const UpdateTypes = [
   'callback_query',
@@ -65,6 +65,33 @@ const MessageSubTypes = [
   'forward_date',
 ] as const
 
+export interface ContextProps {
+  callback_query: { callbackQuery: object }
+  channel_post: { channelPost: object }
+  chosen_inline_result: { chosenInlineResult: object }
+  edited_channel_post: { editedChannelPost: object }
+  edited_message: { editedMessage: object }
+  inline_query: { inlineQuery: object }
+  message: { message: object }
+  pre_checkout_query: { preCheckoutQuery: object }
+  shipping_query: { shippingQuery: object }
+  poll: { poll: object }
+  poll_answer: { pollAnswer: object }
+}
+export type MessageProps = {
+  [key in MessageSubTypesUnion]: {
+    message: { [k in key]: UnionToIntersection<tt.Message>[k] }
+  }
+}
+
+type MessageSubTypesUnion = {
+  [K in keyof typeof MessageSubTypes]: typeof MessageSubTypes[K]
+} extends {
+  [key: number]: infer V
+}
+  ? V
+  : never
+
 const MessageSubTypesMapping = {
   forward_date: 'forward',
 }
@@ -107,12 +134,12 @@ export class Context {
 
   get message() {
     if (!('message' in this.update)) return undefined
-    return deunionize(this.update.message)
+    return this.update.message
   }
 
   get editedMessage() {
     if (!('edited_message' in this.update)) return undefined
-    return deunionize(this.update.edited_message)
+    return this.update.edited_message
   }
 
   get inlineQuery() {
@@ -137,17 +164,17 @@ export class Context {
 
   get channelPost() {
     if (!('channel_post' in this.update)) return undefined
-    return deunionize(this.update.channel_post)
+    return this.update.channel_post
   }
 
   get editedChannelPost() {
     if (!('edited_channel_post' in this.update)) return undefined
-    return deunionize(this.update.edited_channel_post)
+    return this.update.edited_channel_post
   }
 
   get callbackQuery() {
     if (!('callback_query' in this.update)) return undefined
-    return deunionize(this.update.callback_query)
+    return this.update.callback_query
   }
 
   get poll() {

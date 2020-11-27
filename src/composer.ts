@@ -1,8 +1,8 @@
 /** @format */
 
 import * as tt from './telegram-types'
+import Context, { ContextProps, MessageProps } from './context'
 import { Middleware, NonemptyReadonlyArray } from './types'
-import Context from './context'
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
@@ -34,6 +34,12 @@ function getText(
   return undefined
 }
 
+type ForType<C extends Context, T extends tt.UpdateType> = C & ContextProps[T]
+type ForSubType<C extends Context, T extends tt.MessageSubTypes> = Exclude<
+  C & MessageProps[T],
+  undefined
+>
+
 export class Composer<TContext extends Context>
   implements Middleware.Obj<TContext> {
   private handler: Middleware.Fn<TContext>
@@ -53,6 +59,14 @@ export class Composer<TContext extends Context>
   /**
    * Registers middleware for handling provided update types.
    */
+  on<T extends tt.UpdateType>(
+    updateType: T,
+    ...fns: NonemptyReadonlyArray<Middleware<ForType<TContext, T>>>
+  ): this
+  on<T extends tt.MessageSubTypes>(
+    updateSubType: T,
+    ...fns: NonemptyReadonlyArray<Middleware<ForSubType<TContext, T>>>
+  ): this
   on(
     updateTypes: MaybeArray<tt.UpdateType | tt.MessageSubTypes>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>

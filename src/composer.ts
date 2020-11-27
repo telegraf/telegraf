@@ -35,7 +35,7 @@ function getText(
 }
 
 type ForType<C extends Context, T extends tt.UpdateType> = C & ContextProps[T]
-type ForSubType<C extends Context, T extends tt.MessageSubTypes> = Exclude<
+type ForSubType<C extends Context, T extends tt.MessageSubType> = Exclude<
   C & MessageProps[T],
   undefined
 >
@@ -63,12 +63,12 @@ export class Composer<TContext extends Context>
     updateType: T,
     ...fns: NonemptyReadonlyArray<Middleware<ForType<TContext, T>>>
   ): this
-  on<T extends tt.MessageSubTypes>(
+  on<T extends tt.MessageSubType>(
     updateSubType: T,
     ...fns: NonemptyReadonlyArray<Middleware<ForSubType<TContext, T>>>
   ): this
   on(
-    updateTypes: MaybeArray<tt.UpdateType | tt.MessageSubTypes>,
+    updateTypes: MaybeArray<tt.UpdateType | tt.MessageSubType>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     return this.use(Composer.mount(updateTypes, ...fns))
@@ -321,7 +321,7 @@ export class Composer<TContext extends Context>
    * Generates middleware for handling provided update types.
    */
   static mount<TContext extends Context>(
-    updateType: MaybeArray<tt.UpdateType | tt.MessageSubTypes>,
+    updateType: MaybeArray<tt.UpdateType | tt.MessageSubType>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
   ) {
     const updateTypes = normalizeTextArguments(updateType)

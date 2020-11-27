@@ -30,6 +30,8 @@ const UpdateTypes = [
   'poll',
   'poll_answer',
 ] as const
+// `UpdateTypes` must be kept in sync with `ContextProps`!
+export type UpdateTypesUnion = keyof ContextProps
 
 const MessageSubTypes = [
   'voice',
@@ -64,6 +66,25 @@ const MessageSubTypes = [
   'poll',
   'forward_date',
 ] as const
+export type MessageSubTypesUnion = {
+  [K in keyof typeof MessageSubTypes]: typeof MessageSubTypes[K]
+} extends {
+  [key: number]: infer V
+}
+  ? V
+  : never
+
+type MapType<M, U> = U extends keyof M ? M[U] : U
+type MapSubType<U extends MessageSubTypesUnion> = MapType<
+  typeof MessageSubTypesMapping,
+  U
+>
+type MapSubTypeBack<U extends MessageSubTypesUnionMapped> = MapType<
+  MessageSubTypesMappingReversed,
+  U
+>
+
+export type MessageSubTypesUnionMapped = MapSubType<MessageSubTypesUnion>
 
 export interface ContextProps {
   callback_query: { callbackQuery: object }
@@ -79,21 +100,22 @@ export interface ContextProps {
   poll_answer: { pollAnswer: object }
 }
 export type MessageProps = {
-  [key in MessageSubTypesUnion]: {
-    message: { [k in key]: UnionToIntersection<tt.Message>[k] }
+  [key in MessageSubTypesUnionMapped]: {
+    message: {
+      [k in MapSubTypeBack<key>]: UnionToIntersection<tt.Message>[k]
+    }
   }
 }
 
-type MessageSubTypesUnion = {
-  [K in keyof typeof MessageSubTypes]: typeof MessageSubTypes[K]
-} extends {
-  [key: number]: infer V
-}
-  ? V
-  : never
-
 const MessageSubTypesMapping = {
   forward_date: 'forward',
+} as const
+type MessageSubTypesMappingReversed = {
+  [key in typeof MessageSubTypesMapping[keyof typeof MessageSubTypesMapping]]: {
+    [k in keyof typeof MessageSubTypesMapping]: key extends typeof MessageSubTypesMapping[k]
+      ? k
+      : never
+  }[keyof typeof MessageSubTypesMapping]
 }
 
 export class Context {

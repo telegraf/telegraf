@@ -7,6 +7,7 @@ import {
   Message,
   Typegram,
 } from 'typegram'
+import { MessageSubTypesUnionMapped, UpdateTypesUnion } from './context'
 
 export * from 'typegram/callback'
 export * from 'typegram/inline'
@@ -50,50 +51,8 @@ export type ChatAction = Opts<'sendChatAction'>['action']
 
 export type ChatType = Chat['type']
 
-export type UpdateType =
-  | 'callback_query'
-  | 'channel_post'
-  | 'chosen_inline_result'
-  | 'edited_channel_post'
-  | 'edited_message'
-  | 'inline_query'
-  | 'message'
-  | 'pre_checkout_query'
-  | 'shipping_query'
-  | 'poll'
-  | 'poll_answer'
-
-export type MessageSubTypes =
-  | 'voice'
-  | 'video_note'
-  | 'video'
-  | 'venue'
-  | 'text'
-  | 'supergroup_chat_created'
-  | 'successful_payment'
-  | 'sticker'
-  | 'pinned_message'
-  | 'photo'
-  | 'new_chat_title'
-  | 'new_chat_photo'
-  | 'new_chat_members'
-  | 'migrate_to_chat_id'
-  | 'migrate_from_chat_id'
-  | 'location'
-  | 'left_chat_member'
-  | 'invoice'
-  | 'group_chat_created'
-  | 'game'
-  | 'dice'
-  | 'document'
-  | 'delete_chat_photo'
-  | 'contact'
-  | 'channel_chat_created'
-  | 'audio'
-  | 'passport_data'
-  | 'poll'
-  | 'connected_website'
-  | 'animation'
+export type UpdateType = UpdateTypesUnion
+export type MessageSubType = MessageSubTypesUnionMapped
 
 /**
  * Sending video notes by a URL is currently unsupported

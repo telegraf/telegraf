@@ -13,10 +13,6 @@ type UnionToIntersection<U> = (
   ? I
   : never
 
-// type Deunionize<T extends object> = T & Partial<UnionToIntersection<T>>
-
-// const deunionize = <T extends object>(t: T): Deunionize<T> => t
-
 // `UpdateTypes` must be kept in sync with `ContextProps`!
 const UpdateTypes = [
   'callback_query',

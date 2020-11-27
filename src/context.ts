@@ -17,6 +17,7 @@ type UnionToIntersection<U> = (
 
 // const deunionize = <T extends object>(t: T): Deunionize<T> => t
 
+// `UpdateTypes` must be kept in sync with `ContextProps`!
 const UpdateTypes = [
   'callback_query',
   'channel_post',
@@ -30,7 +31,19 @@ const UpdateTypes = [
   'poll',
   'poll_answer',
 ] as const
-// `UpdateTypes` must be kept in sync with `ContextProps`!
+export interface ContextProps {
+  callback_query: { callbackQuery: object }
+  channel_post: { channelPost: object }
+  chosen_inline_result: { chosenInlineResult: object }
+  edited_channel_post: { editedChannelPost: object }
+  edited_message: { editedMessage: object }
+  inline_query: { inlineQuery: object }
+  message: { message: object }
+  pre_checkout_query: { preCheckoutQuery: object }
+  shipping_query: { shippingQuery: object }
+  poll: { poll: object }
+  poll_answer: { pollAnswer: object }
+}
 export type UpdateTypesUnion = keyof ContextProps
 
 const MessageSubTypes = [
@@ -66,6 +79,13 @@ const MessageSubTypes = [
   'poll',
   'forward_date',
 ] as const
+export type MessageProps = {
+  [key in MessageSubTypesUnionMapped]: {
+    message: {
+      [k in MapSubTypeBack<key>]: UnionToIntersection<tt.Message>[k]
+    }
+  }
+}
 export type MessageSubTypesUnion = {
   [K in keyof typeof MessageSubTypes]: typeof MessageSubTypes[K]
 } extends {
@@ -73,6 +93,18 @@ export type MessageSubTypesUnion = {
 }
   ? V
   : never
+
+const MessageSubTypesMapping = {
+  forward_date: 'forward',
+} as const
+
+type MessageSubTypesMappingReversed = {
+  [key in typeof MessageSubTypesMapping[keyof typeof MessageSubTypesMapping]]: {
+    [k in keyof typeof MessageSubTypesMapping]: key extends typeof MessageSubTypesMapping[k]
+      ? k
+      : never
+  }[keyof typeof MessageSubTypesMapping]
+}
 
 type MapType<M, U> = U extends keyof M ? M[U] : U
 type MapSubType<U extends MessageSubTypesUnion> = MapType<
@@ -83,40 +115,7 @@ type MapSubTypeBack<U extends MessageSubTypesUnionMapped> = MapType<
   MessageSubTypesMappingReversed,
   U
 >
-
 export type MessageSubTypesUnionMapped = MapSubType<MessageSubTypesUnion>
-
-export interface ContextProps {
-  callback_query: { callbackQuery: object }
-  channel_post: { channelPost: object }
-  chosen_inline_result: { chosenInlineResult: object }
-  edited_channel_post: { editedChannelPost: object }
-  edited_message: { editedMessage: object }
-  inline_query: { inlineQuery: object }
-  message: { message: object }
-  pre_checkout_query: { preCheckoutQuery: object }
-  shipping_query: { shippingQuery: object }
-  poll: { poll: object }
-  poll_answer: { pollAnswer: object }
-}
-export type MessageProps = {
-  [key in MessageSubTypesUnionMapped]: {
-    message: {
-      [k in MapSubTypeBack<key>]: UnionToIntersection<tt.Message>[k]
-    }
-  }
-}
-
-const MessageSubTypesMapping = {
-  forward_date: 'forward',
-} as const
-type MessageSubTypesMappingReversed = {
-  [key in typeof MessageSubTypesMapping[keyof typeof MessageSubTypesMapping]]: {
-    [k in keyof typeof MessageSubTypesMapping]: key extends typeof MessageSubTypesMapping[k]
-      ? k
-      : never
-  }[keyof typeof MessageSubTypesMapping]
-}
 
 export class Context {
   public botInfo?: tt.UserFromGetMe

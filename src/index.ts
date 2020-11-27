@@ -5,6 +5,12 @@ export * as Markup from './markup'
 export { Middleware } from './types'
 export { Router } from './router'
 export { session } from './session'
-export { Stage, SceneContext, WizardContext } from './stage'
+export {
+  Stage,
+  SceneContext,
+  WizardContext,
+  SceneSession,
+  WizardSession,
+} from './stage'
 export { Telegraf } from './telegraf'
 export { WizardScene } from './scenes/wizard'

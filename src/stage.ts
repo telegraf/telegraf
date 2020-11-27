@@ -14,6 +14,9 @@ export type WizardContext<
   C extends SceneCxt.Extended<S, Context> = SceneCxt.Extended<S, Context>
 > = WizardCtx.Extended<S, C>
 
+export type { SceneSession } from './scenes/context'
+export type { WizardSession } from './scenes/wizard/context'
+
 export class Stage<S extends SceneSession, C extends Context>
   extends Composer<SceneCxt.Extended<S, C>>
   implements Middleware.Obj<C> {

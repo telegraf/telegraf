@@ -34,11 +34,13 @@ function getText(
   return undefined
 }
 
-type ForType<C extends Context, T extends tt.UpdateType> = C & ContextProps[T]
-type ForSubType<C extends Context, T extends tt.MessageSubType> = Exclude<
-  C & MessageProps[T],
-  undefined
->
+type ForUpdateType<
+  C extends Context,
+  T extends tt.UpdateType | tt.MessageSubType
+> = C &
+  (T extends tt.UpdateType
+    ? ContextProps[T]
+    : MessageProps[Exclude<T, tt.UpdateType>])
 
 export class Composer<TContext extends Context>
   implements Middleware.Obj<TContext> {
@@ -59,13 +61,9 @@ export class Composer<TContext extends Context>
   /**
    * Registers middleware for handling provided update types.
    */
-  on<T extends tt.UpdateType>(
-    updateType: T,
-    ...fns: NonemptyReadonlyArray<Middleware<ForType<TContext, T>>>
-  ): this
-  on<T extends tt.MessageSubType>(
-    updateSubType: T,
-    ...fns: NonemptyReadonlyArray<Middleware<ForSubType<TContext, T>>>
+  on<U extends tt.UpdateType | tt.MessageSubType>(
+    updateType: MaybeArray<U>,
+    ...fns: NonemptyReadonlyArray<Middleware<ForUpdateType<TContext, U>>>
   ): this
   on(
     updateTypes: MaybeArray<tt.UpdateType | tt.MessageSubType>,
@@ -79,6 +77,12 @@ export class Composer<TContext extends Context>
    */
   hears(
     triggers: Triggers<TContext>,
+    ...fns: ReadonlyArray<
+      Middleware<ForUpdateType<TContext & { match: RegExpExecArray }, 'text'>>
+    >
+  ): this
+  hears(
+    triggers: Triggers<TContext>,
     ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
   ) {
     return this.use(Composer.hears(triggers, ...fns))
@@ -87,6 +91,10 @@ export class Composer<TContext extends Context>
   /**
    * Registers middleware for handling specified commands.
    */
+  command(
+    commands: MaybeArray<string>,
+    ...fns: NonemptyReadonlyArray<Middleware<ForUpdateType<TContext, 'text'>>>
+  ): this
   command(
     commands: MaybeArray<string>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
@@ -173,7 +181,6 @@ export class Composer<TContext extends Context>
   ) {
     const handler = Composer.compose(fns)
     return this.command('start', (ctx, next) => {
-      // @ts-expect-error we know that ctx.message.text !== undefined but TypeScript does not
       const startPayload = ctx.message.text.substring(7)
       return handler(Object.assign(ctx, { startPayload }), next)
     })

@@ -9,6 +9,7 @@ bot.command('onetime', ({ reply }) =>
     .keyboard(['/simple', '/inline', '/pyramid'])
     .oneTime()
     .resize()
+    .extra()
   )
 )
 
@@ -21,6 +22,7 @@ bot.command('custom', ({ reply }) => {
     ])
     .oneTime()
     .resize()
+    .extra()
   )
 })
 
@@ -31,9 +33,9 @@ bot.command('special', (ctx) => {
   return ctx.reply(
     'Special buttons keyboard',
     Markup.keyboard([
-      Markup.button.contactRequest('Send contact'),
-      Markup.button.locationRequest('Send location')
-    ]).resize()
+      Markup.contactRequestButton('Send contact'),
+      Markup.locationRequestButton('Send location')
+    ]).resize().extra()
   )
 })
 
@@ -42,14 +44,14 @@ bot.command('pyramid', (ctx) => {
     'Keyboard wrap',
     Markup.keyboard(['one', 'two', 'three', 'four', 'five', 'six'], {
       wrap: (btn, index, currentRow) => currentRow.length >= (index + 1) / 2
-    })
+    }).extra()
   )
 })
 
 bot.command('simple', (ctx) => {
   return ctx.replyWithHTML(
     '<b>Coke</b> or <i>Pepsi?</i>',
-    Markup.keyboard(['Coke', 'Pepsi'])
+    Markup.keyboard(['Coke', 'Pepsi']).extra()
   )
 })
 
@@ -57,9 +59,9 @@ bot.command('inline', (ctx) => {
   return ctx.reply('<b>Coke</b> or <i>Pepsi?</i>', {
     parse_mode: 'HTML',
     ...Markup.inlineKeyboard([
-      Markup.button.callback('Coke', 'Coke'),
-      Markup.button.callback('Pepsi', 'Pepsi')
-    ])
+      Markup.callbackButton('Coke', 'Coke'),
+      Markup.callbackButton('Pepsi', 'Pepsi')
+    ]).extra()
   })
 })
 
@@ -67,10 +69,10 @@ bot.command('random', (ctx) => {
   return ctx.reply(
     'random example',
     Markup.inlineKeyboard([
-      Markup.button.callback('Coke', 'Coke'),
-      Markup.button.callback('Dr Pepper', 'Dr Pepper', Math.random() > 0.5),
-      Markup.button.callback('Pepsi', 'Pepsi')
-    ])
+      Markup.callbackButton('Coke', 'Coke'),
+      Markup.callbackButton('Dr Pepper', 'Dr Pepper', Math.random() > 0.5),
+      Markup.callbackButton('Pepsi', 'Pepsi')
+    ]).extra()
   )
 })
 
@@ -80,9 +82,9 @@ bot.command('caption', (ctx) => {
       caption: 'Caption',
       parse_mode: 'Markdown',
       ...Markup.inlineKeyboard([
-        Markup.button.callback('Plain', 'plain'),
-        Markup.button.callback('Italic', 'italic')
-      ])
+        Markup.callbackButton('Plain', 'plain'),
+        Markup.callbackButton('Italic', 'italic')
+      ]).extra()
     }
   )
 })
@@ -92,7 +94,7 @@ bot.hears(/\/wrap (\d+)/, (ctx) => {
     'Keyboard wrap',
     Markup.keyboard(['one', 'two', 'three', 'four', 'five', 'six'], {
       columns: parseInt(ctx.match[1])
-    })
+    }).extra()
   )
 })
 
@@ -103,9 +105,10 @@ bot.action('Dr Pepper', (ctx, next) => {
 bot.action('plain', async (ctx) => {
   await ctx.answerCbQuery()
   await ctx.editMessageCaption('Caption', Markup.inlineKeyboard([
-    Markup.button.callback('Plain', 'plain'),
-    Markup.button.callback('Italic', 'italic')
-  ]))
+    Markup.callbackButton('Plain', 'plain'),
+    Markup.callbackButton('Italic', 'italic')
+  ]).extra()
+  )
 })
 
 bot.action('italic', async (ctx) => {
@@ -113,9 +116,9 @@ bot.action('italic', async (ctx) => {
   await ctx.editMessageCaption('_Caption_', {
     parse_mode: 'Markdown',
     ...Markup.inlineKeyboard([
-      Markup.button.callback('Plain', 'plain'),
-      Markup.button.callback('* Italic *', 'italic')
-    ])
+      Markup.callbackButton('Plain', 'plain'),
+      Markup.callbackButton('* Italic *', 'italic')
+    ]).extra()
   })
 })
 

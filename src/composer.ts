@@ -1,16 +1,8 @@
 /** @format */
 
 import * as tt from './telegram-types'
-import Context from './context'
 import { Middleware, NonemptyReadonlyArray } from './types'
-
-type TupleToUnion<T> = {
-  [K in keyof T]: T[K]
-} extends {
-  [key: number]: infer V
-}
-  ? V
-  : never
+import Context from './context'
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
@@ -72,7 +64,7 @@ type EntityMatch<
 
 type Prefix<S extends MaybeArray<string>, P extends string> = S extends string
   ? `${P}${S}`
-  : `${P}${TupleToUnion<S>}`
+  : `${P}${tt.TupleToUnion<S>}`
 
 export class Composer<TContext extends Context>
   implements Middleware.Obj<TContext> {

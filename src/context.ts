@@ -1,7 +1,7 @@
-import ApiClient from './core/network/client'
-import Telegram from './telegram'
 import * as tt from './telegram-types'
+import ApiClient from './core/network/client'
 import { Tail } from './types'
+import Telegram from './telegram'
 
 type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>

@@ -363,7 +363,7 @@ interface MessageAliases {
 }
 
 // util types
-type TupleToUnion<T> = {
+export type TupleToUnion<T> = {
   [K in keyof T]: T[K]
 } extends {
   [key: number]: infer V

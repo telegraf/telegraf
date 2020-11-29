@@ -1,8 +1,16 @@
 /** @format */
 
 import * as tt from './telegram-types'
-import Context, { ContextProps, MessageProps } from './context'
+import Context from './context'
 import { Middleware, NonemptyReadonlyArray } from './types'
+
+type TupleToUnion<T> = {
+  [K in keyof T]: T[K]
+} extends {
+  [key: number]: infer V
+}
+  ? V
+  : never
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
@@ -34,13 +42,37 @@ function getText(
   return undefined
 }
 
-type ForUpdateType<
+type Props = {
+  [key in tt.UpdateType]: tt.UpdateProps[key] & tt.ContextProps[key]
+}
+type SubProps = {
+  [key in tt.MessageSubType]: Props['message'] &
+    tt.UpdateSubProps[key] &
+    tt.ContextSubProps[key]
+}
+
+type MatchedContext<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType
 > = C &
-  (T extends tt.UpdateType
-    ? ContextProps[T]
-    : MessageProps[Exclude<T, tt.UpdateType>])
+  // TODO: support subtypes for: callback query, channel post, maybe more?
+  (T extends tt.UpdateType ? Props[T] : SubProps[Exclude<T, tt.UpdateType>]) &
+  tt.AbsentProps<
+    Exclude<
+      tt.UpdateType,
+      T | (T extends tt.MessageSubType ? 'message' : never)
+    >
+  >
+
+type EntityMatch<
+  C extends Context,
+  M = RegExpExecArray,
+  T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post'
+> = NonemptyReadonlyArray<Middleware<MatchedContext<C & { match: M }, T>>>
+
+type Prefix<S extends MaybeArray<string>, P extends string> = S extends string
+  ? `${P}${S}`
+  : `${P}${TupleToUnion<S>}`
 
 export class Composer<TContext extends Context>
   implements Middleware.Obj<TContext> {
@@ -63,13 +95,9 @@ export class Composer<TContext extends Context>
    */
   on<U extends tt.UpdateType | tt.MessageSubType>(
     updateType: MaybeArray<U>,
-    ...fns: NonemptyReadonlyArray<Middleware<ForUpdateType<TContext, U>>>
-  ): this
-  on(
-    updateTypes: MaybeArray<tt.UpdateType | tt.MessageSubType>,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<TContext, U>>>
   ) {
-    return this.use(Composer.mount(updateTypes, ...fns))
+    return this.use(Composer.mount<TContext, U>(updateType, ...fns))
   }
 
   /**
@@ -77,29 +105,19 @@ export class Composer<TContext extends Context>
    */
   hears(
     triggers: Triggers<TContext>,
-    ...fns: ReadonlyArray<
-      Middleware<ForUpdateType<TContext & { match: RegExpExecArray }, 'text'>>
-    >
-  ): this
-  hears(
-    triggers: Triggers<TContext>,
-    ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
+    ...fns: EntityMatch<TContext, RegExpExecArray, 'text'>
   ) {
-    return this.use(Composer.hears(triggers, ...fns))
+    return this.use(Composer.hears<TContext>(triggers, ...fns))
   }
 
   /**
    * Registers middleware for handling specified commands.
    */
   command(
-    commands: MaybeArray<string>,
-    ...fns: NonemptyReadonlyArray<Middleware<ForUpdateType<TContext, 'text'>>>
-  ): this
-  command(
-    commands: MaybeArray<string>,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
+    command: MaybeArray<string>,
+    ...fns: EntityMatch<TContext, RegExpExecArray, 'text'>
   ) {
-    return this.use(Composer.command(commands, ...fns))
+    return this.use(Composer.command<TContext>(command, ...fns))
   }
 
   /**
@@ -107,9 +125,9 @@ export class Composer<TContext extends Context>
    */
   action(
     triggers: Triggers<TContext>,
-    ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
+    ...fns: EntityMatch<TContext, RegExpExecArray, 'callback_query'>
   ) {
-    return this.use(Composer.action(triggers, ...fns))
+    return this.use(Composer.action<TContext>(triggers, ...fns))
   }
 
   /**
@@ -117,9 +135,9 @@ export class Composer<TContext extends Context>
    */
   inlineQuery(
     triggers: Triggers<TContext>,
-    ...fns: ReadonlyArray<Middleware<TContext>>
+    ...fns: EntityMatch<TContext, RegExpExecArray, 'inline_query'>
   ) {
-    return this.use(Composer.inlineQuery(triggers, ...fns))
+    return this.use(Composer.inlineQuery<TContext>(triggers, ...fns))
   }
 
   gameQuery(...fns: NonemptyReadonlyArray<Middleware<TContext>>) {
@@ -137,40 +155,70 @@ export class Composer<TContext extends Context>
     return this.use(Composer.filter(predicate))
   }
 
-  private entity(...args: Parameters<typeof Composer['entity']>) {
-    return this.use(Composer.entity(...args))
+  private entity<
+    T extends 'message' | 'channel_post' | tt.MessageSubType =
+      | 'message'
+      | 'channel_post'
+  >(
+    predicate:
+      | MaybeArray<string>
+      | ((entity: tt.MessageEntity, s: string, ctx: TContext) => boolean),
+    ...fns: ReadonlyArray<Middleware<MatchedContext<TContext, T>>>
+  ) {
+    return this.use(Composer.entity<TContext, T>(predicate, ...fns))
   }
 
-  email(...args: Parameters<typeof Composer['email']>) {
-    return this.use(Composer.email(...args))
+  email<P extends MaybeArray<string>>(
+    email: P,
+    ...fns: EntityMatch<TContext, P>
+  ) {
+    return this.use(Composer.email<TContext, P>(email, ...fns))
   }
 
-  url(...args: Parameters<typeof Composer['url']>) {
-    return this.use(Composer.url(...args))
+  url<P extends MaybeArray<string>>(url: P, ...fns: EntityMatch<TContext, P>) {
+    return this.use(Composer.url<TContext, P>(url, ...fns))
   }
 
-  textLink(...args: Parameters<typeof Composer['textLink']>) {
-    return this.use(Composer.textLink(...args))
+  textLink<P extends MaybeArray<string>>(
+    link: P,
+    ...fns: EntityMatch<TContext, P>
+  ) {
+    return this.use(Composer.textLink<TContext, P>(link, ...fns))
   }
 
-  textMention(...args: Parameters<typeof Composer['textMention']>) {
-    return this.use(Composer.textMention(...args))
+  textMention<P extends MaybeArray<string>>(
+    mention: P,
+    ...fns: EntityMatch<TContext, P>
+  ) {
+    return this.use(Composer.textMention<TContext, P>(mention, ...fns))
   }
 
-  mention(...args: Parameters<typeof Composer['mention']>) {
-    return this.use(Composer.mention(...args))
+  mention<P extends MaybeArray<string>>(
+    mention: P,
+    ...fns: EntityMatch<TContext, Prefix<P, '@'>>
+  ) {
+    return this.use(Composer.mention<TContext, P>(mention, ...fns))
   }
 
-  phone(...args: Parameters<typeof Composer['phone']>) {
-    return this.use(Composer.phone(...args))
+  phone<P extends MaybeArray<string>>(
+    number: P,
+    ...fns: EntityMatch<TContext, P>
+  ) {
+    return this.use(Composer.phone<TContext, P>(number, ...fns))
   }
 
-  hashtag(...args: Parameters<typeof Composer['hashtag']>) {
-    return this.use(Composer.hashtag(...args))
+  hashtag<P extends MaybeArray<string>>(
+    hashtag: P,
+    ...fns: EntityMatch<TContext, Prefix<P, '#'>>
+  ) {
+    return this.use(Composer.hashtag<TContext, P>(hashtag, ...fns))
   }
 
-  cashtag(...args: Parameters<typeof Composer['cashtag']>) {
-    return this.use(Composer.cashtag(...args))
+  cashtag<P extends MaybeArray<string>>(
+    cashtag: P,
+    ...fns: EntityMatch<TContext, Prefix<P, '$'>>
+  ) {
+    return this.use(Composer.cashtag<TContext, P>(cashtag, ...fns))
   }
 
   /**
@@ -204,13 +252,15 @@ export class Composer<TContext extends Context>
     return this.handler
   }
 
-  static reply(...args: Parameters<Context['reply']>) {
-    return (ctx: Context) => ctx.reply(...args)
+  static reply<TContext extends Context>(
+    ...args: Parameters<Context['reply']>
+  ): Middleware.Fn<TContext> {
+    return (ctx: TContext) => ctx.reply(...args)
   }
 
   private static catchAll<TContext extends Context>(
     ...fns: ReadonlyArray<Middleware<TContext>>
-  ) {
+  ): Middleware.Fn<TContext> {
     return Composer.catch((err) => {
       console.error()
       console.error((err.stack || err.toString()).replace(/^/gm, '  '))
@@ -252,9 +302,9 @@ export class Composer<TContext extends Context>
     return (ctx, next) => next()
   }
 
-  static lazy<TContext extends Context>(
-    factoryFn: (ctx: TContext) => MaybePromise<Middleware<TContext>>
-  ): Middleware.Fn<TContext> {
+  static lazy<TContext extends Context, C extends TContext = TContext>(
+    factoryFn: (ctx: TContext) => MaybePromise<Middleware<C>>
+  ): Middleware.Fn<C> {
     if (typeof factoryFn !== 'function') {
       throw new Error('Argument must be a function')
     }
@@ -279,7 +329,7 @@ export class Composer<TContext extends Context>
     predicate: Predicate<TContext> | AsyncPredicate<TContext>,
     trueMiddleware: Middleware<TContext>,
     falseMiddleware: Middleware<TContext>
-  ) {
+  ): Middleware.Fn<TContext> {
     if (typeof predicate !== 'function') {
       return Composer.unwrap(predicate ? trueMiddleware : falseMiddleware)
     }
@@ -297,7 +347,7 @@ export class Composer<TContext extends Context>
   static optional<TContext extends Context>(
     predicate: Predicate<TContext> | AsyncPredicate<TContext>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
+  ): Middleware.Fn<TContext> {
     return Composer.branch(
       predicate,
       Composer.compose(fns),
@@ -305,18 +355,25 @@ export class Composer<TContext extends Context>
     )
   }
 
-  static filter<TContext extends Context>(predicate: Predicate<TContext>) {
+  static filter<TContext extends Context>(
+    predicate: Predicate<TContext>
+  ): Middleware.Fn<TContext> {
     return Composer.branch(predicate, Composer.passThru(), anoop)
   }
 
-  static drop<TContext extends Context>(predicate: Predicate<TContext>) {
+  static drop<TContext extends Context>(
+    predicate: Predicate<TContext>
+  ): Middleware.Fn<TContext> {
     return Composer.branch(predicate, anoop, Composer.passThru())
   }
 
   static dispatch<
     TContext extends Context,
     Handlers extends Record<string | number | symbol, Middleware<TContext>>
-  >(routeFn: (ctx: TContext) => keyof Handlers, handlers: Handlers) {
+  >(
+    routeFn: (ctx: TContext) => keyof Handlers,
+    handlers: Handlers
+  ): Middleware<TContext> {
     return typeof routeFn === 'function'
       ? Composer.lazy<TContext>((ctx) =>
           Promise.resolve(routeFn(ctx)).then((value) => handlers[value])
@@ -324,33 +381,64 @@ export class Composer<TContext extends Context>
       : handlers[routeFn]
   }
 
+  // EXPLANATION FOR THE ts-expect-error ANNOTATIONS
+
+  // The annotations around function invocations with `...fns` are there
+  // whenever we perform validation logic that the flow analysis of TypeScript
+  // cannot comprehend. We always make sure that the middleware functions are
+  // only invoked with properly constrained context objects, but this cannot be
+  // determined automatically.
+
   /**
    * Generates middleware for handling provided update types.
    */
-  static mount<TContext extends Context>(
-    updateType: MaybeArray<tt.UpdateType | tt.MessageSubType>,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
+  static mount<
+    TContext extends Context,
+    U extends tt.UpdateType | tt.MessageSubType
+  >(
+    updateType: MaybeArray<U>,
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<TContext, U>>>
+  ): Middleware.Fn<TContext> {
     const updateTypes = normalizeTextArguments(updateType)
+
     const predicate = (ctx: TContext) =>
       updateTypes.includes(ctx.updateType) ||
       // @ts-expect-error `type` is a string and not a union of literals
       updateTypes.some((type) => ctx.updateSubTypes.includes(type))
-    return Composer.optional(predicate, ...fns)
+
+    // @ts-expect-error see explanation above
+    return Composer.optional<TContext>(predicate, ...fns)
   }
 
-  private static entity<TContext extends Context>(
-    predicate: (entity: tt.MessageEntity, s: string, ctx: TContext) => boolean,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ): Middleware<TContext> {
+  private static entity<
+    TContext extends Context,
+    T extends 'message' | 'channel_post' | tt.MessageSubType =
+      | 'message'
+      | 'channel_post'
+  >(
+    predicate:
+      | MaybeArray<string>
+      | ((entity: tt.MessageEntity, s: string, ctx: TContext) => boolean),
+    ...fns: ReadonlyArray<Middleware<MatchedContext<TContext, T>>>
+  ): Middleware.Fn<TContext> {
     if (typeof predicate !== 'function') {
       const entityTypes = normalizeTextArguments(predicate)
       return Composer.entity(({ type }) => entityTypes.includes(type), ...fns)
     }
-    return Composer.optional((ctx) => {
-      const message = ctx.message ?? ctx.channelPost
-      const entities = getEntities(message)
-      const text = getText(message)
+    return Composer.optional<TContext>((ctx) => {
+      // The expression `ctx.message ?? ctx.channelPost` generates a union type
+      // that is too complex to represent, so we're working our way around that
+      // by narrowing down the raw update type itself
+      let msg: tt.Message
+      if ('message' in ctx.update) {
+        msg = ctx.update.message
+      } else if ('channel_post' in ctx.update) {
+        msg = ctx.update.channel_post
+      } else {
+        return false
+      }
+      const text = getText(msg)
+      const entities = getEntities(msg)
       if (text === undefined) return false
       return entities.some((entity) =>
         predicate(
@@ -359,114 +447,122 @@ export class Composer<TContext extends Context>
           ctx
         )
       )
+      // @ts-expect-error see explanation above
     }, ...fns)
   }
 
-  static entityText<TContext extends Context>(
-    entityType: string,
-    predicate: Triggers<TContext>,
-    ...fns: NonemptyReadonlyArray<
-      Middleware<TContext & { match: RegExpExecArray }>
-    >
-  ): Middleware<TContext> {
+  static entityText<TContext extends Context, P extends Triggers<TContext>>(
+    entityType: MaybeArray<string>,
+    predicate: P,
+    ...fns: EntityMatch<TContext, P>
+  ): Middleware.Fn<TContext> {
     if (fns.length === 0) {
       // prettier-ignore
       return Array.isArray(predicate)
-        // @ts-expect-error
         ? Composer.entity(entityType, ...predicate)
         // @ts-expect-error
         : Composer.entity(entityType, predicate)
     }
     const triggers = normalizeTriggers(predicate)
-    // @ts-expect-error
-    return Composer.entity(({ type }, value, ctx) => {
+    return Composer.entity<TContext>(({ type }, value, ctx) => {
       if (type !== entityType) {
         return false
       }
       for (const trigger of triggers) {
         // @ts-expect-error
-        ctx.match = trigger(value, ctx)
-        if (ctx.match) {
+        if ((ctx.match = trigger(value, ctx))) {
           return true
         }
       }
       return false
+      // @ts-expect-error see explanation above
     }, ...fns)
   }
 
-  static email<TContext extends Context>(
-    email: string,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
-    return Composer.entityText('email', email, ...fns)
+  static email<TContext extends Context, P extends MaybeArray<string>>(
+    email: P,
+    ...fns: EntityMatch<TContext, P>
+  ): Middleware.Fn<TContext> {
+    return Composer.entityText<TContext, P>('email', email, ...fns)
   }
 
-  static phone<TContext extends Context>(
-    number: string,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
-    return Composer.entityText('phone_number', number, ...fns)
+  static phone<TContext extends Context, P extends MaybeArray<string>>(
+    number: P,
+    ...fns: EntityMatch<TContext, P>
+  ): Middleware.Fn<TContext> {
+    return Composer.entityText<TContext, P>('phone_number', number, ...fns)
   }
 
-  static url<TContext extends Context>(
-    url: string,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
-    return Composer.entityText('url', url, ...fns)
+  static url<TContext extends Context, P extends MaybeArray<string>>(
+    url: P,
+    ...fns: EntityMatch<TContext, P>
+  ): Middleware.Fn<TContext> {
+    return Composer.entityText<TContext, P>('url', url, ...fns)
   }
 
-  static textLink<TContext extends Context>(
-    link: string,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
-    return Composer.entityText('text_link', link, ...fns)
+  static textLink<TContext extends Context, P extends MaybeArray<string>>(
+    link: P,
+    ...fns: EntityMatch<TContext, P>
+  ): Middleware.Fn<TContext> {
+    return Composer.entityText<TContext, P>('text_link', link, ...fns)
   }
 
-  static textMention<TContext extends Context>(
-    mention: string,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
-    return Composer.entityText('text_mention', mention, ...fns)
+  static textMention<TContext extends Context, P extends MaybeArray<string>>(
+    mention: P,
+    ...fns: EntityMatch<TContext, P>
+  ): Middleware.Fn<TContext> {
+    return Composer.entityText<TContext, P>('text_mention', mention, ...fns)
   }
 
-  static mention<TContext extends Context>(
-    mention: string,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
-    return Composer.entityText(
+  static mention<TContext extends Context, P extends MaybeArray<string>>(
+    mention: P,
+    ...fns: EntityMatch<TContext, Prefix<P, '@'>>
+  ): Middleware.Fn<TContext> {
+    return Composer.entityText<TContext, P>(
       'mention',
+      // @ts-expect-error the normalization discards types
       normalizeTextArguments(mention, '@'),
       ...fns
     )
   }
 
-  static hashtag<TContext extends Context>(
-    hashtag: string,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
-    return Composer.entityText(
+  static hashtag<TContext extends Context, P extends MaybeArray<string>>(
+    hashtag: P,
+    ...fns: EntityMatch<TContext, Prefix<P, '#'>>
+  ): Middleware.Fn<TContext> {
+    return Composer.entityText<TContext, P>(
       'hashtag',
+      // @ts-expect-error the normalization discards types
       normalizeTextArguments(hashtag, '#'),
       ...fns
     )
   }
 
-  static cashtag<TContext extends Context>(
-    cashtag: string,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
-    return Composer.entityText(
+  static cashtag<TContext extends Context, P extends MaybeArray<string>>(
+    cashtag: P,
+    ...fns: EntityMatch<TContext, Prefix<P, '$'>>
+  ): Middleware.Fn<TContext> {
+    return Composer.entityText<TContext, P>(
       'cashtag',
+      // @ts-expect-error the normalization discards types
       normalizeTextArguments(cashtag, '$'),
       ...fns
     )
   }
 
-  private static match<TContext extends Context>(
+  private static match<
+    TContext extends Context,
+    T extends
+      | 'message'
+      | 'channel_post'
+      | 'callback_query'
+      | 'inline_query'
+      | tt.MessageSubType
+  >(
     triggers: ReadonlyArray<
       (text: string, ctx: TContext) => RegExpExecArray | null
     >,
-    ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
+    ...fns: EntityMatch<TContext, RegExpExecArray, T>
   ): Middleware.Fn<TContext> {
     const handler = Composer.compose(fns)
     return (ctx, next) => {
@@ -479,6 +575,7 @@ export class Composer<TContext extends Context>
       for (const trigger of triggers) {
         const match = trigger(text, ctx)
         if (match) {
+          // @ts-expect-error define so far unknown property `match`
           return handler(Object.assign(ctx, { match }), next)
         }
       }
@@ -491,8 +588,8 @@ export class Composer<TContext extends Context>
    */
   static hears<TContext extends Context>(
     triggers: Triggers<TContext>,
-    ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
-  ) {
+    ...fns: EntityMatch<TContext, RegExpExecArray, 'text'>
+  ): Middleware.Fn<TContext> {
     return Composer.mount(
       'text',
       Composer.match(normalizeTriggers(triggers), ...fns)
@@ -504,26 +601,27 @@ export class Composer<TContext extends Context>
    */
   static command<TContext extends Context>(
     command: MaybeArray<string>,
-    ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
+    ...fns: EntityMatch<TContext, RegExpExecArray, 'text'>
+  ): Middleware.Fn<TContext> {
     if (fns.length === 0) {
       // @ts-expect-error
       return Composer.entity(['bot_command'], command)
     }
     const commands = normalizeTextArguments(command, '/')
-    return Composer.mount(
+    return Composer.mount<TContext, 'text'>(
       'text',
-      Composer.lazy<TContext>((ctx) => {
+      Composer.lazy<TContext, MatchedContext<TContext, 'text'>>((ctx) => {
         const groupCommands =
           ctx.me && ctx.chat?.type.endsWith('group')
             ? // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
               commands.map((command) => `${command}@${ctx.me}`)
             : []
-        return Composer.entity(
+        return Composer.entity<MatchedContext<TContext, 'text'>>(
           ({ offset, type }, value) =>
             offset === 0 &&
             type === 'bot_command' &&
             (commands.includes(value) || groupCommands.includes(value)),
+          // @ts-expect-error see explanation above
           ...fns
         )
       })
@@ -535,8 +633,8 @@ export class Composer<TContext extends Context>
    */
   static action<TContext extends Context>(
     triggers: Triggers<TContext>,
-    ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
-  ) {
+    ...fns: EntityMatch<TContext, RegExpExecArray, 'callback_query'>
+  ): Middleware.Fn<TContext> {
     return Composer.mount(
       'callback_query',
       Composer.match(normalizeTriggers(triggers), ...fns)
@@ -548,8 +646,8 @@ export class Composer<TContext extends Context>
    */
   static inlineQuery<TContext extends Context>(
     triggers: Triggers<TContext>,
-    ...fns: ReadonlyArray<Middleware<TContext & { match: RegExpExecArray }>>
-  ) {
+    ...fns: EntityMatch<TContext, RegExpExecArray, 'inline_query'>
+  ): Middleware.Fn<TContext> {
     return Composer.mount(
       'inline_query',
       Composer.match(normalizeTriggers(triggers), ...fns)
@@ -559,7 +657,7 @@ export class Composer<TContext extends Context>
   static acl<TContext extends Context>(
     userId: MaybeArray<number>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
+  ): Middleware.Fn<TContext> {
     if (typeof userId === 'function') {
       return Composer.optional(userId, ...fns)
     }
@@ -571,7 +669,7 @@ export class Composer<TContext extends Context>
   private static memberStatus<TContext extends Context>(
     status: MaybeArray<tt.ChatMember['status']>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
+  ): Middleware.Fn<TContext> {
     const statuses = Array.isArray(status) ? status : [status]
     return Composer.optional(async (ctx) => {
       if (ctx.message === undefined) return false
@@ -582,20 +680,20 @@ export class Composer<TContext extends Context>
 
   static admin<TContext extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
+  ): Middleware.Fn<TContext> {
     return Composer.memberStatus(['administrator', 'creator'], ...fns)
   }
 
   static creator<TContext extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
+  ): Middleware.Fn<TContext> {
     return Composer.memberStatus('creator', ...fns)
   }
 
   static chatType<TContext extends Context>(
     type: MaybeArray<tt.ChatType>,
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
+  ): Middleware.Fn<TContext> {
     const types = Array.isArray(type) ? type : [type]
     // @ts-expect-error
     // prettier-ignore
@@ -604,19 +702,19 @@ export class Composer<TContext extends Context>
 
   static privateChat<TContext extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
+  ): Middleware.Fn<TContext> {
     return Composer.chatType('private', ...fns)
   }
 
   static groupChat<TContext extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
+  ): Middleware.Fn<TContext> {
     return Composer.chatType(['group', 'supergroup'], ...fns)
   }
 
   static gameQuery<TContext extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<TContext>>
-  ) {
+  ): Middleware.Fn<TContext> {
     return Composer.optional(
       (ctx) =>
         ctx.callbackQuery != null && 'game_short_name' in ctx.callbackQuery,
@@ -624,7 +722,9 @@ export class Composer<TContext extends Context>
     )
   }
 
-  static unwrap<TContext extends Context>(handler: Middleware<TContext>) {
+  static unwrap<TContext extends Context>(
+    handler: Middleware<TContext>
+  ): Middleware.Fn<TContext> {
     if (!handler) {
       throw new Error('Handler is undefined')
     }
@@ -682,7 +782,7 @@ function escapeRegExp(s: string) {
 
 function normalizeTriggers<TContext extends Context>(
   triggers: Triggers<TContext>
-) {
+): Array<(value: string, ctx: TContext) => RegExpExecArray | null> {
   if (!Array.isArray(triggers)) {
     triggers = [triggers]
   }

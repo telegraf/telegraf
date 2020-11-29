@@ -1,48 +1,27 @@
-import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
-import { Tail } from './types'
 import Telegram from './telegram'
+import * as tt from './telegram-types'
+import { Tail } from './types'
 
 type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
 
-type UnionToIntersection<U> = (
-  U extends unknown ? (k: U) => void : never
-) extends (k: infer I) => void
-  ? I
-  : never
-
-// `UpdateTypes` must be kept in sync with `ContextProps`!
-const UpdateTypes = [
+export const UpdateTypes = [
   'callback_query',
   'channel_post',
   'chosen_inline_result',
   'edited_channel_post',
   'edited_message',
   'inline_query',
-  'shipping_query',
-  'pre_checkout_query',
   'message',
+  'pre_checkout_query',
+  'shipping_query',
   'poll',
   'poll_answer',
 ] as const
-export interface ContextProps {
-  callback_query: { callbackQuery: object }
-  channel_post: { channelPost: object }
-  chosen_inline_result: { chosenInlineResult: object }
-  edited_channel_post: { editedChannelPost: object }
-  edited_message: { editedMessage: object }
-  inline_query: { inlineQuery: object }
-  message: { message: object }
-  pre_checkout_query: { preCheckoutQuery: object }
-  shipping_query: { shippingQuery: object }
-  poll: { poll: object }
-  poll_answer: { pollAnswer: object }
-}
-export type UpdateTypesUnion = keyof ContextProps
 
-const MessageSubTypes = [
+export const MessageSubTypes = [
   'voice',
   'video_note',
   'video',
@@ -75,43 +54,10 @@ const MessageSubTypes = [
   'poll',
   'forward_date',
 ] as const
-export type MessageProps = {
-  [key in MessageSubTypesUnionMapped]: {
-    message: {
-      [k in MapSubTypeBack<key>]: UnionToIntersection<tt.Message>[k]
-    }
-  }
-}
-export type MessageSubTypesUnion = {
-  [K in keyof typeof MessageSubTypes]: typeof MessageSubTypes[K]
-} extends {
-  [key: number]: infer V
-}
-  ? V
-  : never
 
-const MessageSubTypesMapping = {
+export const MessageSubTypesMapping = {
   forward_date: 'forward',
 } as const
-
-type MessageSubTypesMappingReversed = {
-  [key in typeof MessageSubTypesMapping[keyof typeof MessageSubTypesMapping]]: {
-    [k in keyof typeof MessageSubTypesMapping]: key extends typeof MessageSubTypesMapping[k]
-      ? k
-      : never
-  }[keyof typeof MessageSubTypesMapping]
-}
-
-type MapType<M, U> = U extends keyof M ? M[U] : U
-type MapSubType<U extends MessageSubTypesUnion> = MapType<
-  typeof MessageSubTypesMapping,
-  U
->
-type MapSubTypeBack<U extends MessageSubTypesUnionMapped> = MapType<
-  MessageSubTypesMappingReversed,
-  U
->
-export type MessageSubTypesUnionMapped = MapSubType<MessageSubTypesUnion>
 
 export class Context {
   public botInfo?: tt.UserFromGetMe

@@ -42,7 +42,9 @@ export class Stage<TContext extends Context>
         return next(Object.assign(ctx, { scene }))
       },
       super.middleware(),
-      Composer.lazy((ctx) => ctx.scene.current ?? Composer.passThru()),
+      Composer.lazy<SceneContext.Extended<TContext>>(
+        (ctx) => ctx.scene.current ?? Composer.passThru()
+      ),
     ])
     return Composer.optional(
       (ctx: any) => ctx[this.options.sessionName],

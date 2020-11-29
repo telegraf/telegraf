@@ -7,6 +7,7 @@ import Context from './context'
 import crypto from 'crypto'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
+import { IGNORE_WEBHOOK_PATH } from './types'
 import { promisify } from 'util'
 import Telegram from './telegram'
 import { TlsOptions } from 'tls'
@@ -123,7 +124,7 @@ export class Telegraf<
     return this
   }
 
-  webhookCallback(path = '/') {
+  webhookCallback(path: string | typeof IGNORE_WEBHOOK_PATH = '/') {
     return generateCallback(
       path,
       (update: tt.Update, res: any) => this.handleUpdate(update, res),

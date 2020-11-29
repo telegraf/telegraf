@@ -2,6 +2,8 @@
 
 import Context from './context'
 
+export const IGNORE_WEBHOOK_PATH = Symbol.for('telegraf:ignore-webhook-path')
+
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Middleware {
   /*

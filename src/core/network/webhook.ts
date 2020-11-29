@@ -1,10 +1,11 @@
 import * as http from 'http'
 import d from 'debug'
+import { IGNORE_WEBHOOK_PATH } from '../../types'
 import { Update } from '../../telegram-types'
 const debug = d('telegraf:webhook')
 
 export = function (
-  hookPath: string,
+  hookPath: string | typeof IGNORE_WEBHOOK_PATH,
   updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>,
   errorHandler: (err: SyntaxError) => void
 ) {
@@ -14,7 +15,10 @@ export = function (
     next?: () => void
   ): void => {
     debug('Incoming request', req.method, req.url)
-    if (req.method !== 'POST' || req.url !== hookPath) {
+    if (
+      req.method !== 'POST' ||
+      (typeof hookPath === 'string' && req.url !== hookPath)
+    ) {
       if (typeof next === 'function') {
         return next()
       }
@@ -36,7 +40,7 @@ export = function (
       }
       updateHandler(update, res)
         .then(() => {
-          if (!res.finished) {
+          if (!res.writableEnded) {
             res.end()
           }
         })

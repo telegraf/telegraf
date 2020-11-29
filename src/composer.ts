@@ -64,7 +64,7 @@ type EntityMatch<
 
 type Prefix<S extends MaybeArray<string>, P extends string> = S extends string
   ? `${P}${S}`
-  : `${P}${tt.TupleToUnion<S>}`
+  : `${P}${S[number]}`
 
 export class Composer<TContext extends Context>
   implements Middleware.Obj<TContext> {
@@ -363,7 +363,7 @@ export class Composer<TContext extends Context>
     TContext extends Context,
     Handlers extends Record<string | number | symbol, Middleware<TContext>>
   >(
-    routeFn: (ctx: TContext) => keyof Handlers,
+    routeFn: keyof Handlers | ((ctx: TContext) => keyof Handlers),
     handlers: Handlers
   ): Middleware<TContext> {
     return typeof routeFn === 'function'

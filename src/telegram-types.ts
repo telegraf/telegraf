@@ -133,9 +133,9 @@ export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
 
 // types used for inference of ctx object
 export type UpdateType = keyof ContextAliases
-//                     = TupleToUnion<typeof UpdateTypes>
+//                     = typeof UpdateTypes[number]
 export type MessageSubType = MapSubType[MessageSubTypesUnion]
-export type MessageSubTypesUnion = TupleToUnion<typeof MessageSubTypes>
+export type MessageSubTypesUnion = typeof MessageSubTypes[number]
 type MessageSubTypesMappingReversed = ReverseMap<typeof MessageSubTypesMapping>
 
 type MapSubType = {
@@ -363,13 +363,6 @@ interface MessageAliases {
 }
 
 // util types
-export type TupleToUnion<T> = {
-  [K in keyof T]: T[K]
-} extends {
-  [key: number]: infer V
-}
-  ? V
-  : never
 type ReverseMap<
   M extends { [k in K]: V },
   K extends string | number | symbol = keyof M,

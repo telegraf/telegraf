@@ -78,7 +78,7 @@ export class Telegraf<
   private readonly options: Telegraf.Options<TContext>
   private webhookServer?: http.Server | https.Server
   /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
-  public botInfo?: tt.UserFromGetMe
+  public botInfo!: tt.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<TContext> = {}
   private readonly polling = {
@@ -124,15 +124,17 @@ export class Telegraf<
     return this
   }
 
-  webhookCallback(path = '/', skipBotInfoInitialization = false) {
+  webhookCallback(path = '/') {
+    let mustFetchBotInfo = !this.botInfo
     return generateCallback(
       path,
       async (update: tt.Update, res: http.ServerResponse) => {
-        if (!skipBotInfoInitialization) {
+        if (mustFetchBotInfo) {
+          mustFetchBotInfo = false
           try {
             this.botInfo ??= await this.telegram.getMe()
-          } finally {
-            skipBotInfoInitialization = true
+          } catch (err) {
+            debug('Could not initialize bot info', err)
           }
         }
         return await this.handleUpdate(update, res)

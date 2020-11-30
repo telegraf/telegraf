@@ -126,16 +126,19 @@ export class Telegraf<
 
   webhookCallback(path = '/') {
     let mustFetchBotInfo = !this.botInfo
+    let botInfoCall: Promise<unknown> | undefined
     return generateCallback(
       path,
       async (update: tt.Update, res: http.ServerResponse) => {
         if (mustFetchBotInfo) {
           mustFetchBotInfo = false
-          try {
-            this.botInfo ??= await this.telegram.getMe()
-          } catch (err) {
-            debug('Could not initialize bot info', err)
-          }
+          await (botInfoCall ??= (async () => {
+            try {
+              this.botInfo ??= await this.telegram.getMe()
+            } catch (err) {
+              debug('Could not initialize bot info', err)
+            }
+          })())
         }
         return await this.handleUpdate(update, res)
       },

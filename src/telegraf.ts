@@ -125,13 +125,11 @@ export class Telegraf<
   }
 
   webhookCallback(path = '/') {
-    let mustFetchBotInfo = !this.botInfo
     let botInfoCall: Promise<void> | undefined
     return generateCallback(
       path,
       async (update: tt.Update, res: http.ServerResponse) => {
-        if (mustFetchBotInfo) {
-          mustFetchBotInfo = false
+        if (!this.botInfo) {
           await (botInfoCall ??= (async () => {
             try {
               this.botInfo ??= await this.telegram.getMe()

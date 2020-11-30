@@ -136,7 +136,8 @@ export class Telegraf<
             try {
               this.botInfo ??= await this.telegram.getMe()
             } catch (err) {
-              debug('Could not initialize bot info', err)
+              debug('Could not initialize `botInfo`', err)
+              throw err
             }
           })())
         }

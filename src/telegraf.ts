@@ -126,7 +126,7 @@ export class Telegraf<
 
   webhookCallback(path = '/') {
     let mustFetchBotInfo = !this.botInfo
-    let botInfoCall: Promise<unknown> | undefined
+    let botInfoCall: Promise<void> | undefined
     return generateCallback(
       path,
       async (update: tt.Update, res: http.ServerResponse) => {

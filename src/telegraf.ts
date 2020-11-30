@@ -77,7 +77,8 @@ export class Telegraf<
 > extends Composer<TContext> {
   private readonly options: Telegraf.Options<TContext>
   private webhookServer?: http.Server | https.Server
-  private botInfo!: tt.UserFromGetMe
+  /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
+  public botInfo?: tt.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<TContext> = {}
   private readonly polling = {
@@ -126,7 +127,7 @@ export class Telegraf<
   webhookCallback(path = '/', skipBotInfoInitialization = false) {
     return generateCallback(
       path,
-      async (update: tt.Update, res: any) => {
+      async (update: tt.Update, res: http.ServerResponse) => {
         if (!skipBotInfoInitialization) {
           try {
             this.botInfo ??= await this.telegram.getMe()
@@ -180,7 +181,7 @@ export class Telegraf<
 
   async launch(config: Telegraf.LaunchOptions = {}) {
     debug('Connecting to Telegram')
-    this.botInfo = await this.telegram.getMe()
+    this.botInfo ??= await this.telegram.getMe()
     debug(`Launching @${this.botInfo.username}`)
     if (!config.webhook) {
       const { timeout, limit, allowedUpdates, stopCallback } =

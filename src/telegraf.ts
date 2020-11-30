@@ -125,20 +125,11 @@ export class Telegraf<
   }
 
   webhookCallback(path = '/') {
-    let botInfoCall: Promise<void> | undefined
+    let botInfoCall: Promise<tt.UserFromGetMe> | undefined
     return generateCallback(
       path,
       async (update: tt.Update, res: http.ServerResponse) => {
-        if (!this.botInfo) {
-          await (botInfoCall ??= (async () => {
-            try {
-              this.botInfo ??= await this.telegram.getMe()
-            } catch (err) {
-              debug('Could not initialize `botInfo`', err)
-              throw err
-            }
-          })())
-        }
+        this.botInfo ??= await (botInfoCall ??= this.telegram.getMe())
         return await this.handleUpdate(update, res)
       },
       debug

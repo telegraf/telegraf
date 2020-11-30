@@ -70,7 +70,6 @@ const MessageSubTypesMapping = {
 }
 
 export class Context {
-  public botInfo?: tt.UserFromGetMe
   readonly updateType: tt.UpdateType
   readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
   readonly state: Record<string | symbol, any> = {}
@@ -78,7 +77,8 @@ export class Context {
   constructor(
     readonly update: tt.Update,
     readonly tg: Telegram,
-    private readonly options: { channelMode?: boolean; username?: string } = {}
+    public readonly botInfo: tt.UserFromGetMe,
+    private readonly options: { channelMode?: boolean } = {}
   ) {
     this.updateType = UpdateTypes.find((key) => key in this.update)!
     // prettier-ignore
@@ -98,7 +98,7 @@ export class Context {
   }
 
   get me() {
-    return this.options.username
+    return this.botInfo?.username
   }
 
   get telegram() {

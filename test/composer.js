@@ -496,7 +496,8 @@ test.cb('should handle settings command', (t) => {
 })
 
 test.cb('should handle group command', (t) => {
-  const bot = new Telegraf(null, { username: 'bot' })
+  const bot = new Telegraf(null)
+  bot.botInfo = { username: 'bot' }
   bot.start(() => t.end())
   bot.handleUpdate({ message: { text: '/start@bot', entities: [{ type: 'bot_command', offset: 0, length: 10 }], ...baseGroupMessage } })
 })
@@ -555,14 +556,15 @@ test.cb('should handle short command', (t) => {
 })
 
 test.cb('should handle command in group', (t) => {
-  const bot = new Telegraf('---', { username: 'bot' })
+  const bot = new Telegraf(null)
+  bot.botInfo = { username: 'bot' }
   bot.start(() => t.end())
   bot.handleUpdate({ message: { text: '/start@bot', entities: [{ type: 'bot_command', offset: 0, length: 10 }], chat: { id: 2, type: 'group' } } })
 })
 
 test.cb('should handle command in supergroup', (t) => {
-  const bot = new Telegraf()
-  bot.options.username = 'bot'
+  const bot = new Telegraf(null)
+  bot.botInfo = { username: 'bot' }
   bot.start(() => t.end())
   bot.handleUpdate({ message: { text: '/start@bot', entities: [{ type: 'bot_command', offset: 0, length: 10 }], chat: { id: 2, type: 'supergroup' } } })
 })

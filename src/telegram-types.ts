@@ -132,15 +132,23 @@ export type ExtraVideoNote = MakeExtra<'sendVideoNote', 'video_note'>
 export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
 
 // types used for inference of ctx object
+
+/** Possible update types */
 export type UpdateType = keyof ContextAliases
 //                     = typeof UpdateTypes[number]
+/** Possible message subtypes. Same as the properties on a message object, but with `forward_date` renamed to `forward` */
 export type MessageSubType = MapSubType[MessageSubTypesUnion]
+/** Possible message subtypes. Same as the properties on a message object */
 export type MessageSubTypesUnion = typeof MessageSubTypes[number]
+/** Lookup table to reverse the renaming performed in MessageSubTypesMapping */
 type MessageSubTypesMappingReversed = ReverseMap<typeof MessageSubTypesMapping>
 
+/** Lookup table used to do the renaming from MessageSubTypesUnion to MessageSubType */
 type MapSubType = {
   [key in MessageSubTypesUnion]: MapType<typeof MessageSubTypesMapping, key>
 }
+/** Lookup table used to undo the renaming from MessageSubTypesUnion to MessageSubType,
+    hence going from MessageSubType back to MessageSubTypesUnion */
 type MapSubTypeBack = {
   [key in MessageSubType]: MapType<MessageSubTypesMappingReversed, key>
 }

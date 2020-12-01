@@ -865,7 +865,7 @@ interface SessionData {
 
 // Define your own context type
 interface MyContext extends Context {
-  session: SessionData
+  session?: SessionData
   // ... more props go here
 }
 

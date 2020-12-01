@@ -34,6 +34,14 @@ function getText(
   return undefined
 }
 
+type MatchedContext<
+  C extends Context,
+  T extends tt.UpdateType | tt.MessageSubType
+> = C & GuaranteedContextProps<T> & UndefinedContextProps<T>
+
+type GuaranteedContextProps<
+  T extends tt.UpdateType | tt.MessageSubType
+> = T extends tt.UpdateType ? Props[T] : SubProps[Exclude<T, tt.UpdateType>]
 type Props = {
   [key in tt.UpdateType]: tt.UpdateProps[key] & tt.ContextProps[key]
 }
@@ -43,18 +51,11 @@ type SubProps = {
     tt.ContextSubProps[key]
 }
 
-type MatchedContext<
-  C extends Context,
+type UndefinedContextProps<
   T extends tt.UpdateType | tt.MessageSubType
-> = C &
-  // TODO: support subtypes for: callback query, channel post, maybe more?
-  (T extends tt.UpdateType ? Props[T] : SubProps[Exclude<T, tt.UpdateType>]) &
-  tt.AbsentProps<
-    Exclude<
-      tt.UpdateType,
-      T | (T extends tt.MessageSubType ? 'message' : never)
-    >
-  >
+> = tt.AbsentProps<
+  Exclude<tt.UpdateType, T | (T extends tt.MessageSubType ? 'message' : never)>
+>
 
 type EntityMatch<
   C extends Context,
@@ -214,10 +215,8 @@ export class Composer<TContext extends Context>
     return this.handler
   }
 
-  static reply<TContext extends Context>(
-    ...args: Parameters<Context['reply']>
-  ): Middleware.Fn<TContext> {
-    return (ctx: TContext) => ctx.reply(...args)
+  static reply(...args: Parameters<Context['reply']>): Middleware.Fn<Context> {
+    return (ctx) => ctx.reply(...args)
   }
 
   private static catchAll<TContext extends Context>(

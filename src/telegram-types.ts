@@ -145,26 +145,93 @@ type MapSubTypeBack = {
   [key in MessageSubType]: MapType<MessageSubTypesMappingReversed, key>
 }
 
+/** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
+    Takes (as key): an update type.
+    Produces (as value): the correct update for the given update type.
+
+    This is done via a lookup table defined below.
+    Previous attempts to do this transformation directly without such a precomputed table slowed down type inference too much. */
 export type UpdateProps = {
   [key in UpdateType]: {
     update: ContextAliases[key]['upd']
   }
 }
+/** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
+    Takes (as key): an update type.
+    Produces (as value): an object that has exactly one key, this key is of the keys in the context object, e.g. channelPost.
+    The value behind that key is a required property, and it is the exact same type as the property on the context object has.
+
+    In other words, if `ctx.channelPost` is of type `Message | undefined`, then the object behind the key `channel_post` in this container type will be
+    ```
+    {
+      channelPost: Message
+    }
+    ```
+    Intersecting a context type with this object will thus make the corresponding property required for the given update type.
+
+    This is done via a lookup table defined below.
+    Previous attempts to do this transformation directly without such a precomputed table slowed down type inference too much. */
 export type ContextProps = {
   [key in UpdateType]: {
     [k in ContextAliases[key]['prop']]: ContextAliases[key]['ctx']
   }
 }
+/** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
+    Takes (as key): a messsage subtype.
+    Produces (as value): an object that that has exactly one key called update.
+    The value behind update is an Update.MessageUpdate. The message property on the update is further specified,
+    hence narrowing down the union inside Message.
+
+    For instance, if the given message subtype is `text`, the value behind the `text` key of this container types is:
+    ```
+    update: Update.MessageUpdate & {
+        text: Message.TextMessage;
+    };
+    ```
+    Intersecting a context type with this object will thus make for instance `ctx.update.message.text` a required property.
+
+    This is done via a lookup table defined below.
+    Previous attempts to do this transformation directly without such a precomputed table slowed down type inference too much. */
 export type UpdateSubProps = {
   [key in MessageSubType]: {
     update: Update.MessageUpdate & ContextSubProps[key]
   }
 }
+/** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
+    Takes (as key): a message subtype.
+    Produces (as value): an object that that has exactly one key called message.
+    The value behind message is further specified, hence narrowing down the union inside Message.
+
+    For instance, if the given message subtype is `text`, the value behind the `text` key of this container types is:
+    ```
+    {
+      message: Message.TextMessage;
+    };
+    ```
+    Intersecting a message type with this object with an update type will thus narrow down the message property of the update.
+
+    This is done via a lookup table defined below.
+    Previous attempts to do this transformation directly without such a precomputed table slowed down type inference too much. */
 export type ContextSubProps = {
   [key in MessageSubType]: {
     message: MessageAliases[MapSubTypeBack[key]]['msg']
   }
 }
+/** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
+    Takes (as key): an update type.
+    Produces (as value): an object that has exactly one key, this key is of the keys in the context object, e.g. channelPost.
+    The value behind that key is always undefined.
+
+    In other words, if `ctx.channelPost` is of type `Message | undefined`, then this object will be
+    ```
+    {
+      channelPost: undefined
+    }
+    ```
+    Intersecting a context with this object will thus make the corresponding property undefined for the given update type.
+
+    Some renaming has to take place. This is done via a lookup table defined below.
+    Previous attempts to do this transformation directly without such a precomputed table slowed down type inference too much. */
 export type AbsentProps<T extends UpdateType> = {
   [key in ContextAliases[T]['prop']]: undefined
 }
@@ -363,6 +430,10 @@ interface MessageAliases {
 }
 
 // util types
+
+/** Takes: an object that maps string keys to string literal types.
+    Produces: an object with keys and values flipped,
+    i.e. an object mapping the string literal types to their original keys. */
 type ReverseMap<
   M extends { [k in K]: V },
   K extends string | number | symbol = keyof M,

@@ -57,7 +57,7 @@ type UndefinedContextProps<
   Exclude<tt.UpdateType, T | (T extends tt.MessageSubType ? 'message' : never)>
 >
 
-type EntityMatch<
+type MatchedMiddleware<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post'
 > = NonemptyReadonlyArray<
@@ -93,14 +93,14 @@ export class Composer<TContext extends Context>
   /**
    * Registers middleware for handling matching text messages.
    */
-  hears(triggers: Triggers<TContext>, ...fns: EntityMatch<TContext, 'text'>) {
+  hears(triggers: Triggers<TContext>, ...fns: MatchedMiddleware<TContext, 'text'>) {
     return this.use(Composer.hears<TContext>(triggers, ...fns))
   }
 
   /**
    * Registers middleware for handling specified commands.
    */
-  command(command: MaybeArray<string>, ...fns: EntityMatch<TContext, 'text'>) {
+  command(command: MaybeArray<string>, ...fns: MatchedMiddleware<TContext, 'text'>) {
     return this.use(Composer.command<TContext>(command, ...fns))
   }
 
@@ -109,7 +109,7 @@ export class Composer<TContext extends Context>
    */
   action(
     triggers: Triggers<TContext>,
-    ...fns: EntityMatch<TContext, 'callback_query'>
+    ...fns: MatchedMiddleware<TContext, 'callback_query'>
   ) {
     return this.use(Composer.action<TContext>(triggers, ...fns))
   }
@@ -119,7 +119,7 @@ export class Composer<TContext extends Context>
    */
   inlineQuery(
     triggers: Triggers<TContext>,
-    ...fns: EntityMatch<TContext, 'inline_query'>
+    ...fns: MatchedMiddleware<TContext, 'inline_query'>
   ) {
     return this.use(Composer.inlineQuery<TContext>(triggers, ...fns))
   }
@@ -152,35 +152,35 @@ export class Composer<TContext extends Context>
     return this.use(Composer.entity<TContext, T>(predicate, ...fns))
   }
 
-  email(email: MaybeArray<string>, ...fns: EntityMatch<TContext>) {
+  email(email: MaybeArray<string>, ...fns: MatchedMiddleware<TContext>) {
     return this.use(Composer.email<TContext>(email, ...fns))
   }
 
-  url(url: MaybeArray<string>, ...fns: EntityMatch<TContext>) {
+  url(url: MaybeArray<string>, ...fns: MatchedMiddleware<TContext>) {
     return this.use(Composer.url<TContext>(url, ...fns))
   }
 
-  textLink(link: MaybeArray<string>, ...fns: EntityMatch<TContext>) {
+  textLink(link: MaybeArray<string>, ...fns: MatchedMiddleware<TContext>) {
     return this.use(Composer.textLink<TContext>(link, ...fns))
   }
 
-  textMention(mention: MaybeArray<string>, ...fns: EntityMatch<TContext>) {
+  textMention(mention: MaybeArray<string>, ...fns: MatchedMiddleware<TContext>) {
     return this.use(Composer.textMention<TContext>(mention, ...fns))
   }
 
-  mention(mention: MaybeArray<string>, ...fns: EntityMatch<TContext>) {
+  mention(mention: MaybeArray<string>, ...fns: MatchedMiddleware<TContext>) {
     return this.use(Composer.mention<TContext>(mention, ...fns))
   }
 
-  phone(number: MaybeArray<string>, ...fns: EntityMatch<TContext>) {
+  phone(number: MaybeArray<string>, ...fns: MatchedMiddleware<TContext>) {
     return this.use(Composer.phone<TContext>(number, ...fns))
   }
 
-  hashtag(hashtag: MaybeArray<string>, ...fns: EntityMatch<TContext>) {
+  hashtag(hashtag: MaybeArray<string>, ...fns: MatchedMiddleware<TContext>) {
     return this.use(Composer.hashtag<TContext>(hashtag, ...fns))
   }
 
-  cashtag(cashtag: MaybeArray<string>, ...fns: EntityMatch<TContext>) {
+  cashtag(cashtag: MaybeArray<string>, ...fns: MatchedMiddleware<TContext>) {
     return this.use(Composer.cashtag<TContext>(cashtag, ...fns))
   }
 
@@ -408,7 +408,7 @@ export class Composer<TContext extends Context>
   static entityText<TContext extends Context>(
     entityType: MaybeArray<string>,
     predicate: Triggers<TContext>,
-    ...fns: EntityMatch<TContext>
+    ...fns: MatchedMiddleware<TContext>
   ): Middleware.Fn<TContext> {
     if (fns.length === 0) {
       // prettier-ignore
@@ -436,42 +436,42 @@ export class Composer<TContext extends Context>
 
   static email<TContext extends Context>(
     email: MaybeArray<string>,
-    ...fns: EntityMatch<TContext>
+    ...fns: MatchedMiddleware<TContext>
   ): Middleware.Fn<TContext> {
     return Composer.entityText<TContext>('email', email, ...fns)
   }
 
   static phone<TContext extends Context>(
     number: MaybeArray<string>,
-    ...fns: EntityMatch<TContext>
+    ...fns: MatchedMiddleware<TContext>
   ): Middleware.Fn<TContext> {
     return Composer.entityText<TContext>('phone_number', number, ...fns)
   }
 
   static url<TContext extends Context>(
     url: MaybeArray<string>,
-    ...fns: EntityMatch<TContext>
+    ...fns: MatchedMiddleware<TContext>
   ): Middleware.Fn<TContext> {
     return Composer.entityText<TContext>('url', url, ...fns)
   }
 
   static textLink<TContext extends Context>(
     link: MaybeArray<string>,
-    ...fns: EntityMatch<TContext>
+    ...fns: MatchedMiddleware<TContext>
   ): Middleware.Fn<TContext> {
     return Composer.entityText<TContext>('text_link', link, ...fns)
   }
 
   static textMention<TContext extends Context>(
     mention: MaybeArray<string>,
-    ...fns: EntityMatch<TContext>
+    ...fns: MatchedMiddleware<TContext>
   ): Middleware.Fn<TContext> {
     return Composer.entityText<TContext>('text_mention', mention, ...fns)
   }
 
   static mention<TContext extends Context>(
     mention: MaybeArray<string>,
-    ...fns: EntityMatch<TContext>
+    ...fns: MatchedMiddleware<TContext>
   ): Middleware.Fn<TContext> {
     return Composer.entityText<TContext>(
       'mention',
@@ -482,7 +482,7 @@ export class Composer<TContext extends Context>
 
   static hashtag<TContext extends Context>(
     hashtag: MaybeArray<string>,
-    ...fns: EntityMatch<TContext>
+    ...fns: MatchedMiddleware<TContext>
   ): Middleware.Fn<TContext> {
     return Composer.entityText<TContext>(
       'hashtag',
@@ -493,7 +493,7 @@ export class Composer<TContext extends Context>
 
   static cashtag<TContext extends Context>(
     cashtag: MaybeArray<string>,
-    ...fns: EntityMatch<TContext>
+    ...fns: MatchedMiddleware<TContext>
   ): Middleware.Fn<TContext> {
     return Composer.entityText<TContext>(
       'cashtag',
@@ -514,7 +514,7 @@ export class Composer<TContext extends Context>
     triggers: ReadonlyArray<
       (text: string, ctx: TContext) => RegExpExecArray | null
     >,
-    ...fns: EntityMatch<TContext, T>
+    ...fns: MatchedMiddleware<TContext, T>
   ): Middleware.Fn<TContext> {
     const handler = Composer.compose(fns)
     return (ctx, next) => {
@@ -540,7 +540,7 @@ export class Composer<TContext extends Context>
    */
   static hears<TContext extends Context>(
     triggers: Triggers<TContext>,
-    ...fns: EntityMatch<TContext, 'text'>
+    ...fns: MatchedMiddleware<TContext, 'text'>
   ): Middleware.Fn<TContext> {
     return Composer.mount(
       'text',
@@ -553,7 +553,7 @@ export class Composer<TContext extends Context>
    */
   static command<TContext extends Context>(
     command: MaybeArray<string>,
-    ...fns: EntityMatch<TContext, 'text'>
+    ...fns: MatchedMiddleware<TContext, 'text'>
   ): Middleware.Fn<TContext> {
     if (fns.length === 0) {
       // @ts-expect-error
@@ -585,7 +585,7 @@ export class Composer<TContext extends Context>
    */
   static action<TContext extends Context>(
     triggers: Triggers<TContext>,
-    ...fns: EntityMatch<TContext, 'callback_query'>
+    ...fns: MatchedMiddleware<TContext, 'callback_query'>
   ): Middleware.Fn<TContext> {
     return Composer.mount(
       'callback_query',
@@ -598,7 +598,7 @@ export class Composer<TContext extends Context>
    */
   static inlineQuery<TContext extends Context>(
     triggers: Triggers<TContext>,
-    ...fns: EntityMatch<TContext, 'inline_query'>
+    ...fns: MatchedMiddleware<TContext, 'inline_query'>
   ): Middleware.Fn<TContext> {
     return Composer.mount(
       'inline_query',

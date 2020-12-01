@@ -166,7 +166,7 @@ export type UpdateProps = {
 }
 /** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
     Takes (as key): an update type.
-    Produces (as value): an object that has exactly one key, this key is of the keys in the context object, e.g. channelPost.
+    Produces (as value): an object that has exactly one key, this key is one of the keys in the context object, e.g. channelPost.
     The value behind that key is a required property, and it is the exact same type as the property on the context object has.
 
     In other words, if `ctx.channelPost` is of type `Message | undefined`, then the object behind the key `channel_post` in this container type will be
@@ -227,7 +227,7 @@ export type ContextSubProps = {
 }
 /** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
     Takes (as key): an update type.
-    Produces (as value): an object that has exactly one key, this key is of the keys in the context object, e.g. channelPost.
+    Produces (as value): an object that has exactly one key, this key is one of the keys in the context object, e.g. channelPost.
     The value behind that key is always undefined.
 
     In other words, if `ctx.channelPost` is of type `Message | undefined`, then this object will be

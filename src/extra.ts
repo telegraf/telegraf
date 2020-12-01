@@ -1,6 +1,5 @@
 import * as Markup from './markup'
-import { ExtraReplyMessage, ParseMode } from './telegram-types'
-import { Message } from 'typegram'
+import { ExtraReplyMessage, Message, ParseMode } from './telegram-types'
 
 interface CaptionedExtra extends Omit<Extra, 'caption'> {
   caption: string

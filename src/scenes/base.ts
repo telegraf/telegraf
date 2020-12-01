@@ -9,9 +9,9 @@ interface SceneOptions<TContext extends TelegrafContext> {
   leaveHandler: Middleware.Fn<TContext>
 }
 
-export class BaseScene<TContext extends TelegrafContext> extends Composer<
-  TContext
-> {
+export class BaseScene<
+  TContext extends TelegrafContext
+> extends Composer<TContext> {
   id: string
   options: SceneOptions<TContext>
   enterHandler: Middleware.Fn<TContext>

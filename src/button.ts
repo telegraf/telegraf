@@ -1,4 +1,4 @@
-import { InlineKeyboardButton, KeyboardButton } from 'typegram'
+import { InlineKeyboardButton, KeyboardButton } from './telegram-types'
 
 type Hideable<B> = B & { hide: boolean }
 

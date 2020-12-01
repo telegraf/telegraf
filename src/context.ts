@@ -7,6 +7,16 @@ type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
 
+type UnionToIntersection<U> = (
+  U extends unknown ? (k: U) => void : never
+) extends (k: infer I) => void
+  ? I
+  : never
+
+type Deunionize<T extends object> = T & Partial<UnionToIntersection<T>>
+
+const deunionize = <T extends object>(t: T): Deunionize<T> => t
+
 const UpdateTypes = [
   'callback_query',
   'channel_post',
@@ -60,7 +70,6 @@ const MessageSubTypesMapping = {
 }
 
 export class Context {
-  public botInfo?: tt.UserFromGetMe
   readonly updateType: tt.UpdateType
   readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
   readonly state: Record<string | symbol, any> = {}
@@ -68,7 +77,8 @@ export class Context {
   constructor(
     readonly update: tt.Update,
     readonly tg: Telegram,
-    private readonly options: { channelMode?: boolean; username?: string } = {}
+    public readonly botInfo: tt.UserFromGetMe,
+    private readonly options: { channelMode?: boolean } = {}
   ) {
     this.updateType = UpdateTypes.find((key) => key in this.update)!
     // prettier-ignore
@@ -88,7 +98,7 @@ export class Context {
   }
 
   get me() {
-    return this.options.username
+    return this.botInfo?.username
   }
 
   get telegram() {
@@ -97,12 +107,12 @@ export class Context {
 
   get message() {
     if (!('message' in this.update)) return undefined
-    return this.update.message
+    return deunionize(this.update.message)
   }
 
   get editedMessage() {
     if (!('edited_message' in this.update)) return undefined
-    return this.update.edited_message
+    return deunionize(this.update.edited_message)
   }
 
   get inlineQuery() {
@@ -127,17 +137,17 @@ export class Context {
 
   get channelPost() {
     if (!('channel_post' in this.update)) return undefined
-    return this.update.channel_post
+    return deunionize(this.update.channel_post)
   }
 
   get editedChannelPost() {
     if (!('edited_channel_post' in this.update)) return undefined
-    return this.update.edited_channel_post
+    return deunionize(this.update.edited_channel_post)
   }
 
   get callbackQuery() {
     if (!('callback_query' in this.update)) return undefined
-    return this.update.callback_query
+    return deunionize(this.update.callback_query)
   }
 
   get poll() {
@@ -288,7 +298,7 @@ export class Context {
   editMessageLiveLocation(
     latitude: number,
     longitude: number,
-    markup?: tt.InlineKeyboardMarkup
+    extra?: tt.ExtraEditMessageLiveLocation
   ) {
     this.assert(
       this.callbackQuery ?? this.inlineMessageId,
@@ -300,7 +310,7 @@ export class Context {
       this.inlineMessageId,
       latitude,
       longitude,
-      markup
+      extra
     )
   }
 
@@ -387,6 +397,11 @@ export class Context {
   unpinChatMessage(...args: Shorthand<'unpinChatMessage'>) {
     this.assert(this.chat, 'unpinChatMessage')
     return this.telegram.unpinChatMessage(this.chat.id, ...args)
+  }
+
+  unpinAllChatMessages(...args: Shorthand<'unpinAllChatMessages'>) {
+    this.assert(this.chat, 'unpinAllChatMessages')
+    return this.telegram.unpinAllChatMessages(this.chat.id, ...args)
   }
 
   leaveChat(...args: Shorthand<'leaveChat'>) {
@@ -592,6 +607,16 @@ export class Context {
   ) {
     this.assert(this.message, 'forwardMessage')
     return this.telegram.forwardMessage(
+      chatId,
+      this.message.chat.id,
+      this.message.message_id,
+      extra
+    )
+  }
+
+  copyMessage(chatId: string | number, extra?: tt.ExtraCopyMessage) {
+    this.assert(this.message, 'copyMessage')
+    return this.telegram.copyMessage(
       chatId,
       this.message.chat.id,
       this.message.message_id,

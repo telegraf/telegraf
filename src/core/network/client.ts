@@ -6,7 +6,7 @@ import * as https from 'https'
 import * as path from 'path'
 import fetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { hasProp, hasPropType } from '../helpers/check'
-import { Opts, Telegram } from 'typegram'
+import { Opts, Telegram } from '../../telegram-types'
 import MultipartStream from './multipart-stream'
 import { ReadStream } from 'fs'
 import TelegramError from './error'
@@ -105,9 +105,9 @@ const FORM_DATA_JSON_FIELDS = [
 ]
 
 async function buildFormDataConfig(
-  payload: Record<string, unknown>,
+  payload: { [key: string]: unknown },
   agent: RequestInit['agent']
-): Promise<RequestInit> {
+) {
   for (const field of FORM_DATA_JSON_FIELDS) {
     if (hasProp(payload, field) && typeof payload[field] !== 'string') {
       payload[field] = JSON.stringify(payload[field])
@@ -251,6 +251,7 @@ async function answerToWebhook(
 ): Promise<typeof WEBHOOK_REPLY_STUB> {
   if (!includesMedia(payload)) {
     if (isKoaResponse(response)) {
+      // @ts-expect-error
       response.body = payload
       return WEBHOOK_REPLY_STUB
     }
@@ -260,7 +261,7 @@ async function answerToWebhook(
     if (response.end.length === 2) {
       response.end(JSON.stringify(payload), 'utf-8')
     } else {
-      await new Promise((resolve) =>
+      await new Promise<void>((resolve) =>
         response.end(JSON.stringify(payload), 'utf-8', resolve)
       )
     }
@@ -273,26 +274,27 @@ async function answerToWebhook(
   )
   if (isKoaResponse(response)) {
     for (const [key, value] of Object.entries(headers)) {
+      // @ts-expect-error
       response.set(key, value)
     }
+    // @ts-expect-error
     response.body = body
     return WEBHOOK_REPLY_STUB
   }
   if (!response.headersSent) {
     for (const [key, value] of Object.entries(headers)) {
+      // @ts-expect-error
       response.set(key, value)
     }
   }
   await new Promise((resolve) => {
     response.on('finish', resolve)
-    // @ts-expect-error
     body.pipe(response)
   })
   return WEBHOOK_REPLY_STUB
 }
 
-// TODO: what is actually the type of this?
-type Response = any
+type Response = http.ServerResponse
 class ApiClient {
   readonly options: ApiClient.Options
   private responseEnd = false
@@ -328,7 +330,8 @@ class ApiClient {
 
     if (
       options.webhookReply &&
-      response &&
+      response !== undefined &&
+      !response.writableEnded &&
       !responseEnd &&
       !WEBHOOK_BLACKLIST.includes(method)
     ) {
@@ -346,10 +349,11 @@ class ApiClient {
     }
 
     debug('HTTP call', method, payload)
-    const buildConfig = includesMedia(payload)
-      ? buildFormDataConfig({ method, ...payload }, options.agent)
-      : buildJSONConfig(payload)
-    const config = await buildConfig
+
+    const config: RequestInit = includesMedia(payload)
+      ? // @ts-expect-error
+        await buildFormDataConfig({ method, ...payload }, options.agent)
+      : await buildJSONConfig(payload)
     const apiUrl = `${options.apiRoot}/bot${token}/${method}`
     config.agent = options.agent
     const res = await fetch(apiUrl, config)

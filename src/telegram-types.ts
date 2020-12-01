@@ -1,11 +1,54 @@
 /** @format */
 
-import * as TT from 'typegram'
-export * from 'typegram'
+import {
+  Chat,
+  InlineKeyboardMarkup,
+  LabeledPrice,
+  Message,
+  Typegram,
+} from 'typegram'
 
-export type ChatAction = TT.Opts<'sendChatAction'>['action']
+export * from 'typegram/callback'
+export * from 'typegram/inline'
+export * from 'typegram/manage'
+export * from 'typegram/message'
+export * from 'typegram/passport'
+export * from 'typegram/payment'
+export * from 'typegram/update'
 
-export type ChatType = TT.Chat['type']
+export interface InputFileByPath {
+  source: string
+}
+export interface InputFileByReadableStream {
+  source: NodeJS.ReadableStream
+}
+export interface InputFileByBuffer {
+  source: Buffer
+}
+export interface InputFileByURL {
+  url: string
+  filename?: string
+}
+export type InputFile =
+  | InputFileByPath
+  | InputFileByReadableStream
+  | InputFileByBuffer
+  | InputFileByURL
+
+type TelegrafTypegram = Typegram<InputFile>
+
+export type Telegram = TelegrafTypegram['Telegram']
+export type Opts<M extends keyof Telegram> = TelegrafTypegram['Opts'][M]
+export type InputMedia = TelegrafTypegram['InputMedia']
+export type InputMediaPhoto = TelegrafTypegram['InputMediaPhoto']
+export type InputMediaVideo = TelegrafTypegram['InputMediaVideo']
+export type InputMediaAnimation = TelegrafTypegram['InputMediaAnimation']
+export type InputMediaAudio = TelegrafTypegram['InputMediaAudio']
+export type InputMediaDocument = TelegrafTypegram['InputMediaDocument']
+
+export type ChatAction = Opts<'sendChatAction'>['action']
+
+export type ChatType = Chat['type']
 
 export type UpdateType =
   | 'callback_query'
@@ -41,19 +84,21 @@ export type MessageSubTypes =
   | 'invoice'
   | 'group_chat_created'
   | 'game'
+  | 'dice'
   | 'document'
   | 'delete_chat_photo'
   | 'contact'
   | 'channel_chat_created'
   | 'audio'
   | 'passport_data'
+  | 'poll'
   | 'connected_website'
   | 'animation'
 
 /**
  * Sending video notes by a URL is currently unsupported
  */
-export type InputFileVideoNote = Exclude<TT.InputFile, TT.InputFileByURL>
+export type InputFileVideoNote = Exclude<InputFile, InputFileByURL>
 
 /**
  * Create an `Extra*` type from the arguments of a given method `M extends keyof Telegram` but `Omit`ting fields with key `K` from it.
@@ -61,9 +106,9 @@ export type InputFileVideoNote = Exclude<TT.InputFile, TT.InputFileByURL>
  * Note that `chat_id` may not be specified in `K` because it is `Omit`ted by default.
  */
 export type MakeExtra<
-  M extends keyof TT.Telegram,
-  K extends keyof Omit<TT.Opts<M>, 'chat_id'> = never
-> = Omit<TT.Opts<M>, 'chat_id' | K>
+  M extends keyof Telegram,
+  K extends keyof Omit<Opts<M>, 'chat_id'> = never
+> = Omit<Opts<M>, 'chat_id' | K>
 
 export type ExtraAddStickerToSet = MakeExtra<
   'addStickerToSet',
@@ -79,6 +124,10 @@ export type ExtraContact = MakeExtra<
   'sendContact',
   'phone_number' | 'first_name'
 >
+export type ExtraCopyMessage = MakeExtra<
+  'copyMessage',
+  'from_chat_id' | 'message_id'
+>
 export type ExtraCreateNewStickerSet = MakeExtra<
   'createNewStickerSet',
   'name' | 'title' | 'user_id'
@@ -88,6 +137,10 @@ export type ExtraDocument = MakeExtra<'sendDocument', 'document'>
 export type ExtraEditMessageCaption = MakeExtra<
   'editMessageCaption',
   'message_id' | 'inline_message_id' | 'caption'
+>
+export type ExtraEditMessageLiveLocation = MakeExtra<
+  'editMessageLiveLocation',
+  'message_id' | 'inline_message_id' | 'latitude' | 'longitude'
 >
 export type ExtraEditMessageMedia = MakeExtra<
   'editMessageMedia',
@@ -102,7 +155,7 @@ export interface ExtraInvoice extends ExtraReplyMessage {
   /**
    * Inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.
    */
-  reply_markup?: TT.InlineKeyboardMarkup
+  reply_markup?: InlineKeyboardMarkup
 
   /**
    * Does not exist, see https://core.telegram.org/bots/api#sendinvoice
@@ -121,6 +174,7 @@ export type ExtraPoll = MakeExtra<'sendPoll', 'question' | 'options' | 'type'>
 export type ExtraPromoteChatMember = MakeExtra<'promoteChatMember', 'user_id'>
 export type ExtraReplyMessage = MakeExtra<'sendMessage', 'text'>
 export type ExtraRestrictChatMember = MakeExtra<'restrictChatMember', 'user_id'>
+export type ExtraSetWebhook = MakeExtra<'setWebhook', 'url'>
 export type ExtraSticker = MakeExtra<'sendSticker', 'sticker'>
 export type ExtraStopPoll = MakeExtra<'stopPoll', 'message_id'>
 export type ExtraVenue = MakeExtra<
@@ -131,8 +185,9 @@ export type ExtraVideo = MakeExtra<'sendVideo', 'video'>
 export type ExtraVideoNote = MakeExtra<'sendVideoNote', 'video_note'>
 export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
 
-export type IncomingMessage = TT.Message
+export type IncomingMessage = Message
 
+/** @deprecated */
 export interface NewInvoiceParameters {
   /**
    * Product name, 1-32 characters
@@ -167,7 +222,7 @@ export interface NewInvoiceParameters {
   /**
    * Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
    */
-  prices: TT.LabeledPrice[]
+  prices: LabeledPrice[]
 
   /**
    * URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for.
@@ -192,25 +247,25 @@ export interface NewInvoiceParameters {
   /**
    * Pass True, if you require the user's full name to complete the order
    */
-  need_name?: true
+  need_name?: boolean
 
   /**
    * Pass True, if you require the user's phone number to complete the order
    */
-  need_phone_number?: true
+  need_phone_number?: boolean
 
   /**
    * Pass True, if you require the user's email to complete the order
    */
-  need_email?: true
+  need_email?: boolean
 
   /**
    * Pass True, if you require the user's shipping address to complete the order
    */
-  need_shipping_address?: true
+  need_shipping_address?: boolean
 
   /**
    * Pass True, if the final price depends on the shipping method
    */
-  is_flexible?: true
+  is_flexible?: boolean
 }

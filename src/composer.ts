@@ -34,23 +34,39 @@ function getText(
   return undefined
 }
 
+/** Takes: a context type and an update type (or message subtype).
+    Produces: a context that has some properties required, and some undefined.
+    The required ones are those that are always present when the given update (or message) arrives.
+    The undefined ones are those that are always absent when the given update (or message) arrives. */
 type MatchedContext<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType
 > = C & GuaranteedContextProps<T> & UndefinedContextProps<T>
 
+/** Takes: an update type (or message subtype).
+    Produces: an object with only those properties set that are guaranteed on a context corresponding to the given update type.
+    This produced object can be intersected with a context type in order to make the correct properties required instead of optional. */
 type GuaranteedContextProps<
   T extends tt.UpdateType | tt.MessageSubType
 > = T extends tt.UpdateType ? Props[T] : SubProps[Exclude<T, tt.UpdateType>]
+/** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
+    Takes (as key): an update type.
+    Produces (as value): an object holding those required properties on a context type that correspond to the given update type. */
 type Props = {
   [key in tt.UpdateType]: tt.UpdateProps[key] & tt.ContextProps[key]
 }
+/** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
+    Takes (as key): a message subtype.
+    Produces (as value): an object holding those required properties on a context type that correspond to the given message subtype. */
 type SubProps = {
   [key in tt.MessageSubType]: Props['message'] &
     tt.UpdateSubProps[key] &
     tt.ContextSubProps[key]
 }
 
+/** Takes: an update type (or message subtype).
+    Produces: an object with only those properties set to undefined that cannot be present on a context corresponding to the given update type.
+    This produced object can be intersected with a context type in order to make the correct properties undefined instead of optional. */
 type UndefinedContextProps<
   T extends tt.UpdateType | tt.MessageSubType
 > = tt.AbsentProps<
@@ -93,14 +109,20 @@ export class Composer<TContext extends Context>
   /**
    * Registers middleware for handling matching text messages.
    */
-  hears(triggers: Triggers<TContext>, ...fns: MatchedMiddleware<TContext, 'text'>) {
+  hears(
+    triggers: Triggers<TContext>,
+    ...fns: MatchedMiddleware<TContext, 'text'>
+  ) {
     return this.use(Composer.hears<TContext>(triggers, ...fns))
   }
 
   /**
    * Registers middleware for handling specified commands.
    */
-  command(command: MaybeArray<string>, ...fns: MatchedMiddleware<TContext, 'text'>) {
+  command(
+    command: MaybeArray<string>,
+    ...fns: MatchedMiddleware<TContext, 'text'>
+  ) {
     return this.use(Composer.command<TContext>(command, ...fns))
   }
 
@@ -164,7 +186,10 @@ export class Composer<TContext extends Context>
     return this.use(Composer.textLink<TContext>(link, ...fns))
   }
 
-  textMention(mention: MaybeArray<string>, ...fns: MatchedMiddleware<TContext>) {
+  textMention(
+    mention: MaybeArray<string>,
+    ...fns: MatchedMiddleware<TContext>
+  ) {
     return this.use(Composer.textMention<TContext>(mention, ...fns))
   }
 

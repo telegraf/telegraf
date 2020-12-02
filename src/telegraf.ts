@@ -78,7 +78,7 @@ export class Telegraf<
   private readonly options: Telegraf.Options<TContext>
   private webhookServer?: http.Server | https.Server
   /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
-  public botInfo!: tt.UserFromGetMe
+  public botInfo?: tt.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<TContext> = {}
   private readonly polling = {

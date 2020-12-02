@@ -19,6 +19,7 @@
   },
   "files": [
     "bin/*",
+    "src/**/*.ts",
     "lib/**/*.js",
     "lib/**/*.js.map",
     "lib/index.mjs",

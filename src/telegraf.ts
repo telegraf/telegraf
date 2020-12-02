@@ -78,7 +78,7 @@ export class Telegraf<
   private readonly options: Telegraf.Options<TContext>
   private webhookServer?: http.Server | https.Server
   /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
-  public botInfo!: tt.UserFromGetMe
+  public botInfo?: tt.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<TContext> = {}
   private readonly polling = {
@@ -125,13 +125,10 @@ export class Telegraf<
   }
 
   webhookCallback(path = '/') {
-    let botInfoCall: Promise<tt.UserFromGetMe> | undefined
     return generateCallback(
       path,
-      async (update: tt.Update, res: http.ServerResponse) => {
-        this.botInfo ??= await (botInfoCall ??= this.telegram.getMe())
-        return await this.handleUpdate(update, res)
-      },
+      (update: tt.Update, res: http.ServerResponse) =>
+        this.handleUpdate(update, res),
       debug
     )
   }
@@ -238,8 +235,16 @@ export class Telegraf<
     return Promise.race([processAll, sleep(this.options.handlerTimeout)])
   }
 
+  private botInfoCall?: Promise<tt.UserFromGetMe>
   async handleUpdate(update: tt.Update, webhookResponse?: http.ServerResponse) {
     debug('Processing update', update.update_id)
+    this.botInfo ??=
+      (debug(
+        'Update',
+        update.update_id,
+        'waiting for `botInfo` to be initialized'
+      ),
+      await (this.botInfoCall ??= this.telegram.getMe()))
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo, this.options)

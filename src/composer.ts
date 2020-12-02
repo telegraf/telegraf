@@ -495,8 +495,7 @@ export class Composer<TContext extends Context>
       Composer.lazy<TContext>((ctx) => {
         const groupCommands =
           ctx.me && ctx.chat?.type.endsWith('group')
-            ? // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-              commands.map((command) => `${command}@${ctx.me}`)
+            ? commands.map((command) => `${command}@${ctx.me}`)
             : []
         return Composer.entity(
           ({ offset, type }, value) =>

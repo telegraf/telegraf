@@ -235,7 +235,7 @@ export class Telegraf<
     return Promise.race([processAll, sleep(this.options.handlerTimeout)])
   }
 
-  private botInfoCall: Promise<tt.UserFromGetMe> | undefined
+  private botInfoCall?: Promise<tt.UserFromGetMe>
   async handleUpdate(update: tt.Update, webhookResponse?: http.ServerResponse) {
     debug('Processing update', update.update_id)
     this.botInfo ??=

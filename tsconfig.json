@@ -4,6 +4,7 @@
     "esModuleInterop": true,
     "composite": true,
     "declaration": true,
+    "declarationMap": true,
     "declarationDir": "typings/",
     "outDir": "lib/",
     "rootDir": "src/",

@@ -243,11 +243,35 @@ export class Composer<TContext extends Context>
       )
   }
 
-  static log(logFn: (s: string) => void = console.log): Middleware.Fn<Context> {
+  static log(
+    logFn: (s: string) => void = console.log,
+    chatType: string = "all"
+  ): Middleware.Fn<Context> {
     return (ctx, next) => {
-      logFn(JSON.stringify(ctx.update, null, 2))
-      return next()
-    }
+      switch (chatType) {
+        case "private":
+          ctx.chat.type === "private" &&
+            logFn(JSON.stringify(ctx.update, null, 2));
+          break;
+        case "group":
+          ctx.chat.type === "group" &&
+            logFn(JSON.stringify(ctx.update, null, 2));
+          break;
+        case "supergroup":
+          ctx.chat.type === "supergroup" &&
+            logFn(JSON.stringify(ctx.update, null, 2));
+          break;
+        case "channel":
+          ctx.chat.type === "channel" &&
+            logFn(JSON.stringify(ctx.update, null, 2));
+          break;
+
+        default:
+          logFn(JSON.stringify(ctx.update, null, 2));
+          break;
+      }
+      return next();
+    };
   }
 
   /**

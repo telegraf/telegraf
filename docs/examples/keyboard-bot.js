@@ -2,7 +2,7 @@ const { Telegraf, Markup } = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.use(Telegraf.log())
+bot.use(Telegraf.log(console.log, 'private'))
 
 bot.command('onetime', ({ reply }) =>
   reply('One time keyboard', Markup

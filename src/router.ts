@@ -4,27 +4,28 @@ import { Middleware, NonemptyReadonlyArray } from './types'
 import Composer from './composer'
 import Context from './context'
 
-type RouteFn<C extends Context> = (
-  ctx: C
+type RouteFn<TContext extends Context> = (
+  ctx: TContext
 ) => {
   route: string
-  context?: Partial<C>
-  state?: Partial<C['state']>
+  context?: Partial<TContext>
+  state?: Partial<TContext['state']>
 } | null
 
-export class Router<C extends Context> implements Middleware.Obj<C> {
-  private otherwiseHandler: Middleware<C> = Composer.passThru()
+export class Router<TContext extends Context>
+  implements Middleware.Obj<TContext> {
+  private otherwiseHandler: Middleware<TContext> = Composer.passThru()
 
   constructor(
-    private readonly routeFn: RouteFn<C>,
-    public handlers = new Map<string, Middleware<C>>()
+    private readonly routeFn: RouteFn<TContext>,
+    public handlers = new Map<string, Middleware<TContext>>()
   ) {
     if (typeof routeFn !== 'function') {
       throw new Error('Missing routing function')
     }
   }
 
-  on(route: string, ...fns: NonemptyReadonlyArray<Middleware<C>>) {
+  on(route: string, ...fns: NonemptyReadonlyArray<Middleware<TContext>>) {
     if (fns.length === 0) {
       throw new TypeError('At least one handler must be provided')
     }
@@ -32,7 +33,7 @@ export class Router<C extends Context> implements Middleware.Obj<C> {
     return this
   }
 
-  otherwise(...fns: NonemptyReadonlyArray<Middleware<C>>) {
+  otherwise(...fns: NonemptyReadonlyArray<Middleware<TContext>>) {
     if (fns.length === 0) {
       throw new TypeError('At least one otherwise handler must be provided')
     }
@@ -41,7 +42,7 @@ export class Router<C extends Context> implements Middleware.Obj<C> {
   }
 
   middleware() {
-    return Composer.lazy<C>((ctx) => {
+    return Composer.lazy<TContext>((ctx) => {
       const result = this.routeFn(ctx)
       if (result == null) {
         return this.otherwiseHandler

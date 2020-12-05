@@ -30,9 +30,11 @@ const sleep = promisify(setTimeout)
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Telegraf {
-  export interface Options<C extends Context> {
+  export interface Options<TContext extends Context> {
     channelMode: boolean
-    contextType: new (...args: ConstructorParameters<typeof Context>) => C
+    contextType: new (
+      ...args: ConstructorParameters<typeof Context>
+    ) => TContext
     handlerTimeout: number
     retryAfter: number
     telegram: Partial<ApiClient.Options>
@@ -70,13 +72,15 @@ namespace Telegraf {
 
 const allowedUpdates: tt.UpdateType[] | undefined = undefined
 
-export class Telegraf<C extends Context = Context> extends Composer<C> {
-  private readonly options: Telegraf.Options<C>
+export class Telegraf<
+  TContext extends Context = Context
+> extends Composer<TContext> {
+  private readonly options: Telegraf.Options<TContext>
   private webhookServer?: http.Server | https.Server
   /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
   public botInfo?: tt.UserFromGetMe
   public telegram: Telegram
-  readonly context: Partial<C> = {}
+  readonly context: Partial<TContext> = {}
   private readonly polling = {
     allowedUpdates,
     limit: 100,
@@ -86,14 +90,14 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     timeout: 30,
   }
 
-  private handleError: (err: any, ctx: C) => void = (err) => {
+  private handleError: (err: any, ctx: TContext) => void = (err) => {
     console.error()
     console.error((err.stack ?? err.toString()).replace(/^/gm, '  '))
     console.error()
     throw err
   }
 
-  constructor(token: string, options?: Partial<Telegraf.Options<C>>) {
+  constructor(token: string, options?: Partial<Telegraf.Options<TContext>>) {
     super()
     // @ts-expect-error
     this.options = {
@@ -115,7 +119,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return this.telegram.webhookReply
   }
 
-  catch(handler: (err: any, ctx: C) => void) {
+  catch(handler: (err: any, ctx: TContext) => void) {
     this.handleError = handler
     return this
   }

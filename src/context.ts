@@ -67,14 +67,14 @@ export class Context {
   constructor(
     readonly update: tt.Update,
     readonly tg: Telegram,
-    public readonly botInfo: tt.UserFromGetMe,
-    private readonly options: { channelMode?: boolean } = {}
+    public readonly botInfo: tt.UserFromGetMe
   ) {
     this.updateType = UpdateTypes.find((key) => key in this.update)!
+    const { message } = this
     // prettier-ignore
-    if (this.updateType === 'message' || (this.options.channelMode && this.updateType === 'channel_post')) {
+    if (message !== undefined) {
       this.updateSubTypes = MessageSubTypes
-        .filter((key) => key in (this.update as any)[this.updateType])
+        .filter((key) => key in message)
         .map((type) => (MessageSubTypesMapping as any)[type] || type)
     } else {
       this.updateSubTypes = []

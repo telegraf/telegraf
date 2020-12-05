@@ -205,15 +205,6 @@ test.cb('should provide shortcuts for `inline_query` update', (t) => {
   bot.handleUpdate({ inline_query: BaseTextMessage })
 })
 
-test.cb('should provide subtype for `channel_post` update', (t) => {
-  const bot = createBot('', { channelMode: true })
-  bot.on('text', (ctx) => {
-    t.is(ctx.channelPost.text, 'foo')
-    t.end()
-  })
-  bot.handleUpdate({ channel_post: BaseTextMessage })
-})
-
 test.cb('should share state', (t) => {
   const bot = createBot()
   bot.on('message', (ctx, next) => {

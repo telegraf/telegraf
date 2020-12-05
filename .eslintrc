@@ -21,7 +21,7 @@
   "rules": {
     "no-warning-comments": "warn"
   },
-  "ignorePatterns": ["/lib/", "/typings/"],
+  "ignorePatterns": ["/lib/", "/typings/", "/docs/build/"],
   "reportUnusedDisableDirectives": true,
   "plugins": ["ava"]
 }

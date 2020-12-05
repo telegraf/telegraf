@@ -356,7 +356,7 @@ test.cb('Composer.lazy should support middlewares', (t) => {
 })
 
 test.cb('Composer.dispatch should work with handlers array', (t) => {
-const bot = createBot()
+  const bot = createBot()
   bot.use(Composer.dispatch(() => 1, [
     () => {
       t.fail()

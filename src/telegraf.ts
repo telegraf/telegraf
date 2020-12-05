@@ -36,7 +36,6 @@ namespace Telegraf {
     handlerTimeout: number
     retryAfter: number
     telegram: Partial<ApiClient.Options>
-    username?: string
   }
 
   export interface LaunchOptions {
@@ -74,6 +73,8 @@ const allowedUpdates: tt.UpdateType[] | undefined = undefined
 export class Telegraf<C extends Context = Context> extends Composer<C> {
   private readonly options: Telegraf.Options<C>
   private webhookServer?: http.Server | https.Server
+  /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
+  public botInfo?: tt.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<C> = {}
   private readonly polling = {
@@ -87,7 +88,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
   private handleError: (err: any, ctx: C) => void = (err) => {
     console.error()
-    console.error((err.stack || err.toString()).replace(/^/gm, '  '))
+    console.error((err.stack ?? err.toString()).replace(/^/gm, '  '))
     console.error()
     throw err
   }
@@ -112,7 +113,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
   get webhookReply() {
     return this.telegram.webhookReply
-  } /* eslint brace-style: 0 */
+  }
 
   catch(handler: (err: any, ctx: C) => void) {
     this.handleError = handler
@@ -122,7 +123,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   webhookCallback(path = '/') {
     return generateCallback(
       path,
-      (update: tt.Update, res: any) => this.handleUpdate(update, res),
+      (update: tt.Update, res: http.ServerResponse) =>
+        this.handleUpdate(update, res),
       debug
     )
   }
@@ -167,10 +169,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
   async launch(config: Telegraf.LaunchOptions = {}) {
     debug('Connecting to Telegram')
-    const botInfo = await this.telegram.getMe()
-    debug(`Launching @${botInfo.username}`)
-    this.options.username = botInfo.username
-    this.context.botInfo = botInfo
+    this.botInfo ??= await this.telegram.getMe()
+    debug(`Launching @${this.botInfo.username}`)
     if (!config.webhook) {
       const { timeout, limit, allowedUpdates, stopCallback } =
         config.polling ?? {}
@@ -231,11 +231,19 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return Promise.race([processAll, sleep(this.options.handlerTimeout)])
   }
 
+  private botInfoCall?: Promise<tt.UserFromGetMe>
   async handleUpdate(update: tt.Update, webhookResponse?: http.ServerResponse) {
     debug('Processing update', update.update_id)
+    this.botInfo ??=
+      (debug(
+        'Update',
+        update.update_id,
+        'waiting for `botInfo` to be initialized'
+      ),
+      await (this.botInfoCall ??= this.telegram.getMe()))
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
     const TelegrafContext = this.options.contextType
-    const ctx = new TelegrafContext(update, tg, this.options)
+    const ctx = new TelegrafContext(update, tg, this.botInfo, this.options)
     Object.assign(ctx, this.context)
     try {
       await this.middleware()(ctx, anoop)

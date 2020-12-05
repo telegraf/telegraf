@@ -563,8 +563,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
       Composer.lazy<MatchedContext<C, 'text'>>((ctx) => {
         const groupCommands =
           ctx.me && ctx.chat?.type.endsWith('group')
-            ? // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-              commands.map((command) => `${command}@${ctx.me}`)
+            ? commands.map((command) => `${command}@${ctx.me}`)
             : []
         return Composer.entity<MatchedContext<C, 'text'>>(
           ({ offset, type }, value) =>

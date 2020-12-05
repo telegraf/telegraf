@@ -11,7 +11,7 @@ interface SessionData {
 }
 
 interface BotContext extends Context {
-  session: SessionData
+  session?: SessionData
 }
 
 const bot = new Telegraf<BotContext>(process.env.BOT_TOKEN)
@@ -47,7 +47,7 @@ bot.on('text', ({ replyWithLocation }, next) => {
 
 // Text messages handling
 bot.hears('Hey', sayYoMiddleware, (ctx) => {
-  ctx.session.heyCounter = ctx.session.heyCounter || 0
+  ctx.session ??= { heyCounter: 0 }
   ctx.session.heyCounter++
   return ctx.replyWithMarkdown(`_Hey counter:_ ${ctx.session.heyCounter}`)
 })

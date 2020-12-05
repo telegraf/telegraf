@@ -288,8 +288,8 @@ export class Composer<TContext extends Context>
     return (ctx, next) => next()
   }
 
-  static lazy<TContext extends Context, C extends TContext = TContext>(
-    factoryFn: (ctx: TContext) => MaybePromise<Middleware<C>>
+  static lazy<C extends Context>(
+    factoryFn: (ctx: C) => MaybePromise<Middleware<C>>
   ): Middleware.Fn<C> {
     if (typeof factoryFn !== 'function') {
       throw new Error('Argument must be a function')
@@ -585,7 +585,7 @@ export class Composer<TContext extends Context>
     const commands = normalizeTextArguments(command, '/')
     return Composer.mount<TContext, 'text'>(
       'text',
-      Composer.lazy<TContext, MatchedContext<TContext, 'text'>>((ctx) => {
+      Composer.lazy<MatchedContext<TContext, 'text'>>((ctx) => {
         const groupCommands =
           ctx.me && ctx.chat?.type.endsWith('group')
             ? // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

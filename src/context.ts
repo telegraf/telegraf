@@ -7,31 +7,21 @@ type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
 
-type UnionToIntersection<U> = (
-  U extends unknown ? (k: U) => void : never
-) extends (k: infer I) => void
-  ? I
-  : never
-
-type Deunionize<T extends object> = T & Partial<UnionToIntersection<T>>
-
-const deunionize = <T extends object>(t: T): Deunionize<T> => t
-
-const UpdateTypes = [
+export const UpdateTypes = [
   'callback_query',
   'channel_post',
   'chosen_inline_result',
   'edited_channel_post',
   'edited_message',
   'inline_query',
-  'shipping_query',
-  'pre_checkout_query',
   'message',
+  'pre_checkout_query',
+  'shipping_query',
   'poll',
   'poll_answer',
 ] as const
 
-const MessageSubTypes = [
+export const MessageSubTypes = [
   'voice',
   'video_note',
   'video',
@@ -65,9 +55,9 @@ const MessageSubTypes = [
   'forward_date',
 ] as const
 
-const MessageSubTypesMapping = {
+export const MessageSubTypesMapping = {
   forward_date: 'forward',
-}
+} as const
 
 export class Context {
   readonly updateType: tt.UpdateType
@@ -107,12 +97,12 @@ export class Context {
 
   get message() {
     if (!('message' in this.update)) return undefined
-    return deunionize(this.update.message)
+    return this.update.message
   }
 
   get editedMessage() {
     if (!('edited_message' in this.update)) return undefined
-    return deunionize(this.update.edited_message)
+    return this.update.edited_message
   }
 
   get inlineQuery() {
@@ -137,17 +127,17 @@ export class Context {
 
   get channelPost() {
     if (!('channel_post' in this.update)) return undefined
-    return deunionize(this.update.channel_post)
+    return this.update.channel_post
   }
 
   get editedChannelPost() {
     if (!('edited_channel_post' in this.update)) return undefined
-    return deunionize(this.update.edited_channel_post)
+    return this.update.edited_channel_post
   }
 
   get callbackQuery() {
     if (!('callback_query' in this.update)) return undefined
-    return deunionize(this.update.callback_query)
+    return this.update.callback_query
   }
 
   get poll() {

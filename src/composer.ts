@@ -1,8 +1,8 @@
 /** @format */
 
 import * as tt from './telegram-types'
+import Context, { MessageSubTypesMapping } from './context'
 import { Middleware, NonemptyReadonlyArray } from './types'
-import Context from './context'
 import { SnakeToCamelCase } from './core/helpers/string'
 
 type MaybeArray<T> = T | T[]
@@ -13,6 +13,11 @@ type Triggers<C> = MaybeArray<
 type Predicate<T> = (t: T) => boolean
 type AsyncPredicate<T> = (t: T) => Promise<boolean>
 
+type UnionToIntersection<U> = (
+  U extends unknown ? (k: U) => void : never
+) extends (k: infer I) => void
+  ? I
+  : never
 type PropOr<T, P extends string, D> = T extends Record<P, infer V> ? V : D
 type GuardedContext<
   C extends Context,
@@ -22,7 +27,18 @@ type GuardedContext<
     [P in tt.UpdateType as SnakeToCamelCase<P>]: PropOr<U, P, undefined>
   } & {
     update: U
-    updateType: keyof U
+    updateType: keyof UnionToIntersection<U>
+  }
+type MountMap = {
+  [T in tt.UpdateType]: Record<T, object>
+} &
+  {
+    [T in tt.MessageSubType]: {
+      message: Record<
+        PropOr<typeof MessageSubTypesMapping, T, T>,
+        UnionToIntersection<tt.Message>[T]
+      >
+    }
   }
 
 function always<T>(x: T) {
@@ -54,37 +70,7 @@ function getText(
 type MatchedContext<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType
-> = C & GuaranteedContextProps<T> & UndefinedContextProps<T>
-
-/** Takes: an update type (or message subtype).
-    Produces: an object with only those properties set that are guaranteed on a context corresponding to the given update type.
-    This produced object can be intersected with a context type in order to make the correct properties required instead of optional. */
-type GuaranteedContextProps<
-  T extends tt.UpdateType | tt.MessageSubType
-> = T extends tt.UpdateType ? Props[T] : SubProps[Exclude<T, tt.UpdateType>]
-/** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
-    Takes (as key): an update type.
-    Produces (as value): an object holding those required properties on a context type that correspond to the given update type. */
-type Props = {
-  [key in tt.UpdateType]: tt.UpdateProps[key] & tt.ContextProps[key]
-}
-/** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
-    Takes (as key): a message subtype.
-    Produces (as value): an object holding those required properties on a context type that correspond to the given message subtype. */
-type SubProps = {
-  [key in tt.MessageSubType]: Props['message'] &
-    tt.UpdateSubProps[key] &
-    tt.ContextSubProps[key]
-}
-
-/** Takes: an update type (or message subtype).
-    Produces: an object with only those properties set to undefined that cannot be present on a context corresponding to the given update type.
-    This produced object can be intersected with a context type in order to make the correct properties undefined instead of optional. */
-type UndefinedContextProps<
-  T extends tt.UpdateType | tt.MessageSubType
-> = tt.AbsentProps<
-  Exclude<tt.UpdateType, T | (T extends tt.MessageSubType ? 'message' : never)>
->
+> = GuardedContext<C, MountMap[T]>
 
 type MatchedMiddleware<
   C extends Context,
@@ -565,7 +551,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   ): Middleware.Fn<C> {
     return Composer.mount(
       'text',
-      Composer.match(normalizeTriggers(triggers), ...fns)
+      Composer.match<C, 'text'>(normalizeTriggers(triggers), ...fns)
     )
   }
 
@@ -609,7 +595,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   ): Middleware.Fn<C> {
     return Composer.mount(
       'callback_query',
-      Composer.match(normalizeTriggers(triggers), ...fns)
+      Composer.match<C, 'callback_query'>(normalizeTriggers(triggers), ...fns)
     )
   }
 
@@ -622,7 +608,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   ): Middleware.Fn<C> {
     return Composer.mount(
       'inline_query',
-      Composer.match(normalizeTriggers(triggers), ...fns)
+      Composer.match<C, 'inline_query'>(normalizeTriggers(triggers), ...fns)
     )
   }
 

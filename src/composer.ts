@@ -3,6 +3,7 @@
 import * as tt from './telegram-types'
 import { Middleware, NonemptyReadonlyArray } from './types'
 import Context from './context'
+import { SnakeToCamelCase } from './core/helpers/string'
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
@@ -11,6 +12,18 @@ type Triggers<C> = MaybeArray<
 >
 type Predicate<T> = (t: T) => boolean
 type AsyncPredicate<T> = (t: T) => Promise<boolean>
+
+type PropOr<T, P extends string, D> = T extends Record<P, infer V> ? V : D
+type GuardedContext<
+  C extends Context,
+  U extends Omit<tt.Update, 'update_id'>
+> = C &
+  {
+    [P in tt.UpdateType as SnakeToCamelCase<P>]: PropOr<U, P, undefined>
+  } & {
+    update: U
+    updateType: keyof U
+  }
 
 function always<T>(x: T) {
   return () => x
@@ -93,6 +106,16 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   use(...fns: ReadonlyArray<Middleware<C>>) {
     this.handler = Composer.compose([this.handler, ...fns])
     return this
+  }
+
+  guard<U extends tt.Update>(
+    guardFn: (update: tt.Update) => update is U,
+    ...fns: NonemptyReadonlyArray<Middleware<GuardedContext<C, U>>>
+  ) {
+    const fn = Composer.compose(fns)
+    return this.use((ctx, next) =>
+      hasGuardedUpdate(ctx, guardFn) ? fn(ctx, next) : next()
+    )
   }
 
   /**
@@ -720,6 +743,13 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
       }
     }
   }
+}
+
+function hasGuardedUpdate<C extends Context, U extends tt.Update>(
+  ctx: C,
+  guardFn: (update: tt.Update) => update is U
+): ctx is GuardedContext<C, U> {
+  return guardFn(ctx.update)
 }
 
 function escapeRegExp(s: string) {

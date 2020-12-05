@@ -30,11 +30,9 @@ const sleep = promisify(setTimeout)
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Telegraf {
-  export interface Options<TContext extends Context> {
+  export interface Options<C extends Context> {
     channelMode: boolean
-    contextType: new (
-      ...args: ConstructorParameters<typeof Context>
-    ) => TContext
+    contextType: new (...args: ConstructorParameters<typeof Context>) => C
     handlerTimeout: number
     retryAfter: number
     telegram: Partial<ApiClient.Options>
@@ -73,13 +71,11 @@ namespace Telegraf {
 
 const allowedUpdates: tt.UpdateType[] | undefined = undefined
 
-export class Telegraf<
-  TContext extends Context = Context
-> extends Composer<TContext> {
-  private readonly options: Telegraf.Options<TContext>
+export class Telegraf<C extends Context = Context> extends Composer<C> {
+  private readonly options: Telegraf.Options<C>
   private webhookServer?: http.Server | https.Server
   public telegram: Telegram
-  readonly context: Partial<TContext> = {}
+  readonly context: Partial<C> = {}
   private readonly polling = {
     allowedUpdates,
     limit: 100,
@@ -89,14 +85,14 @@ export class Telegraf<
     timeout: 30,
   }
 
-  private handleError: (err: any, ctx: TContext) => void = (err) => {
+  private handleError: (err: any, ctx: C) => void = (err) => {
     console.error()
     console.error((err.stack || err.toString()).replace(/^/gm, '  '))
     console.error()
     throw err
   }
 
-  constructor(token: string, options?: Partial<Telegraf.Options<TContext>>) {
+  constructor(token: string, options?: Partial<Telegraf.Options<C>>) {
     super()
     // @ts-expect-error
     this.options = {
@@ -118,7 +114,7 @@ export class Telegraf<
     return this.telegram.webhookReply
   } /* eslint brace-style: 0 */
 
-  catch(handler: (err: any, ctx: TContext) => void) {
+  catch(handler: (err: any, ctx: C) => void) {
     this.handleError = handler
     return this
   }

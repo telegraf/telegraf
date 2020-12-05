@@ -351,7 +351,7 @@ test.cb('Composer.lazy should support middlewares', (t) => {
 
 test.cb('Composer.dispatch should work with handlers array', (t) => {
   const bot = new Telegraf()
-  bot.use(Composer.dispatch(1, [
+  bot.use(Composer.dispatch(() => 1, [
     () => {
       t.fail()
       t.end()
@@ -363,7 +363,7 @@ test.cb('Composer.dispatch should work with handlers array', (t) => {
 
 test.cb('Composer.dispatch should work', (t) => {
   const bot = new Telegraf()
-  bot.use(Composer.dispatch('b', {
+  bot.use(Composer.dispatch(() => 'b', {
     b: () => t.end()
   }))
   bot.handleUpdate({ message: { text: 'hello world', ...baseMessage } })

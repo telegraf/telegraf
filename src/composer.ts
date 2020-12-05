@@ -357,14 +357,12 @@ export class Composer<TContext extends Context>
     TContext extends Context,
     Handlers extends Record<string | number | symbol, Middleware<TContext>>
   >(
-    routeFn: keyof Handlers | ((ctx: TContext) => keyof Handlers),
+    routeFn: (ctx: TContext) => MaybePromise<keyof Handlers>,
     handlers: Handlers
   ): Middleware<TContext> {
-    return typeof routeFn === 'function'
-      ? Composer.lazy<TContext>((ctx) =>
-          Promise.resolve(routeFn(ctx)).then((value) => handlers[value])
-        )
-      : handlers[routeFn]
+    return Composer.lazy<TContext>((ctx) =>
+      Promise.resolve(routeFn(ctx)).then((value) => handlers[value])
+    )
   }
 
   // EXPLANATION FOR THE ts-expect-error ANNOTATIONS

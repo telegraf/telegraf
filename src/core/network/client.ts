@@ -32,7 +32,7 @@ const WEBHOOK_BLACKLIST = [
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ApiClient {
   export interface Options {
-    agent?: RequestInit['agent']
+    agent?: (parsedURL: URL) => http.Agent
     apiRoot: string
     webhookReply: boolean
   }

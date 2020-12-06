@@ -86,8 +86,10 @@ function includesMedia(payload: Record<string, unknown>) {
 // is passable if applied to an already defined object
 // E.g. compactOptions({ a: number, b?: number })
 // produces Type { a: number }
-type Keys<T> = { [K in keyof T]: T[K] extends {} ? K : never }[keyof T]
-type CompactKeys<T> = Exclude<Keys<T>, undefined>
+type CompactKeys<T> = Exclude<
+  { [K in keyof T]: T[K] extends {} ? K : never }[keyof T],
+  undefined
+>
 type Compact<T> = Pick<T, CompactKeys<T>>
 function compactOptions<T>(options: T): Compact<T> {
   const compactKeys = Object.keys(options).filter(

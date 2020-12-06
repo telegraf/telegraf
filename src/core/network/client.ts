@@ -38,7 +38,7 @@ namespace ApiClient {
   }
 }
 
-const DEFAULT_EXTENSIONS: Record<string, string> = {
+const DEFAULT_EXTENSIONS: Record<string, string | undefined> = {
   audio: 'mp3',
   photo: 'jpg',
   sticker: 'webp',

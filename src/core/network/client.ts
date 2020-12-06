@@ -82,18 +82,19 @@ function includesMedia(payload: Record<string, unknown>) {
   })
 }
 
-type ObjectKeys<T> = { [K in keyof T]: T[K] extends {} ? K : never }[keyof T]
-type CompactKeys<T> = Exclude<ObjectKeys<T>, undefined>
+// Types are pretty wrong if applied to a Partial but
+// is passable if applied to an already defined object
+// E.g. compactOptions({ a: number, b?: number })
+// produces Type { a: number }
+type Keys<T> = { [K in keyof T]: T[K] extends {} ? K : never }[keyof T]
+type CompactKeys<T> = Exclude<Keys<T>, undefined>
 type Compact<T> = Pick<T, CompactKeys<T>>
-function compactUserOptions<T>(options: T): Compact<T> {
-  const compactOptions: Compact<T> = {} as Compact<T>;
-  const optionKeys = Object.keys(options)
-    .filter(key => key !== undefined) as Array<keyof Compact<T>>;
-  for (let key of optionKeys) {
-    const value = options[key];
-    compactOptions[key] = value;
-  }
-  return compactOptions;
+function compactOptions<T>(options: T): Compact<T> {
+  const compactKeys = Object.keys(options).filter(
+    (key) => key !== undefined
+  ) as Array<keyof Compact<T>>
+  const compactEntries = compactKeys.map((key) => [key, options[key]])
+  return Object.fromEntries(compactEntries)
 }
 
 function replacer(_: unknown, value: unknown) {
@@ -321,7 +322,7 @@ class ApiClient {
     this.token = token
     this.options = {
       ...DEFAULT_OPTIONS,
-      ...compactUserOptions(options ?? {}),
+      ...compactOptions(options ?? {}),
     }
     if (this.options.apiRoot.startsWith('http://')) {
       this.options.agent = undefined

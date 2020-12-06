@@ -32,13 +32,13 @@ const WEBHOOK_BLACKLIST = [
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ApiClient {
   export interface Options {
-    agent?: https.Agent | http.Agent
+    agent?: RequestInit['agent']
     apiRoot: string
     webhookReply: boolean
   }
 }
 
-const DEFAULT_EXTENSIONS = {
+const DEFAULT_EXTENSIONS: Record<string, string> = {
   audio: 'mp3',
   photo: 'jpg',
   sticker: 'webp',
@@ -48,13 +48,18 @@ const DEFAULT_EXTENSIONS = {
   voice: 'ogg',
 }
 
-const DEFAULT_OPTIONS = {
+const DEFAULT_OPTIONS: ApiClient.Options = {
   apiRoot: 'https://api.telegram.org',
   webhookReply: true,
-  agent: new https.Agent({
-    keepAlive: true,
-    keepAliveMsecs: 10000,
-  }),
+  agent(parsedURL) {
+    if (parsedURL.protocol !== 'https:') {
+      return http.globalAgent
+    }
+    return new https.Agent({
+      keepAlive: true,
+      keepAliveMsecs: 10000,
+    })
+  },
 }
 
 const WEBHOOK_REPLY_STUB = {
@@ -207,9 +212,7 @@ async function attachFormMedia(
   id: string,
   agent: RequestInit['agent']
 ) {
-  let fileName =
-    media.filename ??
-    `${id}.${(DEFAULT_EXTENSIONS as { [key: string]: string })[id] || 'dat'}`
+  let fileName = media.filename ?? `${id}.${DEFAULT_EXTENSIONS[id] ?? 'dat'}`
   if (media.url) {
     const res = await fetch(media.url, { agent })
     return form.addPart({
@@ -309,9 +312,6 @@ class ApiClient {
     this.options = {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
-    }
-    if (this.options.apiRoot.startsWith('http://')) {
-      this.options.agent = undefined
     }
   }
 

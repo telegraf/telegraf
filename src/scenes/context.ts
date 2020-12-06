@@ -101,4 +101,4 @@ namespace SceneContext {
     Extension<TContext>
 }
 
-export = SceneContext
+export default SceneContext

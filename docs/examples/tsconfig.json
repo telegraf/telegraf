@@ -2,7 +2,6 @@
   "compilerOptions": {
     "composite": true,
     "checkJs": true,
-    "esModuleInterop": true,
     "noEmit": true,
     "paths": { "telegraf": ["../../"] },
   },

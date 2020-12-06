@@ -42,4 +42,4 @@ namespace WizardContext {
   > = TContext & Extension<TContext>
 }
 
-export = WizardContext
+export default WizardContext

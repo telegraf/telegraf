@@ -4,6 +4,7 @@ import * as fs from 'fs'
 import * as http from 'http'
 import * as https from 'https'
 import * as path from 'path'
+import { compactOptions } from '../helpers/compact'
 import fetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { hasProp, hasPropType } from '../helpers/check'
 import { Opts, Telegram } from '../../telegram-types'
@@ -80,13 +81,6 @@ function includesMedia(payload: Record<string, unknown>) {
             (hasProp(value.media, 'url') && value.media.url))))
     )
   })
-}
-
-function compactOptions<T>(options: T): T {
-  const keys = Object.keys(options) as Array<keyof T>
-  const compactKeys = keys.filter((key) => options[key] !== undefined)
-  const compactEntries = compactKeys.map((key) => [key, options[key]])
-  return Object.fromEntries(compactEntries)
 }
 
 function replacer(_: unknown, value: unknown) {
@@ -314,7 +308,7 @@ class ApiClient {
     this.token = token
     this.options = {
       ...DEFAULT_OPTIONS,
-      ...compactOptions(options ?? {}),
+      ...compactOptions(options),
     }
     if (this.options.apiRoot.startsWith('http://')) {
       this.options.agent = undefined

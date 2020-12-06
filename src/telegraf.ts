@@ -5,6 +5,7 @@ import ApiClient from './core/network/client'
 import Composer from './composer'
 import Context from './context'
 import crypto from 'crypto'
+import { compactOptions } from './core/helpers/compact'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
 import { promisify } from 'util'
@@ -102,7 +103,7 @@ export class Telegraf<
     // @ts-expect-error
     this.options = {
       ...DEFAULT_OPTIONS,
-      ...options,
+      ...compactOptions(options),
     }
     this.telegram = new Telegram(token, this.options.telegram)
   }

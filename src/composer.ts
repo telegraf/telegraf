@@ -414,7 +414,8 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     )
 
     const predicate = (u: tt.Update): u is tt.Update & MountMap[T] =>
-      updateTypes.some((t) => t in u || ('message' in u && t in u.message))
+      updateTypes.some((t) => t in u) ||
+      ('message' in u && updateTypes.some((t) => t in u.message))
 
     return Composer.guard(predicate, ...fns)
   }
@@ -706,7 +707,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     const types = Array.isArray(type) ? type : [type]
     return Composer.optional((ctx) => {
       const chat = ctx.chat
-      return (chat !== undefined && types.includes(chat.type)) ?? false
+      return chat !== undefined && types.includes(chat.type)
     }, ...fns)
   }
 

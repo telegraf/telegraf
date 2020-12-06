@@ -82,19 +82,11 @@ function includesMedia(payload: Record<string, unknown>) {
   })
 }
 
-// Types are pretty wrong if applied to a Partial but
-// is passable if applied to an already defined object
-// E.g. compactOptions({ a: number, b?: number })
-// produces Type { a: number }
-type CompactKeys<T> = Exclude<
-  { [K in keyof T]: T[K] extends {} ? K : never }[keyof T],
-  undefined
->
-type Compact<T> = Pick<T, CompactKeys<T>>
-function compactOptions<T>(options: T): Compact<T> {
-  const compactKeys = Object.keys(options).filter(
-    (key) => key !== undefined
-  ) as Array<keyof Compact<T>>
+function compactOptions<T>(options: T): T {
+  const keys = Object.keys(options) as (keyof T)[]
+  const compactKeys = keys.filter(
+    (key) => options[key] !== undefined
+  )
   const compactEntries = compactKeys.map((key) => [key, options[key]])
   return Object.fromEntries(compactEntries)
 }

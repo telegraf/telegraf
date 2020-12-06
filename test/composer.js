@@ -43,6 +43,14 @@ test.cb('should route sub types', (t) => {
   bot.handleUpdate({ message: { text: 'hello', ...baseMessage } })
 })
 
+topLevelUpdates.forEach((update) => {
+  test.cb('should guard ' + update.type, (t) => {
+    const bot = createBot()
+    bot.guard(u => update.type in u, () => t.end())
+    bot.handleUpdate(update.update)
+  })
+})
+
 const updateTypes = [
   'voice',
   'video_note',

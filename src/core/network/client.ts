@@ -15,6 +15,11 @@ import TelegramError from './error'
 const debug = require('debug')('telegraf:client')
 const { isStream } = MultipartStream
 
+const defaultAgent = new https.Agent({
+  keepAlive: true,
+  keepAliveMsecs: 10000,
+})
+
 const WEBHOOK_BLACKLIST = [
   'getChat',
   'getChatAdministrators',
@@ -55,10 +60,7 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
     if (parsedURL.protocol !== 'https:') {
       return http.globalAgent
     }
-    return new https.Agent({
-      keepAlive: true,
-      keepAliveMsecs: 10000,
-    })
+    return defaultAgent
   },
 }
 

@@ -18,7 +18,6 @@ const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   telegram: {},
   retryAfter: 1,
   handlerTimeout: 0,
-  channelMode: false,
   contextType: Context,
 }
 
@@ -32,7 +31,6 @@ const sleep = promisify(setTimeout)
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Telegraf {
   export interface Options<TContext extends Context> {
-    channelMode: boolean
     contextType: new (
       ...args: ConstructorParameters<typeof Context>
     ) => TContext
@@ -248,7 +246,7 @@ export class Telegraf<
       await (this.botInfoCall ??= this.telegram.getMe()))
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
     const TelegrafContext = this.options.contextType
-    const ctx = new TelegrafContext(update, tg, this.botInfo, this.options)
+    const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
     try {
       await this.middleware()(ctx, anoop)

@@ -1,8 +1,9 @@
 /** @format */
 
 import * as tt from './telegram-types'
+import Context, { MessageSubTypesMapping } from './context'
 import { Middleware, NonemptyReadonlyArray } from './types'
-import Context from './context'
+import { SnakeToCamelCase } from './core/helpers/string'
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
@@ -11,6 +12,41 @@ type Triggers<C> = MaybeArray<
 >
 type Predicate<T> = (t: T) => boolean
 type AsyncPredicate<T> = (t: T) => Promise<boolean>
+
+type UnionToIntersection<U> = (
+  U extends unknown ? (k: U) => void : never
+) extends (k: infer I) => void
+  ? I
+  : never
+type PropOr<T, P extends string, D> = T extends Record<P, infer V> ? V : D
+/**
+ * Narrows down `Context['update']` and some derived properties.
+ */
+type GuardedContext<
+  C extends Context,
+  U extends Omit<tt.Update, 'update_id'>
+> = C &
+  {
+    [P in tt.UpdateType as SnakeToCamelCase<P>]: PropOr<U, P, undefined>
+  } & {
+    update: U
+    updateType: keyof UnionToIntersection<U>
+  }
+/**
+ * Maps `Composer.mount`'s `updateType` to a type
+ * that narrows down `tt.Update` when intersected with it.
+ */
+type MountMap = {
+  [T in tt.UpdateType]: Record<T, object>
+} &
+  {
+    [T in tt.MessageSubType]: {
+      message: Record<
+        PropOr<typeof MessageSubTypesMapping, T, T>,
+        UnionToIntersection<tt.Message>[T]
+      >
+    }
+  }
 
 function always<T>(x: T) {
   return () => x
@@ -41,37 +77,7 @@ function getText(
 type MatchedContext<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType
-> = C & GuaranteedContextProps<T> & UndefinedContextProps<T>
-
-/** Takes: an update type (or message subtype).
-    Produces: an object with only those properties set that are guaranteed on a context corresponding to the given update type.
-    This produced object can be intersected with a context type in order to make the correct properties required instead of optional. */
-type GuaranteedContextProps<
-  T extends tt.UpdateType | tt.MessageSubType
-> = T extends tt.UpdateType ? Props[T] : SubProps[Exclude<T, tt.UpdateType>]
-/** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
-    Takes (as key): an update type.
-    Produces (as value): an object holding those required properties on a context type that correspond to the given update type. */
-type Props = {
-  [key in tt.UpdateType]: tt.UpdateProps[key] & tt.ContextProps[key]
-}
-/** This is a container type. Instead of introducing a type variable, we use a mapped type. This seems to accelerate type inference.
-    Takes (as key): a message subtype.
-    Produces (as value): an object holding those required properties on a context type that correspond to the given message subtype. */
-type SubProps = {
-  [key in tt.MessageSubType]: Props['message'] &
-    tt.UpdateSubProps[key] &
-    tt.ContextSubProps[key]
-}
-
-/** Takes: an update type (or message subtype).
-    Produces: an object with only those properties set to undefined that cannot be present on a context corresponding to the given update type.
-    This produced object can be intersected with a context type in order to make the correct properties undefined instead of optional. */
-type UndefinedContextProps<
-  T extends tt.UpdateType | tt.MessageSubType
-> = tt.AbsentProps<
-  Exclude<tt.UpdateType, T | (T extends tt.MessageSubType ? 'message' : never)>
->
+> = GuardedContext<C, MountMap[T]>
 
 type MatchedMiddleware<
   C extends Context,
@@ -93,6 +99,20 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   use(...fns: ReadonlyArray<Middleware<C>>) {
     this.handler = Composer.compose([this.handler, ...fns])
     return this
+  }
+
+  /**
+   * Registers middleware for handling updates
+   * matching given type guard function.
+   */
+  guard<U extends tt.Update>(
+    guardFn: (update: tt.Update) => update is U,
+    ...fns: NonemptyReadonlyArray<Middleware<GuardedContext<C, U>>>
+  ) {
+    const fn = Composer.compose(fns)
+    return this.use((ctx, next) =>
+      hasGuardedUpdate(ctx, guardFn) ? fn(ctx, next) : next()
+    )
   }
 
   /**
@@ -139,6 +159,9 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     return this.use(Composer.inlineQuery<C>(triggers, ...fns))
   }
 
+  /**
+   * Registers middleware for handling game queries
+   */
   gameQuery(...fns: NonemptyReadonlyArray<Middleware<C>>) {
     return this.use(Composer.gameQuery(...fns))
   }
@@ -268,6 +291,9 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
       Promise.resolve(handler(ctx, anoop)).then(() => next())
   }
 
+  /**
+   * Generates middleware that gives up control to the next middleware.
+   */
   static passThru(): Middleware.Fn<Context> {
     return (ctx, next) => next()
   }
@@ -329,6 +355,9 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     return Composer.branch(predicate, Composer.passThru(), anoop)
   }
 
+  /**
+   * Generates middleware for dropping matching updates.
+   */
   static drop<C extends Context>(predicate: Predicate<C>): Middleware.Fn<C> {
     return Composer.branch(predicate, anoop, Composer.passThru())
   }
@@ -542,7 +571,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   ): Middleware.Fn<C> {
     return Composer.mount(
       'text',
-      Composer.match(normalizeTriggers(triggers), ...fns)
+      Composer.match<C, 'text'>(normalizeTriggers(triggers), ...fns)
     )
   }
 
@@ -586,7 +615,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   ): Middleware.Fn<C> {
     return Composer.mount(
       'callback_query',
-      Composer.match(normalizeTriggers(triggers), ...fns)
+      Composer.match<C, 'callback_query'>(normalizeTriggers(triggers), ...fns)
     )
   }
 
@@ -599,10 +628,13 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   ): Middleware.Fn<C> {
     return Composer.mount(
       'inline_query',
-      Composer.match(normalizeTriggers(triggers), ...fns)
+      Composer.match<C, 'inline_query'>(normalizeTriggers(triggers), ...fns)
     )
   }
 
+  /**
+   * Generates middleware responding only to specified users.
+   */
   static acl<C extends Context>(
     userId: MaybeArray<number>,
     ...fns: NonemptyReadonlyArray<Middleware<C>>
@@ -627,18 +659,27 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     }, ...fns)
   }
 
+  /**
+   * Generates middleware responding only to chat admins and chat creator.
+   */
   static admin<C extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<C>>
   ): Middleware.Fn<C> {
     return Composer.memberStatus(['administrator', 'creator'], ...fns)
   }
 
+  /**
+   * Generates middleware responding only to chat creator.
+   */
   static creator<C extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<C>>
   ): Middleware.Fn<C> {
     return Composer.memberStatus('creator', ...fns)
   }
 
+  /**
+   * Generates middleware running only in specified chat types.
+   */
   static chatType<C extends Context>(
     type: MaybeArray<tt.ChatType>,
     ...fns: NonemptyReadonlyArray<Middleware<C>>
@@ -649,18 +690,27 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     return Composer.optional((ctx) => ctx.chat && types.includes(ctx.chat.type), ...fns)
   }
 
+  /**
+   * Generates middleware running only in private chats.
+   */
   static privateChat<C extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<C>>
   ): Middleware.Fn<C> {
     return Composer.chatType('private', ...fns)
   }
 
+  /**
+   * Generates middleware running only in groups and supergroups.
+   */
   static groupChat<C extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<C>>
   ): Middleware.Fn<C> {
     return Composer.chatType(['group', 'supergroup'], ...fns)
   }
 
+  /**
+   * Generates middleware for handling game queries.
+   */
   static gameQuery<C extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<C>>
   ): Middleware.Fn<C> {
@@ -720,6 +770,13 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
       }
     }
   }
+}
+
+function hasGuardedUpdate<C extends Context, U extends tt.Update>(
+  ctx: C,
+  guardFn: (update: tt.Update) => update is U
+): ctx is GuardedContext<C, U> {
+  return guardFn(ctx.update)
 }
 
 function escapeRegExp(s: string) {

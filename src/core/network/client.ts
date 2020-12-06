@@ -83,10 +83,8 @@ function includesMedia(payload: Record<string, unknown>) {
 }
 
 function compactOptions<T>(options: T): T {
-  const keys = Object.keys(options) as (keyof T)[]
-  const compactKeys = keys.filter(
-    (key) => options[key] !== undefined
-  )
+  const keys = Object.keys(options) as Array<keyof T>
+  const compactKeys = keys.filter((key) => options[key] !== undefined)
   const compactEntries = compactKeys.map((key) => [key, options[key]])
   return Object.fromEntries(compactEntries)
 }

@@ -61,7 +61,6 @@ export const MessageSubTypesMapping = {
 
 export class Context {
   readonly updateType: tt.UpdateType
-  readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
   readonly state: Record<string | symbol, any> = {}
 
   constructor(
@@ -70,15 +69,6 @@ export class Context {
     public readonly botInfo: tt.UserFromGetMe
   ) {
     this.updateType = UpdateTypes.find((key) => key in this.update)!
-    const { message } = this
-    // prettier-ignore
-    if (message !== undefined) {
-      this.updateSubTypes = MessageSubTypes
-        .filter((key) => key in message)
-        .map((type) => (MessageSubTypesMapping as any)[type] || type)
-    } else {
-      this.updateSubTypes = []
-    }
     Object.getOwnPropertyNames(Context.prototype)
       .filter(
         (key) =>
@@ -197,10 +187,8 @@ export class Context {
     method: string
   ): asserts value is T {
     if (value === undefined) {
-      throw new Error(
-        `Telegraf: "${method}" isn't available for "${
-          this.updateType
-        }::${this.updateSubTypes.toString()}"`
+      throw new TypeError(
+        `Telegraf: "${method}" isn't available for "${this.updateType}"`
       )
     }
   }

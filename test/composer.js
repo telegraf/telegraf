@@ -104,8 +104,6 @@ test.cb('should route venue', (t) => {
 test.cb('should route location', (t) => {
   const bot = createBot()
   bot.on('venue', (ctx) => {
-    t.true(ctx.updateSubTypes.includes('venue'))
-    t.true(ctx.updateSubTypes.includes('location'))
     t.end()
   })
   const message = { location: {}, venue: { title: 'location', address: 'n/a' }, ...baseMessage }
@@ -115,7 +113,6 @@ test.cb('should route location', (t) => {
 test.cb('should route forward', (t) => {
   const bot = createBot()
   bot.on('forward', (ctx) => {
-    t.true(ctx.updateSubTypes.includes('forward'))
     t.end()
   })
   const message = {

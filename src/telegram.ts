@@ -1,4 +1,3 @@
-import * as replicators from './core/replicators'
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 import { isAbsolute } from 'path'
@@ -966,24 +965,9 @@ class Telegram extends ApiClient {
   sendCopy(
     chatId: number | string,
     message: tt.Message,
-    extra?: object
+    extra?: tt.ExtraCopyMessage
   ): Promise<tt.MessageId> {
-    if (!message) {
-      throw new Error('Message is required')
-    }
-    const type = Object.keys(replicators.copyMethods).find(
-      (type) => type in message
-    ) as keyof typeof replicators.copyMethods
-    if (!type) {
-      throw new Error('Unsupported message type')
-    }
-    const opts = {
-      chat_id: chatId,
-      // @ts-expect-error
-      ...replicators[type](message), // assume we have the necessary fields
-      ...extra,
-    }
-    return this.callApi(replicators.copyMethods[type], opts)
+    return this.copyMessage(chatId, message.chat.id, message.message_id, extra)
   }
 
   /**

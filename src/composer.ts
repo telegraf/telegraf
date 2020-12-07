@@ -244,18 +244,8 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     return (ctx) => ctx.reply(...args)
   }
 
-  private static catchAll<C extends Context>(
-    ...fns: ReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C> {
-    return Composer.catch((err) => {
-      console.error()
-      console.error((err.stack || err.toString()).replace(/^/gm, '  '))
-      console.error()
-    }, ...fns)
-  }
-
   static catch<C extends Context>(
-    errorHandler: (err: any, ctx: C) => void,
+    errorHandler: (err: unknown, ctx: C) => void,
     ...fns: ReadonlyArray<Middleware<C>>
   ): Middleware.Fn<C> {
     const handler = Composer.compose(fns)

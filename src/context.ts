@@ -60,7 +60,6 @@ export const MessageSubTypesMapping = {
 } as const
 
 export class Context {
-  readonly updateType: tt.UpdateType
   readonly state: Record<string | symbol, any> = {}
 
   constructor(
@@ -68,13 +67,16 @@ export class Context {
     readonly tg: Telegram,
     public readonly botInfo: tt.UserFromGetMe
   ) {
-    this.updateType = UpdateTypes.find((key) => key in this.update)!
     Object.getOwnPropertyNames(Context.prototype)
       .filter(
         (key) =>
           key !== 'constructor' && typeof (this as any)[key] === 'function'
       )
       .forEach((key) => ((this as any)[key] = (this as any)[key].bind(this)))
+  }
+
+  get updateType() {
+    return UpdateTypes.find((key) => key in this.update)
   }
 
   get me() {
@@ -188,6 +190,7 @@ export class Context {
   ): asserts value is T {
     if (value === undefined) {
       throw new TypeError(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `Telegraf: "${method}" isn't available for "${this.updateType}"`
       )
     }

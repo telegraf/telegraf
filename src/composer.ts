@@ -403,9 +403,14 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
       normalizeTextArguments(updateType)
     )
 
-    const predicate = (u: tt.Update): u is tt.Update & MountMap[T] =>
-      updateTypes.some((t) => t in u) ||
-      ('message' in u && updateTypes.some((t) => t in u.message))
+    const predicate = (update: tt.Update): update is tt.Update & MountMap[T] =>
+      updateTypes.some(
+        (type) =>
+          // Check update type
+          type in update ||
+          // Check message sub-type
+          ('message' in update && type in update.message)
+      )
 
     return Composer.guard(predicate, ...fns)
   }

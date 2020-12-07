@@ -46,7 +46,6 @@ test.cb('should provide update payload for text', (t) => {
   bot.on('text', (ctx) => {
     t.true('telegram' in ctx)
     t.true('updateType' in ctx)
-    t.true('updateSubTypes' in ctx)
     t.true('chat' in ctx)
     t.true('from' in ctx)
     t.true('state' in ctx)

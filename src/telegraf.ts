@@ -106,7 +106,7 @@ export class Telegraf<
     this.telegram = new Telegram(token, this.options.telegram)
   }
 
-  get token() {
+  private get token() {
     return this.telegram.token
   }
 

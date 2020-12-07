@@ -19,6 +19,23 @@ type UnionToIntersection<U> = (
   ? I
   : never
 type PropOr<T, P extends string, D> = T extends Record<P, infer V> ? V : D
+
+type MatchedMiddleware<
+  C extends Context,
+  T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post'
+> = NonemptyReadonlyArray<
+  Middleware<MatchedContext<C & { match: RegExpExecArray }, T>>
+>
+
+/** Takes: a context type and an update type (or message subtype).
+    Produces: a context that has some properties required, and some undefined.
+    The required ones are those that are always present when the given update (or message) arrives.
+    The undefined ones are those that are always absent when the given update (or message) arrives. */
+type MatchedContext<
+  C extends Context,
+  T extends tt.UpdateType | tt.MessageSubType
+> = GuardedContext<C, MountMap[T]>
+
 /**
  * Narrows down `Context['update']` and some derived properties.
  */
@@ -48,43 +65,14 @@ type MountMap = {
     }
   }
 
+interface GameQueryUpdate extends tt.Update.CallbackQueryUpdate {
+  callback_query: tt.CallbackQuery.GameShortGameCallbackQuery
+}
+
 function always<T>(x: T) {
   return () => x
 }
 const anoop = always(Promise.resolve())
-
-function getEntities(msg: tt.Message | undefined): tt.MessageEntity[] {
-  if (msg == null) return []
-  if ('caption_entities' in msg) return msg.caption_entities ?? []
-  if ('entities' in msg) return msg.entities ?? []
-  return []
-}
-function getText(
-  msg: tt.Message | tt.CallbackQuery | undefined
-): string | undefined {
-  if (msg == null) return undefined
-  if ('caption' in msg) return msg.caption
-  if ('text' in msg) return msg.text
-  if ('data' in msg) return msg.data
-  if ('game_short_name' in msg) return msg.game_short_name
-  return undefined
-}
-
-/** Takes: a context type and an update type (or message subtype).
-    Produces: a context that has some properties required, and some undefined.
-    The required ones are those that are always present when the given update (or message) arrives.
-    The undefined ones are those that are always absent when the given update (or message) arrives. */
-type MatchedContext<
-  C extends Context,
-  T extends tt.UpdateType | tt.MessageSubType
-> = GuardedContext<C, MountMap[T]>
-
-type MatchedMiddleware<
-  C extends Context,
-  T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post'
-> = NonemptyReadonlyArray<
-  Middleware<MatchedContext<C & { match: RegExpExecArray }, T>>
->
 
 export class Composer<C extends Context> implements Middleware.Obj<C> {
   private handler: Middleware.Fn<C>
@@ -109,10 +97,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     guardFn: (update: tt.Update) => update is U,
     ...fns: NonemptyReadonlyArray<Middleware<GuardedContext<C, U>>>
   ) {
-    const fn = Composer.compose(fns)
-    return this.use((ctx, next) =>
-      hasGuardedUpdate(ctx, guardFn) ? fn(ctx, next) : next()
-    )
+    return this.use(Composer.guard<C, U>(guardFn, ...fns))
   }
 
   /**
@@ -162,7 +147,11 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   /**
    * Registers middleware for handling game queries
    */
-  gameQuery(...fns: NonemptyReadonlyArray<Middleware<C>>) {
+  gameQuery(
+    ...fns: NonemptyReadonlyArray<
+      Middleware<GuardedContext<C, GameQueryUpdate>>
+    >
+  ) {
     return this.use(Composer.gameQuery(...fns))
   }
 
@@ -338,6 +327,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
 
   /**
    * Generates optional middleware.
+   * @param predicate predicate to decide on a context object whether to run the middleware
    * @param middleware middleware to run if the predicate returns true
    */
   static optional<C extends Context>(
@@ -383,21 +373,51 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   // determined automatically.
 
   /**
+   * Generates optional middleware based on a predicate that only operates on `ctx.update`.
+   *
+   * Example:
+   * ```ts
+   * import { Composer, Update } from 'telegraf'
+   *
+   * const predicate = (u): u is Update.MessageUpdate => 'message' in u
+   * const middleware = Composer.guard(predicate, (ctx) => {
+   *   const message = ctx.update.message
+   * })
+   * ```
+   *
+   * Note that `Composer.mount('message')` is preferred over this.
+   *
+   * @param guardFn predicate to decide whether to run the middleware based on the `ctx.update` object
+   * @param fns middleware to run if the predicate returns true
+   * @see `Composer.optional` for a more generic version of this method that allows the predicate to operate on `ctx` itself
+   */
+  static guard<C extends Context, U extends tt.Update>(
+    guardFn: (u: tt.Update) => u is U,
+    ...fns: NonemptyReadonlyArray<Middleware<GuardedContext<C, U>>>
+  ): Middleware.Fn<C> {
+    return Composer.optional<C>(
+      (ctx) => guardFn(ctx.update),
+      // @ts-expect-error see explanation above
+      ...fns
+    )
+  }
+
+  /**
    * Generates middleware for handling provided update types.
    */
   static mount<C extends Context, T extends tt.UpdateType | tt.MessageSubType>(
     updateType: MaybeArray<T>,
     ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
   ): Middleware.Fn<C> {
-    const updateTypes = normalizeTextArguments(updateType)
+    const updateTypes = reverseRenameMessageSubtypes(
+      normalizeTextArguments(updateType)
+    )
 
-    const predicate = (ctx: C) =>
-      updateTypes.includes(ctx.updateType) ||
-      // @ts-expect-error `type` is a string and not a union of literals
-      updateTypes.some((type) => ctx.updateSubTypes.includes(type))
+    const predicate = (u: tt.Update): u is tt.Update & MountMap[T] =>
+      updateTypes.some((t) => t in u) ||
+      ('message' in u && updateTypes.some((t) => t in u.message))
 
-    // @ts-expect-error see explanation above
-    return Composer.optional<C>(predicate, ...fns)
+    return Composer.guard(predicate, ...fns)
   }
 
   private static entity<
@@ -442,9 +462,9 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     if (fns.length === 0) {
       // prettier-ignore
       return Array.isArray(predicate)
-        // @ts-expect-error
+        // @ts-expect-error predicate is really the middleware
         ? Composer.entity(entityType, ...predicate)
-        // @ts-expect-error
+        // @ts-expect-error predicate is really the middleware
         : Composer.entity(entityType, predicate)
     }
     const triggers = normalizeTriggers(predicate)
@@ -453,7 +473,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
         return false
       }
       for (const trigger of triggers) {
-        // @ts-expect-error
+        // @ts-expect-error define so far unknown property `match`
         if ((ctx.match = trigger(value, ctx))) {
           return true
         }
@@ -583,8 +603,8 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     ...fns: MatchedMiddleware<C, 'text'>
   ): Middleware.Fn<C> {
     if (fns.length === 0) {
-      // @ts-expect-error
-      return Composer.entity(['bot_command'], command)
+      // @ts-expect-error command is really the middleware
+      return Composer.entity('bot_command', command)
     }
     const commands = normalizeTextArguments(command, '/')
     return Composer.mount<C, 'text'>(
@@ -685,9 +705,10 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     ...fns: NonemptyReadonlyArray<Middleware<C>>
   ): Middleware.Fn<C> {
     const types = Array.isArray(type) ? type : [type]
-    // @ts-expect-error
-    // prettier-ignore
-    return Composer.optional((ctx) => ctx.chat && types.includes(ctx.chat.type), ...fns)
+    return Composer.optional((ctx) => {
+      const chat = ctx.chat
+      return chat !== undefined && types.includes(chat.type)
+    }, ...fns)
   }
 
   /**
@@ -712,11 +733,13 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
    * Generates middleware for handling game queries.
    */
   static gameQuery<C extends Context>(
-    ...fns: NonemptyReadonlyArray<Middleware<C>>
+    ...fns: NonemptyReadonlyArray<
+      Middleware<GuardedContext<C, GameQueryUpdate>>
+    >
   ): Middleware.Fn<C> {
-    return Composer.optional(
-      (ctx) =>
-        ctx.callbackQuery != null && 'game_short_name' in ctx.callbackQuery,
+    return Composer.guard(
+      (u): u is GameQueryUpdate =>
+        'callback_query' in u && 'game_short_name' in u.callback_query,
       ...fns
     )
   }
@@ -772,13 +795,6 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   }
 }
 
-function hasGuardedUpdate<C extends Context, U extends tt.Update>(
-  ctx: C,
-  guardFn: (update: tt.Update) => update is U
-): ctx is GuardedContext<C, U> {
-  return guardFn(ctx.update)
-}
-
 function escapeRegExp(s: string) {
   // $& means the whole matched string
   return s.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&')
@@ -806,6 +822,35 @@ function normalizeTriggers<C extends Context>(
     const regex = new RegExp(`^${escapeRegExp(trigger)}$`)
     return (value: string) => regex.exec(value)
   })
+}
+
+function getEntities(msg: tt.Message | undefined): tt.MessageEntity[] {
+  if (msg == null) return []
+  if ('caption_entities' in msg) return msg.caption_entities ?? []
+  if ('entities' in msg) return msg.entities ?? []
+  return []
+}
+function getText(
+  msg: tt.Message | tt.CallbackQuery | undefined
+): string | undefined {
+  if (msg == null) return undefined
+  if ('caption' in msg) return msg.caption
+  if ('text' in msg) return msg.text
+  if ('data' in msg) return msg.data
+  if ('game_short_name' in msg) return msg.game_short_name
+  return undefined
+}
+
+const reversedMessageSubTypesMapping: Record<
+  string,
+  string
+> = Object.fromEntries(
+  Object.entries(MessageSubTypesMapping).map(([k, v]) => [v, k])
+)
+function reverseRenameMessageSubtypes(types: string[]): string[] {
+  return types.map((t) =>
+    t in reversedMessageSubTypesMapping ? reversedMessageSubTypesMapping[t] : t
+  )
 }
 
 function normalizeTextArguments(argument: MaybeArray<string>, prefix = '') {

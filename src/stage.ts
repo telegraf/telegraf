@@ -1,5 +1,5 @@
-import SceneCxt, { SceneSessionData } from './scenes/context'
-import WizardCxt, { WizardSessionData } from './scenes/wizard/context'
+import SceneCtx, { SceneSessionData } from './scenes/context'
+import WizardCtx, { WizardSessionData } from './scenes/wizard/context'
 import BaseScene from './scenes/base'
 import Composer from './composer'
 import Context from './context'
@@ -9,24 +9,24 @@ import { Middleware } from './types'
 export type SceneContext<
   S extends SceneSessionData = SceneSessionData,
   C extends Context = Context
-> = SceneCxt.Extended<S, C>
+> = SceneCtx.Extended<S, C>
 export type WizardContext<
   S extends WizardSessionData = WizardSessionData,
-  C extends SceneCxt.Extended<S, Context> = SceneCxt.Extended<S, Context>
+  C extends SceneCtx.Extended<S, Context> = SceneCtx.Extended<S, Context>
 > = WizardCtx.Extended<S, C>
 
 export class Stage<
     S extends SceneSessionData = SceneSessionData,
     C extends Context = Context
   >
-  extends Composer<SceneCxt.Extended<S, C>>
+  extends Composer<SceneCtx.Extended<S, C>>
   implements Middleware.Obj<C> {
-  options: SceneCxt.Options<S>
+  options: SceneCtx.Options<S>
   scenes: Map<string, BaseScene<C>>
 
   constructor(
     scenes: ReadonlyArray<BaseScene<C>> = [],
-    options?: Partial<SceneCxt.Options<S>>
+    options?: Partial<SceneCtx.Options<S>>
   ) {
     super()
     this.options = {
@@ -47,13 +47,13 @@ export class Stage<
   }
 
   middleware() {
-    const handler = Composer.compose<C, SceneCxt.Extension<S, C>>([
+    const handler = Composer.compose<C, SceneCtx.Extension<S, C>>([
       (ctx, next) => {
-        const scene = new SceneCxt<S, C>(ctx, this.scenes, this.options)
+        const scene = new SceneCtx<S, C>(ctx, this.scenes, this.options)
         return next(Object.assign(ctx, { scene }))
       },
       super.middleware(),
-      Composer.lazy<SceneCxt.Extended<S, C>>(
+      Composer.lazy<SceneCtx.Extended<S, C>>(
         (ctx) => ctx.scene.current ?? Composer.passThru()
       ),
     ])
@@ -63,21 +63,21 @@ export class Stage<
   static enter<
     S extends SceneSessionData = SceneSessionData,
     C extends Context = Context
-  >(...args: Parameters<SceneCxt<S, C>['enter']>) {
-    return (ctx: SceneCxt.Extended<S, C>) => ctx.scene.enter(...args)
+  >(...args: Parameters<SceneCtx<S, C>['enter']>) {
+    return (ctx: SceneCtx.Extended<S, C>) => ctx.scene.enter(...args)
   }
 
   static reenter<
     S extends SceneSessionData = SceneSessionData,
     C extends Context = Context
-  >(...args: Parameters<SceneCxt<S, C>['reenter']>) {
-    return (ctx: SceneCxt.Extended<S, C>) => ctx.scene.reenter(...args)
+  >(...args: Parameters<SceneCtx<S, C>['reenter']>) {
+    return (ctx: SceneCtx.Extended<S, C>) => ctx.scene.reenter(...args)
   }
 
   static leave<
     S extends SceneSessionData = SceneSessionData,
     C extends Context = Context
-  >(...args: Parameters<SceneCxt<S, C>['leave']>) {
-    return (ctx: SceneCxt.Extended<S, C>) => ctx.scene.leave(...args)
+  >(...args: Parameters<SceneCtx<S, C>['leave']>) {
+    return (ctx: SceneCtx.Extended<S, C>) => ctx.scene.leave(...args)
   }
 }

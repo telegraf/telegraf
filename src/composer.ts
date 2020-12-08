@@ -1,8 +1,8 @@
 /** @format */
 
 import * as tt from './telegram-types'
-import Context, { MessageSubTypesMapping } from './context'
 import { Middleware, NonemptyReadonlyArray } from './types'
+import Context from './context'
 import { SnakeToCamelCase } from './core/helpers/string'
 
 type MaybeArray<T> = T | T[]
@@ -58,10 +58,7 @@ type MountMap = {
 } &
   {
     [T in tt.MessageSubType]: {
-      message: Record<
-        PropOr<typeof MessageSubTypesMapping, T, T>,
-        UnionToIntersection<tt.Message>[T]
-      >
+      message: Pick<UnionToIntersection<tt.Message>, T>
     }
   }
 
@@ -399,9 +396,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     updateType: MaybeArray<T>,
     ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
   ): Middleware.Fn<C> {
-    const updateTypes = reverseRenameMessageSubtypes(
-      normalizeTextArguments(updateType)
-    )
+    const updateTypes = normalizeTextArguments(updateType)
 
     const predicate = (update: tt.Update): update is tt.Update & MountMap[T] =>
       updateTypes.some(
@@ -834,18 +829,6 @@ function getText(
   if ('data' in msg) return msg.data
   if ('game_short_name' in msg) return msg.game_short_name
   return undefined
-}
-
-const reversedMessageSubTypesMapping: Record<
-  string,
-  string
-> = Object.fromEntries(
-  Object.entries(MessageSubTypesMapping).map(([k, v]) => [v, k])
-)
-function reverseRenameMessageSubtypes(types: string[]): string[] {
-  return types.map((t) =>
-    t in reversedMessageSubTypesMapping ? reversedMessageSubTypesMapping[t] : t
-  )
 }
 
 function normalizeTextArguments(argument: MaybeArray<string>, prefix = '') {

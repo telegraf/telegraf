@@ -110,9 +110,9 @@ test.cb('should route location', (t) => {
   bot.handleUpdate({ message: message })
 })
 
-test.cb('should route forward', (t) => {
+test.cb('should route forward_date', (t) => {
   const bot = createBot()
-  bot.on('forward', (ctx) => {
+  bot.on('forward_date', (ctx) => {
     t.end()
   })
   const message = {

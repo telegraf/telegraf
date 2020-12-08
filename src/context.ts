@@ -55,10 +55,6 @@ export const MessageSubTypes = [
   'forward_date',
 ] as const
 
-export const MessageSubTypesMapping = {
-  forward_date: 'forward',
-} as const
-
 export class Context {
   readonly state: Record<string | symbol, any> = {}
 

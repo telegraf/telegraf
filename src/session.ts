@@ -1,12 +1,20 @@
 import { Context } from './context'
 import { Middleware } from './types'
 
-export function session<SessionData extends object>({
+interface SessionContainer<S extends object> {
+  session?: S
+}
+
+export interface SessionContext<S extends object>
+  extends Context,
+    SessionContainer<S> {}
+
+export function session<S extends object>({
   ttl = Infinity,
-  store = new Map<string, { expires: number; session: SessionData }>(),
+  store = new Map<string, SessionContainer<S> & { expires: number }>(),
   getSessionKey = (ctx: Context) =>
     ctx.from && ctx.chat && `${ctx.from.id}:${ctx.chat.id}`,
-} = {}): Middleware.ExtFn<Context, { session?: SessionData }> {
+} = {}): Middleware.ExtFn<Context, SessionContainer<S>> {
   const ttlMs = ttl * 1000
 
   return async (ctx, next) => {
@@ -26,4 +34,10 @@ export function session<SessionData extends object>({
       store.set(key, { session: ctx2.session, expires: now + ttlMs })
     }
   }
+}
+
+export function isSessionContext<S extends object>(
+  ctx: Context
+): ctx is SessionContext<S> {
+  return 'session' in ctx
 }

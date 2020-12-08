@@ -10,7 +10,7 @@ export interface SceneOptions<C extends Context> {
   leaveHandlers: ReadonlyArray<Middleware.Fn<C>>
 }
 
-export class BaseScene<C extends Context> extends Composer<C> {
+export class BaseScene<C extends Context = Context> extends Composer<C> {
   id: string
   ttl?: number
   enterHandler: Middleware.Fn<C>

@@ -1,31 +1,33 @@
-import SceneContext, { SceneSession } from '../context'
+import SceneContext, { SceneSessionData } from '../context'
 import Context from '../../context'
 import { Middleware } from '../../types'
 
-export interface WizardSession extends SceneSession {
+export interface WizardSessionData extends SceneSessionData {
   cursor: number
 }
 
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace WizardContext {
   export interface Extension<
-    S extends WizardSession,
+    S extends WizardSessionData,
     C extends SceneContext.Extended<S, Context>
   > {
     wizard: WizardContext<S, C>
   }
   export type Extended<
-    S extends WizardSession,
+    S extends WizardSessionData,
     C extends SceneContext.Extended<S, Context>
   > = C & Extension<S, C>
 }
 
 class WizardContext<
-  S extends WizardSession,
-  C extends SceneContext.Extended<S, Context>
+  S extends WizardSessionData = WizardSessionData,
+  C extends SceneContext.Extended<S, Context> = SceneContext.Extended<
+    S,
+    Context
+  >
 > {
   readonly state: object
-  cursor: number
   constructor(
     private readonly ctx: C,
     private readonly steps: ReadonlyArray<Middleware<C>>
@@ -35,12 +37,19 @@ class WizardContext<
   }
 
   get step() {
-    return this.cursor >= 0 && this.steps[this.cursor]
+    return this.steps[this.cursor]
+  }
+
+  get cursor() {
+    return this.ctx.scene.session.cursor
+  }
+
+  set cursor(cursor: number) {
+    this.ctx.scene.session.cursor = cursor
   }
 
   selectStep(index: number) {
     this.cursor = index
-    this.ctx.scene.session.cursor = index
     return this
   }
 

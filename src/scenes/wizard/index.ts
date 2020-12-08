@@ -1,12 +1,12 @@
 import BaseScene, { SceneOptions } from '../base'
-import WizardContext, { WizardSession } from './context'
+import WizardContext, { WizardSessionData } from './context'
 import Composer from '../../composer'
 import Context from '../../context'
 import { Middleware } from '../../types'
 import SceneContext from '../context'
 
 export class WizardScene<
-    S extends WizardSession = WizardSession,
+    S extends WizardSessionData = WizardSessionData,
     C extends WizardContext.Extended<
       S,
       SceneContext.Extended<S, Context>
@@ -48,7 +48,7 @@ export class WizardScene<
       },
       super.middleware(),
       (ctx, next) => {
-        if (ctx.wizard.step === false) {
+        if (ctx.wizard.step === undefined) {
           ctx.wizard.selectStep(0)
           return ctx.scene.leave()
         }

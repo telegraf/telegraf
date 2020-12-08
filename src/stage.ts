@@ -1,23 +1,24 @@
-import SceneCxt, { SceneSession } from './scenes/context'
-import WizardCtx, { WizardSession } from './scenes/wizard/context'
+import SceneCxt, { SceneSessionData } from './scenes/context'
+import WizardCxt, { WizardSessionData } from './scenes/wizard/context'
 import BaseScene from './scenes/base'
 import Composer from './composer'
 import Context from './context'
+import { isSessionContext } from './session'
 import { Middleware } from './types'
 
 export type SceneContext<
-  S extends SceneSession = SceneSession,
+  S extends SceneSessionData = SceneSessionData,
   C extends Context = Context
 > = SceneCxt.Extended<S, C>
 export type WizardContext<
-  S extends WizardSession = WizardSession,
+  S extends WizardSessionData = WizardSessionData,
   C extends SceneCxt.Extended<S, Context> = SceneCxt.Extended<S, Context>
 > = WizardCtx.Extended<S, C>
 
-export type { SceneSession } from './scenes/context'
-export type { WizardSession } from './scenes/wizard/context'
-
-export class Stage<S extends SceneSession, C extends Context>
+export class Stage<
+    S extends SceneSessionData = SceneSessionData,
+    C extends Context = Context
+  >
   extends Composer<SceneCxt.Extended<S, C>>
   implements Middleware.Obj<C> {
   options: SceneCxt.Options<S>
@@ -29,7 +30,6 @@ export class Stage<S extends SceneSession, C extends Context>
   ) {
     super()
     this.options = {
-      sessionName: 'session',
       ...options,
     }
     this.scenes = new Map<string, BaseScene<C>>()
@@ -53,32 +53,29 @@ export class Stage<S extends SceneSession, C extends Context>
         return next(Object.assign(ctx, { scene }))
       },
       super.middleware(),
-      Composer.lazy<SceneContext.Extended<TContext>>(
+      Composer.lazy<SceneCxt.Extended<S, C>>(
         (ctx) => ctx.scene.current ?? Composer.passThru()
       ),
     ])
-    return Composer.optional(
-      (ctx: any) => ctx[this.options.sessionName],
-      handler
-    )
+    return Composer.optional(isSessionContext, handler)
   }
 
   static enter<
-    S extends SceneSession = SceneSession,
+    S extends SceneSessionData = SceneSessionData,
     C extends Context = Context
   >(...args: Parameters<SceneCxt<S, C>['enter']>) {
     return (ctx: SceneCxt.Extended<S, C>) => ctx.scene.enter(...args)
   }
 
   static reenter<
-    S extends SceneSession = SceneSession,
+    S extends SceneSessionData = SceneSessionData,
     C extends Context = Context
   >(...args: Parameters<SceneCxt<S, C>['reenter']>) {
     return (ctx: SceneCxt.Extended<S, C>) => ctx.scene.reenter(...args)
   }
 
   static leave<
-    S extends SceneSession = SceneSession,
+    S extends SceneSessionData = SceneSessionData,
     C extends Context = Context
   >(...args: Parameters<SceneCxt<S, C>['leave']>) {
     return (ctx: SceneCxt.Extended<S, C>) => ctx.scene.leave(...args)

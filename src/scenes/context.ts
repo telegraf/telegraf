@@ -2,12 +2,17 @@ import BaseScene from './base'
 import Composer from '../composer'
 import Context from '../context'
 import d from 'debug'
+import { SessionContext } from '../session'
 const debug = d('telegraf:scenes:context')
 
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
-export interface SceneSession {
+export interface SceneSession<S extends SceneSessionData> {
+  __scenes?: S
+}
+
+export interface SceneSessionData {
   current?: string
   expires?: number
   state?: object
@@ -16,39 +21,44 @@ export interface SceneSession {
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace SceneContext {
   export interface Options<D = {}> {
-    sessionName: string
     ttl?: number
     default?: string
     defaultSession?: D
   }
-  export interface Extension<S extends SceneSession, C extends Context> {
+  export interface Extension<S extends SceneSessionData, C extends Context> {
     scene: SceneContext<S, C>
   }
-  export type Extended<S extends SceneSession, C extends Context> = C &
+  export type Extended<S extends SceneSessionData, C extends Context> = C &
     Extension<S, C>
 }
 
-class SceneContext<S extends SceneSession, C extends Context> {
-  private readonly options: SceneContext.Options<S> = {
-    sessionName: 'session',
-  }
+class SceneContext<
+  S extends SceneSessionData = SceneSessionData,
+  C extends SessionContext<SceneSession<S>> = SessionContext<SceneSession<S>>
+> {
+  private readonly options: SceneContext.Options<S> = {}
 
   constructor(
     private readonly ctx: C,
     private readonly scenes: Map<string, BaseScene<C>>,
-    options: Partial<SceneContext.Options<S>>
+    options: SceneContext.Options<S>
   ) {
-    this.options = { sessionName: 'session', ...options }
+    this.options = { ...options }
   }
 
   get session() {
-    const sessionName = this.options.sessionName
-    let session: S = (this.ctx as any)[sessionName].__scenes ?? {}
+    // @ts-expect-error S may require unknown properties but no default is given
+    const defaultSession: S = this.options.defaultSession ?? {}
+
+    let session = this.ctx.session?.__scenes ?? defaultSession
     if (session.expires !== undefined && session.expires < now()) {
-      // @ts-expect-error the default session object may not be given
-      session = this.options.defaultSession ?? {}
+      session = defaultSession
     }
-    ;(this.ctx as any)[sessionName].__scenes = session
+    if (this.ctx.session === undefined) {
+      this.ctx.session = { __scenes: session }
+    } else {
+      this.ctx.session.__scenes = session
+    }
     return session
   }
 
@@ -68,8 +78,7 @@ class SceneContext<S extends SceneSession, C extends Context> {
   }
 
   reset() {
-    const sessionName = this.options.sessionName
-    delete (this.ctx as any)[sessionName].__scenes
+    delete this.ctx.session?.__scenes
   }
 
   async enter(

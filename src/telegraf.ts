@@ -8,6 +8,7 @@ import Context from './context'
 import { compactOptions } from './core/helpers/compact'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
+import { Polling } from './core/network/polling'
 import { promisify } from 'util'
 import Telegram from './telegram'
 import { TlsOptions } from 'tls'
@@ -17,16 +18,15 @@ const debug = d('telegraf:core')
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   telegram: {},
   retryAfter: 1,
-  handlerTimeout: 0,
+  handlerTimeout: 5000,
   contextType: Context,
 }
 
-const noop = () => {}
 function always<T>(x: T) {
   return () => x
 }
 const anoop = always(Promise.resolve())
-const sleep = promisify(setTimeout)
+const wait = promisify(setTimeout)
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Telegraf {
@@ -41,15 +41,8 @@ namespace Telegraf {
 
   export interface LaunchOptions {
     polling?: {
-      timeout?: number
-
-      /** Limits the number of updates to be retrieved in one call */
-      limit?: number
-
       /** List the types of updates you want your bot to receive */
       allowedUpdates?: tt.UpdateType[]
-
-      stopCallback?: () => void
     }
     webhook?: {
       /** Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component). */
@@ -69,8 +62,6 @@ namespace Telegraf {
   }
 }
 
-const allowedUpdates: tt.UpdateType[] | undefined = undefined
-
 export class Telegraf<
   TContext extends Context = Context
 > extends Composer<TContext> {
@@ -80,14 +71,7 @@ export class Telegraf<
   public botInfo?: tt.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<TContext> = {}
-  private readonly polling = {
-    allowedUpdates,
-    limit: 100,
-    offset: 0,
-    started: false,
-    stopCallback: noop,
-    timeout: 30,
-  }
+  private polling?: Polling
 
   private handleError: (err: unknown, ctx: TContext) => void = (err: any) => {
     console.error()
@@ -132,21 +116,19 @@ export class Telegraf<
     )
   }
 
-  private startPolling(
-    timeout = 30,
-    limit = 100,
-    allowedUpdates: tt.UpdateType[] = [],
-    stopCallback = noop
-  ) {
-    this.polling.timeout = timeout
-    this.polling.limit = limit
-    this.polling.allowedUpdates = allowedUpdates
-    this.polling.stopCallback = stopCallback
-    if (!this.polling.started) {
-      this.polling.started = true
-      this.fetchUpdates()
-    }
-    return this
+  private startPolling(allowedUpdates: tt.UpdateType[] = []) {
+    this.polling = new Polling(this.telegram, allowedUpdates)
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.polling.consume(async (updates) => {
+      const processAll = Promise.all(
+        updates.map((update) => this.handleUpdate(update))
+      )
+      if (this.options.handlerTimeout === 0) {
+        await processAll
+        return
+      }
+      await Promise.race([processAll, wait(this.options.handlerTimeout)])
+    })
   }
 
   private startWebhook(
@@ -158,7 +140,7 @@ export class Telegraf<
   ) {
     const webhookCb = this.webhookCallback(hookPath)
     const callback: http.RequestListener =
-      cb && typeof cb === 'function'
+      typeof cb === 'function'
         ? (req, res) => webhookCb(req, res, () => cb(req, res))
         : webhookCb
     this.webhookServer = tlsOptions
@@ -174,11 +156,9 @@ export class Telegraf<
     debug('Connecting to Telegram')
     this.botInfo ??= await this.telegram.getMe()
     debug(`Launching @${this.botInfo.username}`)
-    if (!config.webhook) {
-      const { timeout, limit, allowedUpdates, stopCallback } =
-        config.polling ?? {}
+    if (config.webhook === undefined) {
       await this.telegram.deleteWebhook()
-      this.startPolling(timeout, limit, allowedUpdates, stopCallback)
+      this.startPolling(config.polling?.allowedUpdates)
       debug('Bot started with long-polling')
       return
     }
@@ -206,32 +186,12 @@ export class Telegraf<
   }
 
   async stop() {
-    debug('Stopping bot...')
-    await new Promise<void>((resolve, reject) => {
-      if (this.webhookServer) {
-        this.webhookServer.close((err) => {
-          if (err) reject(err)
-          else resolve()
-        })
-      } else if (!this.polling.started) {
-        resolve()
-      } else {
-        this.polling.stopCallback = resolve
-        this.polling.started = false
-      }
-    })
-  }
-
-  handleUpdates(updates: readonly tt.Update[]) {
-    if (!Array.isArray(updates)) {
-      return Promise.reject(new Error('Updates must be an array'))
+    await this.polling?.stop()
+    if (this.webhookServer !== undefined) {
+      debug('Stopping webhook server...')
+      await promisify(this.webhookServer.close).call(this.webhookServer)
     }
-    // prettier-ignore
-    const processAll = Promise.all(updates.map((update) => this.handleUpdate(update)))
-    if (this.options.handlerTimeout === 0) {
-      return processAll
-    }
-    return Promise.race([processAll, sleep(this.options.handlerTimeout)])
+    debug('Bot stopped gracefully')
   }
 
   private botInfoCall?: Promise<tt.UserFromGetMe>
@@ -257,42 +217,5 @@ export class Telegraf<
         webhookResponse.end()
       }
     }
-  }
-
-  private fetchUpdates() {
-    if (!this.polling.started) {
-      this.polling.stopCallback()
-      return
-    }
-    const { timeout, limit, offset, allowedUpdates } = this.polling
-    this.telegram
-      .getUpdates(timeout, limit, offset, allowedUpdates)
-      .catch((err) => {
-        if (err.code === 401 || err.code === 409) {
-          throw err
-        }
-        const wait = err.parameters?.retry_after ?? this.options.retryAfter
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        console.error(`Failed to fetch updates. Waiting: ${wait}s`, err.message)
-        return sleep(wait * 1000, [])
-      })
-      .then((updates) =>
-        this.polling.started
-          ? this.handleUpdates(updates).then(() => updates)
-          : []
-      )
-      .catch((err) => {
-        console.error('Failed to process updates.', err)
-        this.polling.started = false
-        this.polling.offset = 0
-        return []
-      })
-      .then((updates) => {
-        if (updates.length > 0) {
-          this.polling.offset = updates[updates.length - 1].update_id + 1
-        }
-        this.fetchUpdates()
-      })
-      .catch(noop)
   }
 }

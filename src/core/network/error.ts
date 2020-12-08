@@ -17,4 +17,4 @@ class TelegramError extends Error {
   }
 }
 
-export = TelegramError
+export default TelegramError

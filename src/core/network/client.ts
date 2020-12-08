@@ -4,6 +4,7 @@ import * as fs from 'fs'
 import * as http from 'http'
 import * as https from 'https'
 import * as path from 'path'
+import { compactOptions } from '../helpers/compact'
 import fetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { hasProp, hasPropType } from '../helpers/check'
 import { Opts, Telegram } from '../../telegram-types'
@@ -307,7 +308,7 @@ class ApiClient {
     this.token = token
     this.options = {
       ...DEFAULT_OPTIONS,
-      ...options,
+      ...compactOptions(options),
     }
     if (this.options.apiRoot.startsWith('http://')) {
       this.options.agent = undefined
@@ -366,4 +367,4 @@ class ApiClient {
   }
 }
 
-export = ApiClient
+export default ApiClient

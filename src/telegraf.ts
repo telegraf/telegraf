@@ -1,10 +1,11 @@
+import * as crypto from 'crypto'
 import * as http from 'http'
 import * as https from 'https'
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 import Composer from './composer'
 import Context from './context'
-import crypto from 'crypto'
+import { compactOptions } from './core/helpers/compact'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
 import { promisify } from 'util'
@@ -17,7 +18,6 @@ const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   telegram: {},
   retryAfter: 1,
   handlerTimeout: 0,
-  channelMode: false,
   contextType: Context,
 }
 
@@ -31,7 +31,6 @@ const sleep = promisify(setTimeout)
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Telegraf {
   export interface Options<TContext extends Context> {
-    channelMode: boolean
     contextType: new (
       ...args: ConstructorParameters<typeof Context>
     ) => TContext
@@ -102,7 +101,7 @@ export class Telegraf<
     // @ts-expect-error
     this.options = {
       ...DEFAULT_OPTIONS,
-      ...options,
+      ...compactOptions(options),
     }
     this.telegram = new Telegram(token, this.options.telegram)
   }
@@ -247,7 +246,7 @@ export class Telegraf<
       await (this.botInfoCall ??= this.telegram.getMe()))
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
     const TelegrafContext = this.options.contextType
-    const ctx = new TelegrafContext(update, tg, this.botInfo, this.options)
+    const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
     try {
       await this.middleware()(ctx, anoop)

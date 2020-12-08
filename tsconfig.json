@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "esModuleInterop": true,
     "composite": true,
     "declaration": true,
     "declarationMap": true,

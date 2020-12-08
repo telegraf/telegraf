@@ -1021,4 +1021,4 @@ class Telegram extends ApiClient {
   }
 }
 
-export = Telegram
+export default Telegram

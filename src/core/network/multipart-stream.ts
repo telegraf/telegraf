@@ -1,6 +1,6 @@
+import * as stream from 'stream'
 import { hasPropType } from '../helpers/check'
 import SandwichStream from 'sandwich-stream'
-import stream from 'stream'
 const CRNL = '\r\n'
 
 interface Part {
@@ -43,4 +43,4 @@ class MultipartStream extends SandwichStream {
   }
 }
 
-export = MultipartStream
+export default MultipartStream

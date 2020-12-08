@@ -9,7 +9,7 @@ export * as Markup from './markup'
 export { session } from './session'
 
 export { Stage, SceneContext, WizardContext } from './stage'
-export { SceneSessionData } from './scenes/context'
+export { SceneSession, SceneSessionData } from './scenes/context'
 export { BaseScene } from './scenes/base'
 export { WizardScene } from './scenes/wizard'
 export { WizardSessionData } from './scenes/wizard/context'

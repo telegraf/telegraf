@@ -1,14 +1,14 @@
-import SceneCtx, { SceneSessionData } from './scenes/context'
+import { isSessionContext, SessionContext } from './session'
+import SceneCtx, { SceneSession, SceneSessionData } from './scenes/context'
 import WizardCtx, { WizardSessionData } from './scenes/wizard/context'
 import BaseScene from './scenes/base'
 import Composer from './composer'
 import Context from './context'
-import { isSessionContext } from './session'
 import { Middleware } from './types'
 
 export type SceneContext<
   S extends SceneSessionData = SceneSessionData,
-  C extends Context = Context
+  C extends SessionContext<SceneSession<S>> = SessionContext<SceneSession<S>>
 > = SceneCtx.Extended<S, C>
 export type WizardContext<
   S extends WizardSessionData = WizardSessionData,
@@ -17,7 +17,7 @@ export type WizardContext<
 
 export class Stage<
     S extends SceneSessionData = SceneSessionData,
-    C extends Context = Context
+    C extends SessionContext<SceneSession<S>> = SessionContext<SceneSession<S>>
   >
   extends Composer<SceneCtx.Extended<S, C>>
   implements Middleware.Obj<C> {

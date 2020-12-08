@@ -10,23 +10,27 @@ const noop = () => {}
 export class Polling {
   private readonly abortController = new AbortController()
   private stopCallback = noop
+  private offset = 0
   constructor(
     private readonly telegram: ApiClient,
     private readonly allowedUpdates: readonly tt.UpdateType[]
   ) {}
 
   async *[Symbol.asyncIterator](): AsyncGenerator<tt.Update[], void, void> {
-    let offset = 0
     do {
       try {
         const updates = await this.telegram.callApi(
           'getUpdates',
-          { timeout: 60, offset, allowed_updates: this.allowedUpdates },
+          {
+            timeout: 50,
+            offset: this.offset,
+            allowed_updates: this.allowedUpdates,
+          },
           this.abortController
         )
         const last = updates[updates.length - 1]
         if (last !== undefined) {
-          offset = last.update_id + 1
+          this.offset = last.update_id + 1
         }
         yield updates
       } catch (err) {
@@ -34,12 +38,17 @@ export class Polling {
         if (err.code === 401 || err.code === 409) throw err
         const retryAfter = err.parameters?.retry_after ?? 5
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        debug(`Failed to fetch updates. Retrying after ${retryAfter}s`, err)
+        debug(`Failed to fetch updates, retrying after ${retryAfter}s.`, err)
         await wait(retryAfter * 1000)
       }
     } while (!this.abortController.signal.aborted)
-    await this.telegram.callApi('getUpdates', { timeout: 0, offset })
+    await this.confirmUpdates()
     return this.stopCallback()
+  }
+
+  async confirmUpdates() {
+    debug('Confirming updates...')
+    await this.telegram.callApi('getUpdates', { offset: this.offset })
   }
 
   async consume(handleUpdates: (updates: tt.Update[]) => Promise<void>) {

@@ -73,10 +73,10 @@ export class Telegraf<
   readonly context: Partial<TContext> = {}
   private polling?: Polling
 
-  private handleError: (err: unknown, ctx: TContext) => void = (err: any) => {
-    console.error()
-    console.error((err.stack ?? err.toString()).replace(/^/gm, '  '))
-    console.error()
+  private handleError = async (err: unknown, ctx: TContext): Promise<void> => {
+    process.exitCode = 1
+    debug('Middleware threw', err)
+    await this.polling?.confirmUpdates()
     throw err
   }
 
@@ -102,7 +102,7 @@ export class Telegraf<
     return this.telegram.webhookReply
   }
 
-  catch(handler: (err: unknown, ctx: TContext) => void) {
+  catch(handler: (err: unknown, ctx: TContext) => Promise<void>) {
     this.handleError = handler
     return this
   }
@@ -186,6 +186,7 @@ export class Telegraf<
   }
 
   async stop() {
+    debug('Requested graceful shutdown')
     await this.polling?.stop()
     if (this.webhookServer !== undefined) {
       debug('Stopping webhook server...')
@@ -211,7 +212,7 @@ export class Telegraf<
     try {
       await this.middleware()(ctx, anoop)
     } catch (err) {
-      return this.handleError(err, ctx)
+      return await this.handleError(err, ctx)
     } finally {
       if (webhookResponse !== undefined && !webhookResponse.writableEnded) {
         webhookResponse.end()

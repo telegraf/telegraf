@@ -66,11 +66,11 @@ export class Telegraf<
 > extends Composer<TContext> {
   private readonly options: Telegraf.Options<TContext>
   private webhookServer?: http.Server | https.Server
+  private polling?: Polling
   /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
   public botInfo?: tt.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<TContext> = {}
-  private polling?: Polling
 
   private handleError = async (err: unknown, ctx: TContext): Promise<void> => {
     process.exitCode = 1

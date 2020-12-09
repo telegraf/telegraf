@@ -572,15 +572,9 @@ export class Context {
     if (typeof messageId !== 'undefined') {
       return this.telegram.deleteMessage(this.chat.id, messageId)
     }
-    const callbackQueryMessage = this.callbackQuery?.message
-    if (callbackQueryMessage !== undefined) {
-      return this.telegram.deleteMessage(
-        this.chat.id,
-        callbackQueryMessage.message_id
-      )
-    }
-    this.assert(this.message, 'deleteMessage')
-    return this.telegram.deleteMessage(this.chat.id, this.message.message_id)
+    const message = ctx.message ?? this.callbackQuery?.message
+    this.assert(message, 'deleteMessage')
+    return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
 
   forwardMessage(

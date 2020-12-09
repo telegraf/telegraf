@@ -17,12 +17,7 @@ export class MemorySessionStorage<T> implements Storage<T> {
   }
 
   async makeKey(ctx: Context): Promise<string | undefined> {
-    const fromId =
-      ctx.chosenInlineResult?.from.id ??
-      ctx.shippingQuery?.from.id ??
-      ctx.callbackQuery?.from.id ??
-      ctx.from?.id ??
-      null
+    const fromId = ctx.callbackQuery?.from?.id ?? ctx.from?.id ?? null
     const chatId = ctx.callbackQuery?.message?.chat.id ?? ctx.chat?.id ?? null
     if (fromId == null || chatId == null) {
       return undefined

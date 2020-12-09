@@ -2,6 +2,7 @@ import * as crypto from 'crypto'
 import * as http from 'http'
 import * as https from 'https'
 import * as tt from './telegram-types'
+import * as util from 'util'
 import ApiClient from './core/network/client'
 import Composer from './composer'
 import Context from './context'
@@ -9,11 +10,10 @@ import { compactOptions } from './core/helpers/compact'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
 import { Polling } from './core/network/polling'
-import { promisify } from 'util'
 import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
-const debug = d('telegraf:core')
+const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   telegram: {},
@@ -26,7 +26,7 @@ function always<T>(x: T) {
   return () => x
 }
 const anoop = always(Promise.resolve())
-const wait = promisify(setTimeout)
+const wait = util.promisify(setTimeout)
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Telegraf {
@@ -40,10 +40,9 @@ namespace Telegraf {
   }
 
   export interface LaunchOptions {
-    polling?: {
-      /** List the types of updates you want your bot to receive */
-      allowedUpdates?: tt.UpdateType[]
-    }
+    // FIXME: not honored by webhook
+    /** List the types of updates you want your bot to receive */
+    allowedUpdates?: tt.UpdateType[]
     webhook?: {
       /** Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component). */
       domain?: string
@@ -119,15 +118,8 @@ export class Telegraf<
   private startPolling(allowedUpdates: tt.UpdateType[] = []) {
     this.polling = new Polling(this.telegram, allowedUpdates)
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.polling.consume(async (updates) => {
-      const processAll = Promise.all(
-        updates.map((update) => this.handleUpdate(update))
-      )
-      if (this.options.handlerTimeout === 0) {
-        await processAll
-        return
-      }
-      await Promise.race([processAll, wait(this.options.handlerTimeout)])
+    this.polling.loop(async (updates) => {
+      await this.handleUpdates(updates)
     })
   }
 
@@ -158,7 +150,7 @@ export class Telegraf<
     debug(`Launching @${this.botInfo.username}`)
     if (config.webhook === undefined) {
       await this.telegram.deleteWebhook()
-      this.startPolling(config.polling?.allowedUpdates)
+      this.startPolling(config.allowedUpdates)
       debug('Bot started with long-polling')
       return
     }
@@ -185,14 +177,23 @@ export class Telegraf<
     debug(`Bot started with webhook @ https://${domain}`)
   }
 
-  async stop() {
+  stop() {
     debug('Requested graceful shutdown')
-    await this.polling?.stop()
-    if (this.webhookServer !== undefined) {
-      debug('Stopping webhook server...')
-      await promisify(this.webhookServer.close).call(this.webhookServer)
-    }
+    this.polling?.stop()
+    this.webhookServer?.close()
     debug('Bot stopped gracefully')
+  }
+
+  private handleUpdates(updates: readonly tt.Update[]) {
+    if (!Array.isArray(updates)) {
+      throw new TypeError(util.format('Updates must be an array, got', updates))
+    }
+    // prettier-ignore
+    const processAll = Promise.all(updates.map((update) => this.handleUpdate(update)))
+    if (this.options.handlerTimeout === Infinity) {
+      return processAll
+    }
+    return Promise.race([processAll, wait(this.options.handlerTimeout)])
   }
 
   private botInfoCall?: Promise<tt.UserFromGetMe>

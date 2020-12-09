@@ -1111,9 +1111,7 @@ Launch options:
 
 ```js
 {
-  // Start bot in polling mode (Default)
-  // See startPolling reference
-  polling: { timeout, limit,  allowedUpdates,  stopCallback },
+  allowedUpdates,
 
   // Start bot in webhook mode
   // See startWebhook reference

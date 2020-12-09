@@ -5,11 +5,9 @@ import d from 'debug'
 import { promisify } from 'util'
 const wait = promisify(setTimeout)
 const debug = d('telegraf:polling')
-const noop = () => {}
 
 export class Polling {
   private readonly abortController = new AbortController()
-  private stopCallback = noop
   private offset = 0
   constructor(
     private readonly telegram: ApiClient,
@@ -18,6 +16,7 @@ export class Polling {
 
   async *[Symbol.asyncIterator](): AsyncGenerator<tt.Update[], void, void> {
     do {
+      debug('Starting long polling')
       try {
         const updates = await this.telegram.callApi(
           'getUpdates',
@@ -34,7 +33,7 @@ export class Polling {
         }
         yield updates
       } catch (err) {
-        if (err.name === 'AbortError') return this.stopCallback()
+        if (err.name === 'AbortError') return
         if (err.code === 401 || err.code === 409) throw err
         const retryAfter = err.parameters?.retry_after ?? 5
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -43,7 +42,6 @@ export class Polling {
       }
     } while (!this.abortController.signal.aborted)
     await this.confirmUpdates()
-    return this.stopCallback()
   }
 
   async confirmUpdates() {
@@ -51,7 +49,7 @@ export class Polling {
     await this.telegram.callApi('getUpdates', { offset: this.offset })
   }
 
-  async consume(handleUpdates: (updates: tt.Update[]) => Promise<void>) {
+  async loop(handleUpdates: (updates: tt.Update[]) => Promise<void>) {
     for await (const updates of this) {
       await handleUpdates(updates)
     }
@@ -59,9 +57,6 @@ export class Polling {
 
   stop() {
     debug('Gracefully stopping long polling...')
-    return new Promise<void>((resolve) => {
-      this.stopCallback = resolve
-      this.abortController.abort()
-    })
+    this.abortController.abort()
   }
 }

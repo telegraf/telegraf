@@ -45,7 +45,7 @@ export class Polling {
 
   async confirmUpdates() {
     debug('Confirming updates...')
-    await this.telegram.callApi('getUpdates', { offset: this.offset })
+    await this.telegram.callApi('getUpdates', { offset: this.offset, limit: 1 })
   }
 
   async loop(handleUpdates: (updates: tt.Update[]) => Promise<void>) {

@@ -103,8 +103,5 @@ bot.use(botHandler)
 log(`Starting module ${file}`)
 bot.launch(config)
 
-function stop () {
-  bot.stop()
-}
-process.once('SIGINT', stop)
-process.once('SIGTERM', stop)
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

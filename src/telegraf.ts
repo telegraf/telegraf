@@ -177,11 +177,10 @@ export class Telegraf<
     debug(`Bot started with webhook @ https://${domain}`)
   }
 
-  stop() {
-    debug('Requested graceful shutdown')
+  stop(reason = 'unknown') {
+    debug('Requested graceful shutdown, reason:', reason)
     this.polling?.stop()
     this.webhookServer?.close()
-    debug('Bot stopped gracefully')
   }
 
   private handleUpdates(updates: readonly tt.Update[]) {

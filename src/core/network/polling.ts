@@ -35,8 +35,7 @@ export class Polling {
       } catch (err) {
         if (err.name === 'AbortError') return
         if (err.code === 401 || err.code === 409) throw err
-        const retryAfter = err.parameters?.retry_after ?? 5
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        const retryAfter: number = err.parameters?.retry_after ?? 5
         debug(`Failed to fetch updates, retrying after ${retryAfter}s.`, err)
         await wait(retryAfter * 1000)
       }

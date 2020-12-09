@@ -11,35 +11,6 @@ export interface Storage<T> {
   deleteItem: (name: string) => Promise<void>
 }
 
-export class MemorySessionStorage<T> implements Storage<T> {
-  private readonly ttl: number
-  private readonly store = new Map<string, { session: T; expires: number }>()
-
-  constructor(ttl = Infinity) {
-    this.ttl = ttl * 1000
-  }
-
-  async getItem(name: string): Promise<T | undefined> {
-    const entry = this.store.get(name)
-    if (entry == null) {
-      return undefined
-    } else if (entry.expires < Date.now()) {
-      await this.deleteItem(name)
-      return undefined
-    }
-    return entry.session
-  }
-
-  async setItem(name: string, value: T): Promise<void> {
-    const now = Date.now()
-    this.store.set(name, { session: value, expires: now + this.ttl })
-  }
-
-  async deleteItem(name: string): Promise<void> {
-    this.store.delete(name)
-  }
-}
-
 /**
  * session middleware
  *
@@ -74,4 +45,33 @@ async function makeDefaultKey(ctx: Context): Promise<string | undefined> {
     return undefined
   }
   return `${fromId}:${chatId}`
+}
+
+export class MemorySessionStorage<T> implements Storage<T> {
+  private readonly ttl: number
+  private readonly store = new Map<string, { session: T; expires: number }>()
+
+  constructor(ttl = Infinity) {
+    this.ttl = ttl * 1000
+  }
+
+  async getItem(name: string): Promise<T | undefined> {
+    const entry = this.store.get(name)
+    if (entry == null) {
+      return undefined
+    } else if (entry.expires < Date.now()) {
+      await this.deleteItem(name)
+      return undefined
+    }
+    return entry.session
+  }
+
+  async setItem(name: string, value: T): Promise<void> {
+    const now = Date.now()
+    this.store.set(name, { session: value, expires: now + this.ttl })
+  }
+
+  async deleteItem(name: string): Promise<void> {
+    this.store.delete(name)
+  }
 }

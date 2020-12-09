@@ -34,7 +34,7 @@ namespace Telegraf {
       ...args: ConstructorParameters<typeof Context>
     ) => TContext
     handlerTimeout: number
-    telegram: Partial<ApiClient.Options>
+    telegram?: Partial<ApiClient.Options>
   }
 
   export interface LaunchOptions {

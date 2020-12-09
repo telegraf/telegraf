@@ -177,7 +177,7 @@ export class Telegraf<
     debug(`Bot started with webhook @ https://${domain}`)
   }
 
-  stop(reason = 'unknown') {
+  stop(reason = 'unspecified') {
     debug('Stopping bot... Reason:', reason)
     this.polling?.stop()
     this.webhookServer?.close()

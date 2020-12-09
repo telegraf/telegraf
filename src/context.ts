@@ -572,7 +572,7 @@ export class Context {
     if (typeof messageId !== 'undefined') {
       return this.telegram.deleteMessage(this.chat.id, messageId)
     }
-    const message = ctx.message ?? this.callbackQuery?.message
+    const message = this.message ?? this.callbackQuery?.message
     this.assert(message, 'deleteMessage')
     return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }

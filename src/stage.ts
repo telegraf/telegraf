@@ -1,32 +1,18 @@
-import { isSessionContext, SessionContext } from './session'
-import SceneCtx, { SceneSession, SceneSessionData } from './scenes/context'
-import WizardCtx, { WizardSessionData } from './scenes/wizard/context'
+import SceneContextScene, { SceneContext } from './scenes/context'
 import BaseScene from './scenes/base'
 import Composer from './composer'
-import Context from './context'
+import { isSessionContext } from './session'
 import { Middleware } from './types'
 
-export type SceneContext<
-  S extends SceneSessionData = SceneSessionData,
-  C extends SessionContext<SceneSession<S>> = SessionContext<SceneSession<S>>
-> = SceneCtx.Extended<S, C>
-export type WizardContext<
-  S extends WizardSessionData = WizardSessionData,
-  C extends SceneCtx.Extended<S, Context> = SceneCtx.Extended<S, Context>
-> = WizardCtx.Extended<S, C>
-
-export class Stage<
-    S extends SceneSessionData = SceneSessionData,
-    C extends SessionContext<SceneSession<S>> = SessionContext<SceneSession<S>>
-  >
-  extends Composer<SceneCtx.Extended<S, C>>
+export class Stage<C extends SceneContext>
+  extends Composer<C>
   implements Middleware.Obj<C> {
-  options: SceneCtx.Options<S>
+  options: SceneContextScene.Options
   scenes: Map<string, BaseScene<C>>
 
   constructor(
     scenes: ReadonlyArray<BaseScene<C>> = [],
-    options?: Partial<SceneCtx.Options<S>>
+    options?: SceneContextScene.Options
   ) {
     super()
     this.options = {
@@ -47,37 +33,32 @@ export class Stage<
   }
 
   middleware() {
-    const handler = Composer.compose<C, SceneCtx.Extension<S, C>>([
+    const handler = Composer.compose<C, C>([
       (ctx, next) => {
-        const scene = new SceneCtx<S, C>(ctx, this.scenes, this.options)
+        const scene = new SceneContextScene<C>(ctx, this.scenes, this.options)
         return next(Object.assign(ctx, { scene }))
       },
       super.middleware(),
-      Composer.lazy<SceneCtx.Extended<S, C>>(
-        (ctx) => ctx.scene.current ?? Composer.passThru()
-      ),
+      Composer.lazy<C>((ctx) => ctx.scene.current ?? Composer.passThru()),
     ])
     return Composer.optional(isSessionContext, handler)
   }
 
-  static enter<
-    S extends SceneSessionData = SceneSessionData,
-    C extends Context = Context
-  >(...args: Parameters<SceneCtx<S, C>['enter']>) {
-    return (ctx: SceneCtx.Extended<S, C>) => ctx.scene.enter(...args)
+  static enter<C extends SceneContext = SceneContext>(
+    ...args: Parameters<SceneContextScene<C>['enter']>
+  ) {
+    return (ctx: SceneContext) => ctx.scene.enter(...args)
   }
 
-  static reenter<
-    S extends SceneSessionData = SceneSessionData,
-    C extends Context = Context
-  >(...args: Parameters<SceneCtx<S, C>['reenter']>) {
-    return (ctx: SceneCtx.Extended<S, C>) => ctx.scene.reenter(...args)
+  static reenter<C extends SceneContext = SceneContext>(
+    ...args: Parameters<SceneContextScene<C>['reenter']>
+  ) {
+    return (ctx: SceneContext) => ctx.scene.reenter(...args)
   }
 
-  static leave<
-    S extends SceneSessionData = SceneSessionData,
-    C extends Context = Context
-  >(...args: Parameters<SceneCtx<S, C>['leave']>) {
-    return (ctx: SceneCtx.Extended<S, C>) => ctx.scene.leave(...args)
+  static leave<C extends SceneContext>(
+    ...args: Parameters<SceneContextScene<C>['leave']>
+  ) {
+    return (ctx: SceneContext) => ctx.scene.leave(...args)
   }
 }

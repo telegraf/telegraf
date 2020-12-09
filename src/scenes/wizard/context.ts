@@ -1,32 +1,26 @@
-import SceneContext, { SceneSessionData } from '../context'
-import Context from '../../context'
+import SceneContextScene, {
+  SceneContext,
+  SceneSession,
+  SceneSessionData,
+} from '../context'
 import { Middleware } from '../../types'
+import { SessionContext } from '../../session'
+
+export interface WizardSession extends SceneSession {
+  __scenes: WizardSessionData
+}
 
 export interface WizardSessionData extends SceneSessionData {
   cursor: number
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
-namespace WizardContext {
-  export interface Extension<
-    S extends WizardSessionData,
-    C extends SceneContext.Extended<S, Context>
-  > {
-    wizard: WizardContext<S, C>
+export type WizardContext = SceneContext &
+  SessionContext<WizardSession> & {
+    scene: SceneContextScene<WizardContext>
+    wizard: WizardContextWizard<WizardContext>
   }
-  export type Extended<
-    S extends WizardSessionData,
-    C extends SceneContext.Extended<S, Context>
-  > = C & Extension<S, C>
-}
 
-class WizardContext<
-  S extends WizardSessionData = WizardSessionData,
-  C extends SceneContext.Extended<S, Context> = SceneContext.Extended<
-    S,
-    Context
-  >
-> {
+class WizardContextWizard<C extends WizardContext> {
   readonly state: object
   constructor(
     private readonly ctx: C,
@@ -62,4 +56,4 @@ class WizardContext<
   }
 }
 
-export default WizardContext
+export default WizardContextWizard

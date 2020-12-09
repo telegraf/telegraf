@@ -1,6 +1,5 @@
 import BaseScene from './base'
 import Composer from '../composer'
-import Context from '../context'
 import d from 'debug'
 import { SessionContext } from '../session'
 const debug = d('telegraf:scenes:context')
@@ -8,9 +7,8 @@ const debug = d('telegraf:scenes:context')
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
-export interface SceneSession<S extends SceneSessionData = SceneSessionData> {
-  __scenes?: S
-}
+type Z0 = SceneContextScene<SceneContext>
+type S0 = SceneSessionData
 
 export interface SceneSessionData {
   current?: string
@@ -18,37 +16,38 @@ export interface SceneSessionData {
   state?: object
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
-namespace SceneContext {
-  export interface Options<D = {}> {
-    ttl?: number
-    default?: string
-    defaultSession?: D
-  }
-  export interface Extension<S extends SceneSessionData, C extends Context> {
-    scene: SceneContext<S, C>
-  }
-  export type Extended<S extends SceneSessionData, C extends Context> = C &
-    Extension<S, C>
+export interface SceneSession<S extends S0 = S0> {
+  __scenes: S
 }
 
-class SceneContext<
-  S extends SceneSessionData = SceneSessionData,
-  C extends SessionContext<SceneSession<S>> = SessionContext<SceneSession<S>>
-> {
-  private readonly options: SceneContext.Options<S> = {}
+export type SceneContext<Z extends Z0 = Z0, S extends S0 = S0> = SessionContext<
+  SceneSession<S>
+> & {
+  scene: Z
+}
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+namespace SceneContextScene {
+  export interface Options {
+    ttl?: number
+    default?: string
+    defaultSession?: SceneSessionData
+  }
+}
+
+class SceneContextScene<C extends SceneContext> {
+  private readonly options: SceneContextScene.Options = {}
 
   constructor(
     private readonly ctx: C,
     private readonly scenes: Map<string, BaseScene<C>>,
-    options: SceneContext.Options<S>
+    options: SceneContextScene.Options
   ) {
     this.options = { ...options }
   }
 
-  get session() {
-    // @ts-expect-error S may require unknown properties but no default is given
-    const defaultSession: S = this.options.defaultSession ?? {}
+  get session(): C['session']['__scenes'] {
+    const defaultSession = this.options.defaultSession ?? {}
 
     let session = this.ctx.session?.__scenes ?? defaultSession
     if (session.expires !== undefined && session.expires < now()) {
@@ -78,7 +77,7 @@ class SceneContext<
   }
 
   reset() {
-    delete this.ctx.session?.__scenes
+    this.ctx.session.__scenes = {}
   }
 
   async enter(
@@ -131,4 +130,4 @@ class SceneContext<
   }
 }
 
-export default SceneContext
+export default SceneContextScene

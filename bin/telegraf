@@ -1,10 +1,11 @@
 #!/usr/bin/env node
+// @ts-check
 
 const debug = require('debug')
 const path = require('path')
 const parse = require('minimist')
 const { addAlias } = require('module-alias')
-const Telegraf = require('../')
+const { Telegraf } = require('../lib/telegraf')
 
 const log = debug('telegraf:cli')
 

@@ -89,7 +89,7 @@ export class Telegraf<
     timeout: 30,
   }
 
-  private handleError: (err: any, ctx: TContext) => void = (err) => {
+  private handleError: (err: unknown, ctx: TContext) => void = (err: any) => {
     console.error()
     console.error((err.stack ?? err.toString()).replace(/^/gm, '  '))
     console.error()
@@ -106,7 +106,7 @@ export class Telegraf<
     this.telegram = new Telegram(token, this.options.telegram)
   }
 
-  get token() {
+  private get token() {
     return this.telegram.token
   }
 
@@ -118,7 +118,7 @@ export class Telegraf<
     return this.telegram.webhookReply
   }
 
-  catch(handler: (err: any, ctx: TContext) => void) {
+  catch(handler: (err: unknown, ctx: TContext) => void) {
     this.handleError = handler
     return this
   }

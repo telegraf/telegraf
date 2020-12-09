@@ -55,13 +55,7 @@ export const MessageSubTypes = [
   'forward_date',
 ] as const
 
-export const MessageSubTypesMapping = {
-  forward_date: 'forward',
-} as const
-
 export class Context {
-  readonly updateType: tt.UpdateType
-  readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
   readonly state: Record<string | symbol, any> = {}
 
   constructor(
@@ -69,22 +63,16 @@ export class Context {
     readonly tg: Telegram,
     public readonly botInfo: tt.UserFromGetMe
   ) {
-    this.updateType = UpdateTypes.find((key) => key in this.update)!
-    const { message } = this
-    // prettier-ignore
-    if (message !== undefined) {
-      this.updateSubTypes = MessageSubTypes
-        .filter((key) => key in message)
-        .map((type) => (MessageSubTypesMapping as any)[type] || type)
-    } else {
-      this.updateSubTypes = []
-    }
     Object.getOwnPropertyNames(Context.prototype)
       .filter(
         (key) =>
           key !== 'constructor' && typeof (this as any)[key] === 'function'
       )
       .forEach((key) => ((this as any)[key] = (this as any)[key].bind(this)))
+  }
+
+  get updateType() {
+    return UpdateTypes.find((key) => key in this.update)
   }
 
   get me() {
@@ -197,10 +185,9 @@ export class Context {
     method: string
   ): asserts value is T {
     if (value === undefined) {
-      throw new Error(
-        `Telegraf: "${method}" isn't available for "${
-          this.updateType
-        }::${this.updateSubTypes.toString()}"`
+      throw new TypeError(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        `Telegraf: "${method}" isn't available for "${this.updateType}"`
       )
     }
   }
@@ -585,8 +572,9 @@ export class Context {
     if (typeof messageId !== 'undefined') {
       return this.telegram.deleteMessage(this.chat.id, messageId)
     }
-    this.assert(this.message, 'deleteMessage')
-    return this.telegram.deleteMessage(this.chat.id, this.message.message_id)
+    const message = this.message ?? this.callbackQuery?.message
+    this.assert(message, 'deleteMessage')
+    return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
 
   forwardMessage(

@@ -1,29 +1,71 @@
 import { Context } from './context'
 import { Middleware } from './types'
 
-export function session<SessionData extends object>({
-  ttl = Infinity,
-  store = new Map<string, { expires: number; session: SessionData }>(),
-  getSessionKey = (ctx: Context) =>
-    ctx.from && ctx.chat && `${ctx.from.id}:${ctx.chat.id}`,
-} = {}): Middleware.ExtFn<Context, { session?: SessionData }> {
-  const ttlMs = ttl * 1000
+export interface Storage<T> {
+  makeKey: (ctx: Context) => Promise<string | undefined>
+  getItem: (name: string) => Promise<T | undefined>
+  setItem: (name: string, value: T) => Promise<void>
+  deleteItem: (name: string) => Promise<void>
+}
 
+export class MemorySessionStorage<T> implements Storage<T> {
+  private readonly ttl: number
+  private readonly store = new Map<string, { session: T; expires: number }>()
+
+  constructor(ttl = Infinity) {
+    this.ttl = ttl * 1000
+  }
+
+  async makeKey(ctx: Context): Promise<string | undefined> {
+    const fromId =
+      ctx.chosenInlineResult?.from.id ??
+      ctx.shippingQuery?.from.id ??
+      ctx.callbackQuery?.from.id ??
+      ctx.from?.id ??
+      null
+    const chatId = ctx.callbackQuery?.message?.chat.id ?? ctx.chat?.id ?? null
+    if (fromId == null || chatId == null) {
+      return undefined
+    }
+    return `${fromId}:${chatId}`
+  }
+
+  async getItem(name: string): Promise<T | undefined> {
+    const entry = this.store.get(name)
+    if (entry == null) {
+      return undefined
+    } else if (entry.expires < Date.now()) {
+      await this.deleteItem(name)
+      return undefined
+    }
+    return entry.session
+  }
+
+  async setItem(name: string, value: T): Promise<void> {
+    const now = Date.now()
+    this.store.set(name, { session: value, expires: now + this.ttl })
+  }
+
+  async deleteItem(name: string): Promise<void> {
+    this.store.delete(name)
+  }
+}
+
+export function session<SessionData extends object>(
+  storage: Storage<SessionData> = new MemorySessionStorage<SessionData>()
+): Middleware.ExtFn<Context, { session?: SessionData }> {
   return async (ctx, next) => {
-    const key = getSessionKey(ctx)
+    const key = await storage.makeKey(ctx)
     if (key == null) {
       return await next(ctx)
     }
-    const now = Date.now()
-    const entry = store.get(key)
-    const ctx2 = Object.assign(ctx, {
-      session: entry == null || entry.expires < now ? undefined : entry.session,
-    })
+    const entry = await storage.getItem(key)
+    const ctx2 = Object.assign(ctx, { session: entry })
     await next(ctx2)
     if (ctx2.session == null) {
-      store.delete(key)
+      await storage.deleteItem(key)
     } else {
-      store.set(key, { session: ctx2.session, expires: now + ttlMs })
+      await storage.setItem(key, ctx2.session)
     }
   }
 }

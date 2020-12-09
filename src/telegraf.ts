@@ -17,7 +17,6 @@ const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   telegram: {},
-  retryAfter: 1,
   handlerTimeout: 5000,
   contextType: Context,
 }
@@ -35,7 +34,6 @@ namespace Telegraf {
       ...args: ConstructorParameters<typeof Context>
     ) => TContext
     handlerTimeout: number
-    retryAfter: number
     telegram: Partial<ApiClient.Options>
   }
 

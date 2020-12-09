@@ -48,8 +48,8 @@ export class MemorySessionStorage<T> implements Storage<T> {
  * see https://npm.im/search?q=telegraf-session
  */
 export function session<SessionData extends object>(
-  storage: Storage<SessionData> = new MemorySessionStorage<SessionData>(),
-  makeKey: StorageKeyFn<Context> = makeDefaultKey
+  makeKey: StorageKeyFn<Context> = makeDefaultKey,
+  storage: Storage<SessionData> = new MemorySessionStorage<SessionData>()
 ): Middleware.ExtFn<Context, { session?: SessionData }> {
   return async (ctx, next) => {
     const key = await makeKey(ctx)

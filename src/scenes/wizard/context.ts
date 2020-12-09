@@ -6,18 +6,22 @@ import SceneContextScene, {
 import { Middleware } from '../../types'
 import { SessionContext } from '../../session'
 
-export interface WizardSession extends SceneSession {
-  __scenes: WizardSessionData
-}
+type Z0 = WizardContextWizard<WizardContext>
+type S0 = WizardSessionData
 
 export interface WizardSessionData extends SceneSessionData {
   cursor: number
 }
 
-export type WizardContext = SceneContext &
+export interface WizardSession<S extends S0 = S0> extends SceneSession<S> {}
+
+export type WizardContext<Z extends Z0 = Z0, S extends S0 = S0> = SceneContext<
+  SceneContextScene<SceneContext>,
+  S
+> &
   SessionContext<WizardSession> & {
     scene: SceneContextScene<WizardContext>
-    wizard: WizardContextWizard<WizardContext>
+    wizard: Z
   }
 
 class WizardContextWizard<C extends WizardContext> {

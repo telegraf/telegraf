@@ -3,7 +3,7 @@ import WizardContextWizard, { WizardContext } from './context'
 import Composer from '../../composer'
 import { Middleware } from '../../types'
 
-export class WizardScene<C extends WizardContext>
+export class WizardScene<C extends WizardContext = WizardContext>
   extends BaseScene<C>
   implements Middleware.Obj<C> {
   steps: Array<Middleware<C>>

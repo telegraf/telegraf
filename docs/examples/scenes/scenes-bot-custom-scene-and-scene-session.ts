@@ -3,7 +3,6 @@ import {
   BaseScene as Scene,
   SceneContext,
   SceneContextScene,
-  SceneSession,
   SceneSessionData,
   session,
   Stage,
@@ -12,24 +11,11 @@ import {
 
 /**
  * It is possible to extend the session object that is available to each scene.
- * This can be done by extending `SceneSessionData` and in turn passing your own
- * interface as a type variable to `SceneSession`.
+ * This can be done by extending `SceneSessionData`.
  */
 interface MySceneSession extends SceneSessionData {
   // will be available under `ctx.scene.session.mySceneSessionProp`
   mySceneSessionProp: number
-}
-
-/**
- * We can still extend the session object that we can use on the context.
- * However, as we're using scenes, we have to make it extend `SceneSession`.
- *
- * It is possible to pass a type variable to `SceneSession` if you also want to
- * extend the scene session.
- */
-interface MySession extends SceneSession<MySceneSession> {
-  // will be available under `ctx.session.mySessionProp`
-  mySessionProp: number
 }
 
 /**
@@ -42,18 +28,14 @@ interface MyScene extends SceneContextScene<MyContext> {
 }
 
 /**
- * Now that we have our session object, we can define our own context object.
- * Again, as we're using scenes, we now have to extend `SceneContext`.
+ * Since you can only pass a custom context to the bot, we can simply define a
+ * type alias to use the custom scene without actually extending the context in
+ * any way.
  *
- * As always, if we also want to use our own session object, we have to set it
- * here under the `session` property.
+ * As we did not define a custom session object, we can simply pass the scene
+ * session object as a second type variable to `SceneContext`.
  */
-interface MyContext extends SceneContext<MyScene> {
-  // will be available under `ctx.myContextProp`
-  myContextProp: string
-
-  session: MySession
-}
+type MyContext = SceneContext<MyScene, MySceneSession>
 
 // Handler factories
 const { enter, leave } = Stage
@@ -82,8 +64,6 @@ bot.use(session())
 bot.use(stage.middleware())
 bot.use((ctx, next) => {
   // we now have access to the the fields defined above
-  ctx.myContextProp ??= ''
-  ctx.session.mySessionProp ??= 0
   ctx.scene.mySceneProp ??= 0
   ctx.scene.session.mySceneSessionProp ??= 0
   return next()

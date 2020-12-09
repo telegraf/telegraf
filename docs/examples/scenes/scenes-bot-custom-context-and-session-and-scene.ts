@@ -4,30 +4,16 @@ import {
   SceneContext,
   SceneContextScene,
   SceneSession,
-  SceneSessionData,
   session,
   Stage,
   Telegraf,
 } from 'telegraf'
 
 /**
- * It is possible to extend the session object that is available to each scene.
- * This can be done by extending `SceneSessionData` and in turn passing your own
- * interface as a type variable to `SceneSession`.
- */
-interface MySceneSession extends SceneSessionData {
-  // will be available under `ctx.scene.session.mySceneSessionProp`
-  mySceneSessionProp: number
-}
-
-/**
  * We can still extend the session object that we can use on the context.
  * However, as we're using scenes, we have to make it extend `SceneSession`.
- *
- * It is possible to pass a type variable to `SceneSession` if you also want to
- * extend the scene session.
  */
-interface MySession extends SceneSession<MySceneSession> {
+interface MySession extends SceneSession {
   // will be available under `ctx.session.mySessionProp`
   mySessionProp: number
 }
@@ -85,7 +71,6 @@ bot.use((ctx, next) => {
   ctx.myContextProp ??= ''
   ctx.session.mySessionProp ??= 0
   ctx.scene.mySceneProp ??= 0
-  ctx.scene.session.mySceneSessionProp ??= 0
   return next()
 })
 bot.command('greeter', (ctx) => ctx.scene.enter('greeter'))

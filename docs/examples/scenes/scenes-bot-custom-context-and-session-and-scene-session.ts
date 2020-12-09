@@ -33,22 +33,18 @@ interface MySession extends SceneSession<MySceneSession> {
 }
 
 /**
- * We can extend the scene object itself by extending `SceneContextScene`. Note
- * that you need to pass your context object as type variable.
- */
-interface MyScene extends SceneContextScene<MyContext> {
-  // will be available under `ctx.scene.mySceneProp`
-  mySceneProp: number
-}
-
-/**
  * Now that we have our session object, we can define our own context object.
  * Again, as we're using scenes, we now have to extend `SceneContext`.
  *
  * As always, if we also want to use our own session object, we have to set it
  * here under the `session` property.
+ *
+ * IMPORTANT: Whenever we want to extend the scene session, we have to supply
+ * the first argument to `SceneContext`. It is not possible to access any
+ * properties of `ctx.scene.session` if we only `extend SceneContext`. If we did
+ * that, only `ctx.session` would be available.
  */
-interface MyContext extends SceneContext<MyScene> {
+interface MyContext extends SceneContext<SceneContextScene<MyContext>> {
   // will be available under `ctx.myContextProp`
   myContextProp: string
 
@@ -84,7 +80,6 @@ bot.use((ctx, next) => {
   // we now have access to the the fields defined above
   ctx.myContextProp ??= ''
   ctx.session.mySessionProp ??= 0
-  ctx.scene.mySceneProp ??= 0
   ctx.scene.session.mySceneSessionProp ??= 0
   return next()
 })

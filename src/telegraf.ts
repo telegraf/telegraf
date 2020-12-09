@@ -178,7 +178,7 @@ export class Telegraf<
   }
 
   stop(reason = 'unknown') {
-    debug('Requested graceful shutdown, reason:', reason)
+    debug('Stopping bot... Reason:', reason)
     this.polling?.stop()
     this.webhookServer?.close()
   }

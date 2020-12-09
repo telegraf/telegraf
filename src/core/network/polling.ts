@@ -15,8 +15,8 @@ export class Polling {
   ) {}
 
   async *[Symbol.asyncIterator](): AsyncGenerator<tt.Update[], void, void> {
+    debug('Starting long polling')
     do {
-      debug('Starting long polling')
       try {
         const updates = await this.telegram.callApi(
           'getUpdates',
@@ -36,7 +36,7 @@ export class Polling {
         if (err.name === 'AbortError') return
         if (err.code === 401 || err.code === 409) throw err
         const retryAfter: number = err.parameters?.retry_after ?? 5
-        debug(`Failed to fetch updates, retrying after ${retryAfter}s.`, err)
+        debug('Failed to fetch updates, retrying after %ds.', retryAfter, err)
         await wait(retryAfter * 1000)
       }
     } while (!this.abortController.signal.aborted)

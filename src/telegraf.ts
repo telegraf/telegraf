@@ -177,8 +177,8 @@ export class Telegraf<
 
   stop(reason = 'unspecified') {
     debug('Stopping bot... Reason:', reason)
-    this.polling?.stop()
     this.webhookServer?.close()
+    this.polling?.stop()
   }
 
   private handleUpdates(updates: readonly tt.Update[]) {

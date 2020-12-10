@@ -40,3 +40,7 @@ const stage = new Stage([superWizard], { default: 'super-wizard' })
 bot.use(session())
 bot.use(stage.middleware())
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

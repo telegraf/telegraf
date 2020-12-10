@@ -42,3 +42,7 @@ bot.on('shipping_query', ({ answerShippingQuery }) => answerShippingQuery(true, 
 bot.on('pre_checkout_query', ({ answerPreCheckoutQuery }) => answerPreCheckoutQuery(true))
 bot.on('successful_payment', () => console.log('Woohoo'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

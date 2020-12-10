@@ -486,7 +486,7 @@ const { session } = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(session())
 bot.on('photo', (ctx) => {
-  ctx.session.counter = ctx.session.counter || 0
+  ctx.session ??= { counter: 0 }
   ctx.session.counter++
   return ctx.reply(`Photo counter: ${ctx.session.counter}`)
 })
@@ -506,7 +506,7 @@ bot.use(session({
   makeKey: (ctx) => ctx.from?.id // only store data per user, but across chats
 }))
 bot.on('photo', (ctx) => {
-  ctx.session.counter = ctx.session.counter || 0
+  ctx.session ??= { counter: 0 }
   ctx.session.counter++
   return ctx.reply(`Photo counter: ${ctx.session.counter}`)
 })

@@ -71,6 +71,9 @@ export class Telegraf<
   readonly context: Partial<TContext> = {}
 
   private handleError = async (err: unknown, ctx: TContext): Promise<void> => {
+    // set exit code to emulate `warn-with-error-code` behavior of
+    // https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
+    // to prevent a clean exit despite an error being thrown
     process.exitCode = 1
     debug('Middleware threw', err)
     await this.polling?.confirmUpdates()

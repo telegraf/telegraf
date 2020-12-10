@@ -959,14 +959,15 @@ Initialize new Telegraf bot.
 
 Telegraf options:
 
-```js
+```ts
 {
-  telegram: {           // Telegram options
-    agent: null,        // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
-    webhookReply: true  // Reply via webhook
+  telegram: {              // Telegram options
+    agent: null,           // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+    attachmentAgent: null, // https.Agent instance, only used for fetching files
+    webhookReply: true     // Reply via webhook
   },
-  username: ''          // Bot username (optional)
-  channelMode: false    // Handle `channel_post` updates as messages (optional)
+  username: ''             // Bot username (optional)
+  channelMode: false       // Handle `channel_post` updates as messages (optional)
 }
 ```
 
@@ -1443,6 +1444,7 @@ Telegram options:
 ```js
 {
   agent: null,        // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+  attachmentAgent: null, // https.Agent instance, only used for fetching files
   webhookReply: true  // Reply via webhook
 }
 ```

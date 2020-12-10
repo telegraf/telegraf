@@ -42,7 +42,8 @@ class Telegram extends ApiClient {
   }
 
   /**
-   * @deprecated use `Telegraf::launch`
+   * Directly request incoming updates.
+   * You should probably use `Telegraf::launch` instead.
    */
   getUpdates(
     timeout: number,

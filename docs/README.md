@@ -531,9 +531,12 @@ bot.launch()
 
 However, in the above example, the session middleware just stores the counters in-memory.
 This means that all counters will be lost when the process is terminated.
-If you want to store data across restarts, or share it among workers, you need to use [persistent sessions](https://www.npmjs.com/search?q=telegraf-session).
+If you want to store data across restarts, or share it among workers, you need to use *persistent sessions*.
 
-`telegraf` also allows you to easily integrate your own persistence without any other package.
+There are already [a lot of packages](https://www.npmjs.com/search?q=telegraf-session) that make this a breeze.
+You can simply add `npm install` one and to your bot to support exactly the type of storage you want.
+
+Alternatively, `telegraf` also allows you to easily integrate your own persistence without any other package.
 The `session` function can take a `storage` in the options object.
 A storage must have three methods: one for loading, one for storing, and one for deleting a session.
 This works as follows:
@@ -541,6 +544,7 @@ This works as follows:
 ```js
 const { session } = require('telegraf')
 
+// may also return `Promise`s (or use `async` functions)!
 const storage = {
   getItem(key) { /* load a session for `key` ... */ },
   setItem(key, value) { /* save a session for `key` ... */ },

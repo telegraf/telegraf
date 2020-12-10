@@ -481,19 +481,15 @@ Using session middleware will result in a sequence like this:
 Here is a simple example of how the built-in session middleware of Telegraf can be used to count photos.
 
 ```js
-const session = require('telegraf/session')
+import { Telegraf, session, MemorySessionStorage } from 'telegraf'
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.use(session())
-// customize session make key algorithm
-//   bot.use(session((ctx) => `${ctx.from.id}:${ctx.chat.id}`))
-//
-// customize session storage backend
-//   bot.use(session(null, {
-//     getItem(name) { ... },
-//     setItem(name, value) { ... },
-//     deleteItem(name) { ... }
-//   }))
+bot.use(session({
+  // customize session make key algorithm (optional)
+  makeKey: (ctx) => `${ctx.from.id}:${ctx.chat.id}`),
+  // customize sesssion storage backend (optional)
+  storage: new MemorySessionStorage()
+}))
 bot.on('text', (ctx) => {
   ctx.session.counter = ctx.session.counter || 0
   ctx.session.counter++

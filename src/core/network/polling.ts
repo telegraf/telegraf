@@ -3,6 +3,7 @@ import AbortController from 'abort-controller'
 import ApiClient from './client'
 import d from 'debug'
 import { promisify } from 'util'
+import { TelegramError } from './error'
 const wait = promisify(setTimeout)
 const debug = d('telegraf:polling')
 const noop = () => {}
@@ -35,10 +36,16 @@ export class Polling {
         yield updates
       } catch (err) {
         if (err.name === 'AbortError') return
-        if (err.code === 401 || err.code === 409) throw err
-        const retryAfter: number = err.parameters?.retry_after ?? 5
-        debug('Failed to fetch updates, retrying after %ds.', retryAfter, err)
-        await wait(retryAfter * 1000)
+        if (
+          err.name === 'FetchError' ||
+          (err instanceof TelegramError && err.code >= 500)
+        ) {
+          const retryAfter: number = err.parameters?.retry_after ?? 5
+          debug('Failed to fetch updates, retrying after %ds.', retryAfter, err)
+          await wait(retryAfter * 1000)
+          continue
+        }
+        throw err
       }
     } while (!this.abortController.signal.aborted)
   }

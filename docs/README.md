@@ -1443,9 +1443,9 @@ Telegram options:
 
 ```js
 {
-  agent: null,        // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
+  agent: null,           // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
   attachmentAgent: null, // https.Agent instance, only used for fetching files
-  webhookReply: true  // Reply via webhook
+  webhookReply: true     // Reply via webhook
 }
 ```
 

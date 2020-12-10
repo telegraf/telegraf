@@ -20,6 +20,6 @@ export { WizardScene } from './scenes/wizard'
 export {
   WizardContext,
   WizardSession,
-  default as WizardContextScene,
+  default as WizardContextWizard,
   WizardSessionData,
 } from './scenes/wizard/context'

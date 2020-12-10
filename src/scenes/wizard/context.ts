@@ -20,7 +20,7 @@ export type WizardContext<Z extends Z0 = Z0, S extends S0 = S0> = SceneContext<
   S
 > &
   SessionContext<WizardSession> & {
-    scene: SceneContextScene<WizardContext>
+    scene: SceneContextScene<WizardContext<Z, S>>
     wizard: Z
   }
 

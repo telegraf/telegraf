@@ -1,14 +1,15 @@
 import { Context } from './context'
 import { Middleware } from './types'
 
-export type StorageKeyFn<T extends Context> = (
-  ctx: T
-) => Promise<string | undefined>
-
 export interface Storage<T> {
   getItem: (name: string) => Promise<T | undefined>
   setItem: (name: string, value: T) => Promise<void>
   deleteItem: (name: string) => Promise<void>
+}
+
+interface SessionOptions<SessionData> {
+  makeKey?: (ctx: Context) => Promise<string | undefined>
+  storage?: Storage<SessionData>
 }
 
 /**
@@ -19,9 +20,10 @@ export interface Storage<T> {
  * see https://npm.im/search?q=telegraf-session
  */
 export function session<SessionData extends object>(
-  makeKey: StorageKeyFn<Context> = makeDefaultKey,
-  storage: Storage<SessionData> = new MemorySessionStorage<SessionData>()
+  options?: SessionOptions<SessionData>
 ): Middleware.ExtFn<Context, { session?: SessionData }> {
+  const makeKey = options?.makeKey ?? makeDefaultKey
+  const storage = options?.storage ?? new MemorySessionStorage()
   return async (ctx, next) => {
     const key = await makeKey(ctx)
     if (key == null) {

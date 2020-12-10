@@ -59,18 +59,16 @@ namespace Telegraf {
   }
 }
 
-export class Telegraf<
-  TContext extends Context = Context
-> extends Composer<TContext> {
-  private readonly options: Telegraf.Options<TContext>
+export class Telegraf<C extends Context = Context> extends Composer<C> {
+  private readonly options: Telegraf.Options<C>
   private webhookServer?: http.Server | https.Server
   private polling?: Polling
   /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
   public botInfo?: tt.UserFromGetMe
   public telegram: Telegram
-  readonly context: Partial<TContext> = {}
+  readonly context: Partial<C> = {}
 
-  private handleError = async (err: unknown, ctx: TContext): Promise<void> => {
+  private handleError = async (err: unknown, ctx: C): Promise<void> => {
     // set exit code to emulate `warn-with-error-code` behavior of
     // https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
     // to prevent a clean exit despite an error being thrown
@@ -80,7 +78,7 @@ export class Telegraf<
     throw err
   }
 
-  constructor(token: string, options?: Partial<Telegraf.Options<TContext>>) {
+  constructor(token: string, options?: Partial<Telegraf.Options<C>>) {
     super()
     // @ts-expect-error
     this.options = {
@@ -102,7 +100,7 @@ export class Telegraf<
     return this.telegram.webhookReply
   }
 
-  catch(handler: (err: unknown, ctx: TContext) => Promise<void>) {
+  catch(handler: (err: unknown, ctx: C) => Promise<void>) {
     this.handleError = handler
     return this
   }

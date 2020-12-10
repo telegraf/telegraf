@@ -14,7 +14,7 @@ export class Polling {
     private readonly allowedUpdates: readonly tt.UpdateType[]
   ) {}
 
-  async *[Symbol.asyncIterator](): AsyncGenerator<tt.Update[], void, void> {
+  private async *[Symbol.asyncIterator]() {
     debug('Starting long polling')
     do {
       try {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { Context, session, Telegraf } from 'telegraf'
 
 const { reply, fork } = Telegraf

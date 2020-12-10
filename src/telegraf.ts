@@ -199,7 +199,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       (debug(
         'Update',
         update.update_id,
-        'waiting for `botInfo` to be initialized'
+        'is waiting for `botInfo` to be initialized'
       ),
       await (this.botInfoCall ??= this.telegram.getMe()))
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)

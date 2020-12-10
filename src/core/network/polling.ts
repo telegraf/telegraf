@@ -4,8 +4,8 @@ import ApiClient from './client'
 import d from 'debug'
 import { promisify } from 'util'
 import { TelegramError } from './error'
-const wait = promisify(setTimeout)
 const debug = d('telegraf:polling')
+const wait = promisify(setTimeout)
 const noop = () => {}
 
 export class Polling {
@@ -51,7 +51,7 @@ export class Polling {
   }
 
   private async confirmUpdates() {
-    debug('Confirming updates...')
+    debug('Confirming received updates...')
     await this.telegram.callApi('getUpdates', { offset: this.offset, limit: 1 })
   }
 
@@ -61,13 +61,13 @@ export class Polling {
         await handleUpdates(updates)
       }
     } finally {
-      debug('Long polling stopped.')
+      debug('Long polling stopped')
       await this.confirmUpdates().catch(noop)
     }
   }
 
   stop() {
-    debug('Gracefully stopping long polling...')
+    debug('Stopping long polling...')
     this.abortController.abort()
   }
 }

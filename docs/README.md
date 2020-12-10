@@ -494,8 +494,8 @@ bot.on('photo', (ctx) => {
 bot.launch()
 ```
 
-The default session key is `${fromId}:${chatId}`, where `fromId` is the user ID and `chatId` is the chat ID.
-It is `undefined` if either of the values is not given on an update.
+The default session key is <code>`${ctx.from.id}:${ctx.chat.id}`</code>.
+If either `ctx.from` or `ctx.chat` is `undefined`, default session key and thus `ctx.session` are also `undefined`.
 You can customize the session key resolver function by passing in the options argument:
 
 ```js
@@ -530,13 +530,11 @@ bot.launch()
 ```
 
 However, in the above example, the session middleware just stores the counters in-memory.
-This means that all counters will be lost when you stop your bot.
-If you want to store data even across restarts, you need to use *persistent sessions*.
-
-**Note: For persistent sessions you can use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
+This means that all counters will be lost when the process is terminated.
+If you want to store data across restarts, or share it among workers, you need to use [persistent sessions](https://www.npmjs.com/search?q=telegraf-session).
 
 `telegraf` also allows you to easily integrate your own persistence without any other package.
-The `session` function can take a storage in the context object.
+The `session` function can take a `storage` in the options object.
 A storage must have three methods: one for loading, one for storing, and one for deleting a session.
 This works as follows:
 

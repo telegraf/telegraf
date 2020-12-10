@@ -148,7 +148,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     if (config.webhook === undefined) {
       await this.telegram.deleteWebhook()
       this.startPolling(config.allowedUpdates)
-      debug('Bot started with long-polling')
+      debug('Bot started with long polling')
       return
     }
     if (

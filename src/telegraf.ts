@@ -73,7 +73,6 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     // https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
     // to prevent a clean exit despite an error being thrown
     process.exitCode = 1
-    debug('Middleware threw', err)
     throw err
   }
 

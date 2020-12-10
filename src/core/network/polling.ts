@@ -5,6 +5,7 @@ import d from 'debug'
 import { promisify } from 'util'
 const wait = promisify(setTimeout)
 const debug = d('telegraf:polling')
+const noop = () => {}
 
 export class Polling {
   private readonly abortController = new AbortController()
@@ -40,17 +41,21 @@ export class Polling {
         await wait(retryAfter * 1000)
       }
     } while (!this.abortController.signal.aborted)
-    await this.confirmUpdates()
   }
 
-  async confirmUpdates() {
+  private async confirmUpdates() {
     debug('Confirming updates...')
     await this.telegram.callApi('getUpdates', { offset: this.offset, limit: 1 })
   }
 
   async loop(handleUpdates: (updates: tt.Update[]) => Promise<void>) {
-    for await (const updates of this) {
-      await handleUpdates(updates)
+    try {
+      for await (const updates of this) {
+        await handleUpdates(updates)
+      }
+    } finally {
+      debug('Long polling stopped.')
+      await this.confirmUpdates().catch(noop)
     }
   }
 

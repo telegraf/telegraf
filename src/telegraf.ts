@@ -74,7 +74,6 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     // to prevent a clean exit despite an error being thrown
     process.exitCode = 1
     debug('Middleware threw', err)
-    await this.polling?.confirmUpdates()
     throw err
   }
 

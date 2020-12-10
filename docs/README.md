@@ -485,6 +485,15 @@ const session = require('telegraf/session')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(session())
+// customize session make key algorithm
+//   bot.use(session((ctx) => `${ctx.from.id}:${ctx.chat.id}`))
+//
+// customize session storage backend
+//   bot.use(session(null, {
+//     getItem(name) { ... },
+//     setItem(name, value) { ... },
+//     deleteItem(name) { ... }
+//   }))
 bot.on('text', (ctx) => {
   ctx.session.counter = ctx.session.counter || 0
   ctx.session.counter++

@@ -4,10 +4,10 @@ import * as fs from 'fs'
 import * as http from 'http'
 import * as https from 'https'
 import * as path from 'path'
-import { compactOptions } from '../helpers/compact'
 import fetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { hasProp, hasPropType } from '../helpers/check'
 import { Opts, Telegram } from '../../telegram-types'
+import { compactOptions } from '../helpers/compact'
 import MultipartStream from './multipart-stream'
 import { ReadStream } from 'fs'
 import TelegramError from './error'
@@ -31,8 +31,10 @@ const WEBHOOK_BLACKLIST = [
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ApiClient {
+  export type Agent = RequestInit['agent']
   export interface Options {
-    agent?: https.Agent | http.Agent
+    agent?: Agent
+    attachmentAgent?: Agent
     apiRoot: string
     webhookReply: boolean
   }
@@ -48,13 +50,14 @@ const DEFAULT_EXTENSIONS = {
   voice: 'ogg',
 }
 
-const DEFAULT_OPTIONS = {
+const DEFAULT_OPTIONS: ApiClient.Options = {
   apiRoot: 'https://api.telegram.org',
   webhookReply: true,
   agent: new https.Agent({
     keepAlive: true,
     keepAliveMsecs: 10000,
   }),
+  attachmentAgent: undefined,
 }
 
 const WEBHOOK_REPLY_STUB = {
@@ -106,8 +109,8 @@ const FORM_DATA_JSON_FIELDS = [
 ]
 
 async function buildFormDataConfig(
-  payload: { [key: string]: unknown },
-  agent: RequestInit['agent']
+  payload: Record<string, unknown>,
+  agent: ApiClient.Agent
 ) {
   for (const field of FORM_DATA_JSON_FIELDS) {
     if (hasProp(payload, field) && typeof payload[field] !== 'string') {
@@ -135,7 +138,7 @@ async function attachFormValue(
   form: MultipartStream,
   id: string,
   value: unknown,
-  agent: RequestInit['agent']
+  agent: ApiClient.Agent
 ) {
   if (value == null) {
     return
@@ -205,13 +208,13 @@ async function attachFormMedia(
   form: MultipartStream,
   media: FormMedia,
   id: string,
-  agent: RequestInit['agent']
+  agent: ApiClient.Agent
 ) {
   let fileName =
     media.filename ??
     `${id}.${(DEFAULT_EXTENSIONS as { [key: string]: string })[id] || 'dat'}`
   if (media.url) {
-    const res = await fetch(media.url)
+    const res = await fetch(media.url, { agent })
     return form.addPart({
       headers: {
         'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
@@ -271,7 +274,7 @@ async function answerToWebhook(
 
   const { headers = {}, body } = await buildFormDataConfig(
     payload,
-    options.agent
+    options.attachmentAgent
   )
   if (isKoaResponse(response)) {
     for (const [key, value] of Object.entries(headers)) {
@@ -338,7 +341,7 @@ class ApiClient {
     ) {
       debug('Call via webhook', method, payload)
       this.responseEnd = true
-      // @ts-expect-error
+      // @ts-expect-error cannot assign to Record<string, unknown>
       return await answerToWebhook(response, { method, ...payload }, options)
     }
 
@@ -352,8 +355,11 @@ class ApiClient {
     debug('HTTP call', method, payload)
 
     const config: RequestInit = includesMedia(payload)
-      ? // @ts-expect-error
-        await buildFormDataConfig({ method, ...payload }, options.agent)
+      ? await buildFormDataConfig(
+          // @ts-expect-error cannot assign to Record<string, unknown>
+          { method, ...payload },
+          options.attachmentAgent
+        )
       : await buildJSONConfig(payload)
     const apiUrl = `${options.apiRoot}/bot${token}/${method}`
     config.agent = options.agent

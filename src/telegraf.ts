@@ -176,6 +176,10 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
   stop(reason = 'unspecified') {
     debug('Stopping bot... Reason:', reason)
+    // https://github.com/telegraf/telegraf/pull/1224#issuecomment-742693770
+    if (this.polling === undefined && this.webhookServer === undefined) {
+      throw new Error('Bot is not running!')
+    }
     this.webhookServer?.close()
     this.polling?.stop()
   }

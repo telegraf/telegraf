@@ -40,11 +40,12 @@ interface MySession extends SceneSession<MySceneSession> {
  * here under the `session` property.
  *
  * IMPORTANT: Whenever we want to extend the scene session, we have to supply
- * the first argument to `SceneContext`. It is not possible to access any
+ * the type arguments to `SceneContext`. It is not possible to access any
  * properties of `ctx.scene.session` if we only `extend SceneContext`. If we did
  * that, only `ctx.session` would be available.
  */
-interface MyContext extends SceneContext<SceneContextScene<MyContext>> {
+interface MyContext
+  extends SceneContext<SceneContextScene<MyContext>, MySceneSession> {
   // will be available under `ctx.myContextProp`
   myContextProp: string
 

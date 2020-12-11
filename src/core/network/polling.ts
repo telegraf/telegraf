@@ -17,7 +17,7 @@ export class Polling {
   constructor(
     private readonly telegram: ApiClient,
     private readonly allowedUpdates: readonly tt.UpdateType[],
-    private readonly skipOffsetSync: boolean
+    private readonly skipOffsetSync = false
   ) {}
 
   private async *[Symbol.asyncIterator]() {
@@ -55,12 +55,11 @@ export class Polling {
   }
 
   private async syncUpdateOffset() {
-    if (!this.skipOffsetSync) {
-      debug('Syncing update offset...')
-      await this.telegram
-        .callApi('getUpdates', { offset: this.offset, limit: 1 })
-        .catch(noop)
-    }
+    if (this.skipOffsetSync) return
+    debug('Syncing update offset...')
+    await this.telegram
+      .callApi('getUpdates', { offset: this.offset, limit: 1 })
+      .catch(noop)
   }
 
   async loop(handleUpdates: (updates: tt.Update[]) => Promise<void>) {

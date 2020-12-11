@@ -4,9 +4,9 @@ import * as https from 'https'
 import * as tt from './telegram-types'
 import * as util from 'util'
 import ApiClient from './core/network/client'
+import { compactOptions } from './core/helpers/compact'
 import Composer from './composer'
 import Context from './context'
-import { compactOptions } from './core/helpers/compact'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
 import { Polling } from './core/network/polling'
@@ -41,6 +41,7 @@ namespace Telegraf {
     // FIXME: not honored by webhook
     /** List the types of updates you want your bot to receive */
     allowedUpdates?: tt.UpdateType[]
+    /** Configuration options for when the bot is run via webhooks */
     webhook?: {
       /** Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component). */
       domain?: string

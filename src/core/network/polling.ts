@@ -13,6 +13,7 @@ const noop = always(Promise.resolve())
 
 export class Polling {
   private readonly abortController = new AbortController()
+  private skipOffsetSync = false
   private offset = 0
   constructor(
     private readonly telegram: ApiClient,
@@ -50,10 +51,10 @@ export class Polling {
         }
         if (
           err instanceof TelegramError &&
-          (err.code === 401 /* Unauthorized */ ||
-            err.code === 409) /* Conflict */
+          // Unauthorized      Conflict
+          (err.code === 401 || err.code === 409)
         ) {
-          this.confirmUpdates = noop
+          this.skipOffsetSync = true
           throw err
         }
         throw err
@@ -61,12 +62,16 @@ export class Polling {
     } while (!this.abortController.signal.aborted)
   }
 
-  private async confirmUpdates() {
+  private async syncUpdateOffset() {
+    if (this.skipOffsetSync) return
     debug('Syncing update offset...')
     await this.telegram.callApi('getUpdates', { offset: this.offset, limit: 1 })
   }
 
   async loop(handleUpdates: (updates: tt.Update[]) => Promise<void>) {
+    if (this.abortController.signal.aborted) {
+      throw new Error('Polling instances must not be reused!')
+    }
     try {
       for await (const updates of this) {
         await handleUpdates(updates)
@@ -74,8 +79,8 @@ export class Polling {
     } finally {
       debug('Long polling stopped')
       // prevent instance reuse
-      this.abortController.abort()
-      await this.confirmUpdates().catch(noop)
+      this.stop()
+      await this.syncUpdateOffset().catch(noop)
     }
   }
 

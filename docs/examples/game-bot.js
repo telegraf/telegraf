@@ -13,3 +13,7 @@ bot.start(({ replyWithGame }) => replyWithGame(gameShortName))
 bot.command('foo', ({ replyWithGame }) => replyWithGame(gameShortName, markup))
 bot.gameQuery(({ answerGameQuery }) => answerGameQuery(gameUrl))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

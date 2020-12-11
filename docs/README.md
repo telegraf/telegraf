@@ -43,6 +43,10 @@ bot.help((ctx) => ctx.reply('Send me a sticker'))
 bot.on('sticker', (ctx) => ctx.reply('👍'))
 bot.hears('hi', (ctx) => ctx.reply('Hey there'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 ```js
@@ -53,6 +57,10 @@ bot.command('oldschool', (ctx) => ctx.reply('Hello'))
 bot.command('modern', ({ reply }) => reply('Yo'))
 bot.command('hipster', Telegraf.reply('λ'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
@@ -170,6 +178,10 @@ bot.use(async (ctx, next) => {
 
 bot.on('text', (ctx) => ctx.reply('Hello World'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 Note how the function `next` is used to invoke the subsequent layers of the middleware stack, performing the actual processing of the update (in this case, replying with “Hello World”).
@@ -221,6 +233,10 @@ bot.start((ctx) => {
   throw new Error('Example error')
 })
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ``` 
 
 #### Context
@@ -272,6 +288,10 @@ bot.on('text', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 If you're using TypeScript, have a look at the section below about usage with TypeScript.
@@ -438,6 +458,10 @@ bot.on('inline_query', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 #### State
@@ -458,6 +482,10 @@ bot.on('text', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 #### Session
@@ -481,47 +509,97 @@ Using session middleware will result in a sequence like this:
 Here is a simple example of how the built-in session middleware of Telegraf can be used to count photos.
 
 ```js
-const session = require('telegraf/session')
+const { session } = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(session())
-// customize session make key algorithm
-//   bot.use(session((ctx) => `${ctx.from.id}:${ctx.chat.id}`))
-//
-// customize session storage backend
-//   bot.use(session(null, {
-//     getItem(name) { ... },
-//     setItem(name, value) { ... },
-//     deleteItem(name) { ... }
-//   }))
-bot.on('text', (ctx) => {
-  ctx.session.counter = ctx.session.counter || 0
+bot.on('photo', (ctx) => {
+  ctx.session ??= { counter: 0 }
   ctx.session.counter++
-  return ctx.reply(`Message counter:${ctx.session.counter}`)
+  return ctx.reply(`Photo counter: ${ctx.session.counter}`)
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
-In this example, the session middleware just stores the counters in-memory.
-This means that all counters will be lost when you stop your bot.
-If you want to store data even across restarts, you need to use *persistent sessions*.
+The default session key is <code>`${ctx.from.id}:${ctx.chat.id}`</code>.
+If either `ctx.from` or `ctx.chat` is `undefined`, default session key and thus `ctx.session` are also `undefined`.
+You can customize the session key resolver function by passing in the options argument:
 
-**Note: For persistent sessions you can use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
+```js
+const { session } = require('telegraf')
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.use(session({
+  makeKey: (ctx) => ctx.from?.id // only store data per user, but across chats
+}))
+bot.on('photo', (ctx) => {
+  ctx.session ??= { counter: 0 }
+  ctx.session.counter++
+  return ctx.reply(`Photo counter: ${ctx.session.counter}`)
+})
+
+bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
+```
 
 **Tip: To use same session in private chat with bot and in inline mode, use following session key resolver:**
 
 ```js
 {
-  getSessionKey: (ctx) => {
+  makeKey: (ctx) => {
     if (ctx.from && ctx.chat) {
       return `${ctx.from.id}:${ctx.chat.id}`
     } else if (ctx.from && ctx.inlineQuery) {
       return `${ctx.from.id}:${ctx.from.id}`
     }
-    return null
+    return undefined
   }
 }
+```
+
+However, in the above example, the session middleware just stores the counters in-memory.
+This means that all counters will be lost when the process is terminated.
+If you want to store data across restarts, or share it among workers, you need to use *persistent sessions*.
+
+There are already [a lot of packages](https://www.npmjs.com/search?q=telegraf-session) that make this a breeze.
+You can simply add `npm install` one and to your bot to support exactly the type of storage you want.
+
+Alternatively, `telegraf` also allows you to easily integrate your own persistence without any other package.
+The `session` function can take a `storage` in the options object.
+A storage must have three methods: one for loading, one for storing, and one for deleting a session.
+This works as follows:
+
+```js
+const { session } = require('telegraf')
+
+// may also return `Promise`s (or use `async` functions)!
+const storage = {
+  getItem(key) { /* load a session for `key` ... */ },
+  setItem(key, value) { /* save a session for `key` ... */ },
+  deleteItem(key) { /* delete a session for `key` ... */ }
+}
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.use(session({ storage }))
+bot.on('photo', (ctx) => {
+  ctx.session.counter = ctx.session.counter || 0
+  ctx.session.counter++
+  return ctx.reply(`Photo counter: ${ctx.session.counter}`)
+})
+
+bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 #### Update types
@@ -1120,9 +1198,7 @@ Launch options:
 
 ```js
 {
-  // Start bot in polling mode (Default)
-  // See startPolling reference
-  polling: { timeout, limit,  allowedUpdates,  stopCallback },
+  allowedUpdates,
 
   // Start bot in webhook mode
   // See startWebhook reference

@@ -6,7 +6,7 @@ export { Router } from './router'
 
 export * as Markup from './markup'
 
-export { session } from './session'
+export * from './session'
 
 export { Stage } from './stage'
 export {

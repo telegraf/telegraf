@@ -41,6 +41,10 @@ class Telegram extends ApiClient {
     return `${this.options.apiRoot}/file/bot${this.token}/${fileId.file_path}`
   }
 
+  /**
+   * Directly request incoming updates.
+   * You should probably use `Telegraf::launch` instead.
+   */
   getUpdates(
     timeout: number,
     limit: number,

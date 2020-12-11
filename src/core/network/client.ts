@@ -36,6 +36,10 @@ namespace ApiClient {
     apiRoot: string
     webhookReply: boolean
   }
+
+  export interface CallApiOptions {
+    signal?: RequestInit['signal']
+  }
 }
 
 const DEFAULT_EXTENSIONS = {
@@ -325,7 +329,8 @@ class ApiClient {
 
   async callApi<M extends keyof Telegram>(
     method: M,
-    payload: Opts<M>
+    payload: Opts<M>,
+    { signal }: ApiClient.CallApiOptions = {}
   ): Promise<ReturnType<Telegram[M]>> {
     const { token, options, response, responseEnd } = this
 
@@ -357,6 +362,8 @@ class ApiClient {
       : await buildJSONConfig(payload)
     const apiUrl = `${options.apiRoot}/bot${token}/${method}`
     config.agent = options.agent
+    config.signal = signal
+    config.timeout = 120000 // 2 minutes
     const res = await fetch(apiUrl, config)
     const data = await res.json()
     if (!data.ok) {

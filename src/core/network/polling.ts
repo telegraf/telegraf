@@ -69,10 +69,10 @@ export class Polling {
         await handleUpdates(updates)
       }
       await this.syncUpdateOffset()
-    } catch (err) {
+    } catch (err: unknown) {
       if (
         !(err instanceof TelegramError) ||
-        // Unauthorized    Conflict
+        // Unauthorized      Conflict
         (err.code !== 401 && err.code !== 409)
       ) {
         await this.syncUpdateOffset()

@@ -4,9 +4,9 @@ import * as https from 'https'
 import * as tt from './telegram-types'
 import * as util from 'util'
 import ApiClient from './core/network/client'
+import { compactOptions } from './core/helpers/compact'
 import Composer from './composer'
 import Context from './context'
-import { compactOptions } from './core/helpers/compact'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
 import { Polling } from './core/network/polling'
@@ -41,6 +41,20 @@ namespace Telegraf {
     // FIXME: not honored by webhook
     /** List the types of updates you want your bot to receive */
     allowedUpdates?: tt.UpdateType[]
+    /** Configuration options for when the bot is run via long polling */
+    polling?: {
+      /**
+       * Set this flag to `true` to skip the extra `getUpdates` call that is
+       * performed during shutdown of the bot. This call immediately discards
+       * its result, so it will not actually pass any messages to the middleware
+       * stack. Instead, its purpose is to synchronize the current update offset
+       * with the Telegram servers (“confirming the updates” received
+       * previously), such that no update is incorrectly fetched again the next
+       * time the bot is started.
+       */
+      skipOffsetSync: boolean
+    }
+    /** Configuration options for when the bot is run via webhooks */
     webhook?: {
       /** Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component). */
       domain?: string
@@ -112,8 +126,11 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     )
   }
 
-  private startPolling(allowedUpdates: tt.UpdateType[] = []) {
-    this.polling = new Polling(this.telegram, allowedUpdates)
+  private startPolling(
+    allowedUpdates: tt.UpdateType[] = [],
+    skipOffsetSync = false
+  ) {
+    this.polling = new Polling(this.telegram, allowedUpdates, skipOffsetSync)
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.polling.loop(async (updates) => {
       await this.handleUpdates(updates)
@@ -147,7 +164,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     debug(`Launching @${this.botInfo.username}`)
     if (config.webhook === undefined) {
       await this.telegram.deleteWebhook()
-      this.startPolling(config.allowedUpdates)
+      this.startPolling(config.allowedUpdates, config.skipOffsetSync)
       debug('Bot started with long polling')
       return
     }

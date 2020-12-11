@@ -14,10 +14,10 @@ const noop = always(Promise.resolve())
 export class Polling {
   private readonly abortController = new AbortController()
   private offset = 0
+  public skipOffsetSync = false
   constructor(
     private readonly telegram: ApiClient,
-    private readonly allowedUpdates: readonly tt.UpdateType[],
-    private readonly skipOffsetSync = false
+    private readonly allowedUpdates: readonly tt.UpdateType[]
   ) {}
 
   private async *[Symbol.asyncIterator]() {

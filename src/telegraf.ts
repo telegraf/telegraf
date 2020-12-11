@@ -41,19 +41,6 @@ namespace Telegraf {
     // FIXME: not honored by webhook
     /** List the types of updates you want your bot to receive */
     allowedUpdates?: tt.UpdateType[]
-    /** Configuration options for when the bot is run via long polling */
-    polling?: {
-      /**
-       * Set this flag to `true` to skip the extra `getUpdates` call that is
-       * performed during shutdown of the bot. This call immediately discards
-       * its result, so it will not actually pass any messages to the middleware
-       * stack. Instead, its purpose is to synchronize the current update offset
-       * with the Telegram servers (“confirming the updates” received
-       * previously), such that no update is incorrectly fetched again the next
-       * time the bot is started.
-       */
-      skipOffsetSync: boolean
-    }
     /** Configuration options for when the bot is run via webhooks */
     webhook?: {
       /** Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component). */
@@ -164,7 +151,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     debug(`Launching @${this.botInfo.username}`)
     if (config.webhook === undefined) {
       await this.telegram.deleteWebhook()
-      this.startPolling(config.allowedUpdates, config.polling?.skipOffsetSync)
+      this.startPolling(config.allowedUpdates)
       debug('Bot started with long polling')
       return
     }

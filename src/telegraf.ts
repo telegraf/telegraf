@@ -2,31 +2,30 @@ import * as crypto from 'crypto'
 import * as http from 'http'
 import * as https from 'https'
 import * as tt from './telegram-types'
+import * as util from 'util'
 import ApiClient from './core/network/client'
 import Composer from './composer'
 import Context from './context'
 import { compactOptions } from './core/helpers/compact'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
-import { promisify } from 'util'
+import { Polling } from './core/network/polling'
 import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
-const debug = d('telegraf:core')
+const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   telegram: {},
-  retryAfter: 1,
-  handlerTimeout: 0,
+  handlerTimeout: 5000,
   contextType: Context,
 }
 
-const noop = () => {}
 function always<T>(x: T) {
   return () => x
 }
 const anoop = always(Promise.resolve())
-const sleep = promisify(setTimeout)
+const wait = util.promisify(setTimeout)
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Telegraf {
@@ -35,22 +34,13 @@ namespace Telegraf {
       ...args: ConstructorParameters<typeof Context>
     ) => TContext
     handlerTimeout: number
-    retryAfter: number
-    telegram: Partial<ApiClient.Options>
+    telegram?: Partial<ApiClient.Options>
   }
 
   export interface LaunchOptions {
-    polling?: {
-      timeout?: number
-
-      /** Limits the number of updates to be retrieved in one call */
-      limit?: number
-
-      /** List the types of updates you want your bot to receive */
-      allowedUpdates?: tt.UpdateType[]
-
-      stopCallback?: () => void
-    }
+    // FIXME: not honored by webhook
+    /** List the types of updates you want your bot to receive */
+    allowedUpdates?: tt.UpdateType[]
     webhook?: {
       /** Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component). */
       domain?: string
@@ -69,34 +59,24 @@ namespace Telegraf {
   }
 }
 
-const allowedUpdates: tt.UpdateType[] | undefined = undefined
-
-export class Telegraf<
-  TContext extends Context = Context
-> extends Composer<TContext> {
-  private readonly options: Telegraf.Options<TContext>
+export class Telegraf<C extends Context = Context> extends Composer<C> {
+  private readonly options: Telegraf.Options<C>
   private webhookServer?: http.Server | https.Server
+  private polling?: Polling
   /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
   public botInfo?: tt.UserFromGetMe
   public telegram: Telegram
-  readonly context: Partial<TContext> = {}
-  private readonly polling = {
-    allowedUpdates,
-    limit: 100,
-    offset: 0,
-    started: false,
-    stopCallback: noop,
-    timeout: 30,
-  }
+  readonly context: Partial<C> = {}
 
-  private handleError: (err: unknown, ctx: TContext) => void = (err: any) => {
-    console.error()
-    console.error((err.stack ?? err.toString()).replace(/^/gm, '  '))
-    console.error()
+  private handleError = async (err: unknown, ctx: C): Promise<void> => {
+    // set exit code to emulate `warn-with-error-code` behavior of
+    // https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
+    // to prevent a clean exit despite an error being thrown
+    process.exitCode = 1
     throw err
   }
 
-  constructor(token: string, options?: Partial<Telegraf.Options<TContext>>) {
+  constructor(token: string, options?: Partial<Telegraf.Options<C>>) {
     super()
     // @ts-expect-error
     this.options = {
@@ -118,7 +98,7 @@ export class Telegraf<
     return this.telegram.webhookReply
   }
 
-  catch(handler: (err: unknown, ctx: TContext) => void) {
+  catch(handler: (err: unknown, ctx: C) => Promise<void>) {
     this.handleError = handler
     return this
   }
@@ -132,21 +112,12 @@ export class Telegraf<
     )
   }
 
-  private startPolling(
-    timeout = 30,
-    limit = 100,
-    allowedUpdates: tt.UpdateType[] = [],
-    stopCallback = noop
-  ) {
-    this.polling.timeout = timeout
-    this.polling.limit = limit
-    this.polling.allowedUpdates = allowedUpdates
-    this.polling.stopCallback = stopCallback
-    if (!this.polling.started) {
-      this.polling.started = true
-      this.fetchUpdates()
-    }
-    return this
+  private startPolling(allowedUpdates: tt.UpdateType[] = []) {
+    this.polling = new Polling(this.telegram, allowedUpdates)
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.polling.loop(async (updates) => {
+      await this.handleUpdates(updates)
+    })
   }
 
   private startWebhook(
@@ -158,7 +129,7 @@ export class Telegraf<
   ) {
     const webhookCb = this.webhookCallback(hookPath)
     const callback: http.RequestListener =
-      cb && typeof cb === 'function'
+      typeof cb === 'function'
         ? (req, res) => webhookCb(req, res, () => cb(req, res))
         : webhookCb
     this.webhookServer = tlsOptions
@@ -174,12 +145,10 @@ export class Telegraf<
     debug('Connecting to Telegram')
     this.botInfo ??= await this.telegram.getMe()
     debug(`Launching @${this.botInfo.username}`)
-    if (!config.webhook) {
-      const { timeout, limit, allowedUpdates, stopCallback } =
-        config.polling ?? {}
+    if (config.webhook === undefined) {
       await this.telegram.deleteWebhook()
-      this.startPolling(timeout, limit, allowedUpdates, stopCallback)
-      debug('Bot started with long-polling')
+      this.startPolling(config.allowedUpdates)
+      debug('Bot started with long polling')
       return
     }
     if (
@@ -205,33 +174,26 @@ export class Telegraf<
     debug(`Bot started with webhook @ https://${domain}`)
   }
 
-  async stop() {
-    debug('Stopping bot...')
-    await new Promise<void>((resolve, reject) => {
-      if (this.webhookServer) {
-        this.webhookServer.close((err) => {
-          if (err) reject(err)
-          else resolve()
-        })
-      } else if (!this.polling.started) {
-        resolve()
-      } else {
-        this.polling.stopCallback = resolve
-        this.polling.started = false
-      }
-    })
+  stop(reason = 'unspecified') {
+    debug('Stopping bot... Reason:', reason)
+    // https://github.com/telegraf/telegraf/pull/1224#issuecomment-742693770
+    if (this.polling === undefined && this.webhookServer === undefined) {
+      throw new Error('Bot is not running!')
+    }
+    this.webhookServer?.close()
+    this.polling?.stop()
   }
 
-  handleUpdates(updates: readonly tt.Update[]) {
+  private handleUpdates(updates: readonly tt.Update[]) {
     if (!Array.isArray(updates)) {
-      return Promise.reject(new Error('Updates must be an array'))
+      throw new TypeError(util.format('Updates must be an array, got', updates))
     }
     // prettier-ignore
     const processAll = Promise.all(updates.map((update) => this.handleUpdate(update)))
-    if (this.options.handlerTimeout === 0) {
+    if (this.options.handlerTimeout === Infinity) {
       return processAll
     }
-    return Promise.race([processAll, sleep(this.options.handlerTimeout)])
+    return Promise.race([processAll, wait(this.options.handlerTimeout)])
   }
 
   private botInfoCall?: Promise<tt.UserFromGetMe>
@@ -241,7 +203,7 @@ export class Telegraf<
       (debug(
         'Update',
         update.update_id,
-        'waiting for `botInfo` to be initialized'
+        'is waiting for `botInfo` to be initialized'
       ),
       await (this.botInfoCall ??= this.telegram.getMe()))
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
@@ -251,48 +213,11 @@ export class Telegraf<
     try {
       await this.middleware()(ctx, anoop)
     } catch (err) {
-      return this.handleError(err, ctx)
+      return await this.handleError(err, ctx)
     } finally {
       if (webhookResponse !== undefined && !webhookResponse.writableEnded) {
         webhookResponse.end()
       }
     }
-  }
-
-  private fetchUpdates() {
-    if (!this.polling.started) {
-      this.polling.stopCallback()
-      return
-    }
-    const { timeout, limit, offset, allowedUpdates } = this.polling
-    this.telegram
-      .getUpdates(timeout, limit, offset, allowedUpdates)
-      .catch((err) => {
-        if (err.code === 401 || err.code === 409) {
-          throw err
-        }
-        const wait = err.parameters?.retry_after ?? this.options.retryAfter
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        console.error(`Failed to fetch updates. Waiting: ${wait}s`, err.message)
-        return sleep(wait * 1000, [])
-      })
-      .then((updates) =>
-        this.polling.started
-          ? this.handleUpdates(updates).then(() => updates)
-          : []
-      )
-      .catch((err) => {
-        console.error('Failed to process updates.', err)
-        this.polling.started = false
-        this.polling.offset = 0
-        return []
-      })
-      .then((updates) => {
-        if (updates.length > 0) {
-          this.polling.offset = updates[updates.length - 1].update_id + 1
-        }
-        this.fetchUpdates()
-      })
-      .catch(noop)
   }
 }

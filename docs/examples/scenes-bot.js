@@ -27,3 +27,7 @@ bot.command('greeter', (ctx) => ctx.scene.enter('greeter'))
 bot.command('echo', (ctx) => ctx.scene.enter('echo'))
 bot.on('message', (ctx) => ctx.reply('Try /echo or /greeter'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

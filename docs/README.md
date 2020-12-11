@@ -43,6 +43,10 @@ bot.help((ctx) => ctx.reply('Send me a sticker'))
 bot.on('sticker', (ctx) => ctx.reply('👍'))
 bot.hears('hi', (ctx) => ctx.reply('Hey there'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 ```js
@@ -53,6 +57,10 @@ bot.command('oldschool', (ctx) => ctx.reply('Hello'))
 bot.command('modern', ({ reply }) => reply('Yo'))
 bot.command('hipster', Telegraf.reply('λ'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
@@ -170,6 +178,10 @@ bot.use(async (ctx, next) => {
 
 bot.on('text', (ctx) => ctx.reply('Hello World'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 Note how the function `next` is used to invoke the subsequent layers of the middleware stack, performing the actual processing of the update (in this case, replying with “Hello World”).
@@ -221,6 +233,10 @@ bot.start((ctx) => {
   throw new Error('Example error')
 })
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ``` 
 
 #### Context
@@ -272,6 +288,10 @@ bot.on('text', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 If you're using TypeScript, have a look at the section below about usage with TypeScript.
@@ -438,6 +458,10 @@ bot.on('inline_query', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 #### State
@@ -458,6 +482,10 @@ bot.on('text', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 #### Session
@@ -492,6 +520,10 @@ bot.on('photo', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 The default session key is <code>`${ctx.from.id}:${ctx.chat.id}`</code>.
@@ -512,6 +544,10 @@ bot.on('photo', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 **Tip: To use same session in private chat with bot and in inline mode, use following session key resolver:**
@@ -560,6 +596,10 @@ bot.on('photo', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 #### Update types
@@ -1158,9 +1198,7 @@ Launch options:
 
 ```js
 {
-  // Start bot in polling mode (Default)
-  // See startPolling reference
-  polling: { timeout, limit,  allowedUpdates,  stopCallback },
+  allowedUpdates,
 
   // Start bot in webhook mode
   // See startWebhook reference

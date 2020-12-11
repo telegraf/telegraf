@@ -80,7 +80,6 @@ export class Polling {
   }
 
   stop() {
-    debug('Stopping long polling...')
     this.abortController.abort()
   }
 }

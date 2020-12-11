@@ -1,15 +1,13 @@
 /** @format */
 
 import * as tt from './telegram-types.d'
-
-import * as https from 'https'
-import * as http from 'http'
+import { RequestInit } from 'node-fetch'
 
 export interface TelegramOptions {
   /**
    * https.Agent or http.Agent instance, allows custom proxy, certificate, keep alive, etc.
    */
-  agent?: https.Agent | http.Agent
+  agent?: RequestInit['agent']
 
   /**
    * Reply via webhook

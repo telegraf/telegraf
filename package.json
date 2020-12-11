@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@types/node": "^13.1.0",
+    "@types/node-fetch": "^2.5.7",
     "ava": "^3.0.0",
     "eslint": "^6.2.2",
     "eslint-config-standard": "^14.1.0",

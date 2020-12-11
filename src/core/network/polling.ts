@@ -14,7 +14,7 @@ const noop = always(Promise.resolve())
 export class Polling {
   private readonly abortController = new AbortController()
   private offset = 0
-  public skipOffsetSync = false
+  private skipOffsetSync = false
   constructor(
     private readonly telegram: ApiClient,
     private readonly allowedUpdates: readonly tt.UpdateType[]
@@ -49,6 +49,14 @@ export class Polling {
           await wait(retryAfter * 1000)
           continue
         }
+        if (
+          err instanceof TelegramError &&
+          // Unauthorized      Conflict
+          (err.code === 401 || err.code === 409)
+        ) {
+          this.skipOffsetSync = true
+          throw err
+        }
         throw err
       }
     } while (!this.abortController.signal.aborted)
@@ -57,9 +65,7 @@ export class Polling {
   private async syncUpdateOffset() {
     if (this.skipOffsetSync) return
     debug('Syncing update offset...')
-    await this.telegram
-      .callApi('getUpdates', { offset: this.offset, limit: 1 })
-      .catch(noop)
+    await this.telegram.callApi('getUpdates', { offset: this.offset, limit: 1 })
   }
 
   async loop(handleUpdates: (updates: tt.Update[]) => Promise<void>) {
@@ -70,20 +76,11 @@ export class Polling {
       for await (const updates of this) {
         await handleUpdates(updates)
       }
-      await this.syncUpdateOffset()
-    } catch (err: unknown) {
-      if (
-        !(err instanceof TelegramError) ||
-        // Unauthorized      Conflict
-        (err.code !== 401 && err.code !== 409)
-      ) {
-        await this.syncUpdateOffset()
-      }
-      throw err
     } finally {
       debug('Long polling stopped')
       // prevent instance reuse
       this.stop()
+      await this.syncUpdateOffset().catch(noop)
     }
   }
 

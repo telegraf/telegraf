@@ -113,11 +113,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     )
   }
 
-  private startPolling(
-    allowedUpdates: tt.UpdateType[] = [],
-    skipOffsetSync = false
-  ) {
-    this.polling = new Polling(this.telegram, allowedUpdates, skipOffsetSync)
+  private startPolling(allowedUpdates: tt.UpdateType[] = []) {
+    this.polling = new Polling(this.telegram, allowedUpdates)
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.polling.loop(async (updates) => {
       await this.handleUpdates(updates)

@@ -48,7 +48,11 @@ export class Polling {
           await wait(retryAfter * 1000)
           continue
         }
-        if (err instanceof TelegramError && err.code === 409) {
+        if (
+          err instanceof TelegramError &&
+          (err.code === 401 /* Unauthorized */ ||
+            err.code === 409) /* Conflict */
+        ) {
           this.confirmUpdates = noop
           throw err
         }
@@ -69,6 +73,8 @@ export class Polling {
       }
     } finally {
       debug('Long polling stopped')
+      // prevent instance reuse
+      this.abortController.abort()
       await this.confirmUpdates().catch(noop)
     }
   }

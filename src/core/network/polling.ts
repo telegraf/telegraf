@@ -6,7 +6,10 @@ import { promisify } from 'util'
 import { TelegramError } from './error'
 const debug = d('telegraf:polling')
 const wait = promisify(setTimeout)
-const noop = () => {}
+function always<T>(x: T) {
+  return () => x
+}
+const noop = always(Promise.resolve())
 
 export class Polling {
   private readonly abortController = new AbortController()
@@ -44,6 +47,10 @@ export class Polling {
           debug('Failed to fetch updates, retrying after %ds.', retryAfter, err)
           await wait(retryAfter * 1000)
           continue
+        }
+        if (err instanceof TelegramError && err.code === 409) {
+          this.confirmUpdates = noop
+          throw err
         }
         throw err
       }

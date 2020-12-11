@@ -24,7 +24,7 @@ export class Stage<C extends SceneContext>
 
   register(...scenes: ReadonlyArray<BaseScene<C>>) {
     scenes.forEach((scene) => {
-      if (!scene?.id || typeof scene.middleware !== 'function') {
+      if (scene?.id == null || typeof scene.middleware !== 'function') {
         throw new Error('telegraf: Unsupported scene')
       }
       this.scenes.set(scene.id, scene)

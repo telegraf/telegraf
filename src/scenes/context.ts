@@ -98,7 +98,7 @@ class SceneContextScene<C extends SceneContext> {
     if (ttl !== undefined) {
       this.session.expires = now() + ttl
     }
-    if (!this.current || silent) {
+    if (this.current === undefined || silent) {
       return
     }
     const handler =
@@ -117,7 +117,7 @@ class SceneContextScene<C extends SceneContext> {
 
   async leave() {
     debug('Leave scene')
-    if (!this.current) {
+    if (this.current === undefined) {
       return
     }
     const handler =

@@ -48,34 +48,40 @@ export class Polling {
           await wait(retryAfter * 1000)
           continue
         }
-        if (
-          err instanceof TelegramError &&
-          (err.code === 401 /* Unauthorized */ ||
-            err.code === 409) /* Conflict */
-        ) {
-          this.confirmUpdates = noop
-          throw err
-        }
         throw err
       }
     } while (!this.abortController.signal.aborted)
   }
 
-  private async confirmUpdates() {
+  private async syncUpdateOffset() {
     debug('Syncing update offset...')
-    await this.telegram.callApi('getUpdates', { offset: this.offset, limit: 1 })
+    await this.telegram
+      .callApi('getUpdates', { offset: this.offset, limit: 1 })
+      .catch(noop)
   }
 
   async loop(handleUpdates: (updates: tt.Update[]) => Promise<void>) {
+    if (this.abortController.signal.aborted) {
+      throw new Error('Polling instances must not be reused!')
+    }
     try {
       for await (const updates of this) {
         await handleUpdates(updates)
       }
+      await this.syncUpdateOffset()
+    } catch (err) {
+      if (
+        !(err instanceof TelegramError) ||
+        // Unauthorized    Conflict
+        (err.code !== 401 && err.code !== 409)
+      ) {
+        await this.syncUpdateOffset()
+      }
+      throw err
     } finally {
       debug('Long polling stopped')
       // prevent instance reuse
-      this.abortController.abort()
-      await this.confirmUpdates().catch(noop)
+      this.stop()
     }
   }
 

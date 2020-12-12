@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { Context, Telegraf } from 'telegraf'
 
 class CustomContext extends Context {
@@ -15,7 +16,6 @@ class CustomContext extends Context {
 const bot = new Telegraf(process.env.BOT_TOKEN, { contextType: CustomContext })
 bot.start((ctx) => ctx.reply('Hello'))
 bot.help((ctx) => ctx.reply('Help message'))
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bot.launch()
 
 // Enable graceful stop

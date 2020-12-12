@@ -7,10 +7,18 @@ export interface Storage<T> {
   deleteItem: (name: string) => Promise<void>
 }
 
-interface SessionOptions<SessionData> {
+interface SessionOptions<S extends object> {
   makeKey?: (ctx: Context) => Promise<string | undefined>
-  storage?: Storage<SessionData>
+  storage?: Storage<S>
 }
+
+interface SessionContainer<S extends object> {
+  session: S
+}
+
+export interface SessionContext<S extends object>
+  extends Context,
+    SessionContainer<S> {}
 
 /**
  * session middleware
@@ -19,9 +27,9 @@ interface SessionOptions<SessionData> {
  *
  * see https://npm.im/search?q=telegraf-session
  */
-export function session<SessionData extends object>(
-  options?: SessionOptions<SessionData>
-): Middleware.ExtFn<Context, { session?: SessionData }> {
+export function session<S extends object>(
+  options?: SessionOptions<S>
+): Middleware.ExtFn<Context, Partial<SessionContainer<S>>> {
   const makeKey = options?.makeKey ?? makeDefaultKey
   const storage = options?.storage ?? new MemorySessionStorage()
   return async (ctx, next) => {
@@ -76,4 +84,10 @@ export class MemorySessionStorage<T> implements Storage<T> {
   async deleteItem(name: string): Promise<void> {
     this.store.delete(name)
   }
+}
+
+export function isSessionContext<S extends object>(
+  ctx: Context
+): ctx is SessionContext<S> {
+  return 'session' in ctx
 }

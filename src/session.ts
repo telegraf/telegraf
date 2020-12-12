@@ -31,12 +31,13 @@ export function session<SessionData extends object>(
     }
     const entry = await storage.getItem(key)
     const ctx2 = Object.assign(ctx, { session: entry })
-    await next(ctx2)
+    const nextResult = await next(ctx2)
     if (ctx2.session == null) {
       await storage.deleteItem(key)
     } else {
       await storage.setItem(key, ctx2.session)
     }
+    return nextResult
   }
 }
 

@@ -42,7 +42,7 @@ namespace ApiClient {
   }
 }
 
-const DEFAULT_EXTENSIONS = {
+const DEFAULT_EXTENSIONS: Record<string, string | undefined> = {
   audio: 'mp3',
   photo: 'jpg',
   sticker: 'webp',
@@ -211,10 +211,8 @@ async function attachFormMedia(
   id: string,
   agent: RequestInit['agent']
 ) {
-  let fileName =
-    media.filename ??
-    `${id}.${(DEFAULT_EXTENSIONS as { [key: string]: string })[id] || 'dat'}`
-  if (media.url) {
+  let fileName = media.filename ?? `${id}.${DEFAULT_EXTENSIONS[id] ?? 'dat'}`
+  if (media.url !== undefined) {
     const res = await fetch(media.url)
     return form.addPart({
       headers: {

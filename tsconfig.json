@@ -9,6 +9,7 @@
     "rootDir": "src/",
     "target": "ES2019",
     "strict": true,
+    "noUncheckedIndexedAccess": true,
     "tsBuildInfoFile": "typings/tsconfig.tsbuildinfo",
     "forceConsistentCasingInFileNames": true
   },

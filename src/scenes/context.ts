@@ -80,25 +80,19 @@ class SceneContextScene<C extends SceneContext> {
     this.ctx.session.__scenes = {}
   }
 
-  async enter(
-    sceneId: string,
-    initialState: object = {},
-    silent: boolean = false
-  ) {
+  async enter(sceneId: string, initialState = {}) {
     if (!this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }
-    if (!silent) {
-      await this.leave()
-    }
-    debug('Enter scene', sceneId, initialState, silent)
+    await this.leave()
+    debug('Entering scene', sceneId, initialState)
     this.session.current = sceneId
     this.state = initialState
     const ttl = this.current?.ttl ?? this.options.ttl
     if (ttl !== undefined) {
       this.session.expires = now() + ttl
     }
-    if (this.current === undefined || silent) {
+    if (this.current === undefined) {
       return
     }
     const handler =
@@ -116,7 +110,7 @@ class SceneContextScene<C extends SceneContext> {
   }
 
   async leave() {
-    debug('Leave scene')
+    debug('Leaving scene')
     if (this.current === undefined) {
       return
     }

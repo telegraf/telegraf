@@ -65,12 +65,17 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
 
-**Resources:**
+#### Resources
 
-* [Community chat](https://t.me/TelegrafJSChat)
-* [Community chat (Russian)](https://t.me/telegraf_ru)
+- [Getting started](#getting-started)
+- Telegram groups (sorted by number of members):
+  * [Russian](https://t.me/telegraf_ru)
+  * [English](https://t.me/TelegrafJSChat)
+  * [Uzbek](https://t.me/telegrafJS_uz)
+  * [Ethiopian](https://t.me/telegraf_et)
+- [GitHub Discussions](https://github.com/telegraf/telegraf/discussions)
 
-**Community bots:**
+#### Community bots
 
 <!-- Please keep the table sorted -->
 | Name | Description |

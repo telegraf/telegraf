@@ -4,6 +4,7 @@ const { Telegraf, session } = require('../')
 function createBot (...args) {
   const bot = new Telegraf(...args)
   bot.botInfo = { id: 42, is_bot: true, username: 'bot', first_name: 'Bot' }
+  bot.initializeQueue(false)
   return bot
 }
 

@@ -1,25 +1,53 @@
-import Context from '../../context'
+import SceneContextScene, {
+  SceneContext,
+  SceneSession,
+  SceneSessionData,
+} from '../context'
 import { Middleware } from '../../types'
-import SceneContext from '../context'
+import { SessionContext } from '../../session'
 
-class WizardContext<TContext extends SceneContext.Extended<Context>> {
-  readonly state: any
+type Z0 = WizardContextWizard<WizardContext>
+type S0 = WizardSessionData
+
+export interface WizardSessionData extends SceneSessionData {
   cursor: number
+}
+
+export interface WizardSession<S extends S0 = S0> extends SceneSession<S> {}
+
+export type WizardContext<Z extends Z0 = Z0, S extends S0 = S0> = SceneContext<
+  SceneContextScene<SceneContext>,
+  S
+> &
+  SessionContext<WizardSession> & {
+    scene: SceneContextScene<WizardContext<Z, S>>
+    wizard: Z
+  }
+
+class WizardContextWizard<C extends WizardContext> {
+  readonly state: object
   constructor(
-    private readonly ctx: TContext,
-    private readonly steps: ReadonlyArray<Middleware<TContext>>
+    private readonly ctx: C,
+    private readonly steps: ReadonlyArray<Middleware<C>>
   ) {
     this.state = ctx.scene.state
-    this.cursor = ctx.scene.session.cursor || 0
+    this.cursor = ctx.scene.session.cursor ?? 0
   }
 
   get step() {
-    return this.cursor >= 0 && this.steps[this.cursor]
+    return this.steps[this.cursor]
+  }
+
+  get cursor() {
+    return this.ctx.scene.session.cursor
+  }
+
+  set cursor(cursor: number) {
+    this.ctx.scene.session.cursor = cursor
   }
 
   selectStep(index: number) {
     this.cursor = index
-    this.ctx.scene.session.cursor = index
     return this
   }
 
@@ -32,14 +60,4 @@ class WizardContext<TContext extends SceneContext.Extended<Context>> {
   }
 }
 
-// eslint-disable-next-line
-namespace WizardContext {
-  export interface Extension<TContext extends SceneContext.Extended<Context>> {
-    wizard: WizardContext<TContext>
-  }
-  export type Extended<
-    TContext extends SceneContext.Extended<Context>
-  > = TContext & Extension<TContext>
-}
-
-export default WizardContext
+export default WizardContextWizard

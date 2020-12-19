@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { Context, session, Telegraf } from 'telegraf'
 
 const { reply, fork } = Telegraf
@@ -75,5 +76,8 @@ bot.hears(/reverse (.+)/, ({ match, reply }) =>
 )
 
 // Launch bot
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

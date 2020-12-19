@@ -35,11 +35,13 @@
     "pretest": "npm run build",
     "test": "ava test/*",
     "lint": "eslint --cache .",
-    "clean": "git clean -fX docs/build/ lib/ typings/"
+    "checks": "npm test && npm run lint",
+    "refresh": "npm run clean && npm ci",
+    "clean": "git clean -fX .eslintcache docs/build/ lib/ typings/"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm test && npm run lint"
+      "pre-commit": "tsc --build docs/examples"
     }
   },
   "type": "commonjs",
@@ -48,6 +50,7 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "debug": "^4.2.0",
     "minimist": "^1.2.5",
     "module-alias": "^2.2.2",

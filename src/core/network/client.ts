@@ -38,9 +38,13 @@ namespace ApiClient {
     apiRoot: string
     webhookReply: boolean
   }
+
+  export interface CallApiOptions {
+    signal?: RequestInit['signal']
+  }
 }
 
-const DEFAULT_EXTENSIONS = {
+const DEFAULT_EXTENSIONS: Record<string, string | undefined> = {
   audio: 'mp3',
   photo: 'jpg',
   sticker: 'webp',
@@ -210,10 +214,8 @@ async function attachFormMedia(
   id: string,
   agent: ApiClient.Agent
 ) {
-  let fileName =
-    media.filename ??
-    `${id}.${(DEFAULT_EXTENSIONS as { [key: string]: string })[id] || 'dat'}`
-  if (media.url) {
+  let fileName = media.filename ?? `${id}.${DEFAULT_EXTENSIONS[id] ?? 'dat'}`
+  if (media.url !== undefined) {
     const res = await fetch(media.url, { agent })
     return form.addPart({
       headers: {
@@ -328,7 +330,8 @@ class ApiClient {
 
   async callApi<M extends keyof Telegram>(
     method: M,
-    payload: Opts<M>
+    payload: Opts<M>,
+    { signal }: ApiClient.CallApiOptions = {}
   ): Promise<ReturnType<Telegram[M]>> {
     const { token, options, response, responseEnd } = this
 
@@ -363,6 +366,8 @@ class ApiClient {
       : await buildJSONConfig(payload)
     const apiUrl = `${options.apiRoot}/bot${token}/${method}`
     config.agent = options.agent
+    config.signal = signal
+    config.timeout = 120000 // 2 minutes
     const res = await fetch(apiUrl, config)
     const data = await res.json()
     if (!data.ok) {

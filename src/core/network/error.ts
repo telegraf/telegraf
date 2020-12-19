@@ -1,19 +1,25 @@
+import { ResponseParameters } from '../../telegram-types'
+
 interface ErrorPayload {
   error_code: number
   description: string
-  parameters?: {}
+  parameters?: ResponseParameters
 }
-class TelegramError extends Error {
-  code: number
-  response: ErrorPayload
-  description: string
-  parameters?: {}
-  constructor(payload: ErrorPayload, readonly on = {}) {
-    super(`${payload.error_code}: ${payload.description}`)
-    this.code = payload.error_code
-    this.response = payload
-    this.description = payload.description
-    this.parameters = payload.parameters
+export class TelegramError extends Error {
+  constructor(readonly response: ErrorPayload, readonly on = {}) {
+    super(`${response.error_code}: ${response.description}`)
+  }
+
+  get code() {
+    return this.response.error_code
+  }
+
+  get description() {
+    return this.response.description
+  }
+
+  get parameters() {
+    return this.response.parameters
   }
 }
 

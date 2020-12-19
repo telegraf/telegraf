@@ -760,7 +760,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
       return Composer.passThru()
     }
     if (middlewares.length === 1) {
-      return Composer.unwrap(middlewares[0])
+      return Composer.unwrap(middlewares[0]!)
     }
     return (ctx, next) => {
       let index = -1
@@ -773,10 +773,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
           throw new Error('next() called multiple times')
         }
         index = i
-        const handler = middlewares[i] ? Composer.unwrap(middlewares[i]) : next
-        if (!handler) {
-          return
-        }
+        const handler = Composer.unwrap(middlewares[i] ?? next)
         await handler(context, async (ctx = context) => {
           await execute(i + 1, ctx)
         })

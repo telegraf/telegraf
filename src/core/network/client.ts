@@ -33,7 +33,16 @@ const WEBHOOK_BLACKLIST = [
 namespace ApiClient {
   export type Agent = RequestInit['agent']
   export interface Options {
-    agent?: Agent
+    /**
+     * Agent for communicating with the bot API.
+     */
+    agent?: http.Agent
+    /**
+     * Agent for attaching files via URL.
+     * 1. Not all agents support both `http:` and `https:`.
+     * 2. When passing a function, create the agents once, outside of the function.
+     *    Creating new agent every request probably breaks `keepAlive`.
+     */
     attachmentAgent?: Agent
     apiRoot: string
     webhookReply: boolean
@@ -344,7 +353,7 @@ class ApiClient {
     ) {
       debug('Call via webhook', method, payload)
       this.responseEnd = true
-      // @ts-expect-error cannot assign to Record<string, unknown>
+      // @ts-expect-error
       return await answerToWebhook(response, { method, ...payload }, options)
     }
 

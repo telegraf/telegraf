@@ -36,7 +36,7 @@ export default function (
       }
       updateHandler(update, res)
         .then(() => {
-          if (!res.finished) {
+          if (!res.writableEnded) {
             res.end()
           }
         })

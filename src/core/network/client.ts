@@ -351,7 +351,8 @@ class ApiClient {
       response !== undefined &&
       !response.writableEnded &&
       !responseEnd &&
-      WEBHOOK_REPLY_METHOD_WHITELIST.has(method)
+      WEBHOOK_REPLY_METHOD_WHITELIST.has(method) &&
+      !includesMedia(payload)
     ) {
       debug('Call via webhook', method, payload)
       this.responseEnd = true

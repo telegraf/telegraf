@@ -19,25 +19,29 @@
   },
   "files": [
     "bin/*",
+    "src/**/*.ts",
     "lib/**/*.js",
     "lib/index.mjs",
-    "typings/**/*.d.ts"
+    "typings/**/*.d.ts",
+    "typings/**/*.d.ts.map"
   ],
   "bin": {
     "telegraf": "./bin/telegraf"
   },
   "scripts": {
-    "lint": "eslint src/",
-    "pretest": "tsc",
+    "prepare": "npm run build && mjs-entry src/index.ts > lib/index.mjs",
+    "build": "tsc --build docs/examples",
+    "build:docs": "typedoc",
+    "pretest": "npm run build",
     "test": "ava test/*",
-    "typedoc": "typedoc",
-    "clean": "git clean -fX lib/ typings/",
-    "typecheck": "tsc --noEmit",
-    "prepare": "tsc && mjs-entry src/index.ts >lib/index.mjs"
+    "lint": "eslint --cache .",
+    "checks": "npm test && npm run lint",
+    "refresh": "npm run clean && npm ci",
+    "clean": "git clean -fX .eslintcache docs/build/ lib/ typings/"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm test && npm run lint"
+      "pre-commit": "tsc --build docs/examples"
     }
   },
   "type": "commonjs",
@@ -46,12 +50,13 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "debug": "^4.2.0",
     "minimist": "^1.2.5",
     "module-alias": "^2.2.2",
     "node-fetch": "^2.6.1",
     "sandwich-stream": "^2.0.2",
-    "typegram": "^2.2.2"
+    "typegram": "^3.0.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.5",
@@ -72,9 +77,9 @@
     "eslint-plugin-standard": "^4.0.1",
     "husky": "^4.3.0",
     "mjs-entry": "gist:de6257751f54b3c66319bae8d2a8aea0",
-    "prettier": "^2.1.2",
+    "prettier": "2.2.0",
     "typedoc": "^0.19.2",
-    "typescript": "4.0.3"
+    "typescript": "^4.1.2"
   },
   "keywords": [
     "telegraf",

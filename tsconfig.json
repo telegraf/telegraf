@@ -1,21 +1,22 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "esModuleInterop": true,
-    "allowJs": true,
+    "composite": true,
     "declaration": true,
+    "declarationMap": true,
     "declarationDir": "typings/",
     "outDir": "lib/",
+    "rootDir": "src/",
     "target": "ES2019",
     "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "tsBuildInfoFile": "typings/tsconfig.tsbuildinfo",
     "forceConsistentCasingInFileNames": true
   },
   "typedocOptions": {
-    "exclude": ["typings/test.ts"],
     "excludeExternals": true,
-    "includeDeclarations": true,
     "mode": "file",
-    "out": "telegraf-docs",
+    "out": "docs/build/",
     "readme": "docs/README.md",
     "theme": "docs/theme/"
   },

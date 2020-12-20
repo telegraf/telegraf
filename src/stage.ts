@@ -1,30 +1,30 @@
+import SceneContextScene, { SceneContext } from './scenes/context'
 import BaseScene from './scenes/base'
 import Composer from './composer'
-import Context from './context'
+import { isSessionContext } from './session'
 import { Middleware } from './types'
-import SceneContext from './scenes/context'
 
-export class Stage<TContext extends Context>
-  extends Composer<SceneContext.Extended<TContext>>
-  implements Middleware.Obj<TContext> {
-  options: SceneContext.Options
-  scenes: Map<string, BaseScene<TContext>>
+export class Stage<C extends SceneContext>
+  extends Composer<C>
+  implements Middleware.Obj<C> {
+  options: SceneContextScene.Options
+  scenes: Map<string, BaseScene<C>>
+
   constructor(
-    scenes: ReadonlyArray<BaseScene<TContext>> = [],
-    options?: SceneContext.Options
+    scenes: ReadonlyArray<BaseScene<C>> = [],
+    options?: SceneContextScene.Options
   ) {
     super()
     this.options = {
-      sessionName: 'session',
       ...options,
     }
-    this.scenes = new Map()
+    this.scenes = new Map<string, BaseScene<C>>()
     scenes.forEach((scene) => this.register(scene))
   }
 
-  register(...scenes: Array<BaseScene<TContext>>) {
+  register(...scenes: ReadonlyArray<BaseScene<C>>) {
     scenes.forEach((scene) => {
-      if (!scene || !scene.id || typeof scene.middleware !== 'function') {
+      if (scene?.id == null || typeof scene.middleware !== 'function') {
         throw new Error('telegraf: Unsupported scene')
       }
       this.scenes.set(scene.id, scene)
@@ -33,32 +33,32 @@ export class Stage<TContext extends Context>
   }
 
   middleware() {
-    const handler = Composer.compose<
-      TContext,
-      SceneContext.Extension<TContext>
-    >([
+    const handler = Composer.compose<C, C>([
       (ctx, next) => {
-        const scene = new SceneContext(ctx, this.scenes, this.options)
+        const scene = new SceneContextScene<C>(ctx, this.scenes, this.options)
         return next(Object.assign(ctx, { scene }))
       },
       super.middleware(),
-      Composer.lazy((ctx) => ctx.scene.current ?? Composer.passThru()),
+      Composer.lazy<C>((ctx) => ctx.scene.current ?? Composer.passThru()),
     ])
-    return Composer.optional(
-      (ctx: any) => ctx[this.options.sessionName],
-      handler
-    )
+    return Composer.optional(isSessionContext, handler)
   }
 
-  static enter(...args: Parameters<SceneContext<Context>['enter']>) {
-    return (ctx: SceneContext.Extended<Context>) => ctx.scene.enter(...args)
+  static enter<C extends SceneContext = SceneContext>(
+    ...args: Parameters<SceneContextScene<C>['enter']>
+  ) {
+    return (ctx: SceneContext) => ctx.scene.enter(...args)
   }
 
-  static reenter(...args: Parameters<SceneContext<Context>['reenter']>) {
-    return (ctx: SceneContext.Extended<Context>) => ctx.scene.reenter(...args)
+  static reenter<C extends SceneContext = SceneContext>(
+    ...args: Parameters<SceneContextScene<C>['reenter']>
+  ) {
+    return (ctx: SceneContext) => ctx.scene.reenter(...args)
   }
 
-  static leave(...args: Parameters<SceneContext<Context>['leave']>) {
-    return (ctx: SceneContext.Extended<Context>) => ctx.scene.leave(...args)
+  static leave<C extends SceneContext>(
+    ...args: Parameters<SceneContextScene<C>['leave']>
+  ) {
+    return (ctx: SceneContext) => ctx.scene.leave(...args)
   }
 }

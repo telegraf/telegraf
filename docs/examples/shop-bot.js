@@ -1,5 +1,4 @@
-const Telegraf = require('telegraf')
-const Markup = require('telegraf/markup')
+const { Telegraf, Markup } = require('telegraf')
 
 const invoice = {
   provider_token: process.env.PROVIDER_TOKEN,
@@ -13,9 +12,9 @@ const invoice = {
     { label: 'Working Time Machine', amount: 4200 },
     { label: 'Gift wrapping', amount: 1000 }
   ],
-  payload: {
+  payload: JSON.stringify({
     coupon: 'BLACK FRIDAY'
-  }
+  })
 }
 
 const shippingOptions = [
@@ -32,14 +31,18 @@ const shippingOptions = [
 ]
 
 const replyOptions = Markup.inlineKeyboard([
-  Markup.payButton('💸 Buy'),
-  Markup.urlButton('❤️', 'http://telegraf.js.org')
-]).extra()
+  Markup.button.pay('💸 Buy'),
+  Markup.button.url('❤️', 'http://telegraf.js.org')
+])
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.start(({ replyWithInvoice }) => replyWithInvoice(invoice))
 bot.command('buy', ({ replyWithInvoice }) => replyWithInvoice(invoice, replyOptions))
-bot.on('shipping_query', ({ answerShippingQuery }) => answerShippingQuery(true, shippingOptions))
+bot.on('shipping_query', ({ answerShippingQuery }) => answerShippingQuery(true, shippingOptions, undefined))
 bot.on('pre_checkout_query', ({ answerPreCheckoutQuery }) => answerPreCheckoutQuery(true))
 bot.on('successful_payment', () => console.log('Woohoo'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

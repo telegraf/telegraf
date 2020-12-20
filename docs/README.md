@@ -10,7 +10,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 
 #### Features
 
-- Full [Telegram Bot API 4.9](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 5.0](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -43,6 +43,10 @@ bot.help((ctx) => ctx.reply('Send me a sticker'))
 bot.on('sticker', (ctx) => ctx.reply('👍'))
 bot.hears('hi', (ctx) => ctx.reply('Hey there'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 ```js
@@ -53,16 +57,25 @@ bot.command('oldschool', (ctx) => ctx.reply('Hello'))
 bot.command('modern', ({ reply }) => reply('Yo'))
 bot.command('hipster', Telegraf.reply('λ'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
 
-**Resources:**
+#### Resources
 
-* [Community chat](https://t.me/TelegrafJSChat)
-* [Community chat (Russian)](https://t.me/telegraf_ru)
+- [Getting started](#getting-started)
+- Telegram groups (sorted by number of members):
+  * [Russian](https://t.me/telegraf_ru)
+  * [English](https://t.me/TelegrafJSChat)
+  * [Uzbek](https://t.me/telegrafJS_uz)
+  * [Ethiopian](https://t.me/telegraf_et)
+- [GitHub Discussions](https://github.com/telegraf/telegraf/discussions)
 
-**Community bots:**
+#### Community bots
 
 <!-- Please keep the table sorted -->
 | Name | Description |
@@ -90,6 +103,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 | [MetalArchivesBot](https://github.com/amiralies/metalarchives-telegram-bot) | Unofficial metal-archives.com bot |
 | [MidnaBot](https://github.com/wsknorth/midnabot) | Midnabot for telegram |
 | [MineTelegram](https://github.com/hexatester/minetelegram) | Minecraft - Telegram bridge |
+| [MonitorBot](https://github.com/inigochoa/monitorbot) | Private website status checker bot |
 | [NodeRSSBot](https://github.com/fengkx/NodeRSSBot) | Bot to subscribe RSS feed which allows many configurations |
 | [Nyaa.si Bot](https://github.com/ejnshtein/nyaasi-bot) | Nyaa.si torrents |
 | [OCRToolBot](https://github.com/Piterden/tesseract-bot) | Tesseract text from image recognition |
@@ -169,6 +183,10 @@ bot.use(async (ctx, next) => {
 
 bot.on('text', (ctx) => ctx.reply('Hello World'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 Note how the function `next` is used to invoke the subsequent layers of the middleware stack, performing the actual processing of the update (in this case, replying with “Hello World”).
@@ -220,6 +238,10 @@ bot.start((ctx) => {
   throw new Error('Example error')
 })
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ``` 
 
 #### Context
@@ -271,6 +293,10 @@ bot.on('text', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 If you're using TypeScript, have a look at the section below about usage with TypeScript.
@@ -437,6 +463,10 @@ bot.on('inline_query', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 #### State
@@ -457,6 +487,10 @@ bot.on('text', (ctx) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 #### Session
@@ -480,38 +514,97 @@ Using session middleware will result in a sequence like this:
 Here is a simple example of how the built-in session middleware of Telegraf can be used to count photos.
 
 ```js
-const session = require('telegraf/session')
+const { session } = require('telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(session())
-bot.on('text', (ctx) => {
-  ctx.session.counter = ctx.session.counter || 0
+bot.on('photo', (ctx) => {
+  ctx.session ??= { counter: 0 }
   ctx.session.counter++
-  return ctx.reply(`Message counter:${ctx.session.counter}`)
+  return ctx.reply(`Photo counter: ${ctx.session.counter}`)
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
-In this example, the session middleware just stores the counters in-memory.
-This means that all counters will be lost when you stop your bot.
-If you want to store data even across restarts, you need to use *persistent sessions*.
+The default session key is <code>`${ctx.from.id}:${ctx.chat.id}`</code>.
+If either `ctx.from` or `ctx.chat` is `undefined`, default session key and thus `ctx.session` are also `undefined`.
+You can customize the session key resolver function by passing in the options argument:
 
-**Note: For persistent sessions you can use any of [`telegraf-session-*`](https://www.npmjs.com/search?q=telegraf-session) middleware.**
+```js
+const { session } = require('telegraf')
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.use(session({
+  makeKey: (ctx) => ctx.from?.id // only store data per user, but across chats
+}))
+bot.on('photo', (ctx) => {
+  ctx.session ??= { counter: 0 }
+  ctx.session.counter++
+  return ctx.reply(`Photo counter: ${ctx.session.counter}`)
+})
+
+bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
+```
 
 **Tip: To use same session in private chat with bot and in inline mode, use following session key resolver:**
 
 ```js
 {
-  getSessionKey: (ctx) => {
+  makeKey: (ctx) => {
     if (ctx.from && ctx.chat) {
       return `${ctx.from.id}:${ctx.chat.id}`
     } else if (ctx.from && ctx.inlineQuery) {
       return `${ctx.from.id}:${ctx.from.id}`
     }
-    return null
+    return undefined
   }
 }
+```
+
+However, in the above example, the session middleware just stores the counters in-memory.
+This means that all counters will be lost when the process is terminated.
+If you want to store data across restarts, or share it among workers, you need to use *persistent sessions*.
+
+There are already [a lot of packages](https://www.npmjs.com/search?q=telegraf-session) that make this a breeze.
+You can simply add `npm install` one and to your bot to support exactly the type of storage you want.
+
+Alternatively, `telegraf` also allows you to easily integrate your own persistence without any other package.
+The `session` function can take a `storage` in the options object.
+A storage must have three methods: one for loading, one for storing, and one for deleting a session.
+This works as follows:
+
+```js
+const { session } = require('telegraf')
+
+// may also return `Promise`s (or use `async` functions)!
+const storage = {
+  getItem(key) { /* load a session for `key` ... */ },
+  setItem(key, value) { /* save a session for `key` ... */ },
+  deleteItem(key) { /* delete a session for `key` ... */ }
+}
+
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.use(session({ storage }))
+bot.on('photo', (ctx) => {
+  ctx.session.counter = ctx.session.counter || 0
+  ctx.session.counter++
+  return ctx.reply(`Photo counter: ${ctx.session.counter}`)
+})
+
+bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 #### Update types
@@ -545,7 +638,7 @@ Available update sub-types:
 - `contact`
 - `location`
 - `venue`
-- `forward`
+- `forward_date`
 - `new_chat_members`
 - `left_chat_member`
 - `new_chat_title`
@@ -622,7 +715,7 @@ require('https')
   .listen(8443)
 ```
 
-Express.js example integration
+##### Express.js example integration
 
 ```js
 const { Telegraf } = require('telegraf')
@@ -642,16 +735,20 @@ expressApp.listen(3000, () => {
 })
 ```
 
-Fastify example integration
+##### Fastify example integration
+
+You can use `fastify-telegraf` package
 
 ```js
 const { Telegraf } = require('telegraf')
 const fastifyApp = require('fastify')()
+const fastifyTelegraf = require('fastify-telegraf')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.on('text', ({ reply }) => reply('Hello'))
-fastifyApp.use(bot.webhookCallback('/secret-path'))
+
+fastifyApp.register(fastifyTelegraf, { bot, path: '/secret-path' })
 // Set telegram webhook
 // npm install -g localtunnel && lt --port 3000
 bot.telegram.setWebhook('https://------.localtunnel.me/secret-path')
@@ -661,7 +758,7 @@ fastifyApp.listen(3000, () => {
 })
 ```
 
-Koa.js example integration
+##### Koa.js example integration
 
 ```js
 const { Telegraf } = require('telegraf')
@@ -861,7 +958,7 @@ interface SessionData {
 
 // Define your own context type
 interface MyContext extends Context {
-  session: SessionData
+  session?: SessionData
   // ... more props go here
 }
 
@@ -1106,9 +1203,7 @@ Launch options:
 
 ```js
 {
-  // Start bot in polling mode (Default)
-  // See startPolling reference
-  polling: { timeout, limit,  allowedUpdates,  stopCallback },
+  allowedUpdates,
 
   // Start bot in webhook mode
   // See startWebhook reference
@@ -1570,17 +1665,16 @@ Use this method to edit media of messages sent by the bot or via the bot.
 
 Use this method to edit live location messages sent by the bot or via the bot.
 
-`telegram.editMessageLiveLocation(latitude, longitude, chatId, messageId, inlineMessageId, [markup]) => Promise`
-[Official documentation](https://core.telegram.org/bots/api#editmessagelivelocation)
+`telegram.editMessageLiveLocation(chatId, messageId, inlineMessageId, latitude, longitude, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| latitude | `string` | Latitude of new location |
-| longitude | `string` | Longitude of new location |
 | chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 | inlineMessageId | `string` | Inline message id |
-| [markup] | `object` | Keyboard markup |
+| latitude | `string` | Latitude of new location |
+| longitude | `string` | Longitude of new location |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagelivelocation)|
 
 ##### editMessageReplyMarkup
 
@@ -1635,6 +1729,19 @@ Sends message copy.
 | chatId | `number/string` | Target Chat id |
 | message | `object` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
+
+##### copyMessage
+
+Send copy of existing message.
+
+`telegram.copyMessage(chatId, fromChatId, messageId, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Target Chat id |
+| fromChatId | `number/string` | Source Chat id |
+| messageId | `number` | Message id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#copymessage)|
 
 ##### getWebhookInfo
 
@@ -1924,8 +2031,20 @@ Use this method to pin a message in a supergroup.
 
 Use this method to unpin a message in a supergroup chat.
 
-`telegram.unpinChatMessage(chatId) => Promise`
+`telegram.unpinChatMessage(chatId, [messageId]) => Promise`
 [Official documentation](https://core.telegram.org/bots/api#unpinchatmessage)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| [messageId] | `number` | Message id |
+
+##### unpinAllChatMessages
+
+Use this method clear the list of pinned messages in a chat.
+
+`telegram.unpinAllChatMessages(chatId) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#unpinallchatmessages)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1946,8 +2065,11 @@ Use this method for your bot to leave a group, supergroup or channel.
 
 Removes webhook integration.
 
-`telegram.deleteWebhook() => Promise`
-[Official documentation](https://core.telegram.org/bots/api#deletewebhook)
+`telegram.deleteWebhook([extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#deletewebhook)|
 
 ##### sendAudio
 
@@ -2247,27 +2369,24 @@ Use this method to upload a .png file with a sticker for later use in createNewS
 
 Specifies an url to receive incoming updates via an outgoing webhook.
 
-`telegram.setWebhook(url, [cert], [maxConnections], [allowedUpdates]) => Promise`
-[Official documentation](https://core.telegram.org/bots/api#setwebhook)
+`telegram.setWebhook(url, [extra]) => Promise`
 
 | Param | Type | Description |
 | ---  | --- | --- |
 | url  | `string` | Public url for webhook |
-| [cert] | `File` | SSL public certificate |
-| [maxConnections] | `number` | Maximum allowed number of simultaneous HTTPS connections to the webhook |
-| [allowedUpdates] | `string[]` | List the types of updates you want your bot to receive |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#setwebhook)|
 
 ##### unbanChatMember
 
 Use this method to unban a previously kicked user in a supergroup.
 
-`telegram.unbanChatMember(chatId, userId) => Promise`
-[Official documentation](https://core.telegram.org/bots/api#unbanchatmember)
+`telegram.unbanChatMember(chatId, userId, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | userId | `number` | User id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#unbanchatmember)|
 
 
 ##### setPassportDataErrors
@@ -2282,6 +2401,20 @@ until the errors are fixed (the contents of the field for which you returned the
 | Param | Type | Description |
 | ---  | --- | --- |
 | [errors] | `PassportElementError[]` | An array describing the errors |
+
+##### logOut
+
+Log out from the cloud Bot API server before launching the bot locally.
+
+`telegram.logOut() => Promise`
+[Official documentation](https://core.telegram.org/bots/api#logout)
+
+##### close
+
+Close the bot instance before moving it from one local server to another.
+
+`telegram.close() => Promise`
+[Official documentation](https://core.telegram.org/bots/api#close)
 
 #### Extra
 

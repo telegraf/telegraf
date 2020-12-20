@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "checkJs": true,
+    "noEmit": true,
+    "paths": { "telegraf": ["../../"] },
+  },
+  "references": [{ "path": "../../" }]
+}

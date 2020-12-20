@@ -1,9 +1,13 @@
-const Telegraf = require('telegraf')
-const session = require('telegraf/session')
-const Stage = require('telegraf/stage')
-const Scene = require('telegraf/scenes/base')
+/* eslint-disable @typescript-eslint/no-floating-promises */
+import {
+  BaseScene as Scene,
+  SceneContext,
+  session,
+  Stage,
+  Telegraf,
+} from 'telegraf'
 
-// Handler factoriess
+// Handler factories
 const { enter, leave } = Stage
 
 // Greeter scene
@@ -21,11 +25,19 @@ echoScene.command('back', leave())
 echoScene.on('text', (ctx) => ctx.reply(ctx.message.text))
 echoScene.on('message', (ctx) => ctx.reply('Only text messages please'))
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-const stage = new Stage([greeterScene, echoScene], { ttl: 10 })
+// You have to pass `SceneContext` as a type variable if you want to use scenes.
+const bot = new Telegraf<SceneContext>(process.env.BOT_TOKEN)
+
+const stage = new Stage([greeterScene, echoScene], {
+  ttl: 10,
+})
 bot.use(session())
 bot.use(stage.middleware())
 bot.command('greeter', (ctx) => ctx.scene.enter('greeter'))
 bot.command('echo', (ctx) => ctx.scene.enter('echo'))
 bot.on('message', (ctx) => ctx.reply('Try /echo or /greeter'))
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

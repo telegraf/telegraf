@@ -1,5 +1,7 @@
-const Telegraf = require('telegraf')
+const { Telegraf } = require('telegraf')
+// @ts-expect-error not a dependency of Telegraf
 const Koa = require('koa')
+// @ts-expect-error not a dependency of Telegraf
 const koaBody = require('koa-body')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -16,7 +18,7 @@ bot.telegram.setWebhook('https://-----.localtunnel.me/secret-path')
 const app = new Koa()
 app.use(koaBody())
 app.use((ctx, next) => ctx.method === 'POST' || ctx.url === '/secret-path'
-  ? bot.handleUpdate(ctx.request.body, ctx.response)
+  ? bot.handleUpdate(ctx.request.body)
   : next()
 )
 app.listen(3000)

@@ -7,21 +7,21 @@ type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
 
-const UpdateTypes = [
+export const UpdateTypes = [
   'callback_query',
   'channel_post',
   'chosen_inline_result',
   'edited_channel_post',
   'edited_message',
   'inline_query',
-  'shipping_query',
-  'pre_checkout_query',
   'message',
+  'pre_checkout_query',
+  'shipping_query',
   'poll',
   'poll_answer',
 ] as const
 
-const MessageSubTypes = [
+export const MessageSubTypes = [
   'voice',
   'video_note',
   'video',
@@ -55,30 +55,14 @@ const MessageSubTypes = [
   'forward_date',
 ] as const
 
-const MessageSubTypesMapping = {
-  forward_date: 'forward',
-}
-
 export class Context {
-  public botInfo?: tt.UserFromGetMe
-  readonly updateType: tt.UpdateType
-  readonly updateSubTypes: ReadonlyArray<typeof MessageSubTypes[number]>
   readonly state: Record<string | symbol, any> = {}
 
   constructor(
     readonly update: tt.Update,
     readonly tg: Telegram,
-    private readonly options: { channelMode?: boolean; username?: string } = {}
+    public readonly botInfo: tt.UserFromGetMe
   ) {
-    this.updateType = UpdateTypes.find((key) => key in this.update)!
-    // prettier-ignore
-    if (this.updateType === 'message' || (this.options.channelMode && this.updateType === 'channel_post')) {
-      this.updateSubTypes = MessageSubTypes
-        .filter((key) => key in (this.update as any)[this.updateType])
-        .map((type) => (MessageSubTypesMapping as any)[type] || type)
-    } else {
-      this.updateSubTypes = []
-    }
     Object.getOwnPropertyNames(Context.prototype)
       .filter(
         (key) =>
@@ -87,8 +71,12 @@ export class Context {
       .forEach((key) => ((this as any)[key] = (this as any)[key].bind(this)))
   }
 
+  get updateType() {
+    return UpdateTypes.find((key) => key in this.update)
+  }
+
   get me() {
-    return this.options.username
+    return this.botInfo?.username
   }
 
   get telegram() {
@@ -197,10 +185,9 @@ export class Context {
     method: string
   ): asserts value is T {
     if (value === undefined) {
-      throw new Error(
-        `Telegraf: "${method}" isn't available for "${
-          this.updateType
-        }::${this.updateSubTypes.toString()}"`
+      throw new TypeError(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        `Telegraf: "${method}" isn't available for "${this.updateType}"`
       )
     }
   }
@@ -288,7 +275,7 @@ export class Context {
   editMessageLiveLocation(
     latitude: number,
     longitude: number,
-    markup?: tt.InlineKeyboardMarkup
+    extra?: tt.ExtraEditMessageLiveLocation
   ) {
     this.assert(
       this.callbackQuery ?? this.inlineMessageId,
@@ -300,7 +287,7 @@ export class Context {
       this.inlineMessageId,
       latitude,
       longitude,
-      markup
+      extra
     )
   }
 
@@ -387,6 +374,11 @@ export class Context {
   unpinChatMessage(...args: Shorthand<'unpinChatMessage'>) {
     this.assert(this.chat, 'unpinChatMessage')
     return this.telegram.unpinChatMessage(this.chat.id, ...args)
+  }
+
+  unpinAllChatMessages(...args: Shorthand<'unpinAllChatMessages'>) {
+    this.assert(this.chat, 'unpinAllChatMessages')
+    return this.telegram.unpinAllChatMessages(this.chat.id, ...args)
   }
 
   leaveChat(...args: Shorthand<'leaveChat'>) {
@@ -580,8 +572,9 @@ export class Context {
     if (typeof messageId !== 'undefined') {
       return this.telegram.deleteMessage(this.chat.id, messageId)
     }
-    this.assert(this.message, 'deleteMessage')
-    return this.telegram.deleteMessage(this.chat.id, this.message.message_id)
+    const message = this.message ?? this.callbackQuery?.message
+    this.assert(message, 'deleteMessage')
+    return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
 
   forwardMessage(
@@ -592,6 +585,16 @@ export class Context {
   ) {
     this.assert(this.message, 'forwardMessage')
     return this.telegram.forwardMessage(
+      chatId,
+      this.message.chat.id,
+      this.message.message_id,
+      extra
+    )
+  }
+
+  copyMessage(chatId: string | number, extra?: tt.ExtraCopyMessage) {
+    this.assert(this.message, 'copyMessage')
+    return this.telegram.copyMessage(
       chatId,
       this.message.chat.id,
       this.message.message_id,

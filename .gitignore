@@ -21,7 +21,7 @@ coverage
 .lock-wscript
 
 # lock scripts
-package-lock.json
+pnpm-lock.yaml
 yarn.lock
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
@@ -37,7 +37,11 @@ node_modules
 .node_repl_history
 .env
 .vscode
-package-lock.json
 /lib
+/docs/build
 /telegraf-docs/
 /typings/
+tsconfig.tsbuildinfo
+
+# Linting cache
+.eslintcache

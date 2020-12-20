@@ -54,7 +54,7 @@ const DEFAULT_EXTENSIONS: Record<string, string | undefined> = {
 
 const DEFAULT_OPTIONS = {
   apiRoot: 'https://api.telegram.org',
-  webhookReply: true,
+  webhookReply: false,
   agent: new https.Agent({
     keepAlive: true,
     keepAliveMsecs: 10000,

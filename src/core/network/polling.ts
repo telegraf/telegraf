@@ -18,7 +18,8 @@ export class Polling {
   public limit: number | undefined
   constructor(
     private readonly telegram: ApiClient,
-    private readonly allowedUpdates: readonly tt.UpdateType[]
+    private readonly allowedUpdates: readonly tt.UpdateType[],
+    private readonly timeout: number
   ) {}
 
   private async *[Symbol.asyncIterator]() {
@@ -28,7 +29,7 @@ export class Polling {
         const updates = await this.telegram.callApi(
           'getUpdates',
           {
-            timeout: 50,
+            timeout: this.timeout,
             offset: this.offset,
             allowed_updates: this.allowedUpdates,
             limit: this.limit,

@@ -169,8 +169,12 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     )
   }
 
-  private startPolling(allowedUpdates: tt.UpdateType[] = []) {
-    const polling = (this.polling = new Polling(this.telegram, allowedUpdates))
+  private startPolling(allowedUpdates: tt.UpdateType[] = [], timeout = 50) {
+    const polling = (this.polling = new Polling(
+      this.telegram,
+      allowedUpdates,
+      timeout
+    ))
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     polling.loop(async (updates) => {
       const capacity = await this.handleUpdates(updates)
@@ -218,7 +222,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     debug(`Launching @${this.botInfo.username}`)
     if (config.webhook === undefined) {
       await this.telegram.deleteWebhook()
-      this.startPolling(config.allowedUpdates)
+      this.startPolling(config.allowedUpdates, config.polling?.timeout)
       debug('Bot started with long polling')
       return
     }

@@ -317,6 +317,16 @@ class ApiClient {
     }
   }
 
+  /**
+   * If set to `true`, first _eligible_ call will avoid performing a POST request.
+   * Note that such a call:
+   * 1. cannot report errors,
+   * 2. resolves before bot API has a chance to process it,
+   * 3. prematurely confirms the update as processed.
+   *
+   * https://core.telegram.org/bots/faq#how-can-i-make-requests-in-response-to-updates
+   * https://github.com/telegraf/telegraf/pull/1250
+   */
   set webhookReply(enable: boolean) {
     this.options.webhookReply = enable
   }

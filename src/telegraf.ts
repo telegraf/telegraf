@@ -204,7 +204,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return this
   }
 
-  initializeQueue(concurrency: boolean | number) {
+  private initializeQueue(concurrency: boolean | number) {
     this.updateQueue ??= new DecayingDeque(
       this.options.handlerTimeout,
       (t: Task<C>) => this.invokeMiddleware(t),

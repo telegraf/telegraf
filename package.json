@@ -41,6 +41,7 @@
   },
   "husky": {
     "hooks": {
+      "post-checkout": "npm run --silent clean",
       "pre-commit": "tsc --build docs/examples"
     }
   },

@@ -91,7 +91,7 @@ class SceneContextScene<C extends SceneContext> {
     if (!silent) {
       await this.leave()
     }
-    debug('Enter scene', sceneId, initialState, silent)
+    debug('Entering scene', sceneId, initialState, silent)
     this.session.current = sceneId
     this.state = initialState
     const ttl = this.current?.ttl ?? this.options.ttl
@@ -115,18 +115,25 @@ class SceneContextScene<C extends SceneContext> {
       : this.enter(this.session.current, this.state)
   }
 
+  private leaving = false
   async leave() {
-    debug('Leave scene')
-    if (this.current === undefined) {
-      return
+    if (this.leaving) return
+    debug('Leaving scene')
+    try {
+      this.leaving = true
+      if (this.current === undefined) {
+        return
+      }
+      const handler =
+        'leaveMiddleware' in this.current &&
+        typeof this.current.leaveMiddleware === 'function'
+          ? this.current.leaveMiddleware()
+          : Composer.passThru()
+      await handler(this.ctx, noop)
+      return this.reset()
+    } finally {
+      this.leaving = false
     }
-    const handler =
-      'leaveMiddleware' in this.current &&
-      typeof this.current.leaveMiddleware === 'function'
-        ? this.current.leaveMiddleware()
-        : Composer.passThru()
-    await handler(this.ctx, noop)
-    return this.reset()
   }
 }
 

@@ -284,8 +284,9 @@ test.cb('should work with context extensions', (t) => {
 
 test.cb('should handle webhook response', (t) => {
   const bot = createBot()
-  bot.on('message', async ({ reply }) => {
-    const result = await reply(':)')
+  bot.on('message', async (ctx) => {
+    ctx.telegram.webhookReply = true
+    const result = await ctx.replyWithChatAction('typing')
     t.deepEqual(result, { webhook: true })
   })
   const res = {

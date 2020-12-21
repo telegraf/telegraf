@@ -303,27 +303,28 @@ const resStub = {
 
 test.cb('should respect webhookReply option', (t) => {
   const bot = createBot(null, { telegram: { webhookReply: false } })
-  bot.catch((err) => { throw err }) // Disable log
   bot.on('message', ({ reply }) => reply(':)'))
-  t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
+  bot.catch(() => t.end())
+  bot.handleUpdate({ message: BaseTextMessage }, resStub)
 })
 
 test.cb('should respect webhookReply runtime change', (t) => {
   const bot = createBot()
   bot.webhookReply = false
-  bot.catch((err) => { throw err }) // Disable log
   bot.on('message', (ctx) => ctx.reply(':)'))
 
-  // Throws cause Bot Token is required for http call'
-  t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
+  // Expect bot to throw cause Bot Token is required for http call
+  bot.catch(() => t.end())
+
+  bot.handleUpdate({ message: BaseTextMessage }, resStub)
 })
 
 test.cb('should respect webhookReply runtime change (per request)', (t) => {
   const bot = createBot()
-  bot.catch((err) => { throw err }) // Disable log
   bot.on('message', async (ctx) => {
     ctx.webhookReply = false
     return ctx.reply(':)')
   })
-  t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
+  bot.catch(() => t.end())
+  bot.handleUpdate({ message: BaseTextMessage }, resStub)
 })

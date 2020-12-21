@@ -262,7 +262,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   }
 
   async handleUpdate(update: tt.Update, webhookResponse?: http.ServerResponse) {
-    await this.handleUpdates([update], webhookResponse)
+    return await this.handleUpdates([update], webhookResponse)
   }
 
   private botInfoCall?: Promise<tt.UserFromGetMe>

@@ -45,6 +45,7 @@ namespace ApiClient {
      */
     attachmentAgent?: Agent
     apiRoot: string
+    /** @deprecated use `ctx.telegram.webhookReply` */
     webhookReply: boolean
   }
 
@@ -65,7 +66,7 @@ const DEFAULT_EXTENSIONS: Record<string, string | undefined> = {
 
 const DEFAULT_OPTIONS: ApiClient.Options = {
   apiRoot: 'https://api.telegram.org',
-  webhookReply: true,
+  webhookReply: false,
   agent: new https.Agent({
     keepAlive: true,
     keepAliveMsecs: 10000,
@@ -329,6 +330,16 @@ class ApiClient {
     }
   }
 
+  /**
+   * If set to `true`, first _eligible_ call will avoid performing a POST request.
+   * Note that such a call:
+   * 1. cannot report errors or return meaningful values,
+   * 2. resolves before bot API has a chance to process it,
+   * 3. prematurely confirms the update as processed.
+   *
+   * https://core.telegram.org/bots/faq#how-can-i-make-requests-in-response-to-updates
+   * https://github.com/telegraf/telegraf/pull/1250
+   */
   set webhookReply(enable: boolean) {
     this.options.webhookReply = enable
   }

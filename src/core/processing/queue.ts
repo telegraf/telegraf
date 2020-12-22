@@ -120,11 +120,12 @@ export class DecayingDeque<E> {
   }
 
   private timeout(): void {
-    while (this.head!.date === this.head!.next?.date) {
-      this.catchTimeout(this.head!.elem, this.head!.task)
-      this.remove(this.head!)
+    if (this.head === null) return
+    while (this.head.date === this.head.next?.date) {
+      this.catchTimeout(this.head.elem, this.head.task)
+      this.remove(this.head)
     }
-    this.catchTimeout(this.head!.elem, this.head!.task)
-    this.decay(this.head!)
+    this.catchTimeout(this.head.elem, this.head.task)
+    this.decay(this.head)
   }
 }

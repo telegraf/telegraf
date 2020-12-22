@@ -321,7 +321,7 @@ class ApiClient {
   /**
    * If set to `true`, first _eligible_ call will avoid performing a POST request.
    * Note that such a call:
-   * 1. cannot report errors or return meaningful value,
+   * 1. cannot report errors or return meaningful values,
    * 2. resolves before bot API has a chance to process it,
    * 3. prematurely confirms the update as processed.
    *

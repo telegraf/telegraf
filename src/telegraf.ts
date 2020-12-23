@@ -69,12 +69,16 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   public telegram: Telegram
   readonly context: Partial<C> = {}
 
-  private handleError = async (err: unknown, ctx: C): Promise<void> => {
+  private handleError = (
+    err: unknown,
+    ctx: C
+    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  ): Promise<unknown> | void => {
     // set exit code to emulate `warn-with-error-code` behavior of
     // https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
     // to prevent a clean exit despite an error being thrown
     process.exitCode = 1
-    throw err
+    return Promise.reject(err)
   }
 
   constructor(token: string, options?: Partial<Telegraf.Options<C>>) {
@@ -99,7 +103,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return this.telegram.webhookReply
   }
 
-  catch(handler: (err: unknown, ctx: C) => Promise<void>) {
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  catch(handler: (err: unknown, ctx: C) => Promise<unknown> | void) {
     this.handleError = handler
     return this
   }
@@ -107,8 +112,9 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   webhookCallback(path = '/') {
     return generateCallback(
       path,
-      (update: tt.Update, res: http.ServerResponse) =>
-        this.handleUpdate(update, res),
+      async (update: tt.Update, res: http.ServerResponse) => {
+        await this.handleUpdate(update, res)
+      },
       debug
     )
   }

@@ -11,13 +11,14 @@ import d from 'debug'
 import generateCallback from './core/network/webhook'
 import { Polling } from './core/network/polling'
 import Telegram from './telegram'
+import { Timeouts } from './core/timeouts'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
 const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   telegram: {},
-  handlerTimeout: 5000,
+  handlerTimeout: 90_000, // 90s in ms
   contextType: Context,
 }
 
@@ -25,7 +26,6 @@ function always<T>(x: T) {
   return () => x
 }
 const anoop = always(Promise.resolve())
-const wait = util.promisify(setTimeout)
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Telegraf {
@@ -62,6 +62,7 @@ namespace Telegraf {
 
 export class Telegraf<C extends Context = Context> extends Composer<C> {
   private readonly options: Telegraf.Options<C>
+  private readonly timeouts: Timeouts<C>
   private webhookServer?: http.Server | https.Server
   private polling?: Polling
   /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
@@ -84,6 +85,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
     }
+    this.timeouts = new Timeouts(this.options.handlerTimeout)
     this.telegram = new Telegram(token, this.options.telegram)
   }
 
@@ -185,16 +187,13 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     this.polling?.stop()
   }
 
-  private handleUpdates(updates: readonly tt.Update[]) {
+  private async handleUpdates(updates: readonly tt.Update[]) {
     if (!Array.isArray(updates)) {
       throw new TypeError(util.format('Updates must be an array, got', updates))
     }
-    // prettier-ignore
-    const processAll = Promise.all(updates.map((update) => this.handleUpdate(update)))
-    if (this.options.handlerTimeout === Infinity) {
-      return processAll
-    }
-    return Promise.race([processAll, wait(this.options.handlerTimeout)])
+    this.timeouts.minBatchSize += updates.length
+    await Promise.all(updates.map((update) => this.handleUpdate(update)))
+    this.timeouts.minBatchSize -= updates.length
   }
 
   private botInfoCall?: Promise<tt.UserFromGetMe>
@@ -211,12 +210,14 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
+    const done = this.timeouts.add({ ctx })
     try {
       await this.middleware()(ctx, anoop)
     } catch (err) {
       return await this.handleError(err, ctx)
     } finally {
-      if (webhookResponse !== undefined && !webhookResponse.writableEnded) {
+      done()
+      if (webhookResponse?.writableEnded === false) {
         webhookResponse.end()
       }
     }

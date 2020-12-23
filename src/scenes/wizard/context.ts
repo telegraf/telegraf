@@ -6,6 +6,7 @@ import SceneContextScene, {
 import { Middleware } from '../../middleware'
 import { SessionContext } from '../../session'
 
+// use type aliases to permit circular defaults
 type Z0 = WizardContextWizard<WizardContext>
 type S0 = WizardSessionData
 
@@ -13,12 +14,13 @@ export interface WizardSessionData extends SceneSessionData {
   cursor: number
 }
 
-export interface WizardSession<S extends S0 = S0> extends SceneSession<S> {}
+export interface WizardSession<S extends WizardSessionData = S0>
+  extends SceneSession<S> {}
 
-export type WizardContext<Z extends Z0 = Z0, S extends S0 = S0> = SceneContext<
-  SceneContextScene<SceneContext>,
-  S
-> &
+export type WizardContext<
+  Z extends WizardContextWizard<WizardContext> = Z0,
+  S extends S0 = S0
+> = SceneContext<SceneContextScene<SceneContext>, S> &
   SessionContext<WizardSession> & {
     scene: SceneContextScene<WizardContext<Z, S>>
     wizard: Z

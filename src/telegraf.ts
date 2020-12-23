@@ -112,9 +112,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   webhookCallback(path = '/') {
     return generateCallback(
       path,
-      async (update: tt.Update, res: http.ServerResponse) => {
-        await this.handleUpdate(update, res)
-      },
+      (update: tt.Update, res: http.ServerResponse) =>
+        this.handleUpdate(update, res),
       debug
     )
   }
@@ -220,7 +219,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     try {
       await this.middleware()(ctx, anoop)
     } catch (err) {
-      return await this.handleError(err, ctx)
+      await this.handleError(err, ctx)
     } finally {
       if (webhookResponse !== undefined && !webhookResponse.writableEnded) {
         webhookResponse.end()

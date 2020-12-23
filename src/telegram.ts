@@ -633,12 +633,10 @@ class Telegram extends ApiClient {
   answerCbQuery(
     callbackQueryId: string,
     text?: string,
-    showAlert?: boolean,
-    extra?: { cache_time?: number }
+    extra?: tt.ExtraAnswerCbQuery
   ) {
     return this.callApi('answerCallbackQuery', {
       text,
-      show_alert: showAlert,
       callback_query_id: callbackQueryId,
       ...extra,
     })

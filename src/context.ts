@@ -172,6 +172,7 @@ export class Context {
     return this.message?.passport_data
   }
 
+  /** @deprecated use `ctx.telegram.webhookReply` */
   get webhookReply(): boolean {
     return this.tg.webhookReply
   }

@@ -32,7 +32,17 @@ export class Stage<C extends SceneContext> extends Composer<C> {
   middleware() {
     const handler = Composer.compose<C>([
       (ctx, next) => {
-        ctx.scene = new SceneContextScene<C>(ctx, this.scenes, this.options)
+        // @ts-expect-error: `ctx.scene` is `SceneContext` with default type
+        // variables (this cannot be changed because `ctx` and `ctx.scene`
+        // reference each other, which would lead to an infinite chain of type
+        // variables)
+        const scenes: Map<string, BaseScene<SceneContext>> = this.scenes
+        const scene = new SceneContextScene<SceneContext>(
+          ctx,
+          scenes,
+          this.options
+        )
+        ctx.scene = scene
         return next()
       },
       super.middleware(),

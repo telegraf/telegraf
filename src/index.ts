@@ -1,7 +1,7 @@
 export { Telegraf } from './telegraf'
 export { Context } from './context'
 export { Composer } from './composer'
-export { Middleware } from './types'
+export { Middleware, MiddlewareFn } from './middleware'
 export { Router } from './router'
 
 export * as Markup from './markup'

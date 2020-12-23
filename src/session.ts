@@ -7,14 +7,20 @@ export interface Storage<T> {
   deleteItem: (name: string) => Promise<void>
 }
 
+interface SessionOptions<S extends object> {
+  makeKey?: (ctx: Context) => Promise<string | undefined>
+  storage?: Storage<S>
+}
+
 export interface SessionContext<S extends object> extends Context {
   session?: S
 }
 
-export function session<S extends object>({
-  makeKey = makeDefaultKey,
-  storage = new MemorySessionStorage<S>(),
-} = {}): MiddlewareFn<SessionContext<S>> {
+export function session<S extends object>(
+  options?: SessionOptions<S>
+): MiddlewareFn<SessionContext<S>> {
+  const makeKey = options?.makeKey ?? makeDefaultKey
+  const storage = options?.storage ?? new MemorySessionStorage()
   return async (ctx, next) => {
     const key = await makeKey(ctx)
     if (key == null) {

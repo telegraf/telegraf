@@ -1,5 +1,5 @@
 import { Context } from './context'
-import { Middleware } from './types'
+import { MiddlewareFn } from './middleware'
 
 export interface Storage<T> {
   getItem: (name: string) => Promise<T | undefined>
@@ -7,43 +7,25 @@ export interface Storage<T> {
   deleteItem: (name: string) => Promise<void>
 }
 
-interface SessionOptions<S extends object> {
-  makeKey?: (ctx: Context) => Promise<string | undefined>
-  storage?: Storage<S>
+export interface SessionContext<S extends object> extends Context {
+  session?: S
 }
 
-interface SessionContainer<S extends object> {
-  session: S
-}
-
-export interface SessionContext<S extends object>
-  extends Context,
-    SessionContainer<S> {}
-
-/**
- * session middleware
- *
- * more 3rd-party session middlware
- *
- * see https://npm.im/search?q=telegraf-session
- */
-export function session<S extends object>(
-  options?: SessionOptions<S>
-): Middleware.ExtFn<Context, Partial<SessionContainer<S>>> {
-  const makeKey = options?.makeKey ?? makeDefaultKey
-  const storage = options?.storage ?? new MemorySessionStorage()
+export function session<S extends object>({
+  makeKey = makeDefaultKey,
+  storage = new MemorySessionStorage<S>(),
+} = {}): MiddlewareFn<SessionContext<S>> {
   return async (ctx, next) => {
     const key = await makeKey(ctx)
     if (key == null) {
-      return await next(ctx)
+      return await next()
     }
-    const entry = await storage.getItem(key)
-    const ctx2 = Object.assign(ctx, { session: entry })
-    await next(ctx2)
-    if (ctx2.session == null) {
+    ctx.session = await storage.getItem(key)
+    await next()
+    if (ctx.session == null) {
       await storage.deleteItem(key)
     } else {
-      await storage.setItem(key, ctx2.session)
+      await storage.setItem(key, ctx.session)
     }
   }
 }

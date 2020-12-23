@@ -1,11 +1,11 @@
 import BaseScene, { SceneOptions } from '../base'
 import WizardContextWizard, { WizardContext } from './context'
 import Composer from '../../composer'
-import { Middleware } from '../../types'
+import { Middleware } from '../../middleware'
 
-export class WizardScene<C extends WizardContext = WizardContext>
-  extends BaseScene<C>
-  implements Middleware.Obj<C> {
+export class WizardScene<
+  C extends WizardContext = WizardContext
+> extends BaseScene<C> {
   steps: Array<Middleware<C>>
 
   constructor(id: string, ...steps: Array<Middleware<C>>)
@@ -33,10 +33,10 @@ export class WizardScene<C extends WizardContext = WizardContext>
   }
 
   middleware() {
-    return Composer.compose<C, WizardContext>([
+    return Composer.compose<C>([
       (ctx, next) => {
-        const wizard = new WizardContextWizard<C>(ctx, this.steps)
-        return next(Object.assign(ctx, { wizard }))
+        ctx.wizard = new WizardContextWizard<C>(ctx, this.steps)
+        return next()
       },
       super.middleware(),
       (ctx, next) => {

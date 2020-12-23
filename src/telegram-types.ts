@@ -69,6 +69,10 @@ export type ExtraAddStickerToSet = MakeExtra<
   'name' | 'user_id'
 >
 export type ExtraAnimation = MakeExtra<'sendAnimation', 'animation'>
+export type ExtraAnswerCbQuery = MakeExtra<
+  'answerCallbackQuery',
+  'text' | 'callback_query_id'
+>
 export type ExtraAnswerInlineQuery = MakeExtra<
   'answerInlineQuery',
   'inline_query_id' | 'results'

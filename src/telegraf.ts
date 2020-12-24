@@ -210,13 +210,15 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
-    const done = this.timeouts.add({ ctx })
     try {
-      await this.middleware()(ctx, anoop)
+      const promise = this.middleware()(ctx, anoop)
+      if (this.options.handlerTimeout <= 0x7fffffff) {
+        this.timeouts.add({ ctx, promise })
+      }
+      await promise
     } catch (err) {
       return await this.handleError(err, ctx)
     } finally {
-      done()
       if (webhookResponse?.writableEnded === false) {
         webhookResponse.end()
       }

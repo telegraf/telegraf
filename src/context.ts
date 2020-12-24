@@ -1,4 +1,5 @@
 import * as tt from './telegram-types'
+import { Telegram2, telegram2 } from './telegram2'
 import ApiClient from './core/network/client'
 import Telegram from './telegram'
 
@@ -58,12 +59,16 @@ export const MessageSubTypes = [
 
 export class Context {
   readonly state: Record<string | symbol, any> = {}
+  readonly telegram2: Telegram2
 
   constructor(
     readonly update: tt.Update,
+    /** @deprecated use `ctx.telegram2` */
     readonly tg: Telegram,
     readonly botInfo: tt.UserFromGetMe
-  ) {}
+  ) {
+    this.telegram2 = telegram2(tg)
+  }
 
   get updateType() {
     return UpdateTypes.find((key) => key in this.update)
@@ -73,6 +78,7 @@ export class Context {
     return this.botInfo?.username
   }
 
+  /** @deprecated use `ctx.telegram2` */
   get telegram() {
     return this.tg
   }
@@ -542,10 +548,12 @@ export class Context {
     return this.telegram.addStickerToSet(this.from.id, ...args)
   }
 
+  /** @deprecated use `this.telegram2.getMyCommands` */
   getMyCommands() {
     return this.telegram.getMyCommands()
   }
 
+  /** @deprecated use `this.telegram2.setMyCommands` */
   setMyCommands(commands: readonly tt.BotCommand[]) {
     return this.telegram.setMyCommands(commands)
   }

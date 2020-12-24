@@ -36,6 +36,7 @@ export type InputFile =
 type TelegrafTypegram = Typegram<InputFile>
 
 export type Telegram = TelegrafTypegram['Telegram']
+export type TelegramP = TelegrafTypegram['TelegramP']
 export type Opts<M extends keyof Telegram> = TelegrafTypegram['Opts'][M]
 export type InputMedia = TelegrafTypegram['InputMedia']
 export type InputMediaPhoto = TelegrafTypegram['InputMediaPhoto']

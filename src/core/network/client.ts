@@ -304,7 +304,6 @@ async function answerToWebhook(
 type Response = http.ServerResponse
 class ApiClient {
   readonly options: ApiClient.Options
-  private responseEnd = false
 
   constructor(
     readonly token: string,
@@ -344,18 +343,16 @@ class ApiClient {
     payload: Opts<M>,
     { signal }: ApiClient.CallApiOptions = {}
   ): Promise<ReturnType<Telegram[M]>> {
-    const { token, options, response, responseEnd } = this
+    const { token, options, response } = this
 
     if (
       options.webhookReply &&
       response !== undefined &&
       !response.writableEnded &&
-      !responseEnd &&
       WEBHOOK_REPLY_METHOD_WHITELIST.has(method) &&
       !includesMedia(payload)
     ) {
       debug('Call via webhook', method, payload)
-      this.responseEnd = true
       // @ts-expect-error
       return await answerToWebhook(response, { method, ...payload }, options)
     }

@@ -31,7 +31,7 @@
   "scripts": {
     "prepare": "npm run build && mjs-entry src/index.ts > lib/index.mjs",
     "build": "tsc --build docs/examples",
-    "build:docs": "typedoc src/index.ts",
+    "build:docs": "typedoc src/index.ts --name telegraf.js",
     "pretest": "npm run build",
     "test": "ava test/*",
     "lint": "eslint --cache .",

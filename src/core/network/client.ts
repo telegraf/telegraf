@@ -265,26 +265,12 @@ async function attachFormMedia(
   }
 }
 
-function isKoaResponse(response: unknown): boolean {
-  return (
-    typeof response === 'object' &&
-    response !== null &&
-    hasPropType(response, 'set', 'function') &&
-    hasPropType(response, 'header', 'object')
-  )
-}
-
 async function answerToWebhook(
   response: Response,
   payload: Record<string, unknown>,
   options: ApiClient.Options
 ): Promise<typeof WEBHOOK_REPLY_STUB> {
   if (!includesMedia(payload)) {
-    if (isKoaResponse(response)) {
-      // @ts-expect-error
-      response.body = payload
-      return WEBHOOK_REPLY_STUB
-    }
     if (!response.headersSent) {
       response.setHeader('content-type', 'application/json')
     }
@@ -302,15 +288,6 @@ async function answerToWebhook(
     payload,
     options.attachmentAgent
   )
-  if (isKoaResponse(response)) {
-    for (const [key, value] of Object.entries(headers)) {
-      // @ts-expect-error
-      response.set(key, value)
-    }
-    // @ts-expect-error
-    response.body = body
-    return WEBHOOK_REPLY_STUB
-  }
   if (!response.headersSent) {
     for (const [key, value] of Object.entries(headers)) {
       // @ts-expect-error

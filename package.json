@@ -31,7 +31,7 @@
   "scripts": {
     "prepare": "npm run build && mjs-entry src/index.ts > lib/index.mjs",
     "build": "tsc --build docs/examples",
-    "build:docs": "typedoc",
+    "build:docs": "typedoc src/index.ts",
     "pretest": "npm run build",
     "test": "ava test/*",
     "lint": "eslint --cache .",
@@ -79,7 +79,7 @@
     "husky": "^4.3.0",
     "mjs-entry": "gist:de6257751f54b3c66319bae8d2a8aea0",
     "prettier": "2.2.0",
-    "typedoc": "^0.19.2",
+    "typedoc": "^0.20.0-beta.27",
     "typescript": "^4.1.2"
   },
   "keywords": [

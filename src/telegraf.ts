@@ -212,7 +212,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     Object.assign(ctx, this.context)
     try {
       const promise = this.middleware()(ctx, anoop)
-      if (this.options.handlerTimeout <= 0x7fffffff) {
+      if (promise != null && this.options.handlerTimeout <= 0x7fffffff) {
         this.timeouts.add({ ctx, promise })
       }
       await promise

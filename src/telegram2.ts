@@ -14,6 +14,12 @@ const proxyHandler: ProxyHandler<BasicApiClient> = {
   set() {
     return false
   },
+  defineProperty() {
+    return false
+  },
+  deleteProperty() {
+    return false
+  },
   ownKeys() {
     return []
   },

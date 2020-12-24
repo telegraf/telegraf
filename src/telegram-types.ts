@@ -106,7 +106,7 @@ export type ExtraEditMessageMedia = MakeExtra<
 >
 export type ExtraEditMessageText = MakeExtra<
   'editMessageText',
-  'message_id' | 'inline_message_id'
+  'message_id' | 'inline_message_id' | 'text'
 >
 export type ExtraGame = MakeExtra<'sendGame', 'game_short_name'>
 export type NewInvoiceParameters = MakeExtra<

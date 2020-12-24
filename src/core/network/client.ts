@@ -284,14 +284,13 @@ async function answerToWebhook(
     return WEBHOOK_REPLY_STUB
   }
 
-  const { headers = {}, body } = await buildFormDataConfig(
+  const { headers, body } = await buildFormDataConfig(
     payload,
     options.attachmentAgent
   )
   if (!response.headersSent) {
     for (const [key, value] of Object.entries(headers)) {
-      // @ts-expect-error
-      response.set(key, value)
+      response.setHeader(key, value)
     }
   }
   await new Promise((resolve) => {
@@ -347,10 +346,8 @@ class ApiClient {
 
     if (
       options.webhookReply &&
-      response !== undefined &&
-      !response.writableEnded &&
-      WEBHOOK_REPLY_METHOD_WHITELIST.has(method) &&
-      !includesMedia(payload)
+      response?.writableEnded === false &&
+      WEBHOOK_REPLY_METHOD_WHITELIST.has(method)
     ) {
       debug('Call via webhook', method, payload)
       // @ts-expect-error

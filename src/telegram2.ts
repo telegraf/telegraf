@@ -7,7 +7,7 @@ export type Telegram2 = Readonly<BasicApiClient & TelegramP>
 const proxyHandler: ProxyHandler<BasicApiClient> = {
   get(target, p: keyof Telegram2) {
     if (p === 'callApi') {
-      return target[p]
+      return target.callApi.bind(target)
     }
     return target.callApi.bind(target, p)
   },

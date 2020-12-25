@@ -85,7 +85,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
     }
-    this.timeouts = new Timeouts(this.options.handlerTimeout)
+    this.timeouts = new Timeouts()
     this.telegram = new Telegram(token, this.options.telegram)
   }
 
@@ -191,9 +191,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     if (!Array.isArray(updates)) {
       throw new TypeError(util.format('Updates must be an array, got', updates))
     }
-    this.timeouts.minBatchSize = updates.length
     await Promise.all(updates.map((update) => this.handleUpdate(update)))
-    this.timeouts.minBatchSize = 1
   }
 
   private botInfoCall?: Promise<tt.UserFromGetMe>
@@ -213,7 +211,11 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     try {
       const promise = this.middleware()(ctx, anoop)
       if (promise != null && this.options.handlerTimeout <= 0x7fffffff) {
-        this.timeouts.add({ ctx, promise })
+        this.timeouts.add({
+          ctx,
+          promise,
+          timeoutsAt: Date.now() + this.options.handlerTimeout,
+        })
       }
       await promise
     } catch (err) {

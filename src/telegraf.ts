@@ -99,6 +99,9 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return this.telegram.webhookReply
   }
 
+  /**
+   * _Override_ error handling
+   */
   catch(handler: (err: unknown, ctx: C) => MaybePromise<void>) {
     this.handleError = handler
     return this

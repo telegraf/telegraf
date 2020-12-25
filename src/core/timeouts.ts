@@ -3,9 +3,9 @@ import { formatWithOptions } from 'util'
 import Yallist = require('yallist')
 
 interface Drift<C extends Context> {
-  ctx: C
-  promise: Promise<unknown>
-  timeoutsAt: number
+  readonly ctx: C
+  readonly promise: Promise<unknown>
+  readonly timeoutsAt: number
 }
 
 const MIN_TIMEOUT = 5_000 // 5s in ms

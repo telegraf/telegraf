@@ -106,6 +106,13 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return this
   }
 
+  /**
+   * _Override_ timeout handling
+   */
+  catchTimeout(handler: Timeouts<C>['handleTimeout']) {
+    this.timeouts.handleTimeout = handler
+  }
+
   webhookCallback(path = '/') {
     return generateCallback(
       path,

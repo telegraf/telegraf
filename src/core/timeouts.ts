@@ -8,7 +8,7 @@ interface Drift<C extends Context> {
 
 export class Timeouts<C extends Context> {
   private nextBatch = new Set<Drift<C>>()
-  public minBatchSize = 0
+  public minBatchSize = 1
 
   constructor(private readonly handlerTimeout: number) {}
 

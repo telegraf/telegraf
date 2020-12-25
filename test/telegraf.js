@@ -1,8 +1,8 @@
 const test = require('ava')
 const { Telegraf, session } = require('../')
 
-function createBot (...args) {
-  const bot = new Telegraf(...args)
+function createBot (opts) {
+  const bot = new Telegraf('', { handlerTimeout: Infinity, ...opts })
   bot.botInfo = { id: 42, is_bot: true, username: 'bot', first_name: 'Bot' }
   return bot
 }
@@ -302,7 +302,7 @@ const resStub = {
 }
 
 test.cb('should respect webhookReply option', (t) => {
-  const bot = createBot(null, { telegram: { webhookReply: false } })
+  const bot = createBot({ telegram: { webhookReply: false } })
   bot.catch((err) => { throw err }) // Disable log
   bot.on('message', ({ reply }) => reply(':)'))
   t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())

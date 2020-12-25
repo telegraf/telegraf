@@ -191,9 +191,9 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     if (!Array.isArray(updates)) {
       throw new TypeError(util.format('Updates must be an array, got', updates))
     }
-    this.timeouts.minBatchSize += updates.length
+    this.timeouts.minBatchSize = updates.length
     await Promise.all(updates.map((update) => this.handleUpdate(update)))
-    this.timeouts.minBatchSize -= updates.length
+    this.timeouts.minBatchSize = 1
   }
 
   private botInfoCall?: Promise<tt.UserFromGetMe>

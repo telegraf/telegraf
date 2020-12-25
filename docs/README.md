@@ -22,13 +22,13 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 
 #### Installation
 
-```bash
+```shellscript
 npm install telegraf --save
 ```
 
 or using yarn
 
-```bash
+```shellscript
 yarn add telegraf
 ```
 
@@ -866,13 +866,13 @@ module.exports = Composer.mount(
 
 To run modules, you can use `telegraf` module runner, it allows you to start Telegraf module easily from the command line.
 
-```bash
+```shellscript
 npm install telegraf -g
 ```
 
 #### Telegraf CLI usage
 
-```plaintext
+```text
 telegraf [opts] <bot-file>
   -t  Bot token [$BOT_TOKEN]
   -d  Webhook domain
@@ -901,7 +901,7 @@ module.exports = bot
 
 then run it:
 
-```bash
+```shellscript
 telegraf -t "bot token" bot.js
 ```
 

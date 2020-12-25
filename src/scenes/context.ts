@@ -7,6 +7,7 @@ const debug = d('telegraf:scenes:context')
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
+// use type aliases to permit circular defaults
 type Z0 = SceneContextScene<SceneContext>
 type S0 = SceneSessionData
 
@@ -16,13 +17,14 @@ export interface SceneSessionData {
   state?: object
 }
 
-export interface SceneSession<S extends S0 = S0> {
+export interface SceneSession<S extends SceneSessionData = S0> {
   __scenes: S
 }
 
-export type SceneContext<Z extends Z0 = Z0, S extends S0 = S0> = SessionContext<
-  SceneSession<S>
-> & {
+export interface SceneContext<
+  Z extends SceneContextScene<SceneContext> = Z0,
+  S extends SceneSessionData = S0
+> extends SessionContext<SceneSession<S>> {
   scene: Z
 }
 
@@ -46,7 +48,7 @@ class SceneContextScene<C extends SceneContext> {
     this.options = { ...options }
   }
 
-  get session(): C['session']['__scenes'] {
+  get session(): Exclude<C['session'], undefined>['__scenes'] {
     const defaultSession = this.options.defaultSession ?? {}
 
     let session = this.ctx.session?.__scenes ?? defaultSession
@@ -77,7 +79,7 @@ class SceneContextScene<C extends SceneContext> {
   }
 
   reset() {
-    this.ctx.session.__scenes = {}
+    if (this.ctx.session !== undefined) this.ctx.session.__scenes = {}
   }
 
   async enter(

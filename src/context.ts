@@ -1,7 +1,8 @@
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
-import { Tail } from './types'
 import Telegram from './telegram'
+
+type Tail<T> = T extends [unknown, ...infer U] ? U : never
 
 type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
@@ -61,15 +62,8 @@ export class Context {
   constructor(
     readonly update: tt.Update,
     readonly tg: Telegram,
-    public readonly botInfo: tt.UserFromGetMe
-  ) {
-    Object.getOwnPropertyNames(Context.prototype)
-      .filter(
-        (key) =>
-          key !== 'constructor' && typeof (this as any)[key] === 'function'
-      )
-      .forEach((key) => ((this as any)[key] = (this as any)[key].bind(this)))
-  }
+    readonly botInfo: tt.UserFromGetMe
+  ) {}
 
   get updateType() {
     return UpdateTypes.find((key) => key in this.update)

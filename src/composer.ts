@@ -1,12 +1,13 @@
 /** @format */
 
 import * as tt from './telegram-types'
-import { Middleware, NonemptyReadonlyArray } from './types'
+import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
 import Context from './context'
 import { SnakeToCamelCase } from './core/helpers/string'
 
 type MaybeArray<T> = T | T[]
 type MaybePromise<T> = T | Promise<T>
+type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 type Triggers<C> = MaybeArray<
   string | RegExp | ((value: string, ctx: C) => RegExpExecArray | null)
 >
@@ -71,8 +72,8 @@ function always<T>(x: T) {
 }
 const anoop = always(Promise.resolve())
 
-export class Composer<C extends Context> implements Middleware.Obj<C> {
-  private handler: Middleware.Fn<C>
+export class Composer<C extends Context> implements MiddlewareObj<C> {
+  private handler: MiddlewareFn<C>
 
   constructor(...fns: ReadonlyArray<Middleware<C>>) {
     this.handler = Composer.compose(fns)
@@ -237,14 +238,14 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     return this.handler
   }
 
-  static reply(...args: Parameters<Context['reply']>): Middleware.Fn<Context> {
+  static reply(...args: Parameters<Context['reply']>): MiddlewareFn<Context> {
     return (ctx) => ctx.reply(...args)
   }
 
   static catch<C extends Context>(
     errorHandler: (err: unknown, ctx: C) => void,
     ...fns: ReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     const handler = Composer.compose(fns)
     // prettier-ignore
     return (ctx, next) => Promise.resolve(handler(ctx, next))
@@ -254,14 +255,14 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   /**
    * Generates middleware that runs in the background.
    */
-  static fork<C extends Context>(middleware: Middleware<C>): Middleware.Fn<C> {
+  static fork<C extends Context>(middleware: Middleware<C>): MiddlewareFn<C> {
     const handler = Composer.unwrap(middleware)
     return async (ctx, next) => {
       await Promise.all([handler(ctx, anoop), next()])
     }
   }
 
-  static tap<C extends Context>(middleware: Middleware<C>): Middleware.Fn<C> {
+  static tap<C extends Context>(middleware: Middleware<C>): MiddlewareFn<C> {
     const handler = Composer.unwrap(middleware)
     return (ctx, next) =>
       Promise.resolve(handler(ctx, anoop)).then(() => next())
@@ -270,13 +271,13 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   /**
    * Generates middleware that gives up control to the next middleware.
    */
-  static passThru(): Middleware.Fn<Context> {
+  static passThru(): MiddlewareFn<Context> {
     return (ctx, next) => next()
   }
 
   static lazy<C extends Context>(
     factoryFn: (ctx: C) => MaybePromise<Middleware<C>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     if (typeof factoryFn !== 'function') {
       throw new Error('Argument must be a function')
     }
@@ -286,7 +287,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
       )
   }
 
-  static log(logFn: (s: string) => void = console.log): Middleware.Fn<Context> {
+  static log(logFn: (s: string) => void = console.log): MiddlewareFn<Context> {
     return (ctx, next) => {
       logFn(JSON.stringify(ctx.update, null, 2))
       return next()
@@ -301,7 +302,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     predicate: Predicate<C> | AsyncPredicate<C>,
     trueMiddleware: Middleware<C>,
     falseMiddleware: Middleware<C>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     if (typeof predicate !== 'function') {
       return Composer.unwrap(predicate ? trueMiddleware : falseMiddleware)
     }
@@ -320,7 +321,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static optional<C extends Context>(
     predicate: Predicate<C> | AsyncPredicate<C>,
     ...fns: NonemptyReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.branch(
       predicate,
       Composer.compose(fns),
@@ -328,14 +329,14 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     )
   }
 
-  static filter<C extends Context>(predicate: Predicate<C>): Middleware.Fn<C> {
+  static filter<C extends Context>(predicate: Predicate<C>): MiddlewareFn<C> {
     return Composer.branch(predicate, Composer.passThru(), anoop)
   }
 
   /**
    * Generates middleware for dropping matching updates.
    */
-  static drop<C extends Context>(predicate: Predicate<C>): Middleware.Fn<C> {
+  static drop<C extends Context>(predicate: Predicate<C>): MiddlewareFn<C> {
     return Composer.branch(predicate, anoop, Composer.passThru())
   }
 
@@ -381,7 +382,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static guard<C extends Context, U extends tt.Update>(
     guardFn: (u: tt.Update) => u is U,
     ...fns: NonemptyReadonlyArray<Middleware<GuardedContext<C, U>>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.optional<C>(
       (ctx) => guardFn(ctx.update),
       // @ts-expect-error see explanation above
@@ -395,7 +396,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static mount<C extends Context, T extends tt.UpdateType | tt.MessageSubType>(
     updateType: MaybeArray<T>,
     ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     const updateTypes = normalizeTextArguments(updateType)
 
     const predicate = (update: tt.Update): update is tt.Update & MountMap[T] =>
@@ -420,7 +421,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
       | MaybeArray<string>
       | ((entity: tt.MessageEntity, s: string, ctx: C) => boolean),
     ...fns: ReadonlyArray<Middleware<MatchedContext<C, T>>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     if (typeof predicate !== 'function') {
       const entityTypes = normalizeTextArguments(predicate)
       return Composer.entity(({ type }) => entityTypes.includes(type), ...fns)
@@ -448,7 +449,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     entityType: MaybeArray<string>,
     predicate: Triggers<C>,
     ...fns: MatchedMiddleware<C>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     if (fns.length === 0) {
       // prettier-ignore
       return Array.isArray(predicate)
@@ -476,42 +477,42 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static email<C extends Context>(
     email: MaybeArray<string>,
     ...fns: MatchedMiddleware<C>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.entityText<C>('email', email, ...fns)
   }
 
   static phone<C extends Context>(
     number: MaybeArray<string>,
     ...fns: MatchedMiddleware<C>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.entityText<C>('phone_number', number, ...fns)
   }
 
   static url<C extends Context>(
     url: MaybeArray<string>,
     ...fns: MatchedMiddleware<C>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.entityText<C>('url', url, ...fns)
   }
 
   static textLink<C extends Context>(
     link: MaybeArray<string>,
     ...fns: MatchedMiddleware<C>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.entityText<C>('text_link', link, ...fns)
   }
 
   static textMention<C extends Context>(
     mention: MaybeArray<string>,
     ...fns: MatchedMiddleware<C>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.entityText<C>('text_mention', mention, ...fns)
   }
 
   static mention<C extends Context>(
     mention: MaybeArray<string>,
     ...fns: MatchedMiddleware<C>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.entityText<C>(
       'mention',
       normalizeTextArguments(mention, '@'),
@@ -522,7 +523,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static hashtag<C extends Context>(
     hashtag: MaybeArray<string>,
     ...fns: MatchedMiddleware<C>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.entityText<C>(
       'hashtag',
       normalizeTextArguments(hashtag, '#'),
@@ -533,7 +534,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static cashtag<C extends Context>(
     cashtag: MaybeArray<string>,
     ...fns: MatchedMiddleware<C>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.entityText<C>(
       'cashtag',
       normalizeTextArguments(cashtag, '$'),
@@ -552,7 +553,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   >(
     triggers: ReadonlyArray<(text: string, ctx: C) => RegExpExecArray | null>,
     ...fns: MatchedMiddleware<C, T>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     const handler = Composer.compose(fns)
     return (ctx, next) => {
       const text =
@@ -578,7 +579,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static hears<C extends Context>(
     triggers: Triggers<C>,
     ...fns: MatchedMiddleware<C, 'text'>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.mount(
       'text',
       Composer.match<C, 'text'>(normalizeTriggers(triggers), ...fns)
@@ -591,7 +592,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static command<C extends Context>(
     command: MaybeArray<string>,
     ...fns: MatchedMiddleware<C, 'text'>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     if (fns.length === 0) {
       // @ts-expect-error command is really the middleware
       return Composer.entity('bot_command', command)
@@ -622,7 +623,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static action<C extends Context>(
     triggers: Triggers<C>,
     ...fns: MatchedMiddleware<C, 'callback_query'>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.mount(
       'callback_query',
       Composer.match<C, 'callback_query'>(normalizeTriggers(triggers), ...fns)
@@ -635,7 +636,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static inlineQuery<C extends Context>(
     triggers: Triggers<C>,
     ...fns: MatchedMiddleware<C, 'inline_query'>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.mount(
       'inline_query',
       Composer.match<C, 'inline_query'>(normalizeTriggers(triggers), ...fns)
@@ -648,7 +649,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static acl<C extends Context>(
     userId: MaybeArray<number>,
     ...fns: NonemptyReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     if (typeof userId === 'function') {
       return Composer.optional(userId, ...fns)
     }
@@ -660,7 +661,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   private static memberStatus<C extends Context>(
     status: MaybeArray<tt.ChatMember['status']>,
     ...fns: NonemptyReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     const statuses = Array.isArray(status) ? status : [status]
     return Composer.optional(async (ctx) => {
       if (ctx.message === undefined) return false
@@ -674,7 +675,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
    */
   static admin<C extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.memberStatus(['administrator', 'creator'], ...fns)
   }
 
@@ -683,7 +684,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
    */
   static creator<C extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.memberStatus('creator', ...fns)
   }
 
@@ -693,7 +694,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
   static chatType<C extends Context>(
     type: MaybeArray<tt.ChatType>,
     ...fns: NonemptyReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     const types = Array.isArray(type) ? type : [type]
     return Composer.optional((ctx) => {
       const chat = ctx.chat
@@ -706,7 +707,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
    */
   static privateChat<C extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.chatType('private', ...fns)
   }
 
@@ -715,7 +716,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
    */
   static groupChat<C extends Context>(
     ...fns: NonemptyReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.chatType(['group', 'supergroup'], ...fns)
   }
 
@@ -726,7 +727,7 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     ...fns: NonemptyReadonlyArray<
       Middleware<GuardedContext<C, GameQueryUpdate>>
     >
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     return Composer.guard(
       (u): u is GameQueryUpdate =>
         'callback_query' in u && 'game_short_name' in u.callback_query,
@@ -734,25 +735,16 @@ export class Composer<C extends Context> implements Middleware.Obj<C> {
     )
   }
 
-  static unwrap<C extends Context>(handler: Middleware<C>): Middleware.Fn<C> {
+  static unwrap<C extends Context>(handler: Middleware<C>): MiddlewareFn<C> {
     if (!handler) {
       throw new Error('Handler is undefined')
     }
     return 'middleware' in handler ? handler.middleware() : handler
   }
 
-  static compose<C extends Context, Extension extends object>(
-    middlewares: readonly [
-      Middleware.Ext<C, Extension>,
-      ...ReadonlyArray<Middleware<Extension & C>>
-    ]
-  ): Middleware.Fn<C>
   static compose<C extends Context>(
     middlewares: ReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C>
-  static compose<C extends Context>(
-    middlewares: ReadonlyArray<Middleware<C>>
-  ): Middleware.Fn<C> {
+  ): MiddlewareFn<C> {
     if (!Array.isArray(middlewares)) {
       throw new Error('Middlewares must be an array')
     }

@@ -3,9 +3,9 @@ import * as http from 'http'
 import * as https from 'https'
 import * as tt from './telegram-types'
 import * as util from 'util'
+import { Composer, MaybePromise } from './composer'
 import ApiClient from './core/network/client'
 import { compactOptions } from './core/helpers/compact'
-import Composer from './composer'
 import Context from './context'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
@@ -38,7 +38,6 @@ namespace Telegraf {
   }
 
   export interface LaunchOptions {
-    // FIXME: not honored by webhook
     /** List the types of updates you want your bot to receive */
     allowedUpdates?: tt.UpdateType[]
     /** Configuration options for when the bot is run via webhooks */
@@ -69,11 +68,12 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   public telegram: Telegram
   readonly context: Partial<C> = {}
 
-  private handleError = async (err: unknown, ctx: C): Promise<void> => {
+  private handleError = (err: unknown, ctx: C): MaybePromise<void> => {
     // set exit code to emulate `warn-with-error-code` behavior of
     // https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
     // to prevent a clean exit despite an error being thrown
     process.exitCode = 1
+    console.error('Unhandled error while processing', ctx.update)
     throw err
   }
 
@@ -99,7 +99,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return this.telegram.webhookReply
   }
 
-  catch(handler: (err: unknown, ctx: C) => Promise<void>) {
+  catch(handler: (err: unknown, ctx: C) => MaybePromise<void>) {
     this.handleError = handler
     return this
   }
@@ -133,9 +133,10 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       typeof cb === 'function'
         ? (req, res) => webhookCb(req, res, () => cb(req, res))
         : webhookCb
-    this.webhookServer = tlsOptions
-      ? https.createServer(tlsOptions, callback)
-      : http.createServer(callback)
+    this.webhookServer =
+      tlsOptions !== undefined
+        ? https.createServer(tlsOptions, callback)
+        : http.createServer(callback)
     this.webhookServer.listen(port, host, () => {
       debug('Webhook listening on port: %s', port)
     })
@@ -171,7 +172,9 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       debug('Bot started with webhook')
       return
     }
-    await this.telegram.setWebhook(`https://${domain}${hookPath}`)
+    await this.telegram.setWebhook(`https://${domain}${hookPath}`, {
+      allowed_updates: config.allowedUpdates,
+    })
     debug(`Bot started with webhook @ https://${domain}`)
   }
 

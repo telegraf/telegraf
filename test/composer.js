@@ -1,8 +1,8 @@
 const test = require('ava')
 const { Composer, Telegraf } = require('../')
 
-function createBot () {
-  const bot = new Telegraf('', { handlerTimeout: Infinity })
+function createBot (...args) {
+  const bot = new Telegraf(...args)
   bot.botInfo = { id: 8, is_bot: true, username: 'bot', first_name: 'Bot' }
   return bot
 }
@@ -507,7 +507,7 @@ test.cb('should handle settings command', (t) => {
 })
 
 test.cb('should handle group command', (t) => {
-  const bot = createBot()
+  const bot = createBot(null)
   bot.botInfo = { username: 'bot' }
   bot.start(() => t.end())
   bot.handleUpdate({ message: { text: '/start@bot', entities: [{ type: 'bot_command', offset: 0, length: 10 }], ...baseGroupMessage } })
@@ -567,14 +567,14 @@ test.cb('should handle short command', (t) => {
 })
 
 test.cb('should handle command in group', (t) => {
-  const bot = createBot()
+  const bot = createBot(null)
   bot.botInfo = { username: 'bot' }
   bot.start(() => t.end())
   bot.handleUpdate({ message: { text: '/start@bot', entities: [{ type: 'bot_command', offset: 0, length: 10 }], chat: { id: 2, type: 'group' } } })
 })
 
 test.cb('should handle command in supergroup', (t) => {
-  const bot = createBot()
+  const bot = createBot(null)
   bot.botInfo = { username: 'bot' }
   bot.start(() => t.end())
   bot.handleUpdate({ message: { text: '/start@bot', entities: [{ type: 'bot_command', offset: 0, length: 10 }], chat: { id: 2, type: 'supergroup' } } })

@@ -17,11 +17,12 @@ export class Timeouts<C extends Context> {
     const node = new Yallist.Node(drift)
     this.list.pushNode(node)
     this.runTimer()
-    drift.promise.finally(() => {
+    const done = () => {
       if (node.list != null) {
         this.list.removeNode(node)
       }
-    })
+    }
+    drift.promise.then(done, done)
   }
 
   handleTimeout = (drift: Drift<C>) => {

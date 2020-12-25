@@ -58,8 +58,10 @@ export const MessageSubTypes = [
 ] as const
 
 export class Context {
-  readonly state: Record<string | symbol, any> = {}
+  /** Allows to make bot API requests not covered by the shorthands */
   readonly telegram2: Telegram2
+  /** Weakly-typed namespace for sharing data between middlewares */
+  readonly state: Record<string | symbol, any> = {}
 
   constructor(
     readonly update: tt.Update,

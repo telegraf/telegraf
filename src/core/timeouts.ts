@@ -1,36 +1,42 @@
-import { Context } from '../context'
-import { formatWithOptions } from 'util'
+import { inspect } from 'util'
 import Yallist = require('yallist')
 
-interface Drift<C extends Context> {
-  readonly ctx: C
-  readonly timeoutsAt: number
+export class TimeoutError<C> extends Error {
+  constructor(readonly ctx: C) {
+    super(inspect(ctx))
+  }
 }
 
+interface Drift<C> {
+  readonly ctx: C
+  readonly timeoutsAt: number
+  readonly reject: (error: TimeoutError<C>) => void
+}
+
+const NODEJS_MAX_TIMER_DURATION = 0x7fffffff
 const MIN_TIMEOUT_DURATION = 5_000 // 5s in ms
 
-export class Timeouts<C extends Context> {
+export class Timeouts<C> {
   private readonly list = new Yallist<Drift<C>>()
 
-  add(drift: Drift<C>) {
-    const node = new Yallist.Node(drift)
-    this.list.pushNode(node)
-    this.runTimer()
-    return () => {
-      if (node.list != null) {
-        this.list.removeNode(node)
-      }
-    }
-  }
+  constructor(private readonly timeout: number) {}
 
-  handleTimeout = (drift: Drift<C>) => {
-    throw new Error(
-      formatWithOptions(
-        { depth: 2 },
-        'Update processing timed out:',
-        drift.ctx.update
-      )
-    )
+  add(fn: (ctx: C) => Promise<void>, ctx: C) {
+    return new Promise<void>((resolve, reject) => {
+      const timeoutsAt = Date.now() + this.timeout
+      const node = new Yallist.Node<Drift<C>>({ ctx, timeoutsAt, reject })
+      if (this.timeout < NODEJS_MAX_TIMER_DURATION) {
+        this.list.pushNode(node)
+        this.runTimer()
+      }
+      fn(ctx)
+        .then(resolve, reject)
+        .finally(() => {
+          if (node.list != null) {
+            this.list.removeNode(node)
+          }
+        })
+    })
   }
 
   private isTimerRunning = false
@@ -44,9 +50,11 @@ export class Timeouts<C extends Context> {
       try {
         while (true) {
           const node = this.list.head
-          if (node == null || node.value.timeoutsAt > Date.now()) break
+          if (node == null) break
+          const { value } = node
+          if (value.timeoutsAt > Date.now()) break
           this.list.removeNode(node)
-          this.handleTimeout(node.value)
+          value.reject(new TimeoutError(value.ctx))
         }
       } finally {
         this.isTimerRunning = false

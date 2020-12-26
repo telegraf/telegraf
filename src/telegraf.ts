@@ -26,6 +26,9 @@ function always<T>(x: T) {
   return () => x
 }
 const anoop = always(Promise.resolve())
+async function aVoid(promise: unknown) {
+  await promise
+}
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Telegraf {
@@ -208,11 +211,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
-    const fn = async () => {
-      await this.middleware()(ctx, anoop)
-    }
     try {
-      await this.timeouts.add(fn())
+      await this.timeouts.add(aVoid(this.middleware()(ctx, anoop)))
     } catch (err) {
       return await this.handleError(err, ctx)
     } finally {

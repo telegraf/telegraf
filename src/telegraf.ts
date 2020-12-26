@@ -21,6 +21,7 @@ const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   handlerTimeout: 90_000, // 90s in ms
   contextType: Context,
 }
+const NODEJS_MAX_TIMER_DURATION = 0x7fffffff
 
 function always<T>(x: T) {
   return () => x
@@ -215,19 +216,19 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
+    const done =
+      this.options.handlerTimeout <= NODEJS_MAX_TIMER_DURATION
+        ? this.timeouts.add({
+            ctx,
+            timeoutsAt: Date.now() + this.options.handlerTimeout,
+          })
+        : anoop
     try {
-      const promise = this.middleware()(ctx, anoop)
-      if (promise != null && this.options.handlerTimeout <= 0x7fffffff) {
-        this.timeouts.add({
-          ctx,
-          promise,
-          timeoutsAt: Date.now() + this.options.handlerTimeout,
-        })
-      }
-      await promise
+      await this.middleware()(ctx, anoop)
     } catch (err) {
       return await this.handleError(err, ctx)
     } finally {
+      done()
       if (webhookResponse?.writableEnded === false) {
         webhookResponse.end()
       }

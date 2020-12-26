@@ -4,7 +4,6 @@ import Yallist = require('yallist')
 
 interface Drift<C extends Context> {
   readonly ctx: C
-  readonly promise: Promise<unknown>
   readonly timeoutsAt: number
 }
 
@@ -17,12 +16,11 @@ export class Timeouts<C extends Context> {
     const node = new Yallist.Node(drift)
     this.list.pushNode(node)
     this.runTimer()
-    const done = () => {
+    return () => {
       if (node.list != null) {
         this.list.removeNode(node)
       }
     }
-    drift.promise.then(done, done)
   }
 
   handleTimeout = (drift: Drift<C>) => {

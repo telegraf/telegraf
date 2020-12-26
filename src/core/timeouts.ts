@@ -1,41 +1,33 @@
-import { inspect } from 'util'
 import Yallist = require('yallist')
 
-export class TimeoutError<C> extends Error {
-  constructor(readonly ctx: C) {
-    super(inspect(ctx))
-  }
-}
+export class TimeoutError extends Error {}
 
-interface Drift<C> {
-  readonly ctx: C
+interface Drift {
   readonly timeoutsAt: number
-  readonly reject: (error: TimeoutError<C>) => void
+  readonly reject: (error: TimeoutError) => void
 }
 
 const NODEJS_MAX_TIMER_DURATION = 0x7fffffff
 const MIN_TIMEOUT_DURATION = 5_000 // 5s in ms
 
-export class Timeouts<C> {
-  private readonly list = new Yallist<Drift<C>>()
+export class Timeouts {
+  private readonly list = new Yallist<Drift>()
 
   constructor(private readonly timeout: number) {}
 
-  add(fn: (ctx: C) => Promise<void>, ctx: C) {
+  add(promise: Promise<void>) {
     return new Promise<void>((resolve, reject) => {
       const timeoutsAt = Date.now() + this.timeout
-      const node = new Yallist.Node<Drift<C>>({ ctx, timeoutsAt, reject })
+      const node = new Yallist.Node<Drift>({ timeoutsAt, reject })
       if (this.timeout < NODEJS_MAX_TIMER_DURATION) {
         this.list.pushNode(node)
         this.runTimer()
       }
-      fn(ctx)
-        .then(resolve, reject)
-        .finally(() => {
-          if (node.list != null) {
-            this.list.removeNode(node)
-          }
-        })
+      promise.then(resolve, reject).finally(() => {
+        if (node.list != null) {
+          this.list.removeNode(node)
+        }
+      })
     })
   }
 
@@ -54,7 +46,7 @@ export class Timeouts<C> {
           const { value } = node
           if (value.timeoutsAt > Date.now()) break
           this.list.removeNode(node)
-          value.reject(new TimeoutError(value.ctx))
+          value.reject(new TimeoutError())
         }
       } finally {
         this.isTimerRunning = false

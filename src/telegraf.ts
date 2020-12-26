@@ -62,7 +62,7 @@ namespace Telegraf {
 
 export class Telegraf<C extends Context = Context> extends Composer<C> {
   private readonly options: Telegraf.Options<C>
-  private readonly timeouts: Timeouts<C>
+  private readonly timeouts: Timeouts
   private webhookServer?: http.Server | https.Server
   private polling?: Polling
   /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
@@ -208,11 +208,11 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
-    const fn = async (ctx: C) => {
+    const fn = async () => {
       await this.middleware()(ctx, anoop)
     }
     try {
-      await this.timeouts.add(fn, ctx)
+      await this.timeouts.add(fn())
     } catch (err) {
       return await this.handleError(err, ctx)
     } finally {

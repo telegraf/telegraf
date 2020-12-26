@@ -7,7 +7,7 @@ interface Drift<C extends Context> {
   readonly timeoutsAt: number
 }
 
-const MIN_TIMEOUT = 5_000 // 5s in ms
+const MIN_TIMEOUT_DURATION = 5_000 // 5s in ms
 
 export class Timeouts<C extends Context> {
   private readonly list = new Yallist<Drift<C>>()
@@ -39,7 +39,7 @@ export class Timeouts<C extends Context> {
     if (node == null || this.isTimerRunning) return
     this.isTimerRunning = true
     const timeLeft = node.value.timeoutsAt - Date.now()
-    const ms = Math.max(timeLeft, MIN_TIMEOUT)
+    const ms = Math.max(timeLeft, MIN_TIMEOUT_DURATION)
     setTimeout(() => {
       try {
         while (true) {

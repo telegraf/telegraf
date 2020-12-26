@@ -216,19 +216,17 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
-    const done =
-      this.options.handlerTimeout <= NODEJS_MAX_TIMER_DURATION
-        ? this.timeouts.add({
-            ctx,
-            timeoutsAt: Date.now() + this.options.handlerTimeout,
-          })
-        : anoop
+    let done
+    if (this.options.handlerTimeout <= NODEJS_MAX_TIMER_DURATION) {
+      const timeoutsAt = Date.now() + this.options.handlerTimeout
+      done = this.timeouts.add({ ctx, timeoutsAt })
+    }
     try {
       await this.middleware()(ctx, anoop)
     } catch (err) {
       return await this.handleError(err, ctx)
     } finally {
-      done()
+      done?.()
       if (webhookResponse?.writableEnded === false) {
         webhookResponse.end()
       }

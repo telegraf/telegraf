@@ -10,6 +10,12 @@ interface Drift {
 const NODEJS_MAX_TIMER_DURATION = 0x7fffffff
 const MIN_TIMEOUT_DURATION = 5_000 // 5s in ms
 
+function popExpired(list: Yallist<Drift>) {
+  if (list.head != null && list.head.value.timeoutsAt < Date.now()) {
+    return list.pop()
+  }
+}
+
 export class Timeouts {
   private readonly list = new Yallist<Drift>()
 
@@ -39,19 +45,12 @@ export class Timeouts {
     const timeLeft = node.value.timeoutsAt - Date.now()
     const ms = Math.max(timeLeft, MIN_TIMEOUT_DURATION)
     setTimeout(() => {
-      try {
-        while (true) {
-          const node = this.list.head
-          if (node == null) break
-          const { value } = node
-          if (value.timeoutsAt > Date.now()) break
-          this.list.removeNode(node)
-          value.reject(new TimeoutError())
-        }
-      } finally {
-        this.isTimerRunning = false
-        this.runTimer()
+      let value
+      while ((value = popExpired(this.list)) !== undefined) {
+        value.reject(new TimeoutError())
       }
+      this.isTimerRunning = false
+      this.runTimer()
     }, ms).unref()
   }
 }

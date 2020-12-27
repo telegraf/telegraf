@@ -39,7 +39,6 @@ namespace ApiClient {
      */
     attachmentAgent?: Agent
     apiRoot: string
-    /** @deprecated use `ctx.telegram.webhookReply` */
     webhookReply: boolean
   }
 

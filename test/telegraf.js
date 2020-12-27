@@ -282,48 +282,63 @@ test.cb('should work with context extensions', (t) => {
   bot.handleUpdate({ message: BaseTextMessage })
 })
 
-test.cb('should handle webhook response', (t) => {
+class MockResponse {
+  constructor () {
+    this.writableEnded = false
+  }
+
+  setHeader () {}
+  end (body) {
+    this.writableEnded = true
+    this.body = body
+  }
+}
+
+test('should handle webhook response', async (t) => {
   const bot = createBot()
   bot.on('message', async (ctx) => {
     ctx.telegram.webhookReply = true
     const result = await ctx.replyWithChatAction('typing')
-    t.deepEqual(result, { webhook: true })
+    t.true(result)
   })
-  const res = {
-    setHeader: () => undefined,
-    end: () => t.end()
-  }
-  bot.handleUpdate({ message: BaseTextMessage }, res)
+  const res = new MockResponse()
+  await bot.handleUpdate({ message: BaseTextMessage }, res)
+  t.true(res.writableEnded)
+  t.deepEqual(JSON.parse(res.body), { method: 'sendChatAction', chat_id: 1, action: 'typing' })
 })
 
-const resStub = {
-  setHeader: () => undefined,
-  end: () => undefined
-}
-
-test.cb('should respect webhookReply option', (t) => {
+test('should respect webhookReply option', async (t) => {
   const bot = createBot(null, { telegram: { webhookReply: false } })
   bot.catch((err) => { throw err }) // Disable log
   bot.on('message', async (ctx) => ctx.replyWithChatAction('typing'))
-  t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
+  const res = new MockResponse()
+  await t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, res))
+  t.true(res.writableEnded)
+  t.is(res.body, undefined)
 })
 
-test.cb('should respect webhookReply runtime change', (t) => {
+test('should respect webhookReply runtime change', async (t) => {
   const bot = createBot()
   bot.webhookReply = false
   bot.catch((err) => { throw err }) // Disable log
   bot.on('message', async (ctx) => ctx.replyWithChatAction('typing'))
 
+  const res = new MockResponse()
   // Throws cause Bot Token is required for http call'
-  t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
+  await t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, res))
+  t.true(res.writableEnded)
+  t.is(res.body, undefined)
 })
 
-test.cb('should respect webhookReply runtime change (per request)', (t) => {
+test('should respect webhookReply runtime change (per request)', async (t) => {
   const bot = createBot()
   bot.catch((err) => { throw err }) // Disable log
   bot.on('message', async (ctx) => {
     ctx.webhookReply = false
     return ctx.replyWithChatAction('typing')
   })
-  t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, resStub)).then(() => t.end())
+  const res = new MockResponse()
+  await t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, res))
+  t.true(res.writableEnded)
+  t.is(res.body, undefined)
 })

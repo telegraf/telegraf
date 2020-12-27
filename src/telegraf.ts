@@ -205,7 +205,6 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
   private botInfoCall?: Promise<tt.UserFromGetMe>
   async handleUpdate(update: tt.Update, webhookResponse?: http.ServerResponse) {
-    debug('Processing update', update.update_id)
     this.botInfo ??=
       (debug(
         'Update',

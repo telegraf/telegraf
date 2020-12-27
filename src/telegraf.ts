@@ -207,9 +207,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   async handleUpdate(update: tt.Update, webhookResponse?: http.ServerResponse) {
     this.botInfo ??=
       (debug(
-        'Update',
-        update.update_id,
-        'is waiting for `botInfo` to be initialized'
+        'Update %d is waiting for `botInfo` to be initialized',
+        update.update_id
       ),
       await (this.botInfoCall ??= this.telegram.getMe()))
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
@@ -221,7 +220,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     } catch (err) {
       return await this.handleError(err, ctx)
     } finally {
-      if (webhookResponse !== undefined && !webhookResponse.writableEnded) {
+      if (webhookResponse?.writableEnded === false) {
         webhookResponse.end()
       }
     }

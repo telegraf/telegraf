@@ -68,12 +68,6 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
   attachmentAgent: undefined,
 }
 
-const WEBHOOK_REPLY_STUB = {
-  webhook: true,
-  details:
-    'https://core.telegram.org/bots/api#making-requests-when-getting-updates',
-} as const
-
 function includesMedia(payload: Record<string, unknown>) {
   return Object.values(payload).some((value) => {
     if (Array.isArray(value)) {
@@ -249,19 +243,13 @@ async function answerToWebhook(
   response: Response,
   payload: Record<string, unknown>,
   options: ApiClient.Options
-): Promise<typeof WEBHOOK_REPLY_STUB> {
+): Promise<true> {
   if (!includesMedia(payload)) {
     if (!response.headersSent) {
       response.setHeader('content-type', 'application/json')
     }
-    if (response.end.length === 2) {
-      response.end(JSON.stringify(payload), 'utf-8')
-    } else {
-      await new Promise<void>((resolve) =>
-        response.end(JSON.stringify(payload), 'utf-8', resolve)
-      )
-    }
-    return WEBHOOK_REPLY_STUB
+    response.end(JSON.stringify(payload), 'utf-8')
+    return true
   }
 
   const { headers, body } = await buildFormDataConfig(
@@ -277,7 +265,7 @@ async function answerToWebhook(
     response.on('finish', resolve)
     body.pipe(response)
   })
-  return WEBHOOK_REPLY_STUB
+  return true
 }
 
 type Response = http.ServerResponse

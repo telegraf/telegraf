@@ -9,9 +9,9 @@ interface Drift {
   readonly reject: (error: TimeoutError) => void
 }
 
-function popExpired(list: Yallist<Drift>) {
+function shiftExpired(list: Yallist<Drift>) {
   if (list.head != null && list.head.value.timeoutsAt < Date.now()) {
-    return list.pop()
+    return list.shift()
   }
 }
 
@@ -49,7 +49,7 @@ export class Timeouts {
     const timeLeft = node.value.timeoutsAt - Date.now()
     setTimeout(() => {
       let value
-      while ((value = popExpired(this.list)) !== undefined) {
+      while ((value = shiftExpired(this.list)) !== undefined) {
         value.reject(new TimeoutError())
       }
       this.isTimerRunning = false

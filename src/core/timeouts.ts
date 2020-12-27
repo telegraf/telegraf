@@ -24,11 +24,11 @@ export class Timeouts {
     }
   }
 
-  add(promise: Promise<void>) {
+  add<T>(promise: Promise<T>) {
     if (this.timeout >= NODEJS_MAX_TIMER_DURATION) {
       return promise
     }
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       const timeoutsAt = Date.now() + this.timeout
       const node = new Yallist.Node<Drift>({ timeoutsAt, reject })
       this.list.pushNode(node)

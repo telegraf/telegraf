@@ -15,32 +15,12 @@ import TelegramError from './error'
 const debug = require('debug')('telegraf:client')
 const { isStream } = MultipartStream
 
-const WEBHOOK_REPLY_METHOD_WHITELIST = new Set([
-  // methods that always return true on success
-  'addStickerToSet',
+const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
+  'answerCallbackQuery',
   'answerInlineQuery',
-  'answerPreCheckoutQuery',
-  'answerShippingQuery',
-  'createNewStickerSet',
-  'deleteChatPhoto',
   'deleteMessage',
-  'deleteStickerFromSet',
-  'deleteWebhook',
-  'kickChatMember',
   'leaveChat',
-  'pinChatMessage',
-  'promoteChatMember',
-  'restrictChatMember',
   'sendChatAction',
-  'setChatAdministratorCustomTitle',
-  'setChatDescription',
-  'setChatPermissions',
-  'setChatStickerSet',
-  'setChatTitle',
-  'setMyCommands',
-  'setStickerPositionInSet',
-  'unbanChatMember',
-  'unpinChatMessage',
 ])
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -80,7 +60,7 @@ const DEFAULT_EXTENSIONS: Record<string, string | undefined> = {
 
 const DEFAULT_OPTIONS: ApiClient.Options = {
   apiRoot: 'https://api.telegram.org',
-  webhookReply: false,
+  webhookReply: true,
   agent: new https.Agent({
     keepAlive: true,
     keepAliveMsecs: 10000,
@@ -347,7 +327,7 @@ class ApiClient {
     if (
       options.webhookReply &&
       response?.writableEnded === false &&
-      WEBHOOK_REPLY_METHOD_WHITELIST.has(method)
+      WEBHOOK_REPLY_METHOD_ALLOWLIST.has(method)
     ) {
       debug('Call via webhook', method, payload)
       // @ts-expect-error

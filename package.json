@@ -56,6 +56,7 @@
     "minimist": "^1.2.5",
     "module-alias": "^2.2.2",
     "node-fetch": "^2.6.1",
+    "p-timeout": "^4.1.0",
     "sandwich-stream": "^2.0.2",
     "typegram": "^3.0.0"
   },

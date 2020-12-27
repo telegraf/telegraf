@@ -55,7 +55,7 @@ type GuardedContext<
  * that narrows down `tt.Update` when intersected with it.
  */
 type MountMap = {
-  [T in tt.UpdateType]: Record<T, object>
+  [T in tt.UpdateType]: Record<T, unknown>
 } &
   {
     [T in tt.MessageSubType]: {

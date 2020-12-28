@@ -1,7 +1,7 @@
 const test = require('ava')
 const { Telegraf, session } = require('../')
 
-function createBot(...args) {
+function createBot (...args) {
   const bot = new Telegraf(...args)
   bot.botInfo = { id: 42, is_bot: true, username: 'bot', first_name: 'Bot' }
   return bot
@@ -277,12 +277,12 @@ test.cb('should work with context extensions', (t) => {
 })
 
 class MockResponse {
-  constructor() {
+  constructor () {
     this.writableEnded = false
   }
 
-  setHeader() { }
-  end(body) {
+  setHeader () {}
+  end (body) {
     this.writableEnded = true
     this.body = body
   }

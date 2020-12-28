@@ -274,7 +274,7 @@ class ApiClient {
   constructor(
     readonly token: string,
     options?: Partial<ApiClient.Options>,
-    private readonly response?: Response
+    readonly response?: Response
   ) {
     this.token = token
     this.options = {

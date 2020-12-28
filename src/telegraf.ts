@@ -211,6 +211,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
         update.update_id
       ),
       await (this.botInfoCall ??= this.telegram.getMe()))
+    debug('Processing update', update.update_id)
     const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)

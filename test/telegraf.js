@@ -1,7 +1,7 @@
 const test = require('ava')
 const { Telegraf, session } = require('../')
 
-function createBot (...args) {
+function createBot(...args) {
   const bot = new Telegraf(...args)
   bot.botInfo = { id: 42, is_bot: true, username: 'bot', first_name: 'Bot' }
   return bot
@@ -238,18 +238,13 @@ test('should store session state', (t) => {
     .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 }, chat: { id: 42 }, text: 'calc' } }))
 })
 
-/*
 test('should store session state with custom store', (t) => {
   const bot = createBot()
   const dummyStore = {}
   bot.use(session({
-    store: {
-      get: (key) => new Promise((resolve) => setTimeout(resolve, 100, dummyStore[key])),
-      set: (key, value) => {
-        return new Promise((resolve) => setTimeout(resolve, 100)).then(() => {
-          dummyStore[key] = value
-        })
-      }
+    storage: {
+      getItem: (key) => new Promise((resolve) => setTimeout(resolve, 25, dummyStore[key] || {})),
+      setItem: (key, value) => new Promise((resolve) => setTimeout(resolve, 25)).then(() => (dummyStore[key] = value))
     }
   }))
   bot.hears('calc', (ctx) => {
@@ -267,7 +262,6 @@ test('should store session state with custom store', (t) => {
     .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 100500 }, chat: { id: 42 } } }))
     .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 }, chat: { id: 42 }, text: 'calc' } }))
 })
-*/
 
 test.cb('should work with context extensions', (t) => {
   const bot = createBot()
@@ -283,12 +277,12 @@ test.cb('should work with context extensions', (t) => {
 })
 
 class MockResponse {
-  constructor () {
+  constructor() {
     this.writableEnded = false
   }
 
-  setHeader () {}
-  end (body) {
+  setHeader() { }
+  end(body) {
     this.writableEnded = true
     this.body = body
   }

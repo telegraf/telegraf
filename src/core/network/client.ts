@@ -15,19 +15,13 @@ import TelegramError from './error'
 const debug = require('debug')('telegraf:client')
 const { isStream } = MultipartStream
 
-const WEBHOOK_BLACKLIST = [
-  'getChat',
-  'getChatAdministrators',
-  'getChatMember',
-  'getChatMembersCount',
-  'getFile',
-  'getFileLink',
-  'getGameHighScores',
-  'getMe',
-  'getUserProfilePhotos',
-  'getWebhookInfo',
-  'exportChatInviteLink',
-]
+const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
+  'answerCallbackQuery',
+  'answerInlineQuery',
+  'deleteMessage',
+  'leaveChat',
+  'sendChatAction',
+])
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ApiClient {
@@ -45,7 +39,6 @@ namespace ApiClient {
      */
     attachmentAgent?: Agent
     apiRoot: string
-    /** @deprecated use `ctx.telegram.webhookReply` */
     webhookReply: boolean
   }
 
@@ -66,19 +59,13 @@ const DEFAULT_EXTENSIONS: Record<string, string | undefined> = {
 
 const DEFAULT_OPTIONS: ApiClient.Options = {
   apiRoot: 'https://api.telegram.org',
-  webhookReply: false,
+  webhookReply: true,
   agent: new https.Agent({
     keepAlive: true,
     keepAliveMsecs: 10000,
   }),
   attachmentAgent: undefined,
 }
-
-const WEBHOOK_REPLY_STUB = {
-  webhook: true,
-  details:
-    'https://core.telegram.org/bots/api#making-requests-when-getting-updates',
-} as const
 
 function includesMedia(payload: Record<string, unknown>) {
   return Object.values(payload).some((value) => {
@@ -251,74 +238,43 @@ async function attachFormMedia(
   }
 }
 
-function isKoaResponse(response: unknown): boolean {
-  return (
-    typeof response === 'object' &&
-    response !== null &&
-    hasPropType(response, 'set', 'function') &&
-    hasPropType(response, 'header', 'object')
-  )
-}
-
 async function answerToWebhook(
   response: Response,
   payload: Record<string, unknown>,
   options: ApiClient.Options
-): Promise<typeof WEBHOOK_REPLY_STUB> {
+): Promise<true> {
   if (!includesMedia(payload)) {
-    if (isKoaResponse(response)) {
-      // @ts-expect-error
-      response.body = payload
-      return WEBHOOK_REPLY_STUB
-    }
     if (!response.headersSent) {
       response.setHeader('content-type', 'application/json')
     }
-    if (response.end.length === 2) {
-      response.end(JSON.stringify(payload), 'utf-8')
-    } else {
-      await new Promise<void>((resolve) =>
-        response.end(JSON.stringify(payload), 'utf-8', resolve)
-      )
-    }
-    return WEBHOOK_REPLY_STUB
+    response.end(JSON.stringify(payload), 'utf-8')
+    return true
   }
 
-  const { headers = {}, body } = await buildFormDataConfig(
+  const { headers, body } = await buildFormDataConfig(
     payload,
     options.attachmentAgent
   )
-  if (isKoaResponse(response)) {
-    for (const [key, value] of Object.entries(headers)) {
-      // @ts-expect-error
-      response.set(key, value)
-    }
-    // @ts-expect-error
-    response.body = body
-    return WEBHOOK_REPLY_STUB
-  }
   if (!response.headersSent) {
     for (const [key, value] of Object.entries(headers)) {
-      // @ts-expect-error
-      response.set(key, value)
+      response.setHeader(key, value)
     }
   }
   await new Promise((resolve) => {
     response.on('finish', resolve)
     body.pipe(response)
   })
-  return WEBHOOK_REPLY_STUB
+  return true
 }
 
 type Response = http.ServerResponse
 class ApiClient {
   readonly options: ApiClient.Options
-  private responseEnd = false
 
   constructor(
     readonly token: string,
     options?: Partial<ApiClient.Options>,
-    private readonly response?: Response
+    readonly response?: Response
   ) {
     this.token = token
     this.options = {
@@ -353,17 +309,14 @@ class ApiClient {
     payload: Opts<M>,
     { signal }: ApiClient.CallApiOptions = {}
   ): Promise<ReturnType<Telegram[M]>> {
-    const { token, options, response, responseEnd } = this
+    const { token, options, response } = this
 
     if (
       options.webhookReply &&
-      response !== undefined &&
-      !response.writableEnded &&
-      !responseEnd &&
-      !WEBHOOK_BLACKLIST.includes(method)
+      response?.writableEnded === false &&
+      WEBHOOK_REPLY_METHOD_ALLOWLIST.has(method)
     ) {
       debug('Call via webhook', method, payload)
-      this.responseEnd = true
       // @ts-expect-error
       return await answerToWebhook(response, { method, ...payload }, options)
     }

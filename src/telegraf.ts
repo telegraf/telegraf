@@ -91,6 +91,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return this.telegram.token
   }
 
+  /** @deprecated use `ctx.telegram.webhookReply` */
   set webhookReply(webhookReply: boolean) {
     this.telegram.webhookReply = webhookReply
   }

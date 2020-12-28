@@ -6,7 +6,7 @@ import Context from './context'
 import { SnakeToCamelCase } from './core/helpers/string'
 
 type MaybeArray<T> = T | T[]
-type MaybePromise<T> = T | Promise<T>
+export type MaybePromise<T> = T | Promise<T>
 type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 type Triggers<C> = MaybeArray<
   string | RegExp | ((value: string, ctx: C) => RegExpExecArray | null)
@@ -55,7 +55,7 @@ type GuardedContext<
  * that narrows down `tt.Update` when intersected with it.
  */
 type MountMap = {
-  [T in tt.UpdateType]: Record<T, object>
+  [T in tt.UpdateType]: Record<T, unknown>
 } &
   {
     [T in tt.MessageSubType]: {

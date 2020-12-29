@@ -392,8 +392,19 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
 
   /**
    * Generates middleware for handling provided update types.
+   * @deprecated use `Composer.on`
    */
   static mount<C extends Context, T extends tt.UpdateType | tt.MessageSubType>(
+    updateType: MaybeArray<T>,
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
+  ): MiddlewareFn<C> {
+    return Composer.on(updateType, ...fns)
+  }
+
+  /**
+   * Generates middleware for handling provided update types.
+   */
+  static on<C extends Context, T extends tt.UpdateType | tt.MessageSubType>(
     updateType: MaybeArray<T>,
     ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
   ): MiddlewareFn<C> {

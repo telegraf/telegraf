@@ -238,28 +238,25 @@ test('should store session state', (t) => {
     .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 }, chat: { id: 42 }, text: 'calc' } }))
 })
 
-/*
 test('should store session state with custom store', (t) => {
   const bot = createBot()
   const dummyStore = {}
   bot.use(session({
-    store: {
-      get: (key) => new Promise((resolve) => setTimeout(resolve, 100, dummyStore[key])),
-      set: (key, value) => {
-        return new Promise((resolve) => setTimeout(resolve, 100)).then(() => {
-          dummyStore[key] = value
-        })
-      }
+    storage: {
+      getItem: (key) => new Promise((resolve) => setTimeout(resolve, 25, dummyStore[key])),
+      setItem: (key, value) => new Promise((resolve) => setTimeout(resolve, 25)).then(() => (dummyStore[key] = value))
     }
   }))
   bot.hears('calc', (ctx) => {
     t.true('session' in ctx)
     t.true('counter' in ctx.session)
-    t.is(ctx.session.counter, 2)
+    t.is(dummyStore['42:42'].counter, 2)
   })
   bot.on('message', (ctx) => {
     t.true('session' in ctx)
-    ctx.session.counter = ctx.session.counter || 0
+    if (ctx.session == null) {
+      ctx.session = { counter: 0 }
+    }
     ctx.session.counter++
   })
   return bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 }, chat: { id: 42 } } })
@@ -267,7 +264,6 @@ test('should store session state with custom store', (t) => {
     .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 100500 }, chat: { id: 42 } } }))
     .then(() => bot.handleUpdate({ message: { ...BaseTextMessage, from: { id: 42 }, chat: { id: 42 }, text: 'calc' } }))
 })
-*/
 
 test.cb('should work with context extensions', (t) => {
   const bot = createBot()

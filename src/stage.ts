@@ -10,7 +10,7 @@ import { Context } from './context'
 
 export class Stage<
   C extends SessionContext<SceneSession<D>> & {
-    scene: SceneContextScene<C>
+    scene: SceneContextScene<C, D>
   },
   D extends SceneSessionData = SceneSessionData
 > extends Composer<C> {
@@ -41,7 +41,7 @@ export class Stage<
     const handler = Composer.compose<C>([
       (ctx, next) => {
         const scenes: Map<string, BaseScene<C>> = this.scenes
-        const scene = new SceneContextScene<C>(ctx, scenes, this.options)
+        const scene = new SceneContextScene<C, D>(ctx, scenes, this.options)
         ctx.scene = scene
         return next()
       },
@@ -51,21 +51,24 @@ export class Stage<
     return Composer.optional(isSessionContext, handler)
   }
 
-  static enter<C extends Context & { scene: SceneContextScene<C> }>(
-    ...args: Parameters<SceneContextScene<C>['enter']>
-  ) {
+  static enter<
+    C extends Context & { scene: SceneContextScene<C, D> },
+    D extends SceneSessionData = SceneSessionData
+  >(...args: Parameters<SceneContextScene<C>['enter']>) {
     return (ctx: C) => ctx.scene.enter(...args)
   }
 
-  static reenter<C extends Context & { scene: SceneContextScene<C> }>(
-    ...args: Parameters<SceneContextScene<C>['reenter']>
-  ) {
+  static reenter<
+    C extends Context & { scene: SceneContextScene<C, D> },
+    D extends SceneSessionData = SceneSessionData
+  >(...args: Parameters<SceneContextScene<C>['reenter']>) {
     return (ctx: C) => ctx.scene.reenter(...args)
   }
 
-  static leave<C extends Context & { scene: SceneContextScene<C> }>(
-    ...args: Parameters<SceneContextScene<C>['leave']>
-  ) {
+  static leave<
+    C extends Context & { scene: SceneContextScene<C, D> },
+    D extends SceneSessionData = SceneSessionData
+  >(...args: Parameters<SceneContextScene<C>['leave']>) {
     return (ctx: C) => ctx.scene.leave(...args)
   }
 }

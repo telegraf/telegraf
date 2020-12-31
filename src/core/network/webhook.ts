@@ -34,7 +34,7 @@ export default function (
     }
     try {
       await updateHandler(update, res)
-    } catch (err) {
+    } catch (err: unknown) {
       debug('Webhook error', err)
       res.writeHead(500)
       res.end()

@@ -274,9 +274,8 @@ class ApiClient {
   constructor(
     readonly token: string,
     options?: Partial<ApiClient.Options>,
-    readonly response?: Response
+    private readonly response?: Response
   ) {
-    this.token = token
     this.options = {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),

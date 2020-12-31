@@ -112,8 +112,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return generateCallback(
       path,
       (update: tt.Update, res: http.ServerResponse) =>
-        this.handleUpdate(update, res),
-      debug
+        this.handleUpdate(update, res)
     )
   }
 

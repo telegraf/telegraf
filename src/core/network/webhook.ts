@@ -5,8 +5,7 @@ const debug = d('telegraf:webhook')
 
 export default function (
   hookPath: string,
-  updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>,
-  errorHandler: (err: SyntaxError) => void
+  updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>
 ) {
   return async (
     req: http.IncomingMessage,
@@ -27,10 +26,11 @@ export default function (
     let update: Update
     try {
       update = JSON.parse(body)
-    } catch (error) {
+    } catch (error: unknown) {
       res.writeHead(415)
       res.end()
-      return errorHandler(error)
+      debug('Failed to parse request body:', error)
+      return
     }
     try {
       await updateHandler(update, res)

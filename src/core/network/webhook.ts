@@ -12,7 +12,7 @@ export default function (
     req: http.IncomingMessage,
     res: http.ServerResponse,
     next?: () => void
-  ): void => {
+  ): Promise<void> => {
     debug('Incoming request', req.method, req.url)
     if (req.method !== 'POST' || req.url !== hookPath) {
       if (typeof next === 'function') {
@@ -21,30 +21,27 @@ export default function (
       res.statusCode = 403
       return res.end()
     }
-    let body = ''
-    req.on('data', (chunk: string) => {
+     let body = ''
+    for await (let chunk of req) {
       body += chunk.toString()
-    })
-    req.on('end', () => {
-      let update: Update
-      try {
-        update = JSON.parse(body)
-      } catch (error) {
-        res.writeHead(415)
+    }
+    let update: Update
+    try {
+      update = JSON.parse(body)
+    } catch (error) {
+      res.writeHead(415)
+      res.end()
+      return errorHandler(error)
+    }
+    try {
+      await updateHandler(update, res);
+      if (!res.writableEnded || !res.finished) {
         res.end()
-        return errorHandler(error)
       }
-      updateHandler(update, res)
-        .then(() => {
-          if (!res.finished) {
-            res.end()
-          }
-        })
-        .catch((err: unknown) => {
-          debug('Webhook error', err)
-          res.writeHead(500)
-          res.end()
-        })
-    })
+    } catch (err) {
+      debug('Webhook error', err)
+      res.writeHead(500)
+      res.end()
+    }
   }
 }

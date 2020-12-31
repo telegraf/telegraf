@@ -21,9 +21,9 @@ export default function (
       res.statusCode = 403
       return res.end()
     }
-     let body = ''
-    for await (let chunk of req) {
-      body += chunk.toString()
+    let body = ''
+    for await (const chunk of req) {
+      body += (chunk as Buffer).toString()
     }
     let update: Update
     try {

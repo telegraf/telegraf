@@ -3,11 +3,10 @@ import Context from '../../context'
 import { Middleware } from '../../middleware'
 import { SessionContext } from '../../session'
 
-export interface WizardContext<D extends WizardSessionData = WizardSessionData>
-  extends Context {
-  session: WizardSession<D>
-  scene: SceneContextScene<WizardContext<D>, D>
-  wizard: WizardContextWizard<WizardContext<D>, D>
+export interface WizardContext extends Context {
+  session: WizardSession<WizardSessionData>
+  scene: SceneContextScene<WizardContext, WizardSessionData>
+  wizard: WizardContextWizard<WizardContext>
 }
 
 export interface WizardSessionData extends SceneSessionData {
@@ -17,11 +16,10 @@ export interface WizardSessionData extends SceneSessionData {
 export interface WizardSession<S extends WizardSessionData = WizardSessionData>
   extends SceneSession<S> {}
 
-class WizardContextWizard<
-  C extends SessionContext<SceneSession<D>> & {
-    scene: SceneContextScene<C, D>
-  },
-  D extends WizardSessionData = WizardSessionData
+export default class WizardContextWizard<
+  C extends SessionContext<WizardSession> & {
+    scene: SceneContextScene<C, WizardSessionData>
+  }
 > {
   readonly state: object
   constructor(
@@ -57,5 +55,3 @@ class WizardContextWizard<
     return this.selectStep(this.cursor - 1)
   }
 }
-
-export default WizardContextWizard

@@ -22,7 +22,7 @@ export default function (
     }
     let body = ''
     for await (const chunk of req) {
-      body += (chunk as Buffer).toString()
+      body += String(chunk)
     }
     let update: Update
     try {

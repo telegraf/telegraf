@@ -1,11 +1,16 @@
 const { Telegraf, Markup } = require('telegraf')
 
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
 const keyboard = Markup.keyboard([
   Markup.button.pollRequest('Create poll', 'regular'),
   Markup.button.pollRequest('Create quiz', 'quiz')
 ])
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(token)
 
 bot.on('poll', (ctx) => console.log('Poll update', ctx.poll))
 bot.on('poll_answer', (ctx) => console.log('Poll answer', ctx.pollAnswer))

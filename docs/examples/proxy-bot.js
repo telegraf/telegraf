@@ -4,6 +4,10 @@ const HttpsProxyAgent = require('https-proxy-agent')
 
 const { BOT_TOKEN, HTTPS_PROXY_HOST, HTTPS_PROXY_PORT } = process.env
 
+if (BOT_TOKEN === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
 const agent = new HttpsProxyAgent({
   host: HTTPS_PROXY_HOST,
   port: HTTPS_PROXY_PORT

@@ -4,6 +4,11 @@ import { Context, session, Telegraf } from 'telegraf'
 
 const { reply, fork } = Telegraf
 
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
 const randomPhoto = 'https://picsum.photos/200/300/?random'
 
 const sayYoMiddleware = fork((ctx) => ctx.reply('yo'))
@@ -16,7 +21,7 @@ interface BotContext extends Context {
   session?: SessionData
 }
 
-const bot = new Telegraf<BotContext>(process.env.BOT_TOKEN)
+const bot = new Telegraf<BotContext>(token)
 
 // // Register session middleware
 bot.use(session())

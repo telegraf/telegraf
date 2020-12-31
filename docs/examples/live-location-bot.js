@@ -1,8 +1,15 @@
 const { Telegraf } = require('telegraf')
 
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
+// @ts-ignore
 function sendLiveLocation (ctx) {
   let lat = 42.0
   let lon = 42.0
+  // @ts-ignore
   ctx.replyWithLocation(lat, lon, { live_period: 60 }).then((message) => {
     const timer = setInterval(() => {
       lat += Math.random() * 0.001
@@ -12,7 +19,7 @@ function sendLiveLocation (ctx) {
   })
 }
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(token)
 bot.start(sendLiveLocation)
 bot.launch()
 

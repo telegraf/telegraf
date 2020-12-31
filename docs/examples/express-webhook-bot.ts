@@ -1,8 +1,15 @@
-const { Telegraf } = require('telegraf')
-// @ts-expect-error not a dependency of Telegraf
-const express = require('express')
+/* eslint-disable @typescript-eslint/no-floating-promises */
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+// @ts-expect-error not a dependency of Telegraf
+import express from 'express'
+import { Telegraf } from 'telegraf'
+
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
+const bot = new Telegraf(token)
 // Set the bot response
 bot.on('text', ({ replyWithHTML }) => replyWithHTML('<b>Hello</b>'))
 
@@ -11,7 +18,7 @@ bot.on('text', ({ replyWithHTML }) => replyWithHTML('<b>Hello</b>'))
 bot.telegram.setWebhook('https://----.localtunnel.me/secret-path')
 
 const app = express()
-app.get('/', (req, res) => res.send('Hello World!'))
+app.get('/', (req: any, res: any) => res.send('Hello World!'))
 // Set the bot API endpoint
 app.use(bot.webhookCallback('/secret-path'))
 app.listen(3000, () => {

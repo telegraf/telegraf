@@ -1,8 +1,11 @@
 const { Telegraf, Markup } = require('telegraf')
 
-const token = process.env.BOT_TOKEN
-if (token === undefined) {
-  throw new Error('BOT_TOKEN must be provided!')
+if (process.env.BOT_TOKEN === undefined) {
+  throw new TypeError('BOT_TOKEN must be provided!')
+}
+
+if (process.env.PROVIDER_TOKEN === undefined) {
+  throw new TypeError('PROVIDER_TOKEN must be provided!')
 }
 
 const invoice = {
@@ -40,11 +43,11 @@ const replyOptions = Markup.inlineKeyboard([
   Markup.button.url('❤️', 'http://telegraf.js.org')
 ])
 
-const bot = new Telegraf(token)
-bot.start(({ replyWithInvoice }) => replyWithInvoice(invoice))
-bot.command('buy', ({ replyWithInvoice }) => replyWithInvoice(invoice, replyOptions))
-bot.on('shipping_query', ({ answerShippingQuery }) => answerShippingQuery(true, shippingOptions, undefined))
-bot.on('pre_checkout_query', ({ answerPreCheckoutQuery }) => answerPreCheckoutQuery(true))
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.start((ctx) => ctx.replyWithInvoice(invoice))
+bot.command('buy', (ctx) => ctx.replyWithInvoice(invoice, replyOptions))
+bot.on('shipping_query', (ctx) => ctx.answerShippingQuery(true, shippingOptions, undefined))
+bot.on('pre_checkout_query', (ctx) => ctx.answerPreCheckoutQuery(true))
 bot.on('successful_payment', () => console.log('Woohoo'))
 bot.launch()
 

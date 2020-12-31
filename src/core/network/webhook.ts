@@ -8,7 +8,7 @@ export default function (
   updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>,
   errorHandler: (err: SyntaxError) => void
 ) {
-  return (
+  return async (
     req: http.IncomingMessage,
     res: http.ServerResponse,
     next?: () => void
@@ -34,7 +34,7 @@ export default function (
       return errorHandler(error)
     }
     try {
-      await updateHandler(update, res);
+      await updateHandler(update, res)
       if (!res.writableEnded || !res.finished) {
         res.end()
       }

@@ -11,15 +11,14 @@ export default function (
   return async (
     req: http.IncomingMessage,
     res: http.ServerResponse,
-    next?: () => void
+    next = (): void => {
+      res.statusCode = 403
+      return res.end()
+    }
   ): Promise<void> => {
     debug('Incoming request', req.method, req.url)
     if (req.method !== 'POST' || req.url !== hookPath) {
-      if (typeof next === 'function') {
-        return next()
-      }
-      res.statusCode = 403
-      return res.end()
+      return next()
     }
     let body = ''
     for await (const chunk of req) {
@@ -35,7 +34,7 @@ export default function (
     }
     try {
       await updateHandler(update, res)
-      if (!res.writableEnded || !res.finished) {
+      if (!res.writableEnded) {
         res.end()
       }
     } catch (err) {

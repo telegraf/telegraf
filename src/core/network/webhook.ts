@@ -34,9 +34,6 @@ export default function (
     }
     try {
       await updateHandler(update, res)
-      if (!res.writableEnded) {
-        res.end()
-      }
     } catch (err) {
       debug('Webhook error', err)
       res.writeHead(500)

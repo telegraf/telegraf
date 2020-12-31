@@ -7,10 +7,9 @@ import SceneContextScene from '../context'
 
 export class WizardScene<
     C extends Context & {
-      scene: SceneContextScene<C, D>
-      wizard: WizardContextWizard<C, D>
-    },
-    D extends WizardSessionData = WizardSessionData
+      scene: SceneContextScene<C, WizardSessionData>
+      wizard: WizardContextWizard<C>
+    }
   >
   extends BaseScene<C>
   implements MiddlewareObj<C> {

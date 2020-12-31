@@ -51,24 +51,21 @@ export class Stage<
     return Composer.optional(isSessionContext, handler)
   }
 
-  static enter<
-    C extends Context & { scene: SceneContextScene<C, D> },
-    D extends SceneSessionData = SceneSessionData
-  >(...args: Parameters<SceneContextScene<C>['enter']>) {
+  static enter<C extends Context & { scene: SceneContextScene<C> }>(
+    ...args: Parameters<SceneContextScene<C>['enter']>
+  ) {
     return (ctx: C) => ctx.scene.enter(...args)
   }
 
-  static reenter<
-    C extends Context & { scene: SceneContextScene<C, D> },
-    D extends SceneSessionData = SceneSessionData
-  >(...args: Parameters<SceneContextScene<C>['reenter']>) {
+  static reenter<C extends Context & { scene: SceneContextScene<C> }>(
+    ...args: Parameters<SceneContextScene<C>['reenter']>
+  ) {
     return (ctx: C) => ctx.scene.reenter(...args)
   }
 
-  static leave<
-    C extends Context & { scene: SceneContextScene<C, D> },
-    D extends SceneSessionData = SceneSessionData
-  >(...args: Parameters<SceneContextScene<C>['leave']>) {
+  static leave<C extends Context & { scene: SceneContextScene<C> }>(
+    ...args: Parameters<SceneContextScene<C>['leave']>
+  ) {
     return (ctx: C) => ctx.scene.leave(...args)
   }
 }

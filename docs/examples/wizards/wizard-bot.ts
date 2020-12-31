@@ -9,6 +9,11 @@ import {
   WizardScene,
 } from 'telegraf'
 
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
 const stepHandler = new Composer<WizardContext>()
 stepHandler.action('next', async (ctx) => {
   await ctx.reply('Step 2. Via inline button')
@@ -49,8 +54,10 @@ const superWizard = new WizardScene(
   }
 )
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-const stage = new Stage([superWizard], { default: 'super-wizard' })
+const bot = new Telegraf<WizardContext>(token)
+const stage = new Stage<WizardContext>([superWizard], {
+  default: 'super-wizard',
+})
 bot.use(session())
 bot.use(stage.middleware())
 bot.launch()

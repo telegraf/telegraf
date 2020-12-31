@@ -20,8 +20,9 @@ if (token === undefined) {
 
 /**
  * It is possible to extend the session object that is available to each wizard.
- * This can be done by extending `WizardSessionData` and in turn passing your own
- * interface as a type variable to `WizardSession` and to `WizardContextWizard`.
+ * This can be done by extending `WizardSessionData` and in turn passing your
+ * own interface as a type variable to `WizardSession` and to
+ * `WizardContextWizard`.
  */
 interface MyWizardSession extends WizardSessionData {
   // will be available under `ctx.scene.session.myWizardSessionProp`
@@ -43,12 +44,13 @@ interface MySession extends WizardSession<MyWizardSession> {
 
 /**
  * Now that we have our session object, we can define our own context object.
- * Again, as we're using wizards, we now have to extend `WizardContext`.
  *
  * As always, if we also want to use our own session object, we have to set it
  * here under the `session` property. In addition, we now also have to set the
  * scene object under the `scene` property. As we extend the scene session, we
  * need to pass the type in as a type variable once again.
+ *
+ * We also have to set the wizard object under the `wizard` property.
  */
 interface MyContext extends Context {
   // will be available under `ctx.myContextProp`
@@ -59,7 +61,7 @@ interface MyContext extends Context {
   // declare scene type
   scene: SceneContextScene<MyContext, MyWizardSession>
   // declare wizard type
-  wizard: WizardContextWizard<MyContext, MyWizardSession>
+  wizard: WizardContextWizard<MyContext>
 }
 
 const stepHandler = new Composer<MyContext>()
@@ -110,7 +112,7 @@ const superWizard = new WizardScene(
 )
 
 const bot = new Telegraf<MyContext>(token)
-const stage = new Stage<MyContext, MyWizardSession>([superWizard], {
+const stage = new Stage<MyContext>([superWizard], {
   default: 'super-wizard',
 })
 bot.use(session())

@@ -2,37 +2,28 @@
 import {
   BaseScene as Scene,
   SceneContext,
-  SceneContextScene,
   SceneSessionData,
   session,
   Stage,
   Telegraf,
 } from 'telegraf'
 
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
 /**
  * It is possible to extend the session object that is available to each scene.
- * This can be done by extending `SceneSessionData`.
+ * This can be done by extending `SceneSessionData` and in turn passing your own
+ * interface as a type variable to `SceneContext`.
  */
 interface MySceneSession extends SceneSessionData {
   // will be available under `ctx.scene.session.mySceneSessionProp`
   mySceneSessionProp: number
 }
 
-/**
- * Since you can only pass a custom context to the bot, we can simply define a
- * type alias to use the custom scene without actually extending the context in
- * any way.
- *
- * As we did not define a custom session object, we can simply pass the scene
- * session object as a second type variable to `SceneContext`. Note that we have
- * to use a default value as a first argument.
- *
- * IMPORTANT: Whenever we want to extend the scene session, we have to supply
- * the type arguments to `SceneContext`. It is not possible to access any
- * properties of `ctx.scene.session` if we only `extend SceneContext`. If we did
- * that, only `ctx.session` would be available.
- */
-type MyContext = SceneContext<SceneContextScene<MyContext>, MySceneSession>
+type MyContext = SceneContext<MySceneSession>
 
 // Handler factories
 const { enter, leave } = Stage
@@ -41,18 +32,18 @@ const { enter, leave } = Stage
 const greeterScene = new Scene<MyContext>('greeter')
 greeterScene.enter((ctx) => ctx.reply('Hi'))
 greeterScene.leave((ctx) => ctx.reply('Bye'))
-greeterScene.hears('hi', enter('greeter'))
+greeterScene.hears('hi', enter<MyContext>('greeter'))
 greeterScene.on('message', (ctx) => ctx.replyWithMarkdown('Send `hi`'))
 
 // Echo scene
 const echoScene = new Scene<MyContext>('echo')
 echoScene.enter((ctx) => ctx.reply('echo scene'))
 echoScene.leave((ctx) => ctx.reply('exiting echo scene'))
-echoScene.command('back', leave())
+echoScene.command('back', leave<MyContext>())
 echoScene.on('text', (ctx) => ctx.reply(ctx.message.text))
 echoScene.on('message', (ctx) => ctx.reply('Only text messages please'))
 
-const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN)
+const bot = new Telegraf<MyContext>(token)
 
 const stage = new Stage<MyContext>([greeterScene, echoScene], {
   ttl: 10,

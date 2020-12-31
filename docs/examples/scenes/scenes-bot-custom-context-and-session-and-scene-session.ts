@@ -40,7 +40,6 @@ interface MySession extends SceneSession<MySceneSession> {
 
 /**
  * Now that we have our session object, we can define our own context object.
- * Again, as we're using scenes, we now have to extend `SceneContext`.
  *
  * As always, if we also want to use our own session object, we have to set it
  * here under the `session` property. In addition, we now also have to set the

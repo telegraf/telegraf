@@ -7,28 +7,32 @@ import {
   Telegraf,
 } from 'telegraf'
 
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
 // Handler factories
 const { enter, leave } = Stage
 
 // Greeter scene
-const greeterScene = new Scene('greeter')
+const greeterScene = new Scene<SceneContext>('greeter')
 greeterScene.enter((ctx) => ctx.reply('Hi'))
 greeterScene.leave((ctx) => ctx.reply('Bye'))
-greeterScene.hears('hi', enter('greeter'))
+greeterScene.hears('hi', enter<SceneContext>('greeter'))
 greeterScene.on('message', (ctx) => ctx.replyWithMarkdown('Send `hi`'))
 
 // Echo scene
-const echoScene = new Scene('echo')
+const echoScene = new Scene<SceneContext>('echo')
 echoScene.enter((ctx) => ctx.reply('echo scene'))
 echoScene.leave((ctx) => ctx.reply('exiting echo scene'))
-echoScene.command('back', leave())
+echoScene.command('back', leave<SceneContext>())
 echoScene.on('text', (ctx) => ctx.reply(ctx.message.text))
 echoScene.on('message', (ctx) => ctx.reply('Only text messages please'))
 
-// You have to pass `SceneContext` as a type variable if you want to use scenes.
-const bot = new Telegraf<SceneContext>(process.env.BOT_TOKEN)
+const bot = new Telegraf<SceneContext>(token)
 
-const stage = new Stage([greeterScene, echoScene], {
+const stage = new Stage<SceneContext>([greeterScene, echoScene], {
   ttl: 10,
 })
 bot.use(session())

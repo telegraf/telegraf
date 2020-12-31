@@ -6,35 +6,26 @@ import {
   Stage,
   Telegraf,
   WizardContext,
-  WizardContextWizard,
   WizardScene,
   WizardSessionData,
 } from 'telegraf'
 
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
 /**
  * It is possible to extend the session object that is available to each wizard.
- * This can be done by extending `WizardSessionData`.
+ * This can be done by extending `WizardSessionData` and in turn passing your
+ * own interface as a type variable to `WizardContext`.
  */
 interface MyWizardSession extends WizardSessionData {
   // will be available under `ctx.scene.session.myWizardSessionProp`
   myWizardSessionProp: number
 }
 
-/**
- * Since you can only pass a custom context to the bot, we can simply define a
- * type alias to use the custom wizard without actually extending the context in
- * any way.
- *
- * As we did not define a custom session object, we can simply pass the wizard
- * session object as a second type variable to `WizardContext`. Note that we have
- * to use a default value as a first argument.
- *
- * IMPORTANT: Whenever we want to extend the wizard session, we have to supply
- * the type arguments to `WizardContext`. It is not possible to access any
- * properties of `ctx.scene.session` if we only `extend WizardContext`. If we
- * did that, only `ctx.session` would be available.
- */
-type MyContext = WizardContext<WizardContextWizard<MyContext>, MyWizardSession>
+type MyContext = WizardContext<MyWizardSession>
 
 const stepHandler = new Composer<MyContext>()
 stepHandler.action('next', async (ctx) => {
@@ -81,8 +72,10 @@ const superWizard = new WizardScene(
   }
 )
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-const stage = new Stage([superWizard], { default: 'super-wizard' })
+const bot = new Telegraf<MyContext>(token)
+const stage = new Stage<MyContext>([superWizard], {
+  default: 'super-wizard',
+})
 bot.use(session())
 bot.use(stage.middleware())
 bot.launch()

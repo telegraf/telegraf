@@ -20,18 +20,6 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 - Easy to extend
 - `TypeScript` typings
 
-#### Installation
-
-```shellscript
-npm install telegraf --save
-```
-
-or using yarn
-
-```shellscript
-yarn add telegraf
-```
-
 #### Example
   
 ```js
@@ -84,6 +72,20 @@ you first have to [get a bot account](https://core.telegram.org/bots)
 by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
 BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
+
+#### Installation
+
+```shellscript
+$ npm install telegraf
+```
+or
+```shellscript
+$ yarn add telegraf
+```
+or
+```shellscript
+$ pnpm add telegraf
+```
 
 #### Bot
 

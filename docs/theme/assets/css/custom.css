@@ -1,11 +1,4 @@
 /** @format */
-code.language-bash::before {
-  content: '$';
-  margin-left: 5px;
-  display: inline-block;
-  margin-right: 10px;
-  user-select: none;
-}
 
 .tsd-navigation [href='classes/apiclient.html'],
 .tsd-navigation .tsd-kind-interface,

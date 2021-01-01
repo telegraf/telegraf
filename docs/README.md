@@ -8,6 +8,8 @@ These accounts serve as an interface for code running somewhere on your server.
 
 Telegraf is a library that makes it simple for you to develop your own Telegram bots using JavaScript or [TypeScript](https://www.typescriptlang.org/).
 
+[Github](https://github.com/telegraf/telegraf)
+
 #### Features
 
 - Full [Telegram Bot API 5.0](https://core.telegram.org/bots/api) support

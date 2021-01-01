@@ -460,74 +460,10 @@ require('https')
   .listen(8443)
 ```
 
-##### Express.js example integration
-
-```js
-const { Telegraf } = require('telegraf')
-const express = require('express')
-const expressApp = express()
-
-const bot = new Telegraf(process.env.BOT_TOKEN)
-expressApp.use(bot.webhookCallback('/secret-path'))
-bot.telegram.setWebhook('https://server.tld:8443/secret-path')
-
-expressApp.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
-expressApp.listen(3000, () => {
-  console.log('Example app listening on port 3000!')
-})
-```
-
-##### Fastify example integration
-
-You can use `fastify-telegraf` package
-
-```js
-const { Telegraf } = require('telegraf')
-const fastifyApp = require('fastify')()
-const fastifyTelegraf = require('fastify-telegraf')
-
-const bot = new Telegraf(process.env.BOT_TOKEN)
-
-bot.on('text', ({ reply }) => reply('Hello'))
-
-fastifyApp.register(fastifyTelegraf, { bot, path: '/secret-path' })
-// Set telegram webhook
-// npm install -g localtunnel && lt --port 3000
-bot.telegram.setWebhook('https://------.localtunnel.me/secret-path')
-
-fastifyApp.listen(3000, () => {
-  console.log('Example app listening on port 3000!')
-})
-```
-
-##### Koa.js example integration
-
-```js
-const { Telegraf } = require('telegraf')
-const Koa = require('koa')
-const koaBody = require('koa-body')
-
-const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.telegram.setWebhook('https://server.tld:8443/secret-path')
-
-const app = new Koa()
-app.use(koaBody())
-app.use(async (ctx, next) => {
-  if (ctx.method !== 'POST' || ctx.url !== '/secret-path') {
-    return next()
-  }
-  await bot.handleUpdate(ctx.request.body, ctx.response)
-  ctx.status = 200
-})
-app.use(async (ctx) => {
-  ctx.body = 'Hello World'
-})
-
-app.listen(3000)
-```
+- [AWS Lambda example integration](https://github.com/telegraf/telegraf/blob/master/docs/examples/aws-lambda.js)
+- [`express` example integration](https://github.com/telegraf/telegraf/blob/master/docs/examples/express-webhook-bot.js)
+- [`fastify` example integration](https://github.com/telegraf/telegraf/blob/master/docs/examples/fastify-webhook-bot.js)
+- [`koa` example integration](https://github.com/telegraf/telegraf/blob/master/docs/examples/koa-webhook-bot.js)
 
 #### Working with files
 

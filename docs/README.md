@@ -1,4 +1,11 @@
-![Telegraf](https://raw.githubusercontent.com/telegraf/telegraf/develop/docs/header.png)
+<header>
+<img src="https://raw.githubusercontent.com/telegraf/telegraf/010e971f3c61c854605bf9a5af10a4925d4032fb/docs/header.png" style="background: #FFFFFF3F">
+
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v5.0-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![install size](https://flat.badgen.net/packagephobia/install/telegraf)](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
+[![Russian chat](https://img.shields.io/badge/Russian%20chat-grey?style=flat-square&logo=telegram)](https://t.me/telegraf_ru)
+[![English chat](https://img.shields.io/badge/English%20chat-grey?style=flat-square&logo=telegram)](https://t.me/TelegrafJSChat)
+</header>
 
 ## Introduction
 
@@ -14,7 +21,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
-- Incredibly fast
+- [Lightweight](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 - [Firebase](https://firebase.google.com/products/functions/)/[Glitch](https://dashing-light.glitch.me)/[Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction)/[AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)/Whatever ready
 - `http/https/fastify/Connect.js/express.js` compatible webhooks
 - Easy to extend

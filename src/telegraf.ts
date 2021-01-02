@@ -207,7 +207,10 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
     try {
-      await pTimeout(this.middleware()(ctx, anoop), this.options.handlerTimeout)
+      await pTimeout(
+        Promise.resolve(this.middleware()(ctx, anoop)),
+        this.options.handlerTimeout
+      )
     } catch (err) {
       return await this.handleError(err, ctx)
     } finally {

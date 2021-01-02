@@ -513,26 +513,6 @@ bot.on('message', (ctx) => {
 })
 ```
 
-#### Telegram Passport
-
-To enable Telegram Passport support you can use [`telegram-passport`](https://www.npmjs.com/package/telegram-passport) package:
-
-```js
-const { Telegraf } = require('telegraf')
-const TelegramPassport = require('telegram-passport')
-
-const bot = new Telegraf(process.env.BOT_TOKEN)
-const passport = new TelegramPassport("PRIVATE_KEY_IN_PEM_FORMAT")
-
-bot.on('passport_data', (ctx) => {
-  const decryptedPasswordData = passport.decrypt(ctx.passportData)
-  console.log(decryptedPasswordData)
-  return ctx.setPassportDataErrors([
-    { source: 'selfie', type: 'driver_license', file_hash: 'file-hash', message: 'Selfie photo is too low quality'}
-  ])
-})
-```
-
 #### Telegraf Modules
 
 Telegraf Modules is higher level abstraction for writing modular Telegram bots.

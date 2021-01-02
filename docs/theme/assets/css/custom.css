@@ -1,11 +1,5 @@
 /** @format */
 
-.tsd-navigation [href='classes/apiclient.html'],
-.tsd-navigation .tsd-kind-interface,
-.tsd-navigation .tsd-kind-type-alias {
-  display: none;
-}
-
 a > h2:hover::after,
 a > h3:hover::after,
 a > h4:hover::after,
@@ -16,14 +10,6 @@ a > h5:hover::after {
 
 a {
   color: #e74625;
-}
-
-.hljs-keyword {
-  color: #07a;
-}
-
-.hljs-subst > .hljs-keyword {
-  color: inherit;
 }
 
 nav .tsd-kind-class,

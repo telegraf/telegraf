@@ -1,15 +1,21 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import {
+  Context,
   BaseScene as Scene,
-  SceneContext,
+  SceneContextScene,
   SceneSession,
   session,
   Stage,
   Telegraf,
 } from 'telegraf'
 
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
 /**
- * We can still extend the session object that we can use on the context.
+ * We can extend the regular session object that we can use on the context.
  * However, as we're using scenes, we have to make it extend `SceneSession`.
  */
 interface MySession extends SceneSession {
@@ -18,17 +24,20 @@ interface MySession extends SceneSession {
 }
 
 /**
- * Now that we have our session object, we can define our own context object.
- * Again, as we're using scenes, we now have to extend `SceneContext`.
+ * We can define our own context object.
  *
  * As always, if we also want to use our own session object, we have to set it
- * here under the `session` property.
+ * here under the `session` property. In addition, we now also have to set the
+ * scene object under the `scene` property.
  */
-interface MyContext extends SceneContext {
+interface MyContext extends Context {
   // will be available under `ctx.myContextProp`
   myContextProp: string
 
+  // declare session type
   session: MySession
+  // declare scene type
+  scene: SceneContextScene<MyContext>
 }
 
 // Handler factories
@@ -38,18 +47,18 @@ const { enter, leave } = Stage
 const greeterScene = new Scene<MyContext>('greeter')
 greeterScene.enter((ctx) => ctx.reply('Hi'))
 greeterScene.leave((ctx) => ctx.reply('Bye'))
-greeterScene.hears('hi', enter('greeter'))
+greeterScene.hears('hi', enter<MyContext>('greeter'))
 greeterScene.on('message', (ctx) => ctx.replyWithMarkdown('Send `hi`'))
 
 // Echo scene
 const echoScene = new Scene<MyContext>('echo')
 echoScene.enter((ctx) => ctx.reply('echo scene'))
 echoScene.leave((ctx) => ctx.reply('exiting echo scene'))
-echoScene.command('back', leave())
+echoScene.command('back', leave<MyContext>())
 echoScene.on('text', (ctx) => ctx.reply(ctx.message.text))
 echoScene.on('message', (ctx) => ctx.reply('Only text messages please'))
 
-const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN)
+const bot = new Telegraf<MyContext>(token)
 
 const stage = new Stage<MyContext>([greeterScene, echoScene], {
   ttl: 10,

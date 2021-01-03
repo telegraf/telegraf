@@ -1,7 +1,6 @@
 import { Middleware, MiddlewareFn } from '../middleware'
 import Composer from '../composer'
 import Context from '../context'
-import { SceneContext } from './context'
 
 const { compose } = Composer
 
@@ -12,9 +11,7 @@ export interface SceneOptions<C extends Context> {
   leaveHandlers: ReadonlyArray<MiddlewareFn<C>>
 }
 
-export class BaseScene<
-  C extends SceneContext = SceneContext
-> extends Composer<C> {
+export class BaseScene<C extends Context = Context> extends Composer<C> {
   id: string
   ttl?: number
   enterHandler: MiddlewareFn<C>

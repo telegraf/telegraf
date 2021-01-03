@@ -2,7 +2,12 @@ const { Telegraf } = require('telegraf')
 // @ts-expect-error not a dependency of Telegraf
 const makeHandler = require('lambda-request-handler')
 
-const bot = new Telegraf(process.env.BOT_TOKEN, {
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
+const bot = new Telegraf(token, {
   telegram: { webhookReply: true }
 })
 

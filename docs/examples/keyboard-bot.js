@@ -1,6 +1,11 @@
 const { Telegraf, Markup } = require('telegraf')
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
+const bot = new Telegraf(token)
 
 bot.use(Telegraf.log())
 

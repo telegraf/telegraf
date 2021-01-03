@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Context, Telegraf } from 'telegraf'
 
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
 class CustomContext extends Context {
-  constructor(update, telegram, options) {
+  constructor(update: any, telegram: any, options: any) {
     console.log('Creating context for %j', update)
     super(update, telegram, options)
   }
@@ -13,7 +18,7 @@ class CustomContext extends Context {
   }
 }
 
-const bot = new Telegraf(process.env.BOT_TOKEN, { contextType: CustomContext })
+const bot = new Telegraf(token, { contextType: CustomContext })
 bot.start((ctx) => ctx.reply('Hello'))
 bot.help((ctx) => ctx.reply('Help message'))
 bot.launch()

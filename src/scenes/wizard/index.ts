@@ -1,9 +1,16 @@
 import BaseScene, { SceneOptions } from '../base'
-import { Middleware, MiddlewareFn, MiddlewareObj } from '../../middleware'
-import WizardContextWizard, { WizardContext } from './context'
+import { Middleware, MiddlewareObj } from '../../middleware'
+import WizardContextWizard, { WizardSessionData } from './context'
 import Composer from '../../composer'
+import Context from '../../context'
+import SceneContextScene from '../context'
 
-export class WizardScene<C extends WizardContext = WizardContext>
+export class WizardScene<
+    C extends Context & {
+      scene: SceneContextScene<C, WizardSessionData>
+      wizard: WizardContextWizard<C>
+    }
+  >
   extends BaseScene<C>
   implements MiddlewareObj<C> {
   steps: Array<Middleware<C>>
@@ -35,13 +42,7 @@ export class WizardScene<C extends WizardContext = WizardContext>
   middleware() {
     return Composer.compose<C>([
       (ctx, next) => {
-        // `ctx.wizard` is `WizardContext` with default type variables (this
-        // cannot be changed because `ctx` and `ctx.wizard` reference each
-        // other, which would lead to an infinite chain of type variables). As a
-        // result, we have to cast the steps from `Middleware<C>` to
-        // `Middleware<WizardContext>` in order to make this work
-        const steps = this.steps as Array<MiddlewareFn<WizardContext>>
-        ctx.wizard = new WizardContextWizard<WizardContext>(ctx, steps)
+        ctx.wizard = new WizardContextWizard<C>(ctx, this.steps)
         return next()
       },
       super.middleware(),

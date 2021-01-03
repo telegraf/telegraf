@@ -1,21 +1,28 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import {
   Composer,
+  Context,
   Markup,
+  SceneContextScene,
   session,
   Stage,
   Telegraf,
-  WizardContext,
   WizardContextWizard,
   WizardScene,
   WizardSession,
   WizardSessionData,
 } from 'telegraf'
 
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
 /**
  * It is possible to extend the session object that is available to each wizard.
- * This can be done by extending `WizardSessionData` and in turn passing your own
- * interface as a type variable to `WizardSession`.
+ * This can be done by extending `WizardSessionData` and in turn passing your
+ * own interface as a type variable to `WizardSession` and to
+ * `WizardContextWizard`.
  */
 interface MyWizardSession extends WizardSessionData {
   // will be available under `ctx.scene.session.myWizardSessionProp`
@@ -23,11 +30,12 @@ interface MyWizardSession extends WizardSessionData {
 }
 
 /**
- * We can still extend the session object that we can use on the context.
- * However, as we're using wizards, we have to make it extend `WizardSession`.
+ * We can still extend the regular session object that we can use on the
+ * context. However, as we're using wizards, we have to make it extend
+ * `WizardSession`.
  *
  * It is possible to pass a type variable to `WizardSession` if you also want to
- * extend the wizard session.
+ * extend the wizard session as we do above.
  */
 interface MySession extends WizardSession<MyWizardSession> {
   // will be available under `ctx.session.mySessionProp`
@@ -36,22 +44,24 @@ interface MySession extends WizardSession<MyWizardSession> {
 
 /**
  * Now that we have our session object, we can define our own context object.
- * Again, as we're using wizards, we now have to extend `WizardContext`.
  *
  * As always, if we also want to use our own session object, we have to set it
- * here under the `session` property.
+ * here under the `session` property. In addition, we now also have to set the
+ * scene object under the `scene` property. As we extend the scene session, we
+ * need to pass the type in as a type variable once again.
  *
- * IMPORTANT: Whenever we want to extend the wizard session, we have to supply
- * the type arguments to `WizardContext`. It is not possible to access any
- * properties of `ctx.scene.session` if we only `extend WizardContext`. If we
- * did that, only `ctx.session` would be available.
+ * We also have to set the wizard object under the `wizard` property.
  */
-interface MyContext
-  extends WizardContext<WizardContextWizard<MyContext>, MyWizardSession> {
+interface MyContext extends Context {
   // will be available under `ctx.myContextProp`
   myContextProp: string
 
+  // declare session type
   session: MySession
+  // declare scene type
+  scene: SceneContextScene<MyContext, MyWizardSession>
+  // declare wizard type
+  wizard: WizardContextWizard<MyContext>
 }
 
 const stepHandler = new Composer<MyContext>()
@@ -101,8 +111,10 @@ const superWizard = new WizardScene(
   }
 )
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-const stage = new Stage([superWizard], { default: 'super-wizard' })
+const bot = new Telegraf<MyContext>(token)
+const stage = new Stage<MyContext>([superWizard], {
+  default: 'super-wizard',
+})
 bot.use(session())
 bot.use(stage.middleware())
 bot.launch()

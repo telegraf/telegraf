@@ -1,5 +1,6 @@
 import BaseScene from './base'
 import Composer from '../composer'
+import Context from '../context'
 import d from 'debug'
 import { SessionContext } from '../session'
 const debug = d('telegraf:scenes:context')
@@ -7,9 +8,11 @@ const debug = d('telegraf:scenes:context')
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
-// use type aliases to permit circular defaults
-type Z0 = SceneContextScene<SceneContext>
-type S0 = SceneSessionData
+export interface SceneContext<D extends SceneSessionData = SceneSessionData>
+  extends Context {
+  session: SceneSession<D>
+  scene: SceneContextScene<SceneContext<D>, D>
+}
 
 export interface SceneSessionData {
   current?: string
@@ -17,39 +20,35 @@ export interface SceneSessionData {
   state?: object
 }
 
-export interface SceneSession<S extends SceneSessionData = S0> {
+export interface SceneSession<S extends SceneSessionData = SceneSessionData> {
   __scenes: S
 }
 
-export interface SceneContext<
-  Z extends SceneContextScene<SceneContext> = Z0,
-  S extends SceneSessionData = S0
-> extends SessionContext<SceneSession<S>> {
-  scene: Z
+export interface SceneContextSceneOptions<D extends SceneSessionData> {
+  ttl?: number
+  default?: string
+  defaultSession: D
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
-namespace SceneContextScene {
-  export interface Options {
-    ttl?: number
-    default?: string
-    defaultSession?: SceneSessionData
-  }
-}
-
-class SceneContextScene<C extends SceneContext> {
-  private readonly options: SceneContextScene.Options = {}
+export default class SceneContextScene<
+  C extends SessionContext<SceneSession<D>>,
+  D extends SceneSessionData = SceneSessionData
+> {
+  private readonly options: SceneContextSceneOptions<D>
 
   constructor(
     private readonly ctx: C,
     private readonly scenes: Map<string, BaseScene<C>>,
-    options: SceneContextScene.Options
+    options: Partial<SceneContextSceneOptions<D>>
   ) {
-    this.options = { ...options }
+    // @ts-expect-error {} might not be assignable to D
+    const fallbackSessionDefault: D = {}
+
+    this.options = { defaultSession: fallbackSessionDefault, ...options }
   }
 
-  get session(): Exclude<C['session'], undefined>['__scenes'] {
-    const defaultSession = this.options.defaultSession ?? {}
+  get session(): D {
+    const defaultSession = this.options.defaultSession
 
     let session = this.ctx.session?.__scenes ?? defaultSession
     if (session.expires !== undefined && session.expires < now()) {
@@ -79,7 +78,8 @@ class SceneContextScene<C extends SceneContext> {
   }
 
   reset() {
-    if (this.ctx.session !== undefined) this.ctx.session.__scenes = {}
+    if (this.ctx.session !== undefined)
+      this.ctx.session.__scenes = this.options.defaultSession
   }
 
   async enter(
@@ -138,5 +138,3 @@ class SceneContextScene<C extends SceneContext> {
     }
   }
 }
-
-export default SceneContextScene

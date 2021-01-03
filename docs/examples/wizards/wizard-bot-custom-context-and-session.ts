@@ -1,17 +1,25 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import {
   Composer,
+  Context,
   Markup,
+  SceneContextScene,
   session,
   Stage,
   Telegraf,
-  WizardContext,
+  WizardContextWizard,
   WizardScene,
   WizardSession,
+  WizardSessionData,
 } from 'telegraf'
 
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
 /**
- * We can still extend the session object that we can use on the context.
+ * We can extend the regular session object that we can use on the context.
  * However, as we're using wizards, we have to make it extend `WizardSession`.
  */
 interface MySession extends WizardSession {
@@ -20,17 +28,25 @@ interface MySession extends WizardSession {
 }
 
 /**
- * Now that we have our session object, we can define our own context object.
- * Again, as we're using wizards, we now have to extend `WizardContext`.
+ * We can define our own context object.
  *
  * As always, if we also want to use our own session object, we have to set it
- * here under the `session` property.
+ * here under the `session` property. In addition, we now also have to set the
+ * scene object under the `scene` property. As we're using wizards, we have to
+ * pass `WizardSessionData` to the scene object.
+ *
+ * We also have to set the wizard object under the `wizard` property.
  */
-interface MyContext extends WizardContext {
+interface MyContext extends Context {
   // will be available under `ctx.myContextProp`
   myContextProp: string
 
+  // declare session type
   session: MySession
+  // declare scene type
+  scene: SceneContextScene<MyContext, WizardSessionData>
+  // declare wizard type
+  wizard: WizardContextWizard<MyContext>
 }
 
 const stepHandler = new Composer<MyContext>()
@@ -79,8 +95,10 @@ const superWizard = new WizardScene(
   }
 )
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-const stage = new Stage([superWizard], { default: 'super-wizard' })
+const bot = new Telegraf<MyContext>(token)
+const stage = new Stage<MyContext>([superWizard], {
+  default: 'super-wizard',
+})
 bot.use(session())
 bot.use(stage.middleware())
 bot.launch()

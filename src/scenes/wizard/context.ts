@@ -1,32 +1,27 @@
-import SceneContextScene, {
-  SceneContext,
-  SceneSession,
-  SceneSessionData,
-} from '../context'
+import SceneContextScene, { SceneSession, SceneSessionData } from '../context'
+import Context from '../../context'
 import { Middleware } from '../../middleware'
 import { SessionContext } from '../../session'
 
-// use type aliases to permit circular defaults
-type Z0 = WizardContextWizard<WizardContext>
-type S0 = WizardSessionData
+export interface WizardContext<D extends WizardSessionData = WizardSessionData>
+  extends Context {
+  session: WizardSession<D>
+  scene: SceneContextScene<WizardContext<D>, D>
+  wizard: WizardContextWizard<WizardContext<D>>
+}
 
 export interface WizardSessionData extends SceneSessionData {
   cursor: number
 }
 
-export interface WizardSession<S extends WizardSessionData = S0>
+export interface WizardSession<S extends WizardSessionData = WizardSessionData>
   extends SceneSession<S> {}
 
-export type WizardContext<
-  Z extends WizardContextWizard<WizardContext> = Z0,
-  S extends S0 = S0
-> = SceneContext<SceneContextScene<SceneContext>, S> &
-  SessionContext<WizardSession> & {
-    scene: SceneContextScene<WizardContext<Z, S>>
-    wizard: Z
+export default class WizardContextWizard<
+  C extends SessionContext<WizardSession> & {
+    scene: SceneContextScene<C, WizardSessionData>
   }
-
-class WizardContextWizard<C extends WizardContext> {
+> {
   readonly state: object
   constructor(
     private readonly ctx: C,
@@ -61,5 +56,3 @@ class WizardContextWizard<C extends WizardContext> {
     return this.selectStep(this.cursor - 1)
   }
 }
-
-export default WizardContextWizard

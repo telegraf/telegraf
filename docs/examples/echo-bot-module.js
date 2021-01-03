@@ -31,8 +31,8 @@ bot.help(async (ctx) => {
   const info = commands.reduce((acc, val) => `${acc}/${val.command} - ${val.description}\n`, '')
   return ctx.reply(info)
 })
-bot.action('delete', ({ deleteMessage }) => deleteMessage())
+bot.action('delete', (ctx) => ctx.deleteMessage())
 bot.on('dice', (ctx) => ctx.reply(`Value: ${ctx.message.dice.value}`))
-bot.on('message', (ctx) => ctx.telegram.sendCopy(ctx.chat.id, ctx.message, keyboard))
+bot.on('message', (ctx) => ctx.telegram.sendCopy(ctx.message.chat.id, ctx.message, keyboard))
 
 module.exports = bot

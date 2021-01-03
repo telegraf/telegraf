@@ -1,5 +1,13 @@
 const { Telegraf, Markup } = require('telegraf')
 
+if (process.env.BOT_TOKEN === undefined) {
+  throw new TypeError('BOT_TOKEN must be provided!')
+}
+
+if (process.env.PROVIDER_TOKEN === undefined) {
+  throw new TypeError('PROVIDER_TOKEN must be provided!')
+}
+
 const invoice = {
   provider_token: process.env.PROVIDER_TOKEN,
   start_parameter: 'time-machine-sku',
@@ -36,10 +44,10 @@ const replyOptions = Markup.inlineKeyboard([
 ])
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.start(({ replyWithInvoice }) => replyWithInvoice(invoice))
-bot.command('buy', ({ replyWithInvoice }) => replyWithInvoice(invoice, replyOptions))
-bot.on('shipping_query', ({ answerShippingQuery }) => answerShippingQuery(true, shippingOptions, undefined))
-bot.on('pre_checkout_query', ({ answerPreCheckoutQuery }) => answerPreCheckoutQuery(true))
+bot.start((ctx) => ctx.replyWithInvoice(invoice))
+bot.command('buy', (ctx) => ctx.replyWithInvoice(invoice, replyOptions))
+bot.on('shipping_query', (ctx) => ctx.answerShippingQuery(true, shippingOptions, undefined))
+bot.on('pre_checkout_query', (ctx) => ctx.answerPreCheckoutQuery(true))
 bot.on('successful_payment', () => console.log('Woohoo'))
 bot.launch()
 

@@ -18,7 +18,7 @@
     "name": "telegraf.js",
     "mode": "file",
     "out": "docs/build/",
-    "readme": "docs/README.md",
+    "readme": "README.md",
     "theme": "docs/theme/"
   },
   "include": ["src/"]

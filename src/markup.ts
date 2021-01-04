@@ -92,34 +92,34 @@ interface KeyboardBuildingOptions<B extends HideableKBtn | HideableIKBtn> {
   columns: number
 }
 
+function wrapFn<B extends HideableKBtn | HideableIKBtn>(
+    options: KeyboardBuildingOptions<B>,
+    currentRow: B[]
+  ): any
+  {
+    if(options.wrap !== undefined) return options.wrap
+    return currentRow.length >= options.columns
+}
+
 function buildKeyboard<B extends HideableKBtn | HideableIKBtn>(
   buttons: B[] | B[][],
   options: KeyboardBuildingOptions<B>
 ): B[][] {
   const result: B[][] = []
-  if (!Array.isArray(buttons)) {
-    return result
-  }
+  if (!Array.isArray(buttons)) return result
   if (is2D(buttons)) {
     return buttons.map((row) => row.filter((button) => !button.hide))
   }
-  const wrapFn =
-    options.wrap !== undefined
-      ? options.wrap
-      : (_btn: B, _index: number, currentRow: B[]) =>
-          currentRow.length >= options.columns
   let currentRow = []
   let index = 0
   for (const btn of buttons.filter((button) => !button.hide)) {
-    if (wrapFn(btn, index, currentRow) && currentRow.length > 0) {
+    if (wrapFn(options, currentRow) && currentRow.length > 0) {
       result.push(currentRow)
       currentRow = []
     }
     currentRow.push(btn)
     index++
   }
-  if (currentRow.length > 0) {
-    result.push(currentRow)
-  }
+  if (currentRow.length > 0) result.push(currentRow)
   return result
 }

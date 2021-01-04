@@ -55,7 +55,6 @@ export class Polling {
           (err.code === 401 || err.code === 409)
         ) {
           this.skipOffsetSync = true
-          throw err
         }
         throw err
       }

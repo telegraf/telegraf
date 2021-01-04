@@ -23,9 +23,7 @@ export function session<S extends object>(
   const storage = options?.storage ?? new MemorySessionStorage()
   return async (ctx, next) => {
     const key = await makeKey(ctx)
-    if (key == null) {
-      return await next()
-    }
+    if (key == null) return await next()
     ctx.session = await storage.getItem(key)
     await next()
     if (ctx.session == null) {
@@ -39,9 +37,7 @@ export function session<S extends object>(
 async function makeDefaultKey(ctx: Context): Promise<string | undefined> {
   const fromId = ctx.from?.id
   const chatId = ctx.chat?.id
-  if (fromId == null || chatId == null) {
-    return undefined
-  }
+  if (fromId == null || chatId == null) return undefined
   return `${fromId}:${chatId}`
 }
 
@@ -55,9 +51,8 @@ export class MemorySessionStorage<T> implements Storage<T> {
 
   async getItem(name: string): Promise<T | undefined> {
     const entry = this.store.get(name)
-    if (entry == null) {
-      return undefined
-    } else if (entry.expires < Date.now()) {
+    if (entry == null) return undefined
+    if (entry.expires < Date.now()) {
       await this.deleteItem(name)
       return undefined
     }

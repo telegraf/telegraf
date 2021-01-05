@@ -10,22 +10,22 @@ import Context from './context'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
 import { Polling } from './core/network/polling'
+import pTimeout from 'p-timeout'
 import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
 const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
-  telegram: {},
   handlerTimeout: 5000,
   contextType: Context,
+  concurrency: false,
 }
 
 function always<T>(x: T) {
   return () => x
 }
 const anoop = always(Promise.resolve())
-const wait = util.promisify(setTimeout)
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Telegraf {
@@ -34,12 +34,17 @@ namespace Telegraf {
       ...args: ConstructorParameters<typeof Context>
     ) => TContext
     handlerTimeout: number
+    concurrency: boolean | number
     telegram?: Partial<ApiClient.Options>
   }
 
   export interface LaunchOptions {
     /** List the types of updates you want your bot to receive */
     allowedUpdates?: tt.UpdateType[]
+    /** Configuration options for when the bot is run via long polling */
+    polling?: {
+      timeout?: number
+    }
     /** Configuration options for when the bot is run via webhooks */
     webhook?: {
       /** Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component). */
@@ -77,6 +82,10 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     throw err
   }
 
+  private processing = 0
+  private readonly concurrency: number
+  private subscribers: Array<(capacity: number) => void> = []
+
   constructor(token: string, options?: Partial<Telegraf.Options<C>>) {
     super()
     // @ts-expect-error
@@ -85,6 +94,11 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ...compactOptions(options),
     }
     this.telegram = new Telegram(token, this.options.telegram)
+
+    const concurrency = this.options.concurrency
+    if (concurrency === false) this.concurrency = 1
+    else if (concurrency === true) this.concurrency = Infinity
+    else this.concurrency = Math.max(1, concurrency)
   }
 
   private get token() {
@@ -111,16 +125,23 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   webhookCallback(path = '/') {
     return generateCallback(
       path,
-      (update: tt.Update, res: http.ServerResponse) =>
-        this.handleUpdate(update, res)
+      async (update: tt.Update, res: http.ServerResponse) => {
+        await this.handleUpdate(update, res)
+      }
     )
   }
 
-  private startPolling(allowedUpdates: tt.UpdateType[] = []) {
-    this.polling = new Polling(this.telegram, allowedUpdates)
+  private startPolling(allowedUpdates: tt.UpdateType[] = [], timeout = 50) {
+    const polling = (this.polling = new Polling(
+      this.telegram,
+      allowedUpdates,
+      timeout
+    ))
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.polling.loop(async (updates) => {
-      await this.handleUpdates(updates)
+    polling.loop(async (updates) => {
+      const capacity = await this.handleUpdates(updates)
+      // request at least 10 updates but no more than 5000
+      polling.limit = Math.max(10, Math.min(5000, capacity))
     })
   }
 
@@ -152,7 +173,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     debug(`Launching @${this.botInfo.username}`)
     if (config.webhook === undefined) {
       await this.telegram.deleteWebhook()
-      this.startPolling(config.allowedUpdates)
+      this.startPolling(config.allowedUpdates, config.polling?.timeout)
       debug('Bot started with long polling')
       return
     }
@@ -191,16 +212,12 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     this.polling?.stop()
   }
 
-  private handleUpdates(updates: readonly tt.Update[]) {
+  private async handleUpdates(updates: readonly tt.Update[]) {
     if (!Array.isArray(updates)) {
       throw new TypeError(util.format('Updates must be an array, got', updates))
     }
-    // prettier-ignore
-    const processAll = Promise.all(updates.map((update) => this.handleUpdate(update)))
-    if (this.options.handlerTimeout === Infinity) {
-      return processAll
-    }
-    return Promise.race([processAll, wait(this.options.handlerTimeout)])
+    await Promise.all(updates.map((update) => this.handleUpdate(update)))
+    return await this.bored()
   }
 
   private botInfoCall?: Promise<tt.UserFromGetMe>
@@ -216,14 +233,47 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
-    try {
-      await this.middleware()(ctx, anoop)
-    } catch (err) {
-      return await this.handleError(err, ctx)
-    } finally {
-      if (webhookResponse?.writableEnded === false) {
-        webhookResponse.end()
-      }
-    }
+    this.invokeMiddleware(ctx, webhookResponse)
+    return await this.bored()
+  }
+
+  private invokeMiddleware(ctx: C, webhookResponse?: http.ServerResponse) {
+    this.processing++
+    pTimeout(
+      Promise.resolve(this.middleware()(ctx, anoop)),
+      this.options.handlerTimeout
+    )
+      .catch((err) => this.handleError(err, ctx))
+      .finally(() => {
+        this.processing--
+        const capacity = this.capacity()
+        if (capacity > 0) {
+          this.subscribers.forEach((resolve) => resolve(capacity))
+          this.subscribers = []
+        }
+        if (webhookResponse !== undefined && !webhookResponse.writableEnded) {
+          webhookResponse.end()
+        }
+      })
+  }
+
+  /**
+   * Number of additional updates that may be processed until the `concurrency`
+   * limit is reached
+   */
+  capacity(): number {
+    return this.concurrency - this.processing
+  }
+
+  /**
+   * The returned promise resolves with the value of `this.capacity()` once it
+   * becomes positive
+   */
+  bored(): Promise<number> {
+    const capacity = this.capacity()
+    // Resolve immediately if there is free space, otherwise postpone this
+    return capacity > 0
+      ? Promise.resolve(capacity)
+      : new Promise((resolve) => this.subscribers.push(resolve))
   }
 }

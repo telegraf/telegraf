@@ -305,36 +305,36 @@ test('should handle webhook response', async (t) => {
 
 test('should respect webhookReply option', async (t) => {
   const bot = createBot(null, { telegram: { webhookReply: false } })
-  bot.catch((err) => { throw err }) // Disable log
-  bot.on('message', async (ctx) => ctx.replyWithChatAction('typing'))
+  bot.catch(() => { }) // Disable log
+  // the reply call throws because a bot token is required for the HTTP request
+  bot.on('message', (ctx) => ctx.replyWithChatAction('typing'))
   const res = new MockResponse()
-  await t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, res))
+  await bot.handleUpdate({ message: BaseTextMessage }, res)
   t.true(res.writableEnded)
   t.is(res.body, undefined)
 })
 
 test('should respect webhookReply runtime change', async (t) => {
   const bot = createBot()
-  bot.webhookReply = false
-  bot.catch((err) => { throw err }) // Disable log
-  bot.on('message', async (ctx) => ctx.replyWithChatAction('typing'))
+  bot.telegram.webhookReply = false
+  bot.catch(() => { }) // Disable log
+  bot.on('message', (ctx) => ctx.replyWithChatAction('typing'))
 
   const res = new MockResponse()
-  // Throws cause Bot Token is required for http call'
-  await t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, res))
+  await bot.handleUpdate({ message: BaseTextMessage }, res)
   t.true(res.writableEnded)
   t.is(res.body, undefined)
 })
 
 test('should respect webhookReply runtime change (per request)', async (t) => {
   const bot = createBot()
-  bot.catch((err) => { throw err }) // Disable log
+  bot.catch(() => { }) // Disable log
   bot.on('message', async (ctx) => {
-    ctx.webhookReply = false
+    ctx.telegram.webhookReply = false
     return ctx.replyWithChatAction('typing')
   })
   const res = new MockResponse()
-  await t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, res))
+  await bot.handleUpdate({ message: BaseTextMessage }, res)
   t.true(res.writableEnded)
   t.is(res.body, undefined)
 })

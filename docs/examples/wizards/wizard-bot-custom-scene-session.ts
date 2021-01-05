@@ -1,14 +1,5 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import {
-  Composer,
-  Markup,
-  session,
-  Stage,
-  Telegraf,
-  WizardContext,
-  WizardScene,
-  WizardSessionData,
-} from 'telegraf'
+import { Composer, Markup, Scenes, session, Telegraf } from 'telegraf'
 
 const token = process.env.BOT_TOKEN
 if (token === undefined) {
@@ -20,12 +11,12 @@ if (token === undefined) {
  * This can be done by extending `WizardSessionData` and in turn passing your
  * own interface as a type variable to `WizardContext`.
  */
-interface MyWizardSession extends WizardSessionData {
+interface MyWizardSession extends Scenes.WizardSessionData {
   // will be available under `ctx.scene.session.myWizardSessionProp`
   myWizardSessionProp: number
 }
 
-type MyContext = WizardContext<MyWizardSession>
+type MyContext = Scenes.WizardContext<MyWizardSession>
 
 const stepHandler = new Composer<MyContext>()
 stepHandler.action('next', async (ctx) => {
@@ -40,7 +31,7 @@ stepHandler.use((ctx) =>
   ctx.replyWithMarkdown('Press `Next` button or type /next')
 )
 
-const superWizard = new WizardScene(
+const superWizard = new Scenes.WizardScene(
   'super-wizard',
   async (ctx) => {
     await ctx.reply(
@@ -73,7 +64,7 @@ const superWizard = new WizardScene(
 )
 
 const bot = new Telegraf<MyContext>(token)
-const stage = new Stage<MyContext>([superWizard], {
+const stage = new Scenes.Stage<MyContext>([superWizard], {
   default: 'super-wizard',
 })
 bot.use(session())

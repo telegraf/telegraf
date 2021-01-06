@@ -261,7 +261,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
    * Number of additional updates that may be processed until the `concurrency`
    * limit is reached
    */
-  capacity(): number {
+  capacity() {
     return this.concurrency - this.processing
   }
 
@@ -270,10 +270,11 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
    * becomes positive
    */
   bored(): Promise<number> {
-    const capacity = this.capacity()
-    // Resolve immediately if there is free space, otherwise postpone this
-    return capacity > 0
-      ? Promise.resolve(capacity)
-      : new Promise((resolve) => this.subscribers.push(resolve))
+    return new Promise((resolve) => {
+      const capacity = this.capacity()
+      // Resolve immediately if there is free space, otherwise postpone this
+      if (capacity > 0) resolve(capacity)
+      else this.subscribers.push(resolve)
+    })
   }
 }

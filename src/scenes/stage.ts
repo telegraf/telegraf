@@ -1,12 +1,12 @@
-import { isSessionContext, SessionContext } from './session'
+import { isSessionContext, SessionContext } from '../session'
 import SceneContextScene, {
   SceneContextSceneOptions,
   SceneSession,
   SceneSessionData,
-} from './scenes/context'
-import { BaseScene } from './scenes/base'
-import { Composer } from './composer'
-import { Context } from './context'
+} from './context'
+import { BaseScene } from './base'
+import { Composer } from '../composer'
+import { Context } from '../context'
 
 export class Stage<
   C extends SessionContext<SceneSession<D>> & {

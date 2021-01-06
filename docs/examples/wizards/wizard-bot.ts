@@ -1,20 +1,12 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import {
-  Composer,
-  Markup,
-  session,
-  Stage,
-  Telegraf,
-  WizardContext,
-  WizardScene,
-} from 'telegraf'
+import { Composer, Markup, Scenes, session, Telegraf } from 'telegraf'
 
 const token = process.env.BOT_TOKEN
 if (token === undefined) {
   throw new Error('BOT_TOKEN must be provided!')
 }
 
-const stepHandler = new Composer<WizardContext>()
+const stepHandler = new Composer<Scenes.WizardContext>()
 stepHandler.action('next', async (ctx) => {
   await ctx.reply('Step 2. Via inline button')
   return ctx.wizard.next()
@@ -27,7 +19,7 @@ stepHandler.use((ctx) =>
   ctx.replyWithMarkdown('Press `Next` button or type /next')
 )
 
-const superWizard = new WizardScene(
+const superWizard = new Scenes.WizardScene(
   'super-wizard',
   async (ctx) => {
     await ctx.reply(
@@ -54,8 +46,8 @@ const superWizard = new WizardScene(
   }
 )
 
-const bot = new Telegraf<WizardContext>(token)
-const stage = new Stage<WizardContext>([superWizard], {
+const bot = new Telegraf<Scenes.WizardContext>(token)
+const stage = new Scenes.Stage<Scenes.WizardContext>([superWizard], {
   default: 'super-wizard',
 })
 bot.use(session())

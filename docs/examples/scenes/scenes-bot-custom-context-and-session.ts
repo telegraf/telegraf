@@ -1,13 +1,5 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import {
-  Context,
-  BaseScene as Scene,
-  SceneContextScene,
-  SceneSession,
-  session,
-  Stage,
-  Telegraf,
-} from 'telegraf'
+import { Context, Scenes, session, Telegraf } from 'telegraf'
 
 const token = process.env.BOT_TOKEN
 if (token === undefined) {
@@ -18,7 +10,7 @@ if (token === undefined) {
  * We can extend the regular session object that we can use on the context.
  * However, as we're using scenes, we have to make it extend `SceneSession`.
  */
-interface MySession extends SceneSession {
+interface MySession extends Scenes.SceneSession {
   // will be available under `ctx.session.mySessionProp`
   mySessionProp: number
 }
@@ -37,21 +29,21 @@ interface MyContext extends Context {
   // declare session type
   session: MySession
   // declare scene type
-  scene: SceneContextScene<MyContext>
+  scene: Scenes.SceneContextScene<MyContext>
 }
 
 // Handler factories
-const { enter, leave } = Stage
+const { enter, leave } = Scenes.Stage
 
 // Greeter scene
-const greeterScene = new Scene<MyContext>('greeter')
+const greeterScene = new Scenes.BaseScene<MyContext>('greeter')
 greeterScene.enter((ctx) => ctx.reply('Hi'))
 greeterScene.leave((ctx) => ctx.reply('Bye'))
 greeterScene.hears('hi', enter<MyContext>('greeter'))
 greeterScene.on('message', (ctx) => ctx.replyWithMarkdown('Send `hi`'))
 
 // Echo scene
-const echoScene = new Scene<MyContext>('echo')
+const echoScene = new Scenes.BaseScene<MyContext>('echo')
 echoScene.enter((ctx) => ctx.reply('echo scene'))
 echoScene.leave((ctx) => ctx.reply('exiting echo scene'))
 echoScene.command('back', leave<MyContext>())
@@ -60,7 +52,7 @@ echoScene.on('message', (ctx) => ctx.reply('Only text messages please'))
 
 const bot = new Telegraf<MyContext>(token)
 
-const stage = new Stage<MyContext>([greeterScene, echoScene], {
+const stage = new Scenes.Stage<MyContext>([greeterScene, echoScene], {
   ttl: 10,
 })
 bot.use(session())

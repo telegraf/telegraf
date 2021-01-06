@@ -1,17 +1,5 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import {
-  Composer,
-  Context,
-  Markup,
-  SceneContextScene,
-  session,
-  Stage,
-  Telegraf,
-  WizardContextWizard,
-  WizardScene,
-  WizardSession,
-  WizardSessionData,
-} from 'telegraf'
+import { Composer, Context, Markup, Scenes, session, Telegraf } from 'telegraf'
 
 const token = process.env.BOT_TOKEN
 if (token === undefined) {
@@ -24,7 +12,7 @@ if (token === undefined) {
  * own interface as a type variable to `WizardSession` and to
  * `WizardContextWizard`.
  */
-interface MyWizardSession extends WizardSessionData {
+interface MyWizardSession extends Scenes.WizardSessionData {
   // will be available under `ctx.scene.session.myWizardSessionProp`
   myWizardSessionProp: number
 }
@@ -37,7 +25,7 @@ interface MyWizardSession extends WizardSessionData {
  * It is possible to pass a type variable to `WizardSession` if you also want to
  * extend the wizard session as we do above.
  */
-interface MySession extends WizardSession<MyWizardSession> {
+interface MySession extends Scenes.WizardSession<MyWizardSession> {
   // will be available under `ctx.session.mySessionProp`
   mySessionProp: number
 }
@@ -59,9 +47,9 @@ interface MyContext extends Context {
   // declare session type
   session: MySession
   // declare scene type
-  scene: SceneContextScene<MyContext, MyWizardSession>
+  scene: Scenes.SceneContextScene<MyContext, MyWizardSession>
   // declare wizard type
-  wizard: WizardContextWizard<MyContext>
+  wizard: Scenes.WizardContextWizard<MyContext>
 }
 
 const stepHandler = new Composer<MyContext>()
@@ -77,7 +65,7 @@ stepHandler.use((ctx) =>
   ctx.replyWithMarkdown('Press `Next` button or type /next')
 )
 
-const superWizard = new WizardScene(
+const superWizard = new Scenes.WizardScene(
   'super-wizard',
   async (ctx) => {
     await ctx.reply(
@@ -112,7 +100,7 @@ const superWizard = new WizardScene(
 )
 
 const bot = new Telegraf<MyContext>(token)
-const stage = new Stage<MyContext>([superWizard], {
+const stage = new Scenes.Stage<MyContext>([superWizard], {
   default: 'super-wizard',
 })
 bot.use(session())

@@ -1,13 +1,5 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import {
-  Context,
-  BaseScene as Scene,
-  SceneContextScene,
-  SceneSessionData,
-  session,
-  Stage,
-  Telegraf,
-} from 'telegraf'
+import { Context, Scenes, session, Telegraf } from 'telegraf'
 
 const token = process.env.BOT_TOKEN
 if (token === undefined) {
@@ -19,7 +11,7 @@ if (token === undefined) {
  * This can be done by extending `SceneSessionData` and in turn passing your own
  * interface as a type variable to `SceneContextScene`.
  */
-interface MySceneSession extends SceneSessionData {
+interface MySceneSession extends Scenes.SceneSessionData {
   // will be available under `ctx.scene.session.mySceneSessionProp`
   mySceneSessionProp: number
 }
@@ -35,21 +27,21 @@ interface MyContext extends Context {
   myContextProp: string
 
   // declare scene type
-  scene: SceneContextScene<MyContext, MySceneSession>
+  scene: Scenes.SceneContextScene<MyContext, MySceneSession>
 }
 
 // Handler factories
-const { enter, leave } = Stage
+const { enter, leave } = Scenes.Stage
 
 // Greeter scene
-const greeterScene = new Scene<MyContext>('greeter')
+const greeterScene = new Scenes.BaseScene<MyContext>('greeter')
 greeterScene.enter((ctx) => ctx.reply('Hi'))
 greeterScene.leave((ctx) => ctx.reply('Bye'))
 greeterScene.hears('hi', enter<MyContext>('greeter'))
 greeterScene.on('message', (ctx) => ctx.replyWithMarkdown('Send `hi`'))
 
 // Echo scene
-const echoScene = new Scene<MyContext>('echo')
+const echoScene = new Scenes.BaseScene<MyContext>('echo')
 echoScene.enter((ctx) => ctx.reply('echo scene'))
 echoScene.leave((ctx) => ctx.reply('exiting echo scene'))
 echoScene.command('back', leave<MyContext>())
@@ -58,7 +50,7 @@ echoScene.on('message', (ctx) => ctx.reply('Only text messages please'))
 
 const bot = new Telegraf<MyContext>(token)
 
-const stage = new Stage<MyContext>([greeterScene, echoScene], {
+const stage = new Scenes.Stage<MyContext>([greeterScene, echoScene], {
   ttl: 10,
 })
 bot.use(session())

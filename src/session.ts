@@ -1,15 +1,16 @@
 import { Context } from './context'
+import { MaybePromise } from './composer'
 import { MiddlewareFn } from './middleware'
 
-export interface Storage<T> {
-  getItem: (name: string) => Promise<T | undefined>
-  setItem: (name: string, value: T) => Promise<void>
-  deleteItem: (name: string) => Promise<void>
+export interface SessionStore<T> {
+  get: (name: string) => MaybePromise<T | undefined>
+  set: (name: string, value: T) => MaybePromise<void>
+  delete: (name: string) => MaybePromise<void>
 }
 
 interface SessionOptions<S extends object> {
-  makeKey?: (ctx: Context) => Promise<string | undefined>
-  storage?: Storage<S>
+  getSessionKey?: (ctx: Context) => Promise<string | undefined>
+  store?: SessionStore<S>
 }
 
 export interface SessionContext<S extends object> extends Context {
@@ -19,24 +20,24 @@ export interface SessionContext<S extends object> extends Context {
 export function session<S extends object>(
   options?: SessionOptions<S>
 ): MiddlewareFn<SessionContext<S>> {
-  const makeKey = options?.makeKey ?? makeDefaultKey
-  const storage = options?.storage ?? new MemorySessionStorage()
+  const getSessionKey = options?.getSessionKey ?? defaultGetSessionKey
+  const store = options?.store ?? new MemorySessionStore()
   return async (ctx, next) => {
-    const key = await makeKey(ctx)
+    const key = await getSessionKey(ctx)
     if (key == null) {
       return await next()
     }
-    ctx.session = await storage.getItem(key)
+    ctx.session = await store.get(key)
     await next()
     if (ctx.session == null) {
-      await storage.deleteItem(key)
+      await store.delete(key)
     } else {
-      await storage.setItem(key, ctx.session)
+      await store.set(key, ctx.session)
     }
   }
 }
 
-async function makeDefaultKey(ctx: Context): Promise<string | undefined> {
+async function defaultGetSessionKey(ctx: Context): Promise<string | undefined> {
   const fromId = ctx.from?.id
   const chatId = ctx.chat?.id
   if (fromId == null || chatId == null) {
@@ -45,7 +46,7 @@ async function makeDefaultKey(ctx: Context): Promise<string | undefined> {
   return `${fromId}:${chatId}`
 }
 
-export class MemorySessionStorage<T> implements Storage<T> {
+export class MemorySessionStore<T> implements SessionStore<T> {
   private readonly ttl: number
   private readonly store = new Map<string, { session: T; expires: number }>()
 
@@ -53,23 +54,23 @@ export class MemorySessionStorage<T> implements Storage<T> {
     this.ttl = ttl * 1000
   }
 
-  async getItem(name: string): Promise<T | undefined> {
+  async get(name: string): Promise<T | undefined> {
     const entry = this.store.get(name)
     if (entry == null) {
       return undefined
     } else if (entry.expires < Date.now()) {
-      await this.deleteItem(name)
+      await this.delete(name)
       return undefined
     }
     return entry.session
   }
 
-  async setItem(name: string, value: T): Promise<void> {
+  async set(name: string, value: T): Promise<void> {
     const now = Date.now()
     this.store.set(name, { session: value, expires: now + this.ttl })
   }
 
-  async deleteItem(name: string): Promise<void> {
+  async delete(name: string): Promise<void> {
     this.store.delete(name)
   }
 }

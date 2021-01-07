@@ -6,6 +6,6 @@ export { Router } from './router'
 
 export * as Markup from './markup'
 
-export { session, MemorySessionStorage } from './session'
+export { session, MemorySessionStore } from './session'
 
 export * as Scenes from './scenes'

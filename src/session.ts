@@ -47,7 +47,6 @@ async function defaultGetSessionKey(ctx: Context): Promise<string | undefined> {
 }
 
 export class MemorySessionStore<T> implements SessionStore<T> {
-  private readonly ttl: number
   private readonly store = new Map<string, { session: T; expires: number }>()
 
   constructor(private readonly ttl = Infinity) {}

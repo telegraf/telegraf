@@ -348,6 +348,17 @@ export declare class TelegrafContext {
    */
   replyWithDice(extra?: tt.ExtraDice): Promise<tt.MessageDice>
 
+  /**
+   * Use this method to send copy of exists message.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param extra Additional params to send modified copy of message
+   * @returns the MessageId of the sent message on success
+   */
+  copyMessage(
+    chatId: number | string,
+    extra?: object
+  ): Promise<tt.MessageId>
+
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //

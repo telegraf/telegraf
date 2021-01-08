@@ -1,15 +1,21 @@
-const Telegraf = require('telegraf')
-const Markup = require('telegraf/markup')
-const fetch = require('node-fetch')
+const { Telegraf, Markup } = require('telegraf')
+const fetch = require('node-fetch').default
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
+
+const bot = new Telegraf(token)
 
 bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => {
   const apiUrl = `http://recipepuppy.com/api/?q=${inlineQuery.query}`
   const response = await fetch(apiUrl)
   const { results } = await response.json()
   const recipes = results
+    // @ts-ignore
     .filter(({ thumbnail }) => thumbnail)
+    // @ts-ignore
     .map(({ title, href, thumbnail }) => ({
       type: 'article',
       id: thumbnail,
@@ -20,7 +26,7 @@ bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => {
         message_text: title
       },
       reply_markup: Markup.inlineKeyboard([
-        Markup.urlButton('Go to recipe', href)
+        Markup.button.url('Go to recipe', href)
       ])
     }))
   return answerInlineQuery(recipes)
@@ -31,3 +37,7 @@ bot.on('chosen_inline_result', ({ chosenInlineResult }) => {
 })
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

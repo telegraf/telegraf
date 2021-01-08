@@ -1,17 +1,24 @@
-const Telegraf = require('telegraf')
-const Extra = require('telegraf/extra')
-const Markup = require('telegraf/markup')
+const { Telegraf, Markup } = require('telegraf')
+
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
 
 const keyboard = Markup.inlineKeyboard([
-  Markup.loginButton('Login', 'http://domain.tld/hash', {
+  Markup.button.login('Login', 'http://domain.tld/hash', {
     bot_username: 'my_bot',
-    request_write_access: 'true'
+    request_write_access: true
   }),
-  Markup.urlButton('❤️', 'http://telegraf.js.org'),
-  Markup.callbackButton('Delete', 'delete')
+  Markup.button.url('❤️', 'http://telegraf.js.org'),
+  Markup.button.callback('Delete', 'delete')
 ])
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.start((ctx) => ctx.reply('Hello', Extra.markup(keyboard)))
+const bot = new Telegraf(token)
+bot.start((ctx) => ctx.reply('Hello', keyboard))
 bot.action('delete', ({ deleteMessage }) => deleteMessage())
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

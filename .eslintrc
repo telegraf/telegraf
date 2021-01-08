@@ -1,4 +1,27 @@
 {
-  "extends": ["standard"],
+  "extends": ["standard-with-typescript"],
+  "parserOptions": {
+    "project": ["./tsconfig.json", "docs/examples/tsconfig.json"]
+  },
+  "overrides": [
+    {
+      "files": "*.ts",
+      "extends": ["plugin:prettier/recommended", "prettier/@typescript-eslint"],
+      "rules": {
+        "sort-imports": ["warn", { "ignoreCase": true }],
+        "@typescript-eslint/ban-ts-comment": "warn",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@typescript-eslint/no-non-null-assertion": "warn",
+        "@typescript-eslint/promise-function-async": "off",
+        "@typescript-eslint/strict-boolean-expressions": "warn"
+      }
+    }
+  ],
+  "rules": {
+    "no-warning-comments": "warn"
+  },
+  "ignorePatterns": ["/lib/", "/typings/", "/docs/build/"],
+  "reportUnusedDisableDirectives": true,
   "plugins": ["ava"]
 }

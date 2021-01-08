@@ -1,10 +1,10 @@
 {
   "name": "telegraf",
-  "version": "3.38.0",
+  "version": "4.0.0",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
-  "homepage": "https://github.com/telegraf/telegraf#readme",
+  "homepage": "https://telegraf.js.org",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/telegraf/telegraf.git"
@@ -12,49 +12,76 @@
   "bugs": {
     "url": "https://github.com/telegraf/telegraf/issues"
   },
-  "main": "telegraf.js",
+  "main": "lib/index.js",
+  "exports": {
+    "import": "./lib/index.mjs",
+    "require": "./lib/index.js"
+  },
   "files": [
     "bin/*",
-    "core/**/*.js",
-    "scenes/**/*.js",
-    "typings/*.d.ts",
-    "*.js"
+    "src/**/*.ts",
+    "lib/**/*.js",
+    "lib/index.mjs",
+    "typings/**/*.d.ts",
+    "typings/**/*.d.ts.map"
   ],
   "bin": {
     "telegraf": "./bin/telegraf"
   },
   "scripts": {
-    "lint": "eslint .",
+    "prepare": "npm run build && mjs-entry src/index.ts > lib/index.mjs",
+    "build": "tsc --build docs/examples",
+    "build:docs": "typedoc src/index.ts",
+    "pretest": "npm run build",
     "test": "ava test/*",
-    "precommit": "npm run lint && npm run typecheck && npm test",
-    "typecheck": "tsc"
+    "lint": "eslint --cache .",
+    "checks": "npm test && npm run lint",
+    "refresh": "npm run clean && npm ci",
+    "clean": "git clean -fX .eslintcache docs/build/ lib/ typings/"
+  },
+  "husky": {
+    "hooks": {
+      "post-checkout": "npm run --silent clean",
+      "pre-commit": "tsc --build docs/examples"
+    }
   },
   "type": "commonjs",
   "engines": {
-    "node": ">=8"
+    "node": ">=12"
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "debug": "^4.0.1",
-    "minimist": "^1.2.0",
+    "abort-controller": "^3.0.0",
+    "debug": "^4.3.1",
+    "minimist": "^1.2.5",
     "module-alias": "^2.2.2",
-    "node-fetch": "^2.2.0",
-    "sandwich-stream": "^2.0.1",
-    "telegram-typings": "^3.6.0"
+    "node-fetch": "^2.6.1",
+    "p-timeout": "^4.1.0",
+    "sandwich-stream": "^2.0.2",
+    "typegram": "^3.1.4"
   },
   "devDependencies": {
-    "@types/node": "^13.1.0",
-    "ava": "^3.0.0",
-    "eslint": "^6.2.2",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-ava": "^10.0.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-promise": "^4.0.0",
-    "eslint-plugin-standard": "^4.0.0",
-    "husky": "^4.2.0",
-    "prettier": "^2.0.5",
-    "typescript": "^3.0.1"
+    "@types/debug": "^4.1.5",
+    "@types/node": "^14.14.20",
+    "@types/node-fetch": "^2.5.7",
+    "@typescript-eslint/eslint-plugin": "^4.12.0",
+    "@typescript-eslint/parser": "^4.12.0",
+    "ava": "^3.15.0",
+    "eslint": "^7.17.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-config-standard-with-typescript": "^19.0.1",
+    "eslint-plugin-ava": "^11.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.1.0",
+    "husky": "^4.3.7",
+    "mjs-entry": "gist:de6257751f54b3c66319bae8d2a8aea0",
+    "prettier": "2.2.1",
+    "typedoc": "^0.20.13",
+    "typescript": "^4.1.3"
   },
   "keywords": [
     "telegraf",

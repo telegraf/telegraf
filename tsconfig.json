@@ -1,22 +1,25 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "lib": [
-      "es6"
-    ],
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "baseUrl": "./",
-    "typeRoots": [
-      "./typings",
-      "./node_modules/@types"
-    ],
-    "noEmit": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "typings/",
+    "outDir": "lib/",
+    "rootDir": "src/",
+    "target": "ES2019",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "tsBuildInfoFile": "typings/tsconfig.tsbuildinfo",
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "typings"
-  ]
+  "typedocOptions": {
+    "excludeExternals": true,
+    "name": "telegraf.js",
+    "mode": "file",
+    "out": "docs/build/",
+    "readme": "README.md",
+    "theme": "docs/theme/"
+  },
+  "include": ["src/"]
 }

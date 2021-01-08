@@ -1,10 +1,11 @@
 #!/usr/bin/env node
+// @ts-check
 
 const debug = require('debug')
 const path = require('path')
 const parse = require('minimist')
 const { addAlias } = require('module-alias')
-const Telegraf = require('../')
+const { Telegraf } = require('../lib/telegraf')
 
 const log = debug('telegraf:cli')
 
@@ -14,7 +15,6 @@ const help = () => {
   -d  Webhook domain
   -H  Webhook host [0.0.0.0]
   -p  Webhook port [$PORT or 3000]
-  -s  Stop on error
   -l  Enable logs
   -h  Show this help message`)
 }
@@ -26,7 +26,6 @@ const args = parse(process.argv, {
     H: 'host',
     h: 'help',
     l: 'logs',
-    s: 'stop',
     p: 'port'
   },
   boolean: ['h', 'l', 's'],
@@ -99,10 +98,11 @@ if (domain) {
 }
 
 const bot = new Telegraf(token)
-if (!args.stop) {
-  bot.catch(log)
-}
 bot.use(botHandler)
 
 log(`Starting module ${file}`)
 bot.launch(config)
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

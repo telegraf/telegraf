@@ -1,11 +1,15 @@
-const Telegraf = require('telegraf')
-const Extra = require('telegraf/extra')
+const { Telegraf, Markup } = require('telegraf')
 const fs = require('fs')
+
+const token = process.env.BOT_TOKEN
+if (token === undefined) {
+  throw new Error('BOT_TOKEN must be provided!')
+}
 
 const AnimationUrl1 = 'https://media.giphy.com/media/ya4eevXU490Iw/giphy.gif'
 const AnimationUrl2 = 'https://media.giphy.com/media/LrmU6jXIjwziE/giphy.gif'
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(token)
 
 bot.command('local', (ctx) => ctx.replyWithPhoto({ source: '/cats/cat1.jpeg' }))
 bot.command('stream', (ctx) => ctx.replyWithPhoto({ source: fs.createReadStream('/cats/cat2.jpeg') }))
@@ -17,7 +21,7 @@ bot.command('pipe_animation', (ctx) => ctx.replyWithAnimation({ url: AnimationUr
 
 bot.command('caption', (ctx) => ctx.replyWithPhoto(
   'https://picsum.photos/200/300/?random',
-  Extra.caption('Caption *text*').markdown()
+  { caption: 'Caption *text*', parse_mode: 'Markdown' }
 ))
 
 bot.command('album', (ctx) => {
@@ -55,11 +59,12 @@ bot.command('album', (ctx) => {
   ])
 })
 
-bot.command('edit_media', (ctx) => ctx.replyWithAnimation(AnimationUrl1, Extra.markup((m) =>
-  m.inlineKeyboard([
-    m.callbackButton('Change media', 'swap_media')
+bot.command('edit_media', (ctx) => ctx.replyWithAnimation(
+  AnimationUrl1,
+  Markup.inlineKeyboard([
+    Markup.button.callback('Change media', 'swap_media')
   ])
-)))
+))
 
 bot.action('swap_media', (ctx) => ctx.editMessageMedia({
   type: 'animation',
@@ -67,3 +72,7 @@ bot.action('swap_media', (ctx) => ctx.editMessageMedia({
 }))
 
 bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))

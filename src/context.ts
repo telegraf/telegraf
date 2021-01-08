@@ -141,7 +141,14 @@ export class Context {
   }
 
   get from() {
-    return getUserFromAnySource(this)
+    return (
+      getMessageFromAnySource(this) ??
+      this.callbackQuery ??
+      this.inlineQuery ??
+      this.shippingQuery ??
+      this.preCheckoutQuery ??
+      this.chosenInlineResult
+    )?.from
   }
 
   get inlineMessageId() {
@@ -598,21 +605,4 @@ function getMessageFromAnySource(ctx: Context) {
     ctx.channelPost ??
     ctx.editedChannelPost
   )
-}
-
-function getQueryFromAnySource(ctx: Context) {
-  return (
-    ctx.callbackQuery ??
-    ctx.inlineQuery ??
-    ctx.shippingQuery ??
-    ctx.preCheckoutQuery
-  )
-}
-
-function getUserFromAnySource(ctx: Context) {
-  return (
-    getMessageFromAnySource(ctx) ??
-    getQueryFromAnySource(ctx) ??
-    ctx.chosenInlineResult
-  )?.from
 }

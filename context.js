@@ -592,7 +592,6 @@ class TelegrafContext {
   }
 
   copyMessage (chatId, extra) {
-    this.assert(this.message, 'copyMessage')
     const message = this.message ||
       this.editedMessage ||
       this.channelPost ||

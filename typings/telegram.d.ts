@@ -247,6 +247,21 @@ export declare class Telegram extends ApiClient {
   ): Promise<tt.Message>
 
   /**
+   * Use this method to send copy of exists message.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param fromChatId Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+   * @param messageId Message identifier in the chat specified in from_chat_id
+   * @param extra Additional params to send modified copy of message
+   * @returns the MessageId of the sent message on success
+   */
+  copyMessage(
+    chatId: number | string,
+    fromChatId: number | string,
+    messageId: number,
+    extra?: object
+  ): Promise<tt.MessageId>
+
+  /**
    * Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @returns True on success

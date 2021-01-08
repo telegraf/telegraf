@@ -133,23 +133,18 @@ export class Context {
   }
 
   get chat() {
-    return (
-      this.message ??
-      this.editedMessage ??
-      this.callbackQuery?.message ??
-      this.channelPost ??
-      this.editedChannelPost
-    )?.chat
+    return getMessageFromAnySource(this)?.chat
+  }
+
+  get senderChat() {
+    return getMessageFromAnySource(this)?.sender_chat
   }
 
   get from() {
     return (
-      this.message ??
-      this.editedMessage ??
+      getMessageFromAnySource(this) ??
       this.callbackQuery ??
       this.inlineQuery ??
-      this.channelPost ??
-      this.editedChannelPost ??
       this.shippingQuery ??
       this.preCheckoutQuery ??
       this.chosenInlineResult
@@ -578,24 +573,36 @@ export class Context {
       disable_notification?: boolean
     }
   ) {
-    this.assert(this.message, 'forwardMessage')
+    const message = getMessageFromAnySource(this)
+    this.assert(message, 'forwardMessage')
     return this.telegram.forwardMessage(
       chatId,
-      this.message.chat.id,
-      this.message.message_id,
+      message.chat.id,
+      message.message_id,
       extra
     )
   }
 
   copyMessage(chatId: string | number, extra?: tt.ExtraCopyMessage) {
-    this.assert(this.message, 'copyMessage')
+    const message = getMessageFromAnySource(this)
+    this.assert(message, 'copyMessage')
     return this.telegram.copyMessage(
       chatId,
-      this.message.chat.id,
-      this.message.message_id,
+      message.chat.id,
+      message.message_id,
       extra
     )
   }
 }
 
 export default Context
+
+function getMessageFromAnySource(ctx: Context) {
+  return (
+    ctx.message ??
+    ctx.editedMessage ??
+    ctx.callbackQuery?.message ??
+    ctx.channelPost ??
+    ctx.editedChannelPost
+  )
+}

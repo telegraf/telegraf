@@ -52,23 +52,23 @@ export class MemorySessionStore<T> implements SessionStore<T> {
 
   constructor(private readonly ttl = Infinity) {}
 
-  async get(name: string): Promise<T | undefined> {
+  get(name: string): T | undefined {
     const entry = this.store.get(name)
     if (entry == null) {
       return undefined
     } else if (entry.expires < Date.now()) {
-      await this.delete(name)
+      this.delete(name)
       return undefined
     }
     return entry.session
   }
 
-  async set(name: string, value: T): Promise<void> {
+  set(name: string, value: T): void {
     const now = Date.now()
     this.store.set(name, { session: value, expires: now + this.ttl })
   }
 
-  async delete(name: string): Promise<void> {
+  delete(name: string): void {
     this.store.delete(name)
   }
 }

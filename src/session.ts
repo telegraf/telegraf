@@ -50,9 +50,7 @@ export class MemorySessionStore<T> implements SessionStore<T> {
   private readonly ttl: number
   private readonly store = new Map<string, { session: T; expires: number }>()
 
-  constructor(ttl = Infinity) {
-    this.ttl = ttl * 1000
-  }
+  constructor(private readonly ttl = Infinity) {}
 
   async get(name: string): Promise<T | undefined> {
     const entry = this.store.get(name)

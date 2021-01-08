@@ -428,6 +428,15 @@ class Telegram extends ApiClient {
     }
     return this.callApi(replicators.copyMethods[type], opts)
   }
+
+  copyMessage (chatId, fromChatId, messageId, extra) {
+    return this.callApi('copyMessage', {
+      chat_id: chatId,
+      from_chat_id: fromChatId,
+      message_id: messageId,
+      ...extra
+    })
+  }
 }
 
 module.exports = Telegram

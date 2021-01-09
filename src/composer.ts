@@ -59,7 +59,7 @@ type MountMap = {
 } &
   {
     [T in tt.MessageSubType]: {
-      message: Pick<UnionToIntersection<tt.Message>, T>
+      message: Extract<tt.Message, Record<T, unknown>>
     }
   }
 

@@ -615,7 +615,7 @@ This could look like this:
 
 ```ts
 import { Context, Telegraf } from 'telegraf'
-import session from 'telegraf/session'
+import { session } from 'telegraf'
 
 interface SessionData {
   lastMessageId?: number

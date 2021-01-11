@@ -27,8 +27,8 @@ function always<T>(x: T) {
 }
 const anoop = always(Promise.resolve())
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
-namespace Telegraf {
+// eslint-disable-next-line
+export namespace Telegraf {
   export interface Options<TContext extends Context> {
     contextType: new (
       ...args: ConstructorParameters<typeof Context>
@@ -59,6 +59,7 @@ namespace Telegraf {
   }
 }
 
+// eslint-disable-next-line import/export
 export class Telegraf<C extends Context = Context> extends Composer<C> {
   private readonly options: Telegraf.Options<C>
   private webhookServer?: http.Server | https.Server

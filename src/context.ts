@@ -142,12 +142,12 @@ export class Context {
 
   get from() {
     return (
-      getMessageFromAnySource(this) ??
       this.callbackQuery ??
       this.inlineQuery ??
       this.shippingQuery ??
       this.preCheckoutQuery ??
-      this.chosenInlineResult
+      this.chosenInlineResult ??
+      getMessageFromAnySource(this)
     )?.from
   }
 

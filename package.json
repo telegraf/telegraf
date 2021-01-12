@@ -51,6 +51,7 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
+    "@types/node-fetch": "^2.5.7",
     "abort-controller": "^3.0.0",
     "debug": "^4.3.1",
     "minimist": "^1.2.5",
@@ -63,7 +64,6 @@
   "devDependencies": {
     "@types/debug": "^4.1.5",
     "@types/node": "^14.14.20",
-    "@types/node-fetch": "^2.5.7",
     "@typescript-eslint/eslint-plugin": "^4.12.0",
     "@typescript-eslint/parser": "^4.12.0",
     "ava": "^3.15.0",

@@ -25,7 +25,7 @@ const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ApiClient {
-  export type Agent = RequestInit['agent']
+  export type Agent = http.Agent | ((parsedUrl: URL) => http.Agent) | undefined
   export interface Options {
     /**
      * Agent for communicating with the bot API.

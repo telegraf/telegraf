@@ -16,7 +16,6 @@
   "typedocOptions": {
     "excludeExternals": true,
     "name": "telegraf.js",
-    "mode": "file",
     "out": "docs/build/",
     "readme": "README.md",
     "theme": "docs/theme/"

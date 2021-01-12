@@ -2,6 +2,7 @@
 <img src="https://raw.githubusercontent.com/telegraf/telegraf/010e971f3c61c854605bf9a5af10a4925d4032fb/docs/header.png" style="background: #FFFFFF3F">
 
 [![Bot API Version](https://img.shields.io/badge/Bot%20API-v5.0-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+![GitHub top language](https://img.shields.io/github/languages/top/telegraf/telegraf?style=flat-square)
 [![install size](https://flat.badgen.net/packagephobia/install/telegraf)](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 [![Russian chat](https://img.shields.io/badge/Russian%20chat-grey?style=flat-square&logo=telegram)](https://t.me/telegraf_ru)
 [![English chat](https://img.shields.io/badge/English%20chat-grey?style=flat-square&logo=telegram)](https://t.me/TelegrafJSChat)
@@ -62,6 +63,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 #### Resources
 
 - [Getting started](#getting-started)
+- [API reference](https://telegraf.js.org/modules.html)
 - Telegram groups (sorted by number of members):
   * [Russian](https://t.me/telegraf_ru)
   * [English](https://t.me/TelegrafJSChat)
@@ -647,11 +649,3 @@ bot.on('photo', (ctx, next) => {
 })
 // ...
 ```
-
-## API reference
-
-Coming soon!
-
-### `Scenes` namespace
-
-https://github.com/telegraf/telegraf/issues/705#issuecomment-549056045

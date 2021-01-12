@@ -1,3 +1,8 @@
+/**
+ * @see https://github.com/telegraf/telegraf/issues/705#issuecomment-549056045
+ * @packageDocumentation
+ */
+
 export { Stage } from './stage'
 export {
   SceneContext,

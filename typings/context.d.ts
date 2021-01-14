@@ -21,7 +21,7 @@ export declare class TelegrafContext {
   inlineQuery?: tt.InlineQuery
   match?: RegExpExecArray | null
   me?: string
-  message?: tt.IncomingMessage
+  message?: tt.Message
   poll?: tt.Poll
   pollAnswer?: tt.PollAnswer
   preCheckoutQuery?: tt.PreCheckoutQuery

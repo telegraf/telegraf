@@ -1,5 +1,5 @@
-import * as TT from "telegram-typings";
-export * from "telegram-typings";
+import * as TT from 'typegram'
+export * from 'typegram'
 
 export type ParseMode = 'Markdown' | 'MarkdownV2' | 'HTML'
 
@@ -350,7 +350,7 @@ export interface ExtraDocument extends ExtraReplyMessage {
    * Document caption (may also be used when resending documents by file_id), 0-1024 characters
    */
   caption?: string
-  
+
   /**
    * List of special entities that appear in the caption, which can be specified instead of parse_mode
    */
@@ -637,77 +637,19 @@ export interface ExtraUnban {
   only_if_banned?: Boolean
 }
 
-export interface IncomingMessage extends TT.Message {
-  audio?: TT.Audio
-  entities?: TT.MessageEntity[]
-  caption?: string
-  document?: TT.Document
-  game?: TT.Game
-  photo?: TT.PhotoSize[]
-  animation?: TT.Animation
-  sticker?: TT.Sticker
-  video?: TT.Video
-  video_note?: TT.VideoNote
-  contact?: TT.Contact
-  location?: TT.Location
-  venue?: TT.Venue
-  pinned_message?: TT.Message
-  invoice?: TT.Invoice
-  successful_payment?: TT.SuccessfulPayment
-  dice?: Dice
-}
-
-export interface MessageAudio extends TT.Message {
-  audio: TT.Audio
-}
-
-export interface MessageDocument extends TT.Message {
-  document: TT.Document
-}
-
-export interface MessageGame extends TT.Message {
-  game: TT.Game
-}
-
-export interface MessageInvoice extends TT.Message {
-  invoice: TT.Invoice
-}
-
-export interface MessageLocation extends TT.Message {
-  location: TT.Location
-}
-
-export interface MessagePhoto extends TT.Message {
-  photo: TT.PhotoSize[]
-}
-
-export interface MessageAnimation extends TT.Message {
-  animation: TT.Animation
-}
-
-export interface MessageSticker extends TT.Message {
-  sticker: TT.Sticker
-}
-
-export interface MessageVideo extends TT.Message {
-  video: TT.Video
-}
-
-export interface MessageVideoNote extends TT.Message {
-  video_note: TT.VideoNote
-}
-
-export interface MessageVoice extends TT.Message {
-  voice: TT.Voice
-}
-
-export interface MessageDice extends TT.Message {
-  dice: Dice
-}
-
-export interface MessagePoll extends TT.Message {
-  poll: Poll
-}
+export type MessageAudio = TT.Message.AudioMessage
+export type MessageDocument = TT.Message.DocumentMessage
+export type MessageGame = TT.Message.GameMessage
+export type MessageInvoice = TT.Message.InvoiceMessage
+export type MessageLocation = TT.Message.LocationMessage
+export type MessagePhoto = TT.Message.PhotoMessage
+export type MessageAnimation = TT.Message.AnimationMessage
+export type MessageSticker = TT.Message.StickerMessage
+export type MessageVideo = TT.Message.VideoMessage
+export type MessageVideoNote = TT.Message.VideoNoteMessage
+export type MessageVoice = TT.Message.VoiceMessage
+export type MessageDice = TT.Message.DiceMessage
+export type MessagePoll = TT.Message.PollMessage
 
 export interface NewInvoiceParameters {
   /**

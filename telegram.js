@@ -417,6 +417,9 @@ class Telegram extends ApiClient {
     if (!message) {
       throw new Error('Message is required')
     }
+    if (message.chat && message.chat.id && message.message_id) {
+      return this.copyMessage(chatId, message.chat.id, message.message_id, extra)
+    }
     const type = Object.keys(replicators.copyMethods).find((type) => message[type])
     if (!type) {
       throw new Error('Unsupported message type')

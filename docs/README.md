@@ -1789,6 +1789,7 @@ Use this method to unpin a message in a supergroup chat.
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#unpinchatmessage)|
 
 ##### leaveChat
 

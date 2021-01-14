@@ -226,8 +226,8 @@ class Telegram extends ApiClient {
     return this.callApi('pinChatMessage', { chat_id: chatId, message_id: messageId, ...extra })
   }
 
-  unpinChatMessage (chatId) {
-    return this.callApi('unpinChatMessage', { chat_id: chatId })
+  unpinChatMessage (chatId, extra) {
+    return this.callApi('unpinChatMessage', { chat_id: chatId, ...extra })
   }
 
   leaveChat (chatId) {

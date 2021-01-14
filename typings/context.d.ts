@@ -145,8 +145,9 @@ export declare class TelegrafContext {
   /**
    * Use this method to unpin a message in a group, a supergroup, or a channel.
    * @returns True on success
+   * @param extra Extra params
    */
-  unpinChatMessage(): Promise<boolean>
+  unpinChatMessage(extra?: tt.ExtraUnpinMessage): Promise<boolean>
 
   /**
    * Use this method to reply on messages in the same chat.

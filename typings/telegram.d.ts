@@ -346,9 +346,10 @@ export declare class Telegram extends ApiClient {
   /**
    * Use this method to unpin a message in a group, a supergroup, or a channel.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param extra Extra params
    * @returns True on success
    */
-  unpinChatMessage(chatId: number | string): Promise<boolean>
+  unpinChatMessage(chatId: number | string, extra?: tt.ExtraUnpinMessage): Promise<boolean>
 
   /**
    * Use this method to send text messages

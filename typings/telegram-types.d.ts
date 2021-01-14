@@ -295,6 +295,13 @@ export interface ExtraEditMessage extends ExtraReplyMessage {
   // no specified properties
 }
 
+export interface ExtraUnpinMessage {
+  /**
+   * Identifier of a message to unpin. If not specified, the most recent pinned message (by sending date) will be unpinned.
+   */
+  message_id?: number
+}
+
 export interface ExtraAudio extends ExtraReplyMessage {
   /**
    * Audio caption, 0-1024 characters

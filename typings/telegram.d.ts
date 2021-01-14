@@ -655,9 +655,10 @@ export declare class Telegram extends ApiClient {
    * Use this method to unban a user from a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format @username)
    * @param userId Unique identifier of the target user
+   * @param extra Extra params
    * @returns True on success
    */
-  unbanChatMember(chatId: number | string, userId: number): Promise<boolean>
+  unbanChatMember(chatId: number | string, userId: number, extra?: tt.ExtraUnban): Promise<boolean>
 
   /**
    * Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Pass False for all boolean parameters to demote a user.

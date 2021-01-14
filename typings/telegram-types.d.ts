@@ -570,6 +570,11 @@ export interface ExtraStopPoll {
   reply_markup?: TT.InlineKeyboardMarkup
 }
 
+export interface ExtraUnban {
+  /** Do nothing if the user is not banned */
+  only_if_banned?: Boolean
+}
+
 export interface IncomingMessage extends TT.Message {
   audio?: TT.Audio
   entities?: TT.MessageEntity[]

@@ -2129,7 +2129,7 @@ Use this method to unban a previously kicked user in a supergroup.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | userId | `number` | User id |
-
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#unbanchatmember) |
 
 ##### setPassportDataErrors
 

@@ -234,8 +234,8 @@ class Telegram extends ApiClient {
     return this.callApi('leaveChat', { chat_id: chatId })
   }
 
-  unbanChatMember (chatId, userId) {
-    return this.callApi('unbanChatMember', { chat_id: chatId, user_id: userId })
+  unbanChatMember (chatId, userId, extra) {
+    return this.callApi('unbanChatMember', { chat_id: chatId, user_id: userId, ...extra })
   }
 
   answerCbQuery (callbackQueryId, text, showAlert, extra) {

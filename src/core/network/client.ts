@@ -11,6 +11,7 @@ import { compactOptions } from '../helpers/compact'
 import MultipartStream from './multipart-stream'
 import { ReadStream } from 'fs'
 import TelegramError from './error'
+import { URL } from 'url'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const debug = require('debug')('telegraf:client')
 const { isStream } = MultipartStream

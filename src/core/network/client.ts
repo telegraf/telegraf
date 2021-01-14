@@ -7,6 +7,7 @@ import * as path from 'path'
 import fetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { hasProp, hasPropType } from '../helpers/check'
 import { Opts, Telegram } from '../../telegram-types'
+import { AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
 import MultipartStream from './multipart-stream'
 import { ReadStream } from 'fs'
@@ -44,7 +45,7 @@ namespace ApiClient {
   }
 
   export interface CallApiOptions {
-    signal?: RequestInit['signal']
+    signal?: AbortSignal
   }
 }
 

@@ -166,9 +166,7 @@ bot.hears('something', async (ctx) => {
         duration: 0,
         length: 0,
         thumb: '',
-        parse_mode: "HTML",
         disable_notification: false,
-        disable_web_page_preview: false,
         reply_markup: Markup.inlineKeyboard([]),
         reply_to_message_id: 0,
     })

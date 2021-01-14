@@ -1808,6 +1808,10 @@ Removes webhook integration.
 `telegram.deleteWebhook() => Promise`
 [Official documentation](https://core.telegram.org/bots/api#deletewebhook)
 
+| Param | Type | Description |
+| ---  | --- | --- |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#deletewebhook) |
+
 ##### sendAudio
 
 Sends audio.
@@ -2106,15 +2110,13 @@ Use this method to upload a .png file with a sticker for later use in createNewS
 
 Specifies an url to receive incoming updates via an outgoing webhook.
 
-`telegram.setWebhook(url, [cert], [maxConnections], [allowedUpdates]) => Promise`
+`telegram.setWebhook(url, [extra]) => Promise`
 [Official documentation](https://core.telegram.org/bots/api#setwebhook)
 
 | Param | Type | Description |
 | ---  | --- | --- |
 | url  | `string` | Public url for webhook |
-| [cert] | `File` | SSL public certificate |
-| [maxConnections] | `number` | Maximum allowed number of simultaneous HTTPS connections to the webhook |
-| [allowedUpdates] | `string[]` | List the types of updates you want your bot to receive |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#setwebhook) |
 
 ##### unbanChatMember
 

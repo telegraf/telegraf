@@ -601,23 +601,22 @@ export declare class Telegram extends ApiClient {
   /**
    * Use this method to specify a url and receive incoming updates via an outgoing webhook
    * @param url HTTPS url to send updates to. Use an empty string to remove webhook integration
-   * @param cert Upload your public key certificate so that the root certificate in use can be checked
-   * @param maxConnections Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100
-   * @param allowedUpdates List the types of updates you want your bot to receive
+   * @param extra Additional params to set webhook
    * @returns True on success
    */
   setWebhook(
     url: string,
-    cert?: tt.InputFile,
-    maxConnections?: number,
-    allowedUpdates?: string[]
+    extra?: tt.ExtraSetWebhook
   ): Promise<boolean>
 
   /**
    * Use this method to delete webhook
+   * @param extra Additional params to delete webhook
    * @returns True on success
    */
-  deleteWebhook(): Promise<boolean>
+  deleteWebhook(
+    extra?: tt.ExtraDeleteWebhook
+  ): Promise<boolean>
 
   /**
    * Use this method to get information about set webhook

@@ -207,6 +207,28 @@ export interface ChatPermissions {
   can_pin_messages?: boolean
 }
 
+export interface ExtraSetWebhook {
+  /** SSL public certificate */
+  certificate?:	InputFile
+
+  /** The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS */
+  ip_address?: string
+
+  /** Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40. */
+  max_connections?:	number
+
+  /** List the types of updates you want your bot to receive */
+  allowed_updates?:	UpdateType[]
+
+  /** Pass True to drop all pending updates */
+  drop_pending_updates?: boolean
+}
+
+export interface ExtraDeleteWebhook {
+  /** Pass True to drop all pending updates */
+  drop_pending_updates?: boolean
+}
+
 export interface ExtraRestrictChatMember {
   /** New user permissions */
   permissions: ChatPermissions

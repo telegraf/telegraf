@@ -54,17 +54,12 @@ class Telegram extends ApiClient {
     })
   }
 
-  setWebhook (url, certificate, maxConnections, allowedUpdates) {
-    return this.callApi('setWebhook', {
-      url,
-      certificate,
-      max_connections: maxConnections,
-      allowed_updates: allowedUpdates
-    })
+  setWebhook (url, extra) {
+    return this.callApi('setWebhook', { url, ...extra })
   }
 
-  deleteWebhook () {
-    return this.callApi('deleteWebhook')
+  deleteWebhook (extra) {
+    return this.callApi('deleteWebhook', extra)
   }
 
   sendMessage (chatId, text, extra) {

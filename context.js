@@ -380,6 +380,11 @@ class TelegrafContext {
     return this.telegram.unpinChatMessage(this.chat.id, ...args)
   }
 
+  unpinAllChatMessages () {
+    this.assert(this.chat, 'unpinAllChatMessages')
+    return this.telegram.unpinAllChatMessages(this.chat.id)
+  }
+
   leaveChat (...args) {
     this.assert(this.chat, 'leaveChat')
     return this.telegram.leaveChat(this.chat.id, ...args)

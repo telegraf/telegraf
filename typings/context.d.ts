@@ -150,6 +150,12 @@ export declare class TelegrafContext {
   unpinChatMessage(extra?: tt.ExtraUnpinMessage): Promise<boolean>
 
   /**
+   * Use this method to clear the list of pinned messages in a chat
+   * @returns True on success
+   */
+  unpinAllChatMessages(): Promise<boolean>
+
+  /**
    * Use this method to reply on messages in the same chat.
    * @param text Text of the message to be sent
    * @param extra SendMessage additional params

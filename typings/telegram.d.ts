@@ -352,6 +352,13 @@ export declare class Telegram extends ApiClient {
   unpinChatMessage(chatId: number | string, extra?: tt.ExtraUnpinMessage): Promise<boolean>
 
   /**
+   * Use this method to clear the list of pinned messages in a chat
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @returns True on success
+   */
+  unpinAllChatMessages(chatId: number | string): Promise<boolean>
+
+  /**
    * Use this method to send text messages
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param text Text of the message to be sent

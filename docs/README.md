@@ -280,6 +280,7 @@ Context shortcuts for **message** update:
 | `setStickerSetThumb`      | [`telegram.setStickerSetThumb`](#setstickersetthumb) |
 | `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `unpinChatMessage`        | [`telegram.unpinChatMessage`](#unpinchatmessage) |
+| `unpinAllChatMessages`    | [`telegram.unpinAllChatMessages`](#unpinallchatmessages) |
 | `uploadStickerFile`       | [`telegram.uploadStickerFile`](#uploadstickerfile) |
 | `unbanChatMember`         | [`telegram.unbanChatMember`](#unbanchatmember) |
 
@@ -332,6 +333,7 @@ Context shortcuts for **callback_query** update:
 | `setStickerSetThumb`      | [`telegram.setStickerSetThumb`](#setstickersetthumb) |
 | `stopPoll`                | [`telegram.stopPoll`](#stoppoll) |
 | `unpinChatMessage`        | [`telegram.unpinChatMessage`](#unpinchatmessage) |
+| `unpinAllChatMessages`    | [`telegram.unpinAllChatMessages`](#unpinallchatmessages) |
 | `uploadStickerFile`       | [`telegram.uploadStickerFile`](#uploadstickerfile) |
 | `unbanChatMember`         | [`telegram.unbanChatMember`](#unbanchatmember) |
 
@@ -1790,6 +1792,17 @@ Use this method to unpin a message in a supergroup chat.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#unpinchatmessage)|
+
+##### unpinAllChatMessages
+
+Use this method to clear the list of pinned messages in a chat
+
+`telegram.unpinAllChatMessages(chatId) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#unpinallchatmessages)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
 
 ##### leaveChat
 

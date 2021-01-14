@@ -482,7 +482,7 @@ export declare class Telegram extends ApiClient {
    */
   sendMediaGroup(
     chatId: number | string,
-    media: tt.MessageMedia[],
+    media: (tt.InputMediaAudio | tt.InputMediaDocument | tt.InputMediaPhoto | tt.InputMediaVideo)[],
     extra?: tt.ExtraMediaGroup
   ): Promise<Array<tt.Message>>
 

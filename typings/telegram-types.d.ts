@@ -450,6 +450,11 @@ export interface ExtraMediaGroup extends ExtraReplyMessage {
    * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
    */
   reply_markup?: never
+
+  /**
+   * Pass True, if the message should be sent even if the specified replied-to message is not found
+   */
+  allow_sending_without_reply?: Boolean
 }
 
 export interface ExtraAnimation extends ExtraReplyMessage {

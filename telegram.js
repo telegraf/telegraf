@@ -315,14 +315,15 @@ class Telegram extends ApiClient {
     })
   }
 
-  editMessageLiveLocation (latitude, longitude, chatId, messageId, inlineMessageId, markup) {
+  editMessageLiveLocation (latitude, longitude, chatId, messageId, inlineMessageId, markup, extra = {}) {
     return this.callApi('editMessageLiveLocation', {
       latitude,
       longitude,
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      reply_markup: markup
+      reply_markup: markup,
+      ...extra
     })
   }
 

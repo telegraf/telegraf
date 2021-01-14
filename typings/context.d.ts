@@ -456,15 +456,18 @@ export declare class TelegrafContext {
   ): Promise<tt.Message | boolean>
 
   /**
-   * Use this method to edit live location messages.
+   * Use this method to edit live location messages
    * @returns On success, if the edited message was sent by the bot, the edited message is returned, otherwise True is returned.
-   * @param lat New latitude
-   * @param lon New longitude
+   * @param latitude New latitude
+   * @param longitude New longitude
+   * @param markup Markup of inline keyboard
+   * @param extra Extra params
    */
   editMessageLiveLocation(
-    lat: number,
-    lon: number,
-    extra?: tt.ExtraLocation
+    latitude: number,
+    longitude: number,
+    markup: tt.InlineKeyboardMarkup,
+    extra?: tt.ExtraEditLocation
   ): Promise<tt.MessageLocation | boolean>
 
   /**

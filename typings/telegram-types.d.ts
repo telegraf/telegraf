@@ -443,6 +443,13 @@ export interface ExtraLocation extends ExtraReplyMessage {
   parse_mode?: never
 }
 
+export interface ExtraEditLocation extends ExtraLocation {
+  /**
+   * Does not exist, see https://core.telegram.org/bots/api#sendlocation
+   */
+  live_period?: never
+}
+
 export interface ExtraPhoto extends ExtraReplyMessage {
   /**
    * Photo caption (may also be used when resending photos by file_id), 0-1024 characters

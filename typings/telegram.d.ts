@@ -157,6 +157,27 @@ export declare class Telegram extends ApiClient {
   ): Promise<tt.Message | boolean>
 
   /**
+   * Use this method to edit live location messages
+   * @param latitude Latitude of location
+   * @param longitude Longitude of location
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param markup Markup of inline keyboard
+   * @param extra Extra params
+   * @returns On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
+   */
+  editMessageLiveLocation(
+    latitude: number,
+    longitude: number,
+    chatId: number | string | void,
+    messageId: number,
+    inlineMessageId: string | void,
+    markup: tt.InlineKeyboardMarkup,
+    extra?: tt.ExtraLocation
+  ): Promise<tt.MessageLocation | boolean>
+
+  /**
    * Use this method to delete a message, including service messages, with the following limitations:
    * - A message can only be deleted if it was sent less than 48 hours ago.
    * - Bots can delete outgoing messages in groups and supergroups.

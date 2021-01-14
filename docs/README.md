@@ -1442,6 +1442,7 @@ Use this method to edit live location messages sent by the bot or via the bot.
 | messageId | `string` | Message id |
 | inlineMessageId | `string` | Inline message id |
 | [markup] | `object` | Keyboard markup |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagelivelocation)|
 
 ##### editMessageReplyMarkup
 

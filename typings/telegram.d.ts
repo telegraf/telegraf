@@ -510,7 +510,7 @@ export declare class Telegram extends ApiClient {
   /**
    * Use this method to send a native poll.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-   * @param question Poll question, 1-255 characters
+   * @param question Poll question, 1-300 characters
    * @param options A JSON-serialized list of answer options, 2-10 strings 1-100 characters each
    * @param extra Additional params to send poll
    * @returns On success, the sent Message is returned.

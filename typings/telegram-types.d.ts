@@ -343,6 +343,21 @@ export interface ExtraDocument extends ExtraReplyMessage {
    * Document caption (may also be used when resending documents by file_id), 0-1024 characters
    */
   caption?: string
+  
+  /**
+   * List of special entities that appear in the caption, which can be specified instead of parse_mode
+   */
+  caption_entities?: TT.MessageEntity
+
+  /**
+   * Disables automatic server-side content type detection for files uploaded using multipart/form-data
+   */
+  disable_content_type_detection?: Boolean
+
+  /**
+   * Pass True, if the message should be sent even if the specified replied-to message is not found
+   */
+  allow_sending_without_reply?: Boolean
 
   /**
    * Does not exist, see https://core.telegram.org/bots/api#senddocument

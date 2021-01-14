@@ -3,7 +3,6 @@ import * as crypto from 'crypto'
 import * as fs from 'fs'
 import * as http from 'http'
 import * as https from 'https'
-import { URL } from 'url'
 import * as path from 'path'
 import fetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { hasProp, hasPropType } from '../helpers/check'
@@ -12,6 +11,7 @@ import { compactOptions } from '../helpers/compact'
 import MultipartStream from './multipart-stream'
 import { ReadStream } from 'fs'
 import TelegramError from './error'
+import { URL } from 'url'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const debug = require('debug')('telegraf:client')
 const { isStream } = MultipartStream

@@ -421,12 +421,12 @@ export interface ExtraLocation extends ExtraReplyMessage {
    * For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
    */
   heading?: number
-  
+
   /**
    * For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
    */
   proximity_alert_radius?: number
-  
+
   /**
    * Pass True, if the message should be sent even if the specified replied-to message is not found
    */
@@ -581,6 +581,14 @@ export interface ExtraVoice extends ExtraReplyMessage {
 }
 
 export interface ExtraDice extends ExtraReplyMessage {
+  /**
+   * Emoji on which the dice throw animation is based.
+   * Currently, must be one of “🎲”, “🎯”, “🏀”, “⚽”, or “🎰”.
+   * Dice can have values 1-6 for “🎲” and “🎯”, values 1-5 for “🏀” and “⚽”, and values 1-64 for “🎰”.
+   * Defaults to “🎲”
+   * */
+  emoji?: string
+
   /**
    * Does not exist, see https://core.telegram.org/bots/api#senddice
    */

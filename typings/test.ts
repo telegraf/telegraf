@@ -108,7 +108,7 @@ bot.hears('something', async (ctx) => {
         reply_markup: Markup.inlineKeyboard([])
     })
 
-    ctx.editMessageLiveLocation(90,90, {
+    ctx.editMessageLiveLocation(90, 90, {
         reply_markup: Markup.inlineKeyboard([])
     })
 

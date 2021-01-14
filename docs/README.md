@@ -1485,7 +1485,6 @@ Forwards message.
 | messageId | `number` | Message id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#forwardmessage)|
 
-
 ##### sendCopy
 
 Sends message copy.
@@ -1497,6 +1496,19 @@ Sends message copy.
 | chatId | `number/string` | Target Chat id |
 | message | `object` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
+
+##### copyMessage
+
+Use this method to copy messages of any kind.
+
+`telegram.copyMessage(chatId, message, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Target Chat id |
+| fromChatId | `number/string` | Source Chat id |
+| messageId | `number` | Message id |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#copymessage)|
 
 ##### getWebhookInfo
 

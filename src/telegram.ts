@@ -1,6 +1,7 @@
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 import { isAbsolute } from 'path'
+import { URL } from 'url'
 
 class Telegram extends ApiClient {
   /**

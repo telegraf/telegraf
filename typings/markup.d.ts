@@ -88,7 +88,7 @@ export declare class Markup {
 
   selective(value?: boolean): this
 
-  extra(options?: tt.ExtraReplyMessage): tt.ExtraReplyMessage
+  extra(options?: tt.Extra): tt.Extra
 
   keyboard(
     buttons: KeyboardButton[] | KeyboardButton[][],

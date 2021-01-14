@@ -161,7 +161,7 @@ export declare class TelegrafContext {
    * @param extra SendMessage additional params
    * @returns sent Message if Success
    */
-  reply(text: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
+  reply(text: string, extra?: tt.ExtraSendMessage): Promise<tt.Message>
 
   /**
    * Use this method to send audio files to the same chat, if you want Telegram clients to display them in the music player.
@@ -220,7 +220,7 @@ export declare class TelegrafContext {
    * @param extra Additional params to send message
    * @returns a Message on success
    */
-  replyWithHTML(html: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
+  replyWithHTML(html: string, extra?: tt.ExtraSendMessage): Promise<tt.Message>
 
   /**
    * Use this method to send invoices
@@ -254,7 +254,7 @@ export declare class TelegrafContext {
    */
   replyWithMarkdown(
     markdown: string,
-    extra?: tt.ExtraReplyMessage
+    extra?: tt.ExtraSendMessage
   ): Promise<tt.Message>
 
   /**

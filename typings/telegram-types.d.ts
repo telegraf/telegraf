@@ -263,37 +263,76 @@ export interface ExtraPromoteChatMember {
   can_promote_members?: boolean
 }
 
-export interface ExtraReplyMessage {
-
-  /**
-   * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
-   */
-  parse_mode?: ParseMode
-
-  /**
-   * Disables link previews for links in this message
-   */
-  disable_web_page_preview?: boolean
-
-  /**
-   * Sends the message silently. Users will receive a notification with no sound.
-   */
-  disable_notification?: boolean
-
-  /**
-   * If the message is a reply, ID of the original message
-   */
-  reply_to_message_id?: number
-
+export interface ExtraReplyMarkup {
   /**
    * Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
    */
   reply_markup?: TT.InlineKeyboardMarkup | TT.ReplyKeyboardMarkup | TT.ReplyKeyboardRemove | TT.ForceReply
 }
 
-export interface ExtraEditMessage extends ExtraReplyMessage {
-  // no specified properties
+interface ExtraReplyMarkupInlineKeyboard {
+  /** A JSON-serialized object for a new message inline keyboard. */
+  reply_markup?: TT.InlineKeyboardMarkup
 }
+
+interface ExtraFormatting {
+  /**
+   * Mode for parsing entities in the message text. See formatting options for more details.
+   */
+  parse_mode?: ParseMode
+
+  /**
+   * List of special entities that appear in message text, which can be specified instead of parse_mode
+   */
+  entities?: TT.MessageEntity[]
+}
+
+interface ExtraCaption {
+  /**
+   * Audio caption, 0-1024 characters
+   */
+  caption?: string
+
+  /**
+   * Mode for parsing entities in the photo caption. See formatting options for more details.
+   */
+  parse_mode?: ParseMode
+
+  /**
+   * List of special entities that appear in message text, which can be specified instead of parse_mode
+   */
+  caption_entities?: TT.MessageEntity[]
+}
+
+interface ExtraDisableWebPagePreview {
+  /**
+   * Disables link previews for links in this message
+   */
+  disable_web_page_preview?: boolean
+}
+
+interface ExtraDisableNotifications {
+  /**
+   * Sends the message silently. Users will receive a notification with no sound.
+   */
+  disable_notification?: boolean
+}
+
+interface ExtraReplyMessage {
+  /**
+   * If the message is a reply, ID of the original message
+   */
+  reply_to_message_id?: number
+
+  /**
+   * Pass True, if the message should be sent even if the specified replied-to message is not found
+   */
+  allow_sending_without_reply?: boolean
+}
+
+export interface ExtraSendMessage extends ExtraFormatting, ExtraDisableWebPagePreview, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
+
+export interface ExtraEditMessage extends ExtraFormatting, ExtraDisableWebPagePreview, ExtraReplyMarkupInlineKeyboard {}
 
 export interface ExtraUnpinMessage {
   /**
@@ -302,11 +341,7 @@ export interface ExtraUnpinMessage {
   message_id?: number
 }
 
-export interface ExtraAudio extends ExtraReplyMessage {
-  /**
-   * Audio caption, 0-1024 characters
-   */
-  caption?: string
+export interface ExtraAudio extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
 
   /**
    * Duration of the audio in seconds
@@ -330,14 +365,9 @@ export interface ExtraAudio extends ExtraReplyMessage {
    * so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
    */
   thumb?: InputFile
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendaudio
-   */
-  disable_web_page_preview?: never
 }
 
-export interface ExtraDocument extends ExtraReplyMessage {
+export interface ExtraDocument extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
    * The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail‘s width and height should not exceed 320.
@@ -347,66 +377,16 @@ export interface ExtraDocument extends ExtraReplyMessage {
   thumb?: InputFile
 
   /**
-   * Document caption (may also be used when resending documents by file_id), 0-1024 characters
-   */
-  caption?: string
-
-  /**
-   * List of special entities that appear in the caption, which can be specified instead of parse_mode
-   */
-  caption_entities?: TT.MessageEntity
-
-  /**
    * Disables automatic server-side content type detection for files uploaded using multipart/form-data
    */
   disable_content_type_detection?: Boolean
-
-  /**
-   * Pass True, if the message should be sent even if the specified replied-to message is not found
-   */
-  allow_sending_without_reply?: Boolean
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#senddocument
-   */
-  disable_web_page_preview?: never
 }
 
-export interface ExtraGame extends ExtraReplyMessage {
-  /**
-   * Inline keyboard. If empty, one ‘Play game_title’ button will be shown. If not empty, the first button must launch the game.
-   */
-  reply_markup?: TT.InlineKeyboardMarkup
+export interface ExtraGame extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkupInlineKeyboard {}
 
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendgame
-   */
-  disable_web_page_preview?: never
+export interface ExtraInvoice extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkupInlineKeyboard {}
 
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendgame
-   */
-  parse_mode?: never
-}
-
-export interface ExtraInvoice extends ExtraReplyMessage {
-  /**
-   * Inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.
-   */
-  reply_markup?: TT.InlineKeyboardMarkup
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendinvoice
-   */
-  disable_web_page_preview?: never
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendinvoice
-   */
-  parse_mode?: never
-}
-
-export interface ExtraLocation extends ExtraReplyMessage {
+export interface ExtraLocation extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * The radius of uncertainty for the location, measured in meters; 0-1500
    */
@@ -426,84 +406,39 @@ export interface ExtraLocation extends ExtraReplyMessage {
    * For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
    */
   proximity_alert_radius?: number
-
-  /**
-   * Pass True, if the message should be sent even if the specified replied-to message is not found
-   */
-  allow_sending_without_reply?: boolean
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendlocation
-   */
-  disable_web_page_preview?: never
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendlocation
-   */
-  parse_mode?: never
 }
 
-export interface ExtraEditLocation extends ExtraLocation {
+export interface ExtraEditLocation {
   /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendlocation
+   * The radius of uncertainty for the location, measured in meters; 0-1500
    */
-  live_period?: never
+  horizontal_accuracy?: number
+
+  /**
+   * Period in seconds for which the location will be updated (should be between 60 and 86400)
+   */
+  live_period?: number
+
+  /**
+   * For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
+   */
+  heading?: number
+
+  /**
+   * For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
+   */
+  proximity_alert_radius?: number
 }
 
-export interface ExtraPhoto extends ExtraReplyMessage {
-  /**
-   * Photo caption (may also be used when resending photos by file_id), 0-1024 characters
-   */
-  caption?: string
+export interface ExtraPhoto extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
 
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendphoto
-   */
-  disable_web_page_preview?: never
-}
+export interface ExtraMediaGroup extends ExtraDisableNotifications, ExtraReplyMessage {}
 
-export interface ExtraMediaGroup extends ExtraReplyMessage {
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
-   */
-  disable_web_page_preview?: never
+export interface ExtraAnimation extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
 
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
-   */
-  parse_mode?: never
+export interface ExtraSticker extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
 
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
-   */
-  reply_markup?: never
-
-  /**
-   * Pass True, if the message should be sent even if the specified replied-to message is not found
-   */
-  allow_sending_without_reply?: Boolean
-}
-
-export interface ExtraAnimation extends ExtraReplyMessage {
-  /**
-   * Animation caption (may also be used when resending animation by file_id), 0-200 characters
-   */
-  caption?: string
-}
-
-export interface ExtraSticker extends ExtraReplyMessage {
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendsticker
-   */
-  disable_web_page_preview?: never
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendsticker
-   */
-  parse_mode?: never
-}
-
-export interface ExtraVideo extends ExtraReplyMessage {
+export interface ExtraVideo extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * Duration of sent video in seconds
    */
@@ -528,22 +463,12 @@ export interface ExtraVideo extends ExtraReplyMessage {
   thumb?: InputFile
 
   /**
-   * Video caption (may also be used when resending videos by file_id), 0-1024 characters
-   */
-  caption?: string
-
-  /**
    * Pass True, if the uploaded video is suitable for streaming
    */
   supports_streaming?: boolean
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendvideo
-   */
-  disable_web_page_preview?: never
 }
 
-export interface ExtraVideoNote extends ExtraReplyMessage {
+export interface ExtraVideoNote extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * Duration of sent video in seconds
    */
@@ -563,24 +488,14 @@ export interface ExtraVideoNote extends ExtraReplyMessage {
   thumb?: InputFile
 }
 
-export interface ExtraVoice extends ExtraReplyMessage {
-  /**
-   * Voice message caption, 0-1024 characters
-   */
-  caption?: string
-
+export interface ExtraVoice extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * Duration of the voice message in seconds
    */
   duration?: number
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendvoice
-   */
-  disable_web_page_preview?: never
 }
 
-export interface ExtraDice extends ExtraReplyMessage {
+export interface ExtraDice extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * Emoji on which the dice throw animation is based.
    * Currently, must be one of “🎲”, “🎯”, “🏀”, “⚽”, or “🎰”.
@@ -588,19 +503,9 @@ export interface ExtraDice extends ExtraReplyMessage {
    * Defaults to “🎲”
    * */
   emoji?: string
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#senddice
-   */
-  parse_mode?: never
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#senddice
-   */
-  disable_web_page_preview?: never
 }
 
-export interface ExtraPoll {
+export interface ExtraPoll extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /** True, if the poll needs to be anonymous, defaults to True */
   is_anonymous?: boolean
 
@@ -612,25 +517,13 @@ export interface ExtraPoll {
 
   /** Pass True, if the poll needs to be immediately closed. This can be useful for poll preview. */
   is_closed?: boolean
-
-  /**	Sends the message silently. Users will receive a notification with no sound. */
-  disable_notification?: boolean
-
-  /** If the message is a reply, ID of the original message */
-  reply_to_message_id?: number
-
-  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
-  reply_markup?:
-    | TT.InlineKeyboardMarkup
-    | TT.ReplyKeyboardMarkup
-    | TT.ReplyKeyboardRemove
-    | TT.ForceReply
 }
 
-export interface ExtraStopPoll {
-  /** A JSON-serialized object for a new message inline keyboard. */
-  reply_markup?: TT.InlineKeyboardMarkup
-}
+export interface ExtraStopPoll extends ExtraReplyMarkupInlineKeyboard {}
+
+export type Extra = ExtraSendMessage
+  | ExtraEditMessage
+  | ExtraUnpinMessage
 
 export interface ExtraUnban {
   /** Do nothing if the user is not banned */
@@ -773,62 +666,4 @@ export interface BotCommand {
    * Description of the command, 3-256 characters.
    */
   description: string
-}
-
-/**
- * This object represents a dice with random value from 1 to 6. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
- */
-export interface Dice {
-  /**
-   * Value of the dice, 1-6
-   */
-  value: number
-}
-
-export interface PollOption {
-  /** Option text, 1-100 characters */
-  text: string
-
-  /** Number of users that voted for this option */
-  voter_count: number
-}
-
-export interface PollAnswer {
-  /** Unique poll identifier */
-  poll_id: string
-
-  /** The user, who changed the answer to the poll */
-  user: TT.User
-
-  /** 0-based identifiers of answer options, chosen by the user. May be empty if the user retracted their vote. */
-  option_ids: number[]
-}
-
-export interface Poll {
-  /** Unique poll identifier */
-  id: string
-
-  /** Poll question, 1-255 characters */
-  question: string
-
-  /** List of poll options */
-  options: PollOption[]
-
-  /** Total number of users that voted in the poll */
-  total_voter_count: number
-
-  /** True, if the poll is closed */
-  is_closed: boolean
-
-  /** True, if the poll is anonymous */
-  is_anonymous: boolean
-
-  /** Poll type, currently can be “regular” or “quiz” */
-  type: 'regular' | 'quiz'
-
-  /** True, if the poll allows multiple answers */
-  allows_multiple_answers: boolean
-
-  /** 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot. */
-  correct_option_id?: number
 }

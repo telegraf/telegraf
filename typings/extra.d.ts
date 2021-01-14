@@ -13,7 +13,7 @@ export declare class Extra {
 
   webPreview(value?: boolean): this
 
-  markup(markup: any): tt.ExtraEditMessage & this
+  markup(markup: any): tt.ExtraReplyMarkup & this
 
   HTML(value?: boolean): this
 
@@ -31,7 +31,7 @@ export declare class Extra {
 
   static webPreview(value?: boolean): Extra
 
-  static markup(markup: any): tt.ExtraEditMessage
+  static markup(markup: any): tt.ExtraReplyMarkup
 
   static HTML(value?: boolean): Extra
 

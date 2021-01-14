@@ -34,14 +34,13 @@
     "build:docs": "typedoc src/index.ts",
     "pretest": "npm run build",
     "test": "ava test/*",
-    "lint": "eslint --cache .",
+    "lint": "eslint .",
     "checks": "npm test && npm run lint",
     "refresh": "npm run clean && npm ci",
     "clean": "git clean -fX .eslintcache docs/build/ lib/ typings/"
   },
   "husky": {
     "hooks": {
-      "post-checkout": "npm run --silent clean",
       "pre-commit": "tsc --build docs/examples"
     }
   },

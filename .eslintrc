@@ -8,7 +8,7 @@
       "files": "*.ts",
       "extends": ["plugin:prettier/recommended", "prettier/@typescript-eslint"],
       "rules": {
-        "sort-imports": ["warn", { "ignoreCase": true }],
+        "sort-imports": ["error", { "ignoreCase": true }],
         "@typescript-eslint/ban-ts-comment": "warn",
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/no-explicit-any": "warn",
@@ -19,7 +19,7 @@
     }
   ],
   "rules": {
-    "no-warning-comments": "warn"
+    "no-warning-comments": "error"
   },
   "ignorePatterns": ["/lib/", "/typings/", "/docs/build/"],
   "reportUnusedDisableDirectives": true,

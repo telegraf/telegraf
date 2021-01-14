@@ -512,11 +512,28 @@ export interface ExtraPoll extends ExtraDisableNotifications, ExtraReplyMessage,
   /** True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False */
   allows_multiple_answers?: boolean
 
-  /** 0-based identifier of the correct answer option, required for polls in quiz mode */
-  correct_option_id?: number
-
   /** Pass True, if the poll needs to be immediately closed. This can be useful for poll preview. */
   is_closed?: boolean
+}
+
+export interface ExtraQuiz extends ExtraPoll {
+  /** 0-based identifier of the correct answer option, required for polls in quiz mode */
+  correct_option_id: number
+
+  /** Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing */
+  explanation?: string
+
+  /** List of special entities that appear in the poll explanation, which can be specified instead of parse_mode */
+  explanation_entities?: TT.MessageEntity[]
+
+  /** Mode for parsing entities in the explanation. See formatting options for more details. */
+  explanation_parse_mode?: ParseMode
+
+  /** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
+  open_period?: number
+
+  /** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period. */
+  close_date?: number
 }
 
 export interface ExtraStopPoll extends ExtraReplyMarkupInlineKeyboard {}

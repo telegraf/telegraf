@@ -302,7 +302,7 @@ export declare class TelegrafContext {
   replyWithQuiz(
     question: string,
     options: string[],
-    extra: tt.ExtraPoll
+    extra: tt.ExtraQuiz
   ): Promise<tt.MessagePoll>
 
   /**

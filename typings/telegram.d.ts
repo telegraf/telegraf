@@ -534,7 +534,7 @@ export declare class Telegram extends ApiClient {
     chatId: number | string,
     question: string,
     options: string[],
-    extra: tt.ExtraPoll
+    extra: tt.ExtraQuiz
   ): Promise<tt.MessagePoll>
 
   /**

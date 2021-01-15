@@ -195,6 +195,21 @@ export declare class Telegram extends ApiClient {
   ): Promise<tt.MessageLocation | boolean>
 
   /**
+   * Use this method to stop updating a live location message before live_period expires.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param extra Extra params
+   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
+   */
+  stopMessageLiveLocation(
+    chatId: number | string | void,
+    messageId: number | void,
+    inlineMessageId: string | void,
+    extra?: tt.ExtraStopLiveLocation
+  ): Promise<tt.MessageLocation | boolean>
+
+  /**
    * Use this method to delete a message, including service messages, with the following limitations:
    * - A message can only be deleted if it was sent less than 48 hours ago.
    * - Bots can delete outgoing messages in groups and supergroups.

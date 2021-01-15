@@ -430,6 +430,8 @@ export interface ExtraEditLocation {
   proximity_alert_radius?: number
 }
 
+export interface ExtraStopLiveLocation extends ExtraReplyMarkupInlineKeyboard {}
+
 export interface ExtraPhoto extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
 
 export interface ExtraMediaGroup extends ExtraDisableNotifications, ExtraReplyMessage {}

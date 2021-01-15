@@ -471,6 +471,15 @@ export declare class TelegrafContext {
   ): Promise<tt.MessageLocation | boolean>
 
   /**
+   * Use this method to stop updating a live location message before live_period expires.
+   * @param extra Extra params
+   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
+   */
+  stopMessageLiveLocation(
+    extra?: tt.ExtraStopLiveLocation
+  ): Promise<tt.MessageLocation | boolean>
+
+  /**
    * Use this method to kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
    * @param userId Unique identifier of the target user
    * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
@@ -496,15 +505,6 @@ export declare class TelegrafContext {
     userId: number,
     extra: tt.ExtraPromoteChatMember
   ): Promise<boolean>
-
-  /**
-   * Use this method to stop updating a live location message before live_period expires.
-   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
-   * @param extra Extra params
-   */
-  stopMessageLiveLocation(
-    extra?: tt.ExtraLocation
-  ): Promise<tt.MessageLocation | boolean>
 
   /**
    * Use this method to delete a message, including service messages, with the following limitations:

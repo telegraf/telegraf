@@ -428,11 +428,11 @@ export declare class TelegrafContext {
    * Use this method to edit captions of messages sent by the bot or via the bot (for inline bots).
    * On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
    * @param caption New caption of the message
-   * @param markup Markup of inline keyboard
+   * @param extra Extra params
    */
   editMessageCaption(
     caption?: string,
-    markup?: tt.InlineKeyboardMarkup
+    extra?: tt.ExtraEditCaption
   ): Promise<tt.Message | boolean>
 
   /**

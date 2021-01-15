@@ -21,7 +21,7 @@ These accounts serve as an interface for code running somewhere on your server.
 
 Telegraf is a library that makes it simple for you to develop your own Telegram bots using JavaScript or [TypeScript](https://www.typescriptlang.org/).
 
-#### Features
+### Features
 
 - Full [Telegram Bot API 5.0](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
@@ -33,7 +33,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 - Easy to extend
 - `TypeScript` typings
 
-#### Example
+### Example
   
 ```js
 const { Telegraf } = require('telegraf')
@@ -65,7 +65,7 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
 For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
 
-#### Resources
+### Resources
 
 - [Getting started](#getting-started)
 - [API reference](https://telegraf.js.org/modules.html)
@@ -79,7 +79,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 ## Getting started
 
-#### Telegram token
+### Telegram token
 
 To use the [Telegram Bot API](https://core.telegram.org/bots/api), 
 you first have to [get a bot account](https://core.telegram.org/bots) 
@@ -87,7 +87,7 @@ by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
 BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
 
-#### Installation
+### Installation
 
 ```shellscript
 $ npm install telegraf
@@ -101,13 +101,13 @@ or
 $ pnpm add telegraf
 ```
 
-#### Bot
+### Bot
 
 A Telegraf bot is an object containing an array of middlewares which are composed 
 and executed in a stack-like manner upon request. Is similar to many other middleware systems 
 that you may have encountered such as Express, Koa, Ruby's Rack, Connect.
 
-#### Middleware
+### Middleware
 
 Middleware is an essential part of any modern framework.
 It allows you to modify requests and responses as they pass between the Telegram and your bot.
@@ -148,7 +148,7 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
 Note how the function `next` is used to invoke the subsequent layers of the middleware stack, performing the actual processing of the update (in this case, replying with “Hello World”).
 
-##### What you can do with middleware
+#### What you can do with middleware
 
 Middleware is an extremely flexible concept that can be used for a myriad of things, including these:
 
@@ -164,7 +164,7 @@ Just install a package via `npm`, add it to your bot and you're ready to go.
 
 Here is a list of
 
-##### Known middleware
+#### Known middleware
 
 - [Internationalization](https://github.com/telegraf/telegraf-i18n)—simplifies selecting the right translation to use when responding to a user.
 - [Redis powered session](https://github.com/telegraf/telegraf-session-redis)—store session data using Redis.
@@ -180,12 +180,12 @@ Here is a list of
 - [statsd integration](https://github.com/telegraf/telegraf-statsd)
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
 
-#### Context
+### Context
 
 A Telegraf Context encapsulates telegram update.
 One `Context` is created for each incoming `Update`.
 
-##### Extending context
+#### Extending context
 
 The recommended way to extend bot context:
 
@@ -211,7 +211,7 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'))
 If you're using TypeScript, have a look at the section below about usage with TypeScript.
 (You need to extend the type of the context.)
 
-##### Shortcuts
+#### Shortcuts
 
 ```js
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -280,7 +280,7 @@ process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
-#### Session
+### Session
 
 Sessions are used to store data per user or per chat (or per whatever if you want, this is the *session key*).
 
@@ -394,7 +394,7 @@ process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
-#### Update types
+### Update types
 
 ```js
 // Handle message update
@@ -472,7 +472,9 @@ Default `bot.handleError` always rethrows. You can overwrite it using `bot.catch
 
 ℹ️ In production, `systemd` or [`pm2`](https://www.npmjs.com/package/pm2) can restart your bot if it exits for any reason.
 
-#### Working with files
+## Advanced topics
+
+### Working with files
 
 Supported file sources:
 
@@ -513,13 +515,13 @@ bot.on('message', (ctx) => {
 })
 ```
 
-#### Usage with TypeScript
+### Usage with TypeScript
 
 Telegraf is written in TypeScript and therefore ships with declaration files for the entire library.
 Moreover, it includes types for the complete Telegram API via the [`typegram`](https://github.com/KnorpelSenf/typegram) package.
 While most types of Telegraf's API surface are self-explanatory, there's some notable things to keep in mind.
 
-##### Custom Context Type and Middleware
+#### Custom Context Type and Middleware
 
 Recap from the above section about Middleware that `ctx` is the context object that holds information about the incoming update, as well as a number of convenience functions such as `ctx.reply`.
 
@@ -549,7 +551,7 @@ bot.use((ctx, next) => {
 // ...
 ```
 
-##### Session Middleware
+#### Session Middleware
 
 If you are using session middleware, you need to define your session property on your custom context object.
 This could look like this:

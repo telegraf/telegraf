@@ -64,6 +64,12 @@ export type MessageSubTypes =
   'connected_website' |
   'animation'
 
+export type InputMediaTypes = 'photo'
+                            | 'video'
+                            | 'animation'
+                            | 'audio'
+                            | 'document'
+
 export type InlineQueryResult =
   TT.InlineQueryResultCachedAudio |
   TT.InlineQueryResultCachedDocument |
@@ -94,12 +100,12 @@ export type MessageMedia =
   InputMediaDocument
 
 export interface InputMediaPhoto extends ExtraCaption {
-  type: string
+  type: InputMediaTypes
   media: InputFile
 }
 
 export interface InputMediaVideo extends ExtraCaption {
- type: string
+ type: InputMediaTypes
  media: InputFile
  thumb?: string | InputFile
  width?: number
@@ -109,7 +115,7 @@ export interface InputMediaVideo extends ExtraCaption {
 }
 
 export interface InputMediaAnimation extends ExtraCaption {
- type: string
+ type: InputMediaTypes
  media: InputFile
  thumb?: string | InputFile
  width?: number
@@ -119,7 +125,7 @@ export interface InputMediaAnimation extends ExtraCaption {
 }
 
 export interface InputMediaAudio extends ExtraCaption {
- type: string
+ type: InputMediaTypes
  media: InputFile
  thumb?: string | InputFile
  performer?: string
@@ -129,7 +135,7 @@ export interface InputMediaAudio extends ExtraCaption {
 }
 
 export interface InputMediaDocument extends ExtraCaption {
- type: string
+ type: InputMediaTypes
  media: InputFile
  thumb?: string | InputFile
 }

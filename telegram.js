@@ -291,7 +291,8 @@ class Telegram extends ApiClient {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      parse_mode: extra.parse_mode,
+      ...extra.parse_mode && { parse_mode: extra.parse_mode },
+      ...extra.caption_entities && { caption_entities: extra.caption_entities },
       reply_markup: extra.parse_mode || extra.reply_markup ? extra.reply_markup : extra
     })
   }

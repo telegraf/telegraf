@@ -295,7 +295,7 @@ interface ExtraCaptionFormatting {
   caption_entities?: TT.MessageEntity[]
 }
 
-interface ExtraCaption extends ExtraCaptionFormatting{
+interface ExtraCaption extends ExtraCaptionFormatting {
   /**
    * Audio caption, 0-1024 characters
    */
@@ -331,6 +331,8 @@ interface ExtraReplyMessage {
 export interface ExtraSendMessage extends ExtraFormatting, ExtraDisableWebPagePreview, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
 
 export interface ExtraEditMessage extends ExtraFormatting, ExtraDisableWebPagePreview, ExtraReplyMarkupInlineKeyboard {}
+
+export interface ExtraEditMessageMedia extends ExtraReplyMarkupInlineKeyboard {}
 
 export interface ExtraUnpinMessage {
   /**

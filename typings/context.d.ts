@@ -452,7 +452,7 @@ export declare class TelegrafContext {
    */
   editMessageMedia(
     media: tt.MessageMedia,
-    extra?: tt.ExtraEditMessage
+    extra?: tt.ExtraEditMessageMedia
   ): Promise<tt.Message | boolean>
 
   /**

@@ -157,6 +157,23 @@ export declare class Telegram extends ApiClient {
   ): Promise<tt.Message | boolean>
 
   /**
+   * Use this method to edit animation, audio, document, photo, or video messages.
+   * @returns On success, if the edited message was sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param media New media of message
+   * @param extra Extra params
+   */
+  editMessageMedia(
+    chatId: number | string | void,
+    messageId: number | void,
+    inlineMessageId: string | void,
+    media: tt.MessageMedia,
+    extra?: tt.ExtraEditMessageMedia
+  ): Promise<tt.Message | boolean>
+
+  /**
    * Use this method to edit live location messages
    * @param latitude Latitude of location
    * @param longitude Longitude of location

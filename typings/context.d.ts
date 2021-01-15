@@ -448,7 +448,7 @@ export declare class TelegrafContext {
    * Use this method to edit animation, audio, document, photo, or video messages.
    * @returns On success, if the edited message was sent by the bot, the edited Message is returned, otherwise True is returned.
    * @param media New media of message
-   * @param markup Markup of inline keyboard
+   * @param extra Extra params
    */
   editMessageMedia(
     media: tt.MessageMedia,

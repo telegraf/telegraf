@@ -93,55 +93,45 @@ export type MessageMedia =
   InputMediaAudio |
   InputMediaDocument
 
-export interface InputMediaPhoto {
+export interface InputMediaPhoto extends ExtraCaption {
   type: string
   media: InputFile
-  caption?: string
-  parse_mode?: string
 }
 
-export interface InputMediaVideo {
+export interface InputMediaVideo extends ExtraCaption {
  type: string
  media: InputFile
  thumb?: string | InputFile
- caption?: string
- parse_mode?: string
  width?: number
  height?: number
  duration?: number
  supports_streaming?: boolean
 }
 
-export interface InputMediaAnimation {
+export interface InputMediaAnimation extends ExtraCaption {
  type: string
  media: InputFile
  thumb?: string | InputFile
- caption?: string
- parse_mode?: string
  width?: number
  height?: number
  duration?: number
  supports_streaming?: boolean
 }
 
-export interface InputMediaAudio {
+export interface InputMediaAudio extends ExtraCaption {
  type: string
  media: InputFile
  thumb?: string | InputFile
- caption?: string
- parse_mode?: string
  performer?: string
  title?: string
  duration?: number
  supports_streaming?: boolean
 }
 
-export interface InputMediaDocument {
+export interface InputMediaDocument extends ExtraCaption {
  type: string
  media: InputFile
  thumb?: string | InputFile
- caption?: string
- parse_mode?: string
 }
 
 export interface StickerData {

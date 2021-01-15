@@ -256,30 +256,6 @@ process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
-#### State
-
-The recommended namespace to share information between middlewares.
-
-```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
-
-// Naive authorization middleware
-bot.use((ctx, next) => {
-  ctx.state.role = getUserRole(ctx.message)
-  return next()
-})
-
-bot.on('text', (ctx) => {
-  return ctx.reply(`Hello ${ctx.state.role}`)
-})
-
-bot.launch()
-
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
-```
-
 ### Session
 
 Sessions are used to store data per user or per chat (or per whatever if you want, this is the *session key*).

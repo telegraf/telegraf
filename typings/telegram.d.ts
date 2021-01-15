@@ -175,11 +175,11 @@ export declare class Telegram extends ApiClient {
 
   /**
    * Use this method to edit live location messages
-   * @param latitude Latitude of location
-   * @param longitude Longitude of location
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
    * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param latitude Latitude of location
+   * @param longitude Longitude of location
    * @param extra Extra params
    * @returns On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
    */

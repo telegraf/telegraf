@@ -297,7 +297,7 @@ interface ExtraCaptionFormatting {
 
 interface ExtraCaption extends ExtraCaptionFormatting {
   /**
-   * Audio caption, 0-1024 characters
+   * Media caption, 0-1024 characters
    */
   caption?: string
 }

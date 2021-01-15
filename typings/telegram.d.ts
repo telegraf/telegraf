@@ -131,14 +131,14 @@ export declare class Telegram extends ApiClient {
    * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
    * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
    * @param caption New caption of the message
-   * @param markup A JSON-serialized object for an inline keyboard.
+   * @param extra Extra params
    */
   editMessageCaption(
     chatId?: number | string,
     messageId?: number,
     inlineMessageId?: string,
     caption?: string,
-    markup?: string
+    extra?: tt.ExtraEditCaption
   ): Promise<tt.Message | boolean>
 
   /**

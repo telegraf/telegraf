@@ -287,12 +287,7 @@ interface ExtraFormatting {
   entities?: TT.MessageEntity[]
 }
 
-interface ExtraCaption {
-  /**
-   * Audio caption, 0-1024 characters
-   */
-  caption?: string
-
+interface ExtraCaptionFormatting {
   /**
    * Mode for parsing entities in the photo caption. See formatting options for more details.
    */
@@ -302,6 +297,13 @@ interface ExtraCaption {
    * List of special entities that appear in message text, which can be specified instead of parse_mode
    */
   caption_entities?: TT.MessageEntity[]
+}
+
+interface ExtraCaption extends ExtraCaptionFormatting{
+  /**
+   * Audio caption, 0-1024 characters
+   */
+  caption?: string
 }
 
 interface ExtraDisableWebPagePreview {
@@ -537,6 +539,8 @@ export interface ExtraQuiz extends ExtraPoll {
 }
 
 export interface ExtraStopPoll extends ExtraReplyMarkupInlineKeyboard {}
+
+export interface ExtraEditCaption extends ExtraCaptionFormatting, ExtraReplyMarkupInlineKeyboard {}
 
 export type Extra = ExtraSendMessage
   | ExtraEditMessage

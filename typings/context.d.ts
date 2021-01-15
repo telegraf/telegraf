@@ -460,13 +460,11 @@ export declare class TelegrafContext {
    * @returns On success, if the edited message was sent by the bot, the edited message is returned, otherwise True is returned.
    * @param latitude New latitude
    * @param longitude New longitude
-   * @param markup Markup of inline keyboard
    * @param extra Extra params
    */
   editMessageLiveLocation(
     latitude: number,
     longitude: number,
-    markup: tt.InlineKeyboardMarkup,
     extra?: tt.ExtraEditLocation
   ): Promise<tt.MessageLocation | boolean>
 

@@ -417,7 +417,7 @@ export interface ExtraLocation extends ExtraDisableNotifications, ExtraReplyMess
   proximity_alert_radius?: number
 }
 
-export interface ExtraEditLocation {
+export interface ExtraEditLocation extends ExtraReplyMarkupInlineKeyboard {
   /**
    * The radius of uncertainty for the location, measured in meters; 0-1500
    */

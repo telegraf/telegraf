@@ -272,25 +272,23 @@ class TelegrafContext {
       )
   }
 
-  editMessageLiveLocation (latitude, longitude, markup, extra) {
+  editMessageLiveLocation (latitude, longitude, extra) {
     this.assert(this.callbackQuery || this.inlineMessageId, 'editMessageLiveLocation')
     return this.inlineMessageId
       ? this.telegram.editMessageLiveLocation(
-        latitude,
-        longitude,
         undefined,
         undefined,
         this.inlineMessageId,
-        markup,
+        latitude,
+        longitude,
         extra
       )
       : this.telegram.editMessageLiveLocation(
-        latitude,
-        longitude,
         this.chat.id,
         this.callbackQuery.message.message_id,
         undefined,
-        markup,
+        latitude,
+        longitude,
         extra
       )
   }

@@ -180,18 +180,16 @@ export declare class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
    * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
-   * @param markup Markup of inline keyboard
    * @param extra Extra params
    * @returns On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
    */
   editMessageLiveLocation(
+    chatId: number | string | void,
+    messageId: number | void,
+    inlineMessageId: string | void,
     latitude: number,
     longitude: number,
-    chatId: number | string | void,
-    messageId: number,
-    inlineMessageId: string | void,
-    markup: tt.InlineKeyboardMarkup,
-    extra?: tt.ExtraLocation
+    extra?: tt.ExtraEditLocation
   ): Promise<tt.MessageLocation | boolean>
 
   /**

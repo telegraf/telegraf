@@ -180,27 +180,6 @@ Here is a list of
 - [statsd integration](https://github.com/telegraf/telegraf-statsd)
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
 
-#### Error handling
-
-By default Telegraf will print all errors to `stderr` and rethrow error.
-
-To perform custom error-handling logic, use following snippet:
-
-```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.catch((err, ctx) => {
-  console.log(`Ooops, encountered an error for ${ctx.updateType}`, err)
-})
-bot.start((ctx) => {
-  throw new Error('Example error')
-})
-bot.launch()
-
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
-``` 
-
 #### Context
 
 A Telegraf Context encapsulates telegram update.
@@ -431,7 +410,9 @@ bot.on(['sticker', 'photo'], (ctx) => {
 ```
 [Official Docs](https://core.telegram.org/bots/api#message)
 
-#### Webhooks
+## Production
+
+### Webhooks
 
 ```js
 require('dotenv')
@@ -478,6 +459,18 @@ require('https')
 - [`express` example integration](https://github.com/telegraf/telegraf/blob/master/docs/examples/express-webhook-bot.js)
 - [`fastify` example integration](https://github.com/telegraf/telegraf/blob/master/docs/examples/fastify-webhook-bot.js)
 - [`koa` example integration](https://github.com/telegraf/telegraf/blob/master/docs/examples/koa-webhook-bot.js)
+
+### Error handling
+
+If middleware throws an error or times out, Telegraf calls `bot.handleError`. If it rethrows, update source closes, and then the error is printed to console and process [hopefully](https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode) terminates. If it does not rethrow, the error is swallowed.
+
+Default `bot.handleError` always rethrows. You can overwrite it using `bot.catch` if you need to.
+
+⚠️ Always rethrow `TimeoutError`!
+
+⚠️ Swallowing unknown errors might leave the process in invalid state!
+
+ℹ️ In production, `systemd` or [`pm2`](https://www.npmjs.com/package/pm2) can restart your bot if it exits for any reason.
 
 #### Working with files
 

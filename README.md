@@ -513,65 +513,6 @@ bot.on('message', (ctx) => {
 })
 ```
 
-#### Telegraf Modules
-
-Telegraf Modules is higher level abstraction for writing modular Telegram bots.
-
-A module is simply a .js file that exports Telegraf middleware:
-
-```js
-module.exports = (ctx) => ctx.reply('Hello from Telegraf Module!')
-```
-
-```js
-const Composer = require('telegraf/composer')
-
-module.exports = Composer.mount(
-  'sticker', 
-  (ctx) => ctx.reply('Wow, sticker')
-)
-```
-
-To run modules, you can use `telegraf` module runner, it allows you to start Telegraf module easily from the command line.
-
-```shellscript
-npm install telegraf -g
-```
-
-#### Telegraf CLI usage
-
-```text
-telegraf [opts] <bot-file>
-  -t  Bot token [$BOT_TOKEN]
-  -d  Webhook domain
-  -H  Webhook host [0.0.0.0]
-  -p  Webhook port [$PORT or 3000]
-  -l  Enable logs
-  -h  Show this help message
-```
-
-##### Telegraf Module example
-
-Create module with name `bot.js` and following content:
-
-```js
-const Composer = require('telegraf/composer')
-const PhotoURL = 'https://picsum.photos/200/300/?random'
-
-const bot = new Composer()
-bot.start((ctx) => ctx.reply('Hello there!'))
-bot.help((ctx) => ctx.reply('Help message'))
-bot.command('photo', (ctx) => ctx.replyWithPhoto({ url: PhotoURL }))
-
-module.exports = bot
-```
-
-then run it:
-
-```shellscript
-telegraf -t "bot token" bot.js
-```
-
 #### Usage with TypeScript
 
 Telegraf is written in TypeScript and therefore ships with declaration files for the entire library.

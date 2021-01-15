@@ -8,6 +8,11 @@
 [![English chat](https://img.shields.io/badge/English%20chat-grey?style=flat-square&logo=telegram)](https://t.me/TelegrafJSChat)
 </header>
 
+## For 3.x users
+
+- [3.38.0 docs](https://github.com/telegraf/telegraf/tree/3.38.0/docs)
+- [4.0.0 release notes](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
+
 ## Introduction
 
 Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 

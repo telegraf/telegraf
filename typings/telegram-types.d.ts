@@ -542,7 +542,26 @@ export interface ExtraEditCaption extends ExtraCaptionFormatting, ExtraReplyMark
 
 export type Extra = ExtraSendMessage
   | ExtraEditMessage
+  | ExtraEditMessageMedia
   | ExtraUnpinMessage
+  | ExtraAudio
+  | ExtraDocument
+  | ExtraGame
+  | ExtraInvoice
+  | ExtraLocation
+  | ExtraEditLocation
+  | ExtraPhoto
+  | ExtraMediaGroup
+  | ExtraAnimation
+  | ExtraSticker
+  | ExtraVideo
+  | ExtraVideoNote
+  | ExtraVoice
+  | ExtraDice
+  | ExtraPoll
+  | ExtraQuiz
+  | ExtraStopPoll
+  | ExtraEditCaption
 
 export interface ExtraUnban {
   /** Do nothing if the user is not banned */

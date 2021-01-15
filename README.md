@@ -101,11 +101,9 @@ or
 $ pnpm add telegraf
 ```
 
-### Bot
+### `Telegraf` class
 
-A Telegraf bot is an object containing an array of middlewares which are composed 
-and executed in a stack-like manner upon request. Is similar to many other middleware systems 
-that you may have encountered such as Express, Koa, Ruby's Rack, Connect.
+[`Telegraf`](https://telegraf.js.org/classes/telegraf.html) instance represents your bot. It's responsible for obtaining updates and passing them to your handlers.
 
 ### Middleware
 

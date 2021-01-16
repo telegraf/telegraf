@@ -19,7 +19,7 @@ export interface TelegrafOptions extends TOptions {
    */
   telegram?: TelegramOptions
 
-  context?: TelegrafContext
+  contextType?: TelegrafContext
 
   /**
    * Autoset after launch by botInfo method

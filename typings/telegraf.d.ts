@@ -13,16 +13,18 @@ import { TelegrafContext } from './context'
 import { Composer } from './composer'
 import { Telegram, TelegramOptions } from './telegram'
 
-export interface TelegrafOptions {
+export interface TelegrafOptions extends TOptions {
   /**
    * Telegram options
    */
   telegram?: TelegramOptions
 
+  context?: TelegrafContext
+
   /**
-   * Bot username
+   * Autoset after launch by botInfo method
    */
-  username?: string
+  username?: never
 }
 
 export interface LaunchPollingOptions {
@@ -189,17 +191,7 @@ export interface TOptions {
   /**
    * Telegram options
    */
-  telegram?: {
-    /**
-     * https.Agent or http.Agent instance, allows custom proxy, certificate, keep alive, etc.
-     */
-    agent: https.Agent | http.Agent
-
-    /**
-     * Reply via webhook
-     */
-    webhookReply: boolean
-  }
+  telegram?: TelegramOptions
 
   /**
    * Bot username
@@ -211,7 +203,13 @@ export interface TOptions {
    */
   channelMode?: boolean
 
+  /**
+   * Delay (in seconds) before making a follow-up request to get updates
+   */
   retryAfter?: number
 
+  /**
+   * Maximum amount of time (in microseconds) for which middlewares execution can pause updates fetching
+   */
   handlerTimeout?: number
 }

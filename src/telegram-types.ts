@@ -1,7 +1,7 @@
 /** @format */
 
-import { Chat, Typegram } from 'typegram'
-import { MessageSubTypes, UpdateTypes } from './context'
+import { Chat, Message, Typegram } from 'typegram'
+import { UpdateTypes } from './context'
 
 // internal type provisions
 export * from 'typegram/callback'
@@ -137,7 +137,19 @@ export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
 
 // types used for inference of ctx object
 
+export type UnionToIntersection<U> = (
+  U extends unknown ? (k: U) => void : never
+) extends (k: infer I) => void
+  ? I
+  : never
+
 /** Possible update types */
 export type UpdateType = typeof UpdateTypes[number]
+
 /** Possible message subtypes. Same as the properties on a message object */
-export type MessageSubType = typeof MessageSubTypes[number]
+export type MessageSubType =
+  | 'forward_date'
+  | Exclude<
+      keyof UnionToIntersection<Message>,
+      keyof Message.CaptionableMessage | 'entities' | 'media_group_id'
+    >

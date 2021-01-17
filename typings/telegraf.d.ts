@@ -19,6 +19,9 @@ export interface TelegrafOptions extends TOptions {
    */
   telegram?: TelegramOptions
 
+  /**
+   * Custom context
+   */
   contextType?: TelegrafContext
 
   /**

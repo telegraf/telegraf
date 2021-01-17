@@ -4,25 +4,24 @@ import * as tt from './telegram-types.d'
 
 export interface Button {
   text: string
-  hide: boolean
+
+  /**
+   * Keyboard builder sugar
+   */
+  hide?: boolean
 }
 
-export interface ContactRequestButton {
-  text: string
-  hide: boolean
+export interface ContactRequestButton extends Button {
   request_contact: boolean
 }
 
-export interface LocationRequestButton {
-  text: string
-  hide: boolean
+export interface LocationRequestButton extends Button {
   request_location: boolean
 }
 
 type PollType = 'poll' | 'quiz'
 
-export interface PollRequestButton {
-  text: string
+export interface PollRequestButton extends Button {
   request_poll: { type?: PollType }
 }
 
@@ -33,40 +32,28 @@ export type KeyboardButton =
   | PollRequestButton
   | string
 
-export interface UrlButton {
+export interface UrlButton extends Button {
   url: string
-  text: string
-  hide?: boolean
 }
 
-export interface CallbackButton {
-  text: string
-  hide: boolean
+export interface CallbackButton extends Button {
   callback_data: string
 }
 
-export interface SwitchToChatButton {
-  text: string
-  hide: boolean
+export interface SwitchToChatButton extends Button {
   switch_inline_query: string
 }
 
-export interface SwitchToCurrentChatButton {
-  text: string
-  hide: boolean
+export interface SwitchToCurrentChatButton extends Button {
   switch_inline_query_current_chat: string
 }
 
-export interface GameButton {
-  text: string
-  hide: boolean
+export interface GameButton extends Button {
   callback_game: tt.CallbackGame
 }
 
-export interface PayButton {
+export interface PayButton extends Button {
   pay: boolean
-  text: string
-  hide: boolean
 }
 
 export interface LoginUrl {
@@ -76,10 +63,8 @@ export interface LoginUrl {
   request_write_access?: boolean
 }
 
-export interface LoginButton {
-  text: string
+export interface LoginButton extends Button {
   login_url: LoginUrl
-  hide: boolean
 }
 
 export type InlineKeyboardButton =

@@ -19,6 +19,8 @@ export declare class Extra {
 
   markdown(value?: boolean): this
 
+  markdownV2(value?: boolean): this
+
   caption(caption: string): this
 
   static load(opts: object): Extra

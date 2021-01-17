@@ -100,71 +100,19 @@ $ pnpm add telegraf
 
 ### `Telegraf` class
 
-[`Telegraf`](https://telegraf.js.org/classes/telegraf.html) instance represents your bot. It's responsible for obtaining updates and passing them to your handlers.
+[`Telegraf`] instance represents your bot. It's responsible for obtaining updates and passing them to your handlers.
 
 ### `Context` class
 
-`Telegraf` creates one [`Context`](https://telegraf.js.org/classes/context.html) for each incoming update.
+`ctx` you can see in every example is a [`Context`] instance.
+[`Telegraf`] creates one for each incoming update and passes it to your middleware.
 It contains the `update`, `botInfo`, and `telegram` for making arbitrary Bot API requests,
 as well as shorthand methods and getters.
 
 This is probably the class you'll be using the most.
 
-### Middleware
 
-Middleware is an essential part of any modern framework.
-It allows you to modify requests and responses as they pass between the Telegram and your bot.
-
-You can imagine middleware as a chain of logic connection your bot to the Telegram request.
-
-Middleware normally takes the two parameters: **`ctx`** and **`next`**.
-
-**`ctx`** is the context for one [Telegram update](https://core.telegram.org/bots/api#update). It contains mainly two things:
-
-- the update object, containing for example the incoming message and the respective chat, and
-- a number of useful methods for reacting to the update, such as replying to the message or answering a callback query.
-
-See  [the context section](https://telegraf.js.org/#/?id=context) below for a detailed overview.
-
-**`next`** is a function that is invoked to execute the downstream middleware.
-It returns a `Promise` with a function `then` for running code after completion.
-
-Here is a simple example for how to use middleware to track the response time, using `async` and `await` to deal with the `Promise`.
-
-```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
-
-bot.use(async (ctx, next) => {
-  const start = new Date()
-  await next()
-  const ms = new Date() - start
-  console.log('Response time: %sms', ms)
-})
-
-bot.on('text', (ctx) => ctx.reply('Hello World'))
-bot.launch()
-
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
-```
-
-Note how the function `next` is used to invoke the subsequent layers of the middleware stack, performing the actual processing of the update (in this case, replying with “Hello World”).
-
-#### What you can do with middleware
-
-Middleware is an extremely flexible concept that can be used for a myriad of things, including these:
-
-- storing data per chat, per user, you name it
-- allowing access to old messages (by storing them)
-- making internationalization available
-- rate limiting
-- tracking response times (see above)
-- much more
-
-All important kinds of middleware have already been implemented, and the community keeps on adding more.
-Just install a package via `npm`, add it to your bot and you're ready to go.
-
+<!--
 Here is a list of
 
 #### Known middleware
@@ -182,11 +130,7 @@ Here is a list of
 - [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
 - [statsd integration](https://github.com/telegraf/telegraf-statsd)
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
-
-### Context
-
-A Telegraf Context encapsulates telegram update.
-One `Context` is created for each incoming `Update`.
+-->
 
 #### Extending context
 
@@ -493,6 +437,35 @@ bot.on('message', (ctx) => {
   })
 })
 ```
+
+### Middleware
+
+In addition to `ctx: Context`, each middleware receives `next: () => Promise<void>`.
+
+`await next()` will call next middleware and wait for it to finish:
+
+```js
+bot.use(async (ctx, next) => {
+  const start = Date.now()
+  await next() // runs next middleware
+  // runs after next middleware finishes
+  const ms = Date.now() - start
+  console.log('Response time: %sms', ms)
+})
+```
+
+This simple ability has endless applications:
+- [`Composer`] and [`Router`],
+- [extending `Context`](#extending-context), [`session`], [`Scenes`],
+- [stuff other people came up with](https://www.npmjs.com/search?q=telegraf-),
+- whatever **you** come up with!
+
+[`Composer`]: https://telegraf.js.org/classes/composer.html
+[`Context`]: https://telegraf.js.org/classes/context.html
+[`Router`]: https://telegraf.js.org/classes/router.html
+[`session`]: #session-middleware
+[`Scenes`]: https://telegraf.js.org/modules/scenes.html
+[`Telegraf`]: https://telegraf.js.org/classes/telegraf.html
 
 ### Usage with TypeScript
 

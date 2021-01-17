@@ -59,6 +59,10 @@ class Markup {
     return Markup.locationRequestButton(text, hide)
   }
 
+  pollRequestButton (text, type, hide) {
+    return Markup.pollRequestButton(text, type, hide)
+  }
+
   urlButton (text, url, hide) {
     return Markup.urlButton(text, url, hide)
   }

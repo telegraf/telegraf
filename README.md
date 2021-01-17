@@ -102,6 +102,14 @@ $ pnpm add telegraf
 
 [`Telegraf`](https://telegraf.js.org/classes/telegraf.html) instance represents your bot. It's responsible for obtaining updates and passing them to your handlers.
 
+### `Context` class
+
+`Telegraf` creates one [`Context`](https://telegraf.js.org/classes/context.html) for each incoming update.
+It contains the `update`, `botInfo`, and `telegram` for making arbitrary Bot API requests,
+as well as shorthand methods and getters.
+
+This is probably the class you'll be using the most.
+
 ### Middleware
 
 Middleware is an essential part of any modern framework.

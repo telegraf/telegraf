@@ -17,6 +17,20 @@ export interface SessionContext<S extends object> extends Context {
   session?: S
 }
 
+/**
+ * Returns middleware that adds `ctx.session` for storing arbitrary state per session key.
+ *
+ * The default `getSessionKey` is <code>\`${ctx.from.id}:${ctx.chat.id}\`</code>.
+ * If either `ctx.from` or `ctx.chat` is `undefined`, default session key and thus `ctx.session` are also `undefined`.
+ *
+ * Session data is kept only in memory by default,
+ * which means that all data will be lost when the process is terminated.
+ * If you want to store data across restarts, or share it among workers,
+ * you can [install persistent session middleware from npm](https://www.npmjs.com/search?q=telegraf-session),
+ * or pass custom `storage`.
+ *
+ * @example https://github.com/telegraf/telegraf/blob/master/docs/examples/example-bot.ts
+ */
 export function session<S extends object>(
   options?: SessionOptions<S>
 ): MiddlewareFn<SessionContext<S>> {

@@ -134,120 +134,6 @@ Here is a list of
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
 -->
 
-### Session
-
-Sessions are used to store data per user or per chat (or per whatever if you want, this is the *session key*).
-
-Think of a session as an object that can hold any kind of information you provide.
-This could be the ID of the last message of the bot, or simply a counter about how many photos a user already sent to the bot.
-
-You can use session middleware to add sessions support to your bot.
-This will do the heavy lifting for you.
-Using session middleware will result in a sequence like this:
-
-1) A new update comes in.
-2) The session middleware loads the current session data for the respective chat/user/whatever.
-3) The session middleware makes that session data available on the context object `ctx`.
-4) Your middleware stack is run, all of your code can do its work.
-5) The session middleware takes back control and checks how you altered the session data on the `ctx` object.
-6) The session middleware write the session back to your storage, i.e. a file, a database, an in-memory storage, or even a cloud storage solution.
-
-Here is a simple example of how the built-in session middleware of Telegraf can be used to count photos.
-
-```js
-const { session } = require('telegraf')
-
-const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.use(session())
-bot.on('photo', (ctx) => {
-  ctx.session ??= { counter: 0 }
-  ctx.session.counter++
-  return ctx.reply(`Photo counter: ${ctx.session.counter}`)
-})
-
-bot.launch()
-
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
-```
-
-The default session key is <code>`${ctx.from.id}:${ctx.chat.id}`</code>.
-If either `ctx.from` or `ctx.chat` is `undefined`, default session key and thus `ctx.session` are also `undefined`.
-You can customize the session key resolver function by passing in the options argument:
-
-```js
-const { session } = require('telegraf')
-
-const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.use(session({
-  makeKey: (ctx) => ctx.from?.id // only store data per user, but across chats
-}))
-bot.on('photo', (ctx) => {
-  ctx.session ??= { counter: 0 }
-  ctx.session.counter++
-  return ctx.reply(`Photo counter: ${ctx.session.counter}`)
-})
-
-bot.launch()
-
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
-```
-
-**Tip: To use same session in private chat with bot and in inline mode, use following session key resolver:**
-
-```js
-{
-  makeKey: (ctx) => {
-    if (ctx.from && ctx.chat) {
-      return `${ctx.from.id}:${ctx.chat.id}`
-    } else if (ctx.from && ctx.inlineQuery) {
-      return `${ctx.from.id}:${ctx.from.id}`
-    }
-    return undefined
-  }
-}
-```
-
-However, in the above example, the session middleware just stores the counters in-memory.
-This means that all counters will be lost when the process is terminated.
-If you want to store data across restarts, or share it among workers, you need to use *persistent sessions*.
-
-There are already [a lot of packages](https://www.npmjs.com/search?q=telegraf-session) that make this a breeze.
-You can simply add `npm install` one and to your bot to support exactly the type of storage you want.
-
-Alternatively, `telegraf` also allows you to easily integrate your own persistence without any other package.
-The `session` function can take a `storage` in the options object.
-A storage must have three methods: one for loading, one for storing, and one for deleting a session.
-This works as follows:
-
-```js
-const { session } = require('telegraf')
-
-// may also return `Promise`s (or use `async` functions)!
-const storage = {
-  getItem(key) { /* load a session for `key` ... */ },
-  setItem(key, value) { /* save a session for `key` ... */ },
-  deleteItem(key) { /* delete a session for `key` ... */ }
-}
-
-const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.use(session({ storage }))
-bot.on('photo', (ctx) => {
-  ctx.session.counter = ctx.session.counter || 0
-  ctx.session.counter++
-  return ctx.reply(`Photo counter: ${ctx.session.counter}`)
-})
-
-bot.launch()
-
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
-```
-
 ## Production
 
 ### Webhooks
@@ -378,7 +264,7 @@ This simple ability has endless applications:
 [`Composer`]: https://telegraf.js.org/classes/composer.html
 [`Context`]: https://telegraf.js.org/classes/context.html
 [`Router`]: https://telegraf.js.org/classes/router.html
-[`session`]: #session-middleware
+[`session`]: https://telegraf.js.org/modules.html#session
 [`Scenes`]: https://telegraf.js.org/modules/scenes.html
 [`Telegraf`]: https://telegraf.js.org/classes/telegraf.html
 

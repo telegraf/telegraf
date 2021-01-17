@@ -1019,7 +1019,7 @@ Handle raw Telegram update. In case you use centralized webhook server, queue, e
 | rawUpdate | `object` | Telegram update payload |
 | [webhookResponse] | `object` | [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
 
-#### Telegraf.compose
+#### compose
 
 Compose `middlewares` returning a fully valid middleware comprised of all those which are passed.
 
@@ -1029,7 +1029,7 @@ Compose `middlewares` returning a fully valid middleware comprised of all those 
 | --- | --- | --- |
 | middlewares | `function[]` | Array of middlewares |
 
-#### Telegraf.mount
+#### mount
 
 Generates middleware for handling provided update types.
 
@@ -1040,7 +1040,7 @@ Generates middleware for handling provided update types.
 | updateTypes | `string/string[]` | Update type |
 | middleware | `function` | middleware |
 
-#### Telegraf.hears
+#### hears
 
 Generates middleware for handling `text` messages with regular expressions.
 
@@ -1051,7 +1051,7 @@ Generates middleware for handling `text` messages with regular expressions.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-#### Telegraf.action
+#### action
 
 Generates middleware for handling `callbackQuery` data with regular expressions.
 
@@ -1062,7 +1062,7 @@ Generates middleware for handling `callbackQuery` data with regular expressions.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-#### Telegraf.inlineQuery
+#### inlineQuery
 
 Generates middleware for handling `inlineQuery` data with regular expressions.
 
@@ -1073,19 +1073,19 @@ Generates middleware for handling `inlineQuery` data with regular expressions.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-#### Telegraf.passThru
+#### passThru
 
 Generates pass thru middleware.
 
 `Telegraf.passThru() => function`
 
-#### Telegraf.safePassThru
+#### safePassThru
 
 Generates safe version of pass thru middleware.
 
 `Telegraf.safePassThru() => function`
 
-#### Telegraf.optional
+#### optional
 
 Generates optional middleware.
 
@@ -1096,7 +1096,7 @@ Generates optional middleware.
 | test | `truthy/function` | Value or predicate `(ctx) => bool` |
 | middleware | `function` | middleware |
 
-#### Telegraf.acl
+#### acl
 
 Generates middleware for provided users only.
 
@@ -1107,7 +1107,7 @@ Generates middleware for provided users only.
 | userId | `string/string[]` | User id |
 | middleware | `function` | middleware |
 
-#### Telegraf.drop
+#### drop
 
 Generates drop middleware.
 
@@ -1117,7 +1117,7 @@ Generates drop middleware.
 | --- | --- | --- |
 | test | `truthy/function` | Value or predicate `(ctx) => bool` |
 
-#### Telegraf.filter
+#### filter
 
 Generates filter middleware.
 
@@ -1127,7 +1127,7 @@ Generates filter middleware.
 | --- | --- | --- |
 | test | `truthy/function` | Value or predicate `(ctx) => bool` |
 
-#### Telegraf.branch
+#### branch
 
 Generates branch middleware.
 
@@ -1139,7 +1139,7 @@ Generates branch middleware.
 | trueMiddleware | `function` | true action  middleware |
 | falseMiddleware | `function` | false action middleware |
 
-#### Telegraf.email
+#### email
 
 Generates middleware for handling messages with `email` entity.
 
@@ -1150,7 +1150,7 @@ Generates middleware for handling messages with `email` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-#### Telegraf.hashtag
+#### hashtag
 
 Generates middleware for handling messages with `hashtag` entity.
 
@@ -1161,7 +1161,7 @@ Generates middleware for handling messages with `hashtag` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-#### Telegraf.cashtag
+#### cashtag
 
 Generates middleware for handling messages with `cashtag` entity.
 
@@ -1172,7 +1172,7 @@ Generates middleware for handling messages with `cashtag` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-#### Telegraf.url
+#### url
 
 Generates middleware for handling messages with `url` entity.
 
@@ -1183,7 +1183,7 @@ Generates middleware for handling messages with `url` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-#### Telegraf.phone
+#### phone
 
 Generates middleware for handling messages with `phone` entity.
 
@@ -1194,7 +1194,7 @@ Generates middleware for handling messages with `phone` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-#### Telegraf.textLink
+#### textLink
 
 Generates middleware for handling messages with `text_link` entity.
 
@@ -1205,7 +1205,7 @@ Generates middleware for handling messages with `text_link` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-#### Telegraf.textMention
+#### textMention
 
 Generates middleware for handling messages with `text_mention` entity.
 

@@ -102,6 +102,8 @@ $ pnpm add telegraf
 
 [`Telegraf`] instance represents your bot. It's responsible for obtaining updates and passing them to your handlers.
 
+Start by [listening to commands](https://telegraf.js.org/classes/telegraf.html#command) and [launching](https://telegraf.js.org/classes/telegraf.html#launch) your bot.
+
 ### `Context` class
 
 `ctx` you can see in every example is a [`Context`] instance.
@@ -131,77 +133,6 @@ Here is a list of
 - [statsd integration](https://github.com/telegraf/telegraf-statsd)
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
 -->
-
-#### Extending context
-
-The recommended way to extend bot context:
-
-```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
-
-bot.context.db = {
-  getScores: () => { return 42 }
-}
-
-bot.on('text', (ctx) => {
-  const scores = ctx.db.getScores(ctx.message.from.username)
-  return ctx.reply(`${ctx.message.from.username}: ${scores}`)
-})
-
-bot.launch()
-
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
-```
-
-If you're using TypeScript, have a look at the section below about usage with TypeScript.
-(You need to extend the type of the context.)
-
-#### Shortcuts
-
-```js
-const bot = new Telegraf(process.env.BOT_TOKEN)
-
-bot.command('quit', (ctx) => {
-  // Explicit usage
-  ctx.telegram.leaveChat(ctx.message.chat.id)
-
-  // Using context shortcut
-  ctx.leaveChat()
-})
-
-bot.on('text', (ctx) => {
-  // Explicit usage
-  ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`)
-
-  // Using context shortcut
-  ctx.reply(`Hello ${ctx.state.role}`)
-})
-
-bot.on('callback_query', (ctx) => {
-  // Explicit usage
-  ctx.telegram.answerCbQuery(ctx.callbackQuery.id)
-
-  // Using context shortcut
-  ctx.answerCbQuery()
-})
-
-bot.on('inline_query', (ctx) => {
-  const result = []
-  // Explicit usage
-  ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result)
-
-  // Using context shortcut
-  ctx.answerInlineQuery(result)
-})
-
-bot.launch()
-
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
-```
 
 ### Session
 
@@ -316,22 +247,6 @@ bot.launch()
 process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
-
-### Update types
-
-```js
-// Handle message update
-bot.on('message', (ctx) => {
-  return ctx.reply('Hello')
-})
-
-// Handle sticker or photo update
-bot.on(['sticker', 'photo'], (ctx) => {
-  console.log(ctx.message)
-  return ctx.reply('Cool!')
-})
-```
-[Official Docs](https://core.telegram.org/bots/api#message)
 
 ## Production
 
@@ -492,7 +407,7 @@ interface MyContext extends Context {
 }
 
 // Create your bot and tell it about your context type
-const bot = new Telegraf<MyContext>('SECRET TOKEN')
+const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN)
 
 // Register middleware and launch your bot as usual
 bot.use((ctx, next) => {
@@ -525,7 +440,7 @@ interface MyContext extends Context {
 }
 
 // Create your bot and tell it about your context type
-const bot = new Telegraf<MyContext>('SECRET TOKEN')
+const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN)
 
 // Make session data available
 bot.use(session())

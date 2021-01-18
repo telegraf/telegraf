@@ -65,7 +65,6 @@ export class Context {
 
   constructor(
     readonly update: tt.Update,
-    /** @deprecated use `ctx.telegram2` */
     readonly tg: Telegram,
     readonly botInfo: tt.UserFromGetMe
   ) {
@@ -80,7 +79,6 @@ export class Context {
     return this.botInfo?.username
   }
 
-  /** @deprecated use `ctx.telegram2` */
   get telegram() {
     return this.tg
   }

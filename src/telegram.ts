@@ -2,7 +2,6 @@ import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 import { isAbsolute } from 'path'
 
-/** @deprecated use `telegram2` */
 class Telegram extends ApiClient {
   /**
    * Get basic information about the bot

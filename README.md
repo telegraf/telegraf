@@ -10,7 +10,7 @@
 
 ## For 3.x users
 
-- [3.38.0 docs](https://github.com/telegraf/telegraf/tree/3.38.0/docs)
+- [3.x docs](https://github.com/telegraf/telegraf/blob/v3/docs/README.md)
 - [4.0.0 release notes](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
 
 ## Introduction

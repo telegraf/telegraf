@@ -64,7 +64,9 @@ const superWizard = new Scenes.WizardScene(
   stepHandler,
   async (ctx) => {
     // we now have access to the the fields defined above
-    await ctx.reply(`[${ctx.myContextProp}] Step 3. Your random number is ${ctx.scene.session.myWizardSessionProp}`)
+    await ctx.reply(
+      `[${ctx.myContextProp}] Step 3. Your random number is ${ctx.scene.session.myWizardSessionProp}`
+    )
     return ctx.wizard.next()
   },
   async (ctx) => {
@@ -83,7 +85,8 @@ const stage = new Scenes.Stage<MyContext>([superWizard], {
 })
 bot.use(session())
 bot.use((ctx, next) => {
-  ctx.myContextProp = (new Date()).toString()
+  const now = new Date()
+  ctx.myContextProp = now.toString()
   next()
 })
 bot.use(stage.middleware())

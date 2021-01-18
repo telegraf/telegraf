@@ -4,6 +4,7 @@ import * as tt from './telegram-types'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
 import Context from './context'
 import { SnakeToCamelCase } from './core/helpers/string'
+import { UnionToIntersection } from './telegram-types'
 
 type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
@@ -14,11 +15,6 @@ type Triggers<C> = MaybeArray<
 type Predicate<T> = (t: T) => boolean
 type AsyncPredicate<T> = (t: T) => Promise<boolean>
 
-type UnionToIntersection<U> = (
-  U extends unknown ? (k: U) => void : never
-) extends (k: infer I) => void
-  ? I
-  : never
 type PropOr<T, P extends string, D> = T extends Record<P, infer V> ? V : D
 
 type MatchedMiddleware<

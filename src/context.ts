@@ -22,40 +22,6 @@ export const UpdateTypes = [
   'poll_answer',
 ] as const
 
-export const MessageSubTypes = [
-  'voice',
-  'video_note',
-  'video',
-  'animation',
-  'venue',
-  'text',
-  'supergroup_chat_created',
-  'successful_payment',
-  'sticker',
-  'pinned_message',
-  'photo',
-  'new_chat_title',
-  'new_chat_photo',
-  'new_chat_members',
-  'migrate_to_chat_id',
-  'migrate_from_chat_id',
-  'location',
-  'left_chat_member',
-  'invoice',
-  'group_chat_created',
-  'game',
-  'dice',
-  'document',
-  'delete_chat_photo',
-  'contact',
-  'channel_chat_created',
-  'audio',
-  'connected_website',
-  'passport_data',
-  'poll',
-  'forward_date',
-] as const
-
 export class Context {
   readonly state: Record<string | symbol, any> = {}
 

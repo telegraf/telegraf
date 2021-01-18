@@ -1,0 +1,8 @@
+- [Introduction](/)
+- [Getting started](getting-started.md)
+- API reference
+  - [Telegraf](telegraf.md)
+  - [Telegram](telegram.md)
+  - [Extra](extra.md)
+  - [Markup](markup.md)
+  - [Stage](stage.md)

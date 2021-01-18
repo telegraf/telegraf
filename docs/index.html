@@ -6,10 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <link rel="stylesheet" href="https://unpkg.com/docute@3/dist/docute.css">
-  <link rel="shortcut icon" href="https://github.com/telegraf/telegraf/raw/master/docs/telegraf.png">
-  <link rel="apple-touch-icon" href="https://github.com/telegraf/telegraf/raw/master/docs/telegraf.png">
+  <link rel="shortcut icon" href="//github.com/telegraf/telegraf/raw/master/docs/media/telegraf.png">
+  <link rel="apple-touch-icon" href="//github.com/telegraf/telegraf/raw/master/docs/media/telegraf.png">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/themes/vue.css" />
   <style>
-    .markdown-body a,
+    /* .markdown-body a,
     .markdown-body .markdown-heading:focus {
       color:#E74625;
     }
@@ -25,9 +26,9 @@
     }
     .sidebar-headings .sidebar-heading .sidebar-heading-anchor.active, .sidebar-headings .sidebar-heading .sidebar-heading-anchor:hover {
       color:#E74625;
-    }
+    } */
     /* nprogress */
-    #nprogress .bar {
+    /* #nprogress .bar {
       background:#E74625;
     }
     #nprogress .spinner-icon {
@@ -39,17 +40,21 @@
     }
     a:hover, .link:hover {
       color:#E74625;
-    }
+    } */
   </style>
 </head>
 <body>
   <div id="app"></div>
-  <script src="https://cdn.jsdelivr.net/npm/docute@3/dist/docute.js"></script>
   <script>
-    docute.init({
-      repo: "telegraf/telegraf",
-      tocVisibleDepth: 3
-    })
+    window.$docsify = {
+      // homepage: 'introduction.md',
+      repo: 'LetItCode/telegraf',
+      loadSidebar: true,
+      subMaxLevel: 2,
+      auto2top: true,
+      themeColor: '#e74625',
+    }
   </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
 </body>
 </html>

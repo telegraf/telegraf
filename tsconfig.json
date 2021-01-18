@@ -15,6 +15,7 @@
   },
   "typedocOptions": {
     "excludeExternals": true,
+    "includeVersion": true,
     "name": "telegraf.js",
     "out": "docs/build/",
     "readme": "README.md",

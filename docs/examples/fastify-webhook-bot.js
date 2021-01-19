@@ -22,6 +22,4 @@ bot.telegram.setWebhook(WEBHOOK_URL).then(() => {
   console.log('Webhook is set on', WEBHOOK_URL)
 })
 
-app.listen(PORT, () => {
-  console.log('Start listening on port', PORT)
-})
+app.listen(PORT).then(console.log)

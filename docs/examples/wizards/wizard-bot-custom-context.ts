@@ -72,7 +72,7 @@ bot.use(session())
 bot.use((ctx, next) => {
   const now = new Date()
   ctx.myContextProp = now.toString()
-  next()
+  return next()
 })
 bot.use(stage.middleware())
 bot.launch()

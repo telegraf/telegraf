@@ -49,14 +49,9 @@ const superWizard = new Scenes.WizardScene(
     )
     return ctx.wizard.next()
   },
-  async (ctx) => {
-    // we now have access to the the fields defined above
-    ctx.myContextProp ??= ''
-    return ctx.wizard.next()
-  },
   stepHandler,
   async (ctx) => {
-    await ctx.reply('Step 3')
+    await ctx.reply(`[${ctx.myContextProp}] Step 3.`)
     return ctx.wizard.next()
   },
   async (ctx) => {
@@ -74,6 +69,11 @@ const stage = new Scenes.Stage<MyContext>([superWizard], {
   default: 'super-wizard',
 })
 bot.use(session())
+bot.use((ctx, next) => {
+  const now = new Date()
+  ctx.myContextProp = now.toString()
+  return next()
+})
 bot.use(stage.middleware())
 bot.launch()
 

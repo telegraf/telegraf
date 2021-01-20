@@ -39,10 +39,12 @@ interface MyContext extends Context {
 
 const stepHandler = new Composer<MyContext>()
 stepHandler.action('next', async (ctx) => {
+  ctx.session.mySessionProp = -Math.floor(10 * Math.random())
   await ctx.reply('Step 2. Via inline button')
   return ctx.wizard.next()
 })
 stepHandler.command('next', async (ctx) => {
+  ctx.session.mySessionProp = -Math.floor(10 * Math.random()) - 10
   await ctx.reply('Step 2. Via command')
   return ctx.wizard.next()
 })
@@ -62,15 +64,13 @@ const superWizard = new Scenes.WizardScene(
     )
     return ctx.wizard.next()
   },
-  async (ctx) => {
-    // we now have access to the the fields defined above
-    ctx.myContextProp ??= ''
-    ctx.session.mySessionProp ??= 0
-    return ctx.wizard.next()
-  },
   stepHandler,
   async (ctx) => {
-    await ctx.reply('Step 3')
+    const responseText = [
+      `[${ctx.myContextProp}] Step 3.`,
+      `Your random mySessionProp is ${ctx.session.mySessionProp}`,
+    ].join('\n')
+    await ctx.reply(responseText)
     return ctx.wizard.next()
   },
   async (ctx) => {
@@ -88,6 +88,11 @@ const stage = new Scenes.Stage<MyContext>([superWizard], {
   default: 'super-wizard',
 })
 bot.use(session())
+bot.use((ctx, next) => {
+  const now = new Date()
+  ctx.myContextProp = now.toString()
+  return next()
+})
 bot.use(stage.middleware())
 bot.launch()
 

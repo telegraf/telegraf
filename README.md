@@ -243,16 +243,25 @@ bot.on('message', (ctx) => {
 
 In addition to `ctx: Context`, each middleware receives `next: () => Promise<void>`.
 
+As in Koa and some other middleware-based libraries,
 `await next()` will call next middleware and wait for it to finish:
 
 ```js
+const bot = new Telegraf(process.env.BOT_TOKEN)
+
 bot.use(async (ctx, next) => {
-  const start = Date.now()
+  console.time(`Processing update ${ctx.update.update_id}`)
   await next() // runs next middleware
   // runs after next middleware finishes
-  const ms = Date.now() - start
-  console.log('Response time: %sms', ms)
+  console.timeEnd(`Processing update ${ctx.update.update_id}`)
 })
+
+bot.on('text', (ctx) => ctx.reply('Hello World'))
+bot.launch()
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 This simple ability has endless applications:

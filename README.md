@@ -264,11 +264,13 @@ process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
-This simple ability has endless applications:
-- [`Composer`] and [`Router`],
-- [extending `Context`](#extending-context), [`session`], [`Scenes`],
-- [stuff other people came up with](https://www.npmjs.com/search?q=telegraf-),
-- whatever **you** come up with!
+With this simple ability, you can:
+- extract information from updates and then `await next()` to avoid disrupting other middleware,
+- like [`Composer`] and [`Router`], `await next()` for updates you don't wish to handle,
+- like [`session`] and [`Scenes`], [extend the context](#extending-context) by mutating `ctx` before `await next()`,
+- [intercept API calls](https://github.com/telegraf/telegraf/discussions/1267#discussioncomment-254525),
+- reuse [other people's code](https://www.npmjs.com/search?q=telegraf-),
+- do whatever **you** come up with!
 
 [`Composer`]: https://telegraf.js.org/classes/composer.html
 [`Context`]: https://telegraf.js.org/classes/context.html
@@ -283,9 +285,7 @@ Telegraf is written in TypeScript and therefore ships with declaration files for
 Moreover, it includes types for the complete Telegram API via the [`typegram`](https://github.com/KnorpelSenf/typegram) package.
 While most types of Telegraf's API surface are self-explanatory, there's some notable things to keep in mind.
 
-#### Custom Context Type and Middleware
-
-Recap from the above section about Middleware that `ctx` is the context object that holds information about the incoming update, as well as a number of convenience functions such as `ctx.reply`.
+#### Extending `Context`
 
 The exact shape of `ctx` can vary based on the installed middleware.
 Some custom middleware might register properties on the context object that Telegraf is not aware of.
@@ -313,7 +313,7 @@ bot.use((ctx, next) => {
 // ...
 ```
 
-#### Session Middleware
+##### Session Middleware
 
 If you are using session middleware, you need to define your session property on your custom context object.
 This could look like this:

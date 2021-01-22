@@ -14,7 +14,7 @@ const bot = new Telegraf(token)
 // but messages order not guaranteed due to `koa` pipeline design.
 // Details: https://github.com/telegraf/telegraf/issues/294
 bot.command('image', (ctx) => ctx.replyWithPhoto({ url: 'https://picsum.photos/200/300/?random' }))
-bot.on('text', ({ reply }) => reply('Hello'))
+bot.on('text', (ctx) => ctx.reply('Hello'))
 
 // Set telegram webhook
 // npm install -g localtunnel && lt --port 3000

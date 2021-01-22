@@ -36,18 +36,18 @@ bot.use((ctx, next) => {
 })
 
 // Login widget events
-bot.on('connected_website', ({ reply }) => reply('Website connected'))
+bot.on('connected_website', (ctx) => ctx.reply('Website connected'))
 
 // Telegram passport events
-bot.on('passport_data', ({ reply }) => reply('Telegram password connected'))
+bot.on('passport_data', (ctx) => ctx.reply('Telegram password connected'))
 
 // Random location on some text messages
-bot.on('text', ({ replyWithLocation }, next) => {
+bot.on('text', (ctx, next) => {
   if (Math.random() > 0.2) {
     return next()
   }
   return Promise.all([
-    replyWithLocation(Math.random() * 180 - 90, Math.random() * 180 - 90),
+    ctx.replyWithLocation(Math.random() * 180 - 90, Math.random() * 180 - 90),
     next(),
   ])
 })
@@ -65,19 +65,17 @@ bot.command('answer', sayYoMiddleware, (ctx) => {
   return ctx.replyWithMarkdownV2('*42*')
 })
 
-bot.command('cat', ({ replyWithPhoto }) => replyWithPhoto(randomPhoto))
+bot.command('cat', (ctx) => ctx.replyWithPhoto(randomPhoto))
 
 // Streaming photo, in case Telegram doesn't accept direct URL
-bot.command('cat2', ({ replyWithPhoto }) =>
-  replyWithPhoto({ url: randomPhoto })
-)
+bot.command('cat2', (ctx) => ctx.replyWithPhoto({ url: randomPhoto }))
 
 // Look ma, reply middleware factory
 bot.command('foo', reply('http://coub.com/view/9cjmt'))
 
 // Wow! RegEx
-bot.hears(/reverse (.+)/, ({ match, reply }) =>
-  reply(match[1].split('').reverse().join(''))
+bot.hears(/reverse (.+)/, (ctx) =>
+  ctx.reply(ctx.match[1].split('').reverse().join(''))
 )
 
 // Launch bot

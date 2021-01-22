@@ -16,7 +16,7 @@ const keyboard = Markup.inlineKeyboard([
 
 const bot = new Telegraf(token)
 bot.start((ctx) => ctx.reply('Hello', keyboard))
-bot.action('delete', ({ deleteMessage }) => deleteMessage())
+bot.action('delete', (ctx) => ctx.deleteMessage())
 bot.launch()
 
 // Enable graceful stop

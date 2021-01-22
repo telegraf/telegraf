@@ -14,9 +14,9 @@ const markup = Markup.inlineKeyboard([
 ])
 
 const bot = new Telegraf(token)
-bot.start(({ replyWithGame }) => replyWithGame(gameShortName))
-bot.command('foo', ({ replyWithGame }) => replyWithGame(gameShortName, markup))
-bot.gameQuery(({ answerGameQuery }) => answerGameQuery(gameUrl))
+bot.start((ctx) => ctx.replyWithGame(gameShortName))
+bot.command('foo', (ctx) => ctx.replyWithGame(gameShortName, markup))
+bot.gameQuery((ctx) => ctx.answerGameQuery(gameUrl))
 bot.launch()
 
 // Enable graceful stop

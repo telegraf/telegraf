@@ -9,16 +9,16 @@ const bot = new Telegraf(token)
 
 bot.use(Telegraf.log())
 
-bot.command('onetime', ({ reply }) =>
-  reply('One time keyboard', Markup
+bot.command('onetime', (ctx) =>
+  ctx.reply('One time keyboard', Markup
     .keyboard(['/simple', '/inline', '/pyramid'])
     .oneTime()
     .resize()
   )
 )
 
-bot.command('custom', ({ reply }) => {
-  return reply('Custom buttons keyboard', Markup
+bot.command('custom', async (ctx) => {
+  return await ctx.reply('Custom buttons keyboard', Markup
     .keyboard([
       ['🔍 Search', '😎 Popular'], // Row1 with 2 buttons
       ['☸ Setting', '📞 Feedback'], // Row2 with 2 buttons

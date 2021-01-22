@@ -8,8 +8,8 @@ if (token === undefined) {
 
 const bot = new Telegraf(token)
 
-bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => {
-  const apiUrl = `http://recipepuppy.com/api/?q=${inlineQuery.query}`
+bot.on('inline_query', async (ctx) => {
+  const apiUrl = `http://recipepuppy.com/api/?q=${ctx.inlineQuery.query}`
   const response = await fetch(apiUrl)
   const { results } = await response.json()
   const recipes = results
@@ -29,7 +29,7 @@ bot.on('inline_query', async ({ inlineQuery, answerInlineQuery }) => {
         Markup.button.url('Go to recipe', href)
       ])
     }))
-  return answerInlineQuery(recipes)
+  return await ctx.answerInlineQuery(recipes)
 })
 
 bot.on('chosen_inline_result', ({ chosenInlineResult }) => {

@@ -8,7 +8,7 @@ if (token === undefined) {
 
 const bot = new Telegraf(token)
 bot.command('image', (ctx) => ctx.replyWithPhoto({ url: 'https://picsum.photos/200/300/?random' }))
-bot.on('text', ({ replyWithHTML }) => replyWithHTML('<b>Hello</b>'))
+bot.on('text', (ctx) => ctx.replyWithHTML('<b>Hello</b>'))
 
 // Start webhook directly
 // bot.startWebhook('/secret-path', null, 3000)

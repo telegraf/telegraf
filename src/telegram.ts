@@ -366,7 +366,10 @@ class Telegram extends ApiClient {
    */
   sendMediaGroup(
     chatId: number | string,
-    media: ReadonlyArray<tt.InputMediaPhoto | tt.InputMediaVideo>,
+    media:
+      | ReadonlyArray<tt.InputMediaPhoto | tt.InputMediaVideo>
+      | readonly tt.InputMediaAudio[]
+      | readonly tt.InputMediaDocument[],
     extra?: tt.ExtraMediaGroup
   ) {
     return this.callApi('sendMediaGroup', { chat_id: chatId, media, ...extra })

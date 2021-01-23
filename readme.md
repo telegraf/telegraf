@@ -8,9 +8,7 @@
 
 ## Introduction
 
-Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
-Users can interact with bots by sending them command messages in private or group chats. 
-These accounts serve as an interface for code running somewhere on your server.
+Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. Users can interact with bots by sending them command messages in private or group chats. These accounts serve as an interface for code running somewhere on your server.
 
 ### Features
 
@@ -26,12 +24,14 @@ These accounts serve as an interface for code running somewhere on your server.
 
 ### Installation
 
+```bash
+npm install telegraf
 ```
-$ npm install telegraf
-```
+
 or using `yarn`:
-```
-$ yarn add telegraf
+
+```bash
+yarn add telegraf
 ```
 
 ### Documentation

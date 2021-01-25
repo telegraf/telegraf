@@ -4,13 +4,13 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>{{#ifCond model.name '==' project.name}}{{project.name}}{{else}}{{model.name}} | {{project.name}}{{/ifCond}}
-  </title>
+  <title>{{#ifCond model.name '==' project.name}}{{project.name}}{{else}}{{model.name}} | {{project.name}}{{/ifCond}}</title>
   <meta name="description" content="Documentation for {{project.name}}">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" href="{{relativeURL "assets/css/main.css"}}">
   <link rel="stylesheet" href="{{relativeURL "assets/css/custom.css"}}">
+  <script async src="{{relativeURL "assets/js/search.js"}}" id="search-script"></script>
 </head>
 
 <body>
@@ -26,7 +26,7 @@
         <nav class="tsd-navigation primary">
           <ul>
             {{#each navigation.children}}
-            {{> navigation}}
+              {{> navigation}}
             {{/each}}
           </ul>
         </nav>
@@ -34,7 +34,7 @@
         <nav class="tsd-navigation secondary menu-sticky">
           <ul class="before-current">
             {{#each toc.children}}
-            {{> toc.root}}
+              {{> toc.root}}
             {{/each}}
           </ul>
         </nav>
@@ -46,7 +46,6 @@
 
   <div class="overlay"></div>
   <script src="{{relativeURL "assets/js/main.js"}}"></script>
-  <script>if (location.protocol == 'file:') document.write('<script src="{{relativeURL "assets/js/search.js"}}"><' + '/script>');</script>
 
   {{> analytics}}
 

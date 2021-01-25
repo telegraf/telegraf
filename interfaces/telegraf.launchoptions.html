@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>SceneSession | telegraf.js - v4.0.2</title>
+	<title>LaunchOptions | telegraf.js - v4.0.2</title>
 	<meta name="description" content="Documentation for telegraf.js - v4.0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,37 +54,24 @@
 					<a href="../modules.html">telegraf.js - v4.0.2</a>
 				</li>
 				<li>
-					<a href="../modules/scenes.html">Scenes</a>
+					<a href="../modules/telegraf.html">Telegraf</a>
 				</li>
 				<li>
-					<a href="scenes.scenesession.html">SceneSession</a>
+					<a href="telegraf.launchoptions.html">LaunchOptions</a>
 				</li>
 			</ul>
-			<h1>Interface SceneSession&lt;S&gt;</h1>
+			<h1>Interface LaunchOptions</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-type-parameters">
-				<h3>Type parameters</h3>
-				<ul class="tsd-type-parameters">
-					<li>
-						<h4>S<span class="tsd-signature-symbol">: </span><a href="scenes.scenesessiondata.html" class="tsd-signature-type" data-tsd-kind="Interface">SceneSessionData</a> = <a href="scenes.scenesessiondata.html" class="tsd-signature-type" data-tsd-kind="Interface">SceneSessionData</a></h4>
-					</li>
-				</ul>
-			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">SceneSession</span>
-						<ul class="tsd-hierarchy">
-							<li>
-								<a href="scenes.wizardsession.html" class="tsd-signature-type" data-tsd-kind="Interface">WizardSession</a>
-							</li>
-						</ul>
+						<span class="target">LaunchOptions</span>
 					</li>
 				</ul>
 			</section>
@@ -95,7 +82,8 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="scenes.scenesession.html#__scenes" class="tsd-kind-icon">__scenes</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="telegraf.launchoptions.html#allowedupdates" class="tsd-kind-icon">allowed<wbr>Updates</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="telegraf.launchoptions.html#webhook" class="tsd-kind-icon">webhook</a></li>
 							</ul>
 						</section>
 					</div>
@@ -104,14 +92,34 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="__scenes" class="tsd-anchor"></a>
-					<h3>__scenes</h3>
-					<div class="tsd-signature tsd-kind-icon">__scenes<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">S</span></div>
+					<a name="allowedupdates" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> allowed<wbr>Updates</h3>
+					<div class="tsd-signature tsd-kind-icon">allowed<wbr>Updates<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">&quot;callback_query&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;channel_post&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;chosen_inline_result&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;edited_channel_post&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;edited_message&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;inline_query&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;message&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;pre_checkout_query&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;shipping_query&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;poll&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;poll_answer&quot;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/f70c41c/src/scenes/context.ts#L24">scenes/context.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/f70c41c/src/telegraf.ts#L42">telegraf.ts:42</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>List the types of updates you want your bot to receive</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="webhook" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> webhook</h3>
+					<div class="tsd-signature tsd-kind-icon">webhook<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>cb<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">RequestListener</span><span class="tsd-signature-symbol">; </span>domain<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>hookPath<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>host<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>port<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>tlsOptions<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">TlsOptions</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/f70c41c/src/telegraf.ts#L44">telegraf.ts:44</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Configuration options for when the bot is run via webhooks</p>
+						</div>
+					</div>
 				</section>
 			</section>
 		</div>
@@ -127,57 +135,33 @@
 					<li class=" tsd-kind-namespace tsd-parent-kind-namespace">
 						<a href="../modules/markup.button.html">Markup.button</a>
 					</li>
-					<li class="current tsd-kind-namespace">
+					<li class=" tsd-kind-namespace">
 						<a href="../modules/scenes.html">Scenes</a>
 					</li>
-					<li class=" tsd-kind-namespace">
+					<li class="current tsd-kind-namespace">
 						<a href="../modules/telegraf.html">Telegraf</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class tsd-parent-kind-namespace tsd-has-type-parameter">
-						<a href="../classes/scenes.basescene.html" class="tsd-kind-icon">Base<wbr>Scene</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-namespace tsd-has-type-parameter">
-						<a href="../classes/scenes.scenecontextscene.html" class="tsd-kind-icon">Scene<wbr>Context<wbr>Scene</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-namespace tsd-has-type-parameter">
-						<a href="../classes/scenes.stage.html" class="tsd-kind-icon">Stage</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-namespace tsd-has-type-parameter">
-						<a href="../classes/scenes.wizardcontextwizard.html" class="tsd-kind-icon">Wizard<wbr>Context<wbr>Wizard</a>
-					</li>
-					<li class=" tsd-kind-class tsd-parent-kind-namespace tsd-has-type-parameter">
-						<a href="../classes/scenes.wizardscene.html" class="tsd-kind-icon">Wizard<wbr>Scene</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-namespace tsd-has-type-parameter">
-						<a href="scenes.scenecontext.html" class="tsd-kind-icon">Scene<wbr>Context</a>
-					</li>
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-namespace tsd-has-type-parameter">
-						<a href="scenes.scenesession.html" class="tsd-kind-icon">Scene<wbr>Session</a>
+					<li class="current tsd-kind-interface tsd-parent-kind-namespace">
+						<a href="telegraf.launchoptions.html" class="tsd-kind-icon">Launch<wbr>Options</a>
 						<ul>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="scenes.scenesession.html#__scenes" class="tsd-kind-icon">__scenes</a>
+								<a href="telegraf.launchoptions.html#allowedupdates" class="tsd-kind-icon">allowed<wbr>Updates</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="telegraf.launchoptions.html#webhook" class="tsd-kind-icon">webhook</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-interface tsd-parent-kind-namespace">
-						<a href="scenes.scenesessiondata.html" class="tsd-kind-icon">Scene<wbr>Session<wbr>Data</a>
-					</li>
 					<li class=" tsd-kind-interface tsd-parent-kind-namespace tsd-has-type-parameter">
-						<a href="scenes.wizardcontext.html" class="tsd-kind-icon">Wizard<wbr>Context</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-namespace tsd-has-type-parameter">
-						<a href="scenes.wizardsession.html" class="tsd-kind-icon">Wizard<wbr>Session</a>
-					</li>
-					<li class=" tsd-kind-interface tsd-parent-kind-namespace">
-						<a href="scenes.wizardsessiondata.html" class="tsd-kind-icon">Wizard<wbr>Session<wbr>Data</a>
+						<a href="telegraf.options.html" class="tsd-kind-icon">Options</a>
 					</li>
 				</ul>
 			</nav>

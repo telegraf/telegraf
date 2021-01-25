@@ -3,12 +3,12 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>telegraf.js
-	</title>
-	<meta name="description" content="Documentation for telegraf.js">
+	<title>telegraf.js - v4.0.2</title>
+	<meta name="description" content="Documentation for telegraf.js - v4.0.2">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 	<link rel="stylesheet" href="assets/css/custom.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
 </head>
 <body>
 <header>
@@ -24,7 +24,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">telegraf.js</a>
+					<a href="index.html" class="title">telegraf.js - v4.0.2</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -49,7 +49,7 @@
 	</div>
 	<div class="tsd-page-title">
 		<div class="container">
-			<h1>Project telegraf.js</h1>
+			<h1>Project telegraf.js - v4.0.2</h1>
 		</div>
 	</div>
 </header>
@@ -60,10 +60,18 @@
 				<header>
 					<img src="https://raw.githubusercontent.com/telegraf/telegraf/010e971f3c61c854605bf9a5af10a4925d4032fb/docs/header.png" style="background: #FFFFFF3F">
 					<p><a href="https://core.telegram.org/bots/api"><img src="https://img.shields.io/badge/Bot%20API-v5.0-f36caf.svg?style=flat-square" alt="Bot API Version"></a>
+						<img src="https://img.shields.io/github/languages/top/telegraf/telegraf?style=flat-square" alt="GitHub top language">
 						<a href="https://packagephobia.com/result?p=telegraf,node-telegram-bot-api"><img src="https://flat.badgen.net/packagephobia/install/telegraf" alt="install size"></a>
 						<a href="https://t.me/telegraf_ru"><img src="https://img.shields.io/badge/Russian%20chat-grey?style=flat-square&logo=telegram" alt="Russian chat"></a>
 					<a href="https://t.me/TelegrafJSChat"><img src="https://img.shields.io/badge/English%20chat-grey?style=flat-square&logo=telegram" alt="English chat"></a></p>
 				</header>
+				<a href="#for-3x-users" id="for-3x-users" style="color: inherit; text-decoration: none;">
+					<h2>For 3.x users</h2>
+				</a>
+				<ul>
+					<li><a href="https://telegraf.js.org/v3">3.x docs</a></li>
+					<li><a href="https://github.com/telegraf/telegraf/releases/tag/v4.0.0">4.0 release notes</a></li>
+				</ul>
 				<a href="#introduction" id="introduction" style="color: inherit; text-decoration: none;">
 					<h2>Introduction</h2>
 				</a>
@@ -72,21 +80,18 @@
 				These accounts serve as an interface for code running somewhere on your server.</p>
 				<p>Telegraf is a library that makes it simple for you to develop your own Telegram bots using JavaScript or <a href="https://www.typescriptlang.org/">TypeScript</a>.</p>
 				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
-					<h4>Features</h4>
+					<h3>Features</h3>
 				</a>
 				<ul>
 					<li>Full <a href="https://core.telegram.org/bots/api">Telegram Bot API 5.0</a> support</li>
-					<li><a href="https://telegram.org/blog/payments">Telegram Payment Platform</a></li>
-					<li><a href="https://core.telegram.org/bots/api#games">HTML5 Games</a></li>
-					<li><a href="https://core.telegram.org/bots/api#inline-mode">Inline mode</a></li>
+					<li><a href="https://github.com/telegraf/telegraf/releases/tag/v4.0.0">Excellent TypeScript typings</a></li>
 					<li><a href="https://packagephobia.com/result?p=telegraf,node-telegram-bot-api">Lightweight</a></li>
 					<li><a href="https://firebase.google.com/products/functions/">Firebase</a>/<a href="https://dashing-light.glitch.me">Glitch</a>/<a href="https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction">Heroku</a>/<a href="https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html">AWS <strong>λ</strong></a>/Whatever ready</li>
 					<li><code>http/https/fastify/Connect.js/express.js</code> compatible webhooks</li>
-					<li>Easy to extend</li>
-					<li><code>TypeScript</code> typings</li>
+					<li>Extensible</li>
 				</ul>
 				<a href="#example" id="example" style="color: inherit; text-decoration: none;">
-					<h4>Example</h4>
+					<h3>Example</h3>
 				</a>
 				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">Telegraf</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;telegraf&#039;</span><span style="color: #000000">)</span>
 
@@ -114,10 +119,11 @@
 </code></pre>
 				<p>For additional bot examples see <a href="https://github.com/telegraf/telegraf/tree/master/docs/examples"><code>examples</code></a> folder.</p>
 				<a href="#resources" id="resources" style="color: inherit; text-decoration: none;">
-					<h4>Resources</h4>
+					<h3>Resources</h3>
 				</a>
 				<ul>
 					<li><a href="#getting-started">Getting started</a></li>
+					<li><a href="https://telegraf.js.org/modules.html">API reference</a></li>
 					<li>Telegram groups (sorted by number of members):<ul>
 							<li><a href="https://t.me/telegraf_ru">Russian</a></li>
 							<li><a href="https://t.me/TelegrafJSChat">English</a></li>
@@ -132,14 +138,14 @@
 					<h2>Getting started</h2>
 				</a>
 				<a href="#telegram-token" id="telegram-token" style="color: inherit; text-decoration: none;">
-					<h4>Telegram token</h4>
+					<h3>Telegram token</h3>
 				</a>
 				<p>To use the <a href="https://core.telegram.org/bots/api">Telegram Bot API</a>,
 					you first have to <a href="https://core.telegram.org/bots">get a bot account</a>
 				by <a href="https://core.telegram.org/bots#6-botfather">chatting with BotFather</a>.</p>
 				<p>BotFather will give you a <em>token</em>, something like <code>123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ</code>.</p>
 				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
-					<h4>Installation</h4>
+					<h3>Installation</h3>
 				</a>
 				<pre><code class="language-shellscript"><span style="color: #000000">$ npm install telegraf</span>
 </code></pre>
@@ -149,126 +155,40 @@
 				<p>or</p>
 				<pre><code class="language-shellscript"><span style="color: #000000">$ pnpm add telegraf</span>
 </code></pre>
-				<a href="#bot" id="bot" style="color: inherit; text-decoration: none;">
-					<h4>Bot</h4>
+				<a href="#telegraf-class" id="telegraf-class" style="color: inherit; text-decoration: none;">
+					<h3><code>Telegraf</code> class</h3>
 				</a>
-				<p>A Telegraf bot is an object containing an array of middlewares which are composed
-					and executed in a stack-like manner upon request. Is similar to many other middleware systems
-				that you may have encountered such as Express, Koa, Ruby&#39;s Rack, Connect.</p>
-				<a href="#middleware" id="middleware" style="color: inherit; text-decoration: none;">
-					<h4>Middleware</h4>
+				<p><a href="https://telegraf.js.org/classes/telegraf.html"><code>Telegraf</code></a> instance represents your bot. It&#39;s responsible for obtaining updates and passing them to your handlers.</p>
+				<p>Start by <a href="https://telegraf.js.org/classes/telegraf.html#command">listening to commands</a> and <a href="https://telegraf.js.org/classes/telegraf.html#launch">launching</a> your bot.</p>
+				<a href="#context-class" id="context-class" style="color: inherit; text-decoration: none;">
+					<h3><code>Context</code> class</h3>
 				</a>
-				<p>Middleware is an essential part of any modern framework.
-				It allows you to modify requests and responses as they pass between the Telegram and your bot.</p>
-				<p>You can imagine middleware as a chain of logic connection your bot to the Telegram request.</p>
-				<p>Middleware normally takes the two parameters: <strong><code>ctx</code></strong> and <strong><code>next</code></strong>.</p>
-				<p><strong><code>ctx</code></strong> is the context for one <a href="https://core.telegram.org/bots/api#update">Telegram update</a>. It contains mainly two things:</p>
-				<ul>
-					<li>the update object, containing for example the incoming message and the respective chat, and</li>
-					<li>a number of useful methods for reacting to the update, such as replying to the message or answering a callback query.</li>
-				</ul>
-				<p>See  <a href="https://telegraf.js.org/#/?id=context">the context section</a> below for a detailed overview.</p>
-				<p><strong><code>next</code></strong> is a function that is invoked to execute the downstream middleware.
-				It returns a <code>Promise</code> with a function <code>then</code> for running code after completion.</p>
-				<p>Here is a simple example for how to use middleware to track the response time, using <code>async</code> and <code>await</code> to deal with the <code>Promise</code>.</p>
-				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
+				<p><code>ctx</code> you can see in every example is a <a href="https://telegraf.js.org/classes/context.html"><code>Context</code></a> instance.
+					<a href="https://telegraf.js.org/classes/telegraf.html"><code>Telegraf</code></a> creates one for each incoming update and passes it to your middleware.
+					It contains the <code>update</code>, <code>botInfo</code>, and <code>telegram</code> for making arbitrary Bot API requests,
+				as well as shorthand methods and getters.</p>
+				<p>This is probably the class you&#39;ll be using the most.</p>
+				<!--
+Here is a list of
 
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #0000FF">async</span><span style="color: #000000"> (</span><span style="color: #001080">ctx</span><span style="color: #000000">, </span><span style="color: #001080">next</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">start</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Date</span><span style="color: #000000">()</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">next</span><span style="color: #000000">()</span>
-<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">ms</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Date</span><span style="color: #000000">() - </span><span style="color: #001080">start</span>
-<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Response time: %sms&#039;</span><span style="color: #000000">, </span><span style="color: #001080">ms</span><span style="color: #000000">)</span>
-<span style="color: #000000">})</span>
+#### Known middleware
 
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;text&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Hello World&#039;</span><span style="color: #000000">))</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">launch</span><span style="color: #000000">()</span>
-
-<span style="color: #008000">// Enable graceful stop</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">))</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">))</span>
-</code></pre>
-				<p>Note how the function <code>next</code> is used to invoke the subsequent layers of the middleware stack, performing the actual processing of the update (in this case, replying with “Hello World”).</p>
-				<a href="#what-you-can-do-with-middleware" id="what-you-can-do-with-middleware" style="color: inherit; text-decoration: none;">
-					<h5>What you can do with middleware</h5>
-				</a>
-				<p>Middleware is an extremely flexible concept that can be used for a myriad of things, including these:</p>
-				<ul>
-					<li>storing data per chat, per user, you name it</li>
-					<li>allowing access to old messages (by storing them)</li>
-					<li>making internationalization available</li>
-					<li>rate limiting</li>
-					<li>tracking response times (see above)</li>
-					<li>much more</li>
-				</ul>
-				<p>All important kinds of middleware have already been implemented, and the community keeps on adding more.
-				Just install a package via <code>npm</code>, add it to your bot and you&#39;re ready to go.</p>
-				<p>Here is a list of</p>
-				<a href="#known-middleware" id="known-middleware" style="color: inherit; text-decoration: none;">
-					<h5>Known middleware</h5>
-				</a>
-				<ul>
-					<li><a href="https://github.com/telegraf/telegraf-i18n">Internationalization</a>—simplifies selecting the right translation to use when responding to a user.</li>
-					<li><a href="https://github.com/telegraf/telegraf-session-redis">Redis powered session</a>—store session data using Redis.</li>
-					<li><a href="https://github.com/RealSpeaker/telegraf-session-local">Local powered session (via lowdb)</a>—store session data in a local file.</li>
-					<li><a href="https://github.com/telegraf/telegraf-ratelimit">Rate-limiting</a>—apply rate limitting to chats or users.</li>
-					<li><a href="https://github.com/KnightNiwrem/telegraf-throttler">Bottleneck powered throttling</a>—apply throttling to both incoming updates and outgoing API calls.</li>
-					<li><a href="https://github.com/EdJoPaTo/telegraf-inline-menu">Menus via inline keyboards</a>—simplify creating interfaces based on menus.</li>
-					<li><a href="https://github.com/EdJoPaTo/telegraf-stateless-question">Stateless Questions</a>—create stateless questions to Telegram users working in privacy mode.</li>
-					<li><a href="https://github.com/telegraf/telegraf-wit">Natural language processing via wit.ai</a></li>
-					<li><a href="https://github.com/telegraf/telegraf-recast">Natural language processing via recast.ai</a></li>
-					<li><a href="https://github.com/telegraf/telegraf-experiments">Multivariate and A/B testing</a>—add experiments to see how different versions of a feature are used.</li>
-					<li><a href="https://github.com/telegraf/telegraf-mixpanel">Powerfull bot stats via Mixpanel</a></li>
-					<li><a href="https://github.com/telegraf/telegraf-statsd">statsd integration</a></li>
-					<li><a href="https://www.npmjs.com/search?q=telegraf-">and more...</a></li>
-				</ul>
-				<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
-					<h4>Error handling</h4>
-				</a>
-				<p>By default Telegraf will print all errors to <code>stderr</code> and rethrow error.</p>
-				<p>To perform custom error-handling logic, use following snippet:</p>
-				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">catch</span><span style="color: #000000">((</span><span style="color: #001080">err</span><span style="color: #000000">, </span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #A31515">`Ooops, encountered an error for </span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">updateType</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">, </span><span style="color: #001080">err</span><span style="color: #000000">)</span>
-<span style="color: #000000">})</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">start</span><span style="color: #000000">((</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">throw</span><span style="color: #000000"> </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Error</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Example error&#039;</span><span style="color: #000000">)</span>
-<span style="color: #000000">})</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">launch</span><span style="color: #000000">()</span>
-
-<span style="color: #008000">// Enable graceful stop</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">))</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">))</span>
-</code></pre>
-				<a href="#context" id="context" style="color: inherit; text-decoration: none;">
-					<h4>Context</h4>
-				</a>
-				<p>A Telegraf Context encapsulates telegram update.
-				One <code>Context</code> is created for each incoming <code>Update</code>.</p>
-				<a href="#extending-context" id="extending-context" style="color: inherit; text-decoration: none;">
-					<h5>Extending context</h5>
-				</a>
-				<p>The recommended way to extend bot context:</p>
-				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
-
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #001080">context</span><span style="color: #000000">.</span><span style="color: #001080">db</span><span style="color: #000000"> = {</span>
-<span style="color: #000000">  </span><span style="color: #795E26">getScores</span><span style="color: #001080">:</span><span style="color: #000000"> () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> { </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #098658">42</span><span style="color: #000000"> }</span>
-<span style="color: #000000">}</span>
-
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;text&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">scores</span><span style="color: #000000"> = </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">db</span><span style="color: #000000">.</span><span style="color: #795E26">getScores</span><span style="color: #000000">(</span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">from</span><span style="color: #000000">.</span><span style="color: #001080">username</span><span style="color: #000000">)</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">`</span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">message</span><span style="color: #000000FF">.</span><span style="color: #001080">from</span><span style="color: #000000FF">.</span><span style="color: #001080">username</span><span style="color: #0000FF">}</span><span style="color: #A31515">: </span><span style="color: #0000FF">${</span><span style="color: #001080">scores</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">)</span>
-<span style="color: #000000">})</span>
-
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">launch</span><span style="color: #000000">()</span>
-
-<span style="color: #008000">// Enable graceful stop</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">))</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">))</span>
-</code></pre>
-				<p>If you&#39;re using TypeScript, have a look at the section below about usage with TypeScript.
-				(You need to extend the type of the context.)</p>
-				<a href="#shortcuts" id="shortcuts" style="color: inherit; text-decoration: none;">
-					<h5>Shortcuts</h5>
+- [Internationalization](https://github.com/telegraf/telegraf-i18n)—simplifies selecting the right translation to use when responding to a user.
+- [Redis powered session](https://github.com/telegraf/telegraf-session-redis)—store session data using Redis.
+- [Local powered session (via lowdb)](https://github.com/RealSpeaker/telegraf-session-local)—store session data in a local file.
+- [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)—apply rate limitting to chats or users.
+- [Bottleneck powered throttling](https://github.com/KnightNiwrem/telegraf-throttler)—apply throttling to both incoming updates and outgoing API calls.
+- [Menus via inline keyboards](https://github.com/EdJoPaTo/telegraf-inline-menu)—simplify creating interfaces based on menus.
+- [Stateless Questions](https://github.com/EdJoPaTo/telegraf-stateless-question)—create stateless questions to Telegram users working in privacy mode.
+- [Natural language processing via wit.ai](https://github.com/telegraf/telegraf-wit)
+- [Natural language processing via recast.ai](https://github.com/telegraf/telegraf-recast)
+- [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)—add experiments to see how different versions of a feature are used.
+- [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
+- [statsd integration](https://github.com/telegraf/telegraf-statsd)
+- [and more...](https://www.npmjs.com/search?q=telegraf-)
+-->
+				<a href="#shorthand-methods" id="shorthand-methods" style="color: inherit; text-decoration: none;">
+					<h4>Shorthand methods</h4>
 				</a>
 				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
 
@@ -311,144 +231,11 @@
 <span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">))</span>
 <span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">))</span>
 </code></pre>
-				<a href="#state" id="state" style="color: inherit; text-decoration: none;">
-					<h4>State</h4>
+				<a href="#production" id="production" style="color: inherit; text-decoration: none;">
+					<h2>Production</h2>
 				</a>
-				<p>The recommended namespace to share information between middlewares.</p>
-				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
-
-<span style="color: #008000">// Naive authorization middleware</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">((</span><span style="color: #001080">ctx</span><span style="color: #000000">, </span><span style="color: #001080">next</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">state</span><span style="color: #000000">.</span><span style="color: #001080">role</span><span style="color: #000000"> = </span><span style="color: #795E26">getUserRole</span><span style="color: #000000">(</span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">message</span><span style="color: #000000">)</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #795E26">next</span><span style="color: #000000">()</span>
-<span style="color: #000000">})</span>
-
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;text&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">`Hello </span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">state</span><span style="color: #000000FF">.</span><span style="color: #001080">role</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">)</span>
-<span style="color: #000000">})</span>
-
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">launch</span><span style="color: #000000">()</span>
-
-<span style="color: #008000">// Enable graceful stop</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">))</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">))</span>
-</code></pre>
-				<a href="#session" id="session" style="color: inherit; text-decoration: none;">
-					<h4>Session</h4>
-				</a>
-				<p>Sessions are used to store data per user or per chat (or per whatever if you want, this is the <em>session key</em>).</p>
-				<p>Think of a session as an object that can hold any kind of information you provide.
-				This could be the ID of the last message of the bot, or simply a counter about how many photos a user already sent to the bot.</p>
-				<p>You can use session middleware to add sessions support to your bot.
-					This will do the heavy lifting for you.
-				Using session middleware will result in a sequence like this:</p>
-				<ol>
-					<li>A new update comes in.</li>
-					<li>The session middleware loads the current session data for the respective chat/user/whatever.</li>
-					<li>The session middleware makes that session data available on the context object <code>ctx</code>.</li>
-					<li>Your middleware stack is run, all of your code can do its work.</li>
-					<li>The session middleware takes back control and checks how you altered the session data on the <code>ctx</code> object.</li>
-					<li>The session middleware write the session back to your storage, i.e. a file, a database, an in-memory storage, or even a cloud storage solution.</li>
-				</ol>
-				<p>Here is a simple example of how the built-in session middleware of Telegraf can be used to count photos.</p>
-				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">session</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;telegraf&#039;</span><span style="color: #000000">)</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #795E26">session</span><span style="color: #000000">())</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;photo&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000"> ??= { </span><span style="color: #001080">counter:</span><span style="color: #000000"> </span><span style="color: #098658">0</span><span style="color: #000000"> }</span>
-<span style="color: #000000">  </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">counter</span><span style="color: #000000">++</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">`Photo counter: </span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">session</span><span style="color: #000000FF">.</span><span style="color: #001080">counter</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">)</span>
-<span style="color: #000000">})</span>
-
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">launch</span><span style="color: #000000">()</span>
-
-<span style="color: #008000">// Enable graceful stop</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">))</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">))</span>
-</code></pre>
-				<p>The default session key is <code><code>${ctx.from.id}:${ctx.chat.id}</code></code>.
-					If either <code>ctx.from</code> or <code>ctx.chat</code> is <code>undefined</code>, default session key and thus <code>ctx.session</code> are also <code>undefined</code>.
-				You can customize the session key resolver function by passing in the options argument:</p>
-				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">session</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;telegraf&#039;</span><span style="color: #000000">)</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #795E26">session</span><span style="color: #000000">({</span>
-<span style="color: #000000">  </span><span style="color: #795E26">makeKey</span><span style="color: #001080">:</span><span style="color: #000000"> (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">from</span><span style="color: #000000">?.</span><span style="color: #001080">id</span><span style="color: #000000"> </span><span style="color: #008000">// only store data per user, but across chats</span>
-<span style="color: #000000">}))</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;photo&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000"> ??= { </span><span style="color: #001080">counter:</span><span style="color: #000000"> </span><span style="color: #098658">0</span><span style="color: #000000"> }</span>
-<span style="color: #000000">  </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">counter</span><span style="color: #000000">++</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">`Photo counter: </span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">session</span><span style="color: #000000FF">.</span><span style="color: #001080">counter</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">)</span>
-<span style="color: #000000">})</span>
-
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">launch</span><span style="color: #000000">()</span>
-
-<span style="color: #008000">// Enable graceful stop</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">))</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">))</span>
-</code></pre>
-				<p><strong>Tip: To use same session in private chat with bot and in inline mode, use following session key resolver:</strong></p>
-				<pre><code class="language-js"><span style="color: #000000">{</span>
-<span style="color: #000000">  makeKey: (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">    </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">from</span><span style="color: #000000"> &amp;&amp; </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">chat</span><span style="color: #000000">) {</span>
-<span style="color: #000000">      </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #A31515">`</span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">from</span><span style="color: #000000FF">.</span><span style="color: #001080">id</span><span style="color: #0000FF">}</span><span style="color: #A31515">:</span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">chat</span><span style="color: #000000FF">.</span><span style="color: #001080">id</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span>
-<span style="color: #000000">    } </span><span style="color: #AF00DB">else</span><span style="color: #000000"> </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">from</span><span style="color: #000000"> &amp;&amp; </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">inlineQuery</span><span style="color: #000000">) {</span>
-<span style="color: #000000">      </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #A31515">`</span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">from</span><span style="color: #000000FF">.</span><span style="color: #001080">id</span><span style="color: #0000FF">}</span><span style="color: #A31515">:</span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">from</span><span style="color: #000000FF">.</span><span style="color: #001080">id</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span>
-<span style="color: #000000">    }</span>
-<span style="color: #000000">    </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #0000FF">undefined</span>
-<span style="color: #000000">  }</span>
-<span style="color: #000000">}</span>
-</code></pre>
-				<p>However, in the above example, the session middleware just stores the counters in-memory.
-					This means that all counters will be lost when the process is terminated.
-				If you want to store data across restarts, or share it among workers, you need to use <em>persistent sessions</em>.</p>
-				<p>There are already <a href="https://www.npmjs.com/search?q=telegraf-session">a lot of packages</a> that make this a breeze.
-				You can simply add <code>npm install</code> one and to your bot to support exactly the type of storage you want.</p>
-				<p>Alternatively, <code>telegraf</code> also allows you to easily integrate your own persistence without any other package.
-					The <code>session</code> function can take a <code>storage</code> in the options object.
-					A storage must have three methods: one for loading, one for storing, and one for deleting a session.
-				This works as follows:</p>
-				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">session</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;telegraf&#039;</span><span style="color: #000000">)</span>
-
-<span style="color: #008000">// may also return `Promise`s (or use `async` functions)!</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">storage</span><span style="color: #000000"> = {</span>
-<span style="color: #000000">  </span><span style="color: #795E26">getItem</span><span style="color: #000000">(</span><span style="color: #001080">key</span><span style="color: #000000">) { </span><span style="color: #008000">/* load a session for `key` ... */</span><span style="color: #000000"> },</span>
-<span style="color: #000000">  </span><span style="color: #795E26">setItem</span><span style="color: #000000">(</span><span style="color: #001080">key</span><span style="color: #000000">, </span><span style="color: #001080">value</span><span style="color: #000000">) { </span><span style="color: #008000">/* save a session for `key` ... */</span><span style="color: #000000"> },</span>
-<span style="color: #000000">  </span><span style="color: #795E26">deleteItem</span><span style="color: #000000">(</span><span style="color: #001080">key</span><span style="color: #000000">) { </span><span style="color: #008000">/* delete a session for `key` ... */</span><span style="color: #000000"> }</span>
-<span style="color: #000000">}</span>
-
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #795E26">session</span><span style="color: #000000">({ </span><span style="color: #001080">storage</span><span style="color: #000000"> }))</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;photo&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">counter</span><span style="color: #000000"> = </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">counter</span><span style="color: #000000"> || </span><span style="color: #098658">0</span>
-<span style="color: #000000">  </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">counter</span><span style="color: #000000">++</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">`Photo counter: </span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">session</span><span style="color: #000000FF">.</span><span style="color: #001080">counter</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">)</span>
-<span style="color: #000000">})</span>
-
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">launch</span><span style="color: #000000">()</span>
-
-<span style="color: #008000">// Enable graceful stop</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">))</span>
-<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">))</span>
-</code></pre>
-				<a href="#update-types" id="update-types" style="color: inherit; text-decoration: none;">
-					<h4>Update types</h4>
-				</a>
-				<pre><code class="language-js"><span style="color: #008000">// Handle message update</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;message&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Hello&#039;</span><span style="color: #000000">)</span>
-<span style="color: #000000">})</span>
-
-<span style="color: #008000">// Handle sticker or photo update</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">([</span><span style="color: #A31515">&#039;sticker&#039;</span><span style="color: #000000">, </span><span style="color: #A31515">&#039;photo&#039;</span><span style="color: #000000">], (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">message</span><span style="color: #000000">)</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Cool!&#039;</span><span style="color: #000000">)</span>
-<span style="color: #000000">})</span>
-</code></pre>
-				<p><a href="https://core.telegram.org/bots/api#message">Official Docs</a></p>
 				<a href="#webhooks" id="webhooks" style="color: inherit; text-decoration: none;">
-					<h4>Webhooks</h4>
+					<h3>Webhooks</h3>
 				</a>
 				<pre><code class="language-js"><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;dotenv&#039;</span><span style="color: #000000">)</span>
 
@@ -492,8 +279,19 @@
 					<li><a href="https://github.com/telegraf/telegraf/blob/master/docs/examples/fastify-webhook-bot.js"><code>fastify</code> example integration</a></li>
 					<li><a href="https://github.com/telegraf/telegraf/blob/master/docs/examples/koa-webhook-bot.js"><code>koa</code> example integration</a></li>
 				</ul>
+				<a href="#error-handling" id="error-handling" style="color: inherit; text-decoration: none;">
+					<h3>Error handling</h3>
+				</a>
+				<p>If middleware throws an error or times out, Telegraf calls <code>bot.handleError</code>. If it rethrows, update source closes, and then the error is printed to console and process <a href="https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode">hopefully</a> terminates. If it does not rethrow, the error is swallowed.</p>
+				<p>Default <code>bot.handleError</code> always rethrows. You can overwrite it using <code>bot.catch</code> if you need to.</p>
+				<p>⚠️ Always rethrow <code>TimeoutError</code>!</p>
+				<p>⚠️ Swallowing unknown errors might leave the process in invalid state!</p>
+				<p>ℹ️ In production, <code>systemd</code> or <a href="https://www.npmjs.com/package/pm2"><code>pm2</code></a> can restart your bot if it exits for any reason.</p>
+				<a href="#advanced-topics" id="advanced-topics" style="color: inherit; text-decoration: none;">
+					<h2>Advanced topics</h2>
+				</a>
 				<a href="#working-with-files" id="working-with-files" style="color: inherit; text-decoration: none;">
-					<h4>Working with files</h4>
+					<h3>Working with files</h3>
 				</a>
 				<p>Supported file sources:</p>
 				<ul>
@@ -531,60 +329,46 @@
 <span style="color: #000000">  })</span>
 <span style="color: #000000">})</span>
 </code></pre>
-				<a href="#telegraf-modules" id="telegraf-modules" style="color: inherit; text-decoration: none;">
-					<h4>Telegraf Modules</h4>
+				<a href="#middleware" id="middleware" style="color: inherit; text-decoration: none;">
+					<h3>Middleware</h3>
 				</a>
-				<p>Telegraf Modules is higher level abstraction for writing modular Telegram bots.</p>
-				<p>A module is simply a .js file that exports Telegraf middleware:</p>
-				<pre><code class="language-js"><span style="color: #267F99">module</span><span style="color: #000000">.</span><span style="color: #267F99">exports</span><span style="color: #000000"> = (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Hello from Telegraf Module!&#039;</span><span style="color: #000000">)</span>
-</code></pre>
-				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">Composer</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;telegraf/composer&#039;</span><span style="color: #000000">)</span>
+				<p>In addition to <code>ctx: Context</code>, each middleware receives <code>next: () =&gt; Promise&lt;void&gt;</code>.</p>
+				<p>As in Koa and some other middleware-based libraries,
+				<code>await next()</code> will call next middleware and wait for it to finish:</p>
+				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
 
-<span style="color: #267F99">module</span><span style="color: #000000">.</span><span style="color: #267F99">exports</span><span style="color: #000000"> = </span><span style="color: #001080">Composer</span><span style="color: #000000">.</span><span style="color: #795E26">mount</span><span style="color: #000000">(</span>
-<span style="color: #000000">  </span><span style="color: #A31515">&#039;sticker&#039;</span><span style="color: #000000">, </span>
-<span style="color: #000000">  (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Wow, sticker&#039;</span><span style="color: #000000">)</span>
-<span style="color: #000000">)</span>
-</code></pre>
-				<p>To run modules, you can use <code>telegraf</code> module runner, it allows you to start Telegraf module easily from the command line.</p>
-				<pre><code class="language-shellscript"><span style="color: #000000">npm install telegraf -g</span>
-</code></pre>
-				<a href="#telegraf-cli-usage" id="telegraf-cli-usage" style="color: inherit; text-decoration: none;">
-					<h4>Telegraf CLI usage</h4>
-				</a>
-				<pre><code class="language-text">telegraf [opts] &lt;bot-file&gt;
-  -t  Bot token [$BOT_TOKEN]
-  -d  Webhook domain
-  -H  Webhook host [0.0.0.0]
-  -p  Webhook port [$PORT or 3000]
-  -l  Enable logs
-  -h  Show this help message</code></pre>
-				<a href="#telegraf-module-example" id="telegraf-module-example" style="color: inherit; text-decoration: none;">
-					<h5>Telegraf Module example</h5>
-				</a>
-				<p>Create module with name <code>bot.js</code> and following content:</p>
-				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">Composer</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;telegraf/composer&#039;</span><span style="color: #000000">)</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">PhotoURL</span><span style="color: #000000"> = </span><span style="color: #A31515">&#039;https://picsum.photos/200/300/?random&#039;</span>
+<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #0000FF">async</span><span style="color: #000000"> (</span><span style="color: #001080">ctx</span><span style="color: #000000">, </span><span style="color: #001080">next</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">time</span><span style="color: #000000">(</span><span style="color: #A31515">`Processing update </span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">update</span><span style="color: #000000FF">.</span><span style="color: #001080">update_id</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">)</span>
+<span style="color: #000000">  </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">next</span><span style="color: #000000">() </span><span style="color: #008000">// runs next middleware</span>
+<span style="color: #000000">  </span><span style="color: #008000">// runs after next middleware finishes</span>
+<span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">timeEnd</span><span style="color: #000000">(</span><span style="color: #A31515">`Processing update </span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">update</span><span style="color: #000000FF">.</span><span style="color: #001080">update_id</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">)</span>
+<span style="color: #000000">})</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Composer</span><span style="color: #000000">()</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">start</span><span style="color: #000000">((</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Hello there!&#039;</span><span style="color: #000000">))</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">help</span><span style="color: #000000">((</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Help message&#039;</span><span style="color: #000000">))</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">command</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;photo&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">replyWithPhoto</span><span style="color: #000000">({ </span><span style="color: #001080">url:</span><span style="color: #000000"> </span><span style="color: #001080">PhotoURL</span><span style="color: #000000"> }))</span>
+<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;text&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">reply</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Hello World&#039;</span><span style="color: #000000">))</span>
+<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">launch</span><span style="color: #000000">()</span>
 
-<span style="color: #267F99">module</span><span style="color: #000000">.</span><span style="color: #267F99">exports</span><span style="color: #000000"> = </span><span style="color: #001080">bot</span>
+<span style="color: #008000">// Enable graceful stop</span>
+<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGINT&#039;</span><span style="color: #000000">))</span>
+<span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #795E26">once</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">, () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">stop</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;SIGTERM&#039;</span><span style="color: #000000">))</span>
 </code></pre>
-				<p>then run it:</p>
-				<pre><code class="language-shellscript"><span style="color: #000000">telegraf -t </span><span style="color: #A31515">&quot;bot token&quot;</span><span style="color: #000000"> bot.js</span>
-</code></pre>
+				<p>With this simple ability, you can:</p>
+				<ul>
+					<li>extract information from updates and then <code>await next()</code> to avoid disrupting other middleware,</li>
+					<li>like <a href="https://telegraf.js.org/classes/composer.html"><code>Composer</code></a> and <a href="https://telegraf.js.org/classes/router.html"><code>Router</code></a>, <code>await next()</code> for updates you don&#39;t wish to handle,</li>
+					<li>like <a href="https://telegraf.js.org/modules.html#session"><code>session</code></a> and <a href="https://telegraf.js.org/modules/scenes.html"><code>Scenes</code></a>, <a href="#extending-context">extend the context</a> by mutating <code>ctx</code> before <code>await next()</code>,</li>
+					<li><a href="https://github.com/telegraf/telegraf/discussions/1267#discussioncomment-254525">intercept API calls</a>,</li>
+					<li>reuse <a href="https://www.npmjs.com/search?q=telegraf-">other people&#39;s code</a>,</li>
+					<li>do whatever <strong>you</strong> come up with!</li>
+				</ul>
 				<a href="#usage-with-typescript" id="usage-with-typescript" style="color: inherit; text-decoration: none;">
-					<h4>Usage with TypeScript</h4>
+					<h3>Usage with TypeScript</h3>
 				</a>
 				<p>Telegraf is written in TypeScript and therefore ships with declaration files for the entire library.
 					Moreover, it includes types for the complete Telegram API via the <a href="https://github.com/KnorpelSenf/typegram"><code>typegram</code></a> package.
 				While most types of Telegraf&#39;s API surface are self-explanatory, there&#39;s some notable things to keep in mind.</p>
-				<a href="#custom-context-type-and-middleware" id="custom-context-type-and-middleware" style="color: inherit; text-decoration: none;">
-					<h5>Custom Context Type and Middleware</h5>
+				<a href="#extending-context" id="extending-context" style="color: inherit; text-decoration: none;">
+					<h4>Extending <code>Context</code></h4>
 				</a>
-				<p>Recap from the above section about Middleware that <code>ctx</code> is the context object that holds information about the incoming update, as well as a number of convenience functions such as <code>ctx.reply</code>.</p>
 				<p>The exact shape of <code>ctx</code> can vary based on the installed middleware.
 					Some custom middleware might register properties on the context object that Telegraf is not aware of.
 					Consequently, you can change the type of <code>ctx</code> to fit your needs in order for you to have proper TypeScript types for your data.
@@ -614,7 +398,7 @@
 				<p>If you are using session middleware, you need to define your session property on your custom context object.
 				This could look like this:</p>
 				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Context</span><span style="color: #000000">, </span><span style="color: #001080">Telegraf</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;telegraf&#039;</span>
-<span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">session</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;telegraf/session&#039;</span>
+<span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">session</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;telegraf&#039;</span>
 
 <span style="color: #0000FF">interface</span><span style="color: #000000"> </span><span style="color: #267F99">SessionData</span><span style="color: #000000"> {</span>
 <span style="color: #000000">  </span><span style="color: #001080">lastMessageId</span><span style="color: #000000">?: </span><span style="color: #267F99">number</span>
@@ -646,14 +430,6 @@
 <span style="color: #000000">})</span>
 <span style="color: #008000">// ...</span>
 </code></pre>
-				<a href="#api-reference" id="api-reference" style="color: inherit; text-decoration: none;">
-					<h2>API reference</h2>
-				</a>
-				<p>Coming soon!</p>
-				<a href="#scenes-namespace" id="scenes-namespace" style="color: inherit; text-decoration: none;">
-					<h3><code>Scenes</code> namespace</h3>
-				</a>
-				<p><a href="https://github.com/telegraf/telegraf/issues/705#issuecomment-549056045">https://github.com/telegraf/telegraf/issues/705#issuecomment-549056045</a></p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -670,6 +446,9 @@
 					</li>
 					<li class=" tsd-kind-namespace">
 						<a href="modules/scenes.html">Scenes</a>
+					</li>
+					<li class=" tsd-kind-namespace">
+						<a href="modules/telegraf.html">Telegraf</a>
 					</li>
 				</ul>
 			</nav>
@@ -689,6 +468,9 @@
 					</li>
 					<li class=" tsd-kind-class tsd-has-type-parameter">
 						<a href="classes/telegraf.html" class="tsd-kind-icon">Telegraf</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/telegramerror.html" class="tsd-kind-icon">Telegram<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
 						<a href="modules.html#middleware" class="tsd-kind-icon">Middleware</a>
@@ -732,6 +514,5 @@
 </div>
 <div class="overlay"></div>
 <script src="assets/js/main.js"></script>
-<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
 </body>
 </html>

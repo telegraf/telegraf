@@ -10,8 +10,8 @@
 
 ## For 3.x users
 
-- [3.x docs](https://github.com/telegraf/telegraf/blob/v3/docs/README.md)
-- [4.0.0 release notes](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
+- [3.x docs](https://telegraf.js.org/v3)
+- [4.0 release notes](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
 
 ## Introduction
 
@@ -134,7 +134,7 @@ Here is a list of
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
 -->
 
-#### Shortcuts
+#### Shorthand methods
 
 ```js
 const bot = new Telegraf(process.env.BOT_TOKEN)

@@ -28,7 +28,6 @@ const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ApiClient {
   export type Agent = http.Agent | ((parsedUrl: URL) => http.Agent) | undefined
-  export type Type = 'bot' | 'user'
   export interface Options {
     /**
      * Agent for communicating with the bot API.
@@ -42,7 +41,11 @@ namespace ApiClient {
      */
     attachmentAgent?: Agent
     apiRoot: string
-    apiType: Type
+    /**
+     * @default 'bot'
+     * @see https://github.com/tdlight-team/tdlight-telegram-bot-api#user-mode
+     */
+    apiType: 'bot' | 'user'
     webhookReply: boolean
   }
 

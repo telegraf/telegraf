@@ -28,6 +28,7 @@ const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ApiClient {
   export type Agent = http.Agent | ((parsedUrl: URL) => http.Agent) | undefined
+  export type Type = 'bot' | 'user'
   export interface Options {
     /**
      * Agent for communicating with the bot API.
@@ -41,6 +42,7 @@ namespace ApiClient {
      */
     attachmentAgent?: Agent
     apiRoot: string
+    apiType: Type
     webhookReply: boolean
   }
 
@@ -61,6 +63,7 @@ const DEFAULT_EXTENSIONS: Record<string, string | undefined> = {
 
 const DEFAULT_OPTIONS: ApiClient.Options = {
   apiRoot: 'https://api.telegram.org',
+  apiType: 'bot',
   webhookReply: true,
   agent: new https.Agent({
     keepAlive: true,
@@ -338,7 +341,7 @@ class ApiClient {
           options.attachmentAgent
         )
       : await buildJSONConfig(payload)
-    const apiUrl = `${options.apiRoot}/bot${token}/${method}`
+    const apiUrl = `${options.apiRoot}/${options.apiType}${token}/${method}`
     config.agent = options.agent
     config.signal = signal
     config.timeout = 60_000 // 60s in ms

@@ -338,7 +338,7 @@ Consequently, you can change the type of `ctx` to fit your needs in order for yo
 This is done through Generics:
 
 ```ts
-import { Context, Telegraf } from "telegraf";
+import { Context, Telegraf } from "telegraf"
 
 // Define your own context type
 interface MyContext extends Context {

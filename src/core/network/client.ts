@@ -45,7 +45,7 @@ namespace ApiClient {
      * @default 'bot'
      * @see https://github.com/tdlight-team/tdlight-telegram-bot-api#user-mode
      */
-    apiType: 'bot' | 'user'
+    apiMode: 'bot' | 'user'
     webhookReply: boolean
   }
 
@@ -66,7 +66,7 @@ const DEFAULT_EXTENSIONS: Record<string, string | undefined> = {
 
 const DEFAULT_OPTIONS: ApiClient.Options = {
   apiRoot: 'https://api.telegram.org',
-  apiType: 'bot',
+  apiMode: 'bot',
   webhookReply: true,
   agent: new https.Agent({
     keepAlive: true,
@@ -345,7 +345,7 @@ class ApiClient {
         )
       : await buildJSONConfig(payload)
     const apiUrl = new URL(
-      `${options.apiType}${token}/${method}`,
+      `${options.apiMode}${token}/${method}`,
       options.apiRoot
     )
     config.agent = options.agent

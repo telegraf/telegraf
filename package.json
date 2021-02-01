@@ -14,8 +14,11 @@
   },
   "main": "lib/index.js",
   "exports": {
-    "import": "./lib/index.mjs",
-    "require": "./lib/index.js"
+    ".": {
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.js"
+    },
+    "./typings": "./lib/scenes/index.js"
   },
   "files": [
     "bin/*",

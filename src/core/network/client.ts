@@ -344,7 +344,7 @@ class ApiClient {
           options.attachmentAgent
         )
       : await buildJSONConfig(payload)
-    const apiUrl = `${options.apiRoot}/${options.apiType}${token}/${method}`
+    const apiUrl = new URL(`${options.apiType}${token}/${method}`, options.apiRoot)
     config.agent = options.agent
     config.signal = signal
     config.timeout = 60_000 // 60s in ms

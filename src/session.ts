@@ -29,7 +29,7 @@ export interface SessionContext<S extends object> extends Context {
  * you can [install persistent session middleware from npm](https://www.npmjs.com/search?q=telegraf-session),
  * or pass custom `storage`.
  *
- * @example https://github.com/telegraf/telegraf/blob/master/docs/examples/example-bot.ts
+ * @example https://github.com/telegraf/telegraf/blob/master/docs/examples/session-bot.ts
  */
 export function session<S extends object>(
   options?: SessionOptions<S>

@@ -211,7 +211,8 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   start(...fns: ReadonlyArray<Middleware<C & { startPayload: string }>>) {
     const handler = Composer.compose(fns)
     return this.command('start', (ctx, next) => {
-      const startPayload = ctx.message.text.substring(7)
+      const entity = ctx.message.entities![0]!
+      const startPayload = ctx.message.text.slice(entity.length + 1)
       return handler(Object.assign(ctx, { startPayload }), next)
     })
   }

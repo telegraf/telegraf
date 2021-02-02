@@ -29,7 +29,7 @@ jobs:
       id: cache
       with:
         path: node_modules/
-        key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
+        key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('package*.json') }}
     - run: npm ci --ignore-scripts
       if: steps.cache.outputs.cache-hit != 'true'
     - run: npm test

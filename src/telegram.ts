@@ -38,8 +38,10 @@ class Telegram extends ApiClient {
       return url
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    return `${this.options.apiRoot}/file/bot${this.token}/${fileId.file_path}`
+    return new URL(
+      `file/${this.options.apiMode}${this.token}/${fileId.file_path!}`,
+      this.options.apiRoot
+    )
   }
 
   /**

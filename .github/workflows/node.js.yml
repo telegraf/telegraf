@@ -11,7 +11,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -20,10 +19,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
+    - uses: actions/cache@v2
+      id: cache
+      with:
+        path: node_modules/
+        key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('package*.json') }}
     - run: npm ci --ignore-scripts
+      if: steps.cache.outputs.cache-hit != 'true'
     - run: npm test
     - run: npm run lint

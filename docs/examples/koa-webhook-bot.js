@@ -23,8 +23,12 @@ bot.telegram.setWebhook('https://-----.localtunnel.me/secret-path')
 const app = new Koa()
 app.use(koaBody())
 // @ts-ignore
-app.use((ctx, next) => ctx.method === 'POST' || ctx.url === '/secret-path'
-  ? bot.handleUpdate(ctx.request.body)
-  : next()
-)
+app.use(async (ctx, next) => {
+  if (ctx.url === '/secret-path') {
+    await bot.handleUpdate(ctx.request.body)
+    ctx.status = 200
+    return
+  }
+  return next()
+})
 app.listen(3000)

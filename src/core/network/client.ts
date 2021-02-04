@@ -47,6 +47,7 @@ namespace ApiClient {
      */
     apiMode: 'bot' | 'user'
     webhookReply: boolean
+    timeout: number
   }
 
   export interface CallApiOptions {
@@ -68,6 +69,7 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
   apiRoot: 'https://api.telegram.org',
   apiMode: 'bot',
   webhookReply: true,
+  timeout: 60_000, // 60s in ms
   agent: new https.Agent({
     keepAlive: true,
     keepAliveMsecs: 10000,
@@ -350,7 +352,7 @@ class ApiClient {
     )
     config.agent = options.agent
     config.signal = signal
-    config.timeout = 60_000 // 60s in ms
+    config.timeout = options.timeout
     const res = await fetch(apiUrl, config)
     const data = await res.json()
     if (!data.ok) {

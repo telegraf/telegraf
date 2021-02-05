@@ -39,7 +39,7 @@ class Telegram extends ApiClient {
     }
 
     return new URL(
-      `file/${this.options.apiMode}${this.token}/${fileId.file_path!}`,
+      `/file/${this.options.apiMode}${this.token}/${fileId.file_path!}`,
       this.options.apiRoot
     )
   }

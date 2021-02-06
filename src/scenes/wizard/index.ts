@@ -5,6 +5,8 @@ import Composer from '../../composer'
 import Context from '../../context'
 import SceneContextScene from '../context'
 
+const { compose } = Composer
+
 export class WizardScene<
     C extends Context & {
       scene: SceneContextScene<C, WizardSessionData>
@@ -54,5 +56,9 @@ export class WizardScene<
         return Composer.unwrap(ctx.wizard.step)(ctx, next)
       },
     ])
+  }
+
+  enterMiddleware() {
+    return compose([this.enterHandler, this.middleware()])
   }
 }

@@ -1,5 +1,6 @@
 /** @format */
 
+import { Extra } from './extra'
 import * as tt from './telegram-types.d'
 
 export interface Button {
@@ -81,28 +82,28 @@ export interface KeyboardOptions<TBtn> {
   wrap?(btn: TBtn, index: number, currentRow: TBtn[]): boolean
 }
 
-export declare class Markup {
-  forceReply(value?: boolean): this
+export declare class Markup<T extends tt.KeyboardMarkupBundle> {
+  forceReply(value?: boolean): Markup<tt.ForceReply> & tt.ForceReply
 
-  removeKeyboard(value?: boolean): this
+  removeKeyboard(value?: boolean): Markup<tt.ReplyKeyboardRemove> & tt.ReplyKeyboardRemove
 
-  selective(value?: boolean): this
+  selective<T extends tt.ReplyMarkupBundle>(this: Markup<T> & T, value?: boolean): this
 
-  extra(options?: tt.Extra): tt.Extra
+  extra<T extends tt.KeyboardMarkupBundle>(this: Markup<T> & T, options?: tt.Extra): tt.ExtraReply<T> & Extra
 
   keyboard(
     buttons: KeyboardButton[] | KeyboardButton[][],
     options?: KeyboardOptions<KeyboardButton>
-  ): this & tt.ReplyKeyboardMarkup
+  ): Markup<tt.ReplyKeyboardMarkup> & tt.ReplyKeyboardMarkup
 
-  resize(value?: boolean): this
+  resize<T extends tt.ReplyKeyboardMarkup>(this: Markup<T> & T, value?: boolean): this
 
-  oneTime(value?: boolean): this
+  oneTime<T extends tt.ReplyKeyboardMarkup>(this: Markup<T> & T, value?: boolean): this
 
   inlineKeyboard(
     buttons: InlineKeyboardButton[] | InlineKeyboardButton[][],
-    options: KeyboardOptions<InlineKeyboardButton>
-  ): this & tt.InlineKeyboardMarkup
+    options?: KeyboardOptions<InlineKeyboardButton>
+  ): Markup<tt.InlineKeyboardMarkup> & tt.InlineKeyboardMarkup
 
   button(text: string, hide?: boolean): Button
 
@@ -137,25 +138,25 @@ export declare class Markup {
     hide?: boolean
   ): LoginButton
 
-  static removeKeyboard(value?: string): Markup
+  static removeKeyboard(value?: string): Markup<tt.ReplyKeyboardRemove> & tt.ReplyKeyboardRemove
 
-  static forceReply(value?: string): Markup
+  static forceReply(value?: string): Markup<tt.ForceReply> & tt.ForceReply
 
   static keyboard(
     buttons: KeyboardButton[] | KeyboardButton[][],
     options?: KeyboardOptions<KeyboardButton>
-  ): Markup & tt.ReplyKeyboardMarkup
+  ): Markup<tt.ReplyKeyboardMarkup> & tt.ReplyKeyboardMarkup
 
   static inlineKeyboard(
     buttons: InlineKeyboardButton[] | InlineKeyboardButton[][],
     options?: KeyboardOptions<InlineKeyboardButton>
-  ): Markup & tt.InlineKeyboardMarkup
+  ): Markup<tt.InlineKeyboardMarkup> & tt.InlineKeyboardMarkup
 
-  static resize(value?: boolean): Markup
+  static resize(value?: boolean): Markup<tt.ReplyKeyboardMarkup>
 
-  static selective(value?: boolean): Markup
+  static selective(value?: boolean): Markup<tt.ReplyMarkupBundle>
 
-  static oneTime(value?: boolean): Markup
+  static oneTime(value?: boolean): Markup<tt.ReplyKeyboardMarkup>
 
   static button(text: string, hide?: boolean): Button
 

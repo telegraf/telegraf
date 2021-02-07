@@ -421,7 +421,7 @@ export declare class Telegram extends ApiClient {
   sendMessage(
     chatId: number | string,
     text: string,
-    extra?: tt.ExtraEditMessage
+    extra?: tt.ExtraSendMessage
   ): Promise<tt.Message>
 
   /**

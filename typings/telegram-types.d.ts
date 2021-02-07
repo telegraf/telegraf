@@ -1,3 +1,4 @@
+import { type } from 'os'
 import * as TT from 'typegram'
 export * from 'typegram'
 
@@ -259,19 +260,27 @@ export interface ExtraPromoteChatMember {
   can_promote_members?: boolean
 }
 
+export type ReplyMarkupBundle = TT.ReplyKeyboardMarkup | TT.ReplyKeyboardRemove | TT.ForceReply
+
+export type KeyboardMarkupBundle = TT.InlineKeyboardMarkup | ReplyMarkupBundle
+
 export interface ExtraReplyMarkup {
   /**
    * Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
    */
-  reply_markup?: TT.InlineKeyboardMarkup | TT.ReplyKeyboardMarkup | TT.ReplyKeyboardRemove | TT.ForceReply
+  reply_markup?: TT.InlineKeyboardMarkup | ReplyMarkupBundle
 }
 
-interface ExtraReplyMarkupInlineKeyboard {
+export interface ExtraReply<T extends KeyboardMarkupBundle> {
+  reply_markup?: T
+}
+
+export interface ExtraReplyMarkupInlineKeyboard {
   /** A JSON-serialized object for a new message inline keyboard. */
   reply_markup?: TT.InlineKeyboardMarkup
 }
 
-interface ExtraFormatting {
+export interface ExtraFormatting {
   /**
    * Mode for parsing entities in the message text. See formatting options for more details.
    */
@@ -283,7 +292,7 @@ interface ExtraFormatting {
   entities?: TT.MessageEntity[]
 }
 
-interface ExtraCaptionFormatting {
+export interface ExtraCaptionFormatting {
   /**
    * Mode for parsing entities in the photo caption. See formatting options for more details.
    */
@@ -295,28 +304,28 @@ interface ExtraCaptionFormatting {
   caption_entities?: TT.MessageEntity[]
 }
 
-interface ExtraCaption extends ExtraCaptionFormatting {
+export interface ExtraCaption extends ExtraCaptionFormatting {
   /**
    * Media caption, 0-1024 characters
    */
   caption?: string
 }
 
-interface ExtraDisableWebPagePreview {
+export interface ExtraDisableWebPagePreview {
   /**
    * Disables link previews for links in this message
    */
   disable_web_page_preview?: boolean
 }
 
-interface ExtraDisableNotifications {
+export interface ExtraDisableNotifications {
   /**
    * Sends the message silently. Users will receive a notification with no sound.
    */
   disable_notification?: boolean
 }
 
-interface ExtraReplyMessage {
+export interface ExtraReplyMessage {
   /**
    * If the message is a reply, ID of the original message
    */
@@ -583,6 +592,57 @@ export type MessageVideoNote = TT.Message.VideoNoteMessage
 export type MessageVoice = TT.Message.VoiceMessage
 export type MessageDice = TT.Message.DiceMessage
 export type MessagePoll = TT.Message.PollMessage
+
+type ServiceMessageBundle = TT.Message.ChannelChatCreatedMessage
+  & TT.Message.ConnectedWebsiteMessage
+  & TT.Message.DeleteChatPhotoMessage
+  & TT.Message.GroupChatCreatedMessage
+  & TT.Message.InvoiceMessage
+  & TT.Message.LeftChatMemberMessage
+  & TT.Message.MigrateFromChatIdMessage
+  & TT.Message.MigrateToChatIdMessage
+  & TT.Message.NewChatMembersMessage
+  & TT.Message.NewChatPhotoMessage
+  & TT.Message.NewChatTitleMessage
+  & TT.Message.PassportDataMessage
+  & TT.Message.ProximityAlertTriggeredMessage
+  & TT.Message.PinnedMessageMessage
+  & TT.Message.SuccessfulPaymentMessage
+  & TT.Message.SupergroupChatCreated
+
+type CommonMessageBundle = TT.Message.AnimationMessage
+  & TT.Message.AudioMessage
+  & TT.Message.ContactMessage
+  & TT.Message.DiceMessage
+  & TT.Message.DocumentMessage
+  & TT.Message.GameMessage
+  & TT.Message.LocationMessage
+  & TT.Message.PhotoMessage
+  & TT.Message.PollMessage
+  & TT.Message.StickerMessage
+  & TT.Message.TextMessage
+  & TT.Message.VenueMessage
+  & TT.Message.VideoMessage
+  & TT.Message.VideoNoteMessage
+  & TT.Message.VoiceMessage
+
+export type Message = ServiceMessageBundle & CommonMessageBundle
+
+export type Update = TT.Update.CallbackQueryUpdate
+  & TT.Update.ChannelPostUpdate
+  & TT.Update.ChosenInlineResultUpdate
+  & TT.Update.EditedChannelPostUpdate
+  & TT.Update.EditedMessageUpdate
+  & TT.Update.InlineQueryUpdate
+  & TT.Update.MessageUpdate
+  & TT.Update.PreCheckoutQueryUpdate
+  & TT.Update.PollAnswerUpdate
+  & TT.Update.PollUpdate
+  & TT.Update.ShippingQueryUpdate
+
+export interface CallbackQuery extends TT.CallbackQuery.DataCallbackQuery, TT.CallbackQuery.GameShortGameCallbackQuery {
+  message: Message
+}
 
 export interface NewInvoiceParameters {
   /**

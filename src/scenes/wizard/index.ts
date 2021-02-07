@@ -55,4 +55,8 @@ export class WizardScene<
       },
     ])
   }
+
+  enterMiddleware() {
+    return Composer.compose([this.enterHandler, this.middleware()])
+  }
 }

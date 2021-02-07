@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>telegraf.js - v4.0.2</title>
-	<meta name="description" content="Documentation for telegraf.js - v4.0.2">
+	<title>telegraf.js - v4.0.3</title>
+	<meta name="description" content="Documentation for telegraf.js - v4.0.3">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 	<link rel="stylesheet" href="assets/css/custom.css">
@@ -24,7 +24,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">telegraf.js - v4.0.2</a>
+					<a href="index.html" class="title">telegraf.js - v4.0.3</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -49,7 +49,7 @@
 	</div>
 	<div class="tsd-page-title">
 		<div class="container">
-			<h1>Project telegraf.js - v4.0.2</h1>
+			<h1>Project telegraf.js - v4.0.3</h1>
 		</div>
 	</div>
 </header>
@@ -190,7 +190,9 @@ Here is a list of
 				<a href="#shorthand-methods" id="shorthand-methods" style="color: inherit; text-decoration: none;">
 					<h4>Shorthand methods</h4>
 				</a>
-				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
+				<pre><code class="language-js"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Telegraf</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;telegraf&#039;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
 
 <span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">command</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;quit&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
 <span style="color: #000000">  </span><span style="color: #008000">// Explicit usage</span>
@@ -237,7 +239,9 @@ Here is a list of
 				<a href="#webhooks" id="webhooks" style="color: inherit; text-decoration: none;">
 					<h3>Webhooks</h3>
 				</a>
-				<pre><code class="language-js"><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;dotenv&#039;</span><span style="color: #000000">)</span>
+				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">Telegraf</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;telegraf&#039;</span><span style="color: #000000">)</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">fs</span><span style="color: #000000"> = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;fs&#039;</span><span style="color: #000000">)</span>
+<span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;dotenv&#039;</span><span style="color: #000000">)</span>
 
 <span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
 
@@ -252,7 +256,7 @@ Here is a list of
 <span style="color: #000000">}</span>
 
 <span style="color: #008000">// Set telegram webhook</span>
-<span style="color: #008000">// The second argument is necessary only if the client uses a self-signed </span>
+<span style="color: #008000">// The second argument is necessary only if the client uses a self-signed</span>
 <span style="color: #008000">// certificate. Including it for a verified certificate may cause things to break.</span>
 <span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #001080">telegram</span><span style="color: #000000">.</span><span style="color: #795E26">setWebhook</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;https://server.tld:8443/secret-path&#039;</span><span style="color: #000000">, {</span>
 <span style="color: #000000">  </span><span style="color: #001080">source:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;server-cert.pem&#039;</span>
@@ -265,6 +269,7 @@ Here is a list of
 <span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">startWebhook</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/secret-path&#039;</span><span style="color: #000000">, </span><span style="color: #0000FF">null</span><span style="color: #000000">, </span><span style="color: #098658">5000</span><span style="color: #000000">)</span>
 </code></pre>
 				<p>Use <code>webhookCallback()</code> if you want to attach Telegraf to an existing http server.</p>
+				<!-- global bot, tlsOptions -->
 				<pre><code class="language-js"><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;http&#039;</span><span style="color: #000000">)</span>
 <span style="color: #000000">  .</span><span style="color: #795E26">createServer</span><span style="color: #000000">(</span><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">webhookCallback</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;/secret-path&#039;</span><span style="color: #000000">))</span>
 <span style="color: #000000">  .</span><span style="color: #795E26">listen</span><span style="color: #000000">(</span><span style="color: #098658">3000</span><span style="color: #000000">)</span>
@@ -302,6 +307,7 @@ Here is a list of
 					<li><code>ReadStream</code></li>
 				</ul>
 				<p>Also, you can provide an optional name of a file as <code>filename</code> when you send the file.</p>
+				<!-- global bot, fs -->
 				<pre><code class="language-js"><span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;message&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
 <span style="color: #000000">  </span><span style="color: #008000">// resend existing file by file_id</span>
 <span style="color: #000000">  </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #795E26">replyWithSticker</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;123123jkbhj6b&#039;</span><span style="color: #000000">)</span>
@@ -335,7 +341,9 @@ Here is a list of
 				<p>In addition to <code>ctx: Context</code>, each middleware receives <code>next: () =&gt; Promise&lt;void&gt;</code>.</p>
 				<p>As in Koa and some other middleware-based libraries,
 				<code>await next()</code> will call next middleware and wait for it to finish:</p>
-				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
+				<pre><code class="language-js"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Telegraf</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;telegraf&#039;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">(</span><span style="color: #001080">process</span><span style="color: #000000">.</span><span style="color: #001080">env</span><span style="color: #000000">.</span><span style="color: #0070C1">BOT_TOKEN</span><span style="color: #000000">)</span>
 
 <span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #0000FF">async</span><span style="color: #000000"> (</span><span style="color: #001080">ctx</span><span style="color: #000000">, </span><span style="color: #001080">next</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
 <span style="color: #000000">  </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">time</span><span style="color: #000000">(</span><span style="color: #A31515">`Processing update </span><span style="color: #0000FF">${</span><span style="color: #001080">ctx</span><span style="color: #000000FF">.</span><span style="color: #001080">update</span><span style="color: #000000FF">.</span><span style="color: #001080">update_id</span><span style="color: #0000FF">}</span><span style="color: #A31515">`</span><span style="color: #000000">)</span>
@@ -373,7 +381,7 @@ Here is a list of
 					Some custom middleware might register properties on the context object that Telegraf is not aware of.
 					Consequently, you can change the type of <code>ctx</code> to fit your needs in order for you to have proper TypeScript types for your data.
 				This is done through Generics:</p>
-				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Context</span><span style="color: #000000">, </span><span style="color: #001080">Telegraf</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;telegraf&quot;</span><span style="color: #000000">;</span>
+				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Context</span><span style="color: #000000">, </span><span style="color: #001080">Telegraf</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;telegraf&#039;</span>
 
 <span style="color: #008000">// Define your own context type</span>
 <span style="color: #0000FF">interface</span><span style="color: #000000"> </span><span style="color: #267F99">MyContext</span><span style="color: #000000"> </span><span style="color: #0000FF">extends</span><span style="color: #000000"> </span><span style="color: #267F99">Context</span><span style="color: #000000"> {</span>
@@ -388,44 +396,6 @@ Here is a list of
 <span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">((</span><span style="color: #001080">ctx</span><span style="color: #000000">, </span><span style="color: #001080">next</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
 <span style="color: #000000">  </span><span style="color: #008000">// Yay, `myProp` is now available here as `string | undefined`!</span>
 <span style="color: #000000">  </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">myProp</span><span style="color: #000000"> = </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">chat</span><span style="color: #000000">?.</span><span style="color: #001080">first_name</span><span style="color: #000000">?.</span><span style="color: #795E26">toUpperCase</span><span style="color: #000000">()</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #795E26">next</span><span style="color: #000000">()</span>
-<span style="color: #000000">})</span>
-<span style="color: #008000">// ...</span>
-</code></pre>
-				<a href="#session-middleware" id="session-middleware" style="color: inherit; text-decoration: none;">
-					<h5>Session Middleware</h5>
-				</a>
-				<p>If you are using session middleware, you need to define your session property on your custom context object.
-				This could look like this:</p>
-				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Context</span><span style="color: #000000">, </span><span style="color: #001080">Telegraf</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;telegraf&#039;</span>
-<span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">session</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;telegraf&#039;</span>
-
-<span style="color: #0000FF">interface</span><span style="color: #000000"> </span><span style="color: #267F99">SessionData</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #001080">lastMessageId</span><span style="color: #000000">?: </span><span style="color: #267F99">number</span>
-<span style="color: #000000">  </span><span style="color: #001080">photoCount</span><span style="color: #000000">?: </span><span style="color: #267F99">number</span>
-<span style="color: #000000">  </span><span style="color: #008000">// ... more session data go here</span>
-<span style="color: #000000">}</span>
-
-<span style="color: #008000">// Define your own context type</span>
-<span style="color: #0000FF">interface</span><span style="color: #000000"> </span><span style="color: #267F99">MyContext</span><span style="color: #000000"> </span><span style="color: #0000FF">extends</span><span style="color: #000000"> </span><span style="color: #267F99">Context</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #001080">session</span><span style="color: #000000">?: </span><span style="color: #267F99">SessionData</span>
-<span style="color: #000000">  </span><span style="color: #008000">// ... more props go here</span>
-<span style="color: #000000">}</span>
-
-<span style="color: #008000">// Create your bot and tell it about your context type</span>
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">bot</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Telegraf</span><span style="color: #000000">&lt;</span><span style="color: #267F99">MyContext</span><span style="color: #000000">&gt;(</span><span style="color: #A31515">&#039;SECRET TOKEN&#039;</span><span style="color: #000000">)</span>
-
-<span style="color: #008000">// Make session data available</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">(</span><span style="color: #795E26">session</span><span style="color: #000000">())</span>
-<span style="color: #008000">// Register middleware and launch your bot as usual</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">use</span><span style="color: #000000">((</span><span style="color: #001080">ctx</span><span style="color: #000000">, </span><span style="color: #001080">next</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #008000">// Yay, `session` is now available here as `SessionData`!</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">message</span><span style="color: #000000"> !== </span><span style="color: #0000FF">undefined</span><span style="color: #000000">)</span>
-<span style="color: #000000">    </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">lastMessageId</span><span style="color: #000000"> = </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">message_id</span>
-<span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #795E26">next</span><span style="color: #000000">()</span>
-<span style="color: #000000">})</span>
-<span style="color: #001080">bot</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;photo&#039;</span><span style="color: #000000">, (</span><span style="color: #001080">ctx</span><span style="color: #000000">, </span><span style="color: #001080">next</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">  </span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">photoCount</span><span style="color: #000000"> = </span><span style="color: #098658">1</span><span style="color: #000000"> + (</span><span style="color: #001080">ctx</span><span style="color: #000000">.</span><span style="color: #001080">session</span><span style="color: #000000">.</span><span style="color: #001080">photoCount</span><span style="color: #000000"> ?? </span><span style="color: #098658">0</span><span style="color: #000000">)</span>
 <span style="color: #000000">  </span><span style="color: #AF00DB">return</span><span style="color: #000000"> </span><span style="color: #795E26">next</span><span style="color: #000000">()</span>
 <span style="color: #000000">})</span>
 <span style="color: #008000">// ...</span>

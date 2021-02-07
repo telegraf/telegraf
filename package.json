@@ -67,6 +67,7 @@
     "eslint-config-standard-with-typescript": "^19.0.1",
     "eslint-plugin-ava": "^11.0.0",
     "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-markdown": "^1.0.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-promise": "^4.2.1",

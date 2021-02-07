@@ -137,6 +137,8 @@ Here is a list of
 #### Shorthand methods
 
 ```js
+import { Telegraf } from 'telegraf'
+
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.command('quit', (ctx) => {
@@ -184,6 +186,8 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ### Webhooks
 
 ```js
+const { Telegraf } = require('telegraf')
+const fs = require('fs')
 require('dotenv')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -199,7 +203,7 @@ const tlsOptions = {
 }
 
 // Set telegram webhook
-// The second argument is necessary only if the client uses a self-signed 
+// The second argument is necessary only if the client uses a self-signed
 // certificate. Including it for a verified certificate may cause things to break.
 bot.telegram.setWebhook('https://server.tld:8443/secret-path', {
   source: 'server-cert.pem'
@@ -213,6 +217,8 @@ bot.startWebhook('/secret-path', null, 5000)
 ```
 
 Use `webhookCallback()` if you want to attach Telegraf to an existing http server.
+
+<!-- global bot, tlsOptions -->
 
 ```js
 require('http')
@@ -255,6 +261,8 @@ Supported file sources:
 
 Also, you can provide an optional name of a file as `filename` when you send the file.
 
+<!-- global bot, fs -->
+
 ```js
 bot.on('message', (ctx) => {
   // resend existing file by file_id
@@ -292,6 +300,8 @@ As in Koa and some other middleware-based libraries,
 `await next()` will call next middleware and wait for it to finish:
 
 ```js
+import { Telegraf } from 'telegraf'
+
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.use(async (ctx, next) => {
@@ -338,7 +348,7 @@ Consequently, you can change the type of `ctx` to fit your needs in order for yo
 This is done through Generics:
 
 ```ts
-import { Context, Telegraf } from "telegraf";
+import { Context, Telegraf } from 'telegraf'
 
 // Define your own context type
 interface MyContext extends Context {

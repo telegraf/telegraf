@@ -16,6 +16,17 @@
         "@typescript-eslint/promise-function-async": "off",
         "@typescript-eslint/strict-boolean-expressions": "warn"
       }
+    }, {
+      "files": ["*.md"],
+      "plugins": ["markdown"],
+      "parserOptions": {
+        "ecmaFeatures": {
+            "impliedStrict": true
+        }
+      },
+      "rules": {
+        "strict": "off"
+      }
     }
   ],
   "rules": {

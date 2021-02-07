@@ -2,13 +2,11 @@
 
 ## Introduction
 
-Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
-Users can interact with bots by sending them command messages in private or group chats. 
-These accounts serve as an interface for code running somewhere on your server.
+Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. Users can interact with bots by sending them command messages in private or group chats. These accounts serve as an interface for code running somewhere on your server.
 
-#### Features
+### Features
 
-- Full [Telegram Bot API 4.8](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 5.0](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)
@@ -18,19 +16,19 @@ These accounts serve as an interface for code running somewhere on your server.
 - Easy to extend
 - `TypeScript` typings
 
-#### Installation
+### Installation
 
 ```bash
-$ npm install telegraf --save
+npm install telegraf --save
 ```
 
 or using yarn
 
 ```bash
-$ yarn add telegraf
+yarn add telegraf
 ```
 
-#### Example
+### Example
   
 ```js
 const { Telegraf } = require('telegraf')
@@ -110,30 +108,24 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 
 ## Getting started
 
-#### Telegram token
+### Telegram token
 
-To use the [Telegram Bot API](https://core.telegram.org/bots/api), 
-you first have to [get a bot account](https://core.telegram.org/bots) 
-by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
+To use the [Telegram Bot API](https://core.telegram.org/bots/api), you first have to [get a bot account](https://core.telegram.org/bots) by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
 BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
 
-#### Bot
+### Bot
 
-A Telegraf bot is an object containing an array of middlewares which are composed 
-and executed in a stack-like manner upon request. Is similar to many other middleware systems 
-that you may have encountered such as Koa, Ruby's Rack, Connect.
+A Telegraf bot is an object containing an array of middlewares which are composed and executed in a stack-like manner upon request. Is similar to many other middleware systems that you may have encountered such as Koa, Ruby's Rack, Connect.
 
-#### Middleware
+### Middleware
 
 Middleware is an essential part of any modern framework.
 It allows you to modify requests and responses as they pass between the Telegram and your bot.
 
 You can imagine middleware as a chain of logic connection your bot to the Telegram request.
 
-Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram update, 
-`next` is a function that is invoked to execute the downstream middleware. 
-It returns a Promise with a then function for running code after completion.
+Middleware normally takes two parameters (ctx, next), `ctx` is the context for one Telegram update, `next` is a function that is invoked to execute the downstream middleware. It returns a Promise with a then function for running code after completion.
 
 ```js
 const bot = new Telegraf(process.env.BOT_TOKEN)
@@ -149,7 +141,7 @@ bot.on('text', (ctx) => ctx.reply('Hello World'))
 bot.launch()
 ```
 
-##### Known middleware
+#### Known middleware
 
 - [Internationalization](https://github.com/telegraf/telegraf-i18n)
 - [Redis powered session](https://github.com/telegraf/telegraf-session-redis)
@@ -163,7 +155,7 @@ bot.launch()
 - [statsd integration](https://github.com/telegraf/telegraf-statsd)
 - [and more...](https://www.npmjs.com/search?q=telegraf-)
 
-#### Error handling
+### Error handling
 
 By default Telegraf will print all errors to `stderr` and rethrow error.
 
@@ -178,9 +170,9 @@ bot.start((ctx) => {
   throw new Error('Example error')
 })
 bot.launch()
-``` 
+```
 
-#### Context
+### Context
 
 A Telegraf Context encapsulates telegram update.
 Context is created per request and contains following props:
@@ -212,7 +204,7 @@ bot.use((ctx) => {
 })
 ```
 
-##### Extending context
+#### Extending context
 
 The recommended way to extend bot context:
 
@@ -231,7 +223,7 @@ bot.on('text', (ctx) => {
 bot.launch()
 ```
 
-##### Shortcuts
+#### Shortcuts
 
 Context shortcuts for **message** update:
 
@@ -396,7 +388,7 @@ bot.on('inline_query', (ctx) => {
 bot.launch()
 ```
 
-#### State
+### State
 
 The recommended namespace to share information between middlewares.
 
@@ -416,7 +408,7 @@ bot.on('text', (ctx) => {
 bot.launch()
 ```
 
-#### Session
+### Session
 
 ```js
 const session = require('telegraf/session')
@@ -449,7 +441,7 @@ bot.launch()
 }
 ```
 
-#### Update types
+### Update types
 
 Supported update types:
 
@@ -508,9 +500,10 @@ bot.on(['sticker', 'photo'], (ctx) => {
   return ctx.reply('Cool!')
 })
 ```
+
 [Official Docs](https://core.telegram.org/bots/api#message)
 
-#### Webhooks
+### Webhooks
 
 ```js
 require('dotenv')
@@ -618,7 +611,7 @@ app.use(async (ctx) => {
 app.listen(3000)
 ```
 
-#### Working with files
+### Working with files
 
 Supported file sources:
 
@@ -659,7 +652,7 @@ bot.on('message', (ctx) => {
 })
 ```
 
-#### Telegram Passport
+### Telegram Passport
 
 To enable Telegram Passport support you can use [`telegram-passport`](https://www.npmjs.com/package/telegram-passport) package:
 
@@ -679,7 +672,7 @@ bot.on('passport_data', (ctx) => {
 })
 ```
 
-#### Telegraf Modules
+### Telegraf Modules
 
 Telegraf Modules is higher level abstraction for writing modular Telegram bots.
 
@@ -701,12 +694,12 @@ module.exports = Composer.mount(
 To run modules you can use `telegraf` module runner, it allows you to start Telegraf module easily from the command line.
 
 ```bash
-$ npm install telegraf -g
+npm install telegraf -g
 ```
 
-#### Telegraf CLI usage
+### Telegraf CLI usage
 
-```
+```bash
 telegraf [opts] <bot-file>
   -t  Bot token [$BOT_TOKEN]
   -d  Webhook domain
@@ -717,7 +710,7 @@ telegraf [opts] <bot-file>
   -h  Show this help message
 ```
 
-##### Telegraf Module example
+#### Telegraf Module example
 
 Create module with name `bot.js` and following content:
 
@@ -736,12 +729,12 @@ module.exports = bot
 then run it:
 
 ```bash
-$ telegraf -t "bot token" bot.js
+telegraf -t "bot token" bot.js
 ```
 
 ## API reference
 
-#### Telegraf
+### Telegraf
 
 Telegraf API reference
 
@@ -749,7 +742,7 @@ Telegraf API reference
 const { Telegraf } = require('telegraf')
 ```
 
-##### Constructor
+#### Constructor
 
 Initialize new Telegraf bot.
 
@@ -773,19 +766,19 @@ Telegraf options:
 }
 ```
 
-##### token
+#### token
 
 Use this property to get/set bot token.
 
 `telegraf.token = [string]`
 
-##### webhookReply
+#### webhookReply
 
 Use this property to control `reply via webhook` feature.
 
 `telegraf.webhookReply = [bool]`
 
-##### use
+#### use
 
 Registers a middleware.
 
@@ -795,7 +788,7 @@ Registers a middleware.
 | --- | --- | --- |
 | middleware | `function` | Middleware function |
 
-##### on
+#### on
 
 Registers middleware for provided update type.
 
@@ -806,7 +799,7 @@ Registers middleware for provided update type.
 | updateTypes | `string/string[]` | Update type |
 | middleware | `function` | Middleware |
 
-##### hears
+#### hears
 
 Registers middleware for handling `text` messages.
 
@@ -817,7 +810,7 @@ Registers middleware for handling `text` messages.
 | triggers | `string/string[]/RegEx/RegEx[]/Function` | Triggers |
 | middleware | `function` | Middleware |
 
-##### command
+#### command
 
 Command handling.
 
@@ -828,7 +821,7 @@ Command handling.
 | commands | `string/string[]` | Commands |
 | middleware | `function` | Middleware |
 
-##### start
+#### start
 
 Handler for /start command.
 
@@ -838,7 +831,7 @@ Handler for /start command.
 | --- | --- | --- |
 | middleware | `function` | Middleware |
 
-##### help
+#### help
 
 Handler for /help command.
 
@@ -848,7 +841,7 @@ Handler for /help command.
 | --- | --- | --- |
 | middleware | `function` | Middleware |
 
-##### settings
+#### settings
 
 Handler for /settings command.
 
@@ -858,7 +851,7 @@ Handler for /settings command.
 | --- | --- | --- |
 | middleware | `function` | Middleware |
 
-##### entity
+#### entity
 
 Entity handling.
 
@@ -869,7 +862,7 @@ Entity handling.
 | entity | `string/string[]/RegEx/RegEx[]/Function` | Entity name |
 | middleware | `function` | Middleware |
 
-##### mention
+#### mention
 
 Mention handling.
 
@@ -880,7 +873,7 @@ Mention handling.
 | username | `string/string[]` | Username |
 | middleware | `function` | Middleware |
 
-##### phone
+#### phone
 
 Phone number handling.
 
@@ -891,7 +884,7 @@ Phone number handling.
 | number | `string/string[]` | Phone number |
 | middleware | `function` | Middleware |
 
-##### hashtag
+#### hashtag
 
 Hashtag handling.
 
@@ -902,7 +895,7 @@ Hashtag handling.
 | hashtag | `string/string[]` | Hashtag |
 | middleware | `function` | Middleware |
 
-##### cashtag
+#### cashtag
 
 Cashtag handling.
 
@@ -913,7 +906,7 @@ Cashtag handling.
 | cashtag | `string/string[]` | Cashtag |
 | middleware | `function` | Middleware |
 
-##### action
+#### action
 
 Registers middleware for handling `callback_data` actions with regular expressions.
 
@@ -924,8 +917,7 @@ Registers middleware for handling `callback_data` actions with regular expressio
 | triggers | `string/string[]/RegEx/RegEx[]` | Triggers |
 | middleware | `function` | Middleware |
 
-
-##### inlineQuery
+#### inlineQuery
 
 Registers middleware for handling `inline_query` actions with regular expressions.
 
@@ -936,8 +928,7 @@ Registers middleware for handling `inline_query` actions with regular expression
 | triggers | `string/string[]/RegEx/RegEx[]` | Triggers |
 | middleware | `function` | Middleware |
 
-
-##### gameQuery
+#### gameQuery
 
 Registers middleware for handling `callback_data` actions with game query.
 
@@ -947,9 +938,9 @@ Registers middleware for handling `callback_data` actions with game query.
 | --- | --- | --- |
 | middleware | `function` | Middleware |
 
-##### launch
+#### launch
 
-Launch bot in long-polling or webhook mode. 
+Launch bot in long-polling or webhook mode.
 
 `telegraf.launch(options) => Promise`
 
@@ -971,7 +962,7 @@ Launch options:
 }
 ```
 
-##### startPolling
+#### startPolling
 
 Start poll updates.
 
@@ -984,7 +975,7 @@ Start poll updates.
 | [allowedUpdates] | `string[]/string/null` | null | List the types of updates you want your bot to receive |
 | [stopCallback] | `function` | null | Polling stop callback |
 
-##### startWebhook
+#### startWebhook
 
 Start listening @ `https://host:port/webhookPath` for Telegram calls.
 
@@ -997,7 +988,7 @@ Start listening @ `https://host:port/webhookPath` for Telegram calls.
 | port | `number` | Port number |
 | [host] | `string` | Hostname |
 
-##### stop
+#### stop
 
 Stop Webhook and polling
 
@@ -1007,10 +998,9 @@ Stop Webhook and polling
 | ---  | --- |
 | [callback] | function |
 
-##### webhookCallback
+#### webhookCallback
 
-Return a callback function suitable for the http[s].createServer() method to handle a request. 
-You may also use this callback function to mount your telegraf app in a Connect/Express app.
+Return a callback function suitable for the http[s].createServer() method to handle a request. You may also use this callback function to mount your telegraf app in a Connect/Express app.
 
 `telegraf.webhookCallback(webhookPath) => Function`
 
@@ -1018,10 +1008,9 @@ You may also use this callback function to mount your telegraf app in a Connect/
 | ---  | --- | --- |
 | webhookPath | `string` | Webhook url path (see Telegraf.setWebhook) |
 
-##### handleUpdate
+#### handleUpdate
 
-Handle raw Telegram update. 
-In case you use centralized webhook server, queue, etc.  
+Handle raw Telegram update. In case you use centralized webhook server, queue, etc.  
 
 `telegraf.handleUpdate(rawUpdate, [webhookResponse])`
 
@@ -1030,7 +1019,7 @@ In case you use centralized webhook server, queue, etc.
 | rawUpdate | `object` | Telegram update payload |
 | [webhookResponse] | `object` | [http.ServerResponse](https://nodejs.org/api/http.html#http_class_http_serverresponse) |
 
-##### Telegraf.compose
+#### Telegraf.compose
 
 Compose `middlewares` returning a fully valid middleware comprised of all those which are passed.
 
@@ -1040,7 +1029,7 @@ Compose `middlewares` returning a fully valid middleware comprised of all those 
 | --- | --- | --- |
 | middlewares | `function[]` | Array of middlewares |
 
-##### Telegraf.mount
+#### Telegraf.mount
 
 Generates middleware for handling provided update types.
 
@@ -1051,7 +1040,7 @@ Generates middleware for handling provided update types.
 | updateTypes | `string/string[]` | Update type |
 | middleware | `function` | middleware |
 
-##### Telegraf.hears
+#### Telegraf.hears
 
 Generates middleware for handling `text` messages with regular expressions.
 
@@ -1062,7 +1051,7 @@ Generates middleware for handling `text` messages with regular expressions.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-##### Telegraf.action
+#### Telegraf.action
 
 Generates middleware for handling `callbackQuery` data with regular expressions.
 
@@ -1073,7 +1062,7 @@ Generates middleware for handling `callbackQuery` data with regular expressions.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-##### Telegraf.inlineQuery
+#### Telegraf.inlineQuery
 
 Generates middleware for handling `inlineQuery` data with regular expressions.
 
@@ -1084,19 +1073,19 @@ Generates middleware for handling `inlineQuery` data with regular expressions.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-##### Telegraf.passThru
+#### Telegraf.passThru
 
 Generates pass thru middleware.
 
 `Telegraf.passThru() => function`
 
-##### Telegraf.safePassThru
+#### Telegraf.safePassThru
 
 Generates safe version of pass thru middleware.
 
 `Telegraf.safePassThru() => function`
 
-##### Telegraf.optional
+#### Telegraf.optional
 
 Generates optional middleware.
 
@@ -1107,7 +1096,7 @@ Generates optional middleware.
 | test | `truthy/function` | Value or predicate `(ctx) => bool` |
 | middleware | `function` | middleware |
 
-##### Telegraf.acl
+#### Telegraf.acl
 
 Generates middleware for provided users only.
 
@@ -1118,7 +1107,7 @@ Generates middleware for provided users only.
 | userId | `string/string[]` | User id |
 | middleware | `function` | middleware |
 
-##### Telegraf.drop
+#### Telegraf.drop
 
 Generates drop middleware.
 
@@ -1128,7 +1117,7 @@ Generates drop middleware.
 | --- | --- | --- |
 | test | `truthy/function` | Value or predicate `(ctx) => bool` |
 
-##### Telegraf.filter
+#### Telegraf.filter
 
 Generates filter middleware.
 
@@ -1138,7 +1127,7 @@ Generates filter middleware.
 | --- | --- | --- |
 | test | `truthy/function` | Value or predicate `(ctx) => bool` |
 
-##### Telegraf.branch
+#### Telegraf.branch
 
 Generates branch middleware.
 
@@ -1150,8 +1139,7 @@ Generates branch middleware.
 | trueMiddleware | `function` | true action  middleware |
 | falseMiddleware | `function` | false action middleware |
 
-
-##### Telegraf.email
+#### Telegraf.email
 
 Generates middleware for handling messages with `email` entity.
 
@@ -1162,7 +1150,7 @@ Generates middleware for handling messages with `email` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-##### Telegraf.hashtag
+#### Telegraf.hashtag
 
 Generates middleware for handling messages with `hashtag` entity.
 
@@ -1173,7 +1161,7 @@ Generates middleware for handling messages with `hashtag` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-##### Telegraf.cashtag
+#### Telegraf.cashtag
 
 Generates middleware for handling messages with `cashtag` entity.
 
@@ -1184,7 +1172,7 @@ Generates middleware for handling messages with `cashtag` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-##### Telegraf.url
+#### Telegraf.url
 
 Generates middleware for handling messages with `url` entity.
 
@@ -1195,7 +1183,7 @@ Generates middleware for handling messages with `url` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-##### Telegraf.phone
+#### Telegraf.phone
 
 Generates middleware for handling messages with `phone` entity.
 
@@ -1206,7 +1194,7 @@ Generates middleware for handling messages with `phone` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-##### Telegraf.textLink
+#### Telegraf.textLink
 
 Generates middleware for handling messages with `text_link` entity.
 
@@ -1217,7 +1205,7 @@ Generates middleware for handling messages with `text_link` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-##### Telegraf.textMention
+#### Telegraf.textMention
 
 Generates middleware for handling messages with `text_mention` entity.
 
@@ -1228,7 +1216,7 @@ Generates middleware for handling messages with `text_mention` entity.
 | triggers | `string/string[]/RegEx/RegEx[]/Function/Function[]` | Triggers |
 | handler | `function` | Handler |
 
-#### Telegram
+### Telegram
 
 Telegram client API reference.
 
@@ -1236,7 +1224,7 @@ Telegram client API reference.
 const Telegram = require('telegraf/telegram')
 ```
 
-##### Constructor
+#### Constructor
 
 Initialize new Telegram client.
 
@@ -1256,13 +1244,13 @@ Telegram options:
 }
 ```
 
-##### webhookReply
+#### webhookReply
 
 Use this property to control `reply via webhook` feature.
 
 `telegram.webhookReply = [bool]`
 
-##### addStickerToSet
+#### addStickerToSet
 
 Use this method to add a new sticker to a set created by the bot.
 
@@ -1275,7 +1263,7 @@ Use this method to add a new sticker to a set created by the bot.
 | name | `string` | Sticker set name |
 | stickerData | `Object` | Sticker data({png_sticker: 'stiker file', emojis: '😉', mask__position: '' }) |
 
-##### answerCbQuery
+#### answerCbQuery
 
 Use this method to send answers to callback queries.
 
@@ -1289,7 +1277,7 @@ Use this method to send answers to callback queries.
 | [showAlert] | `bool` | Show alert instead of notification |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#answercallbackquery) |
 
-##### answerGameQuery
+#### answerGameQuery
 
 Use this method to send answers to game query.
 
@@ -1300,7 +1288,7 @@ Use this method to send answers to game query.
 | callbackQueryId | `string` | Query id |
 | url | `string` | Notification text |
 
-##### answerShippingQuery
+#### answerShippingQuery
 
 Use this method to send answers to shipping query.
 
@@ -1313,7 +1301,7 @@ Use this method to send answers to shipping query.
 | shippingOptions | `object` | [Shipping Options](https://core.telegram.org/bots/api#answershippingquery) |
 | [errorMessage] | `string` | Error message in human readable form  |
 
-##### answerPreCheckoutQuery
+#### answerPreCheckoutQuery
 
 Use this method to send answers to shipping query.
 
@@ -1325,7 +1313,7 @@ Use this method to send answers to shipping query.
 | ok | `bool` | Specify True if everything is alright (goods are available, etc.) |
 | [errorMessage] | `string` | Error message in human readable form  |
 
-##### answerInlineQuery
+#### answerInlineQuery
 
 Use this method to send answers to an inline query.
 
@@ -1337,7 +1325,7 @@ Use this method to send answers to an inline query.
 | results | `object[]` | Results |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#answerinlinequery)|
 
-##### createNewStickerSet
+#### createNewStickerSet
 
 Use this method to create new sticker set owned by a user.
 
@@ -1352,7 +1340,7 @@ Use this method to create new sticker set owned by a user.
 | stickerData | `object` | Sticker data({png_sticker: 'stiker file', emojis: '😉', mask__position: '' }) |
 | [isMasks] | `bool` | Pass True, if a set of mask stickers should be created |
 
-##### deleteChatStickerSet
+#### deleteChatStickerSet
 
 Use this method to delete a group sticker set from a supergroup.
 
@@ -1363,7 +1351,7 @@ Use this method to delete a group sticker set from a supergroup.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 
-##### deleteMessage
+#### deleteMessage
 
 Use this method to delete bot messages.
 
@@ -1375,7 +1363,7 @@ Use this method to delete bot messages.
 | chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 
-##### setStickerSetThumb
+#### setStickerSetThumb
 
 Use this method to set the thumbnail of a sticker set.
 
@@ -1388,7 +1376,7 @@ Use this method to set the thumbnail of a sticker set.
 | userId | `string` | User identifier of the sticker set owner |
 | thumb | `File` | A PNG image with the thumbnail, must be up to 128 kilobytes in size and have width and height exactly 100px, or a TGS animation with the thumbnail up to 32 kilobytes in size |
 
-##### deleteStickerFromSet
+#### deleteStickerFromSet
 
 Use this method to delete a sticker from a set created by the bot.
 
@@ -1399,7 +1387,7 @@ Use this method to delete a sticker from a set created by the bot.
 | --- | --- | --- |
 | stickerId | `string` | File identifier of the sticker |
 
-##### editMessageCaption
+#### editMessageCaption
 
 Use this method to edit captions of messages sent by the bot or via the bot.
 
@@ -1413,7 +1401,7 @@ Use this method to edit captions of messages sent by the bot or via the bot.
 | caption | `string` | Caption |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagecaption)|
 
-##### editMessageMedia
+#### editMessageMedia
 
 Use this method to edit media of messages sent by the bot or via the bot.
 
@@ -1427,7 +1415,7 @@ Use this method to edit media of messages sent by the bot or via the bot.
 | media | `InputMedia` | [InputMedia](https://core.telegram.org/bots/api#inputmedia) |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagemedia)|
 
-##### editMessageLiveLocation
+#### editMessageLiveLocation
 
 Use this method to edit live location messages sent by the bot or via the bot.
 
@@ -1444,7 +1432,7 @@ Use this method to edit live location messages sent by the bot or via the bot.
 | [markup] | `object` | Keyboard markup |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagelivelocation)|
 
-##### editMessageReplyMarkup
+#### editMessageReplyMarkup
 
 Use this method to edit only the reply markup of messages sent by the bot or via the bot.
 
@@ -1458,7 +1446,7 @@ Use this method to edit only the reply markup of messages sent by the bot or via
 | markup | `object` | Keyboard markup |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagereplymarkup)|
 
-##### editMessageText
+#### editMessageText
 
 Use this method to edit text messages sent by the bot or via the bot.
 
@@ -1472,7 +1460,7 @@ Use this method to edit text messages sent by the bot or via the bot.
 | text | `string` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editmessagetext)|
 
-##### forwardMessage
+#### forwardMessage
 
 Forwards message.
 
@@ -1485,7 +1473,7 @@ Forwards message.
 | messageId | `number` | Message id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#forwardmessage)|
 
-##### sendCopy
+#### sendCopy
 
 Sends message copy.
 
@@ -1497,7 +1485,7 @@ Sends message copy.
 | message | `object` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
 
-##### copyMessage
+#### copyMessage
 
 Use this method to copy messages of any kind.
 
@@ -1510,13 +1498,13 @@ Use this method to copy messages of any kind.
 | messageId | `number` | Message id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#copymessage)|
 
-##### getWebhookInfo
+#### getWebhookInfo
 
 Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty.
 
 `telegram.getWebhookInfo() => Promise`
 
-##### getChat
+#### getChat
 
 Use this method to get up to date information about the chat (current name of the user for one-on-one conversatio
 ns, current username of a user, group or channel, etc.).
@@ -1528,7 +1516,7 @@ ns, current username of a user, group or channel, etc.).
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 
-##### getChatAdministrators
+#### getChatAdministrators
 
 Use this method to get a list of administrators in a chat. On success, returns an Array of ChatMember objects that contains information about all chat administrators except other bots. If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
 
@@ -1539,7 +1527,7 @@ Use this method to get a list of administrators in a chat. On success, returns a
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 
-##### setGameScore
+#### setGameScore
 
 Use this method to set the score of the specified user in a game. On success, if the message was sent by the bot, returns the edited Message, otherwise returns True. Returns an error, if the new score is not greater than the user's current score in the chat.
 
@@ -1556,7 +1544,7 @@ Use this method to set the score of the specified user in a game. On success, if
 | [editMessage] | `boolean` | edit target message, default value is True |
 | [force] | `boolean` | Pass True, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters |
 
-##### getGameHighScores
+#### getGameHighScores
 
 Use this method to get data for high score tables. Will return the score of the specified user and several of his neighbors in a game. On success, returns an Array of GameHighScore objects.
 
@@ -1570,7 +1558,7 @@ Use this method to get data for high score tables. Will return the score of the 
 | chatId | `number/string` | Target Chat id |
 | messageId | `number/string` | Message id |
 
-##### getChatMember
+#### getChatMember
 
 Use this method to get information about a member of a chat.
 
@@ -1582,7 +1570,7 @@ Use this method to get information about a member of a chat.
 | chatId | `number/string` | Chat id |
 | userId | `number` |   User identifier |
 
-##### getChatMembersCount
+#### getChatMembersCount
 
 Use this method to get the number of members in a chat.
 
@@ -1593,7 +1581,7 @@ Use this method to get the number of members in a chat.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 
-##### getFile
+#### getFile
 
 Returns basic info about a file and prepare it for downloading.
 
@@ -1604,7 +1592,7 @@ Returns basic info about a file and prepare it for downloading.
 | --- | --- | --- |
 | fileId | `string` | File id |
 
-##### getFileLink
+#### getFileLink
 
 Returns link to file.
 
@@ -1614,22 +1602,21 @@ Returns link to file.
 | --- | --- | --- |
 | fileId | `string/object` | File id or file object |
 
-##### getMe
+#### getMe
 
 Returns basic information about the bot.
 
 `telegram.getMe() => Promise`
 [Official documentation](https://core.telegram.org/bots/api#getme)
 
-##### getMyCommands
+#### getMyCommands
 
-Use this method to get the current list of the bot's commands. 
-Requires no parameters. Returns Array of BotCommand on success.
+Use this method to get the current list of the bot's commands. Requires no parameters. Returns Array of BotCommand on success.
 
 `telegram.getMyCommands() => Promise`
 [Official documentation](https://core.telegram.org/bots/api#getmycommands)
 
-##### getStickerSet
+#### getStickerSet
 
 Use this method to get a sticker set.
 
@@ -1640,7 +1627,7 @@ Use this method to get a sticker set.
 | name | `string` | Short name of the sticker set |
 [Official documentation](https://core.telegram.org/bots/api#getstickerset)
 
-##### getUserProfilePhotos
+#### getUserProfilePhotos
 
 Returns profiles photos for provided user.
 
@@ -1653,7 +1640,7 @@ Returns profiles photos for provided user.
 | [offset] | `number` | Offset |
 | [limit] | `number` | Limit |
 
-##### setChatPermissions
+#### setChatPermissions
 
 Use this method to set default chat permissions for all members.
 
@@ -1664,7 +1651,7 @@ Use this method to set default chat permissions for all members.
 | chatId | `number/string` | Chat id |
 | permissions | `object` | [New default chat permissions](https://core.telegram.org/bots/api#chatpermissions)|
 
-##### kickChatMember
+#### kickChatMember
 
 Use this method to kick a user from a group or a supergroup.
 
@@ -1676,9 +1663,9 @@ Use this method to kick a user from a group or a supergroup.
 | userId | `number` | User id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#kickchatmember)|
 
-##### restrictChatMember
+#### restrictChatMember
 
-Use this method to restrict a user in a supergroup. 
+Use this method to restrict a user in a supergroup.
 
 `telegram.restrictChatMember(chatId, userId, [extra]) => Promise`
 
@@ -1688,7 +1675,7 @@ Use this method to restrict a user in a supergroup.
 | userId | `number` | User id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#restrictchatmember)|
 
-##### promoteChatMember
+#### promoteChatMember
 
 Use this method to promote or demote a user in a supergroup or a channel.
 
@@ -1700,7 +1687,7 @@ Use this method to promote or demote a user in a supergroup or a channel.
 | userId | `number` | User id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#promotechatmember)|
 
-##### setChatAdministratorCustomTitle
+#### setChatAdministratorCustomTitle
 
 New custom title for the administrator; 0-16 characters, emoji are not allowed
 
@@ -1712,7 +1699,7 @@ New custom title for the administrator; 0-16 characters, emoji are not allowed
 | userId | `number` | User id |
 | title | `string` | Custom title |
 
-##### exportChatInviteLink
+#### exportChatInviteLink
 
 Use this method to export an invite link to a supergroup or a channel.
 
@@ -1723,7 +1710,7 @@ Use this method to export an invite link to a supergroup or a channel.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 
-##### setChatPhoto
+#### setChatPhoto
 
 Use this method to set a new profile photo for the chat.
 
@@ -1735,7 +1722,7 @@ Use this method to set a new profile photo for the chat.
 | chatId | `number/string` | Chat id |
 | photo | `File` | New chat photo |
 
-##### deleteChatPhoto
+#### deleteChatPhoto
 
 Use this method to delete a chat photo.
 
@@ -1746,7 +1733,7 @@ Use this method to delete a chat photo.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 
-##### setChatTitle
+#### setChatTitle
 
 Use this method to change the title of a chat.
 
@@ -1758,7 +1745,7 @@ Use this method to change the title of a chat.
 | chatId | `number/string` | Chat id |
 | title | `string` | New chat title, 1-255 characters |
 
-##### setChatDescription
+#### setChatDescription
 
 Use this method to change the description of a supergroup or a channel.
 
@@ -1770,9 +1757,9 @@ Use this method to change the description of a supergroup or a channel.
 | chatId | `number/string` | Chat id |
 | description | `string` | New chat description, 0-255 characters |
 
-##### setChatStickerSet
+#### setChatStickerSet
 
-Use this method to set a new group sticker set for a supergroup. 
+Use this method to set a new group sticker set for a supergroup.
 
 `telegram.setChatStickerSet(chatId, stickerSetName) => Promise`
 [Official documentation](https://core.telegram.org/bots/api#setchatstickerset)
@@ -1782,7 +1769,7 @@ Use this method to set a new group sticker set for a supergroup.
 | chatId | `number/string` | Chat id |
 | stickerSetName | `string` | Name of the sticker set |
 
-##### pinChatMessage
+#### pinChatMessage
 
 Use this method to pin a message in a supergroup.
 
@@ -1794,7 +1781,7 @@ Use this method to pin a message in a supergroup.
 | messageId | `number` | Message id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#pinchatmessage)|
 
-##### unpinChatMessage
+#### unpinChatMessage
 
 Use this method to unpin a message in a supergroup chat.
 
@@ -1806,7 +1793,7 @@ Use this method to unpin a message in a supergroup chat.
 | chatId | `number/string` | Chat id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#unpinchatmessage)|
 
-##### unpinAllChatMessages
+#### unpinAllChatMessages
 
 Use this method to clear the list of pinned messages in a chat
 
@@ -1817,7 +1804,7 @@ Use this method to clear the list of pinned messages in a chat
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 
-##### leaveChat
+#### leaveChat
 
 Use this method for your bot to leave a group, supergroup or channel.
 
@@ -1828,7 +1815,7 @@ Use this method for your bot to leave a group, supergroup or channel.
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 
-##### deleteWebhook
+#### deleteWebhook
 
 Removes webhook integration.
 
@@ -1839,7 +1826,7 @@ Removes webhook integration.
 | ---  | --- | --- |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#deletewebhook) |
 
-##### sendAudio
+#### sendAudio
 
 Sends audio.
 
@@ -1851,8 +1838,7 @@ Sends audio.
 | audio | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendaudio)|
 
-
-##### sendGame
+#### sendGame
 
 Sends game.
 
@@ -1864,7 +1850,7 @@ Sends game.
 | gameName | `String` | Game short name |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendgame)|
 
-##### sendChatAction
+#### sendChatAction
 
 Sends chat action.
 
@@ -1875,7 +1861,7 @@ Sends chat action.
 | chatId | `number/string` | Chat id |
 | action | `string` | [Chat action](https://core.telegram.org/bots/api#sendchataction) |
 
-##### sendContact
+#### sendContact
 
 Sends document.
 
@@ -1888,7 +1874,7 @@ Sends document.
 | firstName | `string` | Contact first name |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendcontact)|
 
-##### sendDice
+#### sendDice
 
 Sends dice.
 
@@ -1899,7 +1885,7 @@ Sends dice.
 | chatId | `number/string` | Chat id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#senddice)|
 
-##### sendDocument
+#### sendDocument
 
 Sends document.
 
@@ -1911,7 +1897,7 @@ Sends document.
 | doc | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#senddocument)|
 
-##### sendLocation
+#### sendLocation
 
 Sends location.
 
@@ -1924,7 +1910,7 @@ Sends location.
 | longitude | `number` | Longitude |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendlocation)|
 
-##### sendMessage
+#### sendMessage
 
 Sends text message.
 
@@ -1936,7 +1922,7 @@ Sends text message.
 | text | `string` | Message |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmessage)|
 
-##### sendPhoto
+#### sendPhoto
 
 Sends photo.
 
@@ -1948,7 +1934,7 @@ Sends photo.
 | photo | `File` | Photo |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendphoto)|
 
-##### sendMediaGroup
+#### sendMediaGroup
 
 Sends media album.
 
@@ -1960,7 +1946,7 @@ Sends media album.
 | media | `InputMedia[]` | Media array |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendmediagroup)|
 
-##### sendSticker
+#### sendSticker
 
 Sends sticker.
 
@@ -1972,7 +1958,7 @@ Sends sticker.
 | sticker | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendsticker)|
 
-##### setStickerPositionInSet
+#### setStickerPositionInSet
 
 Use this method to move a sticker in a set created by the bot to a specific position.
 
@@ -1983,7 +1969,7 @@ Use this method to move a sticker in a set created by the bot to a specific posi
 | sticker | `string` | File identifier of the sticker |
 | position | `number` | New sticker position in the set, zero-based |
 
-##### sendVenue
+#### sendVenue
 
 Sends venue information.
 
@@ -1998,7 +1984,7 @@ Sends venue information.
 | address | `string` | Venue address |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvenue)|
 
-##### sendInvoice
+#### sendInvoice
 
 Sends invoice.
 
@@ -2009,7 +1995,7 @@ Sends invoice.
 | chatId | `number/string` | Chat id |
 | invoice | `object` | [Invoice object](https://core.telegram.org/bots/api#sendinvoice) |
 
-##### sendVideo
+#### sendVideo
 
 Sends video.
 
@@ -2021,7 +2007,7 @@ Sends video.
 | video | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideo)|
 
-##### sendAnimation
+#### sendAnimation
 
 Sends video.
 
@@ -2033,7 +2019,7 @@ Sends video.
 | animation | `File` | Document |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendanimation)|
 
-##### sendVideoNote
+#### sendVideoNote
 
 Sends round video.
 
@@ -2045,7 +2031,7 @@ Sends round video.
 | video | `File` | Video note file |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvideonote)|
 
-##### sendVoice
+#### sendVoice
 
 Sends voice.
 
@@ -2057,7 +2043,7 @@ Sends voice.
 | voice | `File/string` | File, file id or HTTP URL |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendvoice)|
 
-##### sendPoll
+#### sendPoll
 
 Sends anonymous poll.
 
@@ -2070,7 +2056,7 @@ Sends anonymous poll.
 | options | `string[]` | Answer options |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
 
-##### setMyCommands
+#### setMyCommands
 
 Use this method to change the list of the bot's commands
 
@@ -2080,7 +2066,7 @@ Use this method to change the list of the bot's commands
 | --- | --- | --- |
 | commands | `object[]` | [List of bot commands](https://core.telegram.org/bots/api#setmycommands) |
 
-##### sendQuiz
+#### sendQuiz
 
 Sends quiz.
 
@@ -2093,8 +2079,7 @@ Sends quiz.
 | options | `string[]` | Answer options |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#sendpoll)|
 
-
-##### stopPoll
+#### stopPoll
 
 Stops anonymous poll.
 
@@ -2107,7 +2092,7 @@ Stops anonymous poll.
 | options| `string[]` | Answer options |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#stoppoll)|
 
-##### stopMessageLiveLocation
+#### stopMessageLiveLocation
 
 Use this method to stop updating a live location message sent by the bot or via the bot (for inline bots) before live_period expires.
 
@@ -2121,7 +2106,7 @@ Use this method to stop updating a live location message sent by the bot or via 
 | inlineMessageId | `string` | Inline message id |
 | [markup] | `object` | Keyboard markup |
 
-##### uploadStickerFile
+#### uploadStickerFile
 
 Use this method to upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods.
 
@@ -2133,7 +2118,7 @@ Use this method to upload a .png file with a sticker for later use in createNewS
 | ownerId | `string` | User identifier of sticker file owner |
 | stickerFile | `File` | Png image with the sticker |
 
-##### setWebhook
+#### setWebhook
 
 Specifies an url to receive incoming updates via an outgoing webhook.
 
@@ -2145,7 +2130,7 @@ Specifies an url to receive incoming updates via an outgoing webhook.
 | url  | `string` | Public url for webhook |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#setwebhook) |
 
-##### unbanChatMember
+#### unbanChatMember
 
 Use this method to unban a previously kicked user in a supergroup.
 
@@ -2158,11 +2143,9 @@ Use this method to unban a previously kicked user in a supergroup.
 | userId | `number` | User id |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#unbanchatmember) |
 
-##### setPassportDataErrors
+#### setPassportDataErrors
 
-Informs a user that some of the Telegram Passport elements they provided contains errors. 
-The user will not be able to re-submit their Passport to you 
-until the errors are fixed (the contents of the field for which you returned the error must change).
+Informs a user that some Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change).
 
 `telegram.setPassportDataErrors(errors) => Promise`
 [Official documentation](https://core.telegram.org/bots/api#setpassportdataerrors)
@@ -2171,15 +2154,15 @@ until the errors are fixed (the contents of the field for which you returned the
 | ---  | --- | --- |
 | [errors] | `PassportElementError[]` | An array describing the errors |
 
-#### Extra
+### Extra
 
 Telegram message options helper, [see examples](https://github.com/telegraf/telegraf/tree/develop/docs/examples/).
 
-#### Markup
+### Markup
 
 Telegram markup helper, [see examples](https://github.com/telegraf/telegraf/tree/develop/docs/examples/).
 
-#### Stage
+### Stage
 
 Simple scene-based control flow middleware.
 

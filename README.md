@@ -60,7 +60,7 @@ process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
-For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
+For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/develop/docs/examples) folder.
 
 ### Resources
 
@@ -230,10 +230,10 @@ require('https')
   .listen(8443)
 ```
 
-- [AWS Lambda example integration](https://github.com/telegraf/telegraf/blob/master/docs/examples/aws-lambda.js)
-- [`express` example integration](https://github.com/telegraf/telegraf/blob/master/docs/examples/express-webhook-bot.js)
-- [`fastify` example integration](https://github.com/telegraf/telegraf/blob/master/docs/examples/fastify-webhook-bot.js)
-- [`koa` example integration](https://github.com/telegraf/telegraf/blob/master/docs/examples/koa-webhook-bot.js)
+- [AWS Lambda example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/aws-lambda.js)
+- [`express` example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/express-webhook-bot.js)
+- [`fastify` example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/fastify-webhook-bot.js)
+- [`koa` example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/koa-webhook-bot.js)
 
 ### Error handling
 

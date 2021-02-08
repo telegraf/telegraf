@@ -17,6 +17,13 @@ jobs:
         git merge-base --is-ancestor ${{ github.sha }} develop
     - run: npm ci --ignore-scripts
     - run: npm run build:docs
+    - name: Make GitHub links absolute
+      run: >
+        shopt -s globstar;
+        sed
+          --in-place
+          --expression='s:/develop/docs/:/${{ github.sha }}/docs/:g'
+          docs/build/**/*.html;
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:

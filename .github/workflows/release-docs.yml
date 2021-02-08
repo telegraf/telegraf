@@ -11,6 +11,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Ensure `develop` branch
+      run: |
+        git fetch --depth=5 origin develop
+        git merge-base --is-ancestor ${{ github.sha }} develop
     - run: npm ci --ignore-scripts
     - run: npm run build:docs
     - name: Deploy to GitHub Pages

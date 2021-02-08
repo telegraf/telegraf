@@ -12,6 +12,7 @@ export default function (
     res: http.ServerResponse,
     next = (): void => {
       res.statusCode = 403
+      debug('Replying with status code', res.statusCode)
       return res.end()
     }
   ): Promise<void> => {
@@ -32,12 +33,6 @@ export default function (
       debug('Failed to parse request body:', error)
       return
     }
-    try {
-      await updateHandler(update, res)
-    } catch (err: unknown) {
-      res.writeHead(500)
-      res.end()
-      throw err
-    }
+    await updateHandler(update, res)
   }
 }

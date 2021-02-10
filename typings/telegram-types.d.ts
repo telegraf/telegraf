@@ -71,6 +71,30 @@ export type InputMediaTypes = 'photo'
                             | 'audio'
                             | 'document'
 
+export type ChatMemberStatus =
+  'creator'
+  | 'administrator'
+  | 'member'
+  | 'restricted'
+  | 'left'
+  | 'kicked'
+export type MessageEntityType =
+  'mention'
+  | 'hashtag'
+  | 'cashtag'
+  | 'bot_command'
+  | 'url'
+  | 'email'
+  | 'phone_number'
+  | 'bold'
+  | 'italic'
+  | 'underline'
+  | 'strikethrough'
+  | 'code'
+  | 'text_link'
+  | 'text_mention'
+  | 'pre'
+
 export type InlineQueryResult =
   TT.InlineQueryResultCachedAudio |
   TT.InlineQueryResultCachedDocument |

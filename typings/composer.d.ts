@@ -169,7 +169,7 @@ export declare class Composer<TContext extends TelegrafContext>
 
   static reply(
     text: string,
-    extra?: tt.ExtraReplyMessage
+    extra?: tt.ExtraSendMessage
   ): MiddlewareFn<TelegrafContext>
 
   /**

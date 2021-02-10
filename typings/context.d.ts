@@ -21,7 +21,7 @@ export declare class TelegrafContext {
   inlineQuery?: tt.InlineQuery
   match?: RegExpExecArray | null
   me?: string
-  message?: tt.IncomingMessage
+  message?: tt.Message
   poll?: tt.Poll
   pollAnswer?: tt.PollAnswer
   preCheckoutQuery?: tt.PreCheckoutQuery
@@ -161,7 +161,7 @@ export declare class TelegrafContext {
    * @param extra SendMessage additional params
    * @returns sent Message if Success
    */
-  reply(text: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
+  reply(text: string, extra?: tt.ExtraSendMessage): Promise<tt.Message>
 
   /**
    * Use this method to send audio files to the same chat, if you want Telegram clients to display them in the music player.
@@ -220,7 +220,7 @@ export declare class TelegrafContext {
    * @param extra Additional params to send message
    * @returns a Message on success
    */
-  replyWithHTML(html: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
+  replyWithHTML(html: string, extra?: tt.ExtraSendMessage): Promise<tt.Message>
 
   /**
    * Use this method to send invoices
@@ -254,7 +254,7 @@ export declare class TelegrafContext {
    */
   replyWithMarkdown(
     markdown: string,
-    extra?: tt.ExtraReplyMessage
+    extra?: tt.ExtraSendMessage
   ): Promise<tt.Message>
 
   /**
@@ -302,7 +302,7 @@ export declare class TelegrafContext {
   replyWithQuiz(
     question: string,
     options: string[],
-    extra: tt.ExtraPoll
+    extra: tt.ExtraQuiz
   ): Promise<tt.MessagePoll>
 
   /**
@@ -428,11 +428,11 @@ export declare class TelegrafContext {
    * Use this method to edit captions of messages sent by the bot or via the bot (for inline bots).
    * On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
    * @param caption New caption of the message
-   * @param markup Markup of inline keyboard
+   * @param extra Extra params
    */
   editMessageCaption(
     caption?: string,
-    markup?: tt.InlineKeyboardMarkup
+    extra?: tt.ExtraEditCaption
   ): Promise<tt.Message | boolean>
 
   /**
@@ -448,11 +448,11 @@ export declare class TelegrafContext {
    * Use this method to edit animation, audio, document, photo, or video messages.
    * @returns On success, if the edited message was sent by the bot, the edited Message is returned, otherwise True is returned.
    * @param media New media of message
-   * @param markup Markup of inline keyboard
+   * @param extra Extra params
    */
   editMessageMedia(
     media: tt.MessageMedia,
-    extra?: tt.ExtraEditMessage
+    extra?: tt.ExtraEditMessageMedia
   ): Promise<tt.Message | boolean>
 
   /**
@@ -468,6 +468,15 @@ export declare class TelegrafContext {
     longitude: number,
     markup: tt.InlineKeyboardMarkup,
     extra?: tt.ExtraEditLocation
+  ): Promise<tt.MessageLocation | boolean>
+
+  /**
+   * Use this method to stop updating a live location message before live_period expires.
+   * @param extra Extra params
+   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
+   */
+  stopMessageLiveLocation(
+    extra?: tt.ExtraStopLiveLocation
   ): Promise<tt.MessageLocation | boolean>
 
   /**
@@ -496,15 +505,6 @@ export declare class TelegrafContext {
     userId: number,
     extra: tt.ExtraPromoteChatMember
   ): Promise<boolean>
-
-  /**
-   * Use this method to stop updating a live location message before live_period expires.
-   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
-   * @param extra Extra params
-   */
-  stopMessageLiveLocation(
-    extra?: tt.ExtraLocation
-  ): Promise<tt.MessageLocation | boolean>
 
   /**
    * Use this method to delete a message, including service messages, with the following limitations:

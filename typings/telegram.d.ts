@@ -131,14 +131,14 @@ export declare class Telegram extends ApiClient {
    * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
    * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
    * @param caption New caption of the message
-   * @param markup A JSON-serialized object for an inline keyboard.
+   * @param extra Extra params
    */
   editMessageCaption(
     chatId?: number | string,
     messageId?: number,
     inlineMessageId?: string,
     caption?: string,
-    markup?: string
+    extra?: tt.ExtraEditCaption
   ): Promise<tt.Message | boolean>
 
   /**
@@ -147,13 +147,30 @@ export declare class Telegram extends ApiClient {
    * @param chatId Required if inlineMessageId is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
    * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
-   * @param markup A JSON-serialized object for an inline keyboard.
+   * @param markup Markup of inline keyboard
    */
   editMessageReplyMarkup(
     chatId?: number | string,
     messageId?: number,
     inlineMessageId?: string,
-    markup?: string
+    markup?: tt.InlineKeyboardMarkup
+  ): Promise<tt.Message | boolean>
+
+  /**
+   * Use this method to edit animation, audio, document, photo, or video messages.
+   * @returns On success, if the edited message was sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param media New media of message
+   * @param extra Extra params
+   */
+  editMessageMedia(
+    chatId: number | string | void,
+    messageId: number | void,
+    inlineMessageId: string | void,
+    media: tt.MessageMedia,
+    extra?: tt.ExtraEditMessageMedia
   ): Promise<tt.Message | boolean>
 
   /**
@@ -175,6 +192,21 @@ export declare class Telegram extends ApiClient {
     inlineMessageId: string | void,
     markup: tt.InlineKeyboardMarkup,
     extra?: tt.ExtraLocation
+  ): Promise<tt.MessageLocation | boolean>
+
+  /**
+   * Use this method to stop updating a live location message before live_period expires.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param extra Extra params
+   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
+   */
+  stopMessageLiveLocation(
+    chatId: number | string | void,
+    messageId: number | void,
+    inlineMessageId: string | void,
+    extra?: tt.ExtraStopLiveLocation
   ): Promise<tt.MessageLocation | boolean>
 
   /**
@@ -334,7 +366,7 @@ export declare class Telegram extends ApiClient {
   /**
    * Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate admin rights. Pass True for all boolean parameters to lift restrictions from a user. Returns True on success.
    * @param chatId Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
-   * @param user_id Unique identifier of the target user
+   * @param userId Unique identifier of the target user
    * @param extra Additional params for restrict chat member
    * @returns True on success
    */
@@ -389,7 +421,7 @@ export declare class Telegram extends ApiClient {
   sendMessage(
     chatId: number | string,
     text: string,
-    extra?: tt.ExtraEditMessage
+    extra?: tt.ExtraSendMessage
   ): Promise<tt.Message>
 
   /**
@@ -534,7 +566,7 @@ export declare class Telegram extends ApiClient {
     chatId: number | string,
     question: string,
     options: string[],
-    extra: tt.ExtraPoll
+    extra: tt.ExtraQuiz
   ): Promise<tt.MessagePoll>
 
   /**

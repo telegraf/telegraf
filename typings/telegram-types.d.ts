@@ -1,5 +1,6 @@
-import * as TT from "telegram-typings";
-export * from "telegram-typings";
+import { type } from 'os'
+import * as TT from 'typegram'
+export * from 'typegram'
 
 export type ParseMode = 'Markdown' | 'MarkdownV2' | 'HTML'
 
@@ -64,6 +65,12 @@ export type MessageSubTypes =
   'connected_website' |
   'animation'
 
+export type InputMediaTypes = 'photo'
+                            | 'video'
+                            | 'animation'
+                            | 'audio'
+                            | 'document'
+
 export type InlineQueryResult =
   TT.InlineQueryResultCachedAudio |
   TT.InlineQueryResultCachedDocument |
@@ -93,55 +100,45 @@ export type MessageMedia =
   InputMediaAudio |
   InputMediaDocument
 
-export interface InputMediaPhoto {
-  type: string
+export interface InputMediaPhoto extends ExtraCaption {
+  type: InputMediaTypes
   media: InputFile
-  caption?: string
-  parse_mode?: string
 }
 
-export interface InputMediaVideo {
- type: string
+export interface InputMediaVideo extends ExtraCaption {
+ type: InputMediaTypes
  media: InputFile
  thumb?: string | InputFile
- caption?: string
- parse_mode?: string
  width?: number
  height?: number
  duration?: number
  supports_streaming?: boolean
 }
 
-export interface InputMediaAnimation {
- type: string
+export interface InputMediaAnimation extends ExtraCaption {
+ type: InputMediaTypes
  media: InputFile
  thumb?: string | InputFile
- caption?: string
- parse_mode?: string
  width?: number
  height?: number
  duration?: number
  supports_streaming?: boolean
 }
 
-export interface InputMediaAudio {
- type: string
+export interface InputMediaAudio extends ExtraCaption {
+ type: InputMediaTypes
  media: InputFile
  thumb?: string | InputFile
- caption?: string
- parse_mode?: string
  performer?: string
  title?: string
  duration?: number
  supports_streaming?: boolean
 }
 
-export interface InputMediaDocument {
- type: string
+export interface InputMediaDocument extends ExtraCaption {
+ type: InputMediaTypes
  media: InputFile
  thumb?: string | InputFile
- caption?: string
- parse_mode?: string
 }
 
 export interface StickerData {
@@ -263,37 +260,88 @@ export interface ExtraPromoteChatMember {
   can_promote_members?: boolean
 }
 
-export interface ExtraReplyMessage {
+export type ReplyMarkupBundle = TT.ReplyKeyboardMarkup | TT.ReplyKeyboardRemove | TT.ForceReply
 
+export type KeyboardMarkupBundle = TT.InlineKeyboardMarkup | ReplyMarkupBundle
+
+export interface ExtraReplyMarkup {
   /**
-   * Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
+   * Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+   */
+  reply_markup?: TT.InlineKeyboardMarkup | ReplyMarkupBundle
+}
+
+export interface ExtraReply<T extends KeyboardMarkupBundle> {
+  reply_markup?: T
+}
+
+export interface ExtraReplyMarkupInlineKeyboard {
+  /** A JSON-serialized object for a new message inline keyboard. */
+  reply_markup?: TT.InlineKeyboardMarkup
+}
+
+export interface ExtraFormatting {
+  /**
+   * Mode for parsing entities in the message text. See formatting options for more details.
    */
   parse_mode?: ParseMode
 
   /**
+   * List of special entities that appear in message text, which can be specified instead of parse_mode
+   */
+  entities?: TT.MessageEntity[]
+}
+
+export interface ExtraCaptionFormatting {
+  /**
+   * Mode for parsing entities in the photo caption. See formatting options for more details.
+   */
+  parse_mode?: ParseMode
+
+  /**
+   * List of special entities that appear in message text, which can be specified instead of parse_mode
+   */
+  caption_entities?: TT.MessageEntity[]
+}
+
+export interface ExtraCaption extends ExtraCaptionFormatting {
+  /**
+   * Media caption, 0-1024 characters
+   */
+  caption?: string
+}
+
+export interface ExtraDisableWebPagePreview {
+  /**
    * Disables link previews for links in this message
    */
   disable_web_page_preview?: boolean
+}
 
+export interface ExtraDisableNotifications {
   /**
    * Sends the message silently. Users will receive a notification with no sound.
    */
   disable_notification?: boolean
+}
 
+export interface ExtraReplyMessage {
   /**
    * If the message is a reply, ID of the original message
    */
   reply_to_message_id?: number
 
   /**
-   * Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+   * Pass True, if the message should be sent even if the specified replied-to message is not found
    */
-  reply_markup?: TT.InlineKeyboardMarkup | TT.ReplyKeyboardMarkup | TT.ReplyKeyboardRemove | TT.ForceReply
+  allow_sending_without_reply?: boolean
 }
 
-export interface ExtraEditMessage extends ExtraReplyMessage {
-  // no specified properties
-}
+export interface ExtraSendMessage extends ExtraFormatting, ExtraDisableWebPagePreview, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
+
+export interface ExtraEditMessage extends ExtraFormatting, ExtraDisableWebPagePreview, ExtraReplyMarkupInlineKeyboard {}
+
+export interface ExtraEditMessageMedia extends ExtraReplyMarkupInlineKeyboard {}
 
 export interface ExtraUnpinMessage {
   /**
@@ -302,11 +350,7 @@ export interface ExtraUnpinMessage {
   message_id?: number
 }
 
-export interface ExtraAudio extends ExtraReplyMessage {
-  /**
-   * Audio caption, 0-1024 characters
-   */
-  caption?: string
+export interface ExtraAudio extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
 
   /**
    * Duration of the audio in seconds
@@ -330,14 +374,9 @@ export interface ExtraAudio extends ExtraReplyMessage {
    * so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
    */
   thumb?: InputFile
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendaudio
-   */
-  disable_web_page_preview?: never
 }
 
-export interface ExtraDocument extends ExtraReplyMessage {
+export interface ExtraDocument extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
    * The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail‘s width and height should not exceed 320.
@@ -347,66 +386,16 @@ export interface ExtraDocument extends ExtraReplyMessage {
   thumb?: InputFile
 
   /**
-   * Document caption (may also be used when resending documents by file_id), 0-1024 characters
-   */
-  caption?: string
-  
-  /**
-   * List of special entities that appear in the caption, which can be specified instead of parse_mode
-   */
-  caption_entities?: TT.MessageEntity
-
-  /**
    * Disables automatic server-side content type detection for files uploaded using multipart/form-data
    */
   disable_content_type_detection?: Boolean
-
-  /**
-   * Pass True, if the message should be sent even if the specified replied-to message is not found
-   */
-  allow_sending_without_reply?: Boolean
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#senddocument
-   */
-  disable_web_page_preview?: never
 }
 
-export interface ExtraGame extends ExtraReplyMessage {
-  /**
-   * Inline keyboard. If empty, one ‘Play game_title’ button will be shown. If not empty, the first button must launch the game.
-   */
-  reply_markup?: TT.InlineKeyboardMarkup
+export interface ExtraGame extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkupInlineKeyboard {}
 
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendgame
-   */
-  disable_web_page_preview?: never
+export interface ExtraInvoice extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkupInlineKeyboard {}
 
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendgame
-   */
-  parse_mode?: never
-}
-
-export interface ExtraInvoice extends ExtraReplyMessage {
-  /**
-   * Inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.
-   */
-  reply_markup?: TT.InlineKeyboardMarkup
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendinvoice
-   */
-  disable_web_page_preview?: never
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendinvoice
-   */
-  parse_mode?: never
-}
-
-export interface ExtraLocation extends ExtraReplyMessage {
+export interface ExtraLocation extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * The radius of uncertainty for the location, measured in meters; 0-1500
    */
@@ -426,84 +415,41 @@ export interface ExtraLocation extends ExtraReplyMessage {
    * For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
    */
   proximity_alert_radius?: number
-
-  /**
-   * Pass True, if the message should be sent even if the specified replied-to message is not found
-   */
-  allow_sending_without_reply?: boolean
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendlocation
-   */
-  disable_web_page_preview?: never
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendlocation
-   */
-  parse_mode?: never
 }
 
-export interface ExtraEditLocation extends ExtraLocation {
+export interface ExtraEditLocation {
   /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendlocation
+   * The radius of uncertainty for the location, measured in meters; 0-1500
    */
-  live_period?: never
+  horizontal_accuracy?: number
+
+  /**
+   * Period in seconds for which the location will be updated (should be between 60 and 86400)
+   */
+  live_period?: number
+
+  /**
+   * For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
+   */
+  heading?: number
+
+  /**
+   * For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
+   */
+  proximity_alert_radius?: number
 }
 
-export interface ExtraPhoto extends ExtraReplyMessage {
-  /**
-   * Photo caption (may also be used when resending photos by file_id), 0-1024 characters
-   */
-  caption?: string
+export interface ExtraStopLiveLocation extends ExtraReplyMarkupInlineKeyboard {}
 
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendphoto
-   */
-  disable_web_page_preview?: never
-}
+export interface ExtraPhoto extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
 
-export interface ExtraMediaGroup extends ExtraReplyMessage {
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
-   */
-  disable_web_page_preview?: never
+export interface ExtraMediaGroup extends ExtraDisableNotifications, ExtraReplyMessage {}
 
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
-   */
-  parse_mode?: never
+export interface ExtraAnimation extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
 
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendmediagroup
-   */
-  reply_markup?: never
+export interface ExtraSticker extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
 
-  /**
-   * Pass True, if the message should be sent even if the specified replied-to message is not found
-   */
-  allow_sending_without_reply?: Boolean
-}
-
-export interface ExtraAnimation extends ExtraReplyMessage {
-  /**
-   * Animation caption (may also be used when resending animation by file_id), 0-200 characters
-   */
-  caption?: string
-}
-
-export interface ExtraSticker extends ExtraReplyMessage {
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendsticker
-   */
-  disable_web_page_preview?: never
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendsticker
-   */
-  parse_mode?: never
-}
-
-export interface ExtraVideo extends ExtraReplyMessage {
+export interface ExtraVideo extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * Duration of sent video in seconds
    */
@@ -528,22 +474,12 @@ export interface ExtraVideo extends ExtraReplyMessage {
   thumb?: InputFile
 
   /**
-   * Video caption (may also be used when resending videos by file_id), 0-1024 characters
-   */
-  caption?: string
-
-  /**
    * Pass True, if the uploaded video is suitable for streaming
    */
   supports_streaming?: boolean
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendvideo
-   */
-  disable_web_page_preview?: never
 }
 
-export interface ExtraVideoNote extends ExtraReplyMessage {
+export interface ExtraVideoNote extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * Duration of sent video in seconds
    */
@@ -563,24 +499,14 @@ export interface ExtraVideoNote extends ExtraReplyMessage {
   thumb?: InputFile
 }
 
-export interface ExtraVoice extends ExtraReplyMessage {
-  /**
-   * Voice message caption, 0-1024 characters
-   */
-  caption?: string
-
+export interface ExtraVoice extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * Duration of the voice message in seconds
    */
   duration?: number
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#sendvoice
-   */
-  disable_web_page_preview?: never
 }
 
-export interface ExtraDice extends ExtraReplyMessage {
+export interface ExtraDice extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /**
    * Emoji on which the dice throw animation is based.
    * Currently, must be one of “🎲”, “🎯”, “🏀”, “⚽”, or “🎰”.
@@ -588,125 +514,134 @@ export interface ExtraDice extends ExtraReplyMessage {
    * Defaults to “🎲”
    * */
   emoji?: string
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#senddice
-   */
-  parse_mode?: never
-
-  /**
-   * Does not exist, see https://core.telegram.org/bots/api#senddice
-   */
-  disable_web_page_preview?: never
 }
 
-export interface ExtraPoll {
+export interface ExtraPoll extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
   /** True, if the poll needs to be anonymous, defaults to True */
   is_anonymous?: boolean
 
   /** True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False */
   allows_multiple_answers?: boolean
 
-  /** 0-based identifier of the correct answer option, required for polls in quiz mode */
-  correct_option_id?: number
-
   /** Pass True, if the poll needs to be immediately closed. This can be useful for poll preview. */
   is_closed?: boolean
 
-  /**	Sends the message silently. Users will receive a notification with no sound. */
-  disable_notification?: boolean
+  /** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
+  open_period?: number
 
-  /** If the message is a reply, ID of the original message */
-  reply_to_message_id?: number
-
-  /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
-  reply_markup?:
-    | TT.InlineKeyboardMarkup
-    | TT.ReplyKeyboardMarkup
-    | TT.ReplyKeyboardRemove
-    | TT.ForceReply
+  /** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period. */
+  close_date?: number
 }
 
-export interface ExtraStopPoll {
-  /** A JSON-serialized object for a new message inline keyboard. */
-  reply_markup?: TT.InlineKeyboardMarkup
+export interface ExtraQuiz extends ExtraPoll {
+  /** 0-based identifier of the correct answer option, required for polls in quiz mode */
+  correct_option_id: number
+
+  /** Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing */
+  explanation?: string
+
+  /** List of special entities that appear in the poll explanation, which can be specified instead of parse_mode */
+  explanation_entities?: TT.MessageEntity[]
+
+  /** Mode for parsing entities in the explanation. See formatting options for more details. */
+  explanation_parse_mode?: ParseMode
 }
+
+export interface ExtraStopPoll extends ExtraReplyMarkupInlineKeyboard {}
+
+export interface ExtraEditCaption extends ExtraCaptionFormatting, ExtraReplyMarkupInlineKeyboard {}
+
+export type Extra = ExtraSendMessage
+  | ExtraEditMessage
+  | ExtraEditMessageMedia
+  | ExtraUnpinMessage
+  | ExtraAudio
+  | ExtraDocument
+  | ExtraGame
+  | ExtraInvoice
+  | ExtraLocation
+  | ExtraEditLocation
+  | ExtraPhoto
+  | ExtraMediaGroup
+  | ExtraAnimation
+  | ExtraSticker
+  | ExtraVideo
+  | ExtraVideoNote
+  | ExtraVoice
+  | ExtraDice
+  | ExtraPoll
+  | ExtraQuiz
+  | ExtraStopPoll
+  | ExtraEditCaption
 
 export interface ExtraUnban {
   /** Do nothing if the user is not banned */
   only_if_banned?: Boolean
 }
 
-export interface IncomingMessage extends TT.Message {
-  audio?: TT.Audio
-  entities?: TT.MessageEntity[]
-  caption?: string
-  document?: TT.Document
-  game?: TT.Game
-  photo?: TT.PhotoSize[]
-  animation?: TT.Animation
-  sticker?: TT.Sticker
-  video?: TT.Video
-  video_note?: TT.VideoNote
-  contact?: TT.Contact
-  location?: TT.Location
-  venue?: TT.Venue
-  pinned_message?: TT.Message
-  invoice?: TT.Invoice
-  successful_payment?: TT.SuccessfulPayment
-  dice?: Dice
-}
+export type MessageAudio = TT.Message.AudioMessage
+export type MessageDocument = TT.Message.DocumentMessage
+export type MessageGame = TT.Message.GameMessage
+export type MessageInvoice = TT.Message.InvoiceMessage
+export type MessageLocation = TT.Message.LocationMessage
+export type MessagePhoto = TT.Message.PhotoMessage
+export type MessageAnimation = TT.Message.AnimationMessage
+export type MessageSticker = TT.Message.StickerMessage
+export type MessageVideo = TT.Message.VideoMessage
+export type MessageVideoNote = TT.Message.VideoNoteMessage
+export type MessageVoice = TT.Message.VoiceMessage
+export type MessageDice = TT.Message.DiceMessage
+export type MessagePoll = TT.Message.PollMessage
 
-export interface MessageAudio extends TT.Message {
-  audio: TT.Audio
-}
+type ServiceMessageBundle = TT.Message.ChannelChatCreatedMessage
+  & TT.Message.ConnectedWebsiteMessage
+  & TT.Message.DeleteChatPhotoMessage
+  & TT.Message.GroupChatCreatedMessage
+  & TT.Message.InvoiceMessage
+  & TT.Message.LeftChatMemberMessage
+  & TT.Message.MigrateFromChatIdMessage
+  & TT.Message.MigrateToChatIdMessage
+  & TT.Message.NewChatMembersMessage
+  & TT.Message.NewChatPhotoMessage
+  & TT.Message.NewChatTitleMessage
+  & TT.Message.PassportDataMessage
+  & TT.Message.ProximityAlertTriggeredMessage
+  & TT.Message.PinnedMessageMessage
+  & TT.Message.SuccessfulPaymentMessage
+  & TT.Message.SupergroupChatCreated
 
-export interface MessageDocument extends TT.Message {
-  document: TT.Document
-}
+type CommonMessageBundle = TT.Message.AnimationMessage
+  & TT.Message.AudioMessage
+  & TT.Message.ContactMessage
+  & TT.Message.DiceMessage
+  & TT.Message.DocumentMessage
+  & TT.Message.GameMessage
+  & TT.Message.LocationMessage
+  & TT.Message.PhotoMessage
+  & TT.Message.PollMessage
+  & TT.Message.StickerMessage
+  & TT.Message.TextMessage
+  & TT.Message.VenueMessage
+  & TT.Message.VideoMessage
+  & TT.Message.VideoNoteMessage
+  & TT.Message.VoiceMessage
 
-export interface MessageGame extends TT.Message {
-  game: TT.Game
-}
+export type Message = ServiceMessageBundle & CommonMessageBundle
 
-export interface MessageInvoice extends TT.Message {
-  invoice: TT.Invoice
-}
+export type Update = TT.Update.CallbackQueryUpdate
+  & TT.Update.ChannelPostUpdate
+  & TT.Update.ChosenInlineResultUpdate
+  & TT.Update.EditedChannelPostUpdate
+  & TT.Update.EditedMessageUpdate
+  & TT.Update.InlineQueryUpdate
+  & TT.Update.MessageUpdate
+  & TT.Update.PreCheckoutQueryUpdate
+  & TT.Update.PollAnswerUpdate
+  & TT.Update.PollUpdate
+  & TT.Update.ShippingQueryUpdate
 
-export interface MessageLocation extends TT.Message {
-  location: TT.Location
-}
-
-export interface MessagePhoto extends TT.Message {
-  photo: TT.PhotoSize[]
-}
-
-export interface MessageAnimation extends TT.Message {
-  animation: TT.Animation
-}
-
-export interface MessageSticker extends TT.Message {
-  sticker: TT.Sticker
-}
-
-export interface MessageVideo extends TT.Message {
-  video: TT.Video
-}
-
-export interface MessageVideoNote extends TT.Message {
-  video_note: TT.VideoNote
-}
-
-export interface MessageVoice extends TT.Message {
-  voice: TT.Voice
-}
-
-export interface MessageDice extends TT.Message {
-  dice: Dice
-}
-
-export interface MessagePoll extends TT.Message {
-  poll: Poll
+export interface CallbackQuery extends TT.CallbackQuery.DataCallbackQuery, TT.CallbackQuery.GameShortGameCallbackQuery {
+  message: Message
 }
 
 export interface NewInvoiceParameters {
@@ -831,62 +766,4 @@ export interface BotCommand {
    * Description of the command, 3-256 characters.
    */
   description: string
-}
-
-/**
- * This object represents a dice with random value from 1 to 6. (Yes, we're aware of the “proper” singular of die. But it's awkward, and we decided to help it change. One dice at a time!)
- */
-export interface Dice {
-  /**
-   * Value of the dice, 1-6
-   */
-  value: number
-}
-
-export interface PollOption {
-  /** Option text, 1-100 characters */
-  text: string
-
-  /** Number of users that voted for this option */
-  voter_count: number
-}
-
-export interface PollAnswer {
-  /** Unique poll identifier */
-  poll_id: string
-
-  /** The user, who changed the answer to the poll */
-  user: TT.User
-
-  /** 0-based identifiers of answer options, chosen by the user. May be empty if the user retracted their vote. */
-  option_ids: number[]
-}
-
-export interface Poll {
-  /** Unique poll identifier */
-  id: string
-
-  /** Poll question, 1-255 characters */
-  question: string
-
-  /** List of poll options */
-  options: PollOption[]
-
-  /** Total number of users that voted in the poll */
-  total_voter_count: number
-
-  /** True, if the poll is closed */
-  is_closed: boolean
-
-  /** True, if the poll is anonymous */
-  is_anonymous: boolean
-
-  /** Poll type, currently can be “regular” or “quiz” */
-  type: 'regular' | 'quiz'
-
-  /** True, if the poll allows multiple answers */
-  allows_multiple_answers: boolean
-
-  /** 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot. */
-  correct_option_id?: number
 }

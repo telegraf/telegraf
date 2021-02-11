@@ -363,7 +363,7 @@ export declare class TelegrafContext {
    */
   copyMessage(
     chatId: number | string,
-    extra?: object
+    extra?: tt.ExtraCopyMessage
   ): Promise<tt.MessageId>
 
   // ------------------------------------------------------------------------------------------ //

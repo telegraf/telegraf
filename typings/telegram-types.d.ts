@@ -627,6 +627,8 @@ export interface ExtraAnswerCallbackQuery {
   cache_time?: number
 }
 
+export interface ExtraCopyMessage extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
+
 export type Extra = ExtraSendMessage
   | ExtraEditMessage
   | ExtraEditMessageMedia
@@ -637,6 +639,9 @@ export type Extra = ExtraSendMessage
   | ExtraInvoice
   | ExtraLocation
   | ExtraEditLocation
+  | ExtraStopLiveLocation
+  | ExtraVenue
+  | ExtraContact
   | ExtraPhoto
   | ExtraMediaGroup
   | ExtraAnimation
@@ -649,6 +654,8 @@ export type Extra = ExtraSendMessage
   | ExtraQuiz
   | ExtraStopPoll
   | ExtraEditCaption
+  | ExtraAnswerCallbackQuery
+  | ExtraCopyMessage
 
 export interface ExtraUnban {
   /** Do nothing if the user is not banned */

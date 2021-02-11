@@ -340,7 +340,7 @@ export declare class Telegram extends ApiClient {
    * Use this method to send .gif animations
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param animation Animation to send. Pass a file_id as String to send a GIF that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a GIF from the Internet, or upload a new GIF using multipart/form-data
-   * @param extra Additional params to send GIF
+   * @param extra Additional params for sendAnimation
    * @returns a Message on success
    */
   sendAnimation(
@@ -353,7 +353,7 @@ export declare class Telegram extends ApiClient {
    * Use this method to send video messages
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param videoNote video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. Sending video notes by a URL is currently unsupported
-   * @param extra Additional params to send video note
+   * @param extra Additional params for sendVideoNote
    * @returns a Message on success
    */
   sendVideoNote(
@@ -960,6 +960,6 @@ export declare class Telegram extends ApiClient {
     chatId: number | string,
     fromChatId: number | string,
     messageId: number,
-    extra?: object
+    extra?: tt.ExtraCopyMessage
   ): Promise<tt.MessageId>
 }

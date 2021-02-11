@@ -54,17 +54,12 @@ class Telegram extends ApiClient {
     })
   }
 
-  setWebhook (url, certificate, maxConnections, allowedUpdates) {
-    return this.callApi('setWebhook', {
-      url,
-      certificate,
-      max_connections: maxConnections,
-      allowed_updates: allowedUpdates
-    })
+  setWebhook (url, extra) {
+    return this.callApi('setWebhook', { url, ...extra })
   }
 
-  deleteWebhook () {
-    return this.callApi('deleteWebhook')
+  deleteWebhook (extra) {
+    return this.callApi('deleteWebhook', extra)
   }
 
   sendMessage (chatId, text, extra) {
@@ -231,16 +226,20 @@ class Telegram extends ApiClient {
     return this.callApi('pinChatMessage', { chat_id: chatId, message_id: messageId, ...extra })
   }
 
-  unpinChatMessage (chatId) {
-    return this.callApi('unpinChatMessage', { chat_id: chatId })
+  unpinChatMessage (chatId, extra) {
+    return this.callApi('unpinChatMessage', { chat_id: chatId, ...extra })
+  }
+
+  unpinAllChatMessages (chatId) {
+    return this.callApi('unpinAllChatMessages', { chat_id: chatId })
   }
 
   leaveChat (chatId) {
     return this.callApi('leaveChat', { chat_id: chatId })
   }
 
-  unbanChatMember (chatId, userId) {
-    return this.callApi('unbanChatMember', { chat_id: chatId, user_id: userId })
+  unbanChatMember (chatId, userId, extra) {
+    return this.callApi('unbanChatMember', { chat_id: chatId, user_id: userId, ...extra })
   }
 
   answerCbQuery (callbackQueryId, text, showAlert, extra) {
@@ -292,7 +291,8 @@ class Telegram extends ApiClient {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      parse_mode: extra.parse_mode,
+      ...extra.parse_mode && { parse_mode: extra.parse_mode },
+      ...extra.caption_entities && { caption_entities: extra.caption_entities },
       reply_markup: extra.parse_mode || extra.reply_markup ? extra.reply_markup : extra
     })
   }
@@ -302,7 +302,12 @@ class Telegram extends ApiClient {
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      media: { ...media, parse_mode: extra.parse_mode },
+      media: {
+        ...media,
+        parse_mode: extra.parse_mode,
+        caption: extra.caption,
+        caption_entities: extra.caption_entities
+      },
       reply_markup: extra.reply_markup ? extra.reply_markup : extra
     })
   }
@@ -316,14 +321,14 @@ class Telegram extends ApiClient {
     })
   }
 
-  editMessageLiveLocation (latitude, longitude, chatId, messageId, inlineMessageId, markup) {
+  editMessageLiveLocation (chatId, messageId, inlineMessageId, latitude, longitude, extra) {
     return this.callApi('editMessageLiveLocation', {
-      latitude,
-      longitude,
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
-      reply_markup: markup
+      latitude,
+      longitude,
+      ...extra
     })
   }
 
@@ -417,6 +422,9 @@ class Telegram extends ApiClient {
     if (!message) {
       throw new Error('Message is required')
     }
+    if (message.chat && message.chat.id && message.message_id) {
+      return this.copyMessage(chatId, message.chat.id, message.message_id, extra)
+    }
     const type = Object.keys(replicators.copyMethods).find((type) => message[type])
     if (!type) {
       throw new Error('Unsupported message type')
@@ -427,6 +435,15 @@ class Telegram extends ApiClient {
       ...extra
     }
     return this.callApi(replicators.copyMethods[type], opts)
+  }
+
+  copyMessage (chatId, fromChatId, messageId, extra) {
+    return this.callApi('copyMessage', {
+      chat_id: chatId,
+      from_chat_id: fromChatId,
+      message_id: messageId,
+      ...extra
+    })
   }
 }
 

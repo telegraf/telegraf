@@ -108,8 +108,9 @@ bot.hears('something', async (ctx) => {
         reply_markup: Markup.inlineKeyboard([])
     })
 
-    ctx.editMessageLiveLocation(90,90, {
-        reply_markup: Markup.inlineKeyboard([])
+    ctx.editMessageLiveLocation(90, 90, {
+      heading: 1,
+      reply_markup: Markup.inlineKeyboard([])
     })
 
     ctx.stopMessageLiveLocation({
@@ -166,9 +167,7 @@ bot.hears('something', async (ctx) => {
         duration: 0,
         length: 0,
         thumb: '',
-        parse_mode: "HTML",
         disable_notification: false,
-        disable_web_page_preview: false,
         reply_markup: Markup.inlineKeyboard([]),
         reply_to_message_id: 0,
     })

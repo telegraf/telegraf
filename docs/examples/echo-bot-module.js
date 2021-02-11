@@ -1,8 +1,6 @@
 // Modules documentation: https://telegraf.js.org/#/?id=telegraf-modules
 // $> telegraf -t `BOT TOKEN` echo-bot-module.js
-const Composer = require('telegraf/composer')
-const Extra = require('telegraf/extra')
-const Markup = require('telegraf/markup')
+const { Composer, Extra, Markup } = require('telegraf')
 
 const keyboard = Markup.inlineKeyboard([
   Markup.urlButton('❤️', 'http://telegraf.js.org'),
@@ -35,6 +33,6 @@ bot.help(async (ctx) => {
 })
 bot.action('delete', ({ deleteMessage }) => deleteMessage())
 bot.on('dice', (ctx) => ctx.reply(`Value: ${ctx.message.dice.value}`))
-bot.on('message', (ctx) => ctx.telegram.sendCopy(ctx.chat.id, ctx.message, Extra.markup(keyboard)))
+bot.on('message', (ctx) => ctx.copyMessage(ctx.chat.id, Extra.markup(keyboard)))
 
 module.exports = bot

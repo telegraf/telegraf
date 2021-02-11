@@ -1,6 +1,4 @@
-const Telegraf = require('telegraf')
-const Extra = require('telegraf/extra')
-const Markup = require('telegraf/markup')
+const { Telegraf, Extra, Markup } = require('../../telegraf')
 
 const keyboard = Markup.inlineKeyboard([
   Markup.urlButton('❤️', 'http://telegraf.js.org'),
@@ -10,6 +8,6 @@ const keyboard = Markup.inlineKeyboard([
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.start((ctx) => ctx.reply('Hello'))
 bot.help((ctx) => ctx.reply('Help message'))
-bot.on('message', (ctx) => ctx.telegram.sendCopy(ctx.chat.id, ctx.message, Extra.markup(keyboard)))
+bot.on('message', (ctx) => ctx.copyMessage(ctx.chat.id, Extra.markup(keyboard)))
 bot.action('delete', ({ deleteMessage }) => deleteMessage())
 bot.launch()

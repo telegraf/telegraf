@@ -1,28 +1,28 @@
 /** @format */
 
+import { Extra } from './extra'
 import * as tt from './telegram-types.d'
 
 export interface Button {
   text: string
-  hide: boolean
+
+  /**
+   * Keyboard builder sugar
+   */
+  hide?: boolean
 }
 
-export interface ContactRequestButton {
-  text: string
-  hide: boolean
+export interface ContactRequestButton extends Button {
   request_contact: boolean
 }
 
-export interface LocationRequestButton {
-  text: string
-  hide: boolean
+export interface LocationRequestButton extends Button {
   request_location: boolean
 }
 
 type PollType = 'poll' | 'quiz'
 
-export interface PollRequestButton {
-  text: string
+export interface PollRequestButton extends Button {
   request_poll: { type?: PollType }
 }
 
@@ -33,40 +33,28 @@ export type KeyboardButton =
   | PollRequestButton
   | string
 
-export interface UrlButton {
+export interface UrlButton extends Button {
   url: string
-  text: string
-  hide?: boolean
 }
 
-export interface CallbackButton {
-  text: string
-  hide: boolean
+export interface CallbackButton extends Button {
   callback_data: string
 }
 
-export interface SwitchToChatButton {
-  text: string
-  hide: boolean
+export interface SwitchToChatButton extends Button {
   switch_inline_query: string
 }
 
-export interface SwitchToCurrentChatButton {
-  text: string
-  hide: boolean
+export interface SwitchToCurrentChatButton extends Button {
   switch_inline_query_current_chat: string
 }
 
-export interface GameButton {
-  text: string
-  hide: boolean
+export interface GameButton extends Button {
   callback_game: tt.CallbackGame
 }
 
-export interface PayButton {
+export interface PayButton extends Button {
   pay: boolean
-  text: string
-  hide: boolean
 }
 
 export interface LoginUrl {
@@ -76,10 +64,8 @@ export interface LoginUrl {
   request_write_access?: boolean
 }
 
-export interface LoginButton {
-  text: string
+export interface LoginButton extends Button {
   login_url: LoginUrl
-  hide: boolean
 }
 
 export type InlineKeyboardButton =
@@ -96,28 +82,28 @@ export interface KeyboardOptions<TBtn> {
   wrap?(btn: TBtn, index: number, currentRow: TBtn[]): boolean
 }
 
-export declare class Markup {
-  forceReply(value?: boolean): this
+export declare class Markup<T extends tt.KeyboardMarkupBundle> {
+  forceReply(value?: boolean): Markup<tt.ForceReply> & tt.ForceReply
 
-  removeKeyboard(value?: boolean): this
+  removeKeyboard(value?: boolean): Markup<tt.ReplyKeyboardRemove> & tt.ReplyKeyboardRemove
 
-  selective(value?: boolean): this
+  selective<T extends tt.ReplyMarkupBundle>(this: Markup<T> & T, value?: boolean): this
 
-  extra(options?: tt.ExtraReplyMessage): tt.ExtraReplyMessage
+  extra<T extends tt.KeyboardMarkupBundle>(this: Markup<T> & T, options?: tt.Extra): tt.ExtraReply<T> & Extra
 
   keyboard(
     buttons: KeyboardButton[] | KeyboardButton[][],
     options?: KeyboardOptions<KeyboardButton>
-  ): this & tt.ReplyKeyboardMarkup
+  ): Markup<tt.ReplyKeyboardMarkup> & tt.ReplyKeyboardMarkup
 
-  resize(value?: boolean): this
+  resize<T extends tt.ReplyKeyboardMarkup>(this: Markup<T> & T, value?: boolean): this
 
-  oneTime(value?: boolean): this
+  oneTime<T extends tt.ReplyKeyboardMarkup>(this: Markup<T> & T, value?: boolean): this
 
   inlineKeyboard(
     buttons: InlineKeyboardButton[] | InlineKeyboardButton[][],
-    options: KeyboardOptions<InlineKeyboardButton>
-  ): this & tt.InlineKeyboardMarkup
+    options?: KeyboardOptions<InlineKeyboardButton>
+  ): Markup<tt.InlineKeyboardMarkup> & tt.InlineKeyboardMarkup
 
   button(text: string, hide?: boolean): Button
 
@@ -152,25 +138,25 @@ export declare class Markup {
     hide?: boolean
   ): LoginButton
 
-  static removeKeyboard(value?: string): Markup
+  static removeKeyboard(value?: string): Markup<tt.ReplyKeyboardRemove> & tt.ReplyKeyboardRemove
 
-  static forceReply(value?: string): Markup
+  static forceReply(value?: string): Markup<tt.ForceReply> & tt.ForceReply
 
   static keyboard(
     buttons: KeyboardButton[] | KeyboardButton[][],
     options?: KeyboardOptions<KeyboardButton>
-  ): Markup & tt.ReplyKeyboardMarkup
+  ): Markup<tt.ReplyKeyboardMarkup> & tt.ReplyKeyboardMarkup
 
   static inlineKeyboard(
     buttons: InlineKeyboardButton[] | InlineKeyboardButton[][],
     options?: KeyboardOptions<InlineKeyboardButton>
-  ): Markup & tt.InlineKeyboardMarkup
+  ): Markup<tt.InlineKeyboardMarkup> & tt.InlineKeyboardMarkup
 
-  static resize(value?: boolean): Markup
+  static resize(value?: boolean): Markup<tt.ReplyKeyboardMarkup>
 
-  static selective(value?: boolean): Markup
+  static selective(value?: boolean): Markup<tt.ReplyMarkupBundle>
 
-  static oneTime(value?: boolean): Markup
+  static oneTime(value?: boolean): Markup<tt.ReplyKeyboardMarkup>
 
   static button(text: string, hide?: boolean): Button
 

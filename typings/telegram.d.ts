@@ -131,14 +131,14 @@ export declare class Telegram extends ApiClient {
    * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
    * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
    * @param caption New caption of the message
-   * @param markup A JSON-serialized object for an inline keyboard.
+   * @param extra Extra params
    */
   editMessageCaption(
     chatId?: number | string,
     messageId?: number,
     inlineMessageId?: string,
     caption?: string,
-    markup?: string
+    extra?: tt.ExtraEditCaption
   ): Promise<tt.Message | boolean>
 
   /**
@@ -147,14 +147,65 @@ export declare class Telegram extends ApiClient {
    * @param chatId Required if inlineMessageId is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
    * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
-   * @param markup A JSON-serialized object for an inline keyboard.
+   * @param markup Markup of inline keyboard
    */
   editMessageReplyMarkup(
     chatId?: number | string,
     messageId?: number,
     inlineMessageId?: string,
-    markup?: string
+    markup?: tt.InlineKeyboardMarkup
   ): Promise<tt.Message | boolean>
+
+  /**
+   * Use this method to edit animation, audio, document, photo, or video messages.
+   * @returns On success, if the edited message was sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param media New media of message
+   * @param extra Extra params
+   */
+  editMessageMedia(
+    chatId: number | string | void,
+    messageId: number | void,
+    inlineMessageId: string | void,
+    media: tt.MessageMedia,
+    extra?: tt.ExtraEditMessageMedia
+  ): Promise<tt.Message | boolean>
+
+  /**
+   * Use this method to edit live location messages
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param latitude Latitude of location
+   * @param longitude Longitude of location
+   * @param extra Extra params
+   * @returns On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
+   */
+  editMessageLiveLocation(
+    chatId: number | string | void,
+    messageId: number | void,
+    inlineMessageId: string | void,
+    latitude: number,
+    longitude: number,
+    extra?: tt.ExtraEditLocation
+  ): Promise<tt.MessageLocation | boolean>
+
+  /**
+   * Use this method to stop updating a live location message before live_period expires.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
+   * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
+   * @param extra Extra params
+   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
+   */
+  stopMessageLiveLocation(
+    chatId: number | string | void,
+    messageId: number | void,
+    inlineMessageId: string | void,
+    extra?: tt.ExtraStopLiveLocation
+  ): Promise<tt.MessageLocation | boolean>
 
   /**
    * Use this method to delete a message, including service messages, with the following limitations:
@@ -247,6 +298,21 @@ export declare class Telegram extends ApiClient {
   ): Promise<tt.Message>
 
   /**
+   * Use this method to send copy of exists message.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param fromChatId Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+   * @param messageId Message identifier in the chat specified in from_chat_id
+   * @param extra Additional params to send modified copy of message
+   * @returns the MessageId of the sent message on success
+   */
+  copyMessage(
+    chatId: number | string,
+    fromChatId: number | string,
+    messageId: number,
+    extra?: object
+  ): Promise<tt.MessageId>
+
+  /**
    * Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @returns True on success
@@ -298,7 +364,7 @@ export declare class Telegram extends ApiClient {
   /**
    * Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate admin rights. Pass True for all boolean parameters to lift restrictions from a user. Returns True on success.
    * @param chatId Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
-   * @param user_id Unique identifier of the target user
+   * @param userId Unique identifier of the target user
    * @param extra Additional params for restrict chat member
    * @returns True on success
    */
@@ -331,9 +397,17 @@ export declare class Telegram extends ApiClient {
   /**
    * Use this method to unpin a message in a group, a supergroup, or a channel.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param extra Extra params
    * @returns True on success
    */
-  unpinChatMessage(chatId: number | string): Promise<boolean>
+  unpinChatMessage(chatId: number | string, extra?: tt.ExtraUnpinMessage): Promise<boolean>
+
+  /**
+   * Use this method to clear the list of pinned messages in a chat
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @returns True on success
+   */
+  unpinAllChatMessages(chatId: number | string): Promise<boolean>
 
   /**
    * Use this method to send text messages
@@ -345,7 +419,7 @@ export declare class Telegram extends ApiClient {
   sendMessage(
     chatId: number | string,
     text: string,
-    extra?: tt.ExtraEditMessage
+    extra?: tt.ExtraSendMessage
   ): Promise<tt.Message>
 
   /**
@@ -459,14 +533,14 @@ export declare class Telegram extends ApiClient {
    */
   sendMediaGroup(
     chatId: number | string,
-    media: tt.MessageMedia[],
+    media: (tt.InputMediaAudio | tt.InputMediaDocument | tt.InputMediaPhoto | tt.InputMediaVideo)[],
     extra?: tt.ExtraMediaGroup
   ): Promise<Array<tt.Message>>
 
   /**
    * Use this method to send a native poll.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-   * @param question Poll question, 1-255 characters
+   * @param question Poll question, 1-300 characters
    * @param options A JSON-serialized list of answer options, 2-10 strings 1-100 characters each
    * @param extra Additional params to send poll
    * @returns On success, the sent Message is returned.
@@ -490,7 +564,7 @@ export declare class Telegram extends ApiClient {
     chatId: number | string,
     question: string,
     options: string[],
-    extra: tt.ExtraPoll
+    extra: tt.ExtraQuiz
   ): Promise<tt.MessagePoll>
 
   /**
@@ -586,23 +660,22 @@ export declare class Telegram extends ApiClient {
   /**
    * Use this method to specify a url and receive incoming updates via an outgoing webhook
    * @param url HTTPS url to send updates to. Use an empty string to remove webhook integration
-   * @param cert Upload your public key certificate so that the root certificate in use can be checked
-   * @param maxConnections Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100
-   * @param allowedUpdates List the types of updates you want your bot to receive
+   * @param extra Additional params to set webhook
    * @returns True on success
    */
   setWebhook(
     url: string,
-    cert?: tt.InputFile,
-    maxConnections?: number,
-    allowedUpdates?: string[]
+    extra?: tt.ExtraSetWebhook
   ): Promise<boolean>
 
   /**
    * Use this method to delete webhook
+   * @param extra Additional params to delete webhook
    * @returns True on success
    */
-  deleteWebhook(): Promise<boolean>
+  deleteWebhook(
+    extra?: tt.ExtraDeleteWebhook
+  ): Promise<boolean>
 
   /**
    * Use this method to get information about set webhook
@@ -641,14 +714,16 @@ export declare class Telegram extends ApiClient {
    * Use this method to unban a user from a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format @username)
    * @param userId Unique identifier of the target user
+   * @param extra Extra params
    * @returns True on success
    */
-  unbanChatMember(chatId: number | string, userId: number): Promise<boolean>
+  unbanChatMember(chatId: number | string, userId: number, extra?: tt.ExtraUnban): Promise<boolean>
 
   /**
    * Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Pass False for all boolean parameters to demote a user.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
    * @param userId Unique identifier of the target user
+   * @param extra Extra parameters for promoteChatMember
    * @returns True on success
    */
   promoteChatMember(

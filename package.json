@@ -40,7 +40,7 @@
     "module-alias": "^2.2.2",
     "node-fetch": "^2.2.0",
     "sandwich-stream": "^2.0.1",
-    "telegram-typings": "^3.6.0"
+    "typegram": "^3.1.5"
   },
   "devDependencies": {
     "@types/node": "^13.1.0",

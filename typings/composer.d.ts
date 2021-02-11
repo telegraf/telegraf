@@ -3,8 +3,14 @@
 import * as tt from './telegram-types.d'
 import { TelegrafContext } from './context'
 
-type HearsTriggers<TContext> = string[] | string | RegExp | RegExp[] | ((value: string, ctx: TContext) => RegExpExecArray | null)
-type BranchPredicate<TContext> = boolean | ((ctx: TContext) => boolean | Promise<boolean>)
+type MaybeArray<T> = T | T[]
+type MaybePromise<T> = T | Promise<T>
+
+type NormalizedTrigger<TContext> = (value: string, ctx: TContext) => RegExpExecArray | null
+type HearsTriggers<TContext> = MaybeArray<string | RegExp | NormalizedTrigger<TContext>>
+
+type Predicate<TContext> = (ctx: TContext) => MaybePromise<boolean>
+type BranchPredicate<TContext> = boolean | Predicate<TContext>
 
 export interface MiddlewareFn<TContext extends TelegrafContext> {
   /*
@@ -26,6 +32,9 @@ export type Middleware<TContext extends TelegrafContext> =
 
 export declare class Composer<TContext extends TelegrafContext>
   implements MiddlewareObj<TContext> {
+
+  constructor(...middlewares: ReadonlyArray<Middleware<TContext>>)
+
   /**
    * Registers a middleware.
    */
@@ -35,31 +44,14 @@ export declare class Composer<TContext extends TelegrafContext>
    * Registers middleware for provided update type.
    */
   on(
-    updateTypes:
-      | tt.UpdateType
-      | tt.UpdateType[]
-      | tt.MessageSubTypes
-      | tt.MessageSubTypes[],
+    updateTypes: MaybeArray<tt.UpdateType | tt.MessageSubTypes>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
-
-  /**
-   * Return the middleware created by this Composer
-   */
-  middleware(): MiddlewareFn<TContext>
 
   /**
    * Registers middleware for handling text messages.
    */
   hears(
-    triggers: HearsTriggers<TContext>,
-    ...middlewares: ReadonlyArray<Middleware<TContext>>
-  ): this
-
-  /**
-   * Registers middleware for handling callbackQuery data with regular expressions
-   */
-  action(
     triggers: HearsTriggers<TContext>,
     ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): this
@@ -73,9 +65,111 @@ export declare class Composer<TContext extends TelegrafContext>
   ): this
 
   /**
+   * Registers middleware for handling callbackQuery data with regular expressions
+   */
+  action(
+    triggers: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
+
+  /**
+   * Registers middleware for handling inlineQuery data with regular expressions
+   */
+  inlineQuery(
+    triggers: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
+
+  /**
    * Registers middleware for handling callback_data actions with game query.
    */
   gameQuery(...middlewares: ReadonlyArray<Middleware<TContext>>): this
+
+  /**
+   * Generates drop middleware.
+   */
+  drop<TContext extends TelegrafContext>(
+    predicate: BranchPredicate<TContext>
+  ): this
+
+  /**
+   * Generates filter middleware.
+   */
+  filter<TContext extends TelegrafContext>(
+    predicate: BranchPredicate<TContext>
+  ): this
+
+  /**
+   * Registers middleware for handling entities
+   */
+  entity<TContext extends TelegrafContext>(
+    predicate: MaybeArray<tt.MessageEntityType> | ((entity: tt.MessageEntity, entityText: string, ctx: TContext) => MaybePromise<boolean>),
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
+
+  /**
+   * Registers middleware for handling messages with matching emails.
+   */
+  email<TContext extends TelegrafContext>(
+    email: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
+
+  /**
+   * Registers middleware for handling messages with matching phones.
+   */
+  phone<TContext extends TelegrafContext>(
+    number: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
+
+  /**
+   * Registers middleware for handling messages with matching urls.
+   */
+  url<TContext extends TelegrafContext>(
+    url: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
+
+  /**
+   * Registers middleware for handling messages with matching text links.
+   */
+  textLink<TContext extends TelegrafContext>(
+    link: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
+
+  /**
+   * Registers middleware for handling messages with matching text mentions.
+   */
+  textMention<TContext extends TelegrafContext>(
+    mention: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
+
+  /**
+   * Registers middleware for handling messages with matching mentions.
+   */
+  mention<TContext extends TelegrafContext>(
+    mention: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
+
+  /**
+   * Registers middleware for handling messages with matching hashtags.
+   */
+  hashtag<TContext extends TelegrafContext>(
+    hashtag: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
+
+  /**
+   * Registers middleware for handling messages with matching cashtags.
+   */
+  cashtag<TContext extends TelegrafContext>(
+    cashtag: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): this
 
   /**
    * Registers middleware for handling /start command.
@@ -87,41 +181,42 @@ export declare class Composer<TContext extends TelegrafContext>
    */
   help(...middlewares: ReadonlyArray<Middleware<TContext>>): this
 
-  constructor(...middlewares: ReadonlyArray<Middleware<TContext>>)
+  /**
+   * Registers middleware for handling /ыуеештпы command.
+   */
+  settings(...middlewares: ReadonlyArray<Middleware<TContext>>): this
 
-  static unwrap<TContext extends TelegrafContext>(
+  /**
+   * Return the middleware created by this Composer
+   */
+  middleware(): MiddlewareFn<TContext>
+
+  static reply(
+    text: string,
+    extra?: tt.ExtraSendMessage
+  ): MiddlewareFn<TelegrafContext>
+
+  static catchAll<TContext extends TelegrafContext>(
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  static catch<TContext extends TelegrafContext>(
+    errorHandler: (error: Error, ctx: TContext) => void,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware that runs in the background.
+   */
+  static fork<TContext extends TelegrafContext>(
     middleware: Middleware<TContext>
   ): MiddlewareFn<TContext>
 
   /**
-   * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
+   * Generates tap middleware.
    */
-  static compose<TContext extends TelegrafContext>(
-    middlewares: ReadonlyArray<Middleware<TContext>>
-  ): MiddlewareFn<TContext>
-
-  /**
-   * Generates middleware for handling provided update types.
-   */
-  static mount<TContext extends TelegrafContext>(
-    updateTypes: tt.UpdateType | tt.UpdateType[],
-    ...middlewares: ReadonlyArray<Middleware<TContext>>
-  ): MiddlewareFn<TContext>
-
-  /**
-   * Generates middleware for handling matching text messages.
-   */
-  static hears<TContext extends TelegrafContext>(
-    triggers: HearsTriggers<TContext>,
-    ...middlewares: ReadonlyArray<Middleware<TContext>>
-  ): MiddlewareFn<TContext>
-
-  /**
-   * Generates middleware for handling matching callback queries.
-   */
-  static action<TContext extends TelegrafContext>(
-    triggers: HearsTriggers<TContext>,
-    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  static tap<TContext extends TelegrafContext>(
+    middleware: Middleware<TContext>
   ): MiddlewareFn<TContext>
 
   /**
@@ -134,9 +229,27 @@ export declare class Composer<TContext extends TelegrafContext>
    */
   static safePassThru(): MiddlewareFn<TelegrafContext>
 
+  static lazy<TContext extends TelegrafContext>(
+    factoryFn: (ctx: TContext) => MaybePromise<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  static log(logFn?: (s: string) => void): MiddlewareFn<TelegrafContext>
+
+  /**
+   * @param predicate function that returns boolean or Promise<boolean>
+   * @param trueMiddleware middleware to run if the predicate returns true
+   * @param falseMiddleware middleware to run if the predicate returns false
+   */
+  static branch<TContext extends TelegrafContext>(
+    predicate: BranchPredicate<TContext>,
+    trueMiddleware: Middleware<TContext>,
+    falseMiddleware: Middleware<TContext>
+  ): MiddlewareFn<TContext>
+
   /**
    * Generates optional middleware.
-   * @param middleware middleware to run if the predicate returns true
+   * @param predicate function that returns boolean or Promise<boolean>
+   * @param middlewares middleware to run if the predicate returns true
    */
   static optional<TContext extends TelegrafContext>(
     predicate: BranchPredicate<TContext>,
@@ -157,29 +270,158 @@ export declare class Composer<TContext extends TelegrafContext>
     predicate: BranchPredicate<TContext>
   ): Middleware<TContext>
 
-  /**
-   * @param trueMiddleware middleware to run if the predicate returns true
-   * @param falseMiddleware middleware to run if the predicate returns false
-   */
-  static branch<TContext extends TelegrafContext>(
-    predicate: BranchPredicate<TContext>,
-    trueMiddleware: Middleware<TContext>,
-    falseMiddleware: Middleware<TContext>
-  ): MiddlewareFn<TContext>
-
-  static reply(
-    text: string,
-    extra?: tt.ExtraReplyMessage
-  ): MiddlewareFn<TelegrafContext>
+  static dispatch<
+    C extends TelegrafContext,
+    Handlers extends Record<string | number | symbol, Middleware<C>>
+    >(
+    routeFn: (ctx: C) => MaybePromise<keyof Handlers>,
+    handlers: Handlers
+  ): Middleware<C>
 
   /**
-   * Generates middleware that runs in the background.
+   * Generates middleware for handling provided update types.
    */
-  static fork<TContext extends TelegrafContext>(
-    middleware: Middleware<TContext>
+  static mount<TContext extends TelegrafContext>(
+    updateType: tt.UpdateType | tt.UpdateType[],
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 
-  static log(logFn?: (s: string) => void): MiddlewareFn<TelegrafContext>
+  static entity<TContext extends TelegrafContext>(
+    predicate: MaybeArray<tt.MessageEntityType> | ((entity: tt.MessageEntity, entityText: string, ctx: TContext) => MaybePromise<boolean>),
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  static entityText<TContext extends TelegrafContext>(
+    entityType: tt.MessageEntityType,
+    triggers: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling messages with matching emails.
+   */
+  static email<TContext extends TelegrafContext>(
+    email: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling messages with matching phones.
+   */
+  static phone<TContext extends TelegrafContext>(
+    number: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling messages with matching urls.
+   */
+  static url<TContext extends TelegrafContext>(
+    url: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling messages with matching text links.
+   */
+  static textLink<TContext extends TelegrafContext>(
+    link: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling messages with matching text mentions.
+   */
+  static textMention<TContext extends TelegrafContext>(
+    mention: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling messages with matching mentions.
+   */
+  static mention<TContext extends TelegrafContext>(
+    mention: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling messages with matching hashtags.
+   */
+  static hashtag<TContext extends TelegrafContext>(
+    hashtag: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling messages with matching cashtags.
+   */
+  static cashtag<TContext extends TelegrafContext>(
+    cashtag: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  static match<TContext extends TelegrafContext>(
+    triggers: NormalizedTrigger<TContext>[],
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling matching text messages.
+   */
+  static hears<TContext extends TelegrafContext>(
+    triggers: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling messages with matching commands.
+   */
+  static command<TContext extends TelegrafContext>(
+    command: string | string[],
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling messages with commands.
+   */
+  static command<TContext extends TelegrafContext>(
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling matching callback queries.
+   */
+  static action<TContext extends TelegrafContext>(
+    triggers: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Generates middleware for handling matching inline queries.
+   */
+  static inlineQuery<TContext extends TelegrafContext>(
+    triggers: HearsTriggers<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  static acl<TContext extends TelegrafContext>(
+    status: number | number[] | BranchPredicate<TContext>,
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  static memberStatus<TContext extends TelegrafContext>(
+    status: tt.ChatMemberStatus | tt.ChatMemberStatus[],
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  static admin<TContext extends TelegrafContext>(
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  static creator<TContext extends TelegrafContext>(
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
 
   /**
    * Generates middleware running only in given chat types.
@@ -201,5 +443,20 @@ export declare class Composer<TContext extends TelegrafContext>
    */
   static groupChat<TContext extends TelegrafContext>(
     ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  static gameQuery<TContext extends TelegrafContext>(
+    ...middlewares: ReadonlyArray<Middleware<TContext>>
+  ): MiddlewareFn<TContext>
+
+  static unwrap<TContext extends TelegrafContext>(
+    middleware: Middleware<TContext>
+  ): MiddlewareFn<TContext>
+
+  /**
+   * Compose middlewares returning a fully valid middleware comprised of all those which are passed.
+   */
+  static compose<TContext extends TelegrafContext>(
+    middlewares: ReadonlyArray<Middleware<TContext>>
   ): MiddlewareFn<TContext>
 }

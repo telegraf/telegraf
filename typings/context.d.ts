@@ -21,7 +21,7 @@ export declare class TelegrafContext {
   inlineQuery?: tt.InlineQuery
   match?: RegExpExecArray | null
   me?: string
-  message?: tt.IncomingMessage
+  message?: tt.Message
   poll?: tt.Poll
   pollAnswer?: tt.PollAnswer
   preCheckoutQuery?: tt.PreCheckoutQuery
@@ -145,8 +145,15 @@ export declare class TelegrafContext {
   /**
    * Use this method to unpin a message in a group, a supergroup, or a channel.
    * @returns True on success
+   * @param extra Extra params
    */
-  unpinChatMessage(): Promise<boolean>
+  unpinChatMessage(extra?: tt.ExtraUnpinMessage): Promise<boolean>
+
+  /**
+   * Use this method to clear the list of pinned messages in a chat
+   * @returns True on success
+   */
+  unpinAllChatMessages(): Promise<boolean>
 
   /**
    * Use this method to reply on messages in the same chat.
@@ -154,7 +161,7 @@ export declare class TelegrafContext {
    * @param extra SendMessage additional params
    * @returns sent Message if Success
    */
-  reply(text: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
+  reply(text: string, extra?: tt.ExtraSendMessage): Promise<tt.Message>
 
   /**
    * Use this method to send audio files to the same chat, if you want Telegram clients to display them in the music player.
@@ -213,7 +220,7 @@ export declare class TelegrafContext {
    * @param extra Additional params to send message
    * @returns a Message on success
    */
-  replyWithHTML(html: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
+  replyWithHTML(html: string, extra?: tt.ExtraSendMessage): Promise<tt.Message>
 
   /**
    * Use this method to send invoices
@@ -247,7 +254,7 @@ export declare class TelegrafContext {
    */
   replyWithMarkdown(
     markdown: string,
-    extra?: tt.ExtraReplyMessage
+    extra?: tt.ExtraSendMessage
   ): Promise<tt.Message>
 
   /**
@@ -295,7 +302,7 @@ export declare class TelegrafContext {
   replyWithQuiz(
     question: string,
     options: string[],
-    extra: tt.ExtraPoll
+    extra: tt.ExtraQuiz
   ): Promise<tt.MessagePoll>
 
   /**
@@ -347,6 +354,17 @@ export declare class TelegrafContext {
    * @returns a Message on success
    */
   replyWithDice(extra?: tt.ExtraDice): Promise<tt.MessageDice>
+
+  /**
+   * Use this method to send copy of exists message.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param extra Additional params to send modified copy of message
+   * @returns the MessageId of the sent message on success
+   */
+  copyMessage(
+    chatId: number | string,
+    extra?: object
+  ): Promise<tt.MessageId>
 
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
@@ -410,11 +428,11 @@ export declare class TelegrafContext {
    * Use this method to edit captions of messages sent by the bot or via the bot (for inline bots).
    * On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
    * @param caption New caption of the message
-   * @param markup Markup of inline keyboard
+   * @param extra Extra params
    */
   editMessageCaption(
     caption?: string,
-    markup?: tt.InlineKeyboardMarkup
+    extra?: tt.ExtraEditCaption
   ): Promise<tt.Message | boolean>
 
   /**
@@ -430,23 +448,33 @@ export declare class TelegrafContext {
    * Use this method to edit animation, audio, document, photo, or video messages.
    * @returns On success, if the edited message was sent by the bot, the edited Message is returned, otherwise True is returned.
    * @param media New media of message
-   * @param markup Markup of inline keyboard
+   * @param extra Extra params
    */
   editMessageMedia(
     media: tt.MessageMedia,
-    extra?: tt.ExtraEditMessage
+    extra?: tt.ExtraEditMessageMedia
   ): Promise<tt.Message | boolean>
 
   /**
-   * Use this method to edit live location messages.
+   * Use this method to edit live location messages
    * @returns On success, if the edited message was sent by the bot, the edited message is returned, otherwise True is returned.
-   * @param lat New latitude
-   * @param lon New longitude
+   * @param latitude New latitude
+   * @param longitude New longitude
+   * @param extra Extra params
    */
   editMessageLiveLocation(
-    lat: number,
-    lon: number,
-    extra?: tt.ExtraLocation
+    latitude: number,
+    longitude: number,
+    extra?: tt.ExtraEditLocation
+  ): Promise<tt.MessageLocation | boolean>
+
+  /**
+   * Use this method to stop updating a live location message before live_period expires.
+   * @param extra Extra params
+   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
+   */
+  stopMessageLiveLocation(
+    extra?: tt.ExtraStopLiveLocation
   ): Promise<tt.MessageLocation | boolean>
 
   /**
@@ -460,9 +488,10 @@ export declare class TelegrafContext {
   /**
    * Use this method to unban a user from a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
    * @param userId Unique identifier of the target user
+   * @param extra Extra params
    * @returns True on success
    */
-  unbanChatMember(userId: number): Promise<boolean>
+  unbanChatMember(userId: number, extra?: tt.ExtraUnban): Promise<boolean>
 
   /**
    * Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Pass False for all boolean parameters to demote a user.
@@ -474,15 +503,6 @@ export declare class TelegrafContext {
     userId: number,
     extra: tt.ExtraPromoteChatMember
   ): Promise<boolean>
-
-  /**
-   * Use this method to stop updating a live location message before live_period expires.
-   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
-   * @param extra Extra params
-   */
-  stopMessageLiveLocation(
-    extra?: tt.ExtraLocation
-  ): Promise<tt.MessageLocation | boolean>
 
   /**
    * Use this method to delete a message, including service messages, with the following limitations:

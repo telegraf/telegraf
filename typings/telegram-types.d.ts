@@ -467,6 +467,40 @@ export interface ExtraEditLocation extends ExtraReplyMarkupInlineKeyboard {
 
 export interface ExtraStopLiveLocation extends ExtraReplyMarkupInlineKeyboard {}
 
+export interface ExtraVenue extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+  /**
+   * Foursquare identifier of the venue
+   */
+  foursquare_id?: string
+
+  /**
+   * Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
+   */
+  foursquare_type?: string
+
+  /**
+   * Google Places identifier of the venue
+   */
+  google_place_id?: string
+
+  /**
+   * Google Places type of the venue. (See [supported types](https://developers.google.com/places/web-service/supported_types).)
+   */
+  google_place_type?: string
+}
+
+export interface ExtraContact extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+  /**
+   * Contact's last name
+   */
+  last_name?: string
+
+  /**
+   * Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes
+   */
+  vcard?: string
+}
+
 export interface ExtraPhoto extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
 
 export interface ExtraMediaGroup extends ExtraDisableNotifications, ExtraReplyMessage {}
@@ -577,6 +611,22 @@ export interface ExtraStopPoll extends ExtraReplyMarkupInlineKeyboard {}
 
 export interface ExtraEditCaption extends ExtraCaptionFormatting, ExtraReplyMarkupInlineKeyboard {}
 
+export interface ExtraAnswerCallbackQuery {
+  /**
+   * URL that will be opened by the user's client.
+   * If you have created a Game and accepted the conditions via @Botfather, specify the URL that opens your game — note that this will only work if the query comes from a `callback_game` button.
+   *
+   * Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
+   */
+  url?: string
+
+  /**
+   * The maximum amount of time in seconds that the result of the callback query may be cached client-side.
+   * Telegram apps will support caching starting in version 3.14. Defaults to 0.
+   */
+  cache_time?: number
+}
+
 export type Extra = ExtraSendMessage
   | ExtraEditMessage
   | ExtraEditMessageMedia
@@ -606,10 +656,12 @@ export interface ExtraUnban {
 }
 
 export type MessageAudio = TT.Message.AudioMessage
+export type MessageContact = TT.Message.ContactMessage
 export type MessageDocument = TT.Message.DocumentMessage
 export type MessageGame = TT.Message.GameMessage
 export type MessageInvoice = TT.Message.InvoiceMessage
 export type MessageLocation = TT.Message.LocationMessage
+export type MessageVenue = TT.Message.VenueMessage
 export type MessagePhoto = TT.Message.PhotoMessage
 export type MessageAnimation = TT.Message.AnimationMessage
 export type MessageSticker = TT.Message.StickerMessage

@@ -34,7 +34,7 @@ const DEFAULT_EXTENSIONS = {
 
 const DEFAULT_OPTIONS = {
   apiRoot: 'https://api.telegram.org',
-  webhookReply: true,
+  webhookReply: false,
   agent: new https.Agent({
     keepAlive: true,
     keepAliveMsecs: 10000

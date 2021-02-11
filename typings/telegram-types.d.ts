@@ -1,5 +1,6 @@
 import { type } from 'os'
 import * as TT from 'typegram'
+
 export * from 'typegram'
 
 export type ParseMode = 'Markdown' | 'MarkdownV2' | 'HTML'
@@ -65,11 +66,12 @@ export type MessageSubTypes =
   'connected_website' |
   'animation'
 
-export type InputMediaTypes = 'photo'
-                            | 'video'
-                            | 'animation'
-                            | 'audio'
-                            | 'document'
+export type InputMediaTypes =
+  'photo'
+  | 'video'
+  | 'animation'
+  | 'audio'
+  | 'document'
 
 export type ChatMemberStatus =
   'creator'
@@ -130,39 +132,39 @@ export interface InputMediaPhoto extends ExtraCaption {
 }
 
 export interface InputMediaVideo extends ExtraCaption {
- type: InputMediaTypes
- media: InputFile
- thumb?: string | InputFile
- width?: number
- height?: number
- duration?: number
- supports_streaming?: boolean
+  type: InputMediaTypes
+  media: InputFile
+  thumb?: string | InputFile
+  width?: number
+  height?: number
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaAnimation extends ExtraCaption {
- type: InputMediaTypes
- media: InputFile
- thumb?: string | InputFile
- width?: number
- height?: number
- duration?: number
- supports_streaming?: boolean
+  type: InputMediaTypes
+  media: InputFile
+  thumb?: string | InputFile
+  width?: number
+  height?: number
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaAudio extends ExtraCaption {
- type: InputMediaTypes
- media: InputFile
- thumb?: string | InputFile
- performer?: string
- title?: string
- duration?: number
- supports_streaming?: boolean
+  type: InputMediaTypes
+  media: InputFile
+  thumb?: string | InputFile
+  performer?: string
+  title?: string
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaDocument extends ExtraCaption {
- type: InputMediaTypes
- media: InputFile
- thumb?: string | InputFile
+  type: InputMediaTypes
+  media: InputFile
+  thumb?: string | InputFile
 }
 
 export interface StickerData {
@@ -230,16 +232,16 @@ export interface ChatPermissions {
 
 export interface ExtraSetWebhook {
   /** SSL public certificate */
-  certificate?:	InputFile
+  certificate?: InputFile
 
   /** The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS */
   ip_address?: string
 
   /** Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40. */
-  max_connections?:	number
+  max_connections?: number
 
   /** List the types of updates you want your bot to receive */
-  allowed_updates?:	UpdateType[]
+  allowed_updates?: UpdateType[]
 
   /** Pass True to drop all pending updates */
   drop_pending_updates?: boolean

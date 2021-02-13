@@ -275,6 +275,11 @@ async function answerToWebhook(
   return true
 }
 
+function redactToken(error: Error): never {
+  error.message = error.message.replace(/:\w+/, ':[REDACTED]')
+  throw error
+}
+
 type Response = http.ServerResponse
 class ApiClient {
   readonly options: ApiClient.Options
@@ -350,7 +355,7 @@ class ApiClient {
     )
     config.agent = options.agent
     config.signal = signal
-    const res = await fetch(apiUrl, config)
+    const res = await fetch(apiUrl, config).catch(redactToken)
     const data = await res.json()
     if (!data.ok) {
       debug('API call failed', data)

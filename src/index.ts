@@ -4,7 +4,7 @@ export { Composer } from './composer'
 export { Middleware, MiddlewareFn } from './middleware'
 export { Router } from './router'
 export { TelegramError } from './core/network/error'
-export { default as Telegram } from './telegram'
+export { Telegram } from './telegram'
 
 export * as Markup from './markup'
 

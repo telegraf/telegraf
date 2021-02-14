@@ -15,7 +15,7 @@ bot.telegram.setWebhook(
 
 bot.command('hello', (ctx) => ctx.reply('Hello, friend!'))
 
-export const botFunction = async (req, res) => {
+export const botFunction = async (req: any, res: any) => {
   console.log(req.body)
   try {
     await bot.handleUpdate(req.body)

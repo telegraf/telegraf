@@ -5,7 +5,7 @@ const { BOT_TOKEN, PROJECT_ID, FUNCTION_NAME, REGION } = process.env
 // eslint-disable-next-line
 const bot = new Telegraf(`${BOT_TOKEN}`)
 
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 bot.telegram.setWebhook(
   // eslint-disable-next-line
   `https://${REGION}-${PROJECT_ID}.cloudfunctions.net/${FUNCTION_NAME}`

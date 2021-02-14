@@ -78,10 +78,6 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     throw err
   }
 
-  /**
-   * @param token Bot Token: [Bot Father](web.telegram.org/@BotFather)
-   * @param options If not supplied, bot uses [[`DEFAULT_OPTIONS`]]
-   */
   constructor(token: string, options?: Partial<Telegraf.Options<C>>) {
     super()
     // @ts-expect-error

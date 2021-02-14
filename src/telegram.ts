@@ -194,7 +194,7 @@ class Telegram extends ApiClient {
     longitude: number,
     title: string,
     address: string,
-    extra: tt.ExtraVenue
+    extra?: tt.ExtraVenue
   ) {
     return this.callApi('sendVenue', {
       latitude,
@@ -225,7 +225,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     phoneNumber: string,
     firstName: string,
-    extra: tt.ExtraContact
+    extra?: tt.ExtraContact
   ) {
     return this.callApi('sendContact', {
       chat_id: chatId,
@@ -387,7 +387,7 @@ class Telegram extends ApiClient {
     chatId: number | string,
     question: string,
     options: readonly string[],
-    extra: tt.ExtraPoll
+    extra?: tt.ExtraPoll
   ) {
     return this.callApi('sendPoll', {
       chat_id: chatId,
@@ -426,7 +426,7 @@ class Telegram extends ApiClient {
   stopPoll(
     chatId: number | string,
     messageId: number,
-    extra: tt.ExtraStopPoll
+    extra?: tt.ExtraStopPoll
   ) {
     return this.callApi('stopPoll', {
       chat_id: chatId,

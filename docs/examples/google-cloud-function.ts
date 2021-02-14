@@ -3,9 +3,7 @@ import { Telegraf } from 'telegraf'
 const { BOT_TOKEN, PROJECT_ID, FUNCTION_NAME, REGION } = process.env
 
 // eslint-disable-next-line
-const bot = new Telegraf(`${BOT_TOKEN}`, {
-  telegram: { webhookReply: true },
-})
+const bot = new Telegraf(`${BOT_TOKEN}`)
 
 // eslint-disable-next-line
 bot.telegram.setWebhook(

@@ -7,6 +7,7 @@ export { TelegramError } from './core/network/error'
 
 export * as Markup from './markup'
 
+export { deunionize } from './deunionize'
 export { session, MemorySessionStore } from './session'
 
 export * as Scenes from './scenes'

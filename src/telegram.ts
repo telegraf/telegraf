@@ -734,7 +734,7 @@ class Telegram extends ApiClient {
     messageId: number | undefined,
     inlineMessageId: string | undefined,
     caption: string | undefined,
-    extra: tt.ExtraEditMessageCaption = {}
+    extra?: tt.ExtraEditMessageCaption
   ) {
     return this.callApi('editMessageCaption', {
       caption,
@@ -762,7 +762,7 @@ class Telegram extends ApiClient {
     messageId: number | undefined,
     inlineMessageId: string | undefined,
     media: tt.InputMedia,
-    extra: tt.ExtraEditMessageMedia = {}
+    extra?: tt.ExtraEditMessageMedia
   ) {
     return this.callApi('editMessageMedia', {
       chat_id: chatId,

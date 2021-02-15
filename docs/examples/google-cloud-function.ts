@@ -2,13 +2,11 @@ import { Telegraf } from 'telegraf'
 
 const { BOT_TOKEN, PROJECT_ID, FUNCTION_NAME, REGION } = process.env
 
-// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-const bot = new Telegraf(`${BOT_TOKEN}`)
+const bot = new Telegraf(BOT_TOKEN!)
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 bot.telegram.setWebhook(
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  `https://${REGION}-${PROJECT_ID}.cloudfunctions.net/${FUNCTION_NAME}`
+  `https://${REGION!}-${PROJECT_ID!}.cloudfunctions.net/${FUNCTION_NAME!}`
 )
 
 bot.command('hello', (ctx) => ctx.reply('Hello, friend!'))

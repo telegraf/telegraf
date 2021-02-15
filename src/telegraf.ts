@@ -38,6 +38,7 @@ export namespace Telegraf {
   }
 
   export interface LaunchOptions {
+    dropPendingUpdates?: boolean
     /** List the types of updates you want your bot to receive */
     allowedUpdates?: tt.UpdateType[]
     /** Configuration options for when the bot is run via webhooks */
@@ -152,7 +153,9 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     this.botInfo ??= await this.telegram.getMe()
     debug(`Launching @${this.botInfo.username}`)
     if (config.webhook === undefined) {
-      await this.telegram.deleteWebhook()
+      await this.telegram.deleteWebhook({
+        drop_pending_updates: config.dropPendingUpdates,
+      })
       this.startPolling(config.allowedUpdates)
       debug('Bot started with long polling')
       return
@@ -177,6 +180,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       return
     }
     await this.telegram.setWebhook(`https://${domain}${hookPath}`, {
+      drop_pending_updates: config.dropPendingUpdates,
       allowed_updates: config.allowedUpdates,
     })
     debug(`Bot started with webhook @ https://${domain}`)

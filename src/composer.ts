@@ -31,7 +31,7 @@ type MatchedContext<
   T extends tt.UpdateType | tt.MessageSubType
 > = GuardedContext<C, MountMap[T]>
 
-type UpdateTypes<U> = Exclude<UnionKeys<U>, keyof tt.Update>
+type UpdateTypes<U extends tt.Update> = Exclude<UnionKeys<U>, keyof tt.Update>
 type Getter<U extends tt.Update, P extends string> = PropOr<
   GetMessageFromAnySource<U>,
   P,

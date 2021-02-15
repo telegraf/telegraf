@@ -1,12 +1,15 @@
 import { Telegraf } from 'telegraf'
 
-const { BOT_TOKEN, PROJECT_ID, FUNCTION_NAME, REGION } = process.env
+const BOT_TOKEN = process.env.BOT_TOKEN ?? '<BOT TOKEN HERE>'
+const PROJECT_ID = process.env.PROJECT_ID ?? '<Google Project ID>'
+const FUNCTION_NAME = process.env.FUNCTION_NAME ?? 'botFunction'
+const REGION = process.env.REGION ?? 'us-central1'
 
-const bot = new Telegraf(BOT_TOKEN!)
+const bot = new Telegraf(BOT_TOKEN)
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 bot.telegram.setWebhook(
-  `https://${REGION!}-${PROJECT_ID!}.cloudfunctions.net/${FUNCTION_NAME!}`
+  `https://${REGION}-${PROJECT_ID}.cloudfunctions.net/${FUNCTION_NAME}`
 )
 
 bot.command('hello', (ctx) => ctx.reply('Hello, friend!'))

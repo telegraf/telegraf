@@ -19,10 +19,9 @@ export const botFunction = async (req: any, res: any) => {
   try {
     await bot.handleUpdate(req.body)
     console.log('Success')
-    res.status(200).send('Success')
   } catch (err) {
-    console.log('Failure')
     console.log(err)
-    res.status(500).send('Something went wrong')
+  } finally {
+    res.status(200).send('Success')
   }
 }

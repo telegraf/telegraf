@@ -34,6 +34,11 @@ type MatchedContext<
 
 type UpdateIntersection = UnionToIntersection<tt.Update>
 type UpdateTypes<U> = Exclude<UnionKeys<U>, keyof tt.Update>
+type Getter<U extends tt.Update, P extends string> = PropOr<
+  UpdateIntersection[UpdateTypes<U>],
+  P,
+  undefined
+>
 
 /**
  * Narrows down `Context['update']` and some derived properties.
@@ -44,13 +49,9 @@ type GuardedContext<C extends Context, U extends tt.Update> = C &
   } & {
     update: U
     updateType: keyof UnionToIntersection<U>
-    chat: PropOr<UpdateIntersection[UpdateTypes<U>], 'chat', undefined>
-    from: PropOr<UpdateIntersection[UpdateTypes<U>], 'from', undefined>
-    sender_chat: PropOr<
-      UpdateIntersection[UpdateTypes<U>],
-      'sender_chat',
-      undefined
-    >
+    sender_chat: Getter<U, 'sender_chat'>
+    from: Getter<U, 'from'>
+    chat: Getter<U, 'chat'>
   }
 /**
  * Maps `Composer.mount`'s `updateType` to a type

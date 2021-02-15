@@ -1,11 +1,10 @@
 /** @format */
 
 import * as tt from './telegram-types'
+import Context, { GetMessageFromAnySource } from './context'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
 import { PropOr, UnionKeys } from './deunionize'
-import Context from './context'
 import { SnakeToCamelCase } from './core/helpers/string'
-import { UnionToIntersection } from './telegram-types'
 
 type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
@@ -32,10 +31,9 @@ type MatchedContext<
   T extends tt.UpdateType | tt.MessageSubType
 > = GuardedContext<C, MountMap[T]>
 
-type UpdateIntersection = UnionToIntersection<tt.Update>
 type UpdateTypes<U> = Exclude<UnionKeys<U>, keyof tt.Update>
 type Getter<U extends tt.Update, P extends string> = PropOr<
-  UpdateIntersection[UpdateTypes<U>],
+  GetMessageFromAnySource<U>,
   P,
   undefined
 >
@@ -48,8 +46,8 @@ type GuardedContext<C extends Context, U extends tt.Update> = C &
     [P in tt.UpdateType as SnakeToCamelCase<P>]: PropOr<U, P, undefined>
   } & {
     update: U
-    updateType: keyof UnionToIntersection<U>
-    sender_chat: Getter<U, 'sender_chat'>
+    updateType: UpdateTypes<U>
+    senderChat: Getter<U, 'sender_chat'>
     from: Getter<U, 'from'>
     chat: Getter<U, 'chat'>
   }

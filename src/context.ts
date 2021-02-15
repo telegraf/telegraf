@@ -1,5 +1,6 @@
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
+import { PropOr } from './deunionize'
 import Telegram from './telegram'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
@@ -563,6 +564,16 @@ export class Context {
 
 export default Context
 
+export type GetMessageFromAnySource<
+  U extends tt.Update
+> = U extends tt.Update.CallbackQueryUpdate
+  ? U['callback_query']['message']
+  :
+      | PropOr<U, 'message', never>
+      | PropOr<U, 'edited_message', never>
+      | PropOr<U, 'channel_post', never>
+      | PropOr<U, 'edited_channel_post', never>
+// KEEP THESE IN SYNC!
 function getMessageFromAnySource(ctx: Context) {
   return (
     ctx.message ??

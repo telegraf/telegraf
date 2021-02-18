@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 
-// @ts-expect-error not a dependency of Telegraf
-import express from 'express'
+// @ts-expect-error `npm install express && npm install --save-dev @types/express`
+import express, { Request, Response } from 'express'
 import { Telegraf } from 'telegraf'
 
 const token = process.env.BOT_TOKEN
@@ -18,7 +18,7 @@ bot.on('text', (ctx) => ctx.replyWithHTML('<b>Hello</b>'))
 bot.telegram.setWebhook('https://----.localtunnel.me/secret-path')
 
 const app = express()
-app.get('/', (req: any, res: any) => res.send('Hello World!'))
+app.get('/', (req: Request, res: Response) => res.send('Hello World!'))
 // Set the bot API endpoint
 app.use(bot.webhookCallback('/secret-path'))
 app.listen(3000, () => {

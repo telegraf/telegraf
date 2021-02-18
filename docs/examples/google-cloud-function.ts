@@ -1,3 +1,5 @@
+// @ts-expect-error `npm install --save-dev @types/express`
+import { Request, Response } from 'express'
 import { Telegraf } from 'telegraf'
 
 const { BOT_TOKEN, FUNCTION_NAME, PROJECT_ID, REGION } = process.env
@@ -15,7 +17,7 @@ bot.telegram.setWebhook(
 
 bot.command('hello', (ctx) => ctx.reply('Hello, friend!'))
 
-export const botFunction = async (req: any, res: any) => {
+export const botFunction = async (req: Request, res: Response) => {
   try {
     await bot.handleUpdate(req.body)
   } finally {

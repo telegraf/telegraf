@@ -39,7 +39,11 @@ type Getter<U extends tt.Update, P extends string> = PropOr<
 >
 
 /**
- * Narrows down `Context['update']` and some derived properties.
+ * Narrows down `C['update']` (and derived getters)
+ * to specific update type `U`.
+ *
+ * Used by [[`Composer`]],
+ * possibly useful for splitting a bot into multiple files.
  */
 type GuardedContext<C extends Context, U extends tt.Update> = C &
   {

@@ -1,10 +1,10 @@
 /** @format */
 
 import * as tt from './telegram-types'
+import Context, { GetMessageFromAnySource } from './context'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
-import Context from './context'
+import { PropOr, UnionKeys } from './deunionize'
 import { SnakeToCamelCase } from './core/helpers/string'
-import { UnionToIntersection } from './telegram-types'
 
 type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
@@ -14,8 +14,6 @@ type Triggers<C> = MaybeArray<
 >
 type Predicate<T> = (t: T) => boolean
 type AsyncPredicate<T> = (t: T) => Promise<boolean>
-
-type PropOr<T, P extends string, D> = T extends Record<P, infer V> ? V : D
 
 type MatchedMiddleware<
   C extends Context,
@@ -33,29 +31,41 @@ type MatchedContext<
   T extends tt.UpdateType | tt.MessageSubType
 > = GuardedContext<C, MountMap[T]>
 
+type UpdateTypes<U extends tt.Update> = Exclude<UnionKeys<U>, keyof tt.Update>
+type Getter<U extends tt.Update, P extends string> = PropOr<
+  GetMessageFromAnySource<U>,
+  P,
+  undefined
+>
+
 /**
- * Narrows down `Context['update']` and some derived properties.
+ * Narrows down `C['update']` (and derived getters)
+ * to specific update type `U`.
+ *
+ * Used by [[`Composer`]],
+ * possibly useful for splitting a bot into multiple files.
  */
-type GuardedContext<
-  C extends Context,
-  U extends Omit<tt.Update, 'update_id'>
-> = C &
+type GuardedContext<C extends Context, U extends tt.Update> = C &
   {
     [P in tt.UpdateType as SnakeToCamelCase<P>]: PropOr<U, P, undefined>
   } & {
     update: U
-    updateType: keyof UnionToIntersection<U>
+    updateType: UpdateTypes<U>
+    senderChat: Getter<U, 'sender_chat'>
+    from: Getter<U, 'from'>
+    chat: Getter<U, 'chat'>
   }
 /**
  * Maps `Composer.mount`'s `updateType` to a type
  * that narrows down `tt.Update` when intersected with it.
  */
 type MountMap = {
-  [T in tt.UpdateType]: Record<T, object>
+  [T in tt.UpdateType]: Extract<tt.Update, Record<T, object>>
 } &
   {
     [T in tt.MessageSubType]: {
-      message: Extract<tt.Message, Record<T, unknown>>
+      message: Extract<tt.Update.MessageUpdate['message'], Record<T, unknown>>
+      update_id: number
     }
   }
 
@@ -416,7 +426,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
           ('message' in update && type in update.message)
       )
 
-    return Composer.guard(predicate, ...fns)
+    return Composer.guard<C, MountMap[T]>(predicate, ...fns)
   }
 
   private static entity<

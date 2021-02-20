@@ -1,5 +1,5 @@
 export type PropOr<
-  T extends object,
+  T extends object | undefined,
   P extends string | symbol | number,
   D
 > = T extends Partial<Record<P, unknown>> ? T[P] : D

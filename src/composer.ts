@@ -29,7 +29,7 @@ type MatchedMiddleware<
 type MatchedContext<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType
-> = GuardedContext<C, MountMap[T]>
+> = NarrowedContext<C, MountMap[T]>
 
 type UpdateTypes<U extends tt.Update> = Exclude<UnionKeys<U>, keyof tt.Update>
 type Getter<U extends tt.Update, P extends string> = PropOr<
@@ -45,7 +45,7 @@ type Getter<U extends tt.Update, P extends string> = PropOr<
  * Used by [[`Composer`]],
  * possibly useful for splitting a bot into multiple files.
  */
-type GuardedContext<C extends Context, U extends tt.Update> = C &
+export type NarrowedContext<C extends Context, U extends tt.Update> = C &
   {
     [P in tt.UpdateType as SnakeToCamelCase<P>]: PropOr<U, P, undefined>
   } & {
@@ -99,7 +99,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   guard<U extends tt.Update>(
     guardFn: (update: tt.Update) => update is U,
-    ...fns: NonemptyReadonlyArray<Middleware<GuardedContext<C, U>>>
+    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>>>
   ) {
     return this.use(Composer.guard<C, U>(guardFn, ...fns))
   }
@@ -153,7 +153,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   gameQuery(
     ...fns: NonemptyReadonlyArray<
-      Middleware<GuardedContext<C, GameQueryUpdate>>
+      Middleware<NarrowedContext<C, GameQueryUpdate>>
     >
   ) {
     return this.use(Composer.gameQuery(...fns))
@@ -388,7 +388,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static guard<C extends Context, U extends tt.Update>(
     guardFn: (u: tt.Update) => u is U,
-    ...fns: NonemptyReadonlyArray<Middleware<GuardedContext<C, U>>>
+    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>>>
   ): MiddlewareFn<C> {
     return Composer.optional<C>(
       (ctx) => guardFn(ctx.update),
@@ -743,7 +743,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static gameQuery<C extends Context>(
     ...fns: NonemptyReadonlyArray<
-      Middleware<GuardedContext<C, GameQueryUpdate>>
+      Middleware<NarrowedContext<C, GameQueryUpdate>>
     >
   ): MiddlewareFn<C> {
     return Composer.guard(

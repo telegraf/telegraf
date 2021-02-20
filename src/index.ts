@@ -1,6 +1,6 @@
 export { Telegraf } from './telegraf'
 export { Context } from './context'
-export { Composer } from './composer'
+export { Composer, NarrowedContext } from './composer'
 export { Middleware, MiddlewareFn } from './middleware'
 export { Router } from './router'
 export { TelegramError } from './core/network/error'

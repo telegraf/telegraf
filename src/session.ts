@@ -30,6 +30,7 @@ export interface SessionContext<S extends object> extends Context {
  * or pass custom `storage`.
  *
  * @example https://github.com/telegraf/telegraf/blob/develop/docs/examples/session-bot.ts
+ * @deprecated https://github.com/telegraf/telegraf/issues/1372#issuecomment-782668499
  */
 export function session<S extends object>(
   options?: SessionOptions<S>
@@ -60,6 +61,7 @@ async function defaultGetSessionKey(ctx: Context): Promise<string | undefined> {
   return `${fromId}:${chatId}`
 }
 
+/** @deprecated https://github.com/telegraf/telegraf/issues/1372#issuecomment-782668499 */
 export class MemorySessionStore<T> implements SessionStore<T> {
   private readonly store = new Map<string, { session: T; expires: number }>()
 

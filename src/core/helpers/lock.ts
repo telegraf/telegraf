@@ -7,7 +7,6 @@ export class Lock {
 
   async acquire(key: string) {
     const queue = this.queuedLocks.get(key)
-    console.log(`acquire: ${JSON.stringify(queue)}`)
     if (!queue) {
       this.queuedLocks.set(key, [])
       return true
@@ -22,7 +21,6 @@ export class Lock {
 
   async release(key: string) {
     const queue = this.queuedLocks.get(key)
-    console.log(`release: ${JSON.stringify(queue)}`)
     if (!queue) {
       console.warn('Nothing to release')
       return false

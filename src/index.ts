@@ -5,6 +5,7 @@ export { Middleware, MiddlewareFn } from './middleware'
 export { Router } from './router'
 export { TelegramError } from './core/network/error'
 export { Telegram } from './telegram'
+export * as Types from './telegram-types'
 
 export * as Markup from './markup'
 

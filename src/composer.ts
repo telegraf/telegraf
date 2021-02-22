@@ -1,7 +1,7 @@
 /** @format */
 
 import * as tt from './telegram-types'
-import Context, { GetMessageFromAnySource, UpdateTypes } from './context'
+import Context, { GetUpdateContent, UpdateTypes } from './context'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
 import { PropOr } from './deunionize'
 import { SnakeToCamelCase } from './core/helpers/string'
@@ -32,7 +32,7 @@ type MatchedContext<
 > = NarrowedContext<C, MountMap[T]>
 
 type Getter<U extends tt.Update, P extends string> = PropOr<
-  GetMessageFromAnySource<U>,
+  GetUpdateContent<U>,
   P,
   undefined
 >

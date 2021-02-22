@@ -555,8 +555,7 @@ export type UpdateTypes<U extends tt.Update> = Extract<
   tt.UpdateType
 >
 
-// TODO rename
-export type GetMessageFromAnySource<
+export type GetUpdateContent<
   U extends tt.Update
 > = U extends tt.Update.CallbackQueryUpdate
   ? U['callback_query']['message']

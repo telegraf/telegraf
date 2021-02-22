@@ -1,9 +1,9 @@
 /** @format */
 
 import * as tt from './telegram-types'
-import Context, { GetMessageFromAnySource } from './context'
+import Context, { GetMessageFromAnySource, UpdateTypes } from './context'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
-import { PropOr, UnionKeys } from './deunionize'
+import { PropOr } from './deunionize'
 import { SnakeToCamelCase } from './core/helpers/string'
 
 type MaybeArray<T> = T | T[]
@@ -31,7 +31,6 @@ type MatchedContext<
   T extends tt.UpdateType | tt.MessageSubType
 > = NarrowedContext<C, MountMap[T]>
 
-type UpdateTypes<U extends tt.Update> = Exclude<UnionKeys<U>, keyof tt.Update>
 type Getter<U extends tt.Update, P extends string> = PropOr<
   GetMessageFromAnySource<U>,
   P,

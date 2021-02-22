@@ -1,7 +1,6 @@
 /** @format */
 
 import { Chat, Message, Typegram } from 'typegram'
-import { UpdateTypes } from './context'
 
 // internal type provisions
 export * from 'typegram/callback'
@@ -143,8 +142,22 @@ export type UnionToIntersection<U> = (
   ? I
   : never
 
+export const updateTypes = [
+  'callback_query',
+  'channel_post',
+  'chosen_inline_result',
+  'edited_channel_post',
+  'edited_message',
+  'inline_query',
+  'message',
+  'pre_checkout_query',
+  'shipping_query',
+  'poll',
+  'poll_answer',
+] as const
+
 /** Possible update types */
-export type UpdateType = typeof UpdateTypes[number]
+export type UpdateType = typeof updateTypes[number]
 
 /** Possible message subtypes. Same as the properties on a message object */
 export type MessageSubType =

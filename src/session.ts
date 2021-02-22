@@ -1,4 +1,5 @@
 import { Context } from './context'
+import { Lock } from './core/helpers/lock'
 import { MaybePromise } from './composer'
 import { MiddlewareFn } from './middleware'
 
@@ -21,12 +22,16 @@ export function session<S extends object>(
   options?: SessionOptions<S>
 ): MiddlewareFn<SessionContext<S>> {
   const getSessionKey = options?.getSessionKey ?? defaultGetSessionKey
+  const lock = new Lock()
   const store = options?.store ?? new MemorySessionStore()
   return async (ctx, next) => {
     const key = await getSessionKey(ctx)
     if (key == null) {
       return await next()
     }
+
+    // Start of critical section
+    await lock.acquire(key)
     ctx.session = await store.get(key)
     await next()
     if (ctx.session == null) {
@@ -34,6 +39,8 @@ export function session<S extends object>(
     } else {
       await store.set(key, ctx.session)
     }
+    await lock.release(key)
+    // End of critical sesction
   }
 }
 

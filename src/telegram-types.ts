@@ -1,6 +1,7 @@
 /** @format */
 
 import { Chat, Message, Typegram } from 'typegram'
+import { UnionKeys } from './deunionize'
 
 // internal type provisions
 export * from 'typegram/callback'
@@ -136,12 +137,6 @@ export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
 
 // types used for inference of ctx object
 
-export type UnionToIntersection<U> = (
-  U extends unknown ? (k: U) => void : never
-) extends (k: infer I) => void
-  ? I
-  : never
-
 export const updateTypes = [
   'callback_query',
   'channel_post',
@@ -163,6 +158,6 @@ export type UpdateType = typeof updateTypes[number]
 export type MessageSubType =
   | 'forward_date'
   | Exclude<
-      keyof UnionToIntersection<Message>,
+      UnionKeys<Message>,
       keyof Message.CaptionableMessage | 'entities' | 'media_group_id'
     >

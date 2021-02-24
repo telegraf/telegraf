@@ -1,27 +1,13 @@
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
-import { PropOr } from './deunionize'
 import Telegram from './telegram'
+import { UnionKeys } from './deunionize'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
 
 type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
-
-export const UpdateTypes = [
-  'callback_query',
-  'channel_post',
-  'chosen_inline_result',
-  'edited_channel_post',
-  'edited_message',
-  'inline_query',
-  'message',
-  'pre_checkout_query',
-  'shipping_query',
-  'poll',
-  'poll_answer',
-] as const
 
 export class Context {
   readonly state: Record<string | symbol, any> = {}
@@ -33,7 +19,7 @@ export class Context {
   ) {}
 
   get updateType() {
-    return UpdateTypes.find((key) => key in this.update)
+    return tt.updateTypes.find((key) => key in this.update)
   }
 
   get me() {
@@ -564,16 +550,17 @@ export class Context {
 
 export default Context
 
-export type GetMessageFromAnySource<
+export type UpdateTypes<U extends tt.Update> = Extract<
+  UnionKeys<U>,
+  tt.UpdateType
+>
+
+export type GetUpdateContent<
   U extends tt.Update
 > = U extends tt.Update.CallbackQueryUpdate
   ? U['callback_query']['message']
-  :
-      | PropOr<U, 'message', never>
-      | PropOr<U, 'edited_message', never>
-      | PropOr<U, 'channel_post', never>
-      | PropOr<U, 'edited_channel_post', never>
-// KEEP THESE IN SYNC!
+  : U[UpdateTypes<U>]
+
 function getMessageFromAnySource(ctx: Context) {
   return (
     ctx.message ??

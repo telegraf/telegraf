@@ -87,6 +87,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ...compactOptions(options),
     }
     this.telegram = new Telegram(token, this.options.telegram)
+    debug('Created a `Telegraf` instance')
   }
 
   private get token() {
@@ -148,6 +149,9 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return this
   }
 
+  /**
+   * @see https://github.com/telegraf/telegraf/discussions/1344#discussioncomment-335700
+   */
   async launch(config: Telegraf.LaunchOptions = {}) {
     debug('Connecting to Telegram')
     this.botInfo ??= await this.telegram.getMe()
@@ -227,6 +231,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       if (webhookResponse?.writableEnded === false) {
         webhookResponse.end()
       }
+      debug('Finished processing update', update.update_id)
     }
   }
 }

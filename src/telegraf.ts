@@ -46,10 +46,7 @@ export namespace Telegraf {
       /** Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component). */
       domain?: string
 
-      /**
-       * Webhook url path.
-       * @deprecated Safely derived if not specified.
-       * */
+      /** Webhook url path; will be automatically generated if not specified */
       hookPath?: string
 
       host?: string
@@ -156,7 +153,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return crypto
       .createHash('sha3-256')
       .update(this.token)
-      .update(process.version)
+      .update(process.version) // salt
       .digest('hex')
   }
 

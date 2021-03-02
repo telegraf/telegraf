@@ -1,5 +1,9 @@
 /** @format */
 
+li.tsd-kind-namespace > a[href$="telegraf.html"] {
+  display: none;
+}
+
 a > h2:hover::after,
 a > h3:hover::after,
 a > h4:hover::after,

@@ -6,7 +6,6 @@ const telegrafPlugin = require('fastify-telegraf')
 
 const { BOT_TOKEN, WEBHOOK_URL } = process.env
 const PORT = process.env.PORT || 3000
-const SECRET_PATH = '/my-secret-path'
 
 if (!WEBHOOK_URL) throw new Error('"WEBHOOK_URL" env var is required!')
 if (!BOT_TOKEN) throw new Error('"BOT_TOKEN" env var is required!')
@@ -14,6 +13,7 @@ if (!BOT_TOKEN) throw new Error('"BOT_TOKEN" env var is required!')
 const bot = new Telegraf(BOT_TOKEN)
 const app = fastify()
 
+const SECRET_PATH = `/telegraf/${bot.secretPathComponent()}`
 app.register(telegrafPlugin, { bot, path: SECRET_PATH })
 
 bot.on('text', (ctx) => ctx.reply('Hello'))

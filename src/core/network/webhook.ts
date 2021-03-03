@@ -1,6 +1,7 @@
 import * as http from 'http'
 import d from 'debug'
 import { Update } from '../../telegram-types'
+import safeCompare = require('safe-compare')
 const debug = d('telegraf:webhook')
 
 export default function (
@@ -17,7 +18,7 @@ export default function (
     }
   ): Promise<void> => {
     debug('Incoming request', req.method, req.url)
-    if (req.method !== 'POST' || req.url !== hookPath) {
+    if (req.method !== 'POST' || !safeCompare(hookPath, req.url!)) {
       return next()
     }
     let body = ''

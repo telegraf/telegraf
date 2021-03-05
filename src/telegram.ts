@@ -1,3 +1,4 @@
+import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 import { isAbsolute } from 'path'
@@ -22,7 +23,7 @@ export class Telegram extends ApiClient {
   /**
    * Get download link to a file
    */
-  async getFileLink(fileId: string | tt.File) {
+  async getFileLink(fileId: string | tg.File) {
     if (typeof fileId === 'string') {
       fileId = await this.getFile(fileId)
     } else if (fileId.file_path === undefined) {
@@ -473,7 +474,7 @@ export class Telegram extends ApiClient {
    */
   answerInlineQuery(
     inlineQueryId: string,
-    results: readonly tt.InlineQueryResult[],
+    results: readonly tg.InlineQueryResult[],
     extra?: tt.ExtraAnswerInlineQuery
   ) {
     return this.callApi('answerInlineQuery', {
@@ -483,7 +484,7 @@ export class Telegram extends ApiClient {
     })
   }
 
-  setChatPermissions(chatId: number | string, permissions: tt.ChatPermissions) {
+  setChatPermissions(chatId: number | string, permissions: tg.ChatPermissions) {
     return this.callApi('setChatPermissions', { chat_id: chatId, permissions })
   }
 
@@ -666,7 +667,7 @@ export class Telegram extends ApiClient {
   answerShippingQuery(
     shippingQueryId: string,
     ok: boolean,
-    shippingOptions: readonly tt.ShippingOption[] | undefined,
+    shippingOptions: readonly tg.ShippingOption[] | undefined,
     errorMessage: string | undefined
   ) {
     return this.callApi('answerShippingQuery', {
@@ -785,7 +786,7 @@ export class Telegram extends ApiClient {
     chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
-    markup: tt.InlineKeyboardMarkup | undefined
+    markup: tg.InlineKeyboardMarkup | undefined
   ) {
     return this.callApi('editMessageReplyMarkup', {
       chat_id: chatId,
@@ -817,7 +818,7 @@ export class Telegram extends ApiClient {
     chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
-    markup?: tt.InlineKeyboardMarkup
+    markup?: tg.InlineKeyboardMarkup
   ) {
     return this.callApi('stopMessageLiveLocation', {
       chat_id: chatId,
@@ -950,13 +951,13 @@ export class Telegram extends ApiClient {
    * Change the list of the bot's commands.
    * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
    */
-  setMyCommands(commands: readonly tt.BotCommand[]) {
+  setMyCommands(commands: readonly tg.BotCommand[]) {
     return this.callApi('setMyCommands', { commands })
   }
 
   setPassportDataErrors(
     userId: number,
-    errors: readonly tt.PassportElementError[]
+    errors: readonly tg.PassportElementError[]
   ) {
     return this.callApi('setPassportDataErrors', {
       user_id: userId,
@@ -972,9 +973,9 @@ export class Telegram extends ApiClient {
    */
   sendCopy(
     chatId: number | string,
-    message: tt.Message,
+    message: tg.Message,
     extra?: tt.ExtraCopyMessage
-  ): Promise<tt.MessageId> {
+  ): Promise<tg.MessageId> {
     return this.copyMessage(chatId, message.chat.id, message.message_id, extra)
   }
 

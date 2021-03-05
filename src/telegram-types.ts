@@ -3,15 +3,6 @@
 import { Chat, Message, Typegram } from 'typegram'
 import { UnionKeys } from './deunionize'
 
-// internal type provisions
-export * from 'typegram/callback'
-export * from 'typegram/inline'
-export * from 'typegram/manage'
-export * from 'typegram/message'
-export * from 'typegram/passport'
-export * from 'typegram/payment'
-export * from 'typegram/update'
-
 // telegraf input file definition
 export interface InputFileByPath {
   source: string

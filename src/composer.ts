@@ -1,5 +1,6 @@
 /** @format */
 
+import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import Context, { GetUpdateContent, UpdateTypes } from './context'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
@@ -31,7 +32,7 @@ type MatchedContext<
   T extends tt.UpdateType | tt.MessageSubType
 > = NarrowedContext<C, MountMap[T]>
 
-type Getter<U extends tt.Update, P extends string> = PropOr<
+type Getter<U extends tg.Update, P extends string> = PropOr<
   GetUpdateContent<U>,
   P,
   undefined
@@ -44,7 +45,7 @@ type Getter<U extends tt.Update, P extends string> = PropOr<
  * Used by [[`Composer`]],
  * possibly useful for splitting a bot into multiple files.
  */
-export type NarrowedContext<C extends Context, U extends tt.Update> = C &
+export type NarrowedContext<C extends Context, U extends tg.Update> = C &
   {
     [P in tt.UpdateType as SnakeToCamelCase<P>]: PropOr<U, P, undefined>
   } & {
@@ -59,17 +60,17 @@ export type NarrowedContext<C extends Context, U extends tt.Update> = C &
  * that narrows down `tt.Update` when intersected with it.
  */
 type MountMap = {
-  [T in tt.UpdateType]: Extract<tt.Update, Record<T, object>>
+  [T in tt.UpdateType]: Extract<tg.Update, Record<T, object>>
 } &
   {
     [T in tt.MessageSubType]: {
-      message: Extract<tt.Update.MessageUpdate['message'], Record<T, unknown>>
+      message: Extract<tg.Update.MessageUpdate['message'], Record<T, unknown>>
       update_id: number
     }
   }
 
-interface GameQueryUpdate extends tt.Update.CallbackQueryUpdate {
-  callback_query: tt.CallbackQuery.GameShortGameCallbackQuery
+interface GameQueryUpdate extends tg.Update.CallbackQueryUpdate {
+  callback_query: tg.CallbackQuery.GameShortGameCallbackQuery
 }
 
 function always<T>(x: T) {
@@ -96,8 +97,8 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Registers middleware for handling updates
    * matching given type guard function.
    */
-  guard<U extends tt.Update>(
-    guardFn: (update: tt.Update) => update is U,
+  guard<U extends tg.Update>(
+    guardFn: (update: tg.Update) => update is U,
     ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>>>
   ) {
     return this.use(Composer.guard<C, U>(guardFn, ...fns))
@@ -176,7 +177,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   >(
     predicate:
       | MaybeArray<string>
-      | ((entity: tt.MessageEntity, s: string, ctx: C) => boolean),
+      | ((entity: tg.MessageEntity, s: string, ctx: C) => boolean),
     ...fns: ReadonlyArray<Middleware<MatchedContext<C, T>>>
   ) {
     return this.use(Composer.entity<C, T>(predicate, ...fns))
@@ -385,8 +386,8 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * @param fns middleware to run if the predicate returns true
    * @see `Composer.optional` for a more generic version of this method that allows the predicate to operate on `ctx` itself
    */
-  static guard<C extends Context, U extends tt.Update>(
-    guardFn: (u: tt.Update) => u is U,
+  static guard<C extends Context, U extends tg.Update>(
+    guardFn: (u: tg.Update) => u is U,
     ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>>>
   ): MiddlewareFn<C> {
     return Composer.optional<C>(
@@ -416,7 +417,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   ): MiddlewareFn<C> {
     const updateTypes = normalizeTextArguments(updateType)
 
-    const predicate = (update: tt.Update): update is tt.Update & MountMap[T] =>
+    const predicate = (update: tg.Update): update is tg.Update & MountMap[T] =>
       updateTypes.some(
         (type) =>
           // Check update type
@@ -436,7 +437,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   >(
     predicate:
       | MaybeArray<string>
-      | ((entity: tt.MessageEntity, s: string, ctx: C) => boolean),
+      | ((entity: tg.MessageEntity, s: string, ctx: C) => boolean),
     ...fns: ReadonlyArray<Middleware<MatchedContext<C, T>>>
   ): MiddlewareFn<C> {
     if (typeof predicate !== 'function') {
@@ -444,7 +445,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       return Composer.entity(({ type }) => entityTypes.includes(type), ...fns)
     }
     return Composer.optional<C>((ctx) => {
-      const msg: tt.Message | undefined = ctx.message ?? ctx.channelPost
+      const msg: tg.Message | undefined = ctx.message ?? ctx.channelPost
       if (msg === undefined) {
         return false
       }
@@ -676,7 +677,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   }
 
   private static memberStatus<C extends Context>(
-    status: MaybeArray<tt.ChatMember['status']>,
+    status: MaybeArray<tg.ChatMember['status']>,
     ...fns: NonemptyReadonlyArray<Middleware<C>>
   ): MiddlewareFn<C> {
     const statuses = Array.isArray(status) ? status : [status]
@@ -820,14 +821,14 @@ function normalizeTriggers<C extends Context>(
   })
 }
 
-function getEntities(msg: tt.Message | undefined): tt.MessageEntity[] {
+function getEntities(msg: tg.Message | undefined): tg.MessageEntity[] {
   if (msg == null) return []
   if ('caption_entities' in msg) return msg.caption_entities ?? []
   if ('entities' in msg) return msg.entities ?? []
   return []
 }
 function getText(
-  msg: tt.Message | tt.CallbackQuery | undefined
+  msg: tg.Message | tg.CallbackQuery | undefined
 ): string | undefined {
   if (msg == null) return undefined
   if ('caption' in msg) return msg.caption

@@ -50,7 +50,7 @@ export type InputFileVideoNote = Exclude<InputFile, InputFileByURL>
  *
  * Note that `chat_id` may not be specified in `K` because it is `Omit`ted by default.
  */
-export type MakeExtra<
+type MakeExtra<
   M extends keyof Telegram,
   K extends keyof Omit<Opts<M>, 'chat_id'> = never
 > = Omit<Opts<M>, 'chat_id' | K>

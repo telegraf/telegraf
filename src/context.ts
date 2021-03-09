@@ -110,6 +110,8 @@ export class Context {
       this.shippingQuery ??
       this.preCheckoutQuery ??
       this.chosenInlineResult ??
+      this.chatMember ??
+      this.myChatMember ??
       getMessageFromAnySource(this)
     )?.from
   }

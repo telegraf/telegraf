@@ -492,11 +492,17 @@ export class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
    * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
    */
-  kickChatMember(chatId: number | string, userId: number, untilDate?: number) {
+  kickChatMember(
+    chatId: number | string,
+    userId: number,
+    untilDate?: number,
+    extra?: tt.ExtraKickChatMember
+  ) {
     return this.callApi('kickChatMember', {
       chat_id: chatId,
       user_id: userId,
       until_date: untilDate,
+      ...extra,
     })
   }
 
@@ -550,6 +556,35 @@ export class Telegram extends ApiClient {
    */
   exportChatInviteLink(chatId: number | string) {
     return this.callApi('exportChatInviteLink', { chat_id: chatId })
+  }
+
+  createChatInviteLink(
+    chatId: number | string,
+    extra?: tt.ExtraCreateChatInviteLink
+  ) {
+    return this.callApi('exportChatInviteLink', {
+      chat_id: chatId,
+      ...extra,
+    })
+  }
+
+  editChatInviteLink(
+    chatId: number | string,
+    inviteLink: string,
+    extra?: tt.ExtraEditChatInviteLink
+  ) {
+    return this.callApi('editChatInviteLink', {
+      chat_id: chatId,
+      invite_link: inviteLink,
+      ...extra,
+    })
+  }
+
+  revokeChatInviteLink(chatId: number | string, inviteLink: string) {
+    return this.callApi('revokeChatInviteLink', {
+      chat_id: chatId,
+      invite_link: inviteLink,
+    })
   }
 
   setChatPhoto(

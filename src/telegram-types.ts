@@ -86,12 +86,17 @@ export type ExtraCopyMessage = MakeExtra<
   'copyMessage',
   'from_chat_id' | 'message_id'
 >
+export type ExtraCreateChatInviteLink = MakeExtra<'createChatInviteLink'>
 export type ExtraCreateNewStickerSet = MakeExtra<
   'createNewStickerSet',
   'name' | 'title' | 'user_id'
 >
 export type ExtraDice = MakeExtra<'sendDice'>
 export type ExtraDocument = MakeExtra<'sendDocument', 'document'>
+export type ExtraEditChatInviteLink = MakeExtra<
+  'editChatInviteLink',
+  'invite_link'
+>
 export type ExtraEditMessageCaption = MakeExtra<
   'editMessageCaption',
   'message_id' | 'inline_message_id' | 'caption'
@@ -117,6 +122,10 @@ export type NewInvoiceParameters = MakeExtra<
   | 'reply_markup'
 >
 export type ExtraInvoice = MakeExtra<'sendInvoice', keyof NewInvoiceParameters>
+export type ExtraKickChatMember = MakeExtra<
+  'kickChatMember',
+  'user_id' | 'until_date'
+>
 export type ExtraLocation = MakeExtra<'sendLocation', 'latitude' | 'longitude'>
 export type ExtraMediaGroup = MakeExtra<'sendMediaGroup', 'media'>
 export type ExtraPhoto = MakeExtra<'sendPhoto', 'photo'>
@@ -149,6 +158,8 @@ export const updateTypes = [
   'shipping_query',
   'poll',
   'poll_answer',
+  'my_chat_member',
+  'chat_member',
 ] as const
 
 /** Possible update types */

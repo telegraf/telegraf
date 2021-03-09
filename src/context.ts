@@ -85,6 +85,16 @@ export class Context {
     return this.update.poll_answer
   }
 
+  get myChatMember() {
+    if (!('my_chat_member' in this.update)) return undefined
+    return this.update.my_chat_member
+  }
+
+  get chatMember() {
+    if (!('chat_member' in this.update)) return undefined
+    return this.update.chat_member
+  }
+
   get chat() {
     return getMessageFromAnySource(this)?.chat
   }
@@ -260,6 +270,21 @@ export class Context {
   exportChatInviteLink(...args: Shorthand<'exportChatInviteLink'>) {
     this.assert(this.chat, 'exportChatInviteLink')
     return this.telegram.exportChatInviteLink(this.chat.id, ...args)
+  }
+
+  createChatInviteLink(...args: Shorthand<'createChatInviteLink'>) {
+    this.assert(this.chat, 'createChatInviteLink')
+    return this.telegram.createChatInviteLink(this.chat.id, ...args)
+  }
+
+  editChatInviteLink(...args: Shorthand<'editChatInviteLink'>) {
+    this.assert(this.chat, 'editChatInviteLink')
+    return this.telegram.editChatInviteLink(this.chat.id, ...args)
+  }
+
+  revokeChatInviteLink(...args: Shorthand<'revokeChatInviteLink'>) {
+    this.assert(this.chat, 'revokeChatInviteLink')
+    return this.telegram.revokeChatInviteLink(this.chat.id, ...args)
   }
 
   kickChatMember(...args: Shorthand<'kickChatMember'>) {

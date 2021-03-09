@@ -96,7 +96,11 @@ export class Context {
   }
 
   get chat() {
-    return getMessageFromAnySource(this)?.chat
+    return (
+      this.chatMember?.chat ??
+      this.myChatMember?.chat ??
+      getMessageFromAnySource(this)?.chat
+    )
   }
 
   get senderChat() {

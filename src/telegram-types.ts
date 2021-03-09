@@ -158,6 +158,8 @@ export const updateTypes = [
   'shipping_query',
   'poll',
   'poll_answer',
+  'my_chat_member',
+  'chat_member',
 ] as const
 
 /** Possible update types */

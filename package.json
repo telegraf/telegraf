@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "4.1.2",
+  "version": "4.2.0",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",

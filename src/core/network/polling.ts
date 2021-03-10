@@ -68,13 +68,13 @@ export class Polling {
     await this.telegram.callApi('getUpdates', { offset: this.offset, limit: 1 })
   }
 
-  async loop(handleUpdates: (updates: tt.Update[]) => Promise<void>) {
+  async loop(handleUpdate: (updates: tt.Update) => Promise<void>) {
     if (this.abortController.signal.aborted) {
       throw new Error('Polling instances must not be reused!')
     }
     try {
       for await (const updates of this) {
-        await handleUpdates(updates)
+        await Promise.all(updates.map(handleUpdate))
       }
     } finally {
       debug('Long polling stopped')

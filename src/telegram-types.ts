@@ -172,3 +172,14 @@ export type MessageSubType =
       UnionKeys<Message>,
       keyof Message.CaptionableMessage | 'entities' | 'media_group_id'
     >
+
+declare module 'typegram/message' {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Message {
+    interface ServiceMessage {
+      hasOwnProperty: <T extends MessageSubType>(
+        prop: T
+      ) => this is Extract<Message, Partial<Record<T, unknown>>>
+    }
+  }
+}

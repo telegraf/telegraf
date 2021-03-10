@@ -1,4 +1,4 @@
-import { ResponseParameters } from 'typegram'
+import { ResponseParameters } from '../types/typegram'
 
 interface ErrorPayload {
   error_code: number

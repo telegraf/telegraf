@@ -1,7 +1,7 @@
 import * as crypto from 'crypto'
 import * as http from 'http'
 import * as https from 'https'
-import * as tg from 'typegram'
+import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import * as util from 'util'
 import { Composer, MaybePromise } from './composer'

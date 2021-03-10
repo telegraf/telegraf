@@ -1,6 +1,6 @@
 import * as http from 'http'
 import d from 'debug'
-import { Update } from 'typegram'
+import { Update } from '../types/typegram'
 import safeCompare = require('safe-compare')
 const debug = d('telegraf:webhook')
 

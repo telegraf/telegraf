@@ -1,4 +1,4 @@
-import * as tg from 'typegram'
+import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 import Telegram from './telegram'
@@ -202,7 +202,7 @@ export class Context {
     )
   }
 
-  editMessageMedia(media: tt.InputMedia, extra?: tt.ExtraEditMessageMedia) {
+  editMessageMedia(media: tg.InputMedia, extra?: tt.ExtraEditMessageMedia) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageMedia')
     return this.telegram.editMessageMedia(
       this.chat?.id,

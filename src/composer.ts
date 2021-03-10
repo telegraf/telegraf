@@ -1,6 +1,6 @@
 /** @format */
 
-import * as tg from 'typegram'
+import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import Context, { GetUpdateContent, UpdateTypes } from './context'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
@@ -710,7 +710,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Generates middleware running only in specified chat types.
    */
   static chatType<C extends Context>(
-    type: MaybeArray<tt.ChatType>,
+    type: MaybeArray<tg.Chat['type']>,
     ...fns: NonemptyReadonlyArray<Middleware<C>>
   ): MiddlewareFn<C> {
     const types = Array.isArray(type) ? type : [type]

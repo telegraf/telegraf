@@ -562,7 +562,7 @@ export class Telegram extends ApiClient {
     chatId: number | string,
     extra?: tt.ExtraCreateChatInviteLink
   ) {
-    return this.callApi('exportChatInviteLink', {
+    return this.callApi('createChatInviteLink', {
       chat_id: chatId,
       ...extra,
     })

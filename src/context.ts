@@ -96,7 +96,11 @@ export class Context {
   }
 
   get chat() {
-    return getMessageFromAnySource(this)?.chat
+    return (
+      this.chatMember ??
+      this.myChatMember ??
+      getMessageFromAnySource(this)
+    )?.chat
   }
 
   get senderChat() {
@@ -110,6 +114,8 @@ export class Context {
       this.shippingQuery ??
       this.preCheckoutQuery ??
       this.chosenInlineResult ??
+      this.chatMember ??
+      this.myChatMember ??
       getMessageFromAnySource(this)
     )?.from
   }

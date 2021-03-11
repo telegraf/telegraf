@@ -26,7 +26,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 - Full [Telegram Bot API 5.1](https://core.telegram.org/bots/api) support
 - [Excellent TypeScript typings](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
 - [Lightweight](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
-- [Firebase](https://firebase.google.com/products/functions/)/[Glitch](https://dashing-light.glitch.me)/[Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction)/[AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)/Whatever ready
+- [Firebase](https://firebase.google.com/products/functions/)/[Glitch](https://glitch.com/edit/#!/dashing-light)/[Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction)/[AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)/Whatever ready
 - `http/https/fastify/Connect.js/express.js` compatible webhooks
 - Extensible
 

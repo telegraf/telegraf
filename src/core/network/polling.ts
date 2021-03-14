@@ -1,3 +1,4 @@
+import * as tg from '../types/typegram'
 import * as tt from '../../telegram-types'
 import AbortController from 'abort-controller'
 import ApiClient from './client'
@@ -68,7 +69,7 @@ export class Polling {
     await this.telegram.callApi('getUpdates', { offset: this.offset, limit: 1 })
   }
 
-  async loop(handleUpdates: (updates: tt.Update[]) => Promise<void>) {
+  async loop(handleUpdates: (updates: tg.Update[]) => Promise<void>) {
     if (this.abortController.signal.aborted) {
       throw new Error('Polling instances must not be reused!')
     }

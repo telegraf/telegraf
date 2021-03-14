@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { Context, Telegraf } from 'telegraf'
+import { Context, Telegraf, Telegram } from 'telegraf'
+import { Update, UserFromGetMe } from 'typegram'
 
 const token = process.env.BOT_TOKEN
 if (token === undefined) {
@@ -7,9 +8,9 @@ if (token === undefined) {
 }
 
 class CustomContext extends Context {
-  constructor(update: any, telegram: any, options: any) {
+  constructor(update: Update, telegram: Telegram, botInfo: UserFromGetMe) {
     console.log('Creating context for %j', update)
-    super(update, telegram, options)
+    super(update, telegram, botInfo)
   }
 
   reply(...args: Parameters<Context['reply']>) {

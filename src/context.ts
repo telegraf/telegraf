@@ -1,3 +1,4 @@
+import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 import Telegram from './telegram'
@@ -13,9 +14,9 @@ export class Context {
   readonly state: Record<string | symbol, any> = {}
 
   constructor(
-    readonly update: tt.Update,
+    readonly update: tg.Update,
     readonly tg: Telegram,
-    readonly botInfo: tt.UserFromGetMe
+    readonly botInfo: tg.UserFromGetMe
   ) {}
 
   get updateType() {
@@ -207,7 +208,7 @@ export class Context {
     )
   }
 
-  editMessageMedia(media: tt.InputMedia, extra?: tt.ExtraEditMessageMedia) {
+  editMessageMedia(media: tg.InputMedia, extra?: tt.ExtraEditMessageMedia) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageMedia')
     return this.telegram.editMessageMedia(
       this.chat?.id,
@@ -218,7 +219,7 @@ export class Context {
     )
   }
 
-  editMessageReplyMarkup(markup: tt.InlineKeyboardMarkup | undefined) {
+  editMessageReplyMarkup(markup: tg.InlineKeyboardMarkup | undefined) {
     this.assert(
       this.callbackQuery ?? this.inlineMessageId,
       'editMessageReplyMarkup'
@@ -250,7 +251,7 @@ export class Context {
     )
   }
 
-  stopMessageLiveLocation(markup?: tt.InlineKeyboardMarkup) {
+  stopMessageLiveLocation(markup?: tg.InlineKeyboardMarkup) {
     this.assert(
       this.callbackQuery ?? this.inlineMessageId,
       'stopMessageLiveLocation'
@@ -380,7 +381,7 @@ export class Context {
     return this.telegram.getChatMembersCount(this.chat.id, ...args)
   }
 
-  setPassportDataErrors(errors: readonly tt.PassportElementError[]) {
+  setPassportDataErrors(errors: readonly tg.PassportElementError[]) {
     this.assert(this.from, 'setPassportDataErrors')
     return this.telegram.setPassportDataErrors(this.from.id, errors)
   }
@@ -525,7 +526,7 @@ export class Context {
     return this.telegram.getMyCommands()
   }
 
-  setMyCommands(commands: readonly tt.BotCommand[]) {
+  setMyCommands(commands: readonly tg.BotCommand[]) {
     return this.telegram.setMyCommands(commands)
   }
 
@@ -581,14 +582,14 @@ export class Context {
 
 export default Context
 
-export type UpdateTypes<U extends tt.Update> = Extract<
+export type UpdateTypes<U extends tg.Update> = Extract<
   UnionKeys<U>,
   tt.UpdateType
 >
 
 export type GetUpdateContent<
-  U extends tt.Update
-> = U extends tt.Update.CallbackQueryUpdate
+  U extends tg.Update
+> = U extends tg.Update.CallbackQueryUpdate
   ? U['callback_query']['message']
   : U[UpdateTypes<U>]
 

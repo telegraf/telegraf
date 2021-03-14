@@ -1,6 +1,7 @@
 import * as crypto from 'crypto'
 import * as http from 'http'
 import * as https from 'https'
+import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import * as util from 'util'
 import { Composer, MaybePromise } from './composer'
@@ -66,7 +67,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   private webhookServer?: http.Server | https.Server
   private polling?: Polling
   /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
-  public botInfo?: tt.UserFromGetMe
+  public botInfo?: tg.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<C> = {}
 
@@ -114,7 +115,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   webhookCallback(path = '/') {
     return generateCallback(
       path,
-      (update: tt.Update, res: http.ServerResponse) =>
+      (update: tg.Update, res: http.ServerResponse) =>
         this.handleUpdate(update, res)
     )
   }
@@ -200,15 +201,15 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     this.polling?.stop()
   }
 
-  private handleUpdates(updates: readonly tt.Update[]) {
+  private handleUpdates(updates: readonly tg.Update[]) {
     if (!Array.isArray(updates)) {
       throw new TypeError(util.format('Updates must be an array, got', updates))
     }
     return Promise.all(updates.map((update) => this.handleUpdate(update)))
   }
 
-  private botInfoCall?: Promise<tt.UserFromGetMe>
-  async handleUpdate(update: tt.Update, webhookResponse?: http.ServerResponse) {
+  private botInfoCall?: Promise<tg.UserFromGetMe>
+  async handleUpdate(update: tg.Update, webhookResponse?: http.ServerResponse) {
     this.botInfo ??=
       (debug(
         'Update %d is waiting for `botInfo` to be initialized',

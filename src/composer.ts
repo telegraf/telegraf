@@ -2,10 +2,8 @@
 
 import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
-import Context, { GetUpdateContent, UpdateTypes } from './context'
+import Context, { UpdateTypes } from './context'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
-import { PropOr } from './deunionize'
-import { SnakeToCamelCase } from './core/helpers/string'
 
 type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
@@ -32,12 +30,6 @@ type MatchedContext<
   T extends tt.UpdateType | tt.MessageSubType
 > = NarrowedContext<C, MountMap[T]>
 
-type Getter<U extends tg.Update, P extends string> = PropOr<
-  GetUpdateContent<U>,
-  P,
-  undefined
->
-
 /**
  * Narrows down `C['update']` (and derived getters)
  * to specific update type `U`.
@@ -45,15 +37,12 @@ type Getter<U extends tg.Update, P extends string> = PropOr<
  * Used by [[`Composer`]],
  * possibly useful for splitting a bot into multiple files.
  */
-export type NarrowedContext<C extends Context, U extends tg.Update> = C &
-  {
-    [P in tt.UpdateType as SnakeToCamelCase<P>]: PropOr<U, P, undefined>
-  } & {
-    update: U
+export type NarrowedContext<
+  C extends Context,
+  U extends tg.Update
+> = Context<U> &
+  Omit<C, keyof Context> & {
     updateType: UpdateTypes<U>
-    senderChat: Getter<U, 'sender_chat'>
-    from: Getter<U, 'from'>
-    chat: Getter<U, 'chat'>
   }
 /**
  * Maps `Composer.mount`'s `updateType` to a type

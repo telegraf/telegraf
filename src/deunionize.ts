@@ -1,7 +1,7 @@
 export type PropOr<
   T extends object | undefined,
   P extends string | symbol | number,
-  D
+  D = undefined
 > = T extends Partial<Record<P, unknown>> ? T[P] : D
 
 export type UnionKeys<T> = T extends unknown ? keyof T : never

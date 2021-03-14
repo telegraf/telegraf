@@ -1,8 +1,8 @@
 import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
+import { Deunionize, PropOr, UnionKeys } from './deunionize'
 import ApiClient from './core/network/client'
 import Telegram from './telegram'
-import { UnionKeys } from './deunionize'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
 
@@ -10,11 +10,11 @@ type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
 
-export class Context {
+export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   readonly state: Record<string | symbol, any> = {}
 
   constructor(
-    readonly update: tg.Update,
+    readonly update: U,
     readonly tg: Telegram,
     readonly botInfo: tg.UserFromGetMe
   ) {}
@@ -32,80 +32,70 @@ export class Context {
   }
 
   get message() {
-    if (!('message' in this.update)) return undefined
-    return this.update.message
+    return this.update.message as PropOr<U, 'message'>
   }
 
   get editedMessage() {
-    if (!('edited_message' in this.update)) return undefined
-    return this.update.edited_message
+    return this.update.edited_message as PropOr<U, 'edited_message'>
   }
 
   get inlineQuery() {
-    if (!('inline_query' in this.update)) return undefined
-    return this.update.inline_query
+    return this.update.inline_query as PropOr<U, 'inline_query'>
   }
 
   get shippingQuery() {
-    if (!('shipping_query' in this.update)) return undefined
-    return this.update.shipping_query
+    return this.update.shipping_query as PropOr<U, 'shipping_query'>
   }
 
   get preCheckoutQuery() {
-    if (!('pre_checkout_query' in this.update)) return undefined
-    return this.update.pre_checkout_query
+    return this.update.pre_checkout_query as PropOr<U, 'pre_checkout_query'>
   }
 
   get chosenInlineResult() {
-    if (!('chosen_inline_result' in this.update)) return undefined
-    return this.update.chosen_inline_result
+    return this.update.chosen_inline_result as PropOr<U, 'chosen_inline_result'>
   }
 
   get channelPost() {
-    if (!('channel_post' in this.update)) return undefined
-    return this.update.channel_post
+    return this.update.channel_post as PropOr<U, 'channel_post'>
   }
 
   get editedChannelPost() {
-    if (!('edited_channel_post' in this.update)) return undefined
-    return this.update.edited_channel_post
+    return this.update.edited_channel_post as PropOr<U, 'edited_channel_post'>
   }
 
   get callbackQuery() {
-    if (!('callback_query' in this.update)) return undefined
-    return this.update.callback_query
+    return this.update.callback_query as PropOr<U, 'callback_query'>
   }
 
   get poll() {
-    if (!('poll' in this.update)) return undefined
-    return this.update.poll
+    return this.update.poll as PropOr<U, 'poll'>
   }
 
   get pollAnswer() {
-    if (!('poll_answer' in this.update)) return undefined
-    return this.update.poll_answer
+    return this.update.poll_answer as PropOr<U, 'poll_answer'>
   }
 
   get myChatMember() {
-    if (!('my_chat_member' in this.update)) return undefined
-    return this.update.my_chat_member
+    return this.update.my_chat_member as PropOr<U, 'my_chat_member'>
   }
 
   get chatMember() {
-    if (!('chat_member' in this.update)) return undefined
-    return this.update.chat_member
+    return this.update.chat_member as PropOr<U, 'chat_member'>
   }
 
-  get chat() {
+  get chat(): Getter<U, 'chat'> {
     return (
       this.chatMember ??
       this.myChatMember ??
       getMessageFromAnySource(this)
-    )?.chat
+    )?.chat as Getter<U, 'chat'>
   }
 
   get senderChat() {
-    return getMessageFromAnySource(this)?.sender_chat
+    return getMessageFromAnySource(this)?.sender_chat as Getter<
+      U,
+      'sender_chat'
+    >
   }
 
   get from() {
@@ -118,7 +108,7 @@ export class Context {
       this.chatMember ??
       this.myChatMember ??
       getMessageFromAnySource(this)
-    )?.from
+    )?.from as Getter<U, 'from'>
   }
 
   get inlineMessageId() {
@@ -593,7 +583,12 @@ export type GetUpdateContent<
   ? U['callback_query']['message']
   : U[UpdateTypes<U>]
 
-function getMessageFromAnySource(ctx: Context) {
+type Getter<U extends Deunionize<tg.Update>, P extends string> = PropOr<
+  GetUpdateContent<U>,
+  P
+>
+
+function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   return (
     ctx.message ??
     ctx.editedMessage ??

@@ -183,19 +183,19 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     return this.use(Composer.entity<C, T>(predicate, ...fns))
   }
 
-  email(email: MaybeArray<string>, ...fns: MatchedMiddleware<C>) {
+  email(email: Triggers<C>, ...fns: MatchedMiddleware<C>) {
     return this.use(Composer.email<C>(email, ...fns))
   }
 
-  url(url: MaybeArray<string>, ...fns: MatchedMiddleware<C>) {
+  url(url: Triggers<C>, ...fns: MatchedMiddleware<C>) {
     return this.use(Composer.url<C>(url, ...fns))
   }
 
-  textLink(link: MaybeArray<string>, ...fns: MatchedMiddleware<C>) {
+  textLink(link: Triggers<C>, ...fns: MatchedMiddleware<C>) {
     return this.use(Composer.textLink<C>(link, ...fns))
   }
 
-  textMention(mention: MaybeArray<string>, ...fns: MatchedMiddleware<C>) {
+  textMention(mention: Triggers<C>, ...fns: MatchedMiddleware<C>) {
     return this.use(Composer.textMention<C>(mention, ...fns))
   }
 
@@ -203,7 +203,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     return this.use(Composer.mention<C>(mention, ...fns))
   }
 
-  phone(number: MaybeArray<string>, ...fns: MatchedMiddleware<C>) {
+  phone(number: Triggers<C>, ...fns: MatchedMiddleware<C>) {
     return this.use(Composer.phone<C>(number, ...fns))
   }
 
@@ -493,35 +493,35 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   }
 
   static email<C extends Context>(
-    email: MaybeArray<string>,
+    email: Triggers<C>,
     ...fns: MatchedMiddleware<C>
   ): MiddlewareFn<C> {
     return Composer.entityText<C>('email', email, ...fns)
   }
 
   static phone<C extends Context>(
-    number: MaybeArray<string>,
+    number: Triggers<C>,
     ...fns: MatchedMiddleware<C>
   ): MiddlewareFn<C> {
     return Composer.entityText<C>('phone_number', number, ...fns)
   }
 
   static url<C extends Context>(
-    url: MaybeArray<string>,
+    url: Triggers<C>,
     ...fns: MatchedMiddleware<C>
   ): MiddlewareFn<C> {
     return Composer.entityText<C>('url', url, ...fns)
   }
 
   static textLink<C extends Context>(
-    link: MaybeArray<string>,
+    link: Triggers<C>,
     ...fns: MatchedMiddleware<C>
   ): MiddlewareFn<C> {
     return Composer.entityText<C>('text_link', link, ...fns)
   }
 
   static textMention<C extends Context>(
-    mention: MaybeArray<string>,
+    mention: Triggers<C>,
     ...fns: MatchedMiddleware<C>
   ): MiddlewareFn<C> {
     return Composer.entityText<C>('text_mention', mention, ...fns)

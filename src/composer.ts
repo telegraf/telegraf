@@ -14,6 +14,7 @@ type Triggers<C> = MaybeArray<
 type Predicate<T> = (t: T) => boolean
 type AsyncPredicate<T> = (t: T) => Promise<boolean>
 
+/** @deprecated Adds `ctx.match`, unlike `MatchedContext`! */
 type MatchedMiddleware<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post'
@@ -113,7 +114,10 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Registers middleware for handling specified commands.
    */
-  command(command: MaybeArray<string>, ...fns: MatchedMiddleware<C, 'text'>) {
+  command(
+    command: MaybeArray<string>,
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
+  ) {
     return this.use(Composer.command<C>(command, ...fns))
   }
 
@@ -207,7 +211,11 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Registers a middleware for handling /start
    */
-  start(...fns: ReadonlyArray<Middleware<C & { startPayload: string }>>) {
+  start(
+    ...fns: NonemptyReadonlyArray<
+      Middleware<MatchedContext<C, 'text'> & { startPayload: string }>
+    >
+  ) {
     const handler = Composer.compose(fns)
     return this.command('start', (ctx, next) => {
       const entity = ctx.message.entities![0]!
@@ -219,14 +227,16 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Registers a middleware for handling /help
    */
-  help(...fns: NonemptyReadonlyArray<Middleware<C>>) {
+  help(...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>) {
     return this.command('help', ...fns)
   }
 
   /**
    * Registers a middleware for handling /settings
    */
-  settings(...fns: NonemptyReadonlyArray<Middleware<C>>) {
+  settings(
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
+  ) {
     return this.command('settings', ...fns)
   }
 
@@ -599,7 +609,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static command<C extends Context>(
     command: MaybeArray<string>,
-    ...fns: MatchedMiddleware<C, 'text'>
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
   ): MiddlewareFn<C> {
     if (fns.length === 0) {
       // @ts-expect-error command is really the middleware

@@ -560,7 +560,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   >(
     triggers: ReadonlyArray<(text: string, ctx: C) => RegExpExecArray | null>,
     ...fns: MatchedMiddleware<C, T>
-  ): MiddlewareFn<C> {
+  ): MiddlewareFn<MatchedContext<C, T>> {
     const handler = Composer.compose(fns)
     return (ctx, next) => {
       const text =
@@ -570,6 +570,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
         ctx.inlineQuery?.query
       if (text === undefined) return next()
       for (const trigger of triggers) {
+        // @ts-expect-error
         const match = trigger(text, ctx)
         if (match) {
           // @ts-expect-error define so far unknown property `match`

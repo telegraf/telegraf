@@ -14,7 +14,6 @@ type Triggers<C> = MaybeArray<
 type Predicate<T> = (t: T) => boolean
 type AsyncPredicate<T> = (t: T) => Promise<boolean>
 
-/** @deprecated Adds `ctx.match`, unlike `MatchedContext`! */
 type MatchedMiddleware<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post'
@@ -46,8 +45,7 @@ export type NarrowedContext<
     updateType: UpdateTypes<U>
   }
 /**
- * Maps `Composer.mount`'s `updateType` to a type
- * that narrows down `tt.Update` when intersected with it.
+ * Maps [[`Composer.on`]]'s `updateType` to a `tt.Update` subtype.
  */
 type MountMap = {
   [T in tt.UpdateType]: Extract<tg.Update, Record<T, object>>

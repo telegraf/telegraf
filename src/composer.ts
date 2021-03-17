@@ -2,10 +2,8 @@
 
 import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
-import Context, { GetUpdateContent, UpdateTypes } from './context'
+import Context, { UpdateTypes } from './context'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
-import { PropOr } from './deunionize'
-import { SnakeToCamelCase } from './core/helpers/string'
 
 type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
@@ -32,12 +30,6 @@ type MatchedContext<
   T extends tt.UpdateType | tt.MessageSubType
 > = NarrowedContext<C, MountMap[T]>
 
-type Getter<U extends tg.Update, P extends string> = PropOr<
-  GetUpdateContent<U>,
-  P,
-  undefined
->
-
 /**
  * Narrows down `C['update']` (and derived getters)
  * to specific update type `U`.
@@ -45,19 +37,15 @@ type Getter<U extends tg.Update, P extends string> = PropOr<
  * Used by [[`Composer`]],
  * possibly useful for splitting a bot into multiple files.
  */
-export type NarrowedContext<C extends Context, U extends tg.Update> = C &
-  {
-    [P in tt.UpdateType as SnakeToCamelCase<P>]: PropOr<U, P, undefined>
-  } & {
-    update: U
+export type NarrowedContext<
+  C extends Context,
+  U extends tg.Update
+> = Context<U> &
+  Omit<C, keyof Context> & {
     updateType: UpdateTypes<U>
-    senderChat: Getter<U, 'sender_chat'>
-    from: Getter<U, 'from'>
-    chat: Getter<U, 'chat'>
   }
 /**
- * Maps `Composer.mount`'s `updateType` to a type
- * that narrows down `tt.Update` when intersected with it.
+ * Maps [[`Composer.on`]]'s `updateType` to a `tt.Update` subtype.
  */
 type MountMap = {
   [T in tt.UpdateType]: Extract<tg.Update, Record<T, object>>
@@ -124,7 +112,10 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Registers middleware for handling specified commands.
    */
-  command(command: MaybeArray<string>, ...fns: MatchedMiddleware<C, 'text'>) {
+  command(
+    command: MaybeArray<string>,
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
+  ) {
     return this.use(Composer.command<C>(command, ...fns))
   }
 
@@ -218,7 +209,11 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Registers a middleware for handling /start
    */
-  start(...fns: ReadonlyArray<Middleware<C & { startPayload: string }>>) {
+  start(
+    ...fns: NonemptyReadonlyArray<
+      Middleware<MatchedContext<C, 'text'> & { startPayload: string }>
+    >
+  ) {
     const handler = Composer.compose(fns)
     return this.command('start', (ctx, next) => {
       const entity = ctx.message.entities![0]!
@@ -230,14 +225,16 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Registers a middleware for handling /help
    */
-  help(...fns: NonemptyReadonlyArray<Middleware<C>>) {
+  help(...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>) {
     return this.command('help', ...fns)
   }
 
   /**
    * Registers a middleware for handling /settings
    */
-  settings(...fns: NonemptyReadonlyArray<Middleware<C>>) {
+  settings(
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
+  ) {
     return this.command('settings', ...fns)
   }
 
@@ -571,7 +568,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   >(
     triggers: ReadonlyArray<(text: string, ctx: C) => RegExpExecArray | null>,
     ...fns: MatchedMiddleware<C, T>
-  ): MiddlewareFn<C> {
+  ): MiddlewareFn<MatchedContext<C, T>> {
     const handler = Composer.compose(fns)
     return (ctx, next) => {
       const text =
@@ -581,6 +578,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
         ctx.inlineQuery?.query
       if (text === undefined) return next()
       for (const trigger of triggers) {
+        // @ts-expect-error
         const match = trigger(text, ctx)
         if (match) {
           // @ts-expect-error define so far unknown property `match`
@@ -609,7 +607,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static command<C extends Context>(
     command: MaybeArray<string>,
-    ...fns: MatchedMiddleware<C, 'text'>
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
   ): MiddlewareFn<C> {
     if (fns.length === 0) {
       // @ts-expect-error command is really the middleware

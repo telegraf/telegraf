@@ -1,6 +1,6 @@
 /** @format */
 
-import { Message, Opts, Telegram } from './core/types/typegram'
+import { Message, Opts, Telegram, Update } from './core/types/typegram'
 import { UnionKeys } from './deunionize'
 
 // tiny helper types
@@ -99,24 +99,8 @@ export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
 
 // types used for inference of ctx object
 
-export const updateTypes = [
-  'callback_query',
-  'channel_post',
-  'chosen_inline_result',
-  'edited_channel_post',
-  'edited_message',
-  'inline_query',
-  'message',
-  'pre_checkout_query',
-  'shipping_query',
-  'poll',
-  'poll_answer',
-  'my_chat_member',
-  'chat_member',
-] as const
-
 /** Possible update types */
-export type UpdateType = typeof updateTypes[number]
+export type UpdateType = Exclude<UnionKeys<Update>, keyof Update>
 
 /** Possible message subtypes. Same as the properties on a message object */
 export type MessageSubType =

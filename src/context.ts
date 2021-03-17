@@ -20,7 +20,15 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   ) {}
 
   get updateType() {
-    return tt.updateTypes.find((key) => key in this.update)
+    const types = Object.keys(this.update).filter(
+      (k) => typeof this.update[k as keyof U] === 'object'
+    )
+    if (types.length !== 1) {
+      throw new Error(
+        `Cannot determine \`updateType\` of ${JSON.stringify(this.update)}`
+      )
+    }
+    return types[0] as UpdateTypes<U>
   }
 
   get me() {
@@ -136,7 +144,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   ): asserts value is T {
     if (value === undefined) {
       throw new TypeError(
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `Telegraf: "${method}" isn't available for "${this.updateType}"`
       )
     }
@@ -572,7 +579,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
 
 export default Context
 
-export type UpdateTypes<U extends tg.Update> = Extract<
+type UpdateTypes<U extends Deunionize<tg.Update>> = Extract<
   UnionKeys<U>,
   tt.UpdateType
 >

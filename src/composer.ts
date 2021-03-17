@@ -2,8 +2,8 @@
 
 import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
-import Context, { UpdateTypes } from './context'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
+import Context from './context'
 
 type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
@@ -40,10 +40,8 @@ type MatchedContext<
 export type NarrowedContext<
   C extends Context,
   U extends tg.Update
-> = Context<U> &
-  Omit<C, keyof Context> & {
-    updateType: UpdateTypes<U>
-  }
+> = Context<U> & Omit<C, keyof Context>
+
 /**
  * Maps [[`Composer.on`]]'s `updateType` to a `tt.Update` subtype.
  */

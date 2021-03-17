@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>telegraf.js - v4.2.1</title>
-	<meta name="description" content="Documentation for telegraf.js - v4.2.1">
+	<title>telegraf.js - v4.3.0</title>
+	<meta name="description" content="Documentation for telegraf.js - v4.3.0">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
 	<link rel="stylesheet" href="assets/css/custom.css">
@@ -24,7 +24,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">telegraf.js - v4.2.1</a>
+					<a href="index.html" class="title">telegraf.js - v4.3.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -49,7 +49,7 @@
 	</div>
 	<div class="tsd-page-title">
 		<div class="container">
-			<h1>Project telegraf.js - v4.2.1</h1>
+			<h1>telegraf.js - v4.3.0</h1>
 		</div>
 	</div>
 </header>
@@ -66,13 +66,14 @@
 								<li class="tsd-kind-namespace"><a href="modules/markup.html" class="tsd-kind-icon">Markup</a></li>
 								<li class="tsd-kind-namespace"><a href="modules/scenes.html" class="tsd-kind-icon">Scenes</a></li>
 								<li class="tsd-kind-namespace"><a href="modules/telegraf.html" class="tsd-kind-icon">Telegraf</a></li>
+								<li class="tsd-kind-namespace"><a href="modules/types.html" class="tsd-kind-icon">Types</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Classes</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/composer.html" class="tsd-kind-icon">Composer</a></li>
-								<li class="tsd-kind-class"><a href="classes/context.html" class="tsd-kind-icon">Context</a></li>
+								<li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/context.html" class="tsd-kind-icon">Context</a></li>
 								<li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/memorysessionstore.html" class="tsd-kind-icon">Memory<wbr>Session<wbr>Store</a></li>
 								<li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/router.html" class="tsd-kind-icon">Router</a></li>
 								<li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/telegraf.html" class="tsd-kind-icon">Telegraf</a></li>
@@ -106,7 +107,7 @@
 					<div class="tsd-signature tsd-kind-icon">Middleware&lt;C&gt;<span class="tsd-signature-symbol">:</span> <a href="modules.html#middlewarefn" class="tsd-signature-type" data-tsd-kind="Type alias">MiddlewareFn</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">C</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">MiddlewareObj</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">C</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/65a94b0/src/middleware.ts#L19">middleware.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/4cef44e/src/middleware.ts#L19">middleware.ts:19</a></li>
 						</ul>
 					</aside>
 					<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -122,7 +123,7 @@
 					<div class="tsd-signature tsd-kind-icon">Middleware<wbr>Fn&lt;C&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>ctx<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">C</span>, next<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">void</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/65a94b0/src/middleware.ts#L9">middleware.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/4cef44e/src/middleware.ts#L9">middleware.ts:9</a></li>
 						</ul>
 					</aside>
 					<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -171,10 +172,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-has-type-parameter">
 					<a name="narrowedcontext" class="tsd-anchor"></a>
 					<h3>Narrowed<wbr>Context</h3>
-					<div class="tsd-signature tsd-kind-icon">Narrowed<wbr>Context&lt;C, U&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">C</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{</span><span class="tsd-signature-symbol">[ </span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol"> in </span><span class="tsd-signature-type">tt.UpdateType</span><span class="tsd-signature-symbol"> as </span><span class="tsd-signature-type">SnakeToCamelCase</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PropOr</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">U</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">P</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span>chat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Getter</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">U</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;chat&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>from<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Getter</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">U</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;from&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>senderChat<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Getter</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">U</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">&quot;sender_chat&quot;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>update<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">U</span><span class="tsd-signature-symbol">; </span>updateType<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">UpdateTypes</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">U</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> }</span></div>
+					<div class="tsd-signature tsd-kind-icon">Narrowed<wbr>Context&lt;C, U&gt;<span class="tsd-signature-symbol">:</span> <a href="classes/context.html" class="tsd-signature-type" data-tsd-kind="Class">Context</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">U</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">Omit</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">C</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">keyof </span><a href="classes/context.html" class="tsd-signature-type" data-tsd-kind="Class">Context</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/65a94b0/src/composer.ts#L47">composer.ts:47</a></li>
+							<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/4cef44e/src/composer.ts#L40">composer.ts:40</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -191,7 +192,7 @@
 							<h4>C<span class="tsd-signature-symbol">: </span><a href="classes/context.html" class="tsd-signature-type" data-tsd-kind="Class">Context</a></h4>
 						</li>
 						<li>
-							<h4>U<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tt.Update</span></h4>
+							<h4>U<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">tg.Update</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -208,13 +209,21 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/65a94b0/src/deunionize.ts#L19">deunionize.ts:19</a></li>
+									<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/4cef44e/src/deunionize.ts#L24">deunionize.ts:24</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Expose properties from all union variants</p>
+									<p>Expose properties from all union variants.</p>
 								</div>
+								<dl class="tsd-comment-tags">
+									<dt>see</dt>
+									<dd><p><a href="https://github.com/telegraf/telegraf/issues/1388#issuecomment-791573609">https://github.com/telegraf/telegraf/issues/1388#issuecomment-791573609</a></p>
+									</dd>
+									<dt>see</dt>
+									<dd><p><a href="https://millsp.github.io/ts-toolbelt/modules/union_strict.html">https://millsp.github.io/ts-toolbelt/modules/union_strict.html</a></p>
+									</dd>
+								</dl>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -242,7 +251,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/65a94b0/src/session.ts#L35">session.ts:35</a></li>
+									<li>Defined in <a href="https://github.com/telegraf/telegraf/blob/4cef44e/src/session.ts#L35">session.ts:35</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -258,7 +267,7 @@
 								or pass custom <code>storage</code>.</p>
 								<dl class="tsd-comment-tags">
 									<dt>example</dt>
-									<dd><p><a href="https://github.com/telegraf/telegraf/blob/65a94b0e798afec3403557a4b1b8c0e6c836e93f/docs/examples/session-bot.ts">https://github.com/telegraf/telegraf/blob/65a94b0e798afec3403557a4b1b8c0e6c836e93f/docs/examples/session-bot.ts</a></p>
+									<dd><p><a href="https://github.com/telegraf/telegraf/blob/4cef44e16babe590dd62d8da9913bae7abfbbced/docs/examples/session-bot.ts">https://github.com/telegraf/telegraf/blob/4cef44e16babe590dd62d8da9913bae7abfbbced/docs/examples/session-bot.ts</a></p>
 									</dd>
 									<dt>deprecated</dt>
 									<dd><p><a href="https://github.com/telegraf/telegraf/issues/1372#issuecomment-782668499">https://github.com/telegraf/telegraf/issues/1372#issuecomment-782668499</a></p>
@@ -301,6 +310,9 @@
 					<li class=" tsd-kind-namespace">
 						<a href="modules/telegraf.html">Telegraf</a>
 					</li>
+					<li class=" tsd-kind-namespace">
+						<a href="modules/types.html">Types</a>
+					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
@@ -308,7 +320,7 @@
 					<li class=" tsd-kind-class tsd-has-type-parameter">
 						<a href="classes/composer.html" class="tsd-kind-icon">Composer</a>
 					</li>
-					<li class=" tsd-kind-class">
+					<li class=" tsd-kind-class tsd-has-type-parameter">
 						<a href="classes/context.html" class="tsd-kind-icon">Context</a>
 					</li>
 					<li class=" tsd-kind-class tsd-has-type-parameter">

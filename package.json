@@ -14,14 +14,12 @@
   },
   "main": "lib/index.js",
   "exports": {
-    "import": "./lib/index.mjs",
-    "require": "./lib/index.js"
+    ".": "./lib/index.js"
   },
   "files": [
     "bin/*",
     "src/**/*.ts",
     "lib/**/*.js",
-    "lib/index.mjs",
     "typings/**/*.d.ts",
     "typings/**/*.d.ts.map"
   ],
@@ -29,7 +27,7 @@
     "telegraf": "./bin/telegraf"
   },
   "scripts": {
-    "prepare": "npm run build && mjs-entry src/index.ts > lib/index.mjs",
+    "prepare": "npm run --silent build",
     "build": "tsc --build docs/examples",
     "build:docs": "typedoc src/index.ts",
     "pretest": "npm run build",
@@ -41,7 +39,7 @@
   },
   "type": "commonjs",
   "engines": {
-    "node": ">=12"
+    "node": "^12.20.0 || >=14.13.1"
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
@@ -74,7 +72,6 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.1.0",
-    "mjs-entry": "gist:de6257751f54b3c66319bae8d2a8aea0",
     "prettier": "2.2.1",
     "typedoc": "^0.20.29",
     "typescript": "~4.2.3"

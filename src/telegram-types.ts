@@ -109,3 +109,25 @@ export type MessageSubType =
       UnionKeys<Message>,
       keyof Message.CaptionableMessage | 'entities' | 'media_group_id'
     >
+
+type ExtractPartial<T extends object, U extends object> = T extends unknown
+  ? Required<T> extends U
+    ? T
+    : never
+  : never
+
+/**
+ * Maps [[`Composer.on`]]'s `updateType` or `messageSubType` to a `tt.Update` subtype.
+ */
+export type MountMap = {
+  [T in UpdateType]: Extract<Update, Record<T, object>>
+} &
+  {
+    [T in MessageSubType]: {
+      message: ExtractPartial<
+        Update.MessageUpdate['message'],
+        Record<T, unknown>
+      >
+      update_id: number
+    }
+  }

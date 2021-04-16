@@ -28,7 +28,7 @@ type MatchedMiddleware<
 type MatchedContext<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType
-> = NarrowedContext<C, MountMap[T]>
+> = NarrowedContext<C, tt.MountMap[T]>
 
 /**
  * Narrows down `C['update']` (and derived getters)
@@ -41,19 +41,6 @@ export type NarrowedContext<
   C extends Context,
   U extends tg.Update
 > = Context<U> & Omit<C, keyof Context>
-
-/**
- * Maps [[`Composer.on`]]'s `updateType` to a `tt.Update` subtype.
- */
-type MountMap = {
-  [T in tt.UpdateType]: Extract<tg.Update, Record<T, object>>
-} &
-  {
-    [T in tt.MessageSubType]: {
-      message: Extract<tg.Update.MessageUpdate['message'], Record<T, unknown>>
-      update_id: number
-    }
-  }
 
 interface GameQueryUpdate extends tg.Update.CallbackQueryUpdate {
   callback_query: tg.CallbackQuery.GameShortGameCallbackQuery
@@ -412,7 +399,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   ): MiddlewareFn<C> {
     const updateTypes = normalizeTextArguments(updateType)
 
-    const predicate = (update: tg.Update): update is tg.Update & MountMap[T] =>
+    const predicate = (
+      update: tg.Update
+    ): update is tg.Update & tt.MountMap[T] =>
       updateTypes.some(
         (type) =>
           // Check update type
@@ -421,7 +410,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
           ('message' in update && type in update.message)
       )
 
-    return Composer.guard<C, MountMap[T]>(predicate, ...fns)
+    return Composer.guard<C, tt.MountMap[T]>(predicate, ...fns)
   }
 
   private static entity<

@@ -40,55 +40,61 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   get message() {
-    return this.update.message as PropOr<U, 'message'>
+    return this.update.message as Deunionize<PropOr<U, 'message'>>
   }
 
   get editedMessage() {
-    return this.update.edited_message as PropOr<U, 'edited_message'>
+    return this.update.edited_message as Deunionize<PropOr<U, 'edited_message'>>
   }
 
   get inlineQuery() {
-    return this.update.inline_query as PropOr<U, 'inline_query'>
+    return this.update.inline_query as Deunionize<PropOr<U, 'inline_query'>>
   }
 
   get shippingQuery() {
-    return this.update.shipping_query as PropOr<U, 'shipping_query'>
+    return this.update.shipping_query as Deunionize<PropOr<U, 'shipping_query'>>
   }
 
   get preCheckoutQuery() {
-    return this.update.pre_checkout_query as PropOr<U, 'pre_checkout_query'>
+    return this.update.pre_checkout_query as Deunionize<
+      PropOr<U, 'pre_checkout_query'>
+    >
   }
 
   get chosenInlineResult() {
-    return this.update.chosen_inline_result as PropOr<U, 'chosen_inline_result'>
+    return this.update.chosen_inline_result as Deunionize<
+      PropOr<U, 'chosen_inline_result'>
+    >
   }
 
   get channelPost() {
-    return this.update.channel_post as PropOr<U, 'channel_post'>
+    return this.update.channel_post as Deunionize<PropOr<U, 'channel_post'>>
   }
 
   get editedChannelPost() {
-    return this.update.edited_channel_post as PropOr<U, 'edited_channel_post'>
+    return this.update.edited_channel_post as Deunionize<
+      PropOr<U, 'edited_channel_post'>
+    >
   }
 
   get callbackQuery() {
-    return this.update.callback_query as PropOr<U, 'callback_query'>
+    return this.update.callback_query as Deunionize<PropOr<U, 'callback_query'>>
   }
 
   get poll() {
-    return this.update.poll as PropOr<U, 'poll'>
+    return this.update.poll as Deunionize<PropOr<U, 'poll'>>
   }
 
   get pollAnswer() {
-    return this.update.poll_answer as PropOr<U, 'poll_answer'>
+    return this.update.poll_answer as Deunionize<PropOr<U, 'poll_answer'>>
   }
 
   get myChatMember() {
-    return this.update.my_chat_member as PropOr<U, 'my_chat_member'>
+    return this.update.my_chat_member as Deunionize<PropOr<U, 'my_chat_member'>>
   }
 
   get chatMember() {
-    return this.update.chat_member as PropOr<U, 'chat_member'>
+    return this.update.chat_member as Deunionize<PropOr<U, 'chat_member'>>
   }
 
   get chat(): Getter<U, 'chat'> {

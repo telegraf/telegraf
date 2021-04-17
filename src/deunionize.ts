@@ -20,6 +20,7 @@ export type Deunionize<
  * Expose properties from all union variants.
  * @see https://github.com/telegraf/telegraf/issues/1388#issuecomment-791573609
  * @see https://millsp.github.io/ts-toolbelt/modules/union_strict.html
+ * @deprecated
  */
 export function deunionize<T extends object | undefined>(t: T) {
   return t as Deunionize<T>

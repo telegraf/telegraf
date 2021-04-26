@@ -156,3 +156,11 @@ test('should respect webhookReply runtime change (per request)', async (t) => {
   t.true(res.writableEnded)
   t.is(res.body, undefined)
 })
+
+test('should deterministically generate `secretPathComponent`', (t) => {
+  const foo = createBot('foo')
+  const bar = createBot('bar')
+  t.deepEqual(foo.secretPathComponent(), foo.secretPathComponent())
+  t.deepEqual(bar.secretPathComponent(), bar.secretPathComponent())
+  t.notDeepEqual(foo.secretPathComponent(), bar.secretPathComponent())
+})

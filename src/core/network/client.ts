@@ -276,7 +276,7 @@ async function answerToWebhook(
 }
 
 function redactToken(error: Error): never {
-  error.message = error.message.replace(/:\w+/, ':[REDACTED]')
+  error.message = error.message.replace(/:[^/]+/, ':[REDACTED]')
   throw error
 }
 

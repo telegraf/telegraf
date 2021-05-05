@@ -356,6 +356,13 @@ class ApiClient {
     config.agent = options.agent
     config.signal = signal
     const res = await fetch(apiUrl, config).catch(redactToken)
+    if (res.status >= 500) {
+      const errorPayload = {
+        error_code: res.status,
+        description: res.statusText,
+      }
+      throw new TelegramError(errorPayload, { method, payload })
+    }
     const data = await res.json()
     if (!data.ok) {
       debug('API call failed', data)

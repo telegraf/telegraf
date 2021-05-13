@@ -12,7 +12,7 @@ type Hideable<B> = B & { hide?: boolean }
 type HideableKBtn = Hideable<KeyboardButton>
 type HideableIKBtn = Hideable<InlineKeyboardButton>
 
-class Markup<
+export class Markup<
   T extends
     | InlineKeyboardMarkup
     | ReplyKeyboardMarkup

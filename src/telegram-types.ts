@@ -3,6 +3,8 @@
 import { Message, Opts, Telegram, Update } from './core/types/typegram'
 import { UnionKeys } from './deunionize'
 
+export { Markup } from './markup'
+
 // tiny helper types
 export type ChatAction = Opts<'sendChatAction'>['action']
 

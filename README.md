@@ -1,6 +1,6 @@
 <header>
-<img src="https://raw.githubusercontent.com/telegraf/telegraf/010e971f3c61c854605bf9a5af10a4925d4032fb/docs/header.png" style="background: #FFFFFF3F">
 
+![Header Graphic](/docs/header.png)
 [![Bot API Version](https://img.shields.io/badge/Bot%20API-v5.2-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 ![GitHub top language](https://img.shields.io/github/languages/top/telegraf/telegraf?style=flat-square)
 [![install size](https://flat.badgen.net/packagephobia/install/telegraf)](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)

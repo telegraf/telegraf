@@ -188,7 +188,6 @@ async function attachFormValue(
     })
   }
   if (
-    value &&
     typeof value === 'object' &&
     hasProp(value, 'media') &&
     hasProp(value, 'type') &&

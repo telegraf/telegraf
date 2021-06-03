@@ -19,6 +19,7 @@ jobs:
         sed
           --in-place
           --expression='s:/develop/docs/:/${{ github.sha }}/docs/:g'
+          --expression='s:<img src="docs/assets/:<img src="media/:g'
           docs/build/**/*.html;
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3

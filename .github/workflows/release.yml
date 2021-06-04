@@ -1,4 +1,4 @@
-name: Release docs
+name: Release
 
 on:
   push:
@@ -6,15 +6,15 @@ on:
       - v4.*
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
-    - run: npm ci --ignore-scripts
-    - run: npm run build:docs
+    - run : npm ci --ignore-scripts
+    - run : npm run build:docs -- --emit
     - name: Make GitHub links absolute
-      run:
+      run :
         shopt -s globstar;
         sed
           --in-place
@@ -28,3 +28,9 @@ jobs:
           publish_dir: ./docs/build
           # for v3.html and perhaps CNAME
           keep_files: true
+    - name: Publish to npm
+      run : |
+        npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+        npm publish --ignore-scripts
+      env :
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

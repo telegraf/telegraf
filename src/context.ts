@@ -129,7 +129,9 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.message?.passport_data
   }
 
-  /** @deprecated use `ctx.telegram.webhookReply` */
+  /**
+   * @deprecated use {@link Telegram.webhookReply}
+   */
   get webhookReply(): boolean {
     return this.tg.webhookReply
   }
@@ -149,27 +151,48 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     }
   }
 
-  answerInlineQuery(...args: Shorthand<'answerInlineQuery'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#answerinlinequery
+   */
+  answerInlineQuery(this: Context, ...args: Shorthand<'answerInlineQuery'>) {
     this.assert(this.inlineQuery, 'answerInlineQuery')
     return this.telegram.answerInlineQuery(this.inlineQuery.id, ...args)
   }
 
-  answerCbQuery(...args: Shorthand<'answerCbQuery'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#answercallbackquery
+   */
+  answerCbQuery(this: Context, ...args: Shorthand<'answerCbQuery'>) {
     this.assert(this.callbackQuery, 'answerCbQuery')
     return this.telegram.answerCbQuery(this.callbackQuery.id, ...args)
   }
 
-  answerGameQuery(...args: Shorthand<'answerGameQuery'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#answercallbackquery
+   */
+  answerGameQuery(this: Context, ...args: Shorthand<'answerGameQuery'>) {
     this.assert(this.callbackQuery, 'answerGameQuery')
     return this.telegram.answerGameQuery(this.callbackQuery.id, ...args)
   }
 
-  answerShippingQuery(...args: Shorthand<'answerShippingQuery'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#answershippingquery
+   */
+  answerShippingQuery(
+    this: Context,
+    ...args: Shorthand<'answerShippingQuery'>
+  ) {
     this.assert(this.shippingQuery, 'answerShippingQuery')
     return this.telegram.answerShippingQuery(this.shippingQuery.id, ...args)
   }
 
-  answerPreCheckoutQuery(...args: Shorthand<'answerPreCheckoutQuery'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#answerprecheckoutquery
+   */
+  answerPreCheckoutQuery(
+    this: Context,
+    ...args: Shorthand<'answerPreCheckoutQuery'>
+  ) {
     this.assert(this.preCheckoutQuery, 'answerPreCheckoutQuery')
     return this.telegram.answerPreCheckoutQuery(
       this.preCheckoutQuery.id,
@@ -177,7 +200,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     )
   }
 
-  editMessageText(text: string, extra?: tt.ExtraEditMessageText) {
+  /**
+   * @see https://core.telegram.org/bots/api#editmessagetext
+   */
+  editMessageText(
+    this: Context,
+    text: string,
+    extra?: tt.ExtraEditMessageText
+  ) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageText')
     return this.telegram.editMessageText(
       this.chat?.id,
@@ -188,7 +218,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     )
   }
 
+  /**
+   * @see https://core.telegram.org/bots/api#editmessagecaption
+   */
   editMessageCaption(
+    this: Context,
     caption: string | undefined,
     extra?: tt.ExtraEditMessageCaption
   ) {
@@ -205,7 +239,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     )
   }
 
-  editMessageMedia(media: tg.InputMedia, extra?: tt.ExtraEditMessageMedia) {
+  /**
+   * @see https://core.telegram.org/bots/api#editmessagemedia
+   */
+  editMessageMedia(
+    this: Context,
+    media: tg.InputMedia,
+    extra?: tt.ExtraEditMessageMedia
+  ) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageMedia')
     return this.telegram.editMessageMedia(
       this.chat?.id,
@@ -216,7 +257,13 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     )
   }
 
-  editMessageReplyMarkup(markup: tg.InlineKeyboardMarkup | undefined) {
+  /**
+   * @see https://core.telegram.org/bots/api#editmessagereplymarkup
+   */
+  editMessageReplyMarkup(
+    this: Context,
+    markup: tg.InlineKeyboardMarkup | undefined
+  ) {
     this.assert(
       this.callbackQuery ?? this.inlineMessageId,
       'editMessageReplyMarkup'
@@ -229,7 +276,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     )
   }
 
+  /**
+   * @see https://core.telegram.org/bots/api#editmessagelivelocation
+   */
   editMessageLiveLocation(
+    this: Context,
     latitude: number,
     longitude: number,
     extra?: tt.ExtraEditMessageLiveLocation
@@ -248,7 +299,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     )
   }
 
-  stopMessageLiveLocation(markup?: tg.InlineKeyboardMarkup) {
+  /**
+   * @see https://core.telegram.org/bots/api#stopmessagelivelocation
+   */
+  stopMessageLiveLocation(this: Context, markup?: tg.InlineKeyboardMarkup) {
     this.assert(
       this.callbackQuery ?? this.inlineMessageId,
       'stopMessageLiveLocation'
@@ -261,285 +315,501 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     )
   }
 
-  reply(...args: Shorthand<'sendMessage'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#sendmessage
+   */
+  reply(this: Context, ...args: Shorthand<'sendMessage'>) {
     this.assert(this.chat, 'reply')
     return this.telegram.sendMessage(this.chat.id, ...args)
   }
 
-  getChat(...args: Shorthand<'getChat'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#getchat
+   */
+  getChat(this: Context, ...args: Shorthand<'getChat'>) {
     this.assert(this.chat, 'getChat')
     return this.telegram.getChat(this.chat.id, ...args)
   }
 
-  exportChatInviteLink(...args: Shorthand<'exportChatInviteLink'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#exportchatinvitelink
+   */
+  exportChatInviteLink(
+    this: Context,
+    ...args: Shorthand<'exportChatInviteLink'>
+  ) {
     this.assert(this.chat, 'exportChatInviteLink')
     return this.telegram.exportChatInviteLink(this.chat.id, ...args)
   }
 
-  createChatInviteLink(...args: Shorthand<'createChatInviteLink'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#createchatinvitelink
+   */
+  createChatInviteLink(
+    this: Context,
+    ...args: Shorthand<'createChatInviteLink'>
+  ) {
     this.assert(this.chat, 'createChatInviteLink')
     return this.telegram.createChatInviteLink(this.chat.id, ...args)
   }
 
-  editChatInviteLink(...args: Shorthand<'editChatInviteLink'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#editchatinvitelink
+   */
+  editChatInviteLink(this: Context, ...args: Shorthand<'editChatInviteLink'>) {
     this.assert(this.chat, 'editChatInviteLink')
     return this.telegram.editChatInviteLink(this.chat.id, ...args)
   }
 
-  revokeChatInviteLink(...args: Shorthand<'revokeChatInviteLink'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#revokechatinvitelink
+   */
+  revokeChatInviteLink(
+    this: Context,
+    ...args: Shorthand<'revokeChatInviteLink'>
+  ) {
     this.assert(this.chat, 'revokeChatInviteLink')
     return this.telegram.revokeChatInviteLink(this.chat.id, ...args)
   }
 
-  kickChatMember(...args: Shorthand<'kickChatMember'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#kickchatmember
+   */
+  kickChatMember(this: Context, ...args: Shorthand<'kickChatMember'>) {
     this.assert(this.chat, 'kickChatMember')
     return this.telegram.kickChatMember(this.chat.id, ...args)
   }
 
-  unbanChatMember(...args: Shorthand<'unbanChatMember'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#unbanchatmember
+   */
+  unbanChatMember(this: Context, ...args: Shorthand<'unbanChatMember'>) {
     this.assert(this.chat, 'unbanChatMember')
     return this.telegram.unbanChatMember(this.chat.id, ...args)
   }
 
-  restrictChatMember(...args: Shorthand<'restrictChatMember'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#restrictchatmember
+   */
+  restrictChatMember(this: Context, ...args: Shorthand<'restrictChatMember'>) {
     this.assert(this.chat, 'restrictChatMember')
     return this.telegram.restrictChatMember(this.chat.id, ...args)
   }
 
-  promoteChatMember(...args: Shorthand<'promoteChatMember'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#promotechatmember
+   */
+  promoteChatMember(this: Context, ...args: Shorthand<'promoteChatMember'>) {
     this.assert(this.chat, 'promoteChatMember')
     return this.telegram.promoteChatMember(this.chat.id, ...args)
   }
 
+  /**
+   * @see https://core.telegram.org/bots/api#setchatadministratorcustomtitle
+   */
   setChatAdministratorCustomTitle(
+    this: Context,
     ...args: Shorthand<'setChatAdministratorCustomTitle'>
   ) {
     this.assert(this.chat, 'setChatAdministratorCustomTitle')
     return this.telegram.setChatAdministratorCustomTitle(this.chat.id, ...args)
   }
 
-  setChatPhoto(...args: Shorthand<'setChatPhoto'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#setchatphoto
+   */
+  setChatPhoto(this: Context, ...args: Shorthand<'setChatPhoto'>) {
     this.assert(this.chat, 'setChatPhoto')
     return this.telegram.setChatPhoto(this.chat.id, ...args)
   }
 
-  deleteChatPhoto(...args: Shorthand<'deleteChatPhoto'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#deletechatphoto
+   */
+  deleteChatPhoto(this: Context, ...args: Shorthand<'deleteChatPhoto'>) {
     this.assert(this.chat, 'deleteChatPhoto')
     return this.telegram.deleteChatPhoto(this.chat.id, ...args)
   }
 
-  setChatTitle(...args: Shorthand<'setChatTitle'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#setchattitle
+   */
+  setChatTitle(this: Context, ...args: Shorthand<'setChatTitle'>) {
     this.assert(this.chat, 'setChatTitle')
     return this.telegram.setChatTitle(this.chat.id, ...args)
   }
 
-  setChatDescription(...args: Shorthand<'setChatDescription'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#setchatdescription
+   */
+  setChatDescription(this: Context, ...args: Shorthand<'setChatDescription'>) {
     this.assert(this.chat, 'setChatDescription')
     return this.telegram.setChatDescription(this.chat.id, ...args)
   }
 
-  pinChatMessage(...args: Shorthand<'pinChatMessage'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#pinchatmessage
+   */
+  pinChatMessage(this: Context, ...args: Shorthand<'pinChatMessage'>) {
     this.assert(this.chat, 'pinChatMessage')
     return this.telegram.pinChatMessage(this.chat.id, ...args)
   }
 
-  unpinChatMessage(...args: Shorthand<'unpinChatMessage'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#unpinchatmessage
+   */
+  unpinChatMessage(this: Context, ...args: Shorthand<'unpinChatMessage'>) {
     this.assert(this.chat, 'unpinChatMessage')
     return this.telegram.unpinChatMessage(this.chat.id, ...args)
   }
 
-  unpinAllChatMessages(...args: Shorthand<'unpinAllChatMessages'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#unpinallchatmessages
+   */
+  unpinAllChatMessages(
+    this: Context,
+    ...args: Shorthand<'unpinAllChatMessages'>
+  ) {
     this.assert(this.chat, 'unpinAllChatMessages')
     return this.telegram.unpinAllChatMessages(this.chat.id, ...args)
   }
 
-  leaveChat(...args: Shorthand<'leaveChat'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#leavechat
+   */
+  leaveChat(this: Context, ...args: Shorthand<'leaveChat'>) {
     this.assert(this.chat, 'leaveChat')
     return this.telegram.leaveChat(this.chat.id, ...args)
   }
 
-  setChatPermissions(...args: Shorthand<'setChatPermissions'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#setchatpermissions
+   */
+  setChatPermissions(this: Context, ...args: Shorthand<'setChatPermissions'>) {
     this.assert(this.chat, 'setChatPermissions')
     return this.telegram.setChatPermissions(this.chat.id, ...args)
   }
 
-  getChatAdministrators(...args: Shorthand<'getChatAdministrators'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#getchatadministrators
+   */
+  getChatAdministrators(
+    this: Context,
+    ...args: Shorthand<'getChatAdministrators'>
+  ) {
     this.assert(this.chat, 'getChatAdministrators')
     return this.telegram.getChatAdministrators(this.chat.id, ...args)
   }
 
-  getChatMember(...args: Shorthand<'getChatMember'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#getchatmember
+   */
+  getChatMember(this: Context, ...args: Shorthand<'getChatMember'>) {
     this.assert(this.chat, 'getChatMember')
     return this.telegram.getChatMember(this.chat.id, ...args)
   }
 
-  getChatMembersCount(...args: Shorthand<'getChatMembersCount'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#getchatmemberscount
+   */
+  getChatMembersCount(
+    this: Context,
+    ...args: Shorthand<'getChatMembersCount'>
+  ) {
     this.assert(this.chat, 'getChatMembersCount')
     return this.telegram.getChatMembersCount(this.chat.id, ...args)
   }
 
-  setPassportDataErrors(errors: readonly tg.PassportElementError[]) {
+  /**
+   * @see https://core.telegram.org/bots/api#setpassportdataerrors
+   */
+  setPassportDataErrors(
+    this: Context,
+    errors: readonly tg.PassportElementError[]
+  ) {
     this.assert(this.from, 'setPassportDataErrors')
     return this.telegram.setPassportDataErrors(this.from.id, errors)
   }
 
-  replyWithPhoto(...args: Shorthand<'sendPhoto'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithphoto
+   */
+  replyWithPhoto(this: Context, ...args: Shorthand<'sendPhoto'>) {
     this.assert(this.chat, 'replyWithPhoto')
     return this.telegram.sendPhoto(this.chat.id, ...args)
   }
 
-  replyWithMediaGroup(...args: Shorthand<'sendMediaGroup'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithmediagroup
+   */
+  replyWithMediaGroup(this: Context, ...args: Shorthand<'sendMediaGroup'>) {
     this.assert(this.chat, 'replyWithMediaGroup')
     return this.telegram.sendMediaGroup(this.chat.id, ...args)
   }
 
-  replyWithAudio(...args: Shorthand<'sendAudio'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithaudio
+   */
+  replyWithAudio(this: Context, ...args: Shorthand<'sendAudio'>) {
     this.assert(this.chat, 'replyWithAudio')
     return this.telegram.sendAudio(this.chat.id, ...args)
   }
 
-  replyWithDice(...args: Shorthand<'sendDice'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithdice
+   */
+  replyWithDice(this: Context, ...args: Shorthand<'sendDice'>) {
     this.assert(this.chat, 'replyWithDice')
     return this.telegram.sendDice(this.chat.id, ...args)
   }
 
-  replyWithDocument(...args: Shorthand<'sendDocument'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithdocument
+   */
+  replyWithDocument(this: Context, ...args: Shorthand<'sendDocument'>) {
     this.assert(this.chat, 'replyWithDocument')
     return this.telegram.sendDocument(this.chat.id, ...args)
   }
 
-  replyWithSticker(...args: Shorthand<'sendSticker'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithsticker
+   */
+  replyWithSticker(this: Context, ...args: Shorthand<'sendSticker'>) {
     this.assert(this.chat, 'replyWithSticker')
     return this.telegram.sendSticker(this.chat.id, ...args)
   }
 
-  replyWithVideo(...args: Shorthand<'sendVideo'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithvideo
+   */
+  replyWithVideo(this: Context, ...args: Shorthand<'sendVideo'>) {
     this.assert(this.chat, 'replyWithVideo')
     return this.telegram.sendVideo(this.chat.id, ...args)
   }
 
-  replyWithAnimation(...args: Shorthand<'sendAnimation'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithanimation
+   */
+  replyWithAnimation(this: Context, ...args: Shorthand<'sendAnimation'>) {
     this.assert(this.chat, 'replyWithAnimation')
     return this.telegram.sendAnimation(this.chat.id, ...args)
   }
 
-  replyWithVideoNote(...args: Shorthand<'sendVideoNote'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithvideonote
+   */
+  replyWithVideoNote(this: Context, ...args: Shorthand<'sendVideoNote'>) {
     this.assert(this.chat, 'replyWithVideoNote')
     return this.telegram.sendVideoNote(this.chat.id, ...args)
   }
 
-  replyWithInvoice(...args: Shorthand<'sendInvoice'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithinvoice
+   */
+  replyWithInvoice(this: Context, ...args: Shorthand<'sendInvoice'>) {
     this.assert(this.chat, 'replyWithInvoice')
     return this.telegram.sendInvoice(this.chat.id, ...args)
   }
 
-  replyWithGame(...args: Shorthand<'sendGame'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithgame
+   */
+  replyWithGame(this: Context, ...args: Shorthand<'sendGame'>) {
     this.assert(this.chat, 'replyWithGame')
     return this.telegram.sendGame(this.chat.id, ...args)
   }
 
-  replyWithVoice(...args: Shorthand<'sendVoice'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithvoice
+   */
+  replyWithVoice(this: Context, ...args: Shorthand<'sendVoice'>) {
     this.assert(this.chat, 'replyWithVoice')
     return this.telegram.sendVoice(this.chat.id, ...args)
   }
 
-  replyWithPoll(...args: Shorthand<'sendPoll'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithpoll
+   */
+  replyWithPoll(this: Context, ...args: Shorthand<'sendPoll'>) {
     this.assert(this.chat, 'replyWithPoll')
     return this.telegram.sendPoll(this.chat.id, ...args)
   }
 
-  replyWithQuiz(...args: Shorthand<'sendQuiz'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithquiz
+   */
+  replyWithQuiz(this: Context, ...args: Shorthand<'sendQuiz'>) {
     this.assert(this.chat, 'replyWithQuiz')
     return this.telegram.sendQuiz(this.chat.id, ...args)
   }
 
-  stopPoll(...args: Shorthand<'stopPoll'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#stoppoll
+   */
+  stopPoll(this: Context, ...args: Shorthand<'stopPoll'>) {
     this.assert(this.chat, 'stopPoll')
     return this.telegram.stopPoll(this.chat.id, ...args)
   }
 
-  replyWithChatAction(...args: Shorthand<'sendChatAction'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithchataction
+   */
+  replyWithChatAction(this: Context, ...args: Shorthand<'sendChatAction'>) {
     this.assert(this.chat, 'replyWithChatAction')
     return this.telegram.sendChatAction(this.chat.id, ...args)
   }
 
-  replyWithLocation(...args: Shorthand<'sendLocation'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithlocation
+   */
+  replyWithLocation(this: Context, ...args: Shorthand<'sendLocation'>) {
     this.assert(this.chat, 'replyWithLocation')
     return this.telegram.sendLocation(this.chat.id, ...args)
   }
 
-  replyWithVenue(...args: Shorthand<'sendVenue'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithvenue
+   */
+  replyWithVenue(this: Context, ...args: Shorthand<'sendVenue'>) {
     this.assert(this.chat, 'replyWithVenue')
     return this.telegram.sendVenue(this.chat.id, ...args)
   }
 
-  replyWithContact(...args: Shorthand<'sendContact'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#replywithcontact
+   */
+  replyWithContact(this: Context, ...args: Shorthand<'sendContact'>) {
     this.assert(this.chat, 'replyWithContact')
     return this.telegram.sendContact(this.chat.id, ...args)
   }
 
-  getStickerSet(setName: string) {
+  /**
+   * @deprecated use {@link Telegram.getStickerSet}
+   * @see https://core.telegram.org/bots/api#getstickerset
+   */
+  getStickerSet(this: Context, setName: string) {
     return this.telegram.getStickerSet(setName)
   }
 
-  setChatStickerSet(setName: string) {
+  /**
+   * @see https://core.telegram.org/bots/api#setchatstickerset
+   */
+  setChatStickerSet(this: Context, setName: string) {
     this.assert(this.chat, 'setChatStickerSet')
     return this.telegram.setChatStickerSet(this.chat.id, setName)
   }
 
-  deleteChatStickerSet() {
+  /**
+   * @see https://core.telegram.org/bots/api#deletechatstickerset
+   */
+  deleteChatStickerSet(this: Context) {
     this.assert(this.chat, 'deleteChatStickerSet')
     return this.telegram.deleteChatStickerSet(this.chat.id)
   }
 
-  setStickerPositionInSet(sticker: string, position: number) {
+  /**
+   * @deprecated use {@link Telegram.setStickerPositionInSet}
+   * @see https://core.telegram.org/bots/api#setstickerpositioninset
+   */
+  setStickerPositionInSet(this: Context, sticker: string, position: number) {
     return this.telegram.setStickerPositionInSet(sticker, position)
   }
 
-  setStickerSetThumb(...args: Parameters<Telegram['setStickerSetThumb']>) {
+  /**
+   * @deprecated use {@link Telegram.setStickerSetThumb}
+   * @see https://core.telegram.org/bots/api#setstickersetthumb
+   */
+  setStickerSetThumb(
+    this: Context,
+    ...args: Parameters<Telegram['setStickerSetThumb']>
+  ) {
     return this.telegram.setStickerSetThumb(...args)
   }
 
-  deleteStickerFromSet(sticker: string) {
+  /**
+   * @deprecated use {@link Telegram.deleteStickerFromSet}
+   * @see https://core.telegram.org/bots/api#deletestickerfromset
+   */
+  deleteStickerFromSet(this: Context, sticker: string) {
     return this.telegram.deleteStickerFromSet(sticker)
   }
 
-  uploadStickerFile(...args: Shorthand<'uploadStickerFile'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#uploadstickerfile
+   */
+  uploadStickerFile(this: Context, ...args: Shorthand<'uploadStickerFile'>) {
     this.assert(this.from, 'uploadStickerFile')
     return this.telegram.uploadStickerFile(this.from.id, ...args)
   }
 
-  createNewStickerSet(...args: Shorthand<'createNewStickerSet'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#createnewstickerset
+   */
+  createNewStickerSet(
+    this: Context,
+    ...args: Shorthand<'createNewStickerSet'>
+  ) {
     this.assert(this.from, 'createNewStickerSet')
     return this.telegram.createNewStickerSet(this.from.id, ...args)
   }
 
-  addStickerToSet(...args: Shorthand<'addStickerToSet'>) {
+  /**
+   * @see https://core.telegram.org/bots/api#addstickertoset
+   */
+  addStickerToSet(this: Context, ...args: Shorthand<'addStickerToSet'>) {
     this.assert(this.from, 'addStickerToSet')
     return this.telegram.addStickerToSet(this.from.id, ...args)
   }
 
-  getMyCommands() {
+  /**
+   * @deprecated use {@link Telegram.getMyCommands}
+   * @see https://core.telegram.org/bots/api#getmycommands
+   */
+  getMyCommands(this: Context) {
     return this.telegram.getMyCommands()
   }
 
-  setMyCommands(commands: readonly tg.BotCommand[]) {
+  /**
+   * @deprecated use {@link Telegram.setMyCommands}
+   * @see https://core.telegram.org/bots/api#setmycommands
+   */
+  setMyCommands(this: Context, commands: readonly tg.BotCommand[]) {
     return this.telegram.setMyCommands(commands)
   }
 
-  replyWithMarkdown(markdown: string, extra?: tt.ExtraReplyMessage) {
+  /**
+   * @see https://core.telegram.org/bots/api#sendmessage
+   */
+  replyWithMarkdown(
+    this: Context,
+    markdown: string,
+    extra?: tt.ExtraReplyMessage
+  ) {
     return this.reply(markdown, { parse_mode: 'Markdown', ...extra })
   }
 
-  replyWithMarkdownV2(markdown: string, extra?: tt.ExtraReplyMessage) {
+  /**
+   * @see https://core.telegram.org/bots/api#sendmessage
+   */
+  replyWithMarkdownV2(
+    this: Context,
+    markdown: string,
+    extra?: tt.ExtraReplyMessage
+  ) {
     return this.reply(markdown, { parse_mode: 'MarkdownV2', ...extra })
   }
 
-  replyWithHTML(html: string, extra?: tt.ExtraReplyMessage) {
+  /**
+   * @see https://core.telegram.org/bots/api#sendmessage
+   */
+  replyWithHTML(this: Context, html: string, extra?: tt.ExtraReplyMessage) {
     return this.reply(html, { parse_mode: 'HTML', ...extra })
   }
 
-  deleteMessage(messageId?: number) {
+  /**
+   * @see https://core.telegram.org/bots/api#deletemessage
+   */
+  deleteMessage(this: Context, messageId?: number) {
     this.assert(this.chat, 'deleteMessage')
     if (typeof messageId !== 'undefined') {
       return this.telegram.deleteMessage(this.chat.id, messageId)
@@ -549,7 +819,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
 
+  /**
+   * @see https://core.telegram.org/bots/api#forwardmessage
+   */
   forwardMessage(
+    this: Context,
     chatId: string | number,
     extra?: {
       disable_notification?: boolean
@@ -565,7 +839,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     )
   }
 
-  copyMessage(chatId: string | number, extra?: tt.ExtraCopyMessage) {
+  /**
+   * @see https://core.telegram.org/bots/api#copymessage
+   */
+  copyMessage(
+    this: Context,
+    chatId: string | number,
+    extra?: tt.ExtraCopyMessage
+  ) {
     const message = getMessageFromAnySource(this)
     this.assert(message, 'copyMessage')
     return this.telegram.copyMessage(

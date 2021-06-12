@@ -40,6 +40,7 @@ export type MessageSubTypes =
   'voice' |
   'video_note' |
   'video' |
+  'animation' |
   'venue' |
   'text' |
   'supergroup_chat_created' |
@@ -57,14 +58,16 @@ export type MessageSubTypes =
   'invoice' |
   'group_chat_created' |
   'game' |
+  'dice' |
   'document' |
   'delete_chat_photo' |
   'contact' |
   'channel_chat_created' |
   'audio' |
-  'passport_data' |
   'connected_website' |
-  'animation'
+  'passport_data' |
+  'poll' |
+  'forward'
 
 export type InputMediaTypes =
   'photo'

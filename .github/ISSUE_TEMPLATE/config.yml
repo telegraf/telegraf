@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Question (via Telegram groups)
-    url: https://github.com/telegraf/telegraf/blob/develop/docs/README.md#resources
+    url: https://github.com/telegraf/telegraf#resources
     about: Ask and answer questions about Telegraf
   - name: Question (via GitHub Discussions)
     url: https://github.com/telegraf/telegraf/discussions/categories/q-a

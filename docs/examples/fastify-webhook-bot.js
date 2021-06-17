@@ -1,9 +1,6 @@
 // @ts-expect-error not a dependency of Telegraf
 const fastify = require('fastify')
 const { Telegraf } = require('telegraf')
-// @ts-expect-error not a dependency of Telegraf
-const telegrafPlugin = require('fastify-telegraf')
-
 const { BOT_TOKEN, WEBHOOK_URL } = process.env
 const PORT = process.env.PORT || 3000
 
@@ -14,10 +11,9 @@ const bot = new Telegraf(BOT_TOKEN)
 const app = fastify()
 
 const SECRET_PATH = `/telegraf/${bot.secretPathComponent()}`
-app.register(telegrafPlugin, { bot, path: SECRET_PATH })
+app.post(SECRET_PATH ,(req,rep) => bot.handleUpdate(req.body,rep.raw));
 
 bot.on('text', (ctx) => ctx.reply('Hello'))
-
 bot.telegram.setWebhook(WEBHOOK_URL).then(() => {
   console.log('Webhook is set on', WEBHOOK_URL)
 })

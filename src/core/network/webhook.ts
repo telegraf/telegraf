@@ -4,15 +4,12 @@ import { Update } from '../types/typegram'
 import safeCompare = require('safe-compare')
 const debug = d('telegraf:webhook')
 
-interface Body {
-  body?: Update
-}
 export default function (
   hookPath: string,
   updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>
 ) {
   return async (
-    req: http.IncomingMessage & Body,
+    req: http.IncomingMessage & { body?: Update },
     res: http.ServerResponse,
     next = (): void => {
       res.statusCode = 403

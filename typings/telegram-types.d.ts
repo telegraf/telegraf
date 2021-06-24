@@ -1,5 +1,6 @@
 import { type } from 'os'
 import * as TT from 'typegram'
+
 export * from 'typegram'
 
 export type ParseMode = 'Markdown' | 'MarkdownV2' | 'HTML'
@@ -39,6 +40,7 @@ export type MessageSubTypes =
   'voice' |
   'video_note' |
   'video' |
+  'animation' |
   'venue' |
   'text' |
   'supergroup_chat_created' |
@@ -56,20 +58,23 @@ export type MessageSubTypes =
   'invoice' |
   'group_chat_created' |
   'game' |
+  'dice' |
   'document' |
   'delete_chat_photo' |
   'contact' |
   'channel_chat_created' |
   'audio' |
-  'passport_data' |
   'connected_website' |
-  'animation'
+  'passport_data' |
+  'poll' |
+  'forward'
 
-export type InputMediaTypes = 'photo'
-                            | 'video'
-                            | 'animation'
-                            | 'audio'
-                            | 'document'
+export type InputMediaTypes =
+  'photo'
+  | 'video'
+  | 'animation'
+  | 'audio'
+  | 'document'
 
 export type ChatMemberStatus =
   'creator'
@@ -130,39 +135,39 @@ export interface InputMediaPhoto extends ExtraCaption {
 }
 
 export interface InputMediaVideo extends ExtraCaption {
- type: InputMediaTypes
- media: InputFile
- thumb?: string | InputFile
- width?: number
- height?: number
- duration?: number
- supports_streaming?: boolean
+  type: InputMediaTypes
+  media: InputFile
+  thumb?: string | InputFile
+  width?: number
+  height?: number
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaAnimation extends ExtraCaption {
- type: InputMediaTypes
- media: InputFile
- thumb?: string | InputFile
- width?: number
- height?: number
- duration?: number
- supports_streaming?: boolean
+  type: InputMediaTypes
+  media: InputFile
+  thumb?: string | InputFile
+  width?: number
+  height?: number
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaAudio extends ExtraCaption {
- type: InputMediaTypes
- media: InputFile
- thumb?: string | InputFile
- performer?: string
- title?: string
- duration?: number
- supports_streaming?: boolean
+  type: InputMediaTypes
+  media: InputFile
+  thumb?: string | InputFile
+  performer?: string
+  title?: string
+  duration?: number
+  supports_streaming?: boolean
 }
 
 export interface InputMediaDocument extends ExtraCaption {
- type: InputMediaTypes
- media: InputFile
- thumb?: string | InputFile
+  type: InputMediaTypes
+  media: InputFile
+  thumb?: string | InputFile
 }
 
 export interface StickerData {
@@ -230,16 +235,16 @@ export interface ChatPermissions {
 
 export interface ExtraSetWebhook {
   /** SSL public certificate */
-  certificate?:	InputFile
+  certificate?: InputFile
 
   /** The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS */
   ip_address?: string
 
   /** Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40. */
-  max_connections?:	number
+  max_connections?: number
 
   /** List the types of updates you want your bot to receive */
-  allowed_updates?:	UpdateType[]
+  allowed_updates?: UpdateType[]
 
   /** Pass True to drop all pending updates */
   drop_pending_updates?: boolean
@@ -465,6 +470,40 @@ export interface ExtraEditLocation extends ExtraReplyMarkupInlineKeyboard {
 
 export interface ExtraStopLiveLocation extends ExtraReplyMarkupInlineKeyboard {}
 
+export interface ExtraVenue extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+  /**
+   * Foursquare identifier of the venue
+   */
+  foursquare_id?: string
+
+  /**
+   * Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
+   */
+  foursquare_type?: string
+
+  /**
+   * Google Places identifier of the venue
+   */
+  google_place_id?: string
+
+  /**
+   * Google Places type of the venue. (See [supported types](https://developers.google.com/places/web-service/supported_types).)
+   */
+  google_place_type?: string
+}
+
+export interface ExtraContact extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+  /**
+   * Contact's last name
+   */
+  last_name?: string
+
+  /**
+   * Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes
+   */
+  vcard?: string
+}
+
 export interface ExtraPhoto extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
 
 export interface ExtraMediaGroup extends ExtraDisableNotifications, ExtraReplyMessage {}
@@ -575,6 +614,24 @@ export interface ExtraStopPoll extends ExtraReplyMarkupInlineKeyboard {}
 
 export interface ExtraEditCaption extends ExtraCaptionFormatting, ExtraReplyMarkupInlineKeyboard {}
 
+export interface ExtraAnswerCallbackQuery {
+  /**
+   * URL that will be opened by the user's client.
+   * If you have created a Game and accepted the conditions via @Botfather, specify the URL that opens your game — note that this will only work if the query comes from a `callback_game` button.
+   *
+   * Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
+   */
+  url?: string
+
+  /**
+   * The maximum amount of time in seconds that the result of the callback query may be cached client-side.
+   * Telegram apps will support caching starting in version 3.14. Defaults to 0.
+   */
+  cache_time?: number
+}
+
+export interface ExtraCopyMessage extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
+
 export type Extra = ExtraSendMessage
   | ExtraEditMessage
   | ExtraEditMessageMedia
@@ -585,6 +642,9 @@ export type Extra = ExtraSendMessage
   | ExtraInvoice
   | ExtraLocation
   | ExtraEditLocation
+  | ExtraStopLiveLocation
+  | ExtraVenue
+  | ExtraContact
   | ExtraPhoto
   | ExtraMediaGroup
   | ExtraAnimation
@@ -597,6 +657,8 @@ export type Extra = ExtraSendMessage
   | ExtraQuiz
   | ExtraStopPoll
   | ExtraEditCaption
+  | ExtraAnswerCallbackQuery
+  | ExtraCopyMessage
 
 export interface ExtraUnban {
   /** Do nothing if the user is not banned */
@@ -604,10 +666,12 @@ export interface ExtraUnban {
 }
 
 export type MessageAudio = TT.Message.AudioMessage
+export type MessageContact = TT.Message.ContactMessage
 export type MessageDocument = TT.Message.DocumentMessage
 export type MessageGame = TT.Message.GameMessage
 export type MessageInvoice = TT.Message.InvoiceMessage
 export type MessageLocation = TT.Message.LocationMessage
+export type MessageVenue = TT.Message.VenueMessage
 export type MessagePhoto = TT.Message.PhotoMessage
 export type MessageAnimation = TT.Message.AnimationMessage
 export type MessageSticker = TT.Message.StickerMessage

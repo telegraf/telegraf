@@ -288,7 +288,11 @@ test.cb('should work with context extensions', (t) => {
 })
 
 test.cb('should handle webhook response', (t) => {
-  const bot = new Telegraf()
+  const bot = new Telegraf('token', {
+    telegram: {
+      webhookReply: true
+    }
+  })
   bot.on('message', async ({ reply }) => {
     const result = await reply(':)')
     t.deepEqual(result, { webhook: true })

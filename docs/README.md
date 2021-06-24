@@ -1,6 +1,10 @@
 ![Telegraf](media/header.png)
 
-# Introduction
+You're reading legacy 3.x docs, see
+[4.0.0 release notes](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
+or [4.x docs](https://telegraf.js.org).
+
+## Introduction
 
 Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. Users can interact with bots by sending them command messages in private or group chats. These accounts serve as an interface for code running somewhere on your server.
 
@@ -51,7 +55,7 @@ bot.command('hipster', Telegraf.reply('λ'))
 bot.launch()
 ```
 
-For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/master/docs/examples) folder.
+For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/v3/docs/examples) folder.
 
 **Community bots:**
 

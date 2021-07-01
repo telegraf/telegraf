@@ -88,6 +88,7 @@ export type ExtraPoll = MakeExtra<'sendPoll', 'question' | 'options' | 'type'>
 export type ExtraPromoteChatMember = MakeExtra<'promoteChatMember', 'user_id'>
 export type ExtraReplyMessage = MakeExtra<'sendMessage', 'text'>
 export type ExtraRestrictChatMember = MakeExtra<'restrictChatMember', 'user_id'>
+export type ExtraSetMyCommands = MakeExtra<'setMyCommands', 'commands'>
 export type ExtraSetWebhook = MakeExtra<'setWebhook', 'url'>
 export type ExtraSticker = MakeExtra<'sendSticker', 'sticker'>
 export type ExtraStopPoll = MakeExtra<'stopPoll', 'message_id'>

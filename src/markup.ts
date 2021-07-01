@@ -28,6 +28,16 @@ export class Markup<
     return new Markup<T>({ ...this.reply_markup, selective: value })
   }
 
+  placeholder<T extends ForceReply | ReplyKeyboardMarkup>(
+    this: Markup<T>,
+    placeholder: string
+  ) {
+    return new Markup<T>({
+      ...this.reply_markup,
+      input_field_placeholder: placeholder,
+    })
+  }
+
   resize(this: Markup<ReplyKeyboardMarkup>, value = true) {
     return new Markup<ReplyKeyboardMarkup>({
       ...this.reply_markup,

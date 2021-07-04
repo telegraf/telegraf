@@ -1,4 +1,3 @@
-import { isSessionContext, SessionContext } from '../session'
 import SceneContextScene, {
   SceneContextSceneOptions,
   SceneSession,
@@ -7,6 +6,7 @@ import SceneContextScene, {
 import { BaseScene } from './base'
 import { Composer } from '../composer'
 import { Context } from '../context'
+import { SessionContext } from '../session'
 
 export class Stage<
   C extends SessionContext<SceneSession<D>> & {
@@ -40,15 +40,16 @@ export class Stage<
   middleware() {
     const handler = Composer.compose<C>([
       (ctx, next) => {
-        const scenes: Map<string, BaseScene<C>> = this.scenes
-        const scene = new SceneContextScene<C, D>(ctx, scenes, this.options)
-        ctx.scene = scene
+        if (!('session' in ctx)) {
+          throw new TypeError('`ctx.session` not available')
+        }
+        ctx.scene = new SceneContextScene<C, D>(ctx, this.scenes, this.options)
         return next()
       },
       super.middleware(),
       Composer.lazy<C>((ctx) => ctx.scene.current ?? Composer.passThru()),
     ])
-    return Composer.optional(isSessionContext, handler)
+    return handler
   }
 
   static enter<C extends Context & { scene: SceneContextScene<C> }>(

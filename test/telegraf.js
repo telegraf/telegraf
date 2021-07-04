@@ -61,8 +61,8 @@ test('should store session state with custom store', (t) => {
   const dummyStore = {}
   bot.use(session({
     store: {
-      get: (key) => new Promise((resolve) => setTimeout(resolve, 25, dummyStore[key])),
-      set: (key, value) => new Promise((resolve) => setTimeout(resolve, 25)).then(() => (dummyStore[key] = value))
+      get: (key) => dummyStore[key],
+      set: (key, value) => { dummyStore[key] = value }
     }
   }))
   bot.hears('calc', (ctx) => {

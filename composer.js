@@ -50,6 +50,10 @@ class Composer {
     return this.use(Composer.email(...args))
   }
 
+  phone (...args) {
+    return this.use(Composer.phone(...args))
+  }
+
   url (...args) {
     return this.use(Composer.url(...args))
   }
@@ -64,10 +68,6 @@ class Composer {
 
   mention (...args) {
     return this.use(Composer.mention(...args))
-  }
-
-  phone (...args) {
-    return this.use(Composer.phone(...args))
   }
 
   hashtag (...args) {

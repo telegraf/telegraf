@@ -5,32 +5,39 @@ import * as tt from './telegram-types'
 import { Telegram } from './telegram'
 
 export declare class TelegrafContext {
+  tg: Telegram
+  update: tt.Update
   updateType: tt.UpdateType
   updateSubTypes: tt.MessageSubTypes[]
-  update: tt.Update
-  tg: Telegram
   botInfo?: tt.User
-  telegram: Telegram
-  callbackQuery?: tt.CallbackQuery
-  channelPost?: tt.Message
-  chat?: tt.Chat
-  chosenInlineResult?: tt.ChosenInlineResult
-  editedChannelPost?: tt.Message
-  editedMessage?: tt.Message
-  from?: tt.User
-  inlineQuery?: tt.InlineQuery
   match?: RegExpExecArray | null
   me?: string
-  message?: tt.IncomingMessage
+  telegram: Telegram
+  message?: tt.Message
+  editedMessage?: tt.Message
+  inlineQuery?: tt.InlineQuery
+  shippingQuery?: tt.ShippingQuery
+  preCheckoutQuery?: tt.PreCheckoutQuery
+  chosenInlineResult?: tt.ChosenInlineResult
+  channelPost?: tt.Message
+  editedChannelPost?: tt.Message
+  callbackQuery?: tt.CallbackQuery
   poll?: tt.Poll
   pollAnswer?: tt.PollAnswer
-  preCheckoutQuery?: tt.PreCheckoutQuery
-  shippingQuery?: tt.ShippingQuery
+  chat?: tt.Chat
+  from?: tt.User
+  inlineMessageId?: string
+  passportData?: tt.PassportData
+  state: object
+  webhookReply: boolean
 
   constructor(
     update: tt.Update,
     telegram: Telegram,
-    options?: { username?: string }
+    options?: {
+      username?: string,
+      channelMode?: boolean
+    }
   )
 
   /**
@@ -62,12 +69,6 @@ export declare class TelegrafContext {
     title: string,
     stickerData: tt.StickerData
   ): Promise<boolean>
-
-  /**
-   * Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
-   * @returns True on success
-   */
-  deleteChatPhoto(): Promise<boolean>
 
   /**
    * Use this method to delete a sticker from a set created by the bot.
@@ -109,7 +110,7 @@ export declare class TelegrafContext {
 
   /**
    * Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate admin rights. Pass True for all boolean parameters to lift restrictions from a user. Returns True on success.
-   * @param user_id Unique identifier of the target user
+   * @param userId Unique identifier of the target user
    * @param extra Additional params for restrict chat member
    * @returns True on success
    */
@@ -126,10 +127,39 @@ export declare class TelegrafContext {
   getStickerSet(setName: string): Promise<tt.StickerSet>
 
   /**
+   * Use this method to set a new group sticker set for a supergroup.
+   * The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
+   * Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method
+   * @param setName Name of the sticker set to be set as the group sticker set
+   * @returns True on success.
+   */
+  setChatStickerSet(
+    setName: string
+  ): Promise<boolean>
+
+  /**
+   * Use this method to delete a group sticker set from a supergroup.
+   * The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
+   * Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method
+   * @returns True on success.
+   */
+  deleteChatStickerSet(): Promise<boolean>
+
+  /**
    * Use this method for your bot to leave a group, supergroup or channel
    * @returns True on success
    */
   leaveChat(): Promise<boolean>
+
+  /**
+   * Use this method to set default chat permissions for all members.
+   * The bot must be an administrator in the group or a supergroup for this to work and must have the can_restrict_members admin rights.
+   * @param permissions New default chat permissions
+   * @returns True on success
+   */
+  setChatPermissions(
+    permissions: tt.ChatPermissions
+  ): Promise<boolean>
 
   /**
    * Use this method to pin a message in a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
@@ -145,8 +175,15 @@ export declare class TelegrafContext {
   /**
    * Use this method to unpin a message in a group, a supergroup, or a channel.
    * @returns True on success
+   * @param extra Extra params
    */
-  unpinChatMessage(): Promise<boolean>
+  unpinChatMessage(extra?: tt.ExtraUnpinMessage): Promise<boolean>
+
+  /**
+   * Use this method to clear the list of pinned messages in a chat
+   * @returns True on success
+   */
+  unpinAllChatMessages(): Promise<boolean>
 
   /**
    * Use this method to reply on messages in the same chat.
@@ -154,7 +191,7 @@ export declare class TelegrafContext {
    * @param extra SendMessage additional params
    * @returns sent Message if Success
    */
-  reply(text: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
+  reply(text: string, extra?: tt.ExtraSendMessage): Promise<tt.Message>
 
   /**
    * Use this method to send audio files to the same chat, if you want Telegram clients to display them in the music player.
@@ -213,7 +250,7 @@ export declare class TelegrafContext {
    * @param extra Additional params to send message
    * @returns a Message on success
    */
-  replyWithHTML(html: string, extra?: tt.ExtraReplyMessage): Promise<tt.Message>
+  replyWithHTML(html: string, extra?: tt.ExtraSendMessage): Promise<tt.Message>
 
   /**
    * Use this method to send invoices
@@ -240,6 +277,36 @@ export declare class TelegrafContext {
   ): Promise<tt.MessageLocation>
 
   /**
+   * Use this method to send information about a venue
+   * @param latitude Latitude of location
+   * @param longitude Longitude of location
+   * @param title Name of the venue
+   * @param address Address of the venue
+   * @param extra Additional params for sendVenue
+   * @returns a Message on success
+   */
+  replyWithVenue(
+    latitude: number,
+    longitude: number,
+    title: string,
+    address: string,
+    extra?: tt.ExtraVenue
+  ): Promise<tt.MessageVenue>
+
+  /**
+   * Use this method to send phone contacts
+   * @param phoneNumber Contact's phone number
+   * @param firstName Contact's first name
+   * @param extra Additional params for sendContact
+   * @returns a Message on success
+   */
+  replyWithContact(
+    phoneNumber: string,
+    firstName: string,
+    extra?: tt.ExtraContact
+  ): Promise<tt.MessageContact>
+
+  /**
    * The Bot API supports basic formatting for messages
    * @param markdown You can use bold and italic text, as well as inline links and pre-formatted code in your bots' messages.
    * @param extra Additional params to send message
@@ -247,7 +314,18 @@ export declare class TelegrafContext {
    */
   replyWithMarkdown(
     markdown: string,
-    extra?: tt.ExtraReplyMessage
+    extra?: tt.ExtraSendMessage
+  ): Promise<tt.Message>
+
+  /**
+   * The Bot API supports basic formatting for messages
+   * @param markdown You can use bold and italic text, as well as inline links and pre-formatted code in your bots' messages.
+   * @param extra Additional params to send message
+   * @returns a Message on success
+   */
+  replyWithMarkdownV2(
+    markdown: string,
+    extra?: tt.ExtraSendMessage
   ): Promise<tt.Message>
 
   /**
@@ -295,7 +373,7 @@ export declare class TelegrafContext {
   replyWithQuiz(
     question: string,
     options: string[],
-    extra: tt.ExtraPoll
+    extra: tt.ExtraQuiz
   ): Promise<tt.MessagePoll>
 
   /**
@@ -330,6 +408,28 @@ export declare class TelegrafContext {
   ): Promise<tt.MessageVideo>
 
   /**
+   * Use this method to send .gif animations
+   * @param animation Animation to send. Pass a file_id as String to send a GIF that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a GIF from the Internet, or upload a new GIF using multipart/form-data
+   * @param extra Additional params for sendAnimation
+   * @returns a Message on success
+   */
+  replyWithAnimation(
+    animation: tt.InputFile,
+    extra?: tt.ExtraAnimation
+  ): Promise<tt.MessageAnimation>
+
+  /**
+   * Use this method to send .gif animations
+   * @param videoNote video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. Sending video notes by a URL is currently unsupported
+   * @param extra Additional params for sendVideoNote
+   * @returns a Message on success
+   */
+  replyWithVideoNote(
+    videoNote: tt.InputFileVideoNote,
+    extra?: tt.ExtraAnimation
+  ): Promise<tt.MessageVideoNote>
+
+  /**
    * Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .ogg file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
    * @param voice Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data
    * @param extra Additional params to send voice
@@ -348,9 +448,32 @@ export declare class TelegrafContext {
    */
   replyWithDice(extra?: tt.ExtraDice): Promise<tt.MessageDice>
 
+  /**
+   * Use this method to send copy of exists message.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param extra Additional params to send modified copy of message
+   * @returns the MessageId of the sent message on success
+   */
+  copyMessage(
+    chatId: number | string,
+    extra?: tt.ExtraCopyMessage
+  ): Promise<tt.MessageId>
+
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
   // ------------------------------------------------------------------------------------------ //
+
+  /**
+   * Use this method to send answers to an inline query.
+   * No more than 50 results per query are allowed.
+   * @returns On success, True is returned.
+   * @param results Array of results for the inline query
+   * @param extra Extra optional parameters
+   */
+  answerInlineQuery(
+    results: tt.InlineQueryResult[],
+    extra?: tt.ExtraAnswerInlineQuery
+  ): Promise<boolean>
 
   answerCbQuery(
     text?: string,
@@ -384,18 +507,6 @@ export declare class TelegrafContext {
   answerPreCheckoutQuery(ok: boolean, errorMessage?: string): Promise<boolean>
 
   /**
-   * Use this method to send answers to an inline query.
-   * No more than 50 results per query are allowed.
-   * @returns On success, True is returned.
-   * @param results Array of results for the inline query
-   * @param extra Extra optional parameters
-   */
-  answerInlineQuery(
-    results: tt.InlineQueryResult[],
-    extra?: tt.ExtraAnswerInlineQuery
-  ): Promise<boolean>
-
-  /**
    * Use this method to edit text and game messages sent by the bot or via the bot (for inline bots).
    * @returns On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
    * @param text New text of the message
@@ -410,11 +521,22 @@ export declare class TelegrafContext {
    * Use this method to edit captions of messages sent by the bot or via the bot (for inline bots).
    * On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
    * @param caption New caption of the message
-   * @param markup Markup of inline keyboard
+   * @param extra Extra params
    */
   editMessageCaption(
     caption?: string,
-    markup?: tt.InlineKeyboardMarkup
+    extra?: tt.ExtraEditCaption
+  ): Promise<tt.Message | boolean>
+
+  /**
+   * Use this method to edit animation, audio, document, photo, or video messages.
+   * @returns On success, if the edited message was sent by the bot, the edited Message is returned, otherwise True is returned.
+   * @param media New media of message
+   * @param extra Extra params
+   */
+  editMessageMedia(
+    media: tt.MessageMedia,
+    extra?: tt.ExtraEditMessageMedia
   ): Promise<tt.Message | boolean>
 
   /**
@@ -427,26 +549,25 @@ export declare class TelegrafContext {
   ): Promise<tt.Message | boolean>
 
   /**
-   * Use this method to edit animation, audio, document, photo, or video messages.
-   * @returns On success, if the edited message was sent by the bot, the edited Message is returned, otherwise True is returned.
-   * @param media New media of message
-   * @param markup Markup of inline keyboard
-   */
-  editMessageMedia(
-    media: tt.MessageMedia,
-    extra?: tt.ExtraEditMessage
-  ): Promise<tt.Message | boolean>
-
-  /**
-   * Use this method to edit live location messages.
+   * Use this method to edit live location messages
    * @returns On success, if the edited message was sent by the bot, the edited message is returned, otherwise True is returned.
-   * @param lat New latitude
-   * @param lon New longitude
+   * @param latitude New latitude
+   * @param longitude New longitude
+   * @param extra Extra params
    */
   editMessageLiveLocation(
-    lat: number,
-    lon: number,
-    extra?: tt.ExtraLocation
+    latitude: number,
+    longitude: number,
+    extra?: tt.ExtraEditLocation
+  ): Promise<tt.MessageLocation | boolean>
+
+  /**
+   * Use this method to stop updating a live location message before live_period expires.
+   * @param extra Extra params
+   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
+   */
+  stopMessageLiveLocation(
+    extra?: tt.ExtraStopLiveLocation
   ): Promise<tt.MessageLocation | boolean>
 
   /**
@@ -460,14 +581,15 @@ export declare class TelegrafContext {
   /**
    * Use this method to unban a user from a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
    * @param userId Unique identifier of the target user
+   * @param extra Extra params
    * @returns True on success
    */
-  unbanChatMember(userId: number): Promise<boolean>
+  unbanChatMember(userId: number, extra?: tt.ExtraUnban): Promise<boolean>
 
   /**
    * Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Pass False for all boolean parameters to demote a user.
-   * @param chatId Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
    * @param userId Unique identifier of the target user
+   * @param extra Extra parameters for promoteChatMember
    * @returns True on success
    */
   promoteChatMember(
@@ -476,13 +598,42 @@ export declare class TelegrafContext {
   ): Promise<boolean>
 
   /**
-   * Use this method to stop updating a live location message before live_period expires.
-   * @returns On success, if the message was sent by the bot, the sent Message is returned, otherwise True is returned.
-   * @param extra Extra params
+   * Use this method to set a custom title for an administrator in a supergroup promoted by the bot
+   * @param userId Unique identifier of the target user
+   * @param title New custom title for the administrator; 0-16 characters, emoji are not allowed
+   * @returns True on success
    */
-  stopMessageLiveLocation(
-    extra?: tt.ExtraLocation
-  ): Promise<tt.MessageLocation | boolean>
+  setChatAdministratorCustomTitle(
+    userId: number,
+    title: string
+  ): Promise<boolean>
+
+  /**
+   * Use this method to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param photo New chat photo
+   * @returns True on success.
+   */
+  setChatPhoto(photo: tt.InputFile): Promise<boolean>
+
+  /**
+   * Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
+   * @returns True on success
+   */
+  deleteChatPhoto(): Promise<boolean>
+
+  /**
+   * Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param title New chat title, 1-255 characters
+   * @returns True on success
+   */
+  setChatTitle(title: string): Promise<boolean>
+
+  /**
+   * Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * @param description New chat description, 0-255 characters
+   * @returns True on success
+   */
+  setChatDescription(description: string): Promise<boolean>
 
   /**
    * Use this method to delete a message, including service messages, with the following limitations:
@@ -494,6 +645,17 @@ export declare class TelegrafContext {
    * @returns Returns True on success.
    */
   deleteMessage(messageId?: number): Promise<boolean>
+
+  /**
+   * Use this method to forward exists message.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param extra Pass `{ disable_notification: true }`, if it is not necessary to send a notification for forwarded message
+   * @returns On success, the sent Message is returned.
+   */
+  forwardMessage(
+    chatId: number | string,
+    extra?: { disable_notification?: boolean }
+  ): Promise<tt.Message>
 
   /**
    * Use this method to upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods (can be used multiple times)
@@ -516,9 +678,43 @@ export declare class TelegrafContext {
   setStickerPositionInSet(sticker: string, position: number): Promise<boolean>
 
   /**
-   * Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
-   * @param title New chat title, 1-255 characters
+   * Use this method to set the thumbnail of a sticker set.
+   * Animated thumbnails can be set for animated sticker sets only
+   * @param name Sticker set name
+   * @param userId User identifier of the sticker set owner
+   * @param thumb New thumbnail. See [documentation](https://core.telegram.org/bots/api#setstickersetthumb)
+   * @returns True on success.
+   */
+  setStickerSetThumb(
+    name: string,
+    userId: number,
+    thumb: tt.InputFile,
+  ): Promise<boolean>
+
+  /**
+   * Informs a user that some of the Telegram Passport elements they provided contains errors.
+   * The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change).
+   *
+   * Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason.
+   * For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc.
+   * Supply some details in the error message to make sure the user knows how to correct the issues.
+   * @param errors An array describing the errors
+   * @returns True on success.
+   */
+  setPassportDataErrors(
+    errors: tt.PassportElementError[]
+  ): Promise<boolean>
+
+  /**
+   * Use this method to get the current list of the bot's commands. Requires no parameters.
+   * @returns Array of BotCommand on success.
+   */
+  getMyCommands(): Promise<tt.BotCommand[]>
+
+  /**
+   * Use this method to change the list of the bot's commands.
+   * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
    * @returns True on success
    */
-  setChatTitle(title: string): Promise<boolean>
+  setMyCommands(commands: tt.BotCommand[]): Promise<boolean>
 }

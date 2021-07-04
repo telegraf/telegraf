@@ -1,39 +1,42 @@
 /** @format */
 
+import { Markup } from './markup';
 import * as tt from './telegram-types.d'
 
 export declare class Extra {
-  constructor(opts: object)
+  constructor(opts: tt.Extra)
 
-  load(opts: object): this
+  load<T extends tt.Extra>(opts: T): Extra & T | this
 
-  inReplyTo(messageId: string | number): this
+  inReplyTo(messageId: string | number): Extra & tt.ExtraReplyMessage | this
 
-  notifications(value?: boolean): this
+  notifications(value?: boolean): Extra & tt.ExtraDisableNotifications | this
 
-  webPreview(value?: boolean): this
+  webPreview(value?: boolean): Extra & tt.ExtraDisableWebPagePreview | this
 
-  markup(markup: any): tt.ExtraEditMessage & this
+  markup<T extends tt.KeyboardMarkupBundle>(markup: ((m: Markup<tt.KeyboardMarkupBundle>) => T) | T): Extra & tt.ExtraReply<T> | this
 
-  HTML(value?: boolean): this
+  HTML(value?: boolean): Extra & tt.ExtraFormatting | this
 
-  markdown(value?: boolean): this
+  markdown(value?: boolean): Extra & tt.ExtraFormatting | this
 
-  caption(caption: string): this
+  markdownV2(value?: boolean): Extra & tt.ExtraFormatting | this
 
-  static load(opts: object): Extra
+  caption(caption: string): Extra & tt.ExtraCaption | this
 
-  static inReplyTo(messageId: string | number): Extra
+  static load<T extends tt.Extra>(opts: T): Extra & T
 
-  static notifications(value?: boolean): Extra
+  static inReplyTo(messageId: string | number): Extra & tt.ExtraReplyMessage
 
-  static webPreview(value?: boolean): Extra
+  static notifications(value?: boolean): Extra & tt.ExtraDisableNotifications
 
-  static markup(markup: any): tt.ExtraEditMessage
+  static webPreview(value?: boolean): Extra & tt.ExtraDisableWebPagePreview
 
-  static HTML(value?: boolean): Extra
+  static markup<T extends tt.KeyboardMarkupBundle>(markup: ((m: Markup<tt.KeyboardMarkupBundle>) => T) | T): Extra & tt.ExtraReply<T>
 
-  static markdown(value?: boolean): Extra
+  static HTML(value?: boolean): Extra & tt.ExtraFormatting
 
-  static caption(caption: string): Extra
+  static markdown(value?: boolean): Extra & tt.ExtraFormatting
+
+  static caption(caption: string): Extra & tt.ExtraCaption
 }

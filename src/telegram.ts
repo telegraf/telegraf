@@ -832,7 +832,7 @@ export class Telegram extends ApiClient {
   }
 
   editMessageLiveLocation(
-    chatId: number | undefined,
+    chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
     latitude: number,

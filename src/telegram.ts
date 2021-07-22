@@ -211,7 +211,7 @@ export class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target private chat
    */
   sendInvoice(
-    chatId: number,
+    chatId: number | string,
     invoice: tt.NewInvoiceParameters,
     extra?: tt.ExtraInvoice
   ) {

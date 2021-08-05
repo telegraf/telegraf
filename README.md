@@ -242,6 +242,7 @@ require('https')
 - [`fastify` example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/fastify-webhook-bot.js)
 - [Google Cloud Functions example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/google-cloud-function.ts)
 - [`koa` example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/koa-webhook-bot.js)
+- [NestJS framework integration module](https://github.com/bukhalo/nestjs-telegraf)
 - Use [`bot.handleUpdate`](https://telegraf.js.org/classes/telegraf.html#handleupdate) to write new integrations
 
 ### Error handling

@@ -962,4 +962,39 @@ export declare class Telegram extends ApiClient {
     messageId: number,
     extra?: tt.ExtraCopyMessage
   ): Promise<tt.MessageId>
+
+  /**
+   * Use this method to create an additional invite link for a chat.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param extra Extra parameters for createChatInviteLink
+   * @returns the new invite link as ChatInviteLink object
+   */
+  createChatInviteLink(
+    chatId: number | string,
+    extra?: tt.ExtraCreateChatIviteLink
+  ): Promise<tt.ChatInviteLink>
+
+  /**
+   * Use this method to edit a non-primary invite link created by the bot.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param inviteLink The invite link to edit
+   * @param extra Extra parameters for editChatInviteLink
+   * @returns the edited invite link as a ChatInviteLink object
+   */
+  editChatInviteLink(
+    chatId: number | string,
+    inviteLink: string,
+    extra?: tt.ExtraEditChatIviteLink
+  ): Promise<tt.ChatInviteLink>
+
+  /**
+   * Use this method to revoke an invite link created by the bot.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param inviteLink The invite link to revoke
+   * @returns the revoked invite link as a ChatInviteLink object
+   */
+  revokeChatInviteLink(
+    chatId: number | string,
+    inviteLink: string
+  ): Promise<tt.ChatInviteLink>
 }

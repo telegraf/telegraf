@@ -34,7 +34,9 @@ export type UpdateType =
   'pre_checkout_query' |
   'shipping_query' |
   'poll' |
-  'poll_answer'
+  'poll_answer' |
+  'my_chat_member' |
+  'chat_member'
 
 export type MessageSubTypes =
   'voice' |
@@ -67,7 +69,11 @@ export type MessageSubTypes =
   'connected_website' |
   'passport_data' |
   'poll' |
-  'forward'
+  'forward' |
+  'message_auto_delete_timer_changed' |
+  'voice_chat_started' |
+  'voice_chat_ended' |
+  'voice_chat_participants_invited'
 
 export type InputMediaTypes =
   'photo'
@@ -83,6 +89,7 @@ export type ChatMemberStatus =
   | 'restricted'
   | 'left'
   | 'kicked'
+
 export type MessageEntityType =
   'mention'
   | 'hashtag'
@@ -275,6 +282,9 @@ export interface ExtraPromoteChatMember {
 
   /** Pass True, if the administrator can delete messages of other users */
   can_delete_messages?: boolean
+
+  /** Pass True, if the administrator can manage voice chats */
+  can_manage_voice_chats?: boolean,
 
   /** Pass True, if the administrator can invite new users to the chat */
   can_invite_users?: boolean
@@ -661,9 +671,41 @@ export type Extra = ExtraSendMessage
   | ExtraCopyMessage
 
 export interface ExtraUnban {
-  /** Do nothing if the user is not banned */
+  /** 
+   * Do nothing if the user is not banned 
+   */
   only_if_banned?: Boolean
 }
+
+export interface ExtraBan {
+  /**
+   * Date when the user will be unbanned, unix time. 
+   * If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever.
+   * Applied for supergroups and channels only.
+   */
+   until_date?: number,
+
+   /**
+    * Pass True to delete all messages from the chat for the user that is being removed.
+    * If False, the user will be able to see messages in the group that were sent before the user was removed.
+    * Always True for supergroups and channels.
+    */
+    revoke_messages: boolean
+}
+
+export interface ExtraCreateChatIviteLink {
+  /** 
+   * Point in time (Unix timestamp) when the link will expire 
+   */
+  expire_date?: number,
+
+  /** 
+   * Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
+   */
+  member_limit?: number
+}
+
+export interface ExtraEditChatIviteLink extends ExtraCreateChatIviteLink {}
 
 export type MessageAudio = TT.Message.AudioMessage
 export type MessageContact = TT.Message.ContactMessage
@@ -697,6 +739,10 @@ type ServiceMessageBundle = TT.Message.ChannelChatCreatedMessage
   & TT.Message.PinnedMessageMessage
   & TT.Message.SuccessfulPaymentMessage
   & TT.Message.SupergroupChatCreated
+  & TT.Message.MessageAutoDeleteTimerChangedMessage
+  & TT.Message.VoiceChatStartedMessage
+  & TT.Message.VoiceChatEndedMessage
+  & TT.Message.VoiceChatEndedMessage
 
 type CommonMessageBundle = TT.Message.AnimationMessage
   & TT.Message.AudioMessage
@@ -727,6 +773,8 @@ export type Update = TT.Update.CallbackQueryUpdate
   & TT.Update.PollAnswerUpdate
   & TT.Update.PollUpdate
   & TT.Update.ShippingQueryUpdate
+  & TT.Update.MyChatMemberUpdate
+  & TT.Update.ChatMemberUpdate
 
 export interface CallbackQuery extends TT.CallbackQuery.DataCallbackQuery, TT.CallbackQuery.GameShortGameCallbackQuery {
   message: Message
@@ -855,3 +903,5 @@ export interface BotCommand {
    */
   description: string
 }
+
+export type ChatInviteLink = TT.ChatInviteLink

@@ -717,4 +717,33 @@ export declare class TelegrafContext {
    * @returns True on success
    */
   setMyCommands(commands: tt.BotCommand[]): Promise<boolean>
+
+  /**
+   * Use this method to create an additional invite link for a chat.
+   * @param extra Extra parameters for createChatInviteLink
+   * @returns the new invite link as ChatInviteLink object
+   */
+  createChatInviteLink(
+    extra?: tt.ExtraCreateChatIviteLink
+  ): Promise<tt.ChatInviteLink>
+
+  /**
+   * Use this method to edit a non-primary invite link created by the bot.
+   * @param inviteLink The invite link to edit
+   * @param extra Extra parameters for editChatInviteLink
+   * @returns the edited invite link as a ChatInviteLink object
+   */
+  editChatInviteLink(
+    inviteLink: string,
+    extra?: tt.ExtraEditChatIviteLink
+  ): Promise<tt.ChatInviteLink>
+
+  /**
+   * Use this method to revoke an invite link created by the bot.
+   * @param inviteLink The invite link to revoke
+   * @returns the revoked invite link as a ChatInviteLink object
+   */
+  revokeChatInviteLink(
+    inviteLink: string
+  ): Promise<tt.ChatInviteLink>
 }

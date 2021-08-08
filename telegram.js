@@ -445,6 +445,28 @@ class Telegram extends ApiClient {
       ...extra
     })
   }
+
+  createChatInviteLink (chatId, extra) {
+    return this.callApi('createChatInviteLink', {
+      chat_id: chatId,
+      ...extra
+    })
+  }
+
+  editChatInviteLink (chatId, inviteLink, extra) {
+    return this.callApi('editChatInviteLink', {
+      chat_id: chatId,
+      invite_link: inviteLink,
+      ...extra
+    })
+  }
+
+  revokeChatInviteLink (chatId, inviteLink) {
+    return this.callApi('revokeChatInviteLink', {
+      chat_id: chatId,
+      invite_link: inviteLink
+    })
+  }
 }
 
 module.exports = Telegram

@@ -10,8 +10,8 @@ export type ChatAction =
   'upload_photo' |
   'record_video' |
   'upload_video' |
-  'record_audio' |
-  'upload_audio' |
+  'record_voice' |
+  'upload_voice' |
   'upload_document' |
   'find_location' |
   'record_video_note' |
@@ -73,7 +73,8 @@ export type MessageSubTypes =
   'message_auto_delete_timer_changed' |
   'voice_chat_started' |
   'voice_chat_ended' |
-  'voice_chat_participants_invited'
+  'voice_chat_participants_invited' |
+  'voice_chat_scheduled'
 
 export type InputMediaTypes =
   'photo'
@@ -743,6 +744,7 @@ type ServiceMessageBundle = TT.Message.ChannelChatCreatedMessage
   & TT.Message.VoiceChatStartedMessage
   & TT.Message.VoiceChatEndedMessage
   & TT.Message.VoiceChatEndedMessage
+  & TT.Message.VoiceChatScheduledMessage
 
 type CommonMessageBundle = TT.Message.AnimationMessage
   & TT.Message.AudioMessage
@@ -802,9 +804,11 @@ export interface NewInvoiceParameters {
   provider_token: string
 
   /**
-   * Unique deep-linking parameter that can be used to generate this invoice when used as a start parameter
+   * Unique deep-linking parameter.
+   * If left empty, forwarded copies of the sent message will have a Pay button, allowing multiple users to pay directly from the forwarded message, using the same invoice.
+   * If non-empty, forwarded copies of the sent message will have a URL button with a deep link to the bot (instead of a Pay button), with the value used as the start parameter
    */
-  start_parameter: string
+  start_parameter?: string
 
   /**
    * Three-letter ISO 4217 currency code, see more on currencies
@@ -815,6 +819,20 @@ export interface NewInvoiceParameters {
    * Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
    */
   prices: TT.LabeledPrice[]
+
+  /**
+   * The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double).
+   * For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145.
+   * Defaults to 0
+   */
+  max_tip_amount: number
+
+  /**
+   * A JSON-serialized array of suggested amounts of tips in the smallest units of the currency (integer, not float/double).
+   * At most 4 suggested tip amounts can be specified.
+   * The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount.
+   */
+  suggested_tip_amounts: number[]
 
   /**
    * URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for.

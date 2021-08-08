@@ -49,7 +49,8 @@ const MessageSubTypes = [
   'message_auto_delete_timer_changed',
   'voice_chat_started',
   'voice_chat_ended',
-  'voice_chat_participants_invited'
+  'voice_chat_participants_invited',
+  'voice_chat_scheduled'
 ]
 
 const MessageSubTypesMapping = {

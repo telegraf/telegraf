@@ -222,7 +222,7 @@ test('should generate nested multi markup', (t) => {
   t.deepEqual(markup, '<s>strike<b>bold<u>under</u></b></s>')
 })
 
-test.only('should generate nested multi markup 2', (t) => {
+test('should generate nested multi markup 2', (t) => {
   const markup = Markup.formatHTML('×11 22 333×      ×С123456×                   ×1 22 333×', [
     {
       offset: 1,
@@ -251,4 +251,36 @@ test.only('should generate nested multi markup 2', (t) => {
     }
   ])
   t.deepEqual(markup, '×<b><i>11 22 333</i></b>× <i>     ×С</i><i><b>123456× </b>                  ×1 22 333×</i>')
+})
+
+test('should generate correct markup with emojis', (t) => {
+  const markup = Markup.formatHTML('bold🙂👨‍👩‍👧‍👧 italic', [
+    {
+      offset: 0,
+      length: 6,
+      type: 'bold'
+    },
+    {
+      offset: 18,
+      length: 6,
+      type: 'italic'
+    }
+  ])
+  t.deepEqual(markup, '<b>bold🙂</b>👨‍👩‍👧‍👧 <i>italic</i>')
+})
+
+test('should generate correct markup with HTML tags', (t) => {
+  const markup = Markup.formatHTML('<b>bold</b> <i>italic</i>', [
+    {
+      offset: 3,
+      length: 4,
+      type: 'bold'
+    },
+    {
+      offset: 15,
+      length: 6,
+      type: 'italic'
+    }
+  ])
+  t.deepEqual(markup, '&lt;b&gt;<b>bold</b>&lt;/b&gt; &lt;i&gt;<i>italic</i>&lt;/i&gt;')
 })

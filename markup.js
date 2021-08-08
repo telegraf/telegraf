@@ -168,11 +168,10 @@ class Markup {
   }
 
   static formatHTML (text = '', entities = []) {
-    const chars = [...text]
     const available = [...entities]
     const opened = []
     const result = []
-    for (let offset = 0; offset < chars.length; offset++) {
+    for (let offset = 0; offset < text.length; offset++) {
       while (true) {
         const index = available.findIndex((entity) => entity.offset === offset)
         if (index === -1) {
@@ -213,7 +212,7 @@ class Markup {
         available.splice(index, 1)
       }
 
-      result.push(chars[offset])
+      result.push(escapeHTML(text[offset]))
 
       while (true) {
         const index = opened.findIndex((entity) => entity.offset + entity.length - 1 === offset)
@@ -254,6 +253,18 @@ class Markup {
     }
     return result.join('')
   }
+}
+
+const escapedChars = {
+  '"': '&quot;',
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;'
+}
+
+function escapeHTML (string) {
+  const chars = [...string]
+  return chars.map(char => escapedChars[char] || char).join('')
 }
 
 function buildKeyboard (buttons, options) {

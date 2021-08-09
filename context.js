@@ -344,6 +344,11 @@ class TelegrafContext {
     return this.telegram.exportChatInviteLink(this.chat.id, ...args)
   }
 
+  banChatMember (...args) {
+    this.assert(this.chat, 'banChatMember')
+    return this.telegram.banChatMember(this.chat.id, ...args)
+  }
+
   kickChatMember (...args) {
     this.assert(this.chat, 'kickChatMember')
     return this.telegram.kickChatMember(this.chat.id, ...args)
@@ -426,7 +431,12 @@ class TelegrafContext {
 
   getChatMembersCount (...args) {
     this.assert(this.chat, 'getChatMembersCount')
-    return this.telegram.getChatMembersCount(this.chat.id, ...args)
+    return this.telegram.getChatMemberCount(this.chat.id, ...args)
+  }
+
+  getChatMemberCount (...args) {
+    this.assert(this.chat, 'getChatMemberCount')
+    return this.telegram.getChatMemberCount(this.chat.id, ...args)
   }
 
   setPassportDataErrors (errors) {
@@ -570,12 +580,16 @@ class TelegrafContext {
     return this.telegram.addStickerToSet(this.from.id, ...args)
   }
 
-  getMyCommands () {
-    return this.telegram.getMyCommands()
+  getMyCommands (...args) {
+    return this.telegram.getMyCommands(...args)
   }
 
   setMyCommands (...args) {
     return this.telegram.setMyCommands(...args)
+  }
+
+  deleteMyCommands (...args) {
+    return this.telegram.deleteMyCommands(...args)
   }
 
   replyWithMarkdown (markdown, extra) {

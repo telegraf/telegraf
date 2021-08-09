@@ -9,6 +9,11 @@ class Markup {
     return this
   }
 
+  inputFieldPlaceholder (placeholder) {
+    this.input_field_placeholder = placeholder
+    return this
+  }
+
   selective (value = true) {
     this.selective = value
     return this
@@ -109,6 +114,10 @@ class Markup {
 
   static resize (value = true) {
     return new Markup().resize(value)
+  }
+
+  static inputFieldPlaceholder (placeholder) {
+    return new Markup().inputFieldPlaceholder(placeholder)
   }
 
   static selective (value = true) {

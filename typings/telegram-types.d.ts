@@ -694,7 +694,7 @@ export interface ExtraBan {
     revoke_messages: boolean
 }
 
-export interface ExtraCreateChatIviteLink {
+interface ExtraChatIviteLink {
   /** 
    * Point in time (Unix timestamp) when the link will expire 
    */
@@ -706,7 +706,10 @@ export interface ExtraCreateChatIviteLink {
   member_limit?: number
 }
 
-export interface ExtraEditChatIviteLink extends ExtraCreateChatIviteLink {}
+
+export interface ExtraCreateChatIviteLink extends ExtraChatIviteLink {}
+
+export interface ExtraEditChatIviteLink extends ExtraChatIviteLink {}
 
 export type MessageAudio = TT.Message.AudioMessage
 export type MessageContact = TT.Message.ContactMessage
@@ -905,6 +908,140 @@ export interface ExtraAnswerInlineQuery {
    * Deep-linking parameter for the /start message sent to the bot when user presses the switch button. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed.
    */
   switch_pm_parameter?: string
+}
+
+/**
+ * Represents the default scope of bot commands.
+ * Default commands are used if no commands with a narrower scope are specified for the user.
+ */
+export interface BotCommandScopeDefault {
+  /**
+   * Scope type
+   */
+  type: 'default'
+}
+
+/**
+ * Represents the scope of bot commands, covering all private chats.
+ */
+export interface BotCommandScopeAllPrivateChats {
+  /**
+   * Scope type
+   */
+  type: 'all_private_chats'
+}
+
+/**
+ * Represents the scope of bot commands, covering all group and supergroup chats.
+ */
+export interface BotCommandScopeAllGroupChats {
+  /**
+   * Scope type
+   */
+  type: 'all_groups_chats'
+}
+
+/**
+ * Represents the scope of bot commands, covering all group and supergroup chat administrators.
+ */
+export interface BotCommandScopeAllChatAdministrators {
+  /**
+   * Scope type
+   */
+  type: 'all_chat_administrators'
+}
+
+/**
+ * Represents the scope of bot commands, covering a specific chat.
+ */
+export interface BotCommandScopeChat {
+  /**
+   * Scope type
+   */
+  type: 'chat'
+
+  /**
+   * Unique identifier for the target chat or username of the target supergroup
+   */
+  chat_id: number | string
+}
+
+/**
+ * Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
+ */
+export interface BotCommandScopeChatAdministrators {
+  /**
+   * Scope type
+   */
+  type: 'chat_administrators'
+
+  /**
+   * Unique identifier for the target chat or username of the target supergroup
+   */
+  chat_id: number | string
+}
+
+/**
+ * Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
+ */
+export interface BotCommandScopeChatMember {
+  /**
+   * Scope type
+   */
+  type: 'chat_member'
+
+  /**
+   * Unique identifier for the target chat or username of the target supergroup
+   */
+  chat_id: number | string
+
+   /**
+    * Unique identifier of the target user
+    */
+  user_id: number
+}
+
+/**
+ * This object represents the scope to which bot commands are applied.
+ */
+export type BotCommandScope = 
+  BotCommandScopeDefault
+  | BotCommandScopeAllPrivateChats
+  | BotCommandScopeAllGroupChats
+  | BotCommandScopeAllChatAdministrators
+  | BotCommandScopeChat
+  | BotCommandScopeChatAdministrators
+  | BotCommandScopeChatMember
+
+export interface ExtraScope {
+  /**
+   * A JSON-serialized object, describing scope of users for which the commands are relevant.
+   * Defaults to BotCommandScopeDefault.
+   */
+  scope?: BotCommandScope
+}
+
+export interface ExtraSetMyCommands extends ExtraScope {
+  /**
+   * A two-letter ISO 639-1 language code.
+   * If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+   */
+   language_code?: string
+}
+
+export interface ExtraDeleteMyCommands extends ExtraScope {
+  /**
+   * A two-letter ISO 639-1 language code.
+   * If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+   */
+   language_code?: string
+}
+
+export interface ExtraGetMyCommands extends ExtraScope {
+  /**
+   * A two-letter ISO 639-1 language code or an empty string
+   */
+   language_code?: string
 }
 
 /**

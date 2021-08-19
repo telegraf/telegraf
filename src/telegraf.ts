@@ -141,7 +141,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
         ? (req, res) => webhookCb(req, res, () => cb(req, res))
         : webhookCb
     this.webhookServer =
-      tlsOptions !== undefined
+      tlsOptions != null
         ? https.createServer(tlsOptions, callback)
         : http.createServer(callback)
     this.webhookServer.listen(port, host, () => {

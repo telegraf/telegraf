@@ -18,7 +18,7 @@ app.register(telegrafPlugin, { bot, path: SECRET_PATH })
 
 bot.on('text', (ctx) => ctx.reply('Hello'))
 
-bot.telegram.setWebhook(WEBHOOK_URL).then(() => {
+bot.telegram.setWebhook(WEBHOOK_URL + SECRET_PATH).then(() => {
   console.log('Webhook is set on', WEBHOOK_URL)
 })
 

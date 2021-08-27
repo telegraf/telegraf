@@ -73,8 +73,8 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.1.0",
     "prettier": "2.2.1",
-    "typedoc": "^0.20.29",
-    "typescript": "~4.2.3"
+    "typedoc": "^0.21.7",
+    "typescript": "~4.4.2"
   },
   "keywords": [
     "telegraf",

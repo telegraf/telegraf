@@ -118,7 +118,7 @@ function buildKeyboard<B extends HideableKBtn | HideableIKBtn>(
       ? options.wrap
       : (_btn: B, _index: number, currentRow: B[]) =>
           currentRow.length >= options.columns
-  let currentRow = []
+  let currentRow: B[] = []
   let index = 0
   for (const btn of buttons.filter((button) => !button.hide)) {
     if (wrapFn(btn, index, currentRow) && currentRow.length > 0) {

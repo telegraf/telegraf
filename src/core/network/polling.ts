@@ -39,7 +39,7 @@ export class Polling {
           this.offset = last.update_id + 1
         }
         yield updates
-      } catch (err) {
+      } catch (err: any) {
         if (err.name === 'AbortError') return
         if (
           err.name === 'FetchError' ||

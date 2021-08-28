@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "4.3.0",
+  "version": "4.4.1",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -24,7 +24,7 @@
     "typings/**/*.d.ts.map"
   ],
   "bin": {
-    "telegraf": "./bin/telegraf"
+    "telegraf": "bin/telegraf"
   },
   "scripts": {
     "prepare": "npm run --silent build",
@@ -51,7 +51,7 @@
     "p-timeout": "^4.1.0",
     "safe-compare": "^1.1.4",
     "sandwich-stream": "^2.0.2",
-    "typegram": "^3.3.0"
+    "typegram": "^3.4.2"
   },
   "devDependencies": {
     "@types/debug": "^4.1.5",
@@ -73,8 +73,8 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.1.0",
     "prettier": "2.2.1",
-    "typedoc": "^0.20.29",
-    "typescript": "~4.2.3"
+    "typedoc": "^0.21.7",
+    "typescript": "~4.4.2"
   },
   "keywords": [
     "telegraf",

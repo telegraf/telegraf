@@ -211,7 +211,7 @@ export class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target private chat
    */
   sendInvoice(
-    chatId: number,
+    chatId: number | string,
     invoice: tt.NewInvoiceParameters,
     extra?: tt.ExtraInvoice
   ) {
@@ -832,7 +832,7 @@ export class Telegram extends ApiClient {
   }
 
   editMessageLiveLocation(
-    chatId: number | undefined,
+    chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
     latitude: number,
@@ -978,16 +978,23 @@ export class Telegram extends ApiClient {
   /**
    * Get the current list of the bot's commands.
    */
-  getMyCommands() {
-    return this.callApi('getMyCommands', {})
+  getMyCommands(extra: tg.Opts<'getMyCommands'> = {}) {
+    return this.callApi('getMyCommands', extra)
   }
 
   /**
    * Change the list of the bot's commands.
    * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
    */
-  setMyCommands(commands: readonly tg.BotCommand[]) {
-    return this.callApi('setMyCommands', { commands })
+  setMyCommands(
+    commands: readonly tg.BotCommand[],
+    extra?: tt.ExtraSetMyCommands
+  ) {
+    return this.callApi('setMyCommands', { commands, ...extra })
+  }
+
+  deleteMyCommands(extra: tg.Opts<'deleteMyCommands'> = {}) {
+    return this.callApi('deleteMyCommands', extra)
   }
 
   setPassportDataErrors(

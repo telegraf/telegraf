@@ -373,7 +373,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#kickchatmember
+   * @see https://core.telegram.org/bots/api#banchatmember
    */
   kickChatMember(this: Context, ...args: Shorthand<'kickChatMember'>) {
     this.assert(this.chat, 'kickChatMember')
@@ -510,7 +510,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#getchatmemberscount
+   * @see https://core.telegram.org/bots/api#getchatmembercount
    */
   getChatMembersCount(
     this: Context,

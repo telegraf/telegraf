@@ -344,7 +344,6 @@ class ApiClient {
 
     const config: RequestInit = includesMedia(payload)
       ? await buildFormDataConfig(
-          // @ts-expect-error cannot assign to Record<string, unknown>
           { method, ...payload },
           options.attachmentAgent
         )

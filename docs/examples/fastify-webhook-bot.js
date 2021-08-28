@@ -14,7 +14,7 @@ const SECRET_PATH = `/telegraf/${bot.secretPathComponent()}`
 app.post(SECRET_PATH ,(req,rep) => bot.handleUpdate(req.body,rep.raw));
 
 bot.on('text', (ctx) => ctx.reply('Hello'))
-bot.telegram.setWebhook(WEBHOOK_URL).then(() => {
+bot.telegram.setWebhook(WEBHOOK_URL + SECRET_PATH).then(() => {
   console.log('Webhook is set on', WEBHOOK_URL)
 })
 

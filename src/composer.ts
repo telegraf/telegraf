@@ -25,7 +25,8 @@ export type MatchedMiddleware<
     Produces: a context that has some properties required, and some undefined.
     The required ones are those that are always present when the given update (or message) arrives.
     The undefined ones are those that are always absent when the given update (or message) arrives. */
-export type MatchedContext<
+/** @deprecated */
+type MatchedContext<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType
 > = NarrowedContext<C, tt.MountMap[T]>

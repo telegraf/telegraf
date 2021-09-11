@@ -5,16 +5,16 @@ import * as tt from './telegram-types'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
 import Context from './context'
 
-type MaybeArray<T> = T | T[]
+export type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
-type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
-type Triggers<C> = MaybeArray<
+export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
+export type Triggers<C> = MaybeArray<
   string | RegExp | ((value: string, ctx: C) => RegExpExecArray | null)
 >
-type Predicate<T> = (t: T) => boolean
-type AsyncPredicate<T> = (t: T) => Promise<boolean>
+export type Predicate<T> = (t: T) => boolean
+export type AsyncPredicate<T> = (t: T) => Promise<boolean>
 
-type MatchedMiddleware<
+export type MatchedMiddleware<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post'
 > = NonemptyReadonlyArray<
@@ -25,6 +25,7 @@ type MatchedMiddleware<
     Produces: a context that has some properties required, and some undefined.
     The required ones are those that are always present when the given update (or message) arrives.
     The undefined ones are those that are always absent when the given update (or message) arrives. */
+/** @deprecated */
 type MatchedContext<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType
@@ -42,7 +43,7 @@ export type NarrowedContext<
   U extends tg.Update
 > = Context<U> & Omit<C, keyof Context>
 
-interface GameQueryUpdate extends tg.Update.CallbackQueryUpdate {
+export interface GameQueryUpdate extends tg.Update.CallbackQueryUpdate {
   callback_query: tg.CallbackQuery.GameShortGameCallbackQuery
 }
 

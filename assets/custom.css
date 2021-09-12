@@ -1,0 +1,44 @@
+/** @format */
+
+li.tsd-kind-namespace > a[href$="telegraf.html"] {
+  display: none;
+}
+
+a > h2:hover::after,
+a > h3:hover::after,
+a > h4:hover::after,
+a > h5:hover::after {
+  content: '🔗';
+  opacity: 0.2;
+}
+
+a {
+  color: #e74625;
+}
+
+[data-tsd-kind="Class"] {
+  color: #0672DE;
+}
+
+[data-tsd-kind="Class"],
+nav .tsd-kind-class,
+.tsd-legend > .tsd-kind-constructor,
+.tsd-legend > .tsd-kind-method,
+.tsd-index-list > .tsd-kind-class,
+.tsd-index-list > .tsd-kind-constructor,
+.tsd-index-list > .tsd-kind-method,
+.tsd-kind-constructor > .tsd-signature::before,
+.tsd-kind-method > .tsd-signature::before {
+  filter: hue-rotate(-199.8deg);
+}
+
+nav .tsd-kind-class .tsd-kind-get-signature,
+nav .tsd-kind-class .tsd-kind-accessor,
+nav .tsd-kind-class .tsd-kind-property {
+  filter: hue-rotate(199.8deg);
+}
+
+.tsd-index-list .tsd-kind-type-alias > a,
+.tsd-index-list .tsd-kind-function > a {
+  color: #b54dff;
+}

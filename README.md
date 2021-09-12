@@ -11,6 +11,10 @@ Modern Telegram Bot API framework for Node.js
 [![English chat](https://img.shields.io/badge/English%20chat-grey?style=flat-square&logo=telegram)](https://t.me/TelegrafJSChat)
 </header>
 
+## New maintainer needed!
+
+Details and applications: https://github.com/telegraf/telegraf/discussions/1526
+
 ## For 3.x users
 
 - [3.x docs](https://telegraf.js.org/v3)

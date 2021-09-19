@@ -103,10 +103,16 @@ export declare class TelegrafContext {
   getChatMember(userId: number): Promise<tt.ChatMember>
 
   /**
-   * Use this method to get the number of members in a chat
+   * Legasy, see getChatMemberCount
    * @returns Number on success
    */
   getChatMembersCount(): Promise<number>
+
+  /**
+   * Use this method to get the number of members in a chat
+   * @returns Number on success
+   */
+   getChatMemberCount(): Promise<number>
 
   /**
    * Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate admin rights. Pass True for all boolean parameters to lift restrictions from a user. Returns True on success.
@@ -571,7 +577,18 @@ export declare class TelegrafContext {
   ): Promise<tt.MessageLocation | boolean>
 
   /**
-   * Use this method to kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * Use this method to ban a user in a group, a supergroup or a channel.
+   * @param userId Unique identifier of the target user
+   * @param extra Extra params
+   * @returns True on success
+   */
+   banChatMember(
+    userId: number,
+    extra?: tt.ExtraBan
+  ): Promise<boolean>
+
+  /**
+   * Legacy, see banChatMember
    * @param userId Unique identifier of the target user
    * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
    * @returns True on success
@@ -706,15 +723,61 @@ export declare class TelegrafContext {
   ): Promise<boolean>
 
   /**
-   * Use this method to get the current list of the bot's commands. Requires no parameters.
+   * Use this method to get the current list of the bot's commands for the given scope and user language.
+   * @param extra Extra parameters for getMyCommands
    * @returns Array of BotCommand on success.
    */
-  getMyCommands(): Promise<tt.BotCommand[]>
+  getMyCommands(
+    extra?: tt.ExtraGetMyCommands
+  ): Promise<tt.BotCommand[]>
 
   /**
    * Use this method to change the list of the bot's commands.
    * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+   * @param extra Extra parameters for setMyCommands
    * @returns True on success
    */
-  setMyCommands(commands: tt.BotCommand[]): Promise<boolean>
+  setMyCommands(
+    commands: tt.BotCommand[],
+    extra?: tt.ExtraSetMyCommands
+  ): Promise<boolean>
+
+  /**
+   * Use this method to delete the list of the bot's commands for the given scope and user language.
+   * After deletion, higher level commands will be shown to affected users.
+   * @param extra Extra parameters for deleteMyCommands
+   * @returns True on success
+   */
+  deleteMyCommands(
+    extra?: tt.ExtraDeleteMyCommands
+  ): Promise<boolean>
+
+  /**
+   * Use this method to create an additional invite link for a chat.
+   * @param extra Extra parameters for createChatInviteLink
+   * @returns the new invite link as ChatInviteLink object
+   */
+  createChatInviteLink(
+    extra?: tt.ExtraCreateChatIviteLink
+  ): Promise<tt.ChatInviteLink>
+
+  /**
+   * Use this method to edit a non-primary invite link created by the bot.
+   * @param inviteLink The invite link to edit
+   * @param extra Extra parameters for editChatInviteLink
+   * @returns the edited invite link as a ChatInviteLink object
+   */
+  editChatInviteLink(
+    inviteLink: string,
+    extra?: tt.ExtraEditChatIviteLink
+  ): Promise<tt.ChatInviteLink>
+
+  /**
+   * Use this method to revoke an invite link created by the bot.
+   * @param inviteLink The invite link to revoke
+   * @returns the revoked invite link as a ChatInviteLink object
+   */
+  revokeChatInviteLink(
+    inviteLink: string
+  ): Promise<tt.ChatInviteLink>
 }

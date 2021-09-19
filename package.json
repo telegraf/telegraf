@@ -1,6 +1,10 @@
 {
   "name": "telegraf",
+<<<<<<< HEAD
   "version": "3.39.0",
+=======
+  "version": "5.0.0",
+>>>>>>> develop/develop
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -40,7 +44,7 @@
     "module-alias": "^2.2.2",
     "node-fetch": "^2.2.0",
     "sandwich-stream": "^2.0.1",
-    "typegram": "^3.1.5"
+    "typegram": "^3.4.3"
   },
   "devDependencies": {
     "@types/node": "^13.1.0",

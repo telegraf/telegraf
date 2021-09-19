@@ -10,8 +10,8 @@ export type ChatAction =
   'upload_photo' |
   'record_video' |
   'upload_video' |
-  'record_audio' |
-  'upload_audio' |
+  'record_voice' |
+  'upload_voice' |
   'upload_document' |
   'find_location' |
   'record_video_note' |
@@ -34,7 +34,9 @@ export type UpdateType =
   'pre_checkout_query' |
   'shipping_query' |
   'poll' |
-  'poll_answer'
+  'poll_answer' |
+  'my_chat_member' |
+  'chat_member'
 
 export type MessageSubTypes =
   'voice' |
@@ -67,7 +69,12 @@ export type MessageSubTypes =
   'connected_website' |
   'passport_data' |
   'poll' |
-  'forward'
+  'forward' |
+  'message_auto_delete_timer_changed' |
+  'voice_chat_started' |
+  'voice_chat_ended' |
+  'voice_chat_participants_invited' |
+  'voice_chat_scheduled'
 
 export type InputMediaTypes =
   'photo'
@@ -83,6 +90,7 @@ export type ChatMemberStatus =
   | 'restricted'
   | 'left'
   | 'kicked'
+
 export type MessageEntityType =
   'mention'
   | 'hashtag'
@@ -275,6 +283,9 @@ export interface ExtraPromoteChatMember {
 
   /** Pass True, if the administrator can delete messages of other users */
   can_delete_messages?: boolean
+
+  /** Pass True, if the administrator can manage voice chats */
+  can_manage_voice_chats?: boolean,
 
   /** Pass True, if the administrator can invite new users to the chat */
   can_invite_users?: boolean
@@ -661,9 +672,44 @@ export type Extra = ExtraSendMessage
   | ExtraCopyMessage
 
 export interface ExtraUnban {
-  /** Do nothing if the user is not banned */
+  /** 
+   * Do nothing if the user is not banned 
+   */
   only_if_banned?: Boolean
 }
+
+export interface ExtraBan {
+  /**
+   * Date when the user will be unbanned, unix time. 
+   * If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever.
+   * Applied for supergroups and channels only.
+   */
+   until_date?: number,
+
+   /**
+    * Pass True to delete all messages from the chat for the user that is being removed.
+    * If False, the user will be able to see messages in the group that were sent before the user was removed.
+    * Always True for supergroups and channels.
+    */
+    revoke_messages: boolean
+}
+
+interface ExtraChatIviteLink {
+  /** 
+   * Point in time (Unix timestamp) when the link will expire 
+   */
+  expire_date?: number,
+
+  /** 
+   * Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
+   */
+  member_limit?: number
+}
+
+
+export interface ExtraCreateChatIviteLink extends ExtraChatIviteLink {}
+
+export interface ExtraEditChatIviteLink extends ExtraChatIviteLink {}
 
 export type MessageAudio = TT.Message.AudioMessage
 export type MessageContact = TT.Message.ContactMessage
@@ -697,6 +743,11 @@ type ServiceMessageBundle = TT.Message.ChannelChatCreatedMessage
   & TT.Message.PinnedMessageMessage
   & TT.Message.SuccessfulPaymentMessage
   & TT.Message.SupergroupChatCreated
+  & TT.Message.MessageAutoDeleteTimerChangedMessage
+  & TT.Message.VoiceChatStartedMessage
+  & TT.Message.VoiceChatEndedMessage
+  & TT.Message.VoiceChatEndedMessage
+  & TT.Message.VoiceChatScheduledMessage
 
 type CommonMessageBundle = TT.Message.AnimationMessage
   & TT.Message.AudioMessage
@@ -727,6 +778,8 @@ export type Update = TT.Update.CallbackQueryUpdate
   & TT.Update.PollAnswerUpdate
   & TT.Update.PollUpdate
   & TT.Update.ShippingQueryUpdate
+  & TT.Update.MyChatMemberUpdate
+  & TT.Update.ChatMemberUpdate
 
 export interface CallbackQuery extends TT.CallbackQuery.DataCallbackQuery, TT.CallbackQuery.GameShortGameCallbackQuery {
   message: Message
@@ -754,9 +807,11 @@ export interface NewInvoiceParameters {
   provider_token: string
 
   /**
-   * Unique deep-linking parameter that can be used to generate this invoice when used as a start parameter
+   * Unique deep-linking parameter.
+   * If left empty, forwarded copies of the sent message will have a Pay button, allowing multiple users to pay directly from the forwarded message, using the same invoice.
+   * If non-empty, forwarded copies of the sent message will have a URL button with a deep link to the bot (instead of a Pay button), with the value used as the start parameter
    */
-  start_parameter: string
+  start_parameter?: string
 
   /**
    * Three-letter ISO 4217 currency code, see more on currencies
@@ -767,6 +822,20 @@ export interface NewInvoiceParameters {
    * Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
    */
   prices: TT.LabeledPrice[]
+
+  /**
+   * The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double).
+   * For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145.
+   * Defaults to 0
+   */
+  max_tip_amount: number
+
+  /**
+   * A JSON-serialized array of suggested amounts of tips in the smallest units of the currency (integer, not float/double).
+   * At most 4 suggested tip amounts can be specified.
+   * The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount.
+   */
+  suggested_tip_amounts: number[]
 
   /**
    * URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for.
@@ -842,6 +911,140 @@ export interface ExtraAnswerInlineQuery {
 }
 
 /**
+ * Represents the default scope of bot commands.
+ * Default commands are used if no commands with a narrower scope are specified for the user.
+ */
+export interface BotCommandScopeDefault {
+  /**
+   * Scope type
+   */
+  type: 'default'
+}
+
+/**
+ * Represents the scope of bot commands, covering all private chats.
+ */
+export interface BotCommandScopeAllPrivateChats {
+  /**
+   * Scope type
+   */
+  type: 'all_private_chats'
+}
+
+/**
+ * Represents the scope of bot commands, covering all group and supergroup chats.
+ */
+export interface BotCommandScopeAllGroupChats {
+  /**
+   * Scope type
+   */
+  type: 'all_groups_chats'
+}
+
+/**
+ * Represents the scope of bot commands, covering all group and supergroup chat administrators.
+ */
+export interface BotCommandScopeAllChatAdministrators {
+  /**
+   * Scope type
+   */
+  type: 'all_chat_administrators'
+}
+
+/**
+ * Represents the scope of bot commands, covering a specific chat.
+ */
+export interface BotCommandScopeChat {
+  /**
+   * Scope type
+   */
+  type: 'chat'
+
+  /**
+   * Unique identifier for the target chat or username of the target supergroup
+   */
+  chat_id: number | string
+}
+
+/**
+ * Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
+ */
+export interface BotCommandScopeChatAdministrators {
+  /**
+   * Scope type
+   */
+  type: 'chat_administrators'
+
+  /**
+   * Unique identifier for the target chat or username of the target supergroup
+   */
+  chat_id: number | string
+}
+
+/**
+ * Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
+ */
+export interface BotCommandScopeChatMember {
+  /**
+   * Scope type
+   */
+  type: 'chat_member'
+
+  /**
+   * Unique identifier for the target chat or username of the target supergroup
+   */
+  chat_id: number | string
+
+   /**
+    * Unique identifier of the target user
+    */
+  user_id: number
+}
+
+/**
+ * This object represents the scope to which bot commands are applied.
+ */
+export type BotCommandScope = 
+  BotCommandScopeDefault
+  | BotCommandScopeAllPrivateChats
+  | BotCommandScopeAllGroupChats
+  | BotCommandScopeAllChatAdministrators
+  | BotCommandScopeChat
+  | BotCommandScopeChatAdministrators
+  | BotCommandScopeChatMember
+
+export interface ExtraScope {
+  /**
+   * A JSON-serialized object, describing scope of users for which the commands are relevant.
+   * Defaults to BotCommandScopeDefault.
+   */
+  scope?: BotCommandScope
+}
+
+export interface ExtraSetMyCommands extends ExtraScope {
+  /**
+   * A two-letter ISO 639-1 language code.
+   * If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+   */
+   language_code?: string
+}
+
+export interface ExtraDeleteMyCommands extends ExtraScope {
+  /**
+   * A two-letter ISO 639-1 language code.
+   * If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+   */
+   language_code?: string
+}
+
+export interface ExtraGetMyCommands extends ExtraScope {
+  /**
+   * A two-letter ISO 639-1 language code or an empty string
+   */
+   language_code?: string
+}
+
+/**
  * This object represents a bot command
  */
 export interface BotCommand {
@@ -855,3 +1058,5 @@ export interface BotCommand {
    */
   description: string
 }
+
+export type ChatInviteLink = TT.ChatInviteLink

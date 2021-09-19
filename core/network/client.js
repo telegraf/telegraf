@@ -8,18 +8,12 @@ const TelegramError = require('./error')
 const MultipartStream = require('./multipart-stream')
 const { isStream } = MultipartStream
 
-const WEBHOOK_BLACKLIST = [
-  'getChat',
-  'getChatAdministrators',
-  'getChatMember',
-  'getChatMembersCount',
-  'getFile',
-  'getFileLink',
-  'getGameHighScores',
-  'getMe',
-  'getUserProfilePhotos',
-  'getWebhookInfo',
-  'exportChatInviteLink'
+const WEBHOOK_ALLOWLIST = [
+  'answerCallbackQuery',
+  'answerInlineQuery',
+  'deleteMessage',
+  'leaveChat',
+  'sendChatAction'
 ]
 
 const DEFAULT_EXTENSIONS = {
@@ -247,7 +241,7 @@ class ApiClient {
       .filter((key) => typeof data[key] !== 'undefined' && data[key] !== null)
       .reduce((acc, key) => ({ ...acc, [key]: data[key] }), {})
 
-    if (options.webhookReply && response && !responseEnd && !WEBHOOK_BLACKLIST.includes(method)) {
+    if (options.webhookReply && response && !responseEnd && WEBHOOK_ALLOWLIST.includes(method)) {
       debug('Call via webhook', method, payload)
       this.responseEnd = true
       return answerToWebhook(response, { method, ...payload }, options)

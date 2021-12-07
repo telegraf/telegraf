@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run : npm ci --ignore-scripts
-    - run : npm run build:docs -- --emit
+    - run : npm run build:docs
     - name: Make GitHub links absolute
       run :
         shopt -s globstar;

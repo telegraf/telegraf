@@ -492,6 +492,7 @@ export class Telegram extends ApiClient {
    * Kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
    * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
+   * @deprecated since API 5.3. Use `banChatMember`
    */
   kickChatMember(
     chatId: number | string,
@@ -500,6 +501,25 @@ export class Telegram extends ApiClient {
     extra?: tt.ExtraKickChatMember
   ) {
     return this.callApi('kickChatMember', {
+      chat_id: chatId,
+      user_id: userId,
+      until_date: untilDate,
+      ...extra,
+    })
+  }
+
+  /**
+   * Kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
+   * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+   * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
+   */
+  banChatMember(
+    chatId: number | string,
+    userId: number,
+    untilDate?: number,
+    extra?: tt.ExtraBanChatMember
+  ) {
+    return this.callApi('banChatMember', {
       chat_id: chatId,
       user_id: userId,
       until_date: untilDate,

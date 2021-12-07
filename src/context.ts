@@ -380,19 +380,18 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
 
   /**
    * @see https://core.telegram.org/bots/api#banchatmember
-   * @deprecated since API 5.3. Use `banChatMember`
-   */
-  kickChatMember(this: Context, ...args: Shorthand<'kickChatMember'>) {
-    this.assert(this.chat, 'kickChatMember')
-    return this.telegram.kickChatMember(this.chat.id, ...args)
-  }
-
-  /**
-   * @see https://core.telegram.org/bots/api#banchatmember
    */
   banChatMember(this: Context, ...args: Shorthand<'banChatMember'>) {
     this.assert(this.chat, 'banChatMember')
     return this.telegram.banChatMember(this.chat.id, ...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#banchatmember
+   * @deprecated since API 5.3. Use {@link Context.banChatMember}
+   */
+  get kickChatMember() {
+    return this.banChatMember
   }
 
   /**

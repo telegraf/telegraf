@@ -77,14 +77,11 @@ export type NewInvoiceParameters = MakeExtra<
   | 'reply_markup'
 >
 export type ExtraInvoice = MakeExtra<'sendInvoice', keyof NewInvoiceParameters>
-export type ExtraKickChatMember = MakeExtra<
-  'kickChatMember',
-  'user_id' | 'until_date'
->
 export type ExtraBanChatMember = MakeExtra<
   'banChatMember',
   'user_id' | 'until_date'
 >
+export type ExtraKickChatMember = ExtraBanChatMember
 export type ExtraLocation = MakeExtra<'sendLocation', 'latitude' | 'longitude'>
 export type ExtraMediaGroup = MakeExtra<'sendMediaGroup', 'media'>
 export type ExtraPhoto = MakeExtra<'sendPhoto', 'photo'>

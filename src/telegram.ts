@@ -1042,6 +1042,30 @@ export class Telegram extends ApiClient {
   }
 
   /**
+   * Approve a chat join request.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param userId Unique identifier of the target user
+   */
+  approveChatJoinRequest(chatId: number | string, userId: number) {
+    return this.callApi('approveChatJoinRequest', {
+      chat_id: chatId,
+      user_id: userId,
+    })
+  }
+
+  /**
+   * Decline a chat join request.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param userId Unique identifier of the target user
+   */
+  declineChatJoinRequest(chatId: number | string, userId: number) {
+    return this.callApi('declineChatJoinRequest', {
+      chat_id: chatId,
+      user_id: userId,
+    })
+  }
+
+  /**
    * Log out from the cloud Bot API server before launching the bot locally
    */
   logOut() {

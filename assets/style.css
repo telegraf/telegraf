@@ -2,14 +2,15 @@
 
 :root {
     /* Light */
-    --light-color-background: #fdfdfd;
+    --light-color-background: #fcfcfc;
+    --light-color-secondary-background: #fff;
     --light-color-text: #222;
     --light-color-text-aside: #707070;
     --light-color-link: #4da6ff;
     --light-color-menu-divider: #eee;
     --light-color-menu-divider-focus: #000;
     --light-color-menu-label: #707070;
-    --light-color-panel: #fff;
+    --light-color-panel: var(--light-color-secondary-background);
     --light-color-panel-divider: #eee;
     --light-color-comment-tag: #707070;
     --light-color-comment-tag-text: #fff;
@@ -25,13 +26,14 @@
 
     /* Dark */
     --dark-color-background: #36393f;
+    --dark-color-secondary-background: #2f3136;
     --dark-color-text: #ffffff;
     --dark-color-text-aside: #e6e4e4;
     --dark-color-link: #00aff4;
     --dark-color-menu-divider: #eee;
     --dark-color-menu-divider-focus: #000;
     --dark-color-menu-label: #707070;
-    --dark-color-panel: #2f3136;
+    --dark-color-panel: var(--dark-color-secondary-background);
     --dark-color-panel-divider: #818181;
     --dark-color-comment-tag: #dcddde;
     --dark-color-comment-tag-text: #2f3136;
@@ -49,6 +51,7 @@
 @media (prefers-color-scheme: light) {
     :root {
         --color-background: var(--light-color-background);
+        --color-secondary-background: var(--light-color-secondary-background);
         --color-text: var(--light-color-text);
         --color-text-aside: var(--light-color-text-aside);
         --color-link: var(--light-color-link);
@@ -74,6 +77,7 @@
 @media (prefers-color-scheme: dark) {
     :root {
         --color-background: var(--dark-color-background);
+        --color-secondary-background: var(--dark-color-secondary-background);
         --color-text: var(--dark-color-text);
         --color-text-aside: var(--dark-color-text-aside);
         --color-link: var(--dark-color-link);
@@ -102,6 +106,7 @@ body {
 
 body.light {
     --color-background: var(--light-color-background);
+    --color-secondary-background: var(--light-color-secondary-background);
     --color-text: var(--light-color-text);
     --color-text-aside: var(--light-color-text-aside);
     --color-link: var(--light-color-link);
@@ -125,6 +130,7 @@ body.light {
 
 body.dark {
     --color-background: var(--dark-color-background);
+    --color-secondary-background: var(--dark-color-secondary-background);
     --color-text: var(--dark-color-text);
     --color-text-aside: var(--dark-color-text-aside);
     --color-link: var(--dark-color-link);
@@ -408,22 +414,22 @@ blockquote {
 }
 
 @media (min-width: 901px) and (max-width: 1024px) {
-    html.default .col-content {
+    html .col-content {
         width: 72%;
     }
-    html.default .col-menu {
+    html .col-menu {
         width: 28%;
     }
-    html.default .tsd-navigation {
+    html .tsd-navigation {
         padding-left: 10px;
     }
 }
 @media (max-width: 900px) {
-    html.default .col-content {
+    html .col-content {
         float: none;
         width: 100%;
     }
-    html.default .col-menu {
+    html .col-menu {
         position: fixed !important;
         overflow: auto;
         -webkit-overflow-scrolling: touch;
@@ -439,10 +445,10 @@ blockquote {
         background-color: var(--color-panel);
         transform: translate(100%, 0);
     }
-    html.default .col-menu > *:last-child {
+    html .col-menu > *:last-child {
         padding-bottom: 20px;
     }
-    html.default .overlay {
+    html .overlay {
         content: "";
         display: block;
         position: fixed;
@@ -453,6 +459,50 @@ blockquote {
         bottom: 0;
         background-color: rgba(0, 0, 0, 0.75);
         visibility: hidden;
+    }
+
+    .to-has-menu .overlay {
+        animation: fade-in 0.4s;
+    }
+
+    .to-has-menu :is(header, footer, .col-content) {
+        animation: shift-to-left 0.4s;
+    }
+
+    .to-has-menu .col-menu {
+        animation: pop-in-from-right 0.4s;
+    }
+
+    .from-has-menu .overlay {
+        animation: fade-out 0.4s;
+    }
+
+    .from-has-menu :is(header, footer, .col-content) {
+        animation: unshift-to-left 0.4s;
+    }
+
+    .from-has-menu .col-menu {
+        animation: pop-out-to-right 0.4s;
+    }
+
+    .has-menu body {
+        overflow: hidden;
+    }
+    .has-menu .overlay {
+        visibility: visible;
+    }
+    .has-menu :is(header, footer, .col-content) {
+        transform: translate(-25%, 0);
+    }
+    .has-menu .col-menu {
+        visibility: visible;
+        transform: translate(0, 0);
+        display: grid;
+        grid-template-rows: auto 1fr;
+        max-height: 100vh;
+    }
+    .has-menu .tsd-navigation {
+        max-height: 100%;
     }
 }
 
@@ -590,6 +640,10 @@ dl.tsd-comment-tags p {
 footer {
     border-top: 1px solid var(--color-panel-divider);
     background-color: var(--color-panel);
+}
+footer:after {
+    content: "";
+    display: table;
 }
 footer.with-border-bottom {
     border-bottom: 1px solid var(--color-panel-divider);
@@ -813,7 +867,6 @@ footer .tsd-legend {
 .tsd-navigation.secondary {
     max-height: calc(100vh - 1rem - 40px);
     overflow: auto;
-    position: -webkit-sticky;
     position: sticky;
     top: calc(0.5rem + 40px);
     transition: 0.3s;
@@ -894,6 +947,7 @@ footer .tsd-legend {
     margin-top: 10px;
     word-break: normal;
     word-break: keep-all;
+    border-collapse: collapse;
 }
 .tsd-panel table th {
     font-weight: bold;
@@ -901,14 +955,13 @@ footer .tsd-legend {
 .tsd-panel table th,
 .tsd-panel table td {
     padding: 6px 13px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-panel-divider);
 }
 .tsd-panel table tr {
-    background-color: #fff;
-    border-top: 1px solid #ccc;
+    background: var(--color-background);
 }
-.tsd-panel table tr:nth-child(2n) {
-    background-color: #f8f8f8;
+.tsd-panel table tr:nth-child(even) {
+    background: var(--color-secondary-background);
 }
 
 .tsd-panel-group {

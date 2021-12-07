@@ -91,10 +91,15 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.update.chat_member as PropOr<U, 'chat_member'>
   }
 
+  get chatJoinRequest() {
+    return this.update.chat_join_request
+  }
+
   get chat(): Getter<U, 'chat'> {
     return (
       this.chatMember ??
       this.myChatMember ??
+      this.chatJoinRequest ??
       getMessageFromAnySource(this)
     )?.chat as Getter<U, 'chat'>
   }
@@ -115,6 +120,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
       this.chosenInlineResult ??
       this.chatMember ??
       this.myChatMember ??
+      this.chatJoinRequest ??
       getMessageFromAnySource(this)
     )?.from as Getter<U, 'from'>
   }

@@ -882,6 +882,32 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(message, 'declineChatJoinRequest')
     return this.telegram.declineChatJoinRequest(chatId, userId)
   }
+
+  /**
+   * @see https://core.telegram.org/bots/api#banchatsenderchat
+   */
+  banChatSenderChat(
+    this: Context,
+    chatId: number | string,
+    senderChatId: number
+  ) {
+    const message = getMessageFromAnySource(this)
+    this.assert(message, 'banChatSenderChat')
+    return this.telegram.banChatSenderChat(chatId, senderChatId)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#unbanchatsenderchat
+   */
+  unbanChatSenderChat(
+    this: Context,
+    chatId: number | string,
+    senderChatId: number
+  ) {
+    const message = getMessageFromAnySource(this)
+    this.assert(message, 'unbanChatSenderChat')
+    return this.telegram.unbanChatSenderChat(chatId, senderChatId)
+  }
 }
 
 export default Context

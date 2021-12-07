@@ -1066,6 +1066,37 @@ export class Telegram extends ApiClient {
   }
 
   /**
+   * Ban a channel chat in a supergroup or a channel. The owner of the chat will not be able to send messages and join live streams on behalf of the chat, unless it is unbanned first.
+   * The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param senderChatId Unique identifier of the target sender chat
+   */
+  banChatSenderChat(
+    chatId: number | string,
+    senderChatId: number,
+    extra?: tt.ExtraBanChatSenderChat
+  ) {
+    return this.callApi('banChatSenderChat', {
+      chat_id: chatId,
+      sender_chat_id: senderChatId,
+      ...extra,
+    })
+  }
+
+  /**
+   * Unban a previously banned channel chat in a supergroup or channel.
+   * The bot must be an administrator for this to work and must have the appropriate administrator rights.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param senderChatId Unique identifier of the target sender chat
+   */
+  unbanChatSenderChat(chatId: number | string, senderChatId: number) {
+    return this.callApi('unbanChatSenderChat', {
+      chat_id: chatId,
+      sender_chat_id: senderChatId,
+    })
+  }
+
+  /**
    * Log out from the cloud Bot API server before launching the bot locally
    */
   logOut() {

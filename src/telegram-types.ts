@@ -77,10 +77,11 @@ export type NewInvoiceParameters = MakeExtra<
   | 'reply_markup'
 >
 export type ExtraInvoice = MakeExtra<'sendInvoice', keyof NewInvoiceParameters>
-export type ExtraKickChatMember = MakeExtra<
-  'kickChatMember',
+export type ExtraBanChatMember = MakeExtra<
+  'banChatMember',
   'user_id' | 'until_date'
 >
+export type ExtraKickChatMember = ExtraBanChatMember
 export type ExtraLocation = MakeExtra<'sendLocation', 'latitude' | 'longitude'>
 export type ExtraMediaGroup = MakeExtra<'sendMediaGroup', 'media'>
 export type ExtraPhoto = MakeExtra<'sendPhoto', 'photo'>
@@ -99,6 +100,10 @@ export type ExtraVenue = MakeExtra<
 export type ExtraVideo = MakeExtra<'sendVideo', 'video'>
 export type ExtraVideoNote = MakeExtra<'sendVideoNote', 'video_note'>
 export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
+export type ExtraBanChatSenderChat = MakeExtra<
+  'banChatSenderChat',
+  'sender_chat_id'
+>
 
 // types used for inference of ctx object
 

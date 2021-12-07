@@ -13,7 +13,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Get basic info about a file and prepare it for downloading
+   * Get basic info about a file and prepare it for downloading.
    * @param fileId Id of file to get link to
    */
   getFile(fileId: string) {
@@ -21,7 +21,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Get download link to a file
+   * Get download link to a file.
    */
   async getFileLink(fileId: string | tg.File) {
     if (typeof fileId === 'string') {
@@ -102,7 +102,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Specify a url to receive incoming updates via an outgoing webhook
+   * Specify a url to receive incoming updates via an outgoing webhook.
    * @param url HTTPS url to send updates to. Use an empty string to remove webhook integration
    */
   setWebhook(url: string, extra?: tt.ExtraSetWebhook) {
@@ -113,7 +113,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Remove webhook integration
+   * Remove webhook integration.
    */
   deleteWebhook(extra?: { drop_pending_updates?: boolean }) {
     return this.callApi('deleteWebhook', {
@@ -122,7 +122,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send a text message
+   * Send a text message.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param text Text of the message to be sent
    */
@@ -172,7 +172,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send point on the map
+   * Send point on the map.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
   sendLocation(
@@ -294,7 +294,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send video files, Telegram clients support mp4 videos (other formats may be sent as Document)
+   * Send video files, Telegram clients support mp4 videos (other formats may be sent as Document).
    * Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
@@ -307,7 +307,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send .gif animations
+   * Send .gif animations.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
   sendAnimation(
@@ -323,7 +323,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send video messages
+   * Send video messages.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
   sendVideoNote(
@@ -363,7 +363,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send a group of photos or videos as an album
+   * Send a group of photos or videos as an album.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param media A JSON-serialized array describing photos and videos to be sent, must include 2–10 items
    */
@@ -437,7 +437,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.)
+   * Get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.).
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    */
   getChat(chatId: number | string) {
@@ -461,7 +461,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Get the number of members in a chat
+   * Get the number of members in a chat.
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    */
   getChatMembersCount(chatId: string | number) {
@@ -489,22 +489,32 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * Kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
    * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
    */
-  kickChatMember(
+  banChatMember(
     chatId: number | string,
     userId: number,
     untilDate?: number,
-    extra?: tt.ExtraKickChatMember
+    extra?: tt.ExtraBanChatMember
   ) {
-    return this.callApi('kickChatMember', {
+    return this.callApi('banChatMember', {
       chat_id: chatId,
       user_id: userId,
       until_date: untilDate,
       ...extra,
     })
+  }
+
+  /**
+   * Kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
+   * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+   * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
+   * @deprecated since API 5.3. Use {@link Telegram.banChatMember}
+   */
+  get kickChatMember() {
+    return this.banChatMember
   }
 
   /**
@@ -600,7 +610,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * Change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
    * @param title New chat title, 1-255 characters
    */
@@ -640,7 +650,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Clear the list of pinned messages in a chat
+   * Clear the list of pinned messages in a chat.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
   unpinAllChatMessages(chatId: number | string) {
@@ -648,7 +658,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Use this method for your bot to leave a group, supergroup or channel
+   * Use this method for your bot to leave a group, supergroup or channel.
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    */
   leaveChat(chatId: number | string) {
@@ -656,7 +666,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Unban a user from a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * Unban a user from a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format @username)
    * @param userId Unique identifier of the target user
    */
@@ -895,7 +905,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods (can be used multiple times)
+   * Upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods (can be used multiple times).
    * https://core.telegram.org/bots/api#sending-files
    * @param ownerId User identifier of sticker file owner
    * @param stickerFile Png image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px.
@@ -911,7 +921,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Create new sticker set owned by a user. The bot will be able to edit the created sticker set
+   * Create new sticker set owned by a user. The bot will be able to edit the created sticker set.
    * @param ownerId User identifier of created sticker set owner
    * @param name Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals). Can contain only english letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in “_by_<bot username>”. <bot_username> is case insensitive. 1-64 characters.
    * @param title Sticker set title, 1-64 characters
@@ -931,7 +941,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Add a new sticker to a set created by the bot
+   * Add a new sticker to a set created by the bot.
    * @param ownerId User identifier of sticker set owner
    * @param name Sticker set name
    */
@@ -948,7 +958,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Move a sticker in a set created by the bot to a specific position
+   * Move a sticker in a set created by the bot to a specific position.
    * @param sticker File identifier of the sticker
    * @param position New sticker position in the set, zero-based
    */
@@ -1022,7 +1032,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send copy of existing message
+   * Send copy of existing message.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param fromChatId Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
    * @param messageId Message identifier in the chat specified in from_chat_id
@@ -1042,14 +1052,71 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Log out from the cloud Bot API server before launching the bot locally
+   * Approve a chat join request.
+   * The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param userId Unique identifier of the target user
+   */
+  approveChatJoinRequest(chatId: number | string, userId: number) {
+    return this.callApi('approveChatJoinRequest', {
+      chat_id: chatId,
+      user_id: userId,
+    })
+  }
+
+  /**
+   * Decline a chat join request.
+   * The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param userId Unique identifier of the target user
+   */
+  declineChatJoinRequest(chatId: number | string, userId: number) {
+    return this.callApi('declineChatJoinRequest', {
+      chat_id: chatId,
+      user_id: userId,
+    })
+  }
+
+  /**
+   * Ban a channel chat in a supergroup or a channel. The owner of the chat will not be able to send messages and join live streams on behalf of the chat, unless it is unbanned first.
+   * The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param senderChatId Unique identifier of the target sender chat
+   */
+  banChatSenderChat(
+    chatId: number | string,
+    senderChatId: number,
+    extra?: tt.ExtraBanChatSenderChat
+  ) {
+    return this.callApi('banChatSenderChat', {
+      chat_id: chatId,
+      sender_chat_id: senderChatId,
+      ...extra,
+    })
+  }
+
+  /**
+   * Unban a previously banned channel chat in a supergroup or channel.
+   * The bot must be an administrator for this to work and must have the appropriate administrator rights.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param senderChatId Unique identifier of the target sender chat
+   */
+  unbanChatSenderChat(chatId: number | string, senderChatId: number) {
+    return this.callApi('unbanChatSenderChat', {
+      chat_id: chatId,
+      sender_chat_id: senderChatId,
+    })
+  }
+
+  /**
+   * Log out from the cloud Bot API server before launching the bot locally.
    */
   logOut() {
     return this.callApi('logOut', {})
   }
 
   /**
-   * Close the bot instance before moving it from one local server to another
+   * Close the bot instance before moving it from one local server to another.
    */
   close() {
     return this.callApi('close', {})

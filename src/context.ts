@@ -91,10 +91,15 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.update.chat_member as PropOr<U, 'chat_member'>
   }
 
+  get chatJoinRequest() {
+    return this.update.chat_join_request
+  }
+
   get chat(): Getter<U, 'chat'> {
     return (
       this.chatMember ??
       this.myChatMember ??
+      this.chatJoinRequest ??
       getMessageFromAnySource(this)
     )?.chat as Getter<U, 'chat'>
   }
@@ -115,6 +120,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
       this.chosenInlineResult ??
       this.chatMember ??
       this.myChatMember ??
+      this.chatJoinRequest ??
       getMessageFromAnySource(this)
     )?.from as Getter<U, 'from'>
   }
@@ -375,9 +381,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#banchatmember
    */
-  kickChatMember(this: Context, ...args: Shorthand<'kickChatMember'>) {
-    this.assert(this.chat, 'kickChatMember')
-    return this.telegram.kickChatMember(this.chat.id, ...args)
+  banChatMember(this: Context, ...args: Shorthand<'banChatMember'>) {
+    this.assert(this.chat, 'banChatMember')
+    return this.telegram.banChatMember(this.chat.id, ...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#banchatmember
+   * @deprecated since API 5.3. Use {@link Context.banChatMember}
+   */
+  get kickChatMember() {
+    return this.banChatMember
   }
 
   /**
@@ -855,6 +869,58 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
       message.message_id,
       extra
     )
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#approvechatjoinrequest
+   */
+  approveChatJoinRequest(
+    this: Context,
+    chatId: number | string,
+    userId: number
+  ) {
+    const message = getMessageFromAnySource(this)
+    this.assert(message, 'approveChatJoinRequest')
+    return this.telegram.approveChatJoinRequest(chatId, userId)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#declinechatjoinrequest
+   */
+  declineChatJoinRequest(
+    this: Context,
+    chatId: number | string,
+    userId: number
+  ) {
+    const message = getMessageFromAnySource(this)
+    this.assert(message, 'declineChatJoinRequest')
+    return this.telegram.declineChatJoinRequest(chatId, userId)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#banchatsenderchat
+   */
+  banChatSenderChat(
+    this: Context,
+    chatId: number | string,
+    senderChatId: number
+  ) {
+    const message = getMessageFromAnySource(this)
+    this.assert(message, 'banChatSenderChat')
+    return this.telegram.banChatSenderChat(chatId, senderChatId)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#unbanchatsenderchat
+   */
+  unbanChatSenderChat(
+    this: Context,
+    chatId: number | string,
+    senderChatId: number
+  ) {
+    const message = getMessageFromAnySource(this)
+    this.assert(message, 'unbanChatSenderChat')
+    return this.telegram.unbanChatSenderChat(chatId, senderChatId)
   }
 }
 

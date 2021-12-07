@@ -99,7 +99,10 @@ export type ExtraVenue = MakeExtra<
 export type ExtraVideo = MakeExtra<'sendVideo', 'video'>
 export type ExtraVideoNote = MakeExtra<'sendVideoNote', 'video_note'>
 export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
-export type ExtraBanChatSenderChat = MakeExtra<'banChatSenderChat'>
+export type ExtraBanChatSenderChat = MakeExtra<
+  'banChatSenderChat',
+  'sender_chat_id'
+>
 
 // types used for inference of ctx object
 

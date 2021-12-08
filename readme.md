@@ -12,7 +12,7 @@ Bots are special [Telegram](https://telegram.org) accounts designed to handle me
 
 ### Features
 
-- Full [Telegram Bot API 5.4](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 5.5](https://core.telegram.org/bots/api) support
 - [Telegram Payment Platform](https://telegram.org/blog/payments)
 - [HTML5 Games](https://core.telegram.org/bots/api#games)
 - [Inline mode](https://core.telegram.org/bots/api#inline-mode)

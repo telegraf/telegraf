@@ -900,27 +900,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#banchatsenderchat
    */
-  banChatSenderChat(
-    this: Context,
-    chatId: number | string,
-    senderChatId: number
-  ) {
-    const message = getMessageFromAnySource(this)
-    this.assert(message, 'banChatSenderChat')
-    return this.telegram.banChatSenderChat(chatId, senderChatId)
+  banChatSenderChat(this: Context, senderChatId: number) {
+    this.assert(this.chat, 'banChatSenderChat')
+    return this.telegram.banChatSenderChat(this.chat.id, senderChatId)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#unbanchatsenderchat
    */
-  unbanChatSenderChat(
-    this: Context,
-    chatId: number | string,
-    senderChatId: number
-  ) {
-    const message = getMessageFromAnySource(this)
-    this.assert(message, 'unbanChatSenderChat')
-    return this.telegram.unbanChatSenderChat(chatId, senderChatId)
+  unbanChatSenderChat(this: Context, senderChatId: number) {
+    this.assert(this.chat, 'unbanChatSenderChat')
+    return this.telegram.unbanChatSenderChat(this.chat.id, senderChatId)
   }
 }
 

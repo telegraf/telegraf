@@ -210,6 +210,14 @@ class Telegram extends ApiClient {
     return this.callApi('setChatAdministratorCustomTitle', { chat_id: chatId, user_id: userId, custom_title: title })
   }
 
+  banChatSenderChat (chatId, senderChatId) {
+    return this.callApi('banChatSenderChat', { chat_id: chatId, sender_chat_id: senderChatId })
+  }
+
+  unbanChatSenderChat (chatId, senderChatId) {
+    return this.callApi('unbanChatSenderChat', { chat_id: chatId, sender_chat_id: senderChatId })
+  }
+
   exportChatInviteLink (chatId) {
     return this.callApi('exportChatInviteLink', { chat_id: chatId })
   }

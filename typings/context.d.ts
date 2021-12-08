@@ -626,6 +626,24 @@ export declare class TelegrafContext {
   ): Promise<boolean>
 
   /**
+   * Use this method to ban a channel chat in a supergroup or a channel
+   * @param senderChatId Unique identifier of the target sender chat
+   * @returns True on success
+   */
+  banChatSenderChat(
+    senderChatId: number,
+  ): Promise<boolean>
+
+  /**
+   * Use this method to unban a previously banned channel chat in a supergroup or channel
+   * @param senderChatId Unique identifier of the target sender chat
+   * @returns True on success
+   */
+  unbanChatSenderChat(
+    senderChatId: number,
+  ): Promise<boolean>
+
+  /**
    * Use this method to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
    * @param photo New chat photo
    * @returns True on success.

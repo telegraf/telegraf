@@ -494,6 +494,28 @@ New custom title for the administrator; 0-16 characters, emoji are not allowed
 | userId | `number` | User id |
 | title | `string` | Custom title |
 
+## banChatSenderChat
+
+Use this method to ban a channel chat in a supergroup or a channel. Until the chat is [unbanned](https://core.telegram.org/bots/api#unbanchatsenderchat), the owner of the banned chat won't be able to send messages on behalf of **any of their channels**. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights.
+
+`telegram.banChatSenderChat(chatId, senderChatId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| senderChatId | `number` | Sender chat id |
+
+## unbanChatSenderChat
+
+Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights.
+
+`telegram.unbanChatSenderChat(chatId, senderChatId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| senderChatId | `number` | Sender chat id |
+
 ## exportChatInviteLink
 
 Use this method to export an invite link to a supergroup or a channel.

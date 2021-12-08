@@ -374,6 +374,16 @@ class TelegrafContext {
     return this.telegram.setChatAdministratorCustomTitle(this.chat.id, ...args)
   }
 
+  banChatSenderChat (...args) {
+    this.assert(this.chat, 'banChatSenderChat')
+    return this.telegram.banChatSenderChat(this.chat.id, ...args)
+  }
+
+  unbanChatSenderChat (...args) {
+    this.assert(this.chat, 'unbanChatSenderChat')
+    return this.telegram.unbanChatSenderChat(this.chat.id, ...args)
+  }
+
   setChatPhoto (...args) {
     this.assert(this.chat, 'setChatPhoto')
     return this.telegram.setChatPhoto(this.chat.id, ...args)

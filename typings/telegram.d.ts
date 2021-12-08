@@ -571,6 +571,28 @@ export declare class Telegram extends ApiClient {
   ): Promise<boolean>
 
   /**
+   * Use this method to ban a channel chat in a supergroup or a channel. Until the chat is unbanned (@function unbanChatSenderChat), the owner of the banned chat won't be able to send messages on behalf of any of their channels. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights
+   * @param chatId Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   * @param senderChatId Unique identifier of the target sender chat
+   * @returns True on success
+   */
+  banChatSenderChat(
+    chatId: string | number,
+    senderChatId: number,
+  ): Promise<boolean>
+
+  /**
+   * Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights
+   * @param chatId Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   * @param senderChatId Unique identifier of the target sender chat
+   * @returns True on success
+   */
+  unbanChatSenderChat(
+    chatId: string | number,
+    senderChatId: number,
+  ): Promise<boolean>
+
+  /**
    * Use this method to export an invite link to a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @returns exported invite link as String on success.

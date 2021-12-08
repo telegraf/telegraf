@@ -458,9 +458,10 @@ class Telegram extends ApiClient {
     })
   }
 
-  createChatInviteLink (chatId, extra) {
+  createChatInviteLink (chatId, name, extra) {
     return this.callApi('createChatInviteLink', {
       chat_id: chatId,
+      name: name,
       ...extra
     })
   }

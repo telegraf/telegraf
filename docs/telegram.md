@@ -509,11 +509,12 @@ Use this method to export an invite link to a supergroup or a channel.
 
 Use this method to create an additional invite link for a chat.
 
-`telegram.createChatInviteLink(chatId, [extra]) => Promise`
+`telegram.createChatInviteLink(chatId, name, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
+| name | `string` | Invite link name |
 | [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#createchatinvitelink) |
 
 ## editChatInviteLink

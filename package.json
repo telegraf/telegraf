@@ -31,7 +31,7 @@
   },
   "type": "commonjs",
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "types": "./typings/index.d.ts",
   "dependencies": {

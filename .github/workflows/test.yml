@@ -3,12 +3,12 @@ name: CI test
 on: push
 
 jobs:
-  buildAndTest:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [8, 9, 10, 11, 12]
+        node-version: [10, 11, 12, 14, 15, 16, 17]
 
     steps:
     - uses: actions/checkout@v2

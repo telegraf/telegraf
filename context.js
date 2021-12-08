@@ -654,12 +654,12 @@ class TelegrafContext {
     return this.telegram.revokeChatInviteLink(this.chat.id, ...args)
   }
 
-  approveChatJoinRequest(...args) {
+  approveChatJoinRequest (...args) {
     this.assert(this.chat, 'approveChatJoinRequest')
     return this.telegram.approveChatJoinRequest(this.chat.id, ...args)
   }
 
-  declineChatJoinRequest(...args) {
+  declineChatJoinRequest (...args) {
     this.assert(this.chat, 'declineChatJoinRequest')
     return this.telegram.declineChatJoinRequest(this.chat.id, ...args)
   }

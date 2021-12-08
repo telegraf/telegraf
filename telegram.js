@@ -481,14 +481,14 @@ class Telegram extends ApiClient {
     })
   }
 
-  approveChatJoinRequest(chatId, userId) {
+  approveChatJoinRequest (chatId, userId) {
     return this.callApi('approveChatJoinRequest', {
       chat_id: chatId,
       user_id: userId
     })
   }
 
-  declineChatJoinRequest(chatId, userId) {
+  declineChatJoinRequest (chatId, userId) {
     return this.callApi('declineChatJoinRequest', {
       chat_id: chatId,
       user_id: userId

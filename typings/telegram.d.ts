@@ -1045,7 +1045,7 @@ export declare class Telegram extends ApiClient {
   approveChatJoinRequest(
     chatId: number | string,
     userId: number
-  ): Promise<true>
+  ): Promise<boolean>
 
   /**
    * Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success.
@@ -1055,6 +1055,6 @@ export declare class Telegram extends ApiClient {
   declineChatJoinRequest(
     chatId: number | string,
     userId: number
-  ): Promise<true>
+  ): Promise<boolean>
 
 }

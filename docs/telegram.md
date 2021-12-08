@@ -545,7 +545,7 @@ Use this method to revoke an invite link created by the bot.
 
 Use this method to approve a chat join request.
 
-`telegram.approveChatJoinRequest(chatId, userId) => Promise<true>`
+`telegram.approveChatJoinRequest(chatId, userId) => Promise`
 [Official documentation](https://core.telegram.org/bots/api#approvechatjoinrequest)
 
 | Param | Type | Description |

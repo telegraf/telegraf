@@ -1,6 +1,9 @@
 name: CI test
 
-on: push
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
 
 jobs:
   test:

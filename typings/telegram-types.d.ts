@@ -6,6 +6,7 @@ export type ParseMode = 'Markdown' | 'MarkdownV2' | 'HTML'
 
 export type ChatAction =
   'typing' |
+  'choose_sticker' |
   'upload_photo' |
   'record_video' |
   'upload_video' |

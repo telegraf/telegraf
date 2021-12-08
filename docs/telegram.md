@@ -541,6 +541,30 @@ Use this method to revoke an invite link created by the bot.
 | chatId | `number/string` | Chat id |
 | inviteLink | `string` | The invite link to revoke |
 
+## approveChatJoinRequest
+
+Use this method to approve a chat join request.
+
+`telegram.approveChatJoinRequest(chatId, userId) => Promise<true>`
+[Official documentation](https://core.telegram.org/bots/api#approvechatjoinrequest)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| userId | `number` | User id |
+
+## declineChatJoinRequest
+
+Use this method to decline a chat join request.
+
+`telegram.declineChatJoinRequest(chatId, userId) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#declinechatjoinrequest)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| userId | `number` | User id |
+
 ## setChatPhoto
 
 Use this method to set a new profile photo for the chat.

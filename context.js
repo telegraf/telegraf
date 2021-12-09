@@ -331,7 +331,8 @@ class TelegrafContext {
 
   reply (...args) {
     this.assert(this.chat, 'reply')
-    return this.telegram.sendMessage(this.chat.id, ...args)
+    const extra = this.options.parseMode ? { parse_mode: this.options.parseMode, ...args } : { ...args }
+    return this.telegram.sendMessage(this.chat.id, extra)
   }
 
   getChat (...args) {

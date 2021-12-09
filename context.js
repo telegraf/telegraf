@@ -329,10 +329,12 @@ class TelegrafContext {
       )
   }
 
-  reply (...args) {
+  reply (text, ...args) {
     this.assert(this.chat, 'reply')
-    const extra = this.options.parseMode ? { parse_mode: this.options.parseMode, ...args } : { ...args }
-    return this.telegram.sendMessage(this.chat.id, extra)
+    const extra = this.options.parseMode
+      ? Object.assign({ parse_mode: this.options.parseMode }, ...args)
+      : Object.assign(...args)
+    return this.telegram.sendMessage(this.chat.id, text, extra)
   }
 
   getChat (...args) {

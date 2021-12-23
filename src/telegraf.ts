@@ -53,6 +53,15 @@ export namespace Telegraf {
       host?: string
       port?: number
 
+      /** The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS */
+      ipAddress?: string
+
+      /**
+       * Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40.
+       * Use lower values to limit the load on your bot's server, and higher values to increase your bot's throughput.
+       */
+      maxConnections?: number
+
       /** TLS server options. Omit to use http. */
       tlsOptions?: TlsOptions
 
@@ -194,6 +203,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     await this.telegram.setWebhook(`https://${domain}${hookPath}`, {
       drop_pending_updates: config.dropPendingUpdates,
       allowed_updates: config.allowedUpdates,
+      ip_address: config.webhook.ipAddress,
+      max_connections: config.webhook.maxConnections,
     })
     debug(`Bot started with webhook @ https://${domain}`)
   }

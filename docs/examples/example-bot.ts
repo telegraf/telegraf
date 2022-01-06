@@ -39,7 +39,7 @@ bot.use((ctx, next) => {
 bot.on('connected_website', (ctx) => ctx.reply('Website connected'))
 
 // Telegram passport events
-bot.on('passport_data', (ctx) => ctx.reply('Telegram password connected'))
+bot.on('passport_data', (ctx) => ctx.reply('Telegram passport connected'))
 
 // Random location on some text messages
 bot.on('text', (ctx, next) => {

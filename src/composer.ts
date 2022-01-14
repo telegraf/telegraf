@@ -192,6 +192,10 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     return this.use(Composer.cashtag<C>(cashtag, ...fns))
   }
 
+  spoiler(text: Triggers<C>, ...fns: MatchedMiddleware<C>) {
+    return this.use(Composer.spoiler<C>(text, ...fns))
+  }
+
   /**
    * Registers a middleware for handling /start
    */
@@ -543,6 +547,13 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       normalizeTextArguments(cashtag, '$'),
       ...fns
     )
+  }
+
+  static spoiler<C extends Context>(
+    text: Triggers<C>,
+    ...fns: MatchedMiddleware<C>
+  ): MiddlewareFn<C> {
+    return Composer.entityText<C>('spoiler', text, ...fns)
   }
 
   private static match<

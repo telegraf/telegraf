@@ -85,7 +85,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     updateType: MaybeArray<T>,
     ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
   ) {
-    return this.use(Composer.mount<C, T>(updateType, ...fns))
+    return this.use(Composer.on<C, T>(updateType, ...fns))
   }
 
   /**
@@ -367,7 +367,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * })
    * ```
    *
-   * Note that `Composer.mount('message')` is preferred over this.
+   * Note that `Composer.on('message')` is preferred over this.
    *
    * @param guardFn predicate to decide whether to run the middleware based on the `ctx.update` object
    * @param fns middleware to run if the predicate returns true
@@ -595,7 +595,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     triggers: Triggers<C>,
     ...fns: MatchedMiddleware<C, 'text'>
   ): MiddlewareFn<C> {
-    return Composer.mount(
+    return Composer.on(
       'text',
       Composer.match<C, 'text'>(normalizeTriggers(triggers), ...fns)
     )
@@ -613,7 +613,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       return Composer.entity('bot_command', command)
     }
     const commands = normalizeTextArguments(command, '/')
-    return Composer.mount<C, 'text'>(
+    return Composer.on<C, 'text'>(
       'text',
       Composer.lazy<MatchedContext<C, 'text'>>((ctx) => {
         const groupCommands =
@@ -639,7 +639,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     triggers: Triggers<C>,
     ...fns: MatchedMiddleware<C, 'callback_query'>
   ): MiddlewareFn<C> {
-    return Composer.mount(
+    return Composer.on(
       'callback_query',
       Composer.match<C, 'callback_query'>(normalizeTriggers(triggers), ...fns)
     )
@@ -652,7 +652,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     triggers: Triggers<C>,
     ...fns: MatchedMiddleware<C, 'inline_query'>
   ): MiddlewareFn<C> {
-    return Composer.mount(
+    return Composer.on(
       'inline_query',
       Composer.match<C, 'inline_query'>(normalizeTriggers(triggers), ...fns)
     )

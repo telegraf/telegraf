@@ -1,6 +1,6 @@
 import * as http from 'http'
 import d from 'debug'
-import { Update } from '../types/typegram'
+import { type Update } from '../types/typegram'
 import safeCompare = require('safe-compare')
 const debug = d('telegraf:webhook')
 
@@ -14,7 +14,7 @@ export default function (
     next = (): void => {
       res.statusCode = 403
       debug('Replying with status code', res.statusCode)
-      return res.end()
+      res.end()
     }
   ): Promise<void> => {
     debug('Incoming request', req.method, req.url)

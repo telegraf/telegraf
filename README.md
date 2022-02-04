@@ -4,7 +4,7 @@
 
 Modern Telegram Bot API framework for Node.js
 
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v5.5-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v5.7-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![install size](https://flat.badgen.net/packagephobia/install/telegraf)](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 [![GitHub top language](https://img.shields.io/github/languages/top/telegraf/telegraf?style=flat-square&logo=github)](https://github.com/telegraf/telegraf)
 [![Russian chat](https://img.shields.io/badge/Russian%20chat-grey?style=flat-square&logo=telegram)](https://t.me/telegraf_ru)

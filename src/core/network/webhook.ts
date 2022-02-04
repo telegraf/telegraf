@@ -18,6 +18,7 @@ export default function (
     }
   ): Promise<void> => {
     debug('Incoming request', req.method, req.url)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     if (req.method !== 'POST' || !safeCompare(hookPath, req.url!)) {
       return next()
     }

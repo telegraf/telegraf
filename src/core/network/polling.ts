@@ -39,7 +39,11 @@ export class Polling {
           this.offset = last.update_id + 1
         }
         yield updates
-      } catch (err: any) {
+      } catch (error) {
+        const err = error as Error & {
+          parameters?: { retry_after: number }
+        }
+
         if (err.name === 'AbortError') return
         if (
           err.name === 'FetchError' ||

@@ -82,11 +82,7 @@ export default class SceneContextScene<
       this.ctx.session.__scenes = this.options.defaultSession
   }
 
-  async enter(
-    sceneId: string,
-    initialState: object = {},
-    silent: boolean = false
-  ) {
+  async enter(sceneId: string, initialState: object = {}, silent = false) {
     if (!this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }

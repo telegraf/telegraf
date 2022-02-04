@@ -129,13 +129,9 @@ type ExtractPartial<T extends object, U extends object> = T extends unknown
  */
 export type MountMap = {
   [T in UpdateType]: Extract<Update, Record<T, object>>
-} &
-  {
-    [T in MessageSubType]: {
-      message: ExtractPartial<
-        Update.MessageUpdate['message'],
-        Record<T, unknown>
-      >
-      update_id: number
-    }
+} & {
+  [T in MessageSubType]: {
+    message: ExtractPartial<Update.MessageUpdate['message'], Record<T, unknown>>
+    update_id: number
   }
+}

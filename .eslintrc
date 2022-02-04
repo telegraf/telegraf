@@ -16,12 +16,12 @@
         "@typescript-eslint/promise-function-async": "off",
         "@typescript-eslint/strict-boolean-expressions": "warn"
       }
-    }, {
+    },
+    {
       "files": ["*.md"],
-      "plugins": ["markdown"],
       "parserOptions": {
         "ecmaFeatures": {
-            "impliedStrict": true
+          "impliedStrict": true
         }
       },
       "rules": {
@@ -30,7 +30,10 @@
     }
   ],
   "rules": {
-    "no-warning-comments": "error"
+    "no-warning-comments": "error",
+    "prefer-promise-reject-errors": "off",
+    "comma-dangle": "off",
+    "space-before-function-paren": "off"
   },
   "ignorePatterns": ["/lib/", "/typings/", "/docs/build/"],
   "reportUnusedDisableDirectives": true,

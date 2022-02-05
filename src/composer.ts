@@ -206,6 +206,8 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   ) {
     const handler = Composer.compose(fns)
     return this.command('start', (ctx, next) => {
+      // First entity is the /start bot_command itself
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const entity = ctx.message.entities![0]!
       const startPayload = ctx.message.text.slice(entity.length + 1)
       return handler(Object.assign(ctx, { startPayload }), next)
@@ -577,7 +579,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
         ctx.inlineQuery?.query
       if (text === undefined) return next()
       for (const trigger of triggers) {
-        // @ts-expect-error
+        // @ts-expect-error Trust me, TS!
         const match = trigger(text, ctx)
         if (match) {
           // @ts-expect-error define so far unknown property `match`
@@ -767,6 +769,8 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       return Composer.passThru()
     }
     if (middlewares.length === 1) {
+      // Quite literally asserted in the above condition
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return Composer.unwrap(middlewares[0]!)
     }
     return (ctx, next) => {

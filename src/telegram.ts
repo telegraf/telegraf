@@ -40,6 +40,7 @@ export class Telegram extends ApiClient {
     }
 
     return new URL(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       `./file/${this.options.apiMode}${this.token}/${fileId.file_path!}`,
       this.options.apiRoot
     )
@@ -282,7 +283,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send .webp stickers
+   * Send .webp, animated .tgs, or video .webm stickers
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
   sendSticker(
@@ -972,7 +973,7 @@ export class Telegram extends ApiClient {
   setStickerSetThumb(
     name: string,
     userId: number,
-    thumb: tg.Opts<'setStickerSetThumb'>['thumb']
+    thumb?: tg.Opts<'setStickerSetThumb'>['thumb']
   ) {
     return this.callApi('setStickerSetThumb', { name, user_id: userId, thumb })
   }

@@ -11,6 +11,7 @@ type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
 >
 
 export class Context<U extends Deunionize<tg.Update> = tg.Update> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly state: Record<string | symbol, any> = {}
 
   constructor(
@@ -874,27 +875,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#approvechatjoinrequest
    */
-  approveChatJoinRequest(
-    this: Context,
-    chatId: number | string,
-    userId: number
-  ) {
-    const message = getMessageFromAnySource(this)
-    this.assert(message, 'approveChatJoinRequest')
-    return this.telegram.approveChatJoinRequest(chatId, userId)
+  approveChatJoinRequest(this: Context, userId: number) {
+    this.assert(this.chat, 'approveChatJoinRequest')
+    return this.telegram.approveChatJoinRequest(this.chat.id, userId)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#declinechatjoinrequest
    */
-  declineChatJoinRequest(
-    this: Context,
-    chatId: number | string,
-    userId: number
-  ) {
-    const message = getMessageFromAnySource(this)
-    this.assert(message, 'declineChatJoinRequest')
-    return this.telegram.declineChatJoinRequest(chatId, userId)
+  declineChatJoinRequest(this: Context, userId: number) {
+    this.assert(this.chat, 'declineChatJoinRequest')
+    return this.telegram.declineChatJoinRequest(this.chat.id, userId)
   }
 
   /**
@@ -921,11 +912,10 @@ type UpdateTypes<U extends Deunionize<tg.Update>> = Extract<
   tt.UpdateType
 >
 
-export type GetUpdateContent<
-  U extends tg.Update
-> = U extends tg.Update.CallbackQueryUpdate
-  ? U['callback_query']['message']
-  : U[UpdateTypes<U>]
+export type GetUpdateContent<U extends tg.Update> =
+  U extends tg.Update.CallbackQueryUpdate
+    ? U['callback_query']['message']
+    : U[UpdateTypes<U>]
 
 type Getter<U extends Deunionize<tg.Update>, P extends string> = PropOr<
   GetUpdateContent<U>,

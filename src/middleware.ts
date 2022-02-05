@@ -9,7 +9,6 @@ import { Context } from './context'
 export type MiddlewareFn<C extends Context> = (
   ctx: C,
   next: () => Promise<void>
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
 ) => Promise<unknown> | void
 
 export interface MiddlewareObj<C extends Context> {

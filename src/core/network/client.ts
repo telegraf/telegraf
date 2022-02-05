@@ -332,7 +332,8 @@ class ApiClient {
       WEBHOOK_REPLY_METHOD_ALLOWLIST.has(method)
     ) {
       debug('Call via webhook', method, payload)
-      // @ts-expect-error
+      // @ts-expect-error using webhookReply is an optimisation that doesn't respond with normal result
+      // up to the user to deal with this
       return await answerToWebhook(response, { method, ...payload }, options)
     }
 

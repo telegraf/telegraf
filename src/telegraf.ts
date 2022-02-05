@@ -70,7 +70,6 @@ export namespace Telegraf {
   }
 }
 
-// eslint-disable-next-line import/export
 export class Telegraf<C extends Context = Context> extends Composer<C> {
   private readonly options: Telegraf.Options<C>
   private webhookServer?: http.Server | https.Server
@@ -91,7 +90,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
   constructor(token: string, options?: Partial<Telegraf.Options<C>>) {
     super()
-    // @ts-expect-error
+    // @ts-expect-error Trust me, TS
     this.options = {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
@@ -131,7 +130,6 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
   private startPolling(allowedUpdates: tt.UpdateType[] = []) {
     this.polling = new Polling(this.telegram, allowedUpdates)
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.polling.loop(async (updates) => {
       await this.handleUpdates(updates)
     })

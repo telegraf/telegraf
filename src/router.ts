@@ -20,6 +20,7 @@ export class Router<C extends Context> implements MiddlewareObj<C> {
     public handlers = new Map<string, Middleware<C>>()
   ) {
     if (typeof routeFn !== 'function') {
+			console.log('test_lab01');
       throw new Error('Missing routing function')
     }
   }

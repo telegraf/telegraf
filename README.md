@@ -7,7 +7,6 @@ Modern Telegram Bot API framework for Node.js
 [![Bot API Version](https://img.shields.io/badge/Bot%20API-v5.7-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![install size](https://flat.badgen.net/packagephobia/install/telegraf)](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 [![GitHub top language](https://img.shields.io/github/languages/top/telegraf/telegraf?style=flat-square&logo=github)](https://github.com/telegraf/telegraf)
-[![Russian chat](https://img.shields.io/badge/Russian%20chat-grey?style=flat-square&logo=telegram)](https://t.me/telegraf_ru)
 [![English chat](https://img.shields.io/badge/English%20chat-grey?style=flat-square&logo=telegram)](https://t.me/TelegrafJSChat)
 </header>
 
@@ -28,7 +27,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 
 ### Features
 
-- Full [Telegram Bot API 5.5](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 5.7](https://core.telegram.org/bots/api) support
 - [Excellent TypeScript typings](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
 - [Lightweight](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 - [AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)
@@ -76,9 +75,8 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
 - [Getting started](#getting-started)
 - [API reference](https://telegraf.js.org/modules.html)
 - Telegram groups (sorted by number of members):
-  * [Russian](https://t.me/telegraf_ru)
   * [English](https://t.me/TelegrafJSChat)
-  * [Uzbek](https://t.me/telegrafJS_uz)
+  * [Uzbek](https://t.me/botjs_uz)
   * [Ethiopian](https://t.me/telegraf_et)
 - [GitHub Discussions](https://github.com/telegraf/telegraf/discussions)
 - [Dependent repositories](https://libraries.io/npm/telegraf/dependent_repositories)

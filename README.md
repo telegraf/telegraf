@@ -213,7 +213,7 @@ const tlsOptions = {
 // The second argument is necessary only if the client uses a self-signed
 // certificate. Including it for a verified certificate may cause things to break.
 bot.telegram.setWebhook('https://server.tld:8443/secret-path', {
-  source: 'server-cert.pem'
+  certificate: { source: fs.readFileSync('server-cert.pem') }
 })
 
 // Start https webhook

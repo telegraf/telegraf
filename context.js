@@ -9,7 +9,8 @@ const UpdateTypes = [
   'pre_checkout_query',
   'message',
   'poll',
-  'poll_answer'
+  'poll_answer',
+  'my_chat_member'
 ]
 
 const MessageSubTypes = [
@@ -120,12 +121,17 @@ class TelegrafContext {
     return this.update.poll_answer
   }
 
+  get myChatMember () {
+    return this.update.my_chat_member
+  }
+
   get chat () {
     return (this.message && this.message.chat) ||
       (this.editedMessage && this.editedMessage.chat) ||
       (this.callbackQuery && this.callbackQuery.message && this.callbackQuery.message.chat) ||
       (this.channelPost && this.channelPost.chat) ||
-      (this.editedChannelPost && this.editedChannelPost.chat)
+      (this.editedChannelPost && this.editedChannelPost.chat) ||
+      (this.myChatMember && this.myChatMember.chat)
   }
 
   get from () {
@@ -137,7 +143,8 @@ class TelegrafContext {
       (this.editedChannelPost && this.editedChannelPost.from) ||
       (this.shippingQuery && this.shippingQuery.from) ||
       (this.preCheckoutQuery && this.preCheckoutQuery.from) ||
-      (this.chosenInlineResult && this.chosenInlineResult.from)
+      (this.chosenInlineResult && this.chosenInlineResult.from) ||
+      (this.myChatMember && this.myChatMember.from)
   }
 
   get inlineMessageId () {
@@ -146,6 +153,14 @@ class TelegrafContext {
 
   get passportData () {
     return this.message && this.message.passport_data
+  }
+
+  get oldChatMember () {
+    return this.myChatMember && this.myChatMember.old_chat_member
+  }
+
+  get newChatMember () {
+    return this.myChatMember && this.myChatMember.new_chat_member
   }
 
   get state () {
@@ -272,24 +287,24 @@ class TelegrafContext {
       )
   }
 
-  editMessageLiveLocation (latitude, longitude, extra) {
+  editMessageLiveLocation (latitude, longitude, markup) {
     this.assert(this.callbackQuery || this.inlineMessageId, 'editMessageLiveLocation')
     return this.inlineMessageId
       ? this.telegram.editMessageLiveLocation(
+        latitude,
+        longitude,
         undefined,
         undefined,
         this.inlineMessageId,
-        latitude,
-        longitude,
-        extra
+        markup
       )
       : this.telegram.editMessageLiveLocation(
+        latitude,
+        longitude,
         this.chat.id,
         this.callbackQuery.message.message_id,
         undefined,
-        latitude,
-        longitude,
-        extra
+        markup
       )
   }
 
@@ -378,11 +393,6 @@ class TelegrafContext {
   unpinChatMessage (...args) {
     this.assert(this.chat, 'unpinChatMessage')
     return this.telegram.unpinChatMessage(this.chat.id, ...args)
-  }
-
-  unpinAllChatMessages () {
-    this.assert(this.chat, 'unpinAllChatMessages')
-    return this.telegram.unpinAllChatMessages(this.chat.id)
   }
 
   leaveChat (...args) {
@@ -594,16 +604,6 @@ class TelegrafContext {
       (this.callbackQuery && this.callbackQuery.message)
     this.assert(message, 'forwardMessage')
     return this.telegram.forwardMessage(chatId, this.chat.id, message.message_id, extra)
-  }
-
-  copyMessage (chatId, extra) {
-    const message = this.message ||
-      this.editedMessage ||
-      this.channelPost ||
-      this.editedChannelPost ||
-      (this.callbackQuery && this.callbackQuery.message)
-    this.assert(message, 'copyMessage')
-    return this.telegram.copyMessage(chatId, message.chat.id, message.message_id, extra)
   }
 }
 

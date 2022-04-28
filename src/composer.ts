@@ -8,7 +8,6 @@ import Context from './context'
 export type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
 export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
-export type DefinitelyDefined<T> = T extends infer S | undefined ? S : T
 export type Expand<T> = T extends object
   ? T extends infer O
     ? { [K in keyof O]: O[K] }
@@ -52,7 +51,7 @@ export type NarrowedContext<
 export interface GameQueryUpdate extends tg.Update.CallbackQueryUpdate {
   callback_query: Expand<
     Omit<tg.CallbackQuery, 'data'> & {
-      game_short_name: DefinitelyDefined<tg.CallbackQuery['game_short_name']>
+      game_short_name: NonNullable<tg.CallbackQuery['game_short_name']>
     }
   >
 }

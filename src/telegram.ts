@@ -1119,7 +1119,7 @@ export class Telegram extends ApiClient {
   /**
    * Use this method to change the bot's menu button in a private chat, or the default menu button. Returns true on success.
    * @param chatId Unique identifier for the target private chat. If not specified, default bot's menu button will be changed.
-   * @param menuButton An object for the new bot's menu button.
+   * @param menuButton An object for the bot's new menu button.
    */
   setChatMenuButton({
     chatId,

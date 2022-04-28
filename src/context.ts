@@ -919,7 +919,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   getChatMenuButton() {
     this.assert(this.chat, 'getChatMenuButton')
-    return this.telegram.getChatMenuButton()
+    return this.telegram.getChatMenuButton({ chatId: this.chat.id })
   }
 
   /**

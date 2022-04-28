@@ -21,7 +21,8 @@
     "src/**/*.ts",
     "lib/**/*.js",
     "typings/**/*.d.ts",
-    "typings/**/*.d.ts.map"
+    "typings/**/*.d.ts.map",
+    "types.d.ts"
   ],
   "bin": {
     "telegraf": "bin/telegraf"

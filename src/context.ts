@@ -905,13 +905,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#answerwebappquery
-   */
-  answerWebAppQuery(webAppQueryId: string, result: tg.InlineQueryResult) {
-    return this.telegram.answerWebAppQuery(webAppQueryId, result)
-  }
-
-  /**
    * Use this method to change the bot's menu button in the current private chat. Returns true on success.
    * @see https://core.telegram.org/bots/api#setchatmenubutton
    */

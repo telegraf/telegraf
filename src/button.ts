@@ -93,3 +93,15 @@ export function login(
     hide,
   }
 }
+
+export function webApp(
+  text: string,
+  url: string,
+  hide = false
+): Hideable<InlineKeyboardButton.WebAppButton> {
+  return {
+    text,
+    web_app: { url },
+    hide,
+  }
+}

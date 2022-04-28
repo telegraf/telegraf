@@ -8,6 +8,12 @@ import Context from './context'
 export type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
 export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
+export type DefinitelyDefined<T> = T extends infer S | undefined ? S : T
+export type Expand<T> = T extends object
+  ? T extends infer O
+    ? { [K in keyof O]: O[K] }
+    : never
+  : T
 export type Triggers<C> = MaybeArray<
   string | RegExp | ((value: string, ctx: C) => RegExpExecArray | null)
 >
@@ -44,7 +50,11 @@ export type NarrowedContext<
 > = Context<U> & Omit<C, keyof Context>
 
 export interface GameQueryUpdate extends tg.Update.CallbackQueryUpdate {
-  callback_query: tg.CallbackQuery.GameShortGameCallbackQuery
+  callback_query: Expand<
+    Omit<tg.CallbackQuery, 'data'> & {
+      game_short_name: DefinitelyDefined<tg.CallbackQuery['game_short_name']>
+    }
+  >
 }
 
 function always<T>(x: T) {

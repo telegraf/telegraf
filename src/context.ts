@@ -903,6 +903,42 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'unbanChatSenderChat')
     return this.telegram.unbanChatSenderChat(this.chat.id, senderChatId)
   }
+
+  /**
+   * Use this method to change the bot's menu button in the current private chat. Returns true on success.
+   * @see https://core.telegram.org/bots/api#setchatmenubutton
+   */
+  setChatMenuButton(this: Context, menuButton?: tg.MenuButton) {
+    this.assert(this.chat, 'setChatMenuButton')
+    return this.telegram.setChatMenuButton({ chatId: this.chat.id, menuButton })
+  }
+
+  /**
+   * Use this method to get the current value of the bot's menu button in the current private chat. Returns MenuButton on success.
+   * @see https://core.telegram.org/bots/api#getchatmenubutton
+   */
+  getChatMenuButton() {
+    this.assert(this.chat, 'getChatMenuButton')
+    return this.telegram.getChatMenuButton()
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#setmydefaultadministratorrights
+   */
+  setMyDefaultAdministratorRights(
+    extra?: Parameters<Telegram['setMyDefaultAdministratorRights']>[0]
+  ) {
+    return this.telegram.setMyDefaultAdministratorRights(extra)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#getmydefaultadministratorrights
+   */
+  getMyDefaultAdministratorRights(
+    extra?: Parameters<Telegram['getMyDefaultAdministratorRights']>[0]
+  ) {
+    return this.telegram.getMyDefaultAdministratorRights(extra)
+  }
 }
 
 export default Context

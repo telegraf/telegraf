@@ -743,9 +743,9 @@ export class Telegram extends ApiClient {
     })
   }
 
-  answerWebAppQuery(web_app_query_id: string, result: tg.InlineQueryResult) {
+  answerWebAppQuery(webAppQueryId: string, result: tg.InlineQueryResult) {
     return this.callApi('answerWebAppQuery', {
-      web_app_query_id,
+      web_app_query_id: webAppQueryId,
       result,
     })
   }

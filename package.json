@@ -45,7 +45,7 @@
   "dependencies": {
     "abort-controller": "^3.0.0",
     "debug": "^4.3.3",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "module-alias": "^2.2.2",
     "node-fetch": "^2.6.7",
     "p-timeout": "^4.1.0",

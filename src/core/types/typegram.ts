@@ -2,7 +2,8 @@ import { Typegram } from 'typegram'
 
 // internal type provisions
 export * from 'typegram/api'
-export * from 'typegram/callback'
+export * from 'typegram/markup'
+export * from 'typegram/menu-button'
 export * from 'typegram/inline'
 export * from 'typegram/manage'
 export * from 'typegram/message'

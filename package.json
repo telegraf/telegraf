@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "4.7.0",
+  "version": "4.8.0",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -21,7 +21,8 @@
     "src/**/*.ts",
     "lib/**/*.js",
     "typings/**/*.d.ts",
-    "typings/**/*.d.ts.map"
+    "typings/**/*.d.ts.map",
+    "types.d.ts"
   ],
   "bin": {
     "telegraf": "bin/telegraf"
@@ -45,13 +46,13 @@
   "dependencies": {
     "abort-controller": "^3.0.0",
     "debug": "^4.3.3",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "module-alias": "^2.2.2",
     "node-fetch": "^2.6.7",
     "p-timeout": "^4.1.0",
     "safe-compare": "^1.1.4",
     "sandwich-stream": "^2.0.2",
-    "typegram": "^3.8.0"
+    "typegram": "^3.9.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",

@@ -743,6 +743,13 @@ export class Telegram extends ApiClient {
     })
   }
 
+  answerWebAppQuery(webAppQueryId: string, result: tg.InlineQueryResult) {
+    return this.callApi('answerWebAppQuery', {
+      web_app_query_id: webAppQueryId,
+      result,
+    })
+  }
+
   /**
    * Edit text and game messages sent by the bot or via the bot (for inline bots).
    * On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
@@ -1106,6 +1113,63 @@ export class Telegram extends ApiClient {
     return this.callApi('unbanChatSenderChat', {
       chat_id: chatId,
       sender_chat_id: senderChatId,
+    })
+  }
+
+  /**
+   * Use this method to change the bot's menu button in a private chat, or the default menu button. Returns true on success.
+   * @param chatId Unique identifier for the target private chat. If not specified, default bot's menu button will be changed.
+   * @param menuButton An object for the bot's new menu button.
+   */
+  setChatMenuButton({
+    chatId,
+    menuButton,
+  }: {
+    chatId?: number | undefined
+    menuButton?: tg.MenuButton | undefined
+  } = {}) {
+    return this.callApi('setChatMenuButton', {
+      chat_id: chatId,
+      menu_button: menuButton,
+    })
+  }
+
+  /**
+   * Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success.
+   * @param chatId Unique identifier for the target private chat. If not specified, default bot's menu button will be returned.
+   */
+  getChatMenuButton({ chatId }: { chatId?: number } = {}) {
+    return this.callApi('getChatMenuButton', {
+      chat_id: chatId,
+    })
+  }
+
+  /**
+   * Use this method to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels.
+   * These rights will be suggested to users, but they are are free to modify the list before adding the bot.
+   */
+  setMyDefaultAdministratorRights({
+    rights,
+    forChannels,
+  }: {
+    rights?: tg.ChatAdministratorRights
+    forChannels?: boolean
+  } = {}) {
+    return this.callApi('setMyDefaultAdministratorRights', {
+      rights,
+      for_channels: forChannels,
+    })
+  }
+
+  /**
+   * Use this method to get the current default administrator rights of the bot. Returns ChatAdministratorRights on success.
+   * @param forChannels Pass true to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
+   */
+  getMyDefaultAdministratorRights({
+    forChannels,
+  }: { forChannels?: boolean } = {}) {
+    return this.callApi('getMyDefaultAdministratorRights', {
+      for_channels: forChannels,
     })
   }
 

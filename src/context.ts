@@ -136,6 +136,31 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.message?.passport_data
   }
 
+  get webAppData() {
+    if (
+      !(
+        'message' in this.update &&
+        this.update.message &&
+        'web_app_data' in this.update.message
+      )
+    )
+      return undefined
+
+    const { data, button_text } = this.update.message.web_app_data
+
+    return {
+      data: {
+        json<T>() {
+          return JSON.parse(data) as T
+        },
+        text() {
+          return data
+        },
+      },
+      button_text,
+    }
+  }
+
   /**
    * @deprecated use {@link Telegram.webhookReply}
    */

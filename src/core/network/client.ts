@@ -46,7 +46,8 @@ namespace ApiClient {
      * @see https://github.com/tdlight-team/tdlight-telegram-bot-api#user-mode
      */
     apiMode: 'bot' | 'user'
-    webhookReply: boolean
+    webhookReply: boolean,
+    testEnv: boolean
   }
 
   export interface CallApiOptions {
@@ -73,6 +74,7 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
     keepAliveMsecs: 10000,
   }),
   attachmentAgent: undefined,
+  testEnv: false
 }
 
 function includesMedia(payload: Record<string, unknown>) {
@@ -353,7 +355,7 @@ class ApiClient {
         )
       : await buildJSONConfig(payload)
     const apiUrl = new URL(
-      `./${options.apiMode}${token}/${method}`,
+      `./${options.apiMode}${token}${options.testEnv ? '/test' : ''}/${method}`,
       options.apiRoot
     )
     config.agent = options.agent

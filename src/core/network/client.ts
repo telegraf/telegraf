@@ -46,7 +46,7 @@ namespace ApiClient {
      * @see https://github.com/tdlight-team/tdlight-telegram-bot-api#user-mode
      */
     apiMode: 'bot' | 'user'
-    webhookReply: boolean,
+    webhookReply: boolean
     testEnv: boolean
   }
 
@@ -74,7 +74,7 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
     keepAliveMsecs: 10000,
   }),
   attachmentAgent: undefined,
-  testEnv: false
+  testEnv: false,
 }
 
 function includesMedia(payload: Record<string, unknown>) {

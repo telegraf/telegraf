@@ -36,7 +36,8 @@
     "lib/**/*.js",
     "typings/**/*.d.ts",
     "typings/**/*.d.ts.map",
-    "types.*"
+    "types.*",
+    "future.*"
   ],
   "bin": {
     "telegraf": "bin/telegraf.mjs"

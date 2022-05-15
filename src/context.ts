@@ -16,7 +16,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
 
   constructor(
     readonly update: U,
-    readonly tg: Telegram,
+    readonly telegram: Telegram,
     readonly botInfo: tg.UserFromGetMe
   ) {}
 
@@ -34,8 +34,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.botInfo?.username
   }
 
-  get telegram() {
-    return this.tg
+  /**
+   * @deprecated Use ctx.telegram instead
+   */
+  get tg() {
+    return this.telegram
   }
 
   get message() {
@@ -163,11 +166,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @deprecated use {@link Telegram.webhookReply}
    */
   get webhookReply(): boolean {
-    return this.tg.webhookReply
+    return this.telegram.webhookReply
   }
 
   set webhookReply(enable: boolean) {
-    this.tg.webhookReply = enable
+    this.telegram.webhookReply = enable
   }
 
   private assert<T extends string | object>(

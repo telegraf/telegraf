@@ -12,6 +12,7 @@
     "incremental": true,
     "tsBuildInfoFile": "typings/tsconfig.tsbuildinfo",
     "noErrorTruncation": true,
+    "stripInternal": true,
     "forceConsistentCasingInFileNames": true
   },
   "typedocOptions": {
@@ -21,7 +22,7 @@
     "media": "docs/assets/",
     "name": "telegraf.js",
     "out": "docs/build/",
-    "readme": "README.md",
+    "readme": "README.md"
   },
-  "include": ["src/"]
+  "include": ["src/**/*.ts"]
 }

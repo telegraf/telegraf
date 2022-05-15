@@ -21,15 +21,13 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   ) {}
 
   get updateType() {
-    const types = Object.keys(this.update).filter(
-      (k) => typeof this.update[k as keyof U] === 'object'
-    )
-    if (types.length !== 1) {
-      throw new Error(
-        `Cannot determine \`updateType\` of ${JSON.stringify(this.update)}`
-      )
+    for (const key in this.update) {
+      if (typeof this.update[key] === 'object') return key as UpdateTypes<U>
     }
-    return types[0] as UpdateTypes<U>
+
+    throw new Error(
+      `Cannot determine \`updateType\` of ${JSON.stringify(this.update)}`
+    )
   }
 
   get me() {

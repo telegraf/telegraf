@@ -47,6 +47,7 @@ export class Polling {
         if (err.name === 'AbortError') return
         if (
           err.name === 'FetchError' ||
+          (err instanceof TelegramError && err.code === 429) ||
           (err instanceof TelegramError && err.code >= 500)
         ) {
           const retryAfter: number = err.parameters?.retry_after ?? 5

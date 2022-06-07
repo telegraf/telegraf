@@ -14,8 +14,14 @@
   },
   "main": "lib/index.js",
   "exports": {
-    ".": "./lib/index.js",
-    "./types": "./types.js"
+    ".": {
+      "types": "./typings/index.d.ts",
+      "require": "./lib/index.js"
+    },
+    "./types": {
+      "types": "./types.d.ts",
+      "require": "./types.js"
+    }
   },
   "files": [
     "bin/*",

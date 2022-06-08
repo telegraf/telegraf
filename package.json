@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "4.8.4",
+  "version": "4.8.5",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -16,11 +16,13 @@
   "exports": {
     ".": {
       "types": "./typings/index.d.ts",
-      "require": "./lib/index.js"
+      "require": "./lib/index.js",
+      "import": "./lib/index.js"
     },
     "./types": {
       "types": "./types.d.ts",
-      "require": "./types.js"
+      "require": "./types.js",
+      "import": "./types.js"
     }
   },
   "files": [

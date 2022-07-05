@@ -293,8 +293,8 @@ test.cb('should handle webhook response', (t) => {
       webhookReply: true
     }
   })
-  bot.on('message', async ({ reply }) => {
-    const result = await reply(':)')
+  bot.on('message', async (ctx) => {
+    const result = await ctx.replyWithChatAction('typing')
     t.deepEqual(result, { webhook: true })
   })
   const res = {

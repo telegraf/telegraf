@@ -3,8 +3,6 @@
 /// <reference types="node" />
 
 import { IncomingMessage, ServerResponse } from 'http'
-import * as https from 'https'
-import * as http from 'http'
 import { TlsOptions } from 'tls'
 
 import * as tt from './telegram-types.d'
@@ -14,6 +12,11 @@ import { Composer } from './composer'
 import { Telegram, TelegramOptions } from './telegram'
 
 export interface TelegrafOptions extends TOptions {
+  /**
+   * Parse mode
+   */
+  parseMode?: tt.ParseMode
+
   /**
    * Telegram options
    */

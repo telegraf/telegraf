@@ -1,0 +1,27 @@
+name: CI test
+
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10, 11, 12, 14, 15, 16, 17]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Lint, Typecheck, Test
+      run: |
+        npm install
+        npm run lint
+        npm run typecheck
+        npm test

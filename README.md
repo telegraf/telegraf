@@ -78,6 +78,7 @@ For additional bot examples see [`examples`](https://github.com/telegraf/telegra
   * [English](https://t.me/TelegrafJSChat)
   * [Uzbek](https://t.me/botjs_uz)
   * [Ethiopian](https://t.me/telegraf_et)
+  * [Russian](https://t.me/telegrafjs_ru)
 - [GitHub Discussions](https://github.com/telegraf/telegraf/discussions)
 - [Dependent repositories](https://libraries.io/npm/telegraf/dependent_repositories)
 

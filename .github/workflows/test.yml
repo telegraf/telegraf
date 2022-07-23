@@ -19,9 +19,7 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Lint, Typecheck, Test
-      run: |
-        npm install
-        npm run lint
-        npm run typecheck
-        npm test
+    - run: npm install
+    - run: npm run --silent lint
+    - run: npm run --silent typecheck
+    - run: npm test --silent

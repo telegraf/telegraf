@@ -1,12 +1,14 @@
 name: CI test
 
 on:
+  pull_request: {}
   push:
+    branches: [ v? ]
     paths-ignore:
       - 'docs/**'
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     strategy:

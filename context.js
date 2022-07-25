@@ -9,7 +9,9 @@ const UpdateTypes = [
   'pre_checkout_query',
   'message',
   'poll',
-  'poll_answer'
+  'poll_answer',
+  'my_chat_member',
+  'chat_member'
 ]
 
 const MessageSubTypes = [
@@ -43,7 +45,13 @@ const MessageSubTypes = [
   'connected_website',
   'passport_data',
   'poll',
-  'forward_date'
+  'forward_date',
+  'message_auto_delete_timer_changed',
+  'video_chat_started',
+  'video_chat_ended',
+  'video_chat_participants_invited',
+  'video_chat_scheduled',
+  'web_app_data'
 ]
 
 const MessageSubTypesMapping = {
@@ -120,12 +128,22 @@ class TelegrafContext {
     return this.update.poll_answer
   }
 
+  get myChatMember () {
+    return this.update.my_chat_member
+  }
+
+  get chatMember () {
+    return this.update.chat_member
+  }
+
   get chat () {
     return (this.message && this.message.chat) ||
       (this.editedMessage && this.editedMessage.chat) ||
       (this.callbackQuery && this.callbackQuery.message && this.callbackQuery.message.chat) ||
       (this.channelPost && this.channelPost.chat) ||
-      (this.editedChannelPost && this.editedChannelPost.chat)
+      (this.editedChannelPost && this.editedChannelPost.chat) ||
+      (this.myChatMember && this.myChatMember.chat) ||
+      (this.chatMember && this.chatMember.chat)
   }
 
   get from () {
@@ -137,7 +155,9 @@ class TelegrafContext {
       (this.editedChannelPost && this.editedChannelPost.from) ||
       (this.shippingQuery && this.shippingQuery.from) ||
       (this.preCheckoutQuery && this.preCheckoutQuery.from) ||
-      (this.chosenInlineResult && this.chosenInlineResult.from)
+      (this.chosenInlineResult && this.chosenInlineResult.from) ||
+      (this.myChatMember && this.myChatMember.from) ||
+      (this.chatMember && this.chatMember.from)
   }
 
   get inlineMessageId () {
@@ -310,9 +330,12 @@ class TelegrafContext {
       )
   }
 
-  reply (...args) {
+  reply (text, args) {
     this.assert(this.chat, 'reply')
-    return this.telegram.sendMessage(this.chat.id, ...args)
+    const extra = this.options.parseMode
+      ? { parse_mode: this.options.parseMode }
+      : { ...args }
+    return this.telegram.sendMessage(this.chat.id, text, extra)
   }
 
   getChat (...args) {
@@ -323,6 +346,11 @@ class TelegrafContext {
   exportChatInviteLink (...args) {
     this.assert(this.chat, 'exportChatInviteLink')
     return this.telegram.exportChatInviteLink(this.chat.id, ...args)
+  }
+
+  banChatMember (...args) {
+    this.assert(this.chat, 'banChatMember')
+    return this.telegram.banChatMember(this.chat.id, ...args)
   }
 
   kickChatMember (...args) {
@@ -348,6 +376,16 @@ class TelegrafContext {
   setChatAdministratorCustomTitle (...args) {
     this.assert(this.chat, 'setChatAdministratorCustomTitle')
     return this.telegram.setChatAdministratorCustomTitle(this.chat.id, ...args)
+  }
+
+  banChatSenderChat (...args) {
+    this.assert(this.chat, 'banChatSenderChat')
+    return this.telegram.banChatSenderChat(this.chat.id, ...args)
+  }
+
+  unbanChatSenderChat (...args) {
+    this.assert(this.chat, 'unbanChatSenderChat')
+    return this.telegram.unbanChatSenderChat(this.chat.id, ...args)
   }
 
   setChatPhoto (...args) {
@@ -407,7 +445,12 @@ class TelegrafContext {
 
   getChatMembersCount (...args) {
     this.assert(this.chat, 'getChatMembersCount')
-    return this.telegram.getChatMembersCount(this.chat.id, ...args)
+    return this.telegram.getChatMemberCount(this.chat.id, ...args)
+  }
+
+  getChatMemberCount (...args) {
+    this.assert(this.chat, 'getChatMemberCount')
+    return this.telegram.getChatMemberCount(this.chat.id, ...args)
   }
 
   setPassportDataErrors (errors) {
@@ -551,12 +594,16 @@ class TelegrafContext {
     return this.telegram.addStickerToSet(this.from.id, ...args)
   }
 
-  getMyCommands () {
-    return this.telegram.getMyCommands()
+  getMyCommands (...args) {
+    return this.telegram.getMyCommands(...args)
   }
 
   setMyCommands (...args) {
     return this.telegram.setMyCommands(...args)
+  }
+
+  deleteMyCommands (...args) {
+    return this.telegram.deleteMyCommands(...args)
   }
 
   replyWithMarkdown (markdown, extra) {
@@ -604,6 +651,49 @@ class TelegrafContext {
       (this.callbackQuery && this.callbackQuery.message)
     this.assert(message, 'copyMessage')
     return this.telegram.copyMessage(chatId, message.chat.id, message.message_id, extra)
+  }
+
+  createChatInviteLink (...args) {
+    this.assert(this.chat, 'createChatInviteLink')
+    return this.telegram.createChatInviteLink(this.chat.id, ...args)
+  }
+
+  editChatInviteLink (...args) {
+    this.assert(this.chat, 'editChatInviteLink')
+    return this.telegram.editChatInviteLink(this.chat.id, ...args)
+  }
+
+  revokeChatInviteLink (...args) {
+    this.assert(this.chat, 'revokeChatInviteLink')
+    return this.telegram.revokeChatInviteLink(this.chat.id, ...args)
+  }
+
+  approveChatJoinRequest (...args) {
+    this.assert(this.chat, 'approveChatJoinRequest')
+    return this.telegram.approveChatJoinRequest(this.chat.id, ...args)
+  }
+
+  declineChatJoinRequest (...args) {
+    this.assert(this.chat, 'declineChatJoinRequest')
+    return this.telegram.declineChatJoinRequest(this.chat.id, ...args)
+  }
+
+  setChatMenuButton (...args) {
+    this.assert(this.chat, 'setChatMenuButton')
+    return this.telegram.setChatMenuButton(this.chat.id, ...args)
+  }
+
+  getChatMenuButton () {
+    this.assert(this.chat, 'getChatMenuButton')
+    return this.telegram.getChatMenuButton(this.chat.id)
+  }
+
+  setMyDefaultAdministratorRights (rights, forChannels) {
+    return this.telegram.setMyDefaultAdministratorRights(rights, forChannels)
+  }
+
+  getMyDefaultAdministratorRights (forChannels) {
+    return this.telegram.getMyDefaultAdministratorRights(forChannels)
   }
 }
 

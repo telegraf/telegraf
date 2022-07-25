@@ -467,11 +467,18 @@ export declare class Telegram extends ApiClient {
   getChatMember(chatId: string | number, userId: number): Promise<tt.ChatMember>
 
   /**
-   * Use this method to get the number of members in a chat
+   * @deprecated in favor of `getChatMemberCount`
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    * @returns Number on success
    */
   getChatMembersCount(chatId: string | number): Promise<number>
+
+  /**
+   * Use this method to get the number of members in a chat
+   * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
+   * @returns Number on success
+   */
+   getChatMemberCount(chatId: string | number): Promise<number>
 
   /**
    * Use this method to send answers to an inline query. On success, True is returned.
@@ -499,7 +506,20 @@ export declare class Telegram extends ApiClient {
   ): Promise<boolean>
 
   /**
-   * Use this method to kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * Use this method to ban a user in a group, a supergroup or a channel.
+   * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+   * @param userId Unique identifier of the target user
+   * @param extra Extra params
+   * @returns True on success
+   */
+   banChatMember(
+    chatId: number | string,
+    userId: number,
+    extra?: tt.ExtraBan
+  ): Promise<boolean>
+
+  /**
+   * @deprecated in favor of `banChatMember`
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
    * @param userId Unique identifier of the target user
    * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
@@ -548,6 +568,28 @@ export declare class Telegram extends ApiClient {
     chatId: string | number,
     userId: number,
     title: string
+  ): Promise<boolean>
+
+  /**
+   * Use this method to ban a channel chat in a supergroup or a channel. Until the chat is unbanned (@function unbanChatSenderChat), the owner of the banned chat won't be able to send messages on behalf of any of their channels. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights
+   * @param chatId Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   * @param senderChatId Unique identifier of the target sender chat
+   * @returns True on success
+   */
+  banChatSenderChat(
+    chatId: string | number,
+    senderChatId: number,
+  ): Promise<boolean>
+
+  /**
+   * Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights
+   * @param chatId Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   * @param senderChatId Unique identifier of the target sender chat
+   * @returns True on success
+   */
+  unbanChatSenderChat(
+    chatId: string | number,
+    senderChatId: number,
   ): Promise<boolean>
 
   /**
@@ -907,17 +949,34 @@ export declare class Telegram extends ApiClient {
   deleteStickerFromSet(sticker: string): Promise<boolean>
 
   /**
-   * Use this method to get the current list of the bot's commands. Requires no parameters.
+   * Use this method to get the current list of the bot's commands for the given scope and user language.
+   * @param extra Extra parameters for getMyCommands
    * @returns Array of BotCommand on success.
    */
-  getMyCommands(): Promise<tt.BotCommand[]>
+  getMyCommands(
+    extra?: tt.ExtraGetMyCommands
+  ): Promise<tt.BotCommand[]>
 
   /**
    * Use this method to change the list of the bot's commands.
    * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+   * @param extra Extra parameters for setMyCommands
    * @returns True on success
    */
-  setMyCommands(commands: tt.BotCommand[]): Promise<boolean>
+  setMyCommands(
+    commands: tt.BotCommand[],
+    extra?: tt.ExtraSetMyCommands
+  ): Promise<boolean>
+
+  /**
+   * Use this method to delete the list of the bot's commands for the given scope and user language.
+   * After deletion, higher level commands will be shown to affected users.
+   * @param extra Extra parameters for deleteMyCommands
+   * @returns True on success
+   */
+  deleteMyCommands(
+    extra?: tt.ExtraDeleteMyCommands
+  ): Promise<boolean>
 
   /**
    * Informs a user that some of the Telegram Passport elements they provided contains errors.
@@ -962,4 +1021,99 @@ export declare class Telegram extends ApiClient {
     messageId: number,
     extra?: tt.ExtraCopyMessage
   ): Promise<tt.MessageId>
+
+  /**
+   * Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method revokeChatInviteLink. Returns the new invite link as ChatInviteLink object.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param name Invite link name; 0-32 characters 
+   * @param extra Extra parameters for createChatInviteLink
+   * @returns the new invite link as ChatInviteLink object
+   */
+  createChatInviteLink(
+    chatId: number | string,
+    name: string,
+    extra?: tt.ExtraCreateChatIviteLink
+  ): Promise<tt.ChatInviteLink>
+
+  /**
+   * Use this method to edit a non-primary invite link created by the bot.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param inviteLink The invite link to edit
+   * @param extra Extra parameters for editChatInviteLink
+   * @returns the edited invite link as a ChatInviteLink object
+   */
+  editChatInviteLink(
+    chatId: number | string,
+    inviteLink: string,
+    extra?: tt.ExtraEditChatIviteLink
+  ): Promise<tt.ChatInviteLink>
+
+  /**
+   * Use this method to revoke an invite link created by the bot.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param inviteLink The invite link to revoke
+   * @returns the revoked invite link as a ChatInviteLink object
+   */
+  revokeChatInviteLink(
+    chatId: number | string,
+    inviteLink: string
+  ): Promise<tt.ChatInviteLink>
+
+  /**
+   * Use this method to approve a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param userId Unique identifier of the target user
+   */
+  approveChatJoinRequest(
+    chatId: number | string,
+    userId: number
+  ): Promise<boolean>
+
+  /**
+   * Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param userId Unique identifier of the target user
+   */
+  declineChatJoinRequest(
+    chatId: number | string,
+    userId: number
+  ): Promise<boolean>
+
+  /**
+   * Use this method to change the bot's menu button in a private chat, or the default menu button. Returns True on success.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param menuButton A JSON-serialized object for the bot's new menu button. Defaults to MenuButtonDefault
+   */
+  setChatMenuButton(
+    chatId?: number | string,
+    menuButton?: tt.MenuButton
+  ): Promise<boolean>
+
+  /**
+   * Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   */
+  getChatMenuButton(
+    chatId?: number | string,
+  ): Promise<tt.MenuButton>
+
+  /**
+   * Use this method to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels.
+   * These rights will be suggested to users, but they are are free to modify the list before adding the bot. Returns True on success.
+   * @param rights A JSON-serialized object describing new default administrator rights. If not specified, the default administrator rights will be cleared.
+   * @param forChannels Pass True to change the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be changed.
+   */
+  setMyDefaultAdministratorRights(
+    rights?: tt.ChatAdministratorRights,
+    forChannels?: boolean
+  ): Promise<boolean>
+
+  /**
+   * Use this method to get the current default administrator rights of the bot. Returns ChatAdministratorRights on success.
+   * @param forChannels Pass True to change the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be changed.
+   */
+  getMyDefaultAdministratorRights(
+    forChannels?: boolean
+  ): Promise<tt.ChatAdministratorRights>
+
 }

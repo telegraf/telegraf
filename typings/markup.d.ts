@@ -87,6 +87,8 @@ export declare class Markup<T extends tt.KeyboardMarkupBundle> {
 
   removeKeyboard(value?: boolean): Markup<tt.ReplyKeyboardRemove> & tt.ReplyKeyboardRemove
 
+  inputFieldPlaceholder<T extends tt.ReplyKeyboardMarkup | tt.ForceReply>(this: Markup<T> & T, placeholder: string): this
+
   selective<T extends tt.ReplyMarkupBundle>(this: Markup<T> & T, value?: boolean): this
 
   extra<T extends tt.KeyboardMarkupBundle>(this: Markup<T> & T, options?: tt.Extra): tt.ExtraReply<T> & Extra
@@ -140,7 +142,7 @@ export declare class Markup<T extends tt.KeyboardMarkupBundle> {
 
   static removeKeyboard(value?: string): Markup<tt.ReplyKeyboardRemove> & tt.ReplyKeyboardRemove
 
-  static forceReply(value?: string): Markup<tt.ForceReply> & tt.ForceReply
+  static forceReply(value?: boolean): Markup<tt.ForceReply> & tt.ForceReply
 
   static keyboard(
     buttons: KeyboardButton[] | KeyboardButton[][],
@@ -153,6 +155,8 @@ export declare class Markup<T extends tt.KeyboardMarkupBundle> {
   ): Markup<tt.InlineKeyboardMarkup> & tt.InlineKeyboardMarkup
 
   static resize(value?: boolean): Markup<tt.ReplyKeyboardMarkup>
+
+  static inputFieldPlaceholder(placeholder: string): Markup<tt.ReplyKeyboardMarkup | tt.ForceReply>
 
   static selective(value?: boolean): Markup<tt.ReplyMarkupBundle>
 

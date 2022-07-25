@@ -175,7 +175,11 @@ class Telegram extends ApiClient {
   }
 
   getChatMembersCount (chatId) {
-    return this.callApi('getChatMembersCount', { chat_id: chatId })
+    return this.callApi('getChatMemberCount', { chat_id: chatId })
+  }
+
+  getChatMemberCount (chatId) {
+    return this.callApi('getChatMemberCount', { chat_id: chatId })
   }
 
   answerInlineQuery (inlineQueryId, results, extra) {
@@ -186,8 +190,12 @@ class Telegram extends ApiClient {
     return this.callApi('setChatPermissions', { chat_id: chatId, permissions })
   }
 
+  banChatMember (chatId, userId, extra) {
+    return this.callApi('banChatMember', { chat_id: chatId, user_id: userId, ...extra })
+  }
+
   kickChatMember (chatId, userId, untilDate) {
-    return this.callApi('kickChatMember', { chat_id: chatId, user_id: userId, until_date: untilDate })
+    return this.callApi('banChatMember', { chat_id: chatId, user_id: userId, until_date: untilDate })
   }
 
   promoteChatMember (chatId, userId, extra) {
@@ -200,6 +208,14 @@ class Telegram extends ApiClient {
 
   setChatAdministratorCustomTitle (chatId, userId, title) {
     return this.callApi('setChatAdministratorCustomTitle', { chat_id: chatId, user_id: userId, custom_title: title })
+  }
+
+  banChatSenderChat (chatId, senderChatId) {
+    return this.callApi('banChatSenderChat', { chat_id: chatId, sender_chat_id: senderChatId })
+  }
+
+  unbanChatSenderChat (chatId, senderChatId) {
+    return this.callApi('unbanChatSenderChat', { chat_id: chatId, sender_chat_id: senderChatId })
   }
 
   exportChatInviteLink (chatId) {
@@ -403,12 +419,16 @@ class Telegram extends ApiClient {
     return this.callApi('deleteStickerFromSet', { sticker })
   }
 
-  getMyCommands () {
-    return this.callApi('getMyCommands')
+  getMyCommands (extra) {
+    return this.callApi('getMyCommands', extra)
   }
 
-  setMyCommands (commands) {
-    return this.callApi('setMyCommands', { commands })
+  setMyCommands (commands, extra) {
+    return this.callApi('setMyCommands', { commands, ...extra })
+  }
+
+  deleteMyCommands (extra) {
+    return this.callApi('deleteMyCommands', extra)
   }
 
   setPassportDataErrors (userId, errors) {
@@ -443,6 +463,69 @@ class Telegram extends ApiClient {
       from_chat_id: fromChatId,
       message_id: messageId,
       ...extra
+    })
+  }
+
+  createChatInviteLink (chatId, name, extra) {
+    return this.callApi('createChatInviteLink', {
+      chat_id: chatId,
+      name: name,
+      ...extra
+    })
+  }
+
+  editChatInviteLink (chatId, inviteLink, extra) {
+    return this.callApi('editChatInviteLink', {
+      chat_id: chatId,
+      invite_link: inviteLink,
+      ...extra
+    })
+  }
+
+  revokeChatInviteLink (chatId, inviteLink) {
+    return this.callApi('revokeChatInviteLink', {
+      chat_id: chatId,
+      invite_link: inviteLink
+    })
+  }
+
+  approveChatJoinRequest (chatId, userId) {
+    return this.callApi('approveChatJoinRequest', {
+      chat_id: chatId,
+      user_id: userId
+    })
+  }
+
+  declineChatJoinRequest (chatId, userId) {
+    return this.callApi('declineChatJoinRequest', {
+      chat_id: chatId,
+      user_id: userId
+    })
+  }
+
+  setChatMenuButton (chatId, menuButton) {
+    return this.callApi('setChatMenuButton', {
+      chat_id: chatId,
+      menu_button: menuButton
+    })
+  }
+
+  getChatMenuButton (chatId) {
+    return this.callApi('getChatMenuButton', {
+      chat_id: chatId
+    })
+  }
+
+  setMyDefaultAdministratorRights (rights, forChannels) {
+    return this.callApi('setMyDefaultAdministratorRights', {
+      rights: rights,
+      for_channels: forChannels
+    })
+  }
+
+  getMyDefaultAdministratorRights (forChannels) {
+    return this.callApi('getMyDefaultAdministratorRights', {
+      for_channels: forChannels
     })
   }
 }

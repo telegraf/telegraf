@@ -145,6 +145,16 @@ Use this method to delete bot messages.
 | chatId | `number/string` | Chat id |
 | messageId | `string` | Message id |
 
+## deleteMyCommands
+
+Use this method to delete the list of the bot's commands for the given scope and user language.
+
+`telegram.deleteMyCommands([extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#deletemycommands) |
+
 ## setStickerSetThumb
 
 Use this method to set the thumbnail of a sticker set.
@@ -309,6 +319,16 @@ Use this method to get a list of administrators in a chat. On success, returns a
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 
+## getMyDefaultAdministratorRights
+
+Use this method to get the current default administrator rights of the bot. Returns ChatAdministratorRights on success.
+
+`telegram.getMyDefaultAdministratorRights([forChannels]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [forChannels] | `boolean` | Pass True to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned. |
+
 ## setGameScore
 
 Use this method to set the score of the specified user in a game. On success, if the message was sent by the bot, returns the edited Message, otherwise returns True. Returns an error, if the new score is not greater than the user's current score in the chat.
@@ -352,12 +372,12 @@ Use this method to get information about a member of a chat.
 | chatId | `number/string` | Chat id |
 | userId | `number` |   User identifier |
 
-## getChatMembersCount
+## getChatMemberCount
 
 Use this method to get the number of members in a chat.
 
-`telegram.getChatMembersCount(chatId) => Promise`
-[Official documentation](https://core.telegram.org/bots/api#getchatmemberscount)
+`telegram.getChatMemberCount(chatId) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#getchatmembercount)
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -393,10 +413,23 @@ Returns basic information about the bot.
 
 ## getMyCommands
 
-Use this method to get the current list of the bot's commands. Requires no parameters. Returns Array of BotCommand on success.
+Use this method to get the current list of the bot's commands for the given scope and user language.
 
-`telegram.getMyCommands() => Promise`
-[Official documentation](https://core.telegram.org/bots/api#getmycommands)
+`telegram.getMyCommands([extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#getmycommands) |
+
+## getChatMenuButton
+
+Use this method to get the current value of the bot's menu button in a private chat, or the default menu button.
+
+`telegram.getChatMenuButton([chatId]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
 
 ## getStickerSet
 
@@ -433,17 +466,17 @@ Use this method to set default chat permissions for all members.
 | chatId | `number/string` | Chat id |
 | permissions | `object` | [New default chat permissions](https://core.telegram.org/bots/api#chatpermissions)|
 
-## kickChatMember
+## banChatMember
 
-Use this method to kick a user from a group or a supergroup.
+Use this method to ban a user in a group, a supergroup or a channel.
 
-`telegram.kickChatMember(chatId, userId, [extra]) => Promise`
+`telegram.banChatMember(chatId, userId, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
 | userId | `number` | User id |
-| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#kickchatmember)|
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#banchatmember)|
 
 ## restrictChatMember
 
@@ -481,6 +514,39 @@ New custom title for the administrator; 0-16 characters, emoji are not allowed
 | userId | `number` | User id |
 | title | `string` | Custom title |
 
+## setMyDefaultAdministratorRights
+
+Use this method to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels.
+
+`telegram.setMyDefaultAdministratorRights([rights], [forChannels]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [rights] | `object` | [ChatAdministratorRights](https://core.telegram.org/bots/api#chatadministratorrights) |
+| [forChannels] | `boolean` | Pass True to change the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be changed. |
+
+## banChatSenderChat
+
+Use this method to ban a channel chat in a supergroup or a channel. Until the chat is [unbanned](https://core.telegram.org/bots/api#unbanchatsenderchat), the owner of the banned chat won't be able to send messages on behalf of **any of their channels**. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights.
+
+`telegram.banChatSenderChat(chatId, senderChatId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| senderChatId | `number` | Sender chat id |
+
+## unbanChatSenderChat
+
+Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights.
+
+`telegram.unbanChatSenderChat(chatId, senderChatId) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| senderChatId | `number` | Sender chat id |
+
 ## exportChatInviteLink
 
 Use this method to export an invite link to a supergroup or a channel.
@@ -491,6 +557,66 @@ Use this method to export an invite link to a supergroup or a channel.
 | Param | Type | Description |
 | --- | --- | --- |
 | chatId | `number/string` | Chat id |
+
+## createChatInviteLink
+
+Use this method to create an additional invite link for a chat.
+
+`telegram.createChatInviteLink(chatId, name, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| name | `string` | Invite link name |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#createchatinvitelink) |
+
+## editChatInviteLink
+
+Use this method to edit a non-primary invite link created by the bot.
+
+`telegram.editChatInviteLink(chatId, inviteLink, [extra]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| inviteLink | `string` | The invite link to edit |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#editchatinvitelink) |
+
+## revokeChatInviteLink
+
+Use this method to revoke an invite link created by the bot.
+
+`telegram.revokeChatInviteLink(chatId, inviteLink) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#revokechatinvitelink)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| inviteLink | `string` | The invite link to revoke |
+
+## approveChatJoinRequest
+
+Use this method to approve a chat join request.
+
+`telegram.approveChatJoinRequest(chatId, userId) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#approvechatjoinrequest)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| userId | `number` | User id |
+
+## declineChatJoinRequest
+
+Use this method to decline a chat join request.
+
+`telegram.declineChatJoinRequest(chatId, userId) => Promise`
+[Official documentation](https://core.telegram.org/bots/api#declinechatjoinrequest)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| chatId | `number/string` | Chat id |
+| userId | `number` | User id |
 
 ## setChatPhoto
 
@@ -842,11 +968,23 @@ Sends a poll.
 
 Use this method to change the list of the bot's commands
 
-`telegram.setMyCommands(commands) => Promise`
+`telegram.setMyCommands(commands, [extra]) => Promise`
 
 | Param | Type | Description |
 | --- | --- | --- |
-| commands | `object[]` | [List of bot commands](https://core.telegram.org/bots/api#setmycommands) |
+| commands | `object[]` | [List of bot commands](https://core.telegram.org/bots/api#botcommand) |
+| [extra] | `object` | [Extra parameters](https://core.telegram.org/bots/api#setmycommands) |
+
+## setChatMenuButton
+
+Use this method to change the bot's menu button in a private chat, or the default menu button.
+
+`telegram.setChatMenuButton([chatId], [menuButton]) => Promise`
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [chatId] | `number/string` | Chat id |
+| [menuButton] | `object` | [MenuButton](https://core.telegram.org/bots/api#menubutton) |
 
 ## sendQuiz
 
@@ -914,7 +1052,7 @@ Specifies an url to receive incoming updates via an outgoing webhook.
 
 ## unbanChatMember
 
-Use this method to unban a previously kicked user in a supergroup.
+Use this method to unban a previously banned user in a supergroup or channel.
 
 `telegram.unbanChatMember(chatId, userId) => Promise`
 [Official documentation](https://core.telegram.org/bots/api#unbanchatmember)

@@ -1,4 +1,3 @@
-import { type } from 'os'
 import * as TT from 'typegram'
 
 export * from 'typegram'
@@ -7,11 +6,12 @@ export type ParseMode = 'Markdown' | 'MarkdownV2' | 'HTML'
 
 export type ChatAction =
   'typing' |
+  'choose_sticker' |
   'upload_photo' |
   'record_video' |
   'upload_video' |
-  'record_audio' |
-  'upload_audio' |
+  'record_voice' |
+  'upload_voice' |
   'upload_document' |
   'find_location' |
   'record_video_note' |
@@ -34,7 +34,9 @@ export type UpdateType =
   'pre_checkout_query' |
   'shipping_query' |
   'poll' |
-  'poll_answer'
+  'poll_answer' |
+  'my_chat_member' |
+  'chat_member'
 
 export type MessageSubTypes =
   'voice' |
@@ -67,7 +69,12 @@ export type MessageSubTypes =
   'connected_website' |
   'passport_data' |
   'poll' |
-  'forward'
+  'forward' |
+  'message_auto_delete_timer_changed' |
+  'voice_chat_started' |
+  'voice_chat_ended' |
+  'voice_chat_participants_invited' |
+  'voice_chat_scheduled'
 
 export type InputMediaTypes =
   'photo'
@@ -83,6 +90,7 @@ export type ChatMemberStatus =
   | 'restricted'
   | 'left'
   | 'kicked'
+
 export type MessageEntityType =
   'mention'
   | 'hashtag'
@@ -99,6 +107,7 @@ export type MessageEntityType =
   | 'text_link'
   | 'text_mention'
   | 'pre'
+  | 'spoiler'
 
 export type InlineQueryResult =
   TT.InlineQueryResultCachedAudio |
@@ -174,6 +183,7 @@ export interface StickerData {
   png_sticker: string | Buffer
   emojis: string
   mask_position: TT.MaskPosition
+  webm_sticker?: TT.InputFile
 }
 
 type FileId = string
@@ -276,6 +286,9 @@ export interface ExtraPromoteChatMember {
   /** Pass True, if the administrator can delete messages of other users */
   can_delete_messages?: boolean
 
+  /** Pass True, if the administrator can manage voice chats */
+  can_manage_video_chats?: boolean,
+
   /** Pass True, if the administrator can invite new users to the chat */
   can_invite_users?: boolean
 
@@ -366,7 +379,14 @@ export interface ExtraReplyMessage {
   allow_sending_without_reply?: boolean
 }
 
-export interface ExtraSendMessage extends ExtraFormatting, ExtraDisableWebPagePreview, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
+export interface ExtraProtectContent {
+  /**
+   * Protects the contents of the sent message from forwarding and saving 
+   */
+  protect_content?: boolean
+}
+
+export interface ExtraSendMessage extends ExtraFormatting, ExtraDisableWebPagePreview, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {}
 
 export interface ExtraEditMessage extends ExtraFormatting, ExtraDisableWebPagePreview, ExtraReplyMarkupInlineKeyboard {}
 
@@ -379,7 +399,7 @@ export interface ExtraUnpinMessage {
   message_id?: number
 }
 
-export interface ExtraAudio extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+export interface ExtraAudio extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {
 
   /**
    * Duration of the audio in seconds
@@ -405,7 +425,7 @@ export interface ExtraAudio extends ExtraCaption, ExtraDisableNotifications, Ext
   thumb?: InputFile
 }
 
-export interface ExtraDocument extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+export interface ExtraDocument extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {
   /**
    * Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
    * The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail‘s width and height should not exceed 320.
@@ -420,11 +440,11 @@ export interface ExtraDocument extends ExtraCaption, ExtraDisableNotifications, 
   disable_content_type_detection?: Boolean
 }
 
-export interface ExtraGame extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkupInlineKeyboard {}
+export interface ExtraGame extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkupInlineKeyboard, ExtraProtectContent {}
 
-export interface ExtraInvoice extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkupInlineKeyboard {}
+export interface ExtraInvoice extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkupInlineKeyboard, ExtraProtectContent {}
 
-export interface ExtraLocation extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+export interface ExtraLocation extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {
   /**
    * The radius of uncertainty for the location, measured in meters; 0-1500
    */
@@ -470,7 +490,7 @@ export interface ExtraEditLocation extends ExtraReplyMarkupInlineKeyboard {
 
 export interface ExtraStopLiveLocation extends ExtraReplyMarkupInlineKeyboard {}
 
-export interface ExtraVenue extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+export interface ExtraVenue extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {
   /**
    * Foursquare identifier of the venue
    */
@@ -492,7 +512,7 @@ export interface ExtraVenue extends ExtraDisableNotifications, ExtraReplyMessage
   google_place_type?: string
 }
 
-export interface ExtraContact extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+export interface ExtraContact extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {
   /**
    * Contact's last name
    */
@@ -504,15 +524,15 @@ export interface ExtraContact extends ExtraDisableNotifications, ExtraReplyMessa
   vcard?: string
 }
 
-export interface ExtraPhoto extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
+export interface ExtraPhoto extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {}
 
-export interface ExtraMediaGroup extends ExtraDisableNotifications, ExtraReplyMessage {}
+export interface ExtraMediaGroup extends ExtraDisableNotifications, ExtraReplyMessage, ExtraProtectContent {}
 
-export interface ExtraAnimation extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
+export interface ExtraAnimation extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {}
 
-export interface ExtraSticker extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
+export interface ExtraSticker extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {}
 
-export interface ExtraVideo extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+export interface ExtraVideo extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {
   /**
    * Duration of sent video in seconds
    */
@@ -542,7 +562,7 @@ export interface ExtraVideo extends ExtraCaption, ExtraDisableNotifications, Ext
   supports_streaming?: boolean
 }
 
-export interface ExtraVideoNote extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+export interface ExtraVideoNote extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {
   /**
    * Duration of sent video in seconds
    */
@@ -562,14 +582,14 @@ export interface ExtraVideoNote extends ExtraDisableNotifications, ExtraReplyMes
   thumb?: InputFile
 }
 
-export interface ExtraVoice extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+export interface ExtraVoice extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {
   /**
    * Duration of the voice message in seconds
    */
   duration?: number
 }
 
-export interface ExtraDice extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+export interface ExtraDice extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {
   /**
    * Emoji on which the dice throw animation is based.
    * Currently, must be one of “🎲”, “🎯”, “🏀”, “⚽”, or “🎰”.
@@ -579,7 +599,7 @@ export interface ExtraDice extends ExtraDisableNotifications, ExtraReplyMessage,
   emoji?: string
 }
 
-export interface ExtraPoll extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {
+export interface ExtraPoll extends ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {
   /** True, if the poll needs to be anonymous, defaults to True */
   is_anonymous?: boolean
 
@@ -630,7 +650,7 @@ export interface ExtraAnswerCallbackQuery {
   cache_time?: number
 }
 
-export interface ExtraCopyMessage extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup {}
+export interface ExtraCopyMessage extends ExtraCaption, ExtraDisableNotifications, ExtraReplyMessage, ExtraReplyMarkup, ExtraProtectContent {}
 
 export type Extra = ExtraSendMessage
   | ExtraEditMessage
@@ -661,9 +681,54 @@ export type Extra = ExtraSendMessage
   | ExtraCopyMessage
 
 export interface ExtraUnban {
-  /** Do nothing if the user is not banned */
+  /** 
+   * Do nothing if the user is not banned 
+   */
   only_if_banned?: Boolean
 }
+
+export interface ExtraBan {
+  /**
+   * Date when the user will be unbanned, unix time. 
+   * If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever.
+   * Applied for supergroups and channels only.
+   */
+   until_date?: number,
+
+   /**
+    * Pass True to delete all messages from the chat for the user that is being removed.
+    * If False, the user will be able to see messages in the group that were sent before the user was removed.
+    * Always True for supergroups and channels.
+    */
+    revoke_messages: boolean
+}
+
+interface ExtraChatIviteLink {
+  /**
+   * Invite link name; 0-32 characters
+   */
+  name?: string
+
+  /** 
+   * Point in time (Unix timestamp) when the link will expire 
+   */
+  expire_date?: number,
+
+  /** 
+   * Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
+   */
+  member_limit?: number
+  
+  /**
+   * True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified
+   */
+  creates_join_request?: boolean
+}
+
+
+export interface ExtraCreateChatIviteLink extends ExtraChatIviteLink {}
+
+export interface ExtraEditChatIviteLink extends ExtraChatIviteLink {}
 
 export type MessageAudio = TT.Message.AudioMessage
 export type MessageContact = TT.Message.ContactMessage
@@ -697,6 +762,13 @@ type ServiceMessageBundle = TT.Message.ChannelChatCreatedMessage
   & TT.Message.PinnedMessageMessage
   & TT.Message.SuccessfulPaymentMessage
   & TT.Message.SupergroupChatCreated
+  & TT.Message.MessageAutoDeleteTimerChangedMessage
+  & TT.Message.VideoChatStartedMessage
+  & TT.Message.VideoChatEndedMessage
+  & TT.Message.VideoChatEndedMessage
+  & TT.Message.VideoChatScheduledMessage
+  & TT.Message.VideoChatParticipantsInvitedMessage
+  & TT.Message.WebAppDataMessage
 
 type CommonMessageBundle = TT.Message.AnimationMessage
   & TT.Message.AudioMessage
@@ -727,10 +799,10 @@ export type Update = TT.Update.CallbackQueryUpdate
   & TT.Update.PollAnswerUpdate
   & TT.Update.PollUpdate
   & TT.Update.ShippingQueryUpdate
+  & TT.Update.MyChatMemberUpdate
+  & TT.Update.ChatMemberUpdate
 
-export interface CallbackQuery extends TT.CallbackQuery.DataCallbackQuery, TT.CallbackQuery.GameShortGameCallbackQuery {
-  message: Message
-}
+export type CallbackQuery = TT.CallbackQuery
 
 export interface NewInvoiceParameters {
   /**
@@ -754,9 +826,11 @@ export interface NewInvoiceParameters {
   provider_token: string
 
   /**
-   * Unique deep-linking parameter that can be used to generate this invoice when used as a start parameter
+   * Unique deep-linking parameter.
+   * If left empty, forwarded copies of the sent message will have a Pay button, allowing multiple users to pay directly from the forwarded message, using the same invoice.
+   * If non-empty, forwarded copies of the sent message will have a URL button with a deep link to the bot (instead of a Pay button), with the value used as the start parameter
    */
-  start_parameter: string
+  start_parameter?: string
 
   /**
    * Three-letter ISO 4217 currency code, see more on currencies
@@ -767,6 +841,20 @@ export interface NewInvoiceParameters {
    * Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
    */
   prices: TT.LabeledPrice[]
+
+  /**
+   * The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double).
+   * For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145.
+   * Defaults to 0
+   */
+  max_tip_amount: number
+
+  /**
+   * A JSON-serialized array of suggested amounts of tips in the smallest units of the currency (integer, not float/double).
+   * At most 4 suggested tip amounts can be specified.
+   * The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount.
+   */
+  suggested_tip_amounts: number[]
 
   /**
    * URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for.
@@ -842,6 +930,140 @@ export interface ExtraAnswerInlineQuery {
 }
 
 /**
+ * Represents the default scope of bot commands.
+ * Default commands are used if no commands with a narrower scope are specified for the user.
+ */
+export interface BotCommandScopeDefault {
+  /**
+   * Scope type
+   */
+  type: 'default'
+}
+
+/**
+ * Represents the scope of bot commands, covering all private chats.
+ */
+export interface BotCommandScopeAllPrivateChats {
+  /**
+   * Scope type
+   */
+  type: 'all_private_chats'
+}
+
+/**
+ * Represents the scope of bot commands, covering all group and supergroup chats.
+ */
+export interface BotCommandScopeAllGroupChats {
+  /**
+   * Scope type
+   */
+  type: 'all_groups_chats'
+}
+
+/**
+ * Represents the scope of bot commands, covering all group and supergroup chat administrators.
+ */
+export interface BotCommandScopeAllChatAdministrators {
+  /**
+   * Scope type
+   */
+  type: 'all_chat_administrators'
+}
+
+/**
+ * Represents the scope of bot commands, covering a specific chat.
+ */
+export interface BotCommandScopeChat {
+  /**
+   * Scope type
+   */
+  type: 'chat'
+
+  /**
+   * Unique identifier for the target chat or username of the target supergroup
+   */
+  chat_id: number | string
+}
+
+/**
+ * Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
+ */
+export interface BotCommandScopeChatAdministrators {
+  /**
+   * Scope type
+   */
+  type: 'chat_administrators'
+
+  /**
+   * Unique identifier for the target chat or username of the target supergroup
+   */
+  chat_id: number | string
+}
+
+/**
+ * Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
+ */
+export interface BotCommandScopeChatMember {
+  /**
+   * Scope type
+   */
+  type: 'chat_member'
+
+  /**
+   * Unique identifier for the target chat or username of the target supergroup
+   */
+  chat_id: number | string
+
+   /**
+    * Unique identifier of the target user
+    */
+  user_id: number
+}
+
+/**
+ * This object represents the scope to which bot commands are applied.
+ */
+export type BotCommandScope = 
+  BotCommandScopeDefault
+  | BotCommandScopeAllPrivateChats
+  | BotCommandScopeAllGroupChats
+  | BotCommandScopeAllChatAdministrators
+  | BotCommandScopeChat
+  | BotCommandScopeChatAdministrators
+  | BotCommandScopeChatMember
+
+export interface ExtraScope {
+  /**
+   * A JSON-serialized object, describing scope of users for which the commands are relevant.
+   * Defaults to BotCommandScopeDefault.
+   */
+  scope?: BotCommandScope
+}
+
+export interface ExtraSetMyCommands extends ExtraScope {
+  /**
+   * A two-letter ISO 639-1 language code.
+   * If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+   */
+   language_code?: string
+}
+
+export interface ExtraDeleteMyCommands extends ExtraScope {
+  /**
+   * A two-letter ISO 639-1 language code.
+   * If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+   */
+   language_code?: string
+}
+
+export interface ExtraGetMyCommands extends ExtraScope {
+  /**
+   * A two-letter ISO 639-1 language code or an empty string
+   */
+   language_code?: string
+}
+
+/**
  * This object represents a bot command
  */
 export interface BotCommand {
@@ -855,3 +1077,11 @@ export interface BotCommand {
    */
   description: string
 }
+
+export type ChatInviteLink = TT.ChatInviteLink
+
+export type MenuButton = TT.MenuButton
+
+export type ChatAdministratorRights = TT.ChatAdministratorRights
+
+export type SentWebAppMessage = TT.SentWebAppMessage

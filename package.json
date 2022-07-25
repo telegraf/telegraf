@@ -31,7 +31,7 @@
   },
   "type": "commonjs",
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
@@ -40,7 +40,7 @@
     "module-alias": "^2.2.2",
     "node-fetch": "^2.2.0",
     "sandwich-stream": "^2.0.1",
-    "typegram": "^3.1.5"
+    "typegram": "^3.10.0"
   },
   "devDependencies": {
     "@types/node": "^13.1.0",

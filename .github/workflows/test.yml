@@ -1,0 +1,27 @@
+name: CI test
+
+on:
+  pull_request: {}
+  push:
+    branches: [ v? ]
+    paths-ignore:
+      - 'docs/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10, 11, 12, 14, 15, 16, 17]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm install
+    - run: npm run --silent lint
+    - run: npm run --silent typecheck
+    - run: npm test --silent

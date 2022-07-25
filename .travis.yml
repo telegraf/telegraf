@@ -1,10 +1,14 @@
+# DEPRECATED in favor GitHub Actions
+
 language: node_js
 node_js:
-  - 8
-  - 9
   - 10
   - 11
   - 12
+  - 14
+  - 15
+  - 16
+  - 17
 script:
   - npm run lint
   - npm run typecheck

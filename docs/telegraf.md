@@ -21,6 +21,7 @@ Telegraf options:
 
 ```js
 {
+  parseMode: '',        // Global parse_mode for sendMessage (optional)
   telegram: {           // Telegram options
     agent: null,        // https.Agent instance, allows custom proxy, certificate, keep alive, etc.
     webhookReply: true  // Reply via webhook

@@ -200,7 +200,7 @@ const markup = new Markup
 markup.keyboard([Markup.button('sample')], {})
 Markup.inlineKeyboard([Markup.callbackButton('sampleText', 'sampleData')], {})
 Markup.inlineKeyboard([Markup.callbackButton('sampleCallbackButton', 'sampleData'), Markup.urlButton('sampleUrlButton', 'https://github.com')], {})
-
+Markup.forceReply().inputFieldPlaceholder('placeholder')
 
 // #761
 bot.telegram.sendPhoto(1, randomPhoto, { caption: '*Caption*', parse_mode: 'Markdown' });

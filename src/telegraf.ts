@@ -38,6 +38,10 @@ export namespace Telegraf {
     telegram?: Partial<ApiClient.Options>
   }
 
+  export interface WebhookCallback {
+    (webhookHandler: http.RequestListener): http.RequestListener
+  }
+
   export interface LaunchOptions {
     dropPendingUpdates?: boolean
     /** List the types of updates you want your bot to receive */
@@ -65,7 +69,9 @@ export namespace Telegraf {
       /** TLS server options. Omit to use http. */
       tlsOptions?: TlsOptions
 
-      cb?: http.RequestListener
+      secretToken?: string
+
+      cb?: Telegraf.WebhookCallback
     }
   }
 }
@@ -135,18 +141,22 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     })
   }
 
-  private startWebhook(
-    hookPath: string,
-    tlsOptions?: TlsOptions,
-    port?: number,
-    host?: string,
-    cb?: http.RequestListener
-  ) {
+  private startWebhook(config: {
+    hookPath?: string
+    tlsOptions?: TlsOptions
+    secretToken?: string
+    port?: number
+    host?: string
+    cb?: Telegraf.WebhookCallback
+  }) {
+    const { hookPath, tlsOptions, secretToken, port, host, cb } = config
     const webhookCb = this.webhookCallback(hookPath)
     const callback: http.RequestListener =
       typeof cb === 'function'
-        ? (req, res) => webhookCb(req, res, () => cb(req, res))
-        : webhookCb
+        ? cb(webhookCb)
+        : (req, res) =>
+            req.headers['x-telegram-bot-api-secret-token'] === secretToken &&
+            webhookCb(req, res)
     this.webhookServer =
       tlsOptions != null
         ? https.createServer(tlsOptions, callback)
@@ -192,8 +202,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     }
     const hookPath =
       config.webhook.hookPath ?? `/telegraf/${this.secretPathComponent()}`
-    const { port, host, tlsOptions, cb } = config.webhook
-    this.startWebhook(hookPath, tlsOptions, port, host, cb)
+    this.startWebhook(config.webhook)
     if (!domain) {
       debug('Bot started with webhook')
       return
@@ -203,6 +212,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       allowed_updates: config.allowedUpdates,
       ip_address: config.webhook.ipAddress,
       max_connections: config.webhook.maxConnections,
+      secret_token: config.webhook.secretToken,
     })
     debug(`Bot started with webhook @ https://${domain}`)
   }

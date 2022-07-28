@@ -42,6 +42,7 @@ export type ExtraCopyMessage = MakeExtra<
   'from_chat_id' | 'message_id'
 >
 export type ExtraCreateChatInviteLink = MakeExtra<'createChatInviteLink'>
+export type NewInvoiceLinkParameters = MakeExtra<'createInvoiceLink'>
 export type ExtraCreateNewStickerSet = MakeExtra<
   'createNewStickerSet',
   'name' | 'title' | 'user_id'

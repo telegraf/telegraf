@@ -580,6 +580,12 @@ export class Telegram extends ApiClient {
     })
   }
 
+  createInvoiceLink(invoice: tt.NewInvoiceLinkParameters) {
+    return this.callApi('createInvoiceLink', {
+      ...invoice,
+    })
+  }
+
   editChatInviteLink(
     chatId: number | string,
     inviteLink: string,

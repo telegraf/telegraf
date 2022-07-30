@@ -141,15 +141,14 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     })
   }
 
-  private startWebhook(config: {
-    hookPath?: string
-    tlsOptions?: TlsOptions
+  private startWebhook(
+    hookPath: string,
+    tlsOptions?: TlsOptions,
+    port?: number,
+    host?: string,
+    cb?: Telegraf.WebhookCallback,
     secretToken?: string
-    port?: number
-    host?: string
-    cb?: Telegraf.WebhookCallback
-  }) {
-    const { hookPath, tlsOptions, secretToken, port, host, cb } = config
+  ) {
     const webhookCb = this.webhookCallback(hookPath)
     const callback: http.RequestListener =
       typeof cb === 'function'
@@ -202,7 +201,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     }
     const hookPath =
       config.webhook.hookPath ?? `/telegraf/${this.secretPathComponent()}`
-    this.startWebhook(config.webhook)
+    const { tlsOptions, port, host, cb, secretToken } = config.webhook
+    this.startWebhook(hookPath, tlsOptions, port, host, cb, secretToken)
     if (!domain) {
       debug('Bot started with webhook')
       return

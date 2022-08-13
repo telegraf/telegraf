@@ -1,11 +1,10 @@
 import * as http from 'http'
 import d from 'debug'
 import { type Update } from '../types/typegram'
-import safeCompare = require('safe-compare')
 const debug = d('telegraf:webhook')
 
-export default function (
-  hookPath: string,
+export default function generateWebhook(
+  filter: (req: http.IncomingMessage) => boolean,
   updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>
 ) {
   return async (
@@ -18,8 +17,9 @@ export default function (
     }
   ): Promise<void> => {
     debug('Incoming request', req.method, req.url)
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    if (req.method !== 'POST' || !safeCompare(hookPath, req.url!)) {
+
+    if (!filter(req)) {
+      debug('Webhook filter failed', req.method, req.url)
       return next()
     }
 

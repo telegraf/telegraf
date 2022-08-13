@@ -15,6 +15,7 @@ import pTimeout from 'p-timeout'
 import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
+import safeCompare = require('safe-compare')
 const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
@@ -36,10 +37,6 @@ export namespace Telegraf {
     ) => TContext
     handlerTimeout: number
     telegram?: Partial<ApiClient.Options>
-  }
-
-  export interface WebhookCallback {
-    (webhookHandler: http.RequestListener): http.RequestListener
   }
 
   export interface LaunchOptions {
@@ -71,7 +68,7 @@ export namespace Telegraf {
 
       secretToken?: string
 
-      cb?: Telegraf.WebhookCallback
+      cb?: http.RequestListener
     }
   }
 }
@@ -84,6 +81,41 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   public botInfo?: tg.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<C> = {}
+  public webhookFilter: (opts: {
+    hookPath: string
+    secretToken?: string
+  }) => (req: http.IncomingMessage) => boolean = ({
+    hookPath,
+    secretToken,
+  }) => {
+    const debug = d('telegraf:webhook')
+
+    debug('Filter path', hookPath)
+    debug('Filter secret', secretToken)
+
+    return (req) => {
+      if (req.method !== 'POST') {
+        debug('Unexpected request method. Expected POST, received:', req.method)
+        return false
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      if (!safeCompare(hookPath, req.url!)) {
+        debug('Path does not match:', req.url, hookPath)
+        return false
+      }
+
+      if (!secretToken) return true
+
+      const requestToken = req.headers['x-telegram-bot-api-secret-token']
+      if (!safeCompare(requestToken as string, secretToken)) {
+        debug('Secret token does not match:', req.url, hookPath)
+        return false
+      }
+
+      return true
+    }
+  }
 
   private handleError = (err: unknown, ctx: C): MaybePromise<void> => {
     // set exit code to emulate `warn-with-error-code` behavior of
@@ -126,12 +158,26 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return this
   }
 
-  webhookCallback(path = '/') {
+  /**
+   * You should probably use {@link Telegraf.setWebhook} instead
+   */
+  webhookCallback(hookPath = '/', opts: { secretToken?: string } = {}) {
+    const { secretToken } = opts
     return generateCallback(
-      path,
+      this.webhookFilter({ hookPath, secretToken }),
       (update: tg.Update, res: http.ServerResponse) =>
         this.handleUpdate(update, res)
     )
+  }
+
+  /**
+   * Specify a url to receive incoming updates via an outgoing webhook.
+   * Returns an Express-style middleware you can pass to app.use()
+   */
+  async setWebhook(url: string, extra: tt.ExtraSetWebhook) {
+    await this.telegram.setWebhook(url, extra)
+    const u = new URL(url)
+    return this.webhookCallback(u.pathname, { secretToken: extra.secret_token })
   }
 
   private startPolling(allowedUpdates: tt.UpdateType[] = []) {
@@ -146,16 +192,14 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     tlsOptions?: TlsOptions,
     port?: number,
     host?: string,
-    cb?: Telegraf.WebhookCallback,
+    cb?: http.RequestListener,
     secretToken?: string
   ) {
-    const webhookCb = this.webhookCallback(hookPath)
+    const webhookCb = this.webhookCallback(hookPath, { secretToken })
     const callback: http.RequestListener =
       typeof cb === 'function'
-        ? cb(webhookCb)
-        : (req, res) =>
-            req.headers['x-telegram-bot-api-secret-token'] === secretToken &&
-            webhookCb(req, res)
+        ? (req, res) => webhookCb(req, res, () => cb(req, res))
+        : webhookCb
     this.webhookServer =
       tlsOptions != null
         ? https.createServer(tlsOptions, callback)

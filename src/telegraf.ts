@@ -27,6 +27,7 @@ const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
 function always<T>(x: T) {
   return () => x
 }
+
 const anoop = always(Promise.resolve())
 
 // eslint-disable-next-line
@@ -73,6 +74,8 @@ export namespace Telegraf {
   }
 }
 
+const TOKEN_HEADER = 'x-telegram-bot-api-secret-token'
+
 export class Telegraf<C extends Context = Context> extends Composer<C> {
   private readonly options: Telegraf.Options<C>
   private webhookServer?: http.Server | https.Server
@@ -81,40 +84,32 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   public botInfo?: tg.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<C> = {}
-  public webhookFilter: (opts: {
-    hookPath: string
-    secretToken?: string
-  }) => (req: http.IncomingMessage) => boolean = ({
-    hookPath,
-    secretToken,
-  }) => {
+
+  /** Assign to this to customise the webhook filter middleware.
+   * `{ hookPath, secretToken }` will be bound to this rather than the Telegraf instance.
+   * Remember to assign a regular function and not an arrow function so it's bindable.
+   */
+  public webhookFilter = function (
+    // NOTE: this function is assigned to a variable instead of being a method to signify that it's assignable
+    // NOTE: the `this` binding is so custom impls don't need to double wrap
+    this: { hookPath: string; secretToken?: string },
+    req: http.IncomingMessage
+  ) {
     const debug = d('telegraf:webhook')
 
-    debug('Filter path', hookPath)
-    debug('Filter secret', secretToken)
+    if (req.method === 'POST') {
+      if (safeCompare(this.hookPath, req.url as string)) {
+        // no need to check if secret_token was not set
+        if (!this.secretToken) return true
+        else {
+          const token = req.headers[TOKEN_HEADER] as string
+          if (safeCompare(token, this.secretToken)) return true
+          else debug('Secret token does not match:', token, this.secretToken)
+        }
+      } else debug('Path does not match:', req.url, this.hookPath)
+    } else debug('Unexpected request method, not POST. Received:', req.method)
 
-    return (req) => {
-      if (req.method !== 'POST') {
-        debug('Unexpected request method. Expected POST, received:', req.method)
-        return false
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      if (!safeCompare(hookPath, req.url!)) {
-        debug('Path does not match:', req.url, hookPath)
-        return false
-      }
-
-      if (!secretToken) return true
-
-      const requestToken = req.headers['x-telegram-bot-api-secret-token']
-      if (!safeCompare(requestToken as string, secretToken)) {
-        debug('Secret token does not match:', req.url, hookPath)
-        return false
-      }
-
-      return true
-    }
+    return false
   }
 
   private handleError = (err: unknown, ctx: C): MaybePromise<void> => {
@@ -159,12 +154,13 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   }
 
   /**
-   * You should probably use {@link Telegraf.setWebhook} instead
+   * You must call `bot.telegram.setWebhook` for this to work.
+   * You should probably use {@link Telegraf.createWebhook} instead.
    */
   webhookCallback(hookPath = '/', opts: { secretToken?: string } = {}) {
     const { secretToken } = opts
     return generateCallback(
-      this.webhookFilter({ hookPath, secretToken }),
+      this.webhookFilter.bind({ hookPath, secretToken }),
       (update: tg.Update, res: http.ServerResponse) =>
         this.handleUpdate(update, res)
     )

@@ -197,7 +197,9 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     await this.telegram.setWebhook(domainOpts.url, extra)
     debug(`Webhook set to ${domainOpts.url}`)
 
-    return this.webhookCallback(path, { secretToken: extra.secret_token })
+    return this.webhookCallback(domainOpts.path, {
+      secretToken: extra.secret_token,
+    })
   }
 
   private startPolling(allowedUpdates: tt.UpdateType[] = []) {

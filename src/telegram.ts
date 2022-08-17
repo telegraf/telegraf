@@ -999,6 +999,10 @@ export class Telegram extends ApiClient {
     return this.callApi('deleteStickerFromSet', { sticker })
   }
 
+  getCustomEmojiStickers(custom_emoji_ids: string[]) {
+    return this.callApi('getCustomEmojiStickers', { custom_emoji_ids })
+  }
+
   /**
    * Get the current list of the bot's commands.
    */

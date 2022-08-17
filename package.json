@@ -61,7 +61,7 @@
     "p-timeout": "^4.1.0",
     "safe-compare": "^1.1.4",
     "sandwich-stream": "^2.0.2",
-    "typegram": "^3.10.0"
+    "typegram": "github:MKRhere/typegram#e2ba9f01f14b96c6dbb1c617e66692a3cc776cf6"
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",

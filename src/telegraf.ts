@@ -3,7 +3,6 @@ import * as http from 'http'
 import * as https from 'https'
 import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
-import * as util from 'util'
 import { Composer, MaybePromise } from './composer'
 import ApiClient from './core/network/client'
 import { compactOptions } from './core/helpers/compact'
@@ -141,6 +140,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     this.telegram.webhookReply = webhookReply
   }
 
+  /** @deprecated use `ctx.telegram.webhookReply` */
   get webhookReply() {
     return this.telegram.webhookReply
   }
@@ -204,8 +204,9 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
   private startPolling(allowedUpdates: tt.UpdateType[] = []) {
     this.polling = new Polling(this.telegram, allowedUpdates)
-    this.polling.loop(async (updates) => {
-      await this.handleUpdates(updates)
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.polling.loop(async (update) => {
+      await this.handleUpdate(update)
     })
   }
 
@@ -285,13 +286,6 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     }
     this.webhookServer?.close()
     this.polling?.stop()
-  }
-
-  private handleUpdates(updates: readonly tg.Update[]) {
-    if (!Array.isArray(updates)) {
-      throw new TypeError(util.format('Updates must be an array, got', updates))
-    }
-    return Promise.all(updates.map((update) => this.handleUpdate(update)))
   }
 
   private botInfoCall?: Promise<tg.UserFromGetMe>

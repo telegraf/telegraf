@@ -4,13 +4,16 @@ import debug from 'debug'
 import path from 'path'
 import parse from 'minimist'
 import { addAlias } from 'module-alias'
-// @ts-expect-error
+
+// @ts-expect-error Telegraf doesn't build JS and d.ts in the same place, that needs to be fixed
 import { Telegraf as _Telegraf } from '../lib/index.js'
 import type { Telegraf as Tf, Context, Middleware } from '../typings/index.js'
 import type { RequestListener } from 'http'
 import type { TlsOptions } from 'tls'
-import { pathToFileURL } from 'url'
 
+import esMain from 'es-main'
+
+// hack to type Telegraf correctly
 const Telegraf: typeof Tf = _Telegraf
 
 const log = debug('telegraf:cli')
@@ -160,5 +163,5 @@ export async function main(argv: string[], env: Env = {}) {
 }
 
 // run main if called from command line and not imported from another file
-if (import.meta.url === pathToFileURL(process.argv[1]!).href)
+if (esMain(import.meta))
   process.exitCode = await main(process.argv, process.env as Env)

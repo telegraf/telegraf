@@ -34,7 +34,7 @@
     "types.*"
   ],
   "bin": {
-    "telegraf": "bin/telegraf"
+    "telegraf": "bin/telegraf.mjs"
   },
   "scripts": {
     "prepare": "npm run --silent build",

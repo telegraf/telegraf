@@ -27,8 +27,7 @@ const helpMsg = `Usage: telegraf [opts] <bot-file>
   -l  Enable logs
   -h  Show this help message
   -m  Bot API method to run directly
-  -D  Data to pass to the Bot API method
-`.trim()
+  -D  Data to pass to the Bot API method`
 
 const help = () => console.log(helpMsg)
 
@@ -99,7 +98,9 @@ export async function main(argv: string[], env: Env = {}) {
 
   if (!file) {
     try {
-      const packageJson = require(path.resolve(process.cwd(), 'package.json'))
+      const packageJson = (await import(
+        path.resolve(process.cwd(), 'package.json')
+      )) as { main?: string }
       file = packageJson.main || 'index.js'
     } catch (err) {}
   }

@@ -90,7 +90,7 @@ To use the [Telegram Bot API](https://core.telegram.org/bots/api),
 you first have to [get a bot account](https://core.telegram.org/bots) 
 by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
-BotFather will give you a *token*, something like `123456789:AbCdfGhIJKlmNoQQRsTUVwxyZ`.
+BotFather will give you a *token*, something like `123456789:AbCdefGhIJKlmNoPQRsTUVwxyZ`.
 
 ### Installation
 

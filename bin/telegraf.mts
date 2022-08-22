@@ -37,31 +37,50 @@ export type Expand<T> = T extends object
     : never
   : T
 
-type Parsed = Expand<
-  Partial<Record<'token' | 'domain' | 'method' | 'data', string>> &
-    Record<'logs' | 'help', boolean> & {
-      host: string
-      port: string
-      _: [program: string, entryfile: string, ...paths: string[]]
-    }
->
+type Parsed = {
+  // string params, all optional
+  token?: string
+  domain?: string
+  method?: string
+  data?: string
 
-type Env = { BOT_TOKEN?: string; BOT_DOMAIN?: string; PORT?: string }
+  // defaults exist
+  host: string
+  port: string
+
+  // boolean params
+  logs: boolean
+  help: boolean
+
+  // argv
+  _: [program: string, entryfile: string, ...paths: string[]]
+}
+
+type Env = {
+  BOT_TOKEN?: string
+  BOT_DOMAIN?: string
+  PORT?: string
+}
 
 /**
- * Runs the cli and returns exit code
+ * Runs the cli program and returns exit code
  */
 export async function main(argv: string[], env: Env = {}) {
   const args = parse(argv, {
     alias: {
+      // string params, all optional
       t: 'token',
       d: 'domain',
-      H: 'host',
-      p: 'port',
-      l: 'logs',
-      h: 'help',
       m: 'method',
       D: 'data',
+
+      // defaults exist
+      H: 'host',
+      p: 'port',
+
+      // boolean params
+      l: 'logs',
+      h: 'help',
     },
     boolean: ['h', 'l'],
     default: {
@@ -139,10 +158,10 @@ export async function main(argv: string[], env: Env = {}) {
     const config: Tf.LaunchOptions = {}
     if (domain) {
       config.webhook = {
-        tlsOptions,
+        domain,
         host: args.host,
         port: Number(args.port),
-        domain: domain,
+        tlsOptions,
         cb: httpHandler,
       }
     }

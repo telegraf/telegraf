@@ -2,6 +2,7 @@ import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import { Deunionize, PropOr, UnionKeys } from './deunionize'
 import ApiClient from './core/network/client'
+import { deprecate } from './util'
 import Telegram from './telegram'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
@@ -173,7 +174,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.telegram.webhookReply = enable
   }
 
-  private assert<T extends string | object>(
+  /**
+   * @internal
+   */
+  assert<T extends string | object>(
     value: T | undefined,
     method: string
   ): asserts value is T {
@@ -351,9 +355,22 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendmessage
    */
-  reply(this: Context, ...args: Shorthand<'sendMessage'>) {
-    this.assert(this.chat, 'reply')
+  sendMessage(this: Context, ...args: Shorthand<'sendMessage'>) {
+    this.assert(this.chat, 'sendMessage')
     return this.telegram.sendMessage(this.chat.id, ...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendmessage
+   */
+  reply(this: Context, ...args: Shorthand<'sendMessage'>) {
+    deprecate(
+      'ctx.reply',
+      'reply',
+      'sendMessage',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendMessage(...args)
   }
 
   /**
@@ -573,115 +590,297 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithphoto
+   * @see https://core.telegram.org/bots/api#sendphoto
    */
-  replyWithPhoto(this: Context, ...args: Shorthand<'sendPhoto'>) {
-    this.assert(this.chat, 'replyWithPhoto')
+  sendPhoto(this: Context, ...args: Shorthand<'sendPhoto'>) {
+    this.assert(this.chat, 'sendPhoto')
     return this.telegram.sendPhoto(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithmediagroup
+   * @see https://core.telegram.org/bots/api#sendphoto
    */
-  replyWithMediaGroup(this: Context, ...args: Shorthand<'sendMediaGroup'>) {
-    this.assert(this.chat, 'replyWithMediaGroup')
+  replyWithPhoto(this: Context, ...args: Shorthand<'sendPhoto'>) {
+    deprecate(
+      'ctx.replyWithPhoto',
+      'reply',
+      'sendPhoto',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendPhoto(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendmediagroup
+   */
+  sendMediaGroup(this: Context, ...args: Shorthand<'sendMediaGroup'>) {
+    this.assert(this.chat, 'sendMediaGroup')
     return this.telegram.sendMediaGroup(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithaudio
+   * @see https://core.telegram.org/bots/api#sendmediagroup
    */
-  replyWithAudio(this: Context, ...args: Shorthand<'sendAudio'>) {
-    this.assert(this.chat, 'replyWithAudio')
+  replyWithMediaGroup(this: Context, ...args: Shorthand<'sendMediaGroup'>) {
+    deprecate(
+      'ctx.replyWithMediaGroup',
+      'reply',
+      'sendMediaGroup',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendMediaGroup(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendaudio
+   */
+  sendAudio(this: Context, ...args: Shorthand<'sendAudio'>) {
+    this.assert(this.chat, 'sendAudio')
     return this.telegram.sendAudio(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithdice
+   * @see https://core.telegram.org/bots/api#sendaudio
    */
-  replyWithDice(this: Context, ...args: Shorthand<'sendDice'>) {
-    this.assert(this.chat, 'replyWithDice')
+  replyWithAudio(this: Context, ...args: Shorthand<'sendAudio'>) {
+    deprecate(
+      'ctx.replyWithAudio',
+      'reply',
+      'sendAudio',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendAudio(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#senddice
+   */
+  sendDice(this: Context, ...args: Shorthand<'sendDice'>) {
+    this.assert(this.chat, 'sendDice')
     return this.telegram.sendDice(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithdocument
+   * @see https://core.telegram.org/bots/api#senddice
    */
-  replyWithDocument(this: Context, ...args: Shorthand<'sendDocument'>) {
-    this.assert(this.chat, 'replyWithDocument')
+  replyWithDice(this: Context, ...args: Shorthand<'sendDice'>) {
+    deprecate(
+      'ctx.replyWithDice',
+      'reply',
+      'sendDice',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendDice(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#senddocument
+   */
+  sendDocument(this: Context, ...args: Shorthand<'sendDocument'>) {
+    this.assert(this.chat, 'sendDocument')
     return this.telegram.sendDocument(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithsticker
+   * @see https://core.telegram.org/bots/api#senddocument
    */
-  replyWithSticker(this: Context, ...args: Shorthand<'sendSticker'>) {
-    this.assert(this.chat, 'replyWithSticker')
+  replyWithDocument(this: Context, ...args: Shorthand<'sendDocument'>) {
+    deprecate(
+      'ctx.replyWithDocument',
+      'reply',
+      'sendDocument',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendDocument(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendsticker
+   */
+  sendSticker(this: Context, ...args: Shorthand<'sendSticker'>) {
+    this.assert(this.chat, 'sendSticker')
     return this.telegram.sendSticker(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithvideo
+   * @see https://core.telegram.org/bots/api#sendsticker
    */
-  replyWithVideo(this: Context, ...args: Shorthand<'sendVideo'>) {
-    this.assert(this.chat, 'replyWithVideo')
+  replyWithSticker(this: Context, ...args: Shorthand<'sendSticker'>) {
+    deprecate(
+      'ctx.replyWithSticker',
+      'reply',
+      'sendSticker',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendSticker(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendvideo
+   */
+  sendVideo(this: Context, ...args: Shorthand<'sendVideo'>) {
+    this.assert(this.chat, 'sendVideo')
     return this.telegram.sendVideo(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithanimation
+   * @see https://core.telegram.org/bots/api#sendvideo
    */
-  replyWithAnimation(this: Context, ...args: Shorthand<'sendAnimation'>) {
-    this.assert(this.chat, 'replyWithAnimation')
+  replyWithVideo(this: Context, ...args: Shorthand<'sendAudio'>) {
+    deprecate(
+      'ctx.replyWithVideo',
+      'reply',
+      'sendVideo',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendVideo(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendanimation
+   */
+  sendAnimation(this: Context, ...args: Shorthand<'sendAnimation'>) {
+    this.assert(this.chat, 'sendAnimation')
     return this.telegram.sendAnimation(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithvideonote
+   * @see https://core.telegram.org/bots/api#sendanimation
    */
-  replyWithVideoNote(this: Context, ...args: Shorthand<'sendVideoNote'>) {
-    this.assert(this.chat, 'replyWithVideoNote')
+  replyWithAnimation(this: Context, ...args: Shorthand<'sendAnimation'>) {
+    deprecate(
+      'ctx.replyWithAnimation',
+      'reply',
+      'sendAnimation',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendAnimation(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendvideonote
+   */
+  sendVideoNote(this: Context, ...args: Shorthand<'sendVideoNote'>) {
+    this.assert(this.chat, 'sendVideoNote')
     return this.telegram.sendVideoNote(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithinvoice
+   * @see https://core.telegram.org/bots/api#sendvideonote
    */
-  replyWithInvoice(this: Context, ...args: Shorthand<'sendInvoice'>) {
-    this.assert(this.chat, 'replyWithInvoice')
+  replyWithVideoNote(this: Context, ...args: Shorthand<'sendVideoNote'>) {
+    deprecate(
+      'ctx.replyWithVideoNote',
+      'reply',
+      'sendVideoNote',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendVideoNote(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendinvoice
+   */
+  sendInvoice(this: Context, ...args: Shorthand<'sendInvoice'>) {
+    this.assert(this.chat, 'sendInvoice')
     return this.telegram.sendInvoice(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithgame
+   * @see https://core.telegram.org/bots/api#sendinvoice
    */
-  replyWithGame(this: Context, ...args: Shorthand<'sendGame'>) {
-    this.assert(this.chat, 'replyWithGame')
+  replyWithInvoice(this: Context, ...args: Shorthand<'sendInvoice'>) {
+    deprecate(
+      'ctx.replyWithInvoice',
+      'reply',
+      'sendInvoice',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendInvoice(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendgame
+   */
+  sendGame(this: Context, ...args: Shorthand<'sendGame'>) {
+    this.assert(this.chat, 'sendGame')
     return this.telegram.sendGame(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithvoice
+   * @see https://core.telegram.org/bots/api#sendgame
    */
-  replyWithVoice(this: Context, ...args: Shorthand<'sendVoice'>) {
-    this.assert(this.chat, 'replyWithVoice')
+  replyWithGame(this: Context, ...args: Shorthand<'sendGame'>) {
+    deprecate(
+      'ctx.replyWithGame',
+      'reply',
+      'sendGame',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendGame(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendvoice
+   */
+  sendVoice(this: Context, ...args: Shorthand<'sendVoice'>) {
+    this.assert(this.chat, 'sendVoice')
     return this.telegram.sendVoice(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithpoll
+   * @see https://core.telegram.org/bots/api#sendvoice
    */
-  replyWithPoll(this: Context, ...args: Shorthand<'sendPoll'>) {
-    this.assert(this.chat, 'replyWithPoll')
+  replyWithVoice(this: Context, ...args: Shorthand<'sendVoice'>) {
+    deprecate(
+      'ctx.replyWithVoice',
+      'reply',
+      'sendVoice',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendVoice(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendpoll
+   */
+  sendPoll(this: Context, ...args: Shorthand<'sendPoll'>) {
+    this.assert(this.chat, 'sendPoll')
     return this.telegram.sendPoll(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithquiz
+   * @see https://core.telegram.org/bots/api#sendpoll
+   */
+  replyWithPoll(this: Context, ...args: Shorthand<'sendPoll'>) {
+    deprecate(
+      'ctx.replyWithPoll',
+      'reply',
+      'sendPoll',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendPoll(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendquiz
+   */
+  sendQuiz(this: Context, ...args: Shorthand<'sendQuiz'>) {
+    this.assert(this.chat, 'sendQuiz')
+    return this.telegram.sendQuiz(this.chat.id, ...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendquiz
    */
   replyWithQuiz(this: Context, ...args: Shorthand<'sendQuiz'>) {
-    this.assert(this.chat, 'replyWithQuiz')
-    return this.telegram.sendQuiz(this.chat.id, ...args)
+    deprecate(
+      'ctx.replyWithQuiz',
+      'reply',
+      'sendQuiz',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendQuiz(...args)
   }
 
   /**
@@ -693,35 +892,82 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithchataction
+   * @see https://core.telegram.org/bots/api#sendchataction
    */
-  replyWithChatAction(this: Context, ...args: Shorthand<'sendChatAction'>) {
-    this.assert(this.chat, 'replyWithChatAction')
+  sendChatAction(this: Context, ...args: Shorthand<'sendChatAction'>) {
+    this.assert(this.chat, 'sendChatAction')
     return this.telegram.sendChatAction(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithlocation
+   * @see https://core.telegram.org/bots/api#sendchataction
    */
-  replyWithLocation(this: Context, ...args: Shorthand<'sendLocation'>) {
-    this.assert(this.chat, 'replyWithLocation')
+  replyWithChatAction(this: Context, ...args: Shorthand<'sendChatAction'>) {
+    deprecate('ctx.replyWithChatAction', 'reply', 'sendChatAction')
+    return this.sendChatAction(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendlocation
+   */
+  sendLocation(this: Context, ...args: Shorthand<'sendLocation'>) {
+    this.assert(this.chat, 'sendLocation')
     return this.telegram.sendLocation(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithvenue
+   * @see https://core.telegram.org/bots/api#sendlocation
    */
-  replyWithVenue(this: Context, ...args: Shorthand<'sendVenue'>) {
-    this.assert(this.chat, 'replyWithVenue')
+  replyWithLocation(this: Context, ...args: Shorthand<'sendLocation'>) {
+    deprecate(
+      'ctx.replyWithLocation',
+      'reply',
+      'sendLocation',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendLocation(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendvenue
+   */
+  sendVenue(this: Context, ...args: Shorthand<'sendVenue'>) {
+    this.assert(this.chat, 'sendVenue')
     return this.telegram.sendVenue(this.chat.id, ...args)
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#replywithcontact
+   * @see https://core.telegram.org/bots/api#sendvenue
+   */
+  replyWithVenue(this: Context, ...args: Shorthand<'sendVenue'>) {
+    deprecate(
+      'ctx.replyWithVenue',
+      'reply',
+      'sendVenue',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendVenue(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendcontact
+   */
+  sendContact(this: Context, ...args: Shorthand<'sendContact'>) {
+    this.assert(this.chat, 'sendContact')
+    return this.telegram.sendContact(this.chat.id, ...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendcontact
    */
   replyWithContact(this: Context, ...args: Shorthand<'sendContact'>) {
-    this.assert(this.chat, 'replyWithContact')
-    return this.telegram.sendContact(this.chat.id, ...args)
+    deprecate(
+      'ctx.replyWithContact',
+      'reply',
+      'sendContact',
+      'https://telegraf.js.org/experimental#new-reply'
+    )
+    return this.sendContact(...args)
   }
 
   /**

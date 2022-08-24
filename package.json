@@ -19,6 +19,11 @@
       "require": "./lib/index.js",
       "import": "./lib/index.js"
     },
+    "./future": {
+      "types": "./future.d.ts",
+      "require": "./future.js",
+      "import": "./future.js"
+    },
     "./types": {
       "types": "./types.d.ts",
       "require": "./types.js",
@@ -31,7 +36,8 @@
     "lib/**/*.js",
     "typings/**/*.d.ts",
     "typings/**/*.d.ts.map",
-    "types.*"
+    "types.*",
+    "future.*"
   ],
   "bin": {
     "telegraf": "bin/telegraf.mjs"

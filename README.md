@@ -4,13 +4,11 @@
 
 Modern Telegram Bot API framework for Node.js
 
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v6.0-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v6.2-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![install size](https://flat.badgen.net/packagephobia/install/telegraf)](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 [![GitHub top language](https://img.shields.io/github/languages/top/telegraf/telegraf?style=flat-square&logo=github)](https://github.com/telegraf/telegraf)
 [![English chat](https://img.shields.io/badge/English%20chat-grey?style=flat-square&logo=telegram)](https://t.me/TelegrafJSChat)
 </header>
-
-> Notice: [@MKRhere](https://github.com/MKRhere) has taken over as the new maintainer of Telegraf. Feel free to reach out via the Telegram group.
 
 ## For 3.x users
 
@@ -27,7 +25,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 
 ### Features
 
-- Full [Telegram Bot API 6.0](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 6.2](https://core.telegram.org/bots/api) support
 - [Excellent TypeScript typings](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
 - [Lightweight](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 - [AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)
@@ -68,7 +66,7 @@ process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
-For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/develop/docs/examples) folder.
+For additional bot examples see the new [`docs repo`](https://github.com/feathers-studio/telegraf-docs/).
 
 ### Resources
 
@@ -238,11 +236,11 @@ require('https')
   .listen(8443)
 ```
 
-- [AWS Lambda example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/aws-lambda.js)
-- [`express` example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/express-webhook-bot.ts)
-- [`fastify` example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/fastify-webhook-bot.js)
-- [Google Cloud Functions example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/google-cloud-function.ts)
-- [`koa` example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/koa-webhook-bot.js)
+- [AWS Lambda example integration](https://github.com/feathers-studio/telegraf-docs/tree/master/examples/functions/aws-lambda)
+- [Google Cloud Functions example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/functions/google-cloud-function.ts)
+- [`express` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/express.ts)
+- [`fastify` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/fastify.ts)
+- [`koa` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/fastify.ts)
 - [NestJS framework integration module](https://github.com/bukhalo/nestjs-telegraf)
 - [Cloudflare Workers integration module](https://github.com/Tsuk1ko/cfworker-middware-telegraf)
 - Use [`bot.handleUpdate`](https://telegraf.js.org/classes/telegraf.html#handleupdate) to write new integrations

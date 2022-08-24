@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "composite": true,
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "typings/",
@@ -10,6 +9,7 @@
     "target": "ES2019",
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "incremental": true,
     "tsBuildInfoFile": "typings/tsconfig.tsbuildinfo",
     "noErrorTruncation": true,
     "forceConsistentCasingInFileNames": true

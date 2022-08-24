@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "4.8.5",
+  "version": "4.9.0",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -38,7 +38,7 @@
   },
   "scripts": {
     "prepare": "npm run --silent build",
-    "build": "tsc --build docs/examples && tsc -p bin/tsconfig.json",
+    "build": "tsc && tsc -p bin/tsconfig.json",
     "build:docs": "typedoc src/index.ts",
     "pretest": "npm run build",
     "test": "ava test/*",

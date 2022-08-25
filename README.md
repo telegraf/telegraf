@@ -210,13 +210,13 @@ Use `webhookCallback()` if you want to attach Telegraf to an existing http serve
 ```TS
 const { createServer } from "http";
 
-createServer(await bot.createWebhook({ domain: "example.com", path: "/secret-path" })).listen(3000);
+createServer(await bot.createWebhook({ domain: "example.com" })).listen(3000);
 ```
 
 ```TS
 const { createServer } from "https";
 
-createServer(tlsOptions, await bot.createWebhook({ domain: "example.com", path: "/secret-path" })).listen(8443);
+createServer(tlsOptions, await bot.createWebhook({ domain: "example.com" })).listen(8443);
 ```
 
 - [AWS Lambda example integration](https://github.com/feathers-studio/telegraf-docs/tree/master/examples/functions/aws-lambda)
@@ -320,12 +320,12 @@ With this simple ability, you can:
 - reuse [other people's code](https://www.npmjs.com/search?q=telegraf-),
 - do whatever **you** come up with!
 
-[`Composer`]: https://telegraf.js.org/classes/composer.html
-[`Context`]: https://telegraf.js.org/classes/context.html
-[`Router`]: https://telegraf.js.org/classes/router.html
-[`session`]: https://telegraf.js.org/modules.html#session
-[`Scenes`]: https://telegraf.js.org/modules/scenes.html
 [`Telegraf`]: https://telegraf.js.org/classes/Telegraf-1.html
+[`Composer`]: https://telegraf.js.org/classes/Composer.html
+[`Context`]: https://telegraf.js.org/classes/Context.html
+[`Router`]: https://telegraf.js.org/classes/Router.html
+[`session`]: https://telegraf.js.org/modules.html#session
+[`Scenes`]: https://telegraf.js.org/modules/Scenes.html
 
 ### Usage with TypeScript
 

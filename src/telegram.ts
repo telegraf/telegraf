@@ -580,6 +580,12 @@ export class Telegram extends ApiClient {
     })
   }
 
+  createInvoiceLink(invoice: tt.NewInvoiceLinkParameters) {
+    return this.callApi('createInvoiceLink', {
+      ...invoice,
+    })
+  }
+
   editChatInviteLink(
     chatId: number | string,
     inviteLink: string,
@@ -991,6 +997,10 @@ export class Telegram extends ApiClient {
    */
   deleteStickerFromSet(sticker: string) {
     return this.callApi('deleteStickerFromSet', { sticker })
+  }
+
+  getCustomEmojiStickers(custom_emoji_ids: string[]) {
+    return this.callApi('getCustomEmojiStickers', { custom_emoji_ids })
   }
 
   /**

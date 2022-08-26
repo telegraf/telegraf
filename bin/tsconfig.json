@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "rootDir": ".",
+    "target": "ESNext",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noErrorTruncation": true
+  },
+  "include": ["telegraf.mts"]
+}

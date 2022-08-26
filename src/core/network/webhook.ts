@@ -1,11 +1,10 @@
 import * as http from 'http'
 import d from 'debug'
 import { type Update } from '../types/typegram'
-import safeCompare = require('safe-compare')
 const debug = d('telegraf:webhook')
 
-export default function (
-  hookPath: string,
+export default function generateWebhook(
+  filter: (req: http.IncomingMessage) => boolean,
   updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>
 ) {
   return async (
@@ -18,31 +17,42 @@ export default function (
     }
   ): Promise<void> => {
     debug('Incoming request', req.method, req.url)
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    if (req.method !== 'POST' || !safeCompare(hookPath, req.url!)) {
+
+    if (!filter(req)) {
+      debug('Webhook filter failed', req.method, req.url)
       return next()
     }
 
-    let update: Update
-
-    if (req.body != null) {
-      update = req.body
-      await updateHandler(update, res)
-      return
-    }
-
-    let body = ''
-    for await (const chunk of req) {
-      body += String(chunk)
-    }
     try {
-      update = JSON.parse(body)
+      let update: Update
+
+      if (req.body != null) {
+        /* If req.body is already set, we expect it to be the parsed
+         request body (update object) received from Telegram
+         However, some libraries such as `serverless-http` set req.body to the
+         raw buffer, so we'll handle that additionally */
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let body: any = req.body
+        // if body is Buffer, parse it into string
+        if (body instanceof Buffer) body = String(req.body)
+        // if body is string, parse it into object
+        if (typeof body === 'string') body = JSON.parse(body)
+        update = body
+      } else {
+        let body = ''
+        // parse each buffer to string and append to body
+        for await (const chunk of req) body += String(chunk)
+        // parse body to object
+        update = JSON.parse(body)
+      }
+
+      return await updateHandler(update, res)
     } catch (error: unknown) {
-      res.writeHead(415)
-      res.end()
+      // if any of the parsing steps fails, give up and respond with error
+      res.writeHead(415).end()
       debug('Failed to parse request body:', error)
       return
     }
-    await updateHandler(update, res)
   }
 }

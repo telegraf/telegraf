@@ -4,13 +4,11 @@
 
 Modern Telegram Bot API framework for Node.js
 
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v6.0-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v6.2-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
 [![install size](https://flat.badgen.net/packagephobia/install/telegraf)](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 [![GitHub top language](https://img.shields.io/github/languages/top/telegraf/telegraf?style=flat-square&logo=github)](https://github.com/telegraf/telegraf)
 [![English chat](https://img.shields.io/badge/English%20chat-grey?style=flat-square&logo=telegram)](https://t.me/TelegrafJSChat)
 </header>
-
-> Notice: [@MKRhere](https://github.com/MKRhere) has taken over as the new maintainer of Telegraf. Feel free to reach out via the Telegram group.
 
 ## For 3.x users
 
@@ -27,7 +25,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 
 ### Features
 
-- Full [Telegram Bot API 6.0](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 6.2](https://core.telegram.org/bots/api) support
 - [Excellent TypeScript typings](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
 - [Lightweight](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 - [AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)
@@ -38,37 +36,39 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 - `http/https/fastify/Connect.js/express.js` compatible webhooks
 - Extensible
 
+> Notice: Heroku is [sunsetting free dynos](https://blog.heroku.com/next-chapter), so new and existing projects relying on it should likely start building elsewhere.
+
 ### Example
   
 ```js
-const { Telegraf } = require('telegraf')
+const { Telegraf } = require('telegraf');
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.start((ctx) => ctx.reply('Welcome'))
-bot.help((ctx) => ctx.reply('Send me a sticker'))
-bot.on('sticker', (ctx) => ctx.reply('👍'))
-bot.hears('hi', (ctx) => ctx.reply('Hey there'))
-bot.launch()
+const bot = new Telegraf(process.env.BOT_TOKEN);
+bot.start((ctx) => ctx.reply('Welcome'));
+bot.help((ctx) => ctx.reply('Send me a sticker'));
+bot.on('sticker', (ctx) => ctx.reply('👍'));
+bot.hears('hi', (ctx) => ctx.reply('Hey there'));
+bot.launch();
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
 ```
 
 ```js
-const { Telegraf } = require('telegraf')
+const { Telegraf } = require('telegraf');
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
-bot.command('oldschool', (ctx) => ctx.reply('Hello'))
-bot.command('hipster', Telegraf.reply('λ'))
-bot.launch()
+const bot = new Telegraf(process.env.BOT_TOKEN);
+bot.command('oldschool', (ctx) => ctx.reply('Hello'));
+bot.command('hipster', Telegraf.reply('λ'));
+bot.launch();
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
 ```
 
-For additional bot examples see [`examples`](https://github.com/telegraf/telegraf/tree/develop/docs/examples) folder.
+For additional bot examples see the new [`docs repo`](https://github.com/feathers-studio/telegraf-docs/).
 
 ### Resources
 
@@ -110,7 +110,7 @@ $ pnpm add telegraf
 
 [`Telegraf`] instance represents your bot. It's responsible for obtaining updates and passing them to your handlers.
 
-Start by [listening to commands](https://telegraf.js.org/classes/telegraf.html#command) and [launching](https://telegraf.js.org/classes/telegraf.html#launch) your bot.
+Start by [listening to commands](https://telegraf.js.org/classes/Telegraf-1.html#command) and [launching](https://telegraf.js.org/classes/Telegraf-1.html#launch) your bot.
 
 ### `Context` class
 
@@ -123,6 +123,7 @@ This is probably the class you'll be using the most.
 
 
 <!--
+TODO: Verify and update list
 Here is a list of
 
 #### Known middleware
@@ -145,107 +146,89 @@ Here is a list of
 #### Shorthand methods
 
 ```js
-import { Telegraf } from 'telegraf'
+import { Telegraf } from 'telegraf';
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.command('quit', (ctx) => {
   // Explicit usage
-  ctx.telegram.leaveChat(ctx.message.chat.id)
+  ctx.telegram.leaveChat(ctx.message.chat.id);
 
   // Using context shortcut
-  ctx.leaveChat()
-})
+  ctx.leaveChat();
+});
 
 bot.on('text', (ctx) => {
   // Explicit usage
-  ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`)
+  ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`);
 
   // Using context shortcut
-  ctx.reply(`Hello ${ctx.state.role}`)
-})
+  ctx.reply(`Hello ${ctx.state.role}`);
+});
 
 bot.on('callback_query', (ctx) => {
   // Explicit usage
-  ctx.telegram.answerCbQuery(ctx.callbackQuery.id)
+  ctx.telegram.answerCbQuery(ctx.callbackQuery.id);
 
   // Using context shortcut
-  ctx.answerCbQuery()
-})
+  ctx.answerCbQuery();
+});
 
 bot.on('inline_query', (ctx) => {
-  const result = []
+  const result = [];
   // Explicit usage
-  ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result)
+  ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result);
 
   // Using context shortcut
-  ctx.answerInlineQuery(result)
-})
+  ctx.answerInlineQuery(result);
+});
 
-bot.launch()
+bot.launch();
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
 ```
 
 ## Production
 
 ### Webhooks
 
-```js
-const { Telegraf } = require('telegraf')
-const fs = require('fs')
-require('dotenv')
+```TS
+import { Telegraf } from "telegraf";
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(token);
 
-// TLS options
-const tlsOptions = {
-  key: fs.readFileSync('server-key.pem'),
-  cert: fs.readFileSync('server-cert.pem'),
-  ca: [
-    // This is necessary only if the client uses a self-signed certificate.
-    fs.readFileSync('client-cert.pem')
-  ]
-}
+bot.on("text", ctx => ctx.reply("Hello"));
 
-// Set telegram webhook
-// The second argument is necessary only if the client uses a self-signed
-// certificate. Including it for a verified certificate may cause things to break.
-bot.telegram.setWebhook('https://server.tld:8443/secret-path', {
-  certificate: { source: fs.readFileSync('server-cert.pem') }
-})
-
-// Start https webhook
-bot.startWebhook('/secret-path', tlsOptions, 8443)
-
-// Http webhook, for nginx/heroku users.
-bot.startWebhook('/secret-path', null, 5000)
+// Start webhook via launch method (preferred)
+bot.launch({ webhook: { domain: webhookDomain, port: port } });
 ```
 
 Use `webhookCallback()` if you want to attach Telegraf to an existing http server.
 
 <!-- global bot, tlsOptions -->
 
-```js
-require('http')
-  .createServer(bot.webhookCallback('/secret-path'))
-  .listen(3000)
+```TS
+const { createServer } from "http";
 
-require('https')
-  .createServer(tlsOptions, bot.webhookCallback('/secret-path'))
-  .listen(8443)
+createServer(await bot.createWebhook({ domain: "example.com" })).listen(3000);
 ```
 
-- [AWS Lambda example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/aws-lambda.js)
-- [`express` example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/express-webhook-bot.ts)
-- [`fastify` example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/fastify-webhook-bot.js)
-- [Google Cloud Functions example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/google-cloud-function.ts)
-- [`koa` example integration](https://github.com/telegraf/telegraf/blob/develop/docs/examples/koa-webhook-bot.js)
+```TS
+const { createServer } from "https";
+
+createServer(tlsOptions, await bot.createWebhook({ domain: "example.com" })).listen(8443);
+```
+
+- [AWS Lambda example integration](https://github.com/feathers-studio/telegraf-docs/tree/master/examples/functions/aws-lambda)
+- [Google Cloud Functions example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/functions/google-cloud-function.ts)
+- [`express` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/express.ts)
+- [`fastify` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/fastify.ts)
+- [`koa` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/fastify.ts)
 - [NestJS framework integration module](https://github.com/bukhalo/nestjs-telegraf)
 - [Cloudflare Workers integration module](https://github.com/Tsuk1ko/cfworker-middware-telegraf)
-- Use [`bot.handleUpdate`](https://telegraf.js.org/classes/telegraf.html#handleupdate) to write new integrations
+- Use [`bot.handleUpdate`](https://telegraf.js.org/classes/Telegraf-1.html#handleupdate) to write new integrations
 
 ### Error handling
 
@@ -278,29 +261,29 @@ Also, you can provide an optional name of a file as `filename` when you send the
 ```js
 bot.on('message', (ctx) => {
   // resend existing file by file_id
-  ctx.replyWithSticker('123123jkbhj6b')
+  ctx.replyWithSticker('123123jkbhj6b');
 
   // send file
-  ctx.replyWithVideo({ source: '/path/to/video.mp4' })
+  ctx.replyWithVideo({ source: '/path/to/video.mp4' });
 
   // send stream
   ctx.replyWithVideo({
     source: fs.createReadStream('/path/to/video.mp4')
-  })
+  });
 
   // send buffer
   ctx.replyWithVoice({
     source: Buffer.alloc()
-  })
+  });
 
   // send url via Telegram server
-  ctx.replyWithPhoto('https://picsum.photos/200/300/')
+  ctx.replyWithPhoto('https://picsum.photos/200/300/');
 
   // pipe url content
   ctx.replyWithPhoto({
     url: 'https://picsum.photos/200/300/?random',
     filename: 'kitten.jpg'
-  })
+  });
 })
 ```
 
@@ -311,24 +294,24 @@ In addition to `ctx: Context`, each middleware receives `next: () => Promise<voi
 As in Koa and some other middleware-based libraries,
 `await next()` will call next middleware and wait for it to finish:
 
-```js
-import { Telegraf } from 'telegraf'
+```TS
+import { Telegraf } from 'telegraf';
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.use(async (ctx, next) => {
-  console.time(`Processing update ${ctx.update.update_id}`)
+  console.time(`Processing update ${ctx.update.update_id}`);
   await next() // runs next middleware
   // runs after next middleware finishes
-  console.timeEnd(`Processing update ${ctx.update.update_id}`)
+  console.timeEnd(`Processing update ${ctx.update.update_id}`);
 })
 
-bot.on('text', (ctx) => ctx.reply('Hello World'))
-bot.launch()
+bot.on('text', (ctx) => ctx.reply('Hello World'));
+bot.launch();
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
 ```
 
 With this simple ability, you can:
@@ -339,12 +322,12 @@ With this simple ability, you can:
 - reuse [other people's code](https://www.npmjs.com/search?q=telegraf-),
 - do whatever **you** come up with!
 
-[`Composer`]: https://telegraf.js.org/classes/composer.html
-[`Context`]: https://telegraf.js.org/classes/context.html
-[`Router`]: https://telegraf.js.org/classes/router.html
+[`Telegraf`]: https://telegraf.js.org/classes/Telegraf-1.html
+[`Composer`]: https://telegraf.js.org/classes/Composer.html
+[`Context`]: https://telegraf.js.org/classes/Context.html
+[`Router`]: https://telegraf.js.org/classes/Router.html
 [`session`]: https://telegraf.js.org/modules.html#session
-[`Scenes`]: https://telegraf.js.org/modules/scenes.html
-[`Telegraf`]: https://telegraf.js.org/classes/telegraf.html
+[`Scenes`]: https://telegraf.js.org/modules/Scenes.html
 
 ### Usage with TypeScript
 
@@ -360,7 +343,7 @@ Consequently, you can change the type of `ctx` to fit your needs in order for yo
 This is done through Generics:
 
 ```ts
-import { Context, Telegraf } from 'telegraf'
+import { Context, Telegraf } from 'telegraf';
 
 // Define your own context type
 interface MyContext extends Context {
@@ -369,13 +352,13 @@ interface MyContext extends Context {
 }
 
 // Create your bot and tell it about your context type
-const bot = new Telegraf<MyContext>('SECRET TOKEN')
+const bot = new Telegraf<MyContext>('SECRET TOKEN');
 
 // Register middleware and launch your bot as usual
 bot.use((ctx, next) => {
   // Yay, `myProp` is now available here as `string | undefined`!
-  ctx.myProp = ctx.chat?.first_name?.toUpperCase()
-  return next()
-})
+  ctx.myProp = ctx.chat?.first_name?.toUpperCase();
+  return next();
+});
 // ...
 ```

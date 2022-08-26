@@ -8,7 +8,6 @@
       "files": "*.ts",
       "extends": ["plugin:prettier/recommended"],
       "rules": {
-        "sort-imports": ["error", { "ignoreCase": true }],
         "@typescript-eslint/ban-ts-comment": "warn",
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/no-explicit-any": "warn",

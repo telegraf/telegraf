@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "Node16",
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "typings/",
+    "esModuleInterop": true,
     "outDir": "lib/",
     "rootDir": "src/",
     "target": "ES2019",
@@ -24,5 +25,5 @@
     "out": "docs/build/",
     "readme": "README.md"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/"]
 }

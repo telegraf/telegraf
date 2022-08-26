@@ -1,20 +1,12 @@
 #!/usr/bin/env node
 
 import debug from 'debug'
+import parse from 'mri'
 import path from 'path'
-import parse from 'minimist'
-import { addAlias } from 'module-alias'
 
-// @ts-expect-error Telegraf doesn't build JS and d.ts in the same place, that needs to be fixed
-import { Telegraf as _Telegraf } from '../lib/index.js'
-import type { Telegraf as Tf, Context, Middleware } from '../typings/index.js'
 import type { RequestListener } from 'http'
 import type { TlsOptions } from 'tls'
-
-import esMain from 'es-main'
-
-// hack to type Telegraf correctly
-const Telegraf: typeof Tf = _Telegraf
+import { Telegraf, type Context, type Middleware } from './index.js'
 
 const log = debug('telegraf:cli')
 
@@ -121,6 +113,7 @@ export async function main(argv: string[], env: Env = {}) {
         path.resolve(process.cwd(), 'package.json')
       )) as { main?: string }
       file = packageJson.main || 'index.js'
+      // eslint-disable-next-line no-empty
     } catch (err) {}
   }
 
@@ -149,13 +142,12 @@ export async function main(argv: string[], env: Env = {}) {
   try {
     if (args.logs) debug.enable('telegraf:*')
 
-    addAlias('telegraf', path.join(import.meta.url, '../'))
     const mod: Mod = await import(file)
     const botHandler = mod.botHandler || mod.default
     const httpHandler = mod.httpHandler
     const tlsOptions = mod.tlsOptions
 
-    const config: Tf.LaunchOptions = {}
+    const config: Telegraf.LaunchOptions = {}
     if (domain) {
       config.webhook = {
         domain,
@@ -182,6 +174,4 @@ export async function main(argv: string[], env: Env = {}) {
   return 0
 }
 
-// run main if called from command line and not imported from another file
-if (esMain(import.meta))
-  process.exitCode = await main(process.argv, process.env as Env)
+process.exitCode = await main(process.argv, process.env as Env)

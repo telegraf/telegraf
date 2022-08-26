@@ -36,6 +36,8 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 - `http/https/fastify/Connect.js/express.js` compatible webhooks
 - Extensible
 
+> Notice: Heroku is [sunsetting free dynos](https://blog.heroku.com/next-chapter), so new and existing projects relying on it should likely start building elsewhere.
+
 ### Example
   
 ```js

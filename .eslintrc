@@ -12,7 +12,8 @@
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/no-explicit-any": "warn",
         "@typescript-eslint/no-non-null-assertion": "warn",
-        "@typescript-eslint/promise-function-async": "off"
+        "@typescript-eslint/promise-function-async": "off",
+        "no-undef": "off"
       }
     }
   ],

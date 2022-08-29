@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "4.9.0",
+  "version": "4.9.1",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -66,7 +66,7 @@
     "p-timeout": "^4.1.0",
     "safe-compare": "^1.1.4",
     "sandwich-stream": "^2.0.2",
-    "typegram": "github:MKRhere/typegram#e2ba9f01f14b96c6dbb1c617e66692a3cc776cf6"
+    "typegram": "^3.11.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",

@@ -150,37 +150,37 @@ import { Telegraf } from 'telegraf';
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-bot.command('quit', (ctx) => {
+bot.command('quit', async (ctx) => {
   // Explicit usage
-  ctx.telegram.leaveChat(ctx.message.chat.id);
+  await ctx.telegram.leaveChat(ctx.message.chat.id);
 
   // Using context shortcut
-  ctx.leaveChat();
+  await ctx.leaveChat();
 });
 
-bot.on('text', (ctx) => {
+bot.on('text', async (ctx) => {
   // Explicit usage
-  ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`);
+  await ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`);
 
   // Using context shortcut
-  ctx.reply(`Hello ${ctx.state.role}`);
+  await ctx.reply(`Hello ${ctx.state.role}`);
 });
 
-bot.on('callback_query', (ctx) => {
+bot.on('callback_query', async (ctx) => {
   // Explicit usage
-  ctx.telegram.answerCbQuery(ctx.callbackQuery.id);
+  await ctx.telegram.answerCbQuery(ctx.callbackQuery.id);
 
   // Using context shortcut
-  ctx.answerCbQuery();
+  await ctx.answerCbQuery();
 });
 
-bot.on('inline_query', (ctx) => {
+bot.on('inline_query', async (ctx) => {
   const result = [];
   // Explicit usage
-  ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result);
+  await ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result);
 
   // Using context shortcut
-  ctx.answerInlineQuery(result);
+  await ctx.answerInlineQuery(result);
 });
 
 bot.launch();
@@ -259,28 +259,28 @@ Also, you can provide an optional name of a file as `filename` when you send the
 <!-- global bot, fs -->
 
 ```js
-bot.on('message', (ctx) => {
+bot.on('message', async (ctx) => {
   // resend existing file by file_id
-  ctx.replyWithSticker('123123jkbhj6b');
+  await ctx.replyWithSticker('123123jkbhj6b');
 
   // send file
-  ctx.replyWithVideo({ source: '/path/to/video.mp4' });
+  await ctx.replyWithVideo({ source: '/path/to/video.mp4' });
 
   // send stream
-  ctx.replyWithVideo({
+  await ctx.replyWithVideo({
     source: fs.createReadStream('/path/to/video.mp4')
   });
 
   // send buffer
-  ctx.replyWithVoice({
+  await ctx.replyWithVoice({
     source: Buffer.alloc()
   });
 
   // send url via Telegram server
-  ctx.replyWithPhoto('https://picsum.photos/200/300/');
+  await ctx.replyWithPhoto('https://picsum.photos/200/300/');
 
   // pipe url content
-  ctx.replyWithPhoto({
+  await ctx.replyWithPhoto({
     url: 'https://picsum.photos/200/300/?random',
     filename: 'kitten.jpg'
   });

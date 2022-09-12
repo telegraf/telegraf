@@ -1,13 +1,25 @@
 <header>
-<img src="docs/assets/logo.svg" alt="logo" height="90" align="left">
-<h1 style="display: inline">telegraf.js</h1>
 
-Modern Telegram Bot API framework for Node.js
+<div align="center">
+<img src="docs/assets/logo.svg" alt="logo" height="90" align="center">
+<h1 align="center">telegraf.js</h1>
 
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v6.2-f36caf.svg?style=flat-square)](https://core.telegram.org/bots/api)
-[![install size](https://flat.badgen.net/packagephobia/install/telegraf)](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
-[![GitHub top language](https://img.shields.io/github/languages/top/telegraf/telegraf?style=flat-square&logo=github)](https://github.com/telegraf/telegraf)
-[![English chat](https://img.shields.io/badge/English%20chat-grey?style=flat-square&logo=telegram)](https://t.me/TelegrafJSChat)
+<p>Modern Telegram Bot API framework for Node.js</p>
+
+<a href="https://core.telegram.org/bots/api)">
+	<img src="https://img.shields.io/badge/Bot%20API-v6.2-f36caf.svg?style=flat-square" alt="Bot API Version" />
+</a>
+<a href="https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)">
+	<img src="https://flat.badgen.net/packagephobia/install/telegraf" alt="install size" />
+</a>
+<a href="https://github.com/telegraf/telegraf)">
+	<img src="https://img.shields.io/github/languages/top/telegraf/telegraf?style=flat-square&logo=github" alt="GitHub top language" />
+</a>
+<a href="https://t.me/TelegrafJSChat)">
+	<img src="https://img.shields.io/badge/English%20chat-grey?style=flat-square&logo=telegram" alt="English chat" />
+</a>
+</div>
+
 </header>
 
 ## For 3.x users

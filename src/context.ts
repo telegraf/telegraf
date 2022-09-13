@@ -726,7 +726,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvideo
    */
-  replyWithVideo(this: Context, ...args: Shorthand<'sendAudio'>) {
+  replyWithVideo(this: Context, ...args: Shorthand<'sendVideo'>) {
     deprecate(
       'ctx.replyWithVideo',
       'reply',

@@ -15,7 +15,7 @@
 <a href="https://github.com/telegraf/telegraf">
 	<img src="https://img.shields.io/github/languages/top/telegraf/telegraf?style=flat-square&logo=github" alt="GitHub top language" />
 </a>
-<a href="https://t.me/TelegrafJSChat">
+<a href="https://telegram.me/TelegrafJSChat">
 	<img src="https://img.shields.io/badge/English%20chat-grey?style=flat-square&logo=telegram" alt="English chat" />
 </a>
 </div>

@@ -1065,6 +1065,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * @deprecated use {@link Context.replyWithMarkdownV2}
    * @see https://core.telegram.org/bots/api#sendmessage
    */
   replyWithMarkdown(

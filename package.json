@@ -37,6 +37,7 @@
     "typings/**/*.d.ts",
     "typings/**/*.d.ts.map",
     "types.*",
+    "format.*",
     "future.*"
   ],
   "bin": {

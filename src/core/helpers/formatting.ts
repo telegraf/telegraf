@@ -20,83 +20,49 @@ export namespace Types {
   export type Text = Containers | NonContainers
 }
 
-export namespace Fmts {
-  export interface Base {
-    type: string
-    content: string
-    children?: MessageEntity[]
-  }
-
-  export interface Text extends Base {
-    type: Types.Text
-  }
-
-  export interface Url extends Base {
-    type: 'text_link'
-    url: string
-  }
-
-  export interface Mention extends Base {
-    type: 'text_mention'
-    user: User
-  }
-}
-
-export type Fmts = Fmts.Text | Fmts.Url | Fmts.Mention
-
-export function fmt(
-  parts: TemplateStringsArray | string[],
-  ...items: (string | Fmts)[]
-) {
-  let text = ''
-  const entities: MessageEntity[] = []
-  for (let i = 0; i < parts.length; i++) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    text += parts[i]!
-    const item = items[i]
-    if (!item) continue
-    if (typeof item === 'string') {
-      text += item
-      continue
+export function _fmt(kind: Types.Text | 'toplevel') {
+  return function fmt(
+    parts: string | TemplateStringsArray | string[], // | FmtString required
+    ...items: (string | FmtString)[]
+  ) {
+    let text = ''
+    const entities: MessageEntity[] = []
+    parts = typeof parts === 'string' ? [parts] : parts
+    for (let i = 0; i < parts.length; i++) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      text += parts[i]!
+      const item = items[i]
+      if (!item) continue
+      if (typeof item === 'string') {
+        text += item
+        continue
+      }
+      for (const child of item.entities || [])
+        entities.push({ ...child, offset: text.length + child.offset })
+      text += item.text
     }
-    const { type, content } = item
-    const offset = text.length
-    const length = content.length
-    if (type === 'text_link')
-      entities.push({ type, offset, length, url: item.url })
-    else if (type === 'text_mention')
-      entities.push({ type, offset, length, user: item.user })
-    else entities.push({ type, offset, length })
-    if (item.children)
-      for (const child of item.children)
-        entities.push({ ...child, offset: child.offset + offset })
-    text += item.content
+    if (kind !== 'toplevel')
+      entities.unshift({ type: kind, offset: 0, length: text.length })
+    return new FmtString(text, entities.length ? entities : undefined)
   }
-  return new FmtString(text, entities.length ? entities : undefined)
 }
 
-interface fmtText {
-  (type: Types.NonContainers): (content: string) => Fmts
-  (type: Types.Containers): (content: string | FmtString | Fmts) => Fmts
-  (type: 'text_link'): (
-    content: string | FmtString | Fmts,
-    opts: { url: string }
-  ) => Fmts
-  (type: 'text_mention'): (
-    content: string | FmtString | Fmts,
-    opts: { user: User }
-  ) => Fmts
-}
+const entityOffset =
+  (length: number) =>
+  (entity: MessageEntity): MessageEntity =>
+    Object.assign(entity, { offset: length + entity.offset })
 
-export const fmtText = ((type: Types.Text | 'text_link' | 'text_mention') =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (content: string | FmtString | Fmts, opts: any) => {
-    if (typeof content === 'string') return { type, content, ...opts }
-    else if (content instanceof FmtString) {
-      const { text, entities } = content
-      return { type, content: text, children: entities, ...opts }
-    } else {
-      const fmted = fmt`${content}`
-      return { type, content: fmted.text, children: fmted.entities, ...opts }
-    }
-  }) as fmtText
+export const linkOrMention = (
+  content: string | FmtString,
+  data:
+    | { type: 'text_link'; url: string }
+    | { type: 'text_mention'; user: User }
+) => {
+  const text = content.toString()
+  const length = text.length
+  const elems = (typeof content !== 'string' && content.entities) || []
+  const entities = elems.map(entityOffset(length))
+  // insert to start of array
+  entities.unshift(Object.assign(data, { offset: 0, length }))
+  return new FmtString(text, entities)
+}

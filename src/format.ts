@@ -1,18 +1,21 @@
 import { User } from 'typegram'
-import { type Fmts, FmtString, fmtText, fmt } from './core/helpers/formatting'
+import { FmtString, _fmt, linkOrMention } from './core/helpers/formatting'
 
-export { fmt, FmtString, Fmts }
+export { FmtString }
 
-export const bold = fmtText('bold')
-export const italic = fmtText('italic')
-export const spoiler = fmtText('spoiler')
-export const strikethrough = fmtText('strikethrough')
-export const underline = fmtText('underline')
-export const code = fmtText('code')
-export const pre = fmtText('pre')
-export const link = (content: string | FmtString | Fmts, url: string) =>
-  fmtText('text_link')(content, { url })
-export const mention = (name: string | FmtString | Fmts, user: number | User) =>
+export const fmt = _fmt('toplevel')
+export const bold = _fmt('bold')
+export const italic = _fmt('italic')
+export const spoiler = _fmt('spoiler')
+export const strikethrough = _fmt('strikethrough')
+export const underline = _fmt('underline')
+export const code = _fmt('code')
+export const pre = _fmt('pre')
+
+export const link = (content: string | FmtString, url: string) =>
+  linkOrMention(content, { type: 'text_link', url })
+
+export const mention = (name: string | FmtString, user: number | User) =>
   typeof user === 'number'
     ? link(name, 'tg://user?id=' + user)
-    : fmtText('text_mention')(name, { user })
+    : linkOrMention(name, { type: 'text_mention', user })

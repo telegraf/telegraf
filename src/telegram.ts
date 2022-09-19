@@ -3,6 +3,8 @@ import * as tt from './telegram-types'
 import ApiClient from './core/network/client'
 import { isAbsolute } from 'path'
 import { URL } from 'url'
+import { FmtString } from './format'
+import { fmtCaption } from './util'
 
 export class Telegram extends ApiClient {
   /**
@@ -129,10 +131,11 @@ export class Telegram extends ApiClient {
    */
   sendMessage(
     chatId: number | string,
-    text: string,
+    text: string | FmtString,
     extra?: tt.ExtraReplyMessage
   ) {
-    return this.callApi('sendMessage', { chat_id: chatId, text, ...extra })
+    const t = typeof text === 'string' ? new FmtString(text) : text
+    return this.callApi('sendMessage', { chat_id: chatId, ...extra, ...t })
   }
 
   /**
@@ -245,7 +248,11 @@ export class Telegram extends ApiClient {
     photo: tg.Opts<'sendPhoto'>['photo'],
     extra?: tt.ExtraPhoto
   ) {
-    return this.callApi('sendPhoto', { chat_id: chatId, photo, ...extra })
+    return this.callApi('sendPhoto', {
+      chat_id: chatId,
+      photo,
+      ...fmtCaption(extra),
+    })
   }
 
   /**
@@ -265,7 +272,11 @@ export class Telegram extends ApiClient {
     document: tg.Opts<'sendDocument'>['document'],
     extra?: tt.ExtraDocument
   ) {
-    return this.callApi('sendDocument', { chat_id: chatId, document, ...extra })
+    return this.callApi('sendDocument', {
+      chat_id: chatId,
+      document,
+      ...fmtCaption(extra),
+    })
   }
 
   /**
@@ -279,7 +290,11 @@ export class Telegram extends ApiClient {
     audio: tg.Opts<'sendAudio'>['audio'],
     extra?: tt.ExtraAudio
   ) {
-    return this.callApi('sendAudio', { chat_id: chatId, audio, ...extra })
+    return this.callApi('sendAudio', {
+      chat_id: chatId,
+      audio,
+      ...fmtCaption(extra),
+    })
   }
 
   /**
@@ -304,7 +319,11 @@ export class Telegram extends ApiClient {
     video: tg.Opts<'sendVideo'>['video'],
     extra?: tt.ExtraVideo
   ) {
-    return this.callApi('sendVideo', { chat_id: chatId, video, ...extra })
+    return this.callApi('sendVideo', {
+      chat_id: chatId,
+      video,
+      ...fmtCaption(extra),
+    })
   }
 
   /**
@@ -319,7 +338,7 @@ export class Telegram extends ApiClient {
     return this.callApi('sendAnimation', {
       chat_id: chatId,
       animation,
-      ...extra,
+      ...fmtCaption(extra),
     })
   }
 
@@ -348,7 +367,11 @@ export class Telegram extends ApiClient {
     voice: tg.Opts<'sendVoice'>['voice'],
     extra?: tt.ExtraVoice
   ) {
-    return this.callApi('sendVoice', { chat_id: chatId, voice, ...extra })
+    return this.callApi('sendVoice', {
+      chat_id: chatId,
+      voice,
+      ...fmtCaption(extra),
+    })
   }
 
   /**
@@ -1065,7 +1088,7 @@ export class Telegram extends ApiClient {
       chat_id: chatId,
       from_chat_id: fromChatId,
       message_id: messageId,
-      ...extra,
+      ...fmtCaption(extra),
     })
   }
 

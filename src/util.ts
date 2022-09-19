@@ -1,4 +1,23 @@
+import { FmtString } from './format'
+
 export const env = process.env
+
+type MaybeExtra<Extra> = (Extra & { caption?: string }) | undefined
+
+export function fmtCaption<
+  Extra extends {
+    caption?: string | FmtString
+  } & Record<string, unknown>
+>(extra?: Extra): MaybeExtra<Extra> {
+  const caption = extra?.caption
+  if (!caption || typeof caption === 'string') return extra as MaybeExtra<Extra>
+  return {
+    ...extra,
+    caption: caption.text,
+    caption_entities: caption.entities,
+    parse_mode: undefined,
+  }
+}
 
 export function deprecate(
   method: string,

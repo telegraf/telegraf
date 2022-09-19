@@ -2,11 +2,17 @@
 
 import { Message, Opts, Telegram, Update } from './core/types/typegram'
 import { UnionKeys } from './deunionize'
+import { FmtString } from './format'
 
 export { Markup } from './markup'
 
 // tiny helper types
 export type ChatAction = Opts<'sendChatAction'>['action']
+
+// Modify type so caption, if exists, can be FmtString
+type WrapCaption<T> = T extends { caption?: string }
+  ? Omit<T, 'caption'> & { caption?: string | FmtString }
+  : T
 
 // extra types
 /**
@@ -17,7 +23,7 @@ export type ChatAction = Opts<'sendChatAction'>['action']
 type MakeExtra<
   M extends keyof Telegram,
   K extends keyof Omit<Opts<M>, 'chat_id'> = never
-> = Omit<Opts<M>, 'chat_id' | K>
+> = WrapCaption<Omit<Opts<M>, 'chat_id' | K>>
 
 export type ExtraAddStickerToSet = MakeExtra<
   'addStickerToSet',

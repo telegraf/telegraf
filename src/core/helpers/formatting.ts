@@ -1,6 +1,8 @@
 import { MessageEntity, User } from 'typegram'
 
 export class FmtString {
+  // to force parse_mode to become undefined when using FmtString
+  public parse_mode: undefined
   constructor(public text: string, public entities?: MessageEntity[]) {}
   static normalise(content: string | FmtString) {
     if (typeof content === 'string') return new FmtString(content, [])

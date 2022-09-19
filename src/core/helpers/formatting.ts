@@ -42,7 +42,10 @@ export namespace Fmts {
 
 export type Fmts = Fmts.Text | Fmts.Url | Fmts.Mention
 
-export function fmt(parts: TemplateStringsArray, ...items: Fmts[]) {
+export function fmt(
+  parts: TemplateStringsArray | string[],
+  ...items: (string | Fmts)[]
+) {
   let text = ''
   const entities: MessageEntity[] = []
   for (let i = 0; i < parts.length; i++) {
@@ -50,6 +53,10 @@ export function fmt(parts: TemplateStringsArray, ...items: Fmts[]) {
     text += parts[i]!
     const item = items[i]
     if (!item) continue
+    if (typeof item === 'string') {
+      text += item
+      continue
+    }
     const { type, content } = item
     const offset = text.length
     const length = content.length

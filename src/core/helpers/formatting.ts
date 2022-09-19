@@ -20,11 +20,16 @@ export namespace Types {
   export type Text = Containers | NonContainers
 }
 
-export function _fmt(kind: Types.Text | 'toplevel') {
-  return function fmt(
-    parts: string | TemplateStringsArray | string[], // | FmtString required
-    ...items: (string | FmtString)[]
-  ) {
+type TemplateParts = string | TemplateStringsArray | string[]
+
+export function _fmt(
+  kind: Types.Containers | 'very-plain'
+): (parts: TemplateParts, ...items: (string | FmtString)[]) => FmtString
+export function _fmt(
+  kind: Types.NonContainers
+): (parts: TemplateParts, ...items: string[]) => FmtString
+export function _fmt(kind: Types.Text | 'very-plain') {
+  return function fmt(parts: TemplateParts, ...items: (string | FmtString)[]) {
     let text = ''
     const entities: MessageEntity[] = []
     parts = typeof parts === 'string' ? [parts] : parts
@@ -41,7 +46,7 @@ export function _fmt(kind: Types.Text | 'toplevel') {
         entities.push({ ...child, offset: text.length + child.offset })
       text += item.text
     }
-    if (kind !== 'toplevel')
+    if (kind !== 'very-plain')
       entities.unshift({ type: kind, offset: 0, length: text.length })
     return new FmtString(text, entities.length ? entities : undefined)
   }
@@ -60,7 +65,7 @@ export const linkOrMention = (
 ) => {
   const text = content.toString()
   const length = text.length
-  const elems = (typeof content !== 'string' && content.entities) || []
+  const elems = FmtString.normalise(content).entities || []
   const entities = elems.map(entityOffset(length))
   // insert to start of array
   entities.unshift(Object.assign(data, { offset: 0, length }))

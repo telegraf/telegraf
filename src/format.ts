@@ -3,7 +3,7 @@ import { FmtString, _fmt, linkOrMention } from './core/helpers/formatting'
 
 export { FmtString }
 
-export const fmt = _fmt('toplevel')
+export const fmt = _fmt('very-plain')
 export const bold = _fmt('bold')
 export const italic = _fmt('italic')
 export const spoiler = _fmt('spoiler')

@@ -51,12 +51,6 @@ export function _fmt(kind: Types.Text | 'very-plain') {
     return new FmtString(text, entities.length ? entities : undefined)
   }
 }
-
-const entityOffset =
-  (length: number) =>
-  (entity: MessageEntity): MessageEntity =>
-    Object.assign(entity, { offset: length + entity.offset })
-
 export const linkOrMention = (
   content: string | FmtString,
   data:
@@ -64,10 +58,7 @@ export const linkOrMention = (
     | { type: 'text_mention'; user: User }
 ) => {
   const text = content.toString()
-  const length = text.length
-  const elems = FmtString.normalise(content).entities || []
-  const entities = elems.map(entityOffset(length))
-  // insert to start of array
-  entities.unshift(Object.assign(data, { offset: 0, length }))
+  const entities = FmtString.normalise(content).entities || []
+  entities.unshift(Object.assign(data, { offset: 0, length: text.length }))
   return new FmtString(text, entities)
 }

@@ -28,7 +28,11 @@ export function _fmt(
 export function _fmt(
   kind: Types.NonContainers
 ): (parts: TemplateParts, ...items: string[]) => FmtString
-export function _fmt(kind: Types.Text | 'very-plain') {
+export function _fmt(
+  kind: 'pre',
+  opts: { language: string }
+): (parts: TemplateParts, ...items: string[]) => FmtString
+export function _fmt(kind: Types.Text | 'very-plain', opts?: object) {
   return function fmt(parts: TemplateParts, ...items: (string | FmtString)[]) {
     let text = ''
     const entities: MessageEntity[] = []
@@ -47,7 +51,7 @@ export function _fmt(kind: Types.Text | 'very-plain') {
       text += item.text
     }
     if (kind !== 'very-plain')
-      entities.unshift({ type: kind, offset: 0, length: text.length })
+      entities.unshift({ type: kind, offset: 0, length: text.length, ...opts })
     return new FmtString(text, entities.length ? entities : undefined)
   }
 }

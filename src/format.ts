@@ -10,7 +10,7 @@ export const spoiler = _fmt('spoiler')
 export const strikethrough = _fmt('strikethrough')
 export const underline = _fmt('underline')
 export const code = _fmt('code')
-export const pre = _fmt('pre')
+export const pre = (language: string) => _fmt('pre', { language })
 
 export const link = (content: string | FmtString, url: string) =>
   linkOrMention(content, { type: 'text_link', url })

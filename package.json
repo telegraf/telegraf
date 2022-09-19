@@ -28,6 +28,11 @@
       "types": "./types.d.ts",
       "require": "./types.js",
       "import": "./types.js"
+    },
+    "./format": {
+      "types": "./format.d.ts",
+      "require": "./format.js",
+      "import": "./format.js"
     }
   },
   "files": [

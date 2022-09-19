@@ -900,6 +900,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * @deprecated use {@link Context.sendChatAction} instead
    * @see https://core.telegram.org/bots/api#sendchataction
    */
   replyWithChatAction(this: Context, ...args: Shorthand<'sendChatAction'>) {

@@ -4,6 +4,7 @@ import { Deunionize, PropOr, UnionKeys } from './deunionize'
 import ApiClient from './core/network/client'
 import { deprecate } from './util'
 import Telegram from './telegram'
+import { Update } from './update'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
 
@@ -11,7 +12,7 @@ type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
 
-export class Context<U extends Deunionize<tg.Update> = tg.Update> {
+export class Context<U extends Deunionize<Update.All> = Update.All> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly state: Record<string | symbol, any> = {}
 

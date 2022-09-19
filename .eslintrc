@@ -32,7 +32,8 @@
     "/docs/",
     "/test/",
     "/types.*",
-    "/future.*"
+    "/future.*",
+    "/update.*"
   ],
   "reportUnusedDisableDirectives": true,
   "plugins": ["ava"]

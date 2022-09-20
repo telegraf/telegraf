@@ -237,7 +237,7 @@ createServer(tlsOptions, await bot.createWebhook({ domain: "example.com" })).lis
 - [Google Cloud Functions example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/functions/google-cloud-function.ts)
 - [`express` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/express.ts)
 - [`fastify` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/fastify.ts)
-- [`koa` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/fastify.ts)
+- [`koa` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/koa.ts)
 - [NestJS framework integration module](https://github.com/bukhalo/nestjs-telegraf)
 - [Cloudflare Workers integration module](https://github.com/Tsuk1ko/cfworker-middware-telegraf)
 - Use [`bot.handleUpdate`](https://telegraf.js.org/classes/Telegraf-1.html#handleupdate) to write new integrations

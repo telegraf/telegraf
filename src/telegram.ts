@@ -134,7 +134,7 @@ export class Telegram extends ApiClient {
     text: string | FmtString,
     extra?: tt.ExtraReplyMessage
   ) {
-    const t = typeof text === 'string' ? new FmtString(text) : text
+    const t = FmtString.normalise(text)
     return this.callApi('sendMessage', { chat_id: chatId, ...extra, ...t })
   }
 

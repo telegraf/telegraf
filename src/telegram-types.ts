@@ -1,5 +1,6 @@
 /** @format */
 
+import { Expand } from './util'
 import { Message, Opts, Telegram, Update } from './core/types/typegram'
 import { UnionKeys } from './deunionize'
 import { FmtString } from './format'
@@ -11,7 +12,7 @@ export type ChatAction = Opts<'sendChatAction'>['action']
 
 // Modify type so caption, if exists, can be FmtString
 type WrapCaption<T> = T extends { caption?: string }
-  ? Omit<T, 'caption'> & { caption?: string | FmtString }
+  ? Expand<Omit<T, 'caption'> & { caption?: string | FmtString }>
   : T
 
 // extra types

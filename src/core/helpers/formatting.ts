@@ -7,9 +7,12 @@ export interface FmtString {
 }
 
 export class FmtString implements FmtString {
-  constructor(public text: string, public entities?: MessageEntity[]) {
-    // force parse_mode to undefined if entities are present
-    if (entities) this.parse_mode = undefined
+  constructor(public text: string, entities?: MessageEntity[]) {
+    if (entities) {
+      this.entities = entities
+      // force parse_mode to undefined if entities are present
+      this.parse_mode = undefined
+    }
   }
   static normalise(content: string | FmtString) {
     if (typeof content === 'string') return new FmtString(content)

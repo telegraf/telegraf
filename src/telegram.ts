@@ -791,15 +791,16 @@ export class Telegram extends ApiClient {
     chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
-    text: string,
+    text: string | FmtString,
     extra?: tt.ExtraEditMessageText
   ) {
+    const t = FmtString.normalise(text)
     return this.callApi('editMessageText', {
-      text,
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
       ...extra,
+      ...t,
     })
   }
 
@@ -816,15 +817,20 @@ export class Telegram extends ApiClient {
     chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
-    caption: string | undefined,
+    caption: string | FmtString | undefined,
     extra?: tt.ExtraEditMessageCaption
   ) {
+    // fmt may have entities (and parse_mode: undefined if entities are present)
+    const { text, ...fmt } = caption
+      ? FmtString.normalise(caption)
+      : { text: undefined }
     return this.callApi('editMessageCaption', {
-      caption,
+      caption: text,
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
       ...extra,
+      ...fmt,
     })
   }
 

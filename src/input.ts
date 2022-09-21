@@ -36,7 +36,7 @@ export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: str
  * 5 MB max size for photos and 20 MB max for other types of content.
  */
 // prettier-ignore
-export const fromURL = (url: string, filename?: string): InputFile => ({ url, filename })
+export const fromURL = (url: string | URL, filename?: string): InputFile => ({ url: url.toString(), filename })
 
 /**
  * If the file is already stored somewhere on the Telegram servers, you don't need to reupload it:

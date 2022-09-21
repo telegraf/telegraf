@@ -15,9 +15,6 @@ export class FmtString implements FmtString {
     if (typeof content === 'string') return new FmtString(content)
     return content
   }
-  toString() {
-    return this.text
-  }
 }
 
 export namespace Types {
@@ -68,8 +65,7 @@ export const linkOrMention = (
     | { type: 'text_link'; url: string }
     | { type: 'text_mention'; user: User }
 ) => {
-  const text = content.toString()
-  const entities = FmtString.normalise(content).entities || []
+  const { text, entities = [] } = FmtString.normalise(content)
   entities.unshift(Object.assign(data, { offset: 0, length: text.length }))
   return new FmtString(text, entities)
 }

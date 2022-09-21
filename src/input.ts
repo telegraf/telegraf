@@ -5,14 +5,16 @@ import { InputFile } from './core/types/typegram'
  *
  * 10 MB max size for photos, 50 MB for other files.
  */
-export const fromLocalFile = (path: string): InputFile => ({ source: path })
+// prettier-ignore
+export const fromLocalFile = (path: string, filename?: string): InputFile => ({ source: path, filename })
 
 /**
  * The buffer will be uploaded as file to Telegram using multipart/form-data.
  *
  * 10 MB max size for photos, 50 MB for other files.
  */
-export const fromBuffer = (buffer: Buffer): InputFile => ({ source: buffer })
+// prettier-ignore
+export const fromBuffer = (buffer: Buffer, filename?: string): InputFile => ({ source: buffer, filename })
 
 /**
  * Contents of the stream will be uploaded as file to Telegram using multipart/form-data.
@@ -20,7 +22,7 @@ export const fromBuffer = (buffer: Buffer): InputFile => ({ source: buffer })
  * 10 MB max size for photos, 50 MB for other files.
  */
 // prettier-ignore
-export const fromReadableStream = (stream: NodeJS.ReadableStream): InputFile => ({ source: stream })
+export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: string): InputFile => ({ source: stream, filename })
 
 /**
  * Provide Telegram with an HTTP URL for the file to be sent.

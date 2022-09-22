@@ -12,7 +12,7 @@ type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
 
-export class Context<U extends Deunionize<Update.All> = Update.All> {
+export class Context<U extends Deunionize<Update> = Update> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly state: Record<string | symbol, any> = {}
 

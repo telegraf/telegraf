@@ -19,10 +19,18 @@
       "require": "./lib/index.js",
       "import": "./lib/index.js"
     },
+    "./filters": {
+      "types": "./typings/filters.d.ts",
+      "default": "./lib/filters.js"
+    },
     "./future": {
       "types": "./future.d.ts",
       "require": "./future.js",
       "import": "./future.js"
+    },
+    "./scenes": {
+      "types": "./typings/scenes/index.d.ts",
+      "default": "./lib/scenes/index.js"
     },
     "./types": {
       "types": "./types.d.ts",
@@ -72,7 +80,7 @@
     "p-timeout": "^4.1.0",
     "safe-compare": "^1.1.4",
     "sandwich-stream": "^2.0.2",
-    "typegram": "^3.11.0"
+    "typegram": "^4.1.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",

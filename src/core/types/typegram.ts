@@ -14,12 +14,15 @@ export * from 'typegram/update'
 // telegraf input file definition
 interface InputFileByPath {
   source: string
+  filename?: string
 }
 interface InputFileByReadableStream {
   source: NodeJS.ReadableStream
+  filename?: string
 }
 interface InputFileByBuffer {
   source: Buffer
+  filename?: string
 }
 interface InputFileByURL {
   url: string

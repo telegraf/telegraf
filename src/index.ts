@@ -8,6 +8,7 @@ export { Telegram } from './telegram'
 export * as Types from './telegram-types'
 
 export * as Markup from './markup'
+export * as Input from './input'
 
 export { deunionize } from './deunionize'
 export { session, MemorySessionStore } from './session'

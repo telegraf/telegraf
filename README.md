@@ -217,9 +217,9 @@ bot.on("text", ctx => ctx.reply("Hello"));
 bot.launch({ 
   webhook: {
     domain: webhookDomain, // https://example.com
-    port: port, // 443
-    hookPath: webhookPath, // Application path on server
-    secretToken: randomAlphaNumericString // Optional but recommmended for more security. Also have to provide while setting the webhook url. see https://core.telegram.org/bots/api#setwebhook
+    port: port, // Use server's port
+    hookPath: webhookPath, // If not passed, Telegraf will generate a secure path for you.
+    secretToken: randomAlphaNumericString // Use "crypto.randomBytes(64).toString('hex')" to generate cryptographically secure string; Optional but recommmended for more security. Also have to provide while setting the webhook url. see https://core.telegram.org/bots/api#setwebhook
   }
 });
 ```

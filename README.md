@@ -219,7 +219,7 @@ bot.launch({
     domain: webhookDomain, // https://example.com
     port: port, // Use server's port
     hookPath: webhookPath, // If not passed, Telegraf will generate a secure path for you.
-    secretToken: randomAlphaNumericString // Use "crypto.randomBytes(64).toString('hex')" to generate cryptographically secure string; Optional but recommmended for more security. Also have to provide while setting the webhook url. see https://core.telegram.org/bots/api#setwebhook
+    secretToken: randomAlphaNumericString // Use "crypto.randomBytes(64).toString('hex')" to generate cryptographically secure string; Optional but recommmended for more security. See https://core.telegram.org/bots/api#setwebhook
   }
 });
 ```

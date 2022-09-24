@@ -214,10 +214,26 @@ const bot = new Telegraf(token);
 bot.on("text", ctx => ctx.reply("Hello"));
 
 // Start webhook via launch method (preferred)
-bot.launch({ webhook: { domain: webhookDomain, port: port } });
+bot.launch({
+  webhook: {
+    // Public domain for webhook; e.g.: example.com
+    domain: webhookDomain,
+
+    // Port to listen on; e.g.: 8080
+    port: port,
+
+    // Optional path to listen for.
+    // `bot.secretPathComponent()` will be used by default
+    hookPath: webhookPath,
+
+    // Optional secret to be sent back in a header for security.
+    // e.g.: `crypto.randomBytes(64).toString("hex")`
+    secretToken: randomAlphaNumericString,
+  },
+});
 ```
 
-Use `webhookCallback()` if you want to attach Telegraf to an existing http server.
+Use `createWebhook()` if you want to attach Telegraf to an existing http server.
 
 <!-- global bot, tlsOptions -->
 

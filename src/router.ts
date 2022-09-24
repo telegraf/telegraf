@@ -12,6 +12,7 @@ type RouteFn<TContext extends Context> = (ctx: TContext) => {
   state?: Partial<TContext['state']>
 } | null
 
+/** @deprecated in favor of {@link Composer.dispatch} */
 export class Router<C extends Context> implements MiddlewareObj<C> {
   private otherwiseHandler: Middleware<C> = Composer.passThru()
 

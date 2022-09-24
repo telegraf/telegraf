@@ -214,7 +214,14 @@ const bot = new Telegraf(token);
 bot.on("text", ctx => ctx.reply("Hello"));
 
 // Start webhook via launch method (preferred)
-bot.launch({ webhook: { domain: webhookDomain, port: port } });
+bot.launch({ 
+  webhook: {
+    domain: webhookDomain, // https://example.com
+    port: port, // 443
+    hookPath: webhookPath, // Application path on server
+    secretToken: randomAlphaNumericString // Optional but recommmended for more security. Also have to provide while setting the webhook url. see https://core.telegram.org/bots/api#setwebhook
+  }
+});
 ```
 
 Use `webhookCallback()` if you want to attach Telegraf to an existing http server.

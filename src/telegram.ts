@@ -164,7 +164,7 @@ export class Telegram extends ApiClient {
     return this.callApi('sendChatAction', { chat_id: chatId, action })
   }
 
-  getUserProfilePhotos(userId: number, offset?: number, limit?: number) {
+  getUserProfilePhotos(userId: number | string, offset?: number, limit?: number) {
     return this.callApi('getUserProfilePhotos', {
       user_id: userId,
       offset,

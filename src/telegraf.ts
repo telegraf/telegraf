@@ -1,10 +1,9 @@
 import * as crypto from 'crypto'
 import * as http from 'http'
 import * as https from 'https'
-import * as tg from './core/types/typegram'
+import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import { Composer, MaybePromise } from './composer'
-import ApiClient from './core/network/client'
 import { compactOptions } from './core/helpers/compact'
 import Context from './context'
 import d from 'debug'
@@ -15,10 +14,11 @@ import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
 import safeCompare = require('safe-compare')
+import { ClientOptions } from '@telegraf/client'
 const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
-  telegram: {},
+  api: {},
   handlerTimeout: 90_000, // 90s in ms
   contextType: Context,
 }
@@ -36,7 +36,7 @@ export namespace Telegraf {
       ...args: ConstructorParameters<typeof Context>
     ) => TContext
     handlerTimeout: number
-    telegram?: Partial<ApiClient.Options>
+    api?: Partial<ClientOptions>
   }
 
   export interface LaunchOptions {
@@ -138,22 +138,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
     }
-    this.telegram = new Telegram(token, this.options.telegram)
+    this.telegram = new Telegram(token, this.options.api)
     debug('Created a `Telegraf` instance')
-  }
-
-  private get token() {
-    return this.telegram.token
-  }
-
-  /** @deprecated use `ctx.telegram.webhookReply` */
-  set webhookReply(webhookReply: boolean) {
-    this.telegram.webhookReply = webhookReply
-  }
-
-  /** @deprecated use `ctx.telegram.webhookReply` */
-  get webhookReply() {
-    return this.telegram.webhookReply
   }
 
   /**
@@ -246,7 +232,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   secretPathComponent() {
     return crypto
       .createHash('sha3-256')
-      .update(this.token)
+      .update(this.telegram.client.token)
       .update(process.version) // salt
       .digest('hex')
   }
@@ -308,7 +294,11 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ),
       await (this.botInfoCall ??= this.telegram.getMe()))
     debug('Processing update', update.update_id)
-    const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
+    const tg = new Telegram(
+      this.telegram.client.token,
+      this.options.api
+      // webhookResponse // TODO(mkr): remove webhookResponse entirely or re-introduce?
+    )
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)

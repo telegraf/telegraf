@@ -1,6 +1,6 @@
 import * as http from 'http'
 import d from 'debug'
-import { type Update } from '../types/typegram'
+import { type Update } from 'typegram'
 const debug = d('telegraf:webhook')
 
 export default function generateWebhook(

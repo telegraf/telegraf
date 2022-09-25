@@ -1,10 +1,9 @@
-import * as tg from '../types/typegram'
+import * as tg from 'typegram'
 import * as tt from '../../telegram-types'
-import AbortController from 'abort-controller'
-import ApiClient from './client'
 import d from 'debug'
 import { promisify } from 'util'
 import { TelegramError } from './error'
+import Telegram from '../../telegram'
 const debug = d('telegraf:polling')
 const wait = promisify(setTimeout)
 function always<T>(x: T) {
@@ -17,7 +16,7 @@ export class Polling {
   private skipOffsetSync = false
   private offset = 0
   constructor(
-    private readonly telegram: ApiClient,
+    private readonly telegram: Telegram,
     private readonly allowedUpdates: readonly tt.UpdateType[]
   ) {}
 
@@ -32,7 +31,7 @@ export class Polling {
             offset: this.offset,
             allowed_updates: this.allowedUpdates,
           },
-          this.abortController
+          this.abortController.signal
         )
         const last = updates[updates.length - 1]
         if (last !== undefined) {

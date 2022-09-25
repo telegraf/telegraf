@@ -1,36 +1,15 @@
-import { InputFile } from './core/types/typegram'
+// import { InputFile, StreamFile } from '@telegraf/client'
 
-/**
- * The local file specified by path will be uploaded to Telegram using multipart/form-data.
- *
- * 10 MB max size for photos, 50 MB for other files.
- */
-// prettier-ignore
-export const fromLocalFile = (path: string, filename?: string): InputFile => ({ source: path, filename })
-
-/**
- * The buffer will be uploaded as file to Telegram using multipart/form-data.
- *
- * 10 MB max size for photos, 50 MB for other files.
- */
-// prettier-ignore
-export const fromBuffer = (buffer: Buffer, filename?: string): InputFile => ({ source: buffer, filename })
-
-/**
- * Contents of the stream will be uploaded as file to Telegram using multipart/form-data.
- *
- * 10 MB max size for photos, 50 MB for other files.
- */
-// prettier-ignore
-export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: string): InputFile => ({ source: stream, filename })
+export * from '@telegraf/client/input'
 
 /**
  * Contents of the URL will be streamed to Telegram.
  *
  * 10 MB max size for photos, 50 MB for other files.
+ * TODO(mkr): Maybe @telegraf/client needs to accept Promise<ReadableStream>
  */
 // prettier-ignore
-export const fromURLStream = (url: string | URL, filename?: string): InputFile => ({ url: url.toString(), filename })
+// export const fromURLStream = (url: string | URL, filename?: string): InputFile => new StreamFile(() =>  fetch(url).then(res => res.body), filename)
 
 /**
  * Provide Telegram with an HTTP URL for the file to be sent.

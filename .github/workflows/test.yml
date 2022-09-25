@@ -3,7 +3,7 @@ name: CI test
 on:
   pull_request: {}
   push:
-    branches: [ v? ]
+    branches: [ 'v[0-9]+' ]
     paths-ignore:
       - 'docs/**'
 
@@ -13,7 +13,12 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10, 11, 12, 14, 15, 16, 17]
+        node-version:
+          - 10
+          - 12
+          - 14
+          - 16
+          - 18
 
     steps:
     - uses: actions/checkout@v2

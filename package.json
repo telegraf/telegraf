@@ -59,7 +59,7 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "@telegraf/client": "^0.6.1",
+    "@telegraf/client": "^0.7.1",
     "debug": "^4.3.3",
     "mri": "^1.2.0",
     "p-timeout": "^4.1.0",

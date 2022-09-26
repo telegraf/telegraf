@@ -14,7 +14,7 @@ import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
 import safeCompare = require('safe-compare')
-import { ClientOptions } from '@telegraf/client'
+import { Client, type ClientOptions } from '@telegraf/client'
 const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
@@ -94,6 +94,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   public botInfo?: tg.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<C> = {}
+  readonly #token: string
 
   /** Assign to this to customise the webhook filter middleware.
    * `{ hookPath, secretToken }` will be bound to this rather than the Telegraf instance.
@@ -138,7 +139,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
     }
-    this.telegram = new Telegram(token, this.options.api)
+    this.#token = token
+    this.telegram = new Telegram(new Client(token, this.options.api))
     debug('Created a `Telegraf` instance')
   }
 
@@ -232,7 +234,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   secretPathComponent() {
     return crypto
       .createHash('sha3-256')
-      .update(this.telegram.client.token)
+      .update(this.#token)
       .update(process.version) // salt
       .digest('hex')
   }
@@ -294,11 +296,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ),
       await (this.botInfoCall ??= this.telegram.getMe()))
     debug('Processing update', update.update_id)
-    const tg = new Telegram(
-      this.telegram.client.token,
-      this.options.api
-      // webhookResponse // TODO(mkr): remove webhookResponse entirely or re-introduce?
-    )
+    // webhookResponse // TODO(mkr): remove webhookResponse entirely or re-introduce?
+    const tg = this.telegram.clone()
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)

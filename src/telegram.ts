@@ -1,20 +1,31 @@
 import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import { TT } from './telegram-types'
-import { Client, ClientOptions, createApi, type Opts } from '@telegraf/client'
+import { Client, type Opts } from '@telegraf/client'
 import { isAbsolute } from 'path'
 import { URL } from 'url'
 import { TelegramError } from './index'
 
-export class Telegram {
-  client: Readonly<Client>
+export type EndoFunction<T> = (t: T) => T
+export type Transformer = EndoFunction<Client['call']>
 
-  constructor(token: string, options?: ClientOptions) {
-    this.client = new Client(token, options)
+export class Telegram {
+  #client: Client
+  private call: Client['call']
+
+  constructor(client: Client) {
+    this.#client = client
+    this.call = this.#client.call.bind(this.#client)
   }
 
-  get api() {
-    return createApi(this.client)
+  use(transform: Transformer) {
+    this.call = transform(this.call)
+  }
+
+  clone() {
+    const telegram = new Telegram(this.#client)
+    telegram.call = this.call
+    return telegram
   }
 
   async callApi<M extends keyof Opts>(
@@ -22,7 +33,7 @@ export class Telegram {
     payload: Opts[M],
     signal?: AbortSignal
   ) {
-    const result = await this.client.call({ method, payload, signal })
+    const result = await this.call({ method, payload, signal })
     if (result.ok) return result.result
     throw new TelegramError(result)
   }
@@ -52,7 +63,7 @@ export class Telegram {
       fileId = await this.getFile(fileId.file_id)
     }
 
-    const root = this.client.options.api.root.toString()
+    const root = this.#client.options.api.root.toString()
 
     // Local bot API instances return the absolute path to the file
     if (fileId.file_path !== undefined && isAbsolute(fileId.file_path)) {
@@ -64,8 +75,8 @@ export class Telegram {
     }
 
     return new URL(
-      `./file/${this.client.options.api.mode}${
-        this.client.token
+      `./file/${this.#client.options.api.mode}${
+        this.#client.token
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       }/${fileId.file_path!}`,
       root

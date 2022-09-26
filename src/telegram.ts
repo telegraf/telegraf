@@ -1,7 +1,7 @@
 import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import { TT } from './telegram-types'
-import { Client, ClientOptions, createApi, type Opts } from '@telegraf/client'
+import { Client, createApi, type Opts } from '@telegraf/client'
 import { isAbsolute } from 'path'
 import { URL } from 'url'
 import { TelegramError } from './index'
@@ -10,11 +10,11 @@ export type EndoFunction<T> = (t: T) => T
 export type Transformer = EndoFunction<Client['call']>
 
 export class Telegram {
-  #client: Readonly<Client>
+  #client: Client
   private call: Client['call']
 
-  constructor(token: string, options?: ClientOptions) {
-    this.#client = new Client(token, options)
+  constructor(client: Client) {
+    this.#client = client
     this.call = this.#client.call.bind(this.#client)
   }
 
@@ -23,7 +23,7 @@ export class Telegram {
   }
 
   clone() {
-    const telegram = new Telegram(this.#client.token, this.#client.options)
+    const telegram = new Telegram(this.#client)
     telegram.call = this.call
     return telegram
   }

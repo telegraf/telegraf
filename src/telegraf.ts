@@ -14,7 +14,7 @@ import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
 import safeCompare = require('safe-compare')
-import { ClientOptions } from '@telegraf/client'
+import { Client, type ClientOptions } from '@telegraf/client'
 const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
@@ -140,7 +140,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ...compactOptions(options),
     }
     this.#token = token
-    this.telegram = new Telegram(token, this.options.api)
+    this.telegram = new Telegram(new Client(token, this.options.api))
     debug('Created a `Telegraf` instance')
   }
 

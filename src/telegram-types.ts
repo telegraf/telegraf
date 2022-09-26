@@ -2,7 +2,12 @@
 
 import { Message, Update } from 'typegram'
 import { UnionKeys } from './deunionize'
-import { TelegrafTypegram, TelegramP, InputFile, Opts } from '@telegraf/client'
+import {
+  TelegrafTypegram,
+  TelegramP,
+  InputFile,
+  Opts,
+} from './core/network/client'
 
 export { Markup } from './markup'
 

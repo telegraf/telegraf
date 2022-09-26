@@ -6,15 +6,30 @@ import { isAbsolute } from 'path'
 import { URL } from 'url'
 import { TelegramError } from './index'
 
+export type EndoFunction<T> = (t: T) => T
+export type Transformer = EndoFunction<Client['call']>
+
 export class Telegram {
-  client: Readonly<Client>
+  #client: Readonly<Client>
+  private call: Client['call']
 
   constructor(token: string, options?: ClientOptions) {
-    this.client = new Client(token, options)
+    this.#client = new Client(token, options)
+    this.call = this.#client.call.bind(this.#client)
+  }
+
+  use(transform: Transformer) {
+    this.call = transform(this.call)
+  }
+
+  clone() {
+    const telegram = new Telegram(this.#client.token, this.#client.options)
+    telegram.call = this.call
+    return telegram
   }
 
   get api() {
-    return createApi(this.client)
+    return createApi(this.call)
   }
 
   async callApi<M extends keyof Opts>(
@@ -22,7 +37,7 @@ export class Telegram {
     payload: Opts[M],
     signal?: AbortSignal
   ) {
-    const result = await this.client.call({ method, payload, signal })
+    const result = await this.call({ method, payload, signal })
     if (result.ok) return result.result
     throw new TelegramError(result)
   }
@@ -52,7 +67,7 @@ export class Telegram {
       fileId = await this.getFile(fileId.file_id)
     }
 
-    const root = this.client.options.api.root.toString()
+    const root = this.#client.options.api.root.toString()
 
     // Local bot API instances return the absolute path to the file
     if (fileId.file_path !== undefined && isAbsolute(fileId.file_path)) {
@@ -64,8 +79,8 @@ export class Telegram {
     }
 
     return new URL(
-      `./file/${this.client.options.api.mode}${
-        this.client.token
+      `./file/${this.#client.options.api.mode}${
+        this.#client.token
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       }/${fileId.file_path!}`,
       root

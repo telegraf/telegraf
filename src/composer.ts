@@ -336,7 +336,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   >(routeFn: (ctx: C) => keyof Handlers, handlers: Handlers): Middleware<C> {
     return (ctx, next) => {
       const key = routeFn(ctx)
-      if (!Object.hasOwn(ctx, key)) return next()
+      if (!Object.hasOwn(handlers, key)) return next()
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return Composer.unwrap(handlers[key]!)(ctx, next)
     }

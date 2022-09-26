@@ -168,6 +168,7 @@ class MockResponse {
   }
 }
 
+/*
 test('should handle webhook response', async (t) => {
   const bot = createBot()
   bot.on('message', async (ctx) => {
@@ -226,6 +227,7 @@ test('should respect webhookReply runtime change (per request)', async (t) => {
   t.true(res.writableEnded)
   t.is(res.body, undefined)
 })
+*/
 
 test('should deterministically generate `secretPathComponent`', (t) => {
   const foo = createBot('foo')

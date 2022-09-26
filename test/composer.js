@@ -539,6 +539,7 @@ test('Composer.dispatch should work', (t) =>
     })
   ))
 
+/*
 test('Composer.dispatch should work with async fn', (t) =>
   t.notThrowsAsync(
     new Promise((resolve, reject) => {
@@ -564,6 +565,7 @@ test('Composer.dispatch should work with async fn', (t) =>
       bot.handleUpdate({ message: { text: 'hello world', ...baseMessage } })
     })
   ))
+  */
 
 test('Composer.log should just work', (t) =>
   t.notThrowsAsync(

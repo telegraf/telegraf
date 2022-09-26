@@ -1,7 +1,7 @@
 import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import { TT } from './telegram-types'
-import { Client, createApi, type Opts } from '@telegraf/client'
+import { Client, type Opts } from '@telegraf/client'
 import { isAbsolute } from 'path'
 import { URL } from 'url'
 import { TelegramError } from './index'
@@ -26,10 +26,6 @@ export class Telegram {
     const telegram = new Telegram(this.#client)
     telegram.call = this.call
     return telegram
-  }
-
-  get api() {
-    return createApi(this.call)
   }
 
   async callApi<M extends keyof Opts>(

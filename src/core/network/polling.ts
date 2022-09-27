@@ -1,10 +1,9 @@
-import * as tg from '../types/typegram'
+import * as tg from 'typegram'
 import * as tt from '../../telegram-types'
-import AbortController from 'abort-controller'
-import ApiClient from './client'
 import d from 'debug'
 import { promisify } from 'util'
 import { TelegramError } from './error'
+import Telegram from '../../telegram'
 const debug = d('telegraf:polling')
 const wait = promisify(setTimeout)
 function always<T>(x: T) {
@@ -17,7 +16,7 @@ export class Polling {
   private skipOffsetSync = false
   private offset = 0
   constructor(
-    private readonly telegram: ApiClient,
+    private readonly telegram: Telegram,
     private readonly allowedUpdates: readonly tt.UpdateType[]
   ) {}
 
@@ -32,17 +31,22 @@ export class Polling {
             offset: this.offset,
             allowed_updates: this.allowedUpdates,
           },
-          this.abortController
+          this.abortController.signal
         )
         const last = updates[updates.length - 1]
         if (last !== undefined) {
           this.offset = last.update_id + 1
         }
         yield updates
-      } catch (err) {
+      } catch (error) {
+        const err = error as Error & {
+          parameters?: { retry_after: number }
+        }
+
         if (err.name === 'AbortError') return
         if (
           err.name === 'FetchError' ||
+          (err instanceof TelegramError && err.code === 429) ||
           (err instanceof TelegramError && err.code >= 500)
         ) {
           const retryAfter: number = err.parameters?.retry_after ?? 5
@@ -69,13 +73,13 @@ export class Polling {
     await this.telegram.callApi('getUpdates', { offset: this.offset, limit: 1 })
   }
 
-  async loop(handleUpdates: (updates: tg.Update[]) => Promise<void>) {
+  async loop(handleUpdate: (updates: tg.Update) => Promise<void>) {
     if (this.abortController.signal.aborted) {
       throw new Error('Polling instances must not be reused!')
     }
     try {
       for await (const updates of this) {
-        await handleUpdates(updates)
+        await Promise.all(updates.map(handleUpdate))
       }
     } finally {
       debug('Long polling stopped')

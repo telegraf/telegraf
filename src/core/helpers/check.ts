@@ -5,8 +5,9 @@ interface Mapping {
   boolean: boolean
   symbol: symbol
   undefined: undefined
-  object: object
-  function: Function
+  object: Record<string, unknown>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function: (...props: any[]) => any
 }
 
 /**
@@ -23,7 +24,7 @@ interface Mapping {
  * @param obj An object to test
  * @param prop The name of the property
  */
-export function hasProp<O extends {}, K extends PropertyKey>(
+export function hasProp<O extends object, K extends PropertyKey>(
   obj: O | undefined,
   prop: K
 ): obj is O & Record<K, unknown> {
@@ -46,12 +47,11 @@ export function hasProp<O extends {}, K extends PropertyKey>(
  * @param type The type the property is expected to have
  */
 export function hasPropType<
-  O extends {},
+  O extends object,
   K extends PropertyKey,
   T extends keyof Mapping,
   V extends Mapping[T]
 >(obj: O | undefined, prop: K, type: T): obj is O & Record<K, V> {
-  // eslint-disable-next-line valid-typeof
   return hasProp(obj, prop) && type === typeof obj[prop]
 }
 

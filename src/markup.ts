@@ -5,14 +5,14 @@ import {
   KeyboardButton,
   ReplyKeyboardMarkup,
   ReplyKeyboardRemove,
-} from './core/types/typegram'
+} from 'typegram'
 import { is2D } from './core/helpers/check'
 
 type Hideable<B> = B & { hide?: boolean }
 type HideableKBtn = Hideable<KeyboardButton>
 type HideableIKBtn = Hideable<InlineKeyboardButton>
 
-class Markup<
+export class Markup<
   T extends
     | InlineKeyboardMarkup
     | ReplyKeyboardMarkup
@@ -26,6 +26,16 @@ class Markup<
     value = true
   ) {
     return new Markup<T>({ ...this.reply_markup, selective: value })
+  }
+
+  placeholder<T extends ForceReply | ReplyKeyboardMarkup>(
+    this: Markup<T>,
+    placeholder: string
+  ) {
+    return new Markup<T>({
+      ...this.reply_markup,
+      input_field_placeholder: placeholder,
+    })
   }
 
   resize(this: Markup<ReplyKeyboardMarkup>, value = true) {
@@ -108,7 +118,7 @@ function buildKeyboard<B extends HideableKBtn | HideableIKBtn>(
       ? options.wrap
       : (_btn: B, _index: number, currentRow: B[]) =>
           currentRow.length >= options.columns
-  let currentRow = []
+  let currentRow: B[] = []
   let index = 0
   for (const btn of buttons.filter((button) => !button.hide)) {
     if (wrapFn(btn, index, currentRow) && currentRow.length > 0) {

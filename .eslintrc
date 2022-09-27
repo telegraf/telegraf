@@ -1,38 +1,39 @@
 {
-  "extends": ["standard-with-typescript"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   "parserOptions": {
-    "project": ["./tsconfig.json", "docs/examples/tsconfig.json"]
+    "project": ["./tsconfig.json"]
   },
   "overrides": [
     {
-      "files": "*.ts",
-      "extends": ["plugin:prettier/recommended", "prettier/@typescript-eslint"],
+      "files": ["*.ts", "*.mts"],
+      "extends": ["plugin:prettier/recommended"],
       "rules": {
-        "sort-imports": ["error", { "ignoreCase": true }],
         "@typescript-eslint/ban-ts-comment": "warn",
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/no-explicit-any": "warn",
         "@typescript-eslint/no-non-null-assertion": "warn",
         "@typescript-eslint/promise-function-async": "off",
-        "@typescript-eslint/strict-boolean-expressions": "warn"
-      }
-    }, {
-      "files": ["*.md"],
-      "plugins": ["markdown"],
-      "parserOptions": {
-        "ecmaFeatures": {
-            "impliedStrict": true
-        }
-      },
-      "rules": {
-        "strict": "off"
+        "no-undef": "off"
       }
     }
   ],
   "rules": {
-    "no-warning-comments": "error"
+    "no-warning-comments": "error",
+    "prefer-promise-reject-errors": "off",
+    "comma-dangle": "off",
+    "space-before-function-paren": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/strict-boolean-expressions": "off"
   },
-  "ignorePatterns": ["/lib/", "/typings/", "/docs/build/"],
+  "ignorePatterns": [
+    "/bin/",
+    "/lib/",
+    "/typings/",
+    "/docs/",
+    "/test/",
+    "/types.*",
+    "/future.*"
+  ],
   "reportUnusedDisableDirectives": true,
   "plugins": ["ava"]
 }

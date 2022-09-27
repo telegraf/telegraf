@@ -1,26 +1,29 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "composite": true,
+    "module": "Node16",
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "typings/",
+    "esModuleInterop": true,
     "outDir": "lib/",
     "rootDir": "src/",
-    "target": "ES2019",
+    "target": "ES2022",
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "incremental": true,
     "tsBuildInfoFile": "typings/tsconfig.tsbuildinfo",
     "noErrorTruncation": true,
+    "stripInternal": true,
     "forceConsistentCasingInFileNames": true
   },
   "typedocOptions": {
+    "customCss": "docs/theme/assets/css/custom.css",
     "excludeExternals": true,
     "includeVersion": true,
+    "media": "docs/assets/",
     "name": "telegraf.js",
     "out": "docs/build/",
-    "readme": "README.md",
-    "theme": "docs/theme/"
+    "readme": "README.md"
   },
   "include": ["src/"]
 }

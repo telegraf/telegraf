@@ -1,11 +1,9 @@
 import * as crypto from 'crypto'
 import * as http from 'http'
 import * as https from 'https'
-import * as tg from './core/types/typegram'
+import * as tg from 'typegram'
 import * as tt from './telegram-types'
-import * as util from 'util'
 import { Composer, MaybePromise } from './composer'
-import ApiClient from './core/network/client'
 import { compactOptions } from './core/helpers/compact'
 import Context from './context'
 import d from 'debug'
@@ -15,10 +13,12 @@ import pTimeout from 'p-timeout'
 import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
+import safeCompare = require('safe-compare')
+import { Client, type ClientOptions } from '@telegraf/client'
 const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
-  telegram: {},
+  api: {},
   handlerTimeout: 90_000, // 90s in ms
   contextType: Context,
 }
@@ -26,6 +26,7 @@ const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
 function always<T>(x: T) {
   return () => x
 }
+
 const anoop = always(Promise.resolve())
 
 // eslint-disable-next-line
@@ -35,7 +36,7 @@ export namespace Telegraf {
       ...args: ConstructorParameters<typeof Context>
     ) => TContext
     handlerTimeout: number
-    telegram?: Partial<ApiClient.Options>
+    api?: Partial<ClientOptions>
   }
 
   export interface LaunchOptions {
@@ -44,8 +45,8 @@ export namespace Telegraf {
     allowedUpdates?: tt.UpdateType[]
     /** Configuration options for when the bot is run via webhooks */
     webhook?: {
-      /** Public domain for webhook. If domain is not specified, hookPath should contain a domain name as well (not only path component). */
-      domain?: string
+      /** Public domain for webhook. */
+      domain: string
 
       /** Webhook url path; will be automatically generated if not specified */
       hookPath?: string
@@ -53,15 +54,38 @@ export namespace Telegraf {
       host?: string
       port?: number
 
+      /** The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS */
+      ipAddress?: string
+
+      /**
+       * Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40.
+       * Use lower values to limit the load on your bot's server, and higher values to increase your bot's throughput.
+       */
+      maxConnections?: number
+
       /** TLS server options. Omit to use http. */
       tlsOptions?: TlsOptions
+
+      /**
+       * A secret token to be sent in a header `“X-Telegram-Bot-Api-Secret-Token”` in every webhook request.
+       * 1-256 characters. Only characters `A-Z`, `a-z`, `0-9`, `_` and `-` are allowed.
+       * The header is useful to ensure that the request comes from a webhook set by you.
+       */
+      secretToken?: string
+
+      /**
+       * Upload your public key certificate so that the root certificate in use can be checked.
+       * See [self-signed guide](https://core.telegram.org/bots/self-signed) for details.
+       */
+      certificate?: tg.InputFile
 
       cb?: http.RequestListener
     }
   }
 }
 
-// eslint-disable-next-line import/export
+const TOKEN_HEADER = 'x-telegram-bot-api-secret-token'
+
 export class Telegraf<C extends Context = Context> extends Composer<C> {
   private readonly options: Telegraf.Options<C>
   private webhookServer?: http.Server | https.Server
@@ -70,6 +94,34 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   public botInfo?: tg.UserFromGetMe
   public telegram: Telegram
   readonly context: Partial<C> = {}
+  readonly #token: string
+
+  /** Assign to this to customise the webhook filter middleware.
+   * `{ hookPath, secretToken }` will be bound to this rather than the Telegraf instance.
+   * Remember to assign a regular function and not an arrow function so it's bindable.
+   */
+  public webhookFilter = function (
+    // NOTE: this function is assigned to a variable instead of being a method to signify that it's assignable
+    // NOTE: the `this` binding is so custom impls don't need to double wrap
+    this: { hookPath: string; secretToken?: string },
+    req: http.IncomingMessage
+  ) {
+    const debug = d('telegraf:webhook')
+
+    if (req.method === 'POST') {
+      if (safeCompare(this.hookPath, req.url as string)) {
+        // no need to check if secret_token was not set
+        if (!this.secretToken) return true
+        else {
+          const token = req.headers[TOKEN_HEADER] as string
+          if (safeCompare(token, this.secretToken)) return true
+          else debug('Secret token does not match:', token, this.secretToken)
+        }
+      } else debug('Path does not match:', req.url, this.hookPath)
+    } else debug('Unexpected request method, not POST. Received:', req.method)
+
+    return false
+  }
 
   private handleError = (err: unknown, ctx: C): MaybePromise<void> => {
     // set exit code to emulate `warn-with-error-code` behavior of
@@ -82,26 +134,14 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
   constructor(token: string, options?: Partial<Telegraf.Options<C>>) {
     super()
-    // @ts-expect-error
+    // @ts-expect-error Trust me, TS
     this.options = {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
     }
-    this.telegram = new Telegram(token, this.options.telegram)
+    this.#token = token
+    this.telegram = new Telegram(new Client(token, this.options.api))
     debug('Created a `Telegraf` instance')
-  }
-
-  private get token() {
-    return this.telegram.token
-  }
-
-  /** @deprecated use `ctx.telegram.webhookReply` */
-  set webhookReply(webhookReply: boolean) {
-    this.telegram.webhookReply = webhookReply
-  }
-
-  get webhookReply() {
-    return this.telegram.webhookReply
   }
 
   /**
@@ -112,19 +152,59 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return this
   }
 
-  webhookCallback(path = '/') {
+  /**
+   * You must call `bot.telegram.setWebhook` for this to work.
+   * You should probably use {@link Telegraf.createWebhook} instead.
+   */
+  webhookCallback(hookPath = '/', opts: { secretToken?: string } = {}) {
+    const { secretToken } = opts
     return generateCallback(
-      path,
+      this.webhookFilter.bind({ hookPath, secretToken }),
       (update: tg.Update, res: http.ServerResponse) =>
         this.handleUpdate(update, res)
     )
   }
 
+  private getDomainOpts(opts: { domain: string; path?: string }) {
+    const protocol =
+      opts.domain.startsWith('https://') || opts.domain.startsWith('http://')
+
+    if (protocol)
+      debug(
+        'Unexpected protocol in domain, telegraf will use https:',
+        opts.domain
+      )
+
+    const domain = protocol ? new URL(opts.domain).host : opts.domain
+    const path = opts.path ?? `/telegraf/${this.secretPathComponent()}`
+    const url = `https://${domain}${path}`
+
+    return { domain, path, url }
+  }
+
+  /**
+   * Specify a url to receive incoming updates via webhook.
+   * Returns an Express-style middleware you can pass to app.use()
+   */
+  async createWebhook(
+    opts: { domain: string; path?: string } & tt.ExtraSetWebhook
+  ) {
+    const { domain, path, ...extra } = opts
+
+    const domainOpts = this.getDomainOpts({ domain, path })
+
+    await this.telegram.setWebhook(domainOpts.url, extra)
+    debug(`Webhook set to ${domainOpts.url}`)
+
+    return this.webhookCallback(domainOpts.path, {
+      secretToken: extra.secret_token,
+    })
+  }
+
   private startPolling(allowedUpdates: tt.UpdateType[] = []) {
     this.polling = new Polling(this.telegram, allowedUpdates)
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.polling.loop(async (updates) => {
-      await this.handleUpdates(updates)
+    this.polling.loop(async (update) => {
+      await this.handleUpdate(update)
     })
   }
 
@@ -133,21 +213,30 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     tlsOptions?: TlsOptions,
     port?: number,
     host?: string,
-    cb?: http.RequestListener
+    cb?: http.RequestListener,
+    secretToken?: string
   ) {
-    const webhookCb = this.webhookCallback(hookPath)
+    const webhookCb = this.webhookCallback(hookPath, { secretToken })
     const callback: http.RequestListener =
       typeof cb === 'function'
         ? (req, res) => webhookCb(req, res, () => cb(req, res))
         : webhookCb
     this.webhookServer =
-      tlsOptions !== undefined
+      tlsOptions != null
         ? https.createServer(tlsOptions, callback)
         : http.createServer(callback)
     this.webhookServer.listen(port, host, () => {
       debug('Webhook listening on port: %s', port)
     })
     return this
+  }
+
+  secretPathComponent() {
+    return crypto
+      .createHash('sha3-256')
+      .update(this.#token)
+      .update(process.version) // salt
+      .digest('hex')
   }
 
   /**
@@ -157,6 +246,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     debug('Connecting to Telegram')
     this.botInfo ??= await this.telegram.getMe()
     debug(`Launching @${this.botInfo.username}`)
+
     if (config.webhook === undefined) {
       await this.telegram.deleteWebhook({
         drop_pending_updates: config.dropPendingUpdates,
@@ -165,30 +255,26 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       debug('Bot started with long polling')
       return
     }
-    if (
-      typeof config.webhook.domain !== 'string' &&
-      typeof config.webhook.hookPath !== 'string'
-    ) {
-      throw new Error('Webhook domain or webhook path is required')
-    }
-    let domain = config.webhook.domain ?? ''
-    if (domain.startsWith('https://') || domain.startsWith('http://')) {
-      domain = new URL(domain).host
-    }
-    const hookPath =
-      config.webhook.hookPath ??
-      `/telegraf/${crypto.randomBytes(32).toString('hex')}`
-    const { port, host, tlsOptions, cb } = config.webhook
-    this.startWebhook(hookPath, tlsOptions, port, host, cb)
-    if (!domain) {
-      debug('Bot started with webhook')
-      return
-    }
-    await this.telegram.setWebhook(`https://${domain}${hookPath}`, {
+
+    const domainOpts = this.getDomainOpts({
+      domain: config.webhook.domain,
+      path: config.webhook.hookPath,
+    })
+
+    const { tlsOptions, port, host, cb, secretToken } = config.webhook
+
+    this.startWebhook(domainOpts.path, tlsOptions, port, host, cb, secretToken)
+
+    await this.telegram.setWebhook(domainOpts.url, {
       drop_pending_updates: config.dropPendingUpdates,
       allowed_updates: config.allowedUpdates,
+      ip_address: config.webhook.ipAddress,
+      max_connections: config.webhook.maxConnections,
+      secret_token: config.webhook.secretToken,
+      certificate: config.webhook.certificate,
     })
-    debug(`Bot started with webhook @ https://${domain}`)
+
+    debug(`Bot started with webhook @ ${domainOpts.url}`)
   }
 
   stop(reason = 'unspecified') {
@@ -201,13 +287,6 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     this.polling?.stop()
   }
 
-  private handleUpdates(updates: readonly tg.Update[]) {
-    if (!Array.isArray(updates)) {
-      throw new TypeError(util.format('Updates must be an array, got', updates))
-    }
-    return Promise.all(updates.map((update) => this.handleUpdate(update)))
-  }
-
   private botInfoCall?: Promise<tg.UserFromGetMe>
   async handleUpdate(update: tg.Update, webhookResponse?: http.ServerResponse) {
     this.botInfo ??=
@@ -217,7 +296,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ),
       await (this.botInfoCall ??= this.telegram.getMe()))
     debug('Processing update', update.update_id)
-    const tg = new Telegram(this.token, this.telegram.options, webhookResponse)
+    // webhookResponse // TODO(mkr): remove webhookResponse entirely or re-introduce?
+    const tg = this.telegram.clone()
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)

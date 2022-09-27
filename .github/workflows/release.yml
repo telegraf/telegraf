@@ -1,4 +1,4 @@
-name: Release docs
+name: Release
 
 on:
   push:
@@ -6,19 +6,20 @@ on:
       - v4.*
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
-    - run: npm ci --ignore-scripts
-    - run: npm run build:docs
+    - run : npm ci --ignore-scripts
+    - run : npm run build:docs
     - name: Make GitHub links absolute
-      run:
+      run :
         shopt -s globstar;
         sed
           --in-place
           --expression='s:/develop/docs/:/${{ github.sha }}/docs/:g'
+          --expression='s:<img src="docs/assets/:<img src="media/:g'
           docs/build/**/*.html;
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
@@ -27,3 +28,9 @@ jobs:
           publish_dir: ./docs/build
           # for v3.html and perhaps CNAME
           keep_files: true
+    - name: Publish to npm
+      run : |
+        npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+        npm publish --ignore-scripts
+      env :
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

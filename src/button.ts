@@ -1,4 +1,4 @@
-import { InlineKeyboardButton, KeyboardButton } from './core/types/typegram'
+import { InlineKeyboardButton, KeyboardButton } from 'typegram'
 
 type Hideable<B> = B & { hide: boolean }
 
@@ -90,6 +90,18 @@ export function login(
   return {
     text,
     login_url: { ...opts, url },
+    hide,
+  }
+}
+
+export function webApp(
+  text: string,
+  url: string,
+  hide = false
+): Hideable<InlineKeyboardButton.WebAppButton> {
+  return {
+    text,
+    web_app: { url },
     hide,
   }
 }

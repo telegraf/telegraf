@@ -12,7 +12,8 @@ export class WizardScene<
     }
   >
   extends BaseScene<C>
-  implements MiddlewareObj<C> {
+  implements MiddlewareObj<C>
+{
   steps: Array<Middleware<C>>
 
   constructor(id: string, ...steps: Array<Middleware<C>>)

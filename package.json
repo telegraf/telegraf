@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "4.3.0",
+  "version": "4.9.2",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -14,21 +14,37 @@
   },
   "main": "lib/index.js",
   "exports": {
-    ".": "./lib/index.js"
+    ".": {
+      "types": "./typings/index.d.ts",
+      "require": "./lib/index.js",
+      "import": "./lib/index.js"
+    },
+    "./future": {
+      "types": "./future.d.ts",
+      "require": "./future.js",
+      "import": "./future.js"
+    },
+    "./types": {
+      "types": "./types.d.ts",
+      "require": "./types.js",
+      "import": "./types.js"
+    }
   },
   "files": [
     "bin/*",
     "src/**/*.ts",
     "lib/**/*.js",
     "typings/**/*.d.ts",
-    "typings/**/*.d.ts.map"
+    "typings/**/*.d.ts.map",
+    "types.*",
+    "future.*"
   ],
   "bin": {
-    "telegraf": "./bin/telegraf"
+    "telegraf": "lib/cli.mjs"
   },
   "scripts": {
     "prepare": "npm run --silent build",
-    "build": "tsc --build docs/examples",
+    "build": "tsc",
     "build:docs": "typedoc src/index.ts",
     "pretest": "npm run build",
     "test": "ava test/*",
@@ -39,42 +55,34 @@
   },
   "type": "commonjs",
   "engines": {
-    "node": "^12.20.0 || >=14.13.1"
+    "node": ">=18"
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "abort-controller": "^3.0.0",
-    "debug": "^4.3.1",
-    "minimist": "^1.2.5",
-    "module-alias": "^2.2.2",
-    "node-fetch": "^2.6.1",
+    "@telegraf/client": "^0.7.1",
+    "debug": "^4.3.3",
+    "mri": "^1.2.0",
     "p-timeout": "^4.1.0",
     "safe-compare": "^1.1.4",
-    "sandwich-stream": "^2.0.2",
-    "typegram": "^3.2.0"
+    "typegram": "^3.11.0"
   },
   "devDependencies": {
-    "@types/debug": "^4.1.5",
-    "@types/node": "^14.14.20",
-    "@types/node-fetch": "^2.5.7",
+    "@types/debug": "^4.1.7",
+    "@types/node": "^18.7.20",
     "@types/safe-compare": "^1.1.0",
-    "@typescript-eslint/eslint-plugin": "^4.16.1",
-    "@typescript-eslint/parser": "^4.16.1",
-    "ava": "^3.15.0",
-    "eslint": "^7.17.0",
-    "eslint-config-prettier": "^7.1.0",
-    "eslint-config-standard": "^16.0.2",
-    "eslint-config-standard-with-typescript": "^19.0.1",
-    "eslint-plugin-ava": "^11.0.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-markdown": "^1.0.2",
+    "@typescript-eslint/eslint-plugin": "^5.10.2",
+    "@typescript-eslint/parser": "^5.10.2",
+    "ava": "^4.0.1",
+    "eslint": "^8.8.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-ava": "^13.2.0",
+    "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^3.3.1",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.1.0",
-    "prettier": "2.2.1",
-    "typedoc": "^0.20.29",
-    "typescript": "~4.2.3"
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "prettier": "^2.5.1",
+    "typedoc": "^0.23.10",
+    "typescript": "^4.7.4"
   },
   "keywords": [
     "telegraf",

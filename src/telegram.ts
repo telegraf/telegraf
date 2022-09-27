@@ -1,10 +1,43 @@
-import * as tg from './core/types/typegram'
+import * as tg from 'typegram'
 import * as tt from './telegram-types'
-import ApiClient from './core/network/client'
+import { TT } from './telegram-types'
+import { Client, type Opts } from '@telegraf/client'
 import { isAbsolute } from 'path'
 import { URL } from 'url'
+import { TelegramError } from './index'
 
-export class Telegram extends ApiClient {
+export type EndoFunction<T> = (t: T) => T
+export type Transformer = EndoFunction<Client['call']>
+
+export class Telegram {
+  #client: Client
+  private call: Client['call']
+
+  constructor(client: Client) {
+    this.#client = client
+    this.call = this.#client.call.bind(this.#client)
+  }
+
+  use(transform: Transformer) {
+    this.call = transform(this.call)
+  }
+
+  clone() {
+    const telegram = new Telegram(this.#client)
+    telegram.call = this.call
+    return telegram
+  }
+
+  async callApi<M extends keyof Opts>(
+    method: M,
+    payload: Opts[M],
+    signal?: AbortSignal
+  ) {
+    const result = await this.call({ method, payload, signal })
+    if (result.ok) return result.result
+    throw new TelegramError(result)
+  }
+
   /**
    * Get basic information about the bot
    */
@@ -13,7 +46,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Get basic info about a file and prepare it for downloading
+   * Get basic info about a file and prepare it for downloading.
    * @param fileId Id of file to get link to
    */
   getFile(fileId: string) {
@@ -21,7 +54,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Get download link to a file
+   * Get download link to a file.
    */
   async getFileLink(fileId: string | tg.File) {
     if (typeof fileId === 'string') {
@@ -30,9 +63,11 @@ export class Telegram extends ApiClient {
       fileId = await this.getFile(fileId.file_id)
     }
 
+    const root = this.#client.options.api.root.toString()
+
     // Local bot API instances return the absolute path to the file
     if (fileId.file_path !== undefined && isAbsolute(fileId.file_path)) {
-      const url = new URL(this.options.apiRoot)
+      const url = new URL(root)
       url.port = ''
       url.pathname = fileId.file_path
       url.protocol = 'file:'
@@ -40,8 +75,11 @@ export class Telegram extends ApiClient {
     }
 
     return new URL(
-      `/file/${this.options.apiMode}${this.token}/${fileId.file_path!}`,
-      this.options.apiRoot
+      `./file/${this.#client.options.api.mode}${
+        this.#client.token
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      }/${fileId.file_path!}`,
+      root
     )
   }
 
@@ -102,7 +140,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Specify a url to receive incoming updates via an outgoing webhook
+   * Specify a url to receive incoming updates via an outgoing webhook.
    * @param url HTTPS url to send updates to. Use an empty string to remove webhook integration
    */
   setWebhook(url: string, extra?: tt.ExtraSetWebhook) {
@@ -113,7 +151,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Remove webhook integration
+   * Remove webhook integration.
    */
   deleteWebhook(extra?: { drop_pending_updates?: boolean }) {
     return this.callApi('deleteWebhook', {
@@ -122,7 +160,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send a text message
+   * Send a text message.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param text Text of the message to be sent
    */
@@ -172,7 +210,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send point on the map
+   * Send point on the map.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
   sendLocation(
@@ -211,7 +249,7 @@ export class Telegram extends ApiClient {
    * @param chatId Unique identifier for the target private chat
    */
   sendInvoice(
-    chatId: number,
+    chatId: number | string,
     invoice: tt.NewInvoiceParameters,
     extra?: tt.ExtraInvoice
   ) {
@@ -241,7 +279,7 @@ export class Telegram extends ApiClient {
    */
   sendPhoto(
     chatId: number | string,
-    photo: tg.Opts<'sendPhoto'>['photo'],
+    photo: Opts['sendPhoto']['photo'],
     extra?: tt.ExtraPhoto
   ) {
     return this.callApi('sendPhoto', { chat_id: chatId, photo, ...extra })
@@ -261,7 +299,7 @@ export class Telegram extends ApiClient {
    */
   sendDocument(
     chatId: number | string,
-    document: tg.Opts<'sendDocument'>['document'],
+    document: Opts['sendDocument']['document'],
     extra?: tt.ExtraDocument
   ) {
     return this.callApi('sendDocument', { chat_id: chatId, document, ...extra })
@@ -275,44 +313,44 @@ export class Telegram extends ApiClient {
    */
   sendAudio(
     chatId: number | string,
-    audio: tg.Opts<'sendAudio'>['audio'],
+    audio: Opts['sendAudio']['audio'],
     extra?: tt.ExtraAudio
   ) {
     return this.callApi('sendAudio', { chat_id: chatId, audio, ...extra })
   }
 
   /**
-   * Send .webp stickers
+   * Send .webp, animated .tgs, or video .webm stickers
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
   sendSticker(
     chatId: number | string,
-    sticker: tg.Opts<'sendSticker'>['sticker'],
+    sticker: Opts['sendSticker']['sticker'],
     extra?: tt.ExtraSticker
   ) {
     return this.callApi('sendSticker', { chat_id: chatId, sticker, ...extra })
   }
 
   /**
-   * Send video files, Telegram clients support mp4 videos (other formats may be sent as Document)
+   * Send video files, Telegram clients support mp4 videos (other formats may be sent as Document).
    * Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
   sendVideo(
     chatId: number | string,
-    video: tg.Opts<'sendVideo'>['video'],
+    video: Opts['sendVideo']['video'],
     extra?: tt.ExtraVideo
   ) {
     return this.callApi('sendVideo', { chat_id: chatId, video, ...extra })
   }
 
   /**
-   * Send .gif animations
+   * Send .gif animations.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
   sendAnimation(
     chatId: number | string,
-    animation: tg.Opts<'sendAnimation'>['animation'],
+    animation: Opts['sendAnimation']['animation'],
     extra?: tt.ExtraAnimation
   ) {
     return this.callApi('sendAnimation', {
@@ -323,12 +361,12 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send video messages
+   * Send video messages.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
   sendVideoNote(
     chatId: number | string,
-    videoNote: string | tg.InputFileVideoNote,
+    videoNote: Opts['sendVideoNote']['video_note'],
     extra?: tt.ExtraVideoNote
   ) {
     return this.callApi('sendVideoNote', {
@@ -344,7 +382,7 @@ export class Telegram extends ApiClient {
    */
   sendVoice(
     chatId: number | string,
-    voice: tg.Opts<'sendVoice'>['voice'],
+    voice: Opts['sendVoice']['voice'],
     extra?: tt.ExtraVoice
   ) {
     return this.callApi('sendVoice', { chat_id: chatId, voice, ...extra })
@@ -363,16 +401,16 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send a group of photos or videos as an album
+   * Send a group of photos or videos as an album.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param media A JSON-serialized array describing photos and videos to be sent, must include 2–10 items
    */
   sendMediaGroup(
     chatId: number | string,
     media:
-      | ReadonlyArray<tg.InputMediaPhoto | tg.InputMediaVideo>
-      | readonly tg.InputMediaAudio[]
-      | readonly tg.InputMediaDocument[],
+      | ReadonlyArray<TT['InputMediaPhoto'] | TT['InputMediaVideo']>
+      | readonly TT['InputMediaAudio'][]
+      | readonly TT['InputMediaDocument'][],
     extra?: tt.ExtraMediaGroup
   ) {
     return this.callApi('sendMediaGroup', { chat_id: chatId, media, ...extra })
@@ -437,7 +475,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.)
+   * Get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.).
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    */
   getChat(chatId: number | string) {
@@ -461,7 +499,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Get the number of members in a chat
+   * Get the number of members in a chat.
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    */
   getChatMembersCount(chatId: string | number) {
@@ -489,22 +527,32 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * Kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
    * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
    */
-  kickChatMember(
+  banChatMember(
     chatId: number | string,
     userId: number,
     untilDate?: number,
-    extra?: tt.ExtraKickChatMember
+    extra?: tt.ExtraBanChatMember
   ) {
-    return this.callApi('kickChatMember', {
+    return this.callApi('banChatMember', {
       chat_id: chatId,
       user_id: userId,
       until_date: untilDate,
       ...extra,
     })
+  }
+
+  /**
+   * Kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
+   * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+   * @param untilDate Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever
+   * @deprecated since API 5.3. Use {@link Telegram.banChatMember}
+   */
+  get kickChatMember() {
+    return this.banChatMember
   }
 
   /**
@@ -569,6 +617,12 @@ export class Telegram extends ApiClient {
     })
   }
 
+  createInvoiceLink(invoice: tt.NewInvoiceLinkParameters) {
+    return this.callApi('createInvoiceLink', {
+      ...invoice,
+    })
+  }
+
   editChatInviteLink(
     chatId: number | string,
     inviteLink: string,
@@ -588,10 +642,7 @@ export class Telegram extends ApiClient {
     })
   }
 
-  setChatPhoto(
-    chatId: number | string,
-    photo: tg.Opts<'setChatPhoto'>['photo']
-  ) {
+  setChatPhoto(chatId: number | string, photo: Opts['setChatPhoto']['photo']) {
     return this.callApi('setChatPhoto', { chat_id: chatId, photo })
   }
 
@@ -600,7 +651,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * Change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
    * @param title New chat title, 1-255 characters
    */
@@ -640,7 +691,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Clear the list of pinned messages in a chat
+   * Clear the list of pinned messages in a chat.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
   unpinAllChatMessages(chatId: number | string) {
@@ -648,7 +699,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Use this method for your bot to leave a group, supergroup or channel
+   * Use this method for your bot to leave a group, supergroup or channel.
    * @param chatId Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
    */
   leaveChat(chatId: number | string) {
@@ -656,7 +707,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Unban a user from a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights
+   * Unban a user from a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights.
    * @param chatId Unique identifier for the target group or username of the target supergroup or channel (in the format @username)
    * @param userId Unique identifier of the target user
    */
@@ -732,6 +783,13 @@ export class Telegram extends ApiClient {
     })
   }
 
+  answerWebAppQuery(webAppQueryId: string, result: tg.InlineQueryResult) {
+    return this.callApi('answerWebAppQuery', {
+      web_app_query_id: webAppQueryId,
+      result,
+    })
+  }
+
   /**
    * Edit text and game messages sent by the bot or via the bot (for inline bots).
    * On success, if edited message is sent by the bot, the edited Message is returned, otherwise True is returned.
@@ -797,7 +855,7 @@ export class Telegram extends ApiClient {
     chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
-    media: tg.InputMedia,
+    media: TT['InputMedia'],
     extra?: tt.ExtraEditMessageMedia
   ) {
     return this.callApi('editMessageMedia', {
@@ -832,7 +890,7 @@ export class Telegram extends ApiClient {
   }
 
   editMessageLiveLocation(
-    chatId: number | undefined,
+    chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
     latitude: number,
@@ -895,14 +953,14 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods (can be used multiple times)
+   * Upload a .png file with a sticker for later use in createNewStickerSet and addStickerToSet methods (can be used multiple times).
    * https://core.telegram.org/bots/api#sending-files
    * @param ownerId User identifier of sticker file owner
    * @param stickerFile Png image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px.
    */
   uploadStickerFile(
     ownerId: number,
-    stickerFile: tg.Opts<'uploadStickerFile'>['png_sticker']
+    stickerFile: Opts['uploadStickerFile']['png_sticker']
   ) {
     return this.callApi('uploadStickerFile', {
       user_id: ownerId,
@@ -911,7 +969,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Create new sticker set owned by a user. The bot will be able to edit the created sticker set
+   * Create new sticker set owned by a user. The bot will be able to edit the created sticker set.
    * @param ownerId User identifier of created sticker set owner
    * @param name Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals). Can contain only english letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in “_by_<bot username>”. <bot_username> is case insensitive. 1-64 characters.
    * @param title Sticker set title, 1-64 characters
@@ -931,7 +989,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Add a new sticker to a set created by the bot
+   * Add a new sticker to a set created by the bot.
    * @param ownerId User identifier of sticker set owner
    * @param name Sticker set name
    */
@@ -948,7 +1006,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Move a sticker in a set created by the bot to a specific position
+   * Move a sticker in a set created by the bot to a specific position.
    * @param sticker File identifier of the sticker
    * @param position New sticker position in the set, zero-based
    */
@@ -962,7 +1020,7 @@ export class Telegram extends ApiClient {
   setStickerSetThumb(
     name: string,
     userId: number,
-    thumb: tg.Opts<'setStickerSetThumb'>['thumb']
+    thumb?: Opts['setStickerSetThumb']['thumb']
   ) {
     return this.callApi('setStickerSetThumb', { name, user_id: userId, thumb })
   }
@@ -975,19 +1033,30 @@ export class Telegram extends ApiClient {
     return this.callApi('deleteStickerFromSet', { sticker })
   }
 
+  getCustomEmojiStickers(custom_emoji_ids: string[]) {
+    return this.callApi('getCustomEmojiStickers', { custom_emoji_ids })
+  }
+
   /**
    * Get the current list of the bot's commands.
    */
-  getMyCommands() {
-    return this.callApi('getMyCommands', {})
+  getMyCommands(extra: Opts['getMyCommands'] = {}) {
+    return this.callApi('getMyCommands', extra)
   }
 
   /**
    * Change the list of the bot's commands.
    * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
    */
-  setMyCommands(commands: readonly tg.BotCommand[]) {
-    return this.callApi('setMyCommands', { commands })
+  setMyCommands(
+    commands: readonly tg.BotCommand[],
+    extra?: tt.ExtraSetMyCommands
+  ) {
+    return this.callApi('setMyCommands', { commands, ...extra })
+  }
+
+  deleteMyCommands(extra: Opts['deleteMyCommands'] = {}) {
+    return this.callApi('deleteMyCommands', extra)
   }
 
   setPassportDataErrors(
@@ -1015,7 +1084,7 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Send copy of existing message
+   * Send copy of existing message.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    * @param fromChatId Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
    * @param messageId Message identifier in the chat specified in from_chat_id
@@ -1035,14 +1104,128 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Log out from the cloud Bot API server before launching the bot locally
+   * Approve a chat join request.
+   * The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param userId Unique identifier of the target user
+   */
+  approveChatJoinRequest(chatId: number | string, userId: number) {
+    return this.callApi('approveChatJoinRequest', {
+      chat_id: chatId,
+      user_id: userId,
+    })
+  }
+
+  /**
+   * Decline a chat join request.
+   * The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param userId Unique identifier of the target user
+   */
+  declineChatJoinRequest(chatId: number | string, userId: number) {
+    return this.callApi('declineChatJoinRequest', {
+      chat_id: chatId,
+      user_id: userId,
+    })
+  }
+
+  /**
+   * Ban a channel chat in a supergroup or a channel. The owner of the chat will not be able to send messages and join live streams on behalf of the chat, unless it is unbanned first.
+   * The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param senderChatId Unique identifier of the target sender chat
+   */
+  banChatSenderChat(
+    chatId: number | string,
+    senderChatId: number,
+    extra?: tt.ExtraBanChatSenderChat
+  ) {
+    return this.callApi('banChatSenderChat', {
+      chat_id: chatId,
+      sender_chat_id: senderChatId,
+      ...extra,
+    })
+  }
+
+  /**
+   * Unban a previously banned channel chat in a supergroup or channel.
+   * The bot must be an administrator for this to work and must have the appropriate administrator rights.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param senderChatId Unique identifier of the target sender chat
+   */
+  unbanChatSenderChat(chatId: number | string, senderChatId: number) {
+    return this.callApi('unbanChatSenderChat', {
+      chat_id: chatId,
+      sender_chat_id: senderChatId,
+    })
+  }
+
+  /**
+   * Use this method to change the bot's menu button in a private chat, or the default menu button. Returns true on success.
+   * @param chatId Unique identifier for the target private chat. If not specified, default bot's menu button will be changed.
+   * @param menuButton An object for the bot's new menu button.
+   */
+  setChatMenuButton({
+    chatId,
+    menuButton,
+  }: {
+    chatId?: number | undefined
+    menuButton?: tg.MenuButton | undefined
+  } = {}) {
+    return this.callApi('setChatMenuButton', {
+      chat_id: chatId,
+      menu_button: menuButton,
+    })
+  }
+
+  /**
+   * Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success.
+   * @param chatId Unique identifier for the target private chat. If not specified, default bot's menu button will be returned.
+   */
+  getChatMenuButton({ chatId }: { chatId?: number } = {}) {
+    return this.callApi('getChatMenuButton', {
+      chat_id: chatId,
+    })
+  }
+
+  /**
+   * Use this method to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels.
+   * These rights will be suggested to users, but they are are free to modify the list before adding the bot.
+   */
+  setMyDefaultAdministratorRights({
+    rights,
+    forChannels,
+  }: {
+    rights?: tg.ChatAdministratorRights
+    forChannels?: boolean
+  } = {}) {
+    return this.callApi('setMyDefaultAdministratorRights', {
+      rights,
+      for_channels: forChannels,
+    })
+  }
+
+  /**
+   * Use this method to get the current default administrator rights of the bot. Returns ChatAdministratorRights on success.
+   * @param forChannels Pass true to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
+   */
+  getMyDefaultAdministratorRights({
+    forChannels,
+  }: { forChannels?: boolean } = {}) {
+    return this.callApi('getMyDefaultAdministratorRights', {
+      for_channels: forChannels,
+    })
+  }
+
+  /**
+   * Log out from the cloud Bot API server before launching the bot locally.
    */
   logOut() {
     return this.callApi('logOut', {})
   }
 
   /**
-   * Close the bot instance before moving it from one local server to another
+   * Close the bot instance before moving it from one local server to another.
    */
   close() {
     return this.callApi('close', {})

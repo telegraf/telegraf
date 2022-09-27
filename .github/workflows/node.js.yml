@@ -5,7 +5,7 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ 'v[0-9]+' ]
   pull_request:
     {}
 
@@ -15,12 +15,16 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x]
+        node-version:
+          - 18
 
     steps:
     - uses: actions/checkout@v2
       with:
         persist-credentials: false
+    - name: Reconfigure git to use HTTP authentication
+      run: >
+        git config --global url."https://github.com/".insteadOf ssh://git@github.com/
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:

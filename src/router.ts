@@ -6,14 +6,13 @@ import Context from './context'
 
 type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 
-type RouteFn<TContext extends Context> = (
-  ctx: TContext
-) => {
+type RouteFn<TContext extends Context> = (ctx: TContext) => {
   route: string
   context?: Partial<TContext>
   state?: Partial<TContext['state']>
 } | null
 
+/** @deprecated in favor of {@link Composer.dispatch} */
 export class Router<C extends Context> implements MiddlewareObj<C> {
   private otherwiseHandler: Middleware<C> = Composer.passThru()
 

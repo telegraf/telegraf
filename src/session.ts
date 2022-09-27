@@ -44,7 +44,7 @@ export function session<S extends object>({
         return store.get(key)
       },
       set(value) {
-        if (value === undefined) {
+        if (value == null) {
           store.delete(key)
         } else {
           store.set(key, value)

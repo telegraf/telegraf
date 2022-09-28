@@ -7,12 +7,12 @@
  * Due to the absense of `File` in Node 18, we're using `Blob` instead.
  * @see https://github.com/nodejs/node/issues/39015
  */
-declare type FormDataEntryValue = string | Blob
+export type FormDataEntryValue = string | Blob
 
 /**
  * Provides a way to easily construct a set of key/value pairs representing form fields and their values, which can then be easily sent using fetch().
  */
-export declare class FormData {
+declare class FormData {
   /**
    * Appends a new value onto an existing key inside a FormData object,
    * or adds the key if it does not already exist.
@@ -110,3 +110,5 @@ export declare class FormData {
 
   readonly [Symbol.toStringTag]: string
 }
+
+export { FormData }

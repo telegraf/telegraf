@@ -1,7 +1,9 @@
 import { createReadStream } from 'node:fs'
 import { basename } from 'node:path'
 import { Readable } from 'node:stream'
+import { ReadableStream } from 'node:stream/web'
 import { StreamFile } from './core/network/client'
+import { URLStreamError } from './core/network/error'
 import { fetch } from './vendor/fetch'
 
 /**
@@ -40,12 +42,15 @@ export const fromURLStream = (url: string | URL, filename: string) =>
     return {
       // create AsyncIterable from Promise<ReadableStream>
       async *[Symbol.asyncIterator]() {
-        const body = await fetch(url).then((res) => res.body)
+        const res = await fetch(url, { redirect: 'follow' })
+        if (!res.ok) throw new URLStreamError(res)
+        const body: ReadableStream<Uint8Array> | null = res.body
         if (!body)
-          throw new Error(
-            'Unexpected empty body attempting to stream file contents from URL'
+          throw new URLStreamError(
+            res,
+            'Unexpected empty body while streaming file from URL: ' + res.url
           )
-        for await (const chunk of body) yield chunk as Uint8Array
+        yield* body
       },
     }
   }, filename)

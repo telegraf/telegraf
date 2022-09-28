@@ -1,4 +1,5 @@
 import { ResponseParameters } from 'typegram'
+import type { Response } from '../../vendor/fetch'
 
 interface ErrorPayload {
   error_code: number
@@ -23,4 +24,10 @@ export class TelegramError extends Error {
   }
 }
 
-export default TelegramError
+export class URLStreamError extends Error {
+  constructor(readonly res: Response, msg?: string) {
+    super(
+      msg || `Error ${res.status} while streaming file from URL: ${res.url}`
+    )
+  }
+}

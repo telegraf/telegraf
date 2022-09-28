@@ -9,11 +9,9 @@ import { URL, URLSearchParams } from 'node:url'
 import { ReadableStream } from 'node:stream/web'
 import { FormData } from './formdata'
 
-export { FormData, ReadableStream }
-
 export type RequestInfo = string | URL | Request
 
-export declare function fetch(
+declare function fetch(
   input: RequestInfo,
   init?: RequestInit
 ): Promise<Response>
@@ -45,7 +43,7 @@ export type HeadersInit =
   | Record<string, string | ReadonlyArray<string>>
   | Headers
 
-export declare class Headers implements Iterable<[string, string]> {
+declare class Headers implements Iterable<[string, string]> {
   constructor(init?: HeadersInit)
   readonly append: (name: string, value: string) => void
   readonly delete: (name: string) => void
@@ -123,7 +121,7 @@ export type RequestMode = 'cors' | 'navigate' | 'no-cors' | 'same-origin'
 
 export type RequestRedirect = 'error' | 'follow' | 'manual'
 
-export declare class Request implements BodyMixin {
+declare class Request implements BodyMixin {
   constructor(input: RequestInfo, init?: RequestInit)
 
   readonly cache: RequestCache
@@ -168,7 +166,7 @@ export type ResponseType =
 
 export type ResponseRedirectStatus = 301 | 302 | 303 | 307 | 308
 
-export declare class Response implements BodyMixin {
+declare class Response implements BodyMixin {
   constructor(body?: BodyInit, init?: ResponseInit)
 
   readonly headers: Headers
@@ -195,3 +193,5 @@ export declare class Response implements BodyMixin {
   static json(data: any, init?: ResponseInit): Response
   static redirect(url: string | URL, status: ResponseRedirectStatus): Response
 }
+
+export { fetch, Request, Response, FormData, ReadableStream }

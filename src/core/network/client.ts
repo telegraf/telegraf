@@ -3,7 +3,7 @@
 export type { Update, UserFromGetMe } from 'typegram'
 import type { ApiResponse, File, Typegram } from 'typegram'
 import createDebug from 'debug'
-import { fetch, RequestInit, FormData } from '../../vendor/fetch'
+import { fetch, FormData, type RequestInit } from '../../vendor/fetch'
 
 const debug = createDebug('telegraf:client')
 

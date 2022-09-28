@@ -2,7 +2,7 @@ import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import { TT } from './telegram-types'
 import type { Client, Opts } from './core/network/client'
-import { TelegramError } from './index'
+import { TelegramError } from './core/network/error'
 
 export type EndoFunction<T> = (t: T) => T
 export type Transformer = EndoFunction<Client['call']>

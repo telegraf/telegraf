@@ -3,12 +3,18 @@
 export type { Update, UserFromGetMe } from 'typegram'
 import type { ApiResponse, File, Typegram } from 'typegram'
 import createDebug from 'debug'
+import {
+  fetch,
+  RequestInit,
+  FormData,
+  ReadableStream,
+} from '../../vendor/fetch'
 
 const debug = createDebug('telegraf:client')
 
 export const defaultOptions = {
   api: {
-    mode: 'bot' as "bot" | "user",
+    mode: 'bot' as 'bot' | 'user',
     root: new URL('https://api.telegram.org'),
   },
 }
@@ -76,9 +82,7 @@ function serialize(payload: Record<string, any>) {
 
   // eslint-disable-next-line prefer-const
   for (let [key, value] of Object.entries(payload)) {
-    if (key === 'media') {
-      value = value.map(attach)
-    }
+    if (key === 'media') value = value.map(attach)
     if (value != null) formData.append(key, stringify(value) as any)
   }
   return formData
@@ -109,13 +113,13 @@ export function createClient(token: string, { api } = defaultOptions) {
     const url = new URL(`./${api.mode}${token}/${method}`, api.root)
     const init: RequestInit = { body, signal, method: 'post' }
     const res = await fetch(url.href, init).catch(redactToken)
-    if (res.status >= 500) {
+    if (res.status >= 500)
       return {
         ok: false,
         error_code: res.status,
         description: res.statusText,
       }
-    }
+
     return (await res.json()) as ApiResponse<Ret[M]>
   }
 

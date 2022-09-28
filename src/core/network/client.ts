@@ -3,12 +3,7 @@
 export type { Update, UserFromGetMe } from 'typegram'
 import type { ApiResponse, File, Typegram } from 'typegram'
 import createDebug from 'debug'
-import {
-  fetch,
-  RequestInit,
-  FormData,
-  ReadableStream,
-} from '../../vendor/fetch'
+import { fetch, RequestInit, FormData } from '../../vendor/fetch'
 
 const debug = createDebug('telegraf:client')
 
@@ -34,9 +29,7 @@ export type Ret = {
 export class StreamFile {
   readonly size = NaN
   constructor(
-    readonly stream: () =>
-      | AsyncIterable<Uint8Array>
-      | ReadableStream<Uint8Array>,
+    readonly stream: () => AsyncIterable<Uint8Array>,
     readonly name: string
   ) {}
 }
@@ -113,12 +106,14 @@ export function createClient(token: string, { api } = defaultOptions) {
     const url = new URL(`./${api.mode}${token}/${method}`, api.root)
     const init: RequestInit = { body, signal, method: 'post' }
     const res = await fetch(url.href, init).catch(redactToken)
-    if (res.status >= 500)
+    if (res.status >= 500) {
+      res.body?.cancel()
       return {
         ok: false,
         error_code: res.status,
         description: res.statusText,
       }
+    }
 
     return (await res.json()) as ApiResponse<Ret[M]>
   }

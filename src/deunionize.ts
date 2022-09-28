@@ -6,7 +6,7 @@ export type PropOr<
 
 export type UnionKeys<T> = T extends unknown ? keyof T : never
 
-type AddOptionalKeys<K extends PropertyKey> = { readonly [P in K]?: undefined }
+type AddOptionalKeys<K extends PropertyKey> = { readonly [P in K]?: never }
 
 /**
  * @see https://millsp.github.io/ts-toolbelt/modules/union_strict.html
@@ -18,6 +18,7 @@ export type Deunionize<
 
 /**
  * Expose properties from all union variants.
+ * @deprectated
  * @see https://github.com/telegraf/telegraf/issues/1388#issuecomment-791573609
  * @see https://millsp.github.io/ts-toolbelt/modules/union_strict.html
  */

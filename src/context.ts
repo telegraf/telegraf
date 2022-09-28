@@ -12,7 +12,10 @@ type Shorthand<FName extends keyof Telegram> = Telegram[FName] extends (
   ? Tail<Parameters>
   : never
 
-export class Context<U extends Deunionize<tg.Update> = Deunionize<tg.Update>> {
+// for types readability
+export type Update = Deunionize<tg.Update>
+
+export class Context<U extends Update = Update> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly state: Record<string | symbol, any> = {}
 

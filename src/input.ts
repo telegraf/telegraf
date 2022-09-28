@@ -1,15 +1,54 @@
-// import { InputFile, StreamFile } from '@telegraf/client'
+import { createReadStream } from 'node:fs'
+import { basename } from 'node:path'
+import { Readable } from 'node:stream'
+import { StreamFile } from './core/network/client'
+import { fetch } from './vendor/fetch'
 
-export * from '@telegraf/client/input'
+/**
+ * The local file specified by path will be uploaded to Telegram using multipart/form-data.
+ *
+ * 10 MB max size for photos, 50 MB for other files.
+ */
+export const fromLocalFile = (path: string, filename = basename(path)) =>
+  new StreamFile(() => createReadStream(path), filename)
+
+/**
+ * The buffer will be uploaded as file to Telegram using multipart/form-data.
+ *
+ * 10 MB max size for photos, 50 MB for other files.
+ */
+export const fromBuffer = (buffer: Uint8Array, name: string) =>
+  new StreamFile(() => Readable.from(buffer), name)
+
+/**
+ * Contents of the stream will be uploaded as file to Telegram using multipart/form-data.
+ *
+ * 10 MB max size for photos, 50 MB for other files.
+ */
+export const fromReadableStream = (
+  stream: AsyncIterable<Uint8Array>,
+  filename: string
+) => new StreamFile(() => stream, filename)
 
 /**
  * Contents of the URL will be streamed to Telegram.
  *
  * 10 MB max size for photos, 50 MB for other files.
- * TODO(mkr): Maybe @telegraf/client needs to accept Promise<ReadableStream>
  */
-// prettier-ignore
-// export const fromURLStream = (url: string | URL, filename?: string): InputFile => new StreamFile(() =>  fetch(url).then(res => res.body), filename)
+export const fromURLStream = (url: string | URL, filename: string) =>
+  new StreamFile(() => {
+    return {
+      // create AsyncIterable from Promise<ReadableStream>
+      async *[Symbol.asyncIterator]() {
+        const body = await fetch(url).then((res) => res.body)
+        if (!body)
+          throw new Error(
+            'Unexpected empty body attempting to stream file contents from URL'
+          )
+        for await (const chunk of body) yield chunk as Uint8Array
+      },
+    }
+  }, filename)
 
 /**
  * Provide Telegram with an HTTP URL for the file to be sent.

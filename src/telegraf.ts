@@ -14,11 +14,10 @@ import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
 import safeCompare = require('safe-compare')
-import { Client, type ClientOptions } from '@telegraf/client'
+import { createClient, type ClientOptions } from './core/network/client'
 const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
-  api: {},
   handlerTimeout: 90_000, // 90s in ms
   contextType: Context,
 }
@@ -36,7 +35,7 @@ export namespace Telegraf {
       ...args: ConstructorParameters<typeof Context>
     ) => TContext
     handlerTimeout: number
-    api?: Partial<ClientOptions>
+    client?: ClientOptions
   }
 
   export interface LaunchOptions {
@@ -140,7 +139,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ...compactOptions(options),
     }
     this.#token = token
-    this.telegram = new Telegram(new Client(token, this.options.api))
+    this.telegram = new Telegram(createClient(token, this.options.client))
     debug('Created a `Telegraf` instance')
   }
 
@@ -297,7 +296,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       await (this.botInfoCall ??= this.telegram.getMe()))
     debug('Processing update', update.update_id)
     // webhookResponse // TODO(mkr): remove webhookResponse entirely or re-introduce?
-    const tg = this.telegram.clone()
+    const tg = new Telegram(this.telegram)
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)

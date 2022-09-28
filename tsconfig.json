@@ -5,6 +5,7 @@
     "declarationMap": true,
     "declarationDir": "typings/",
     "esModuleInterop": true,
+    "lib": ["ES2022"],
     "outDir": "lib/",
     "rootDir": "src/",
     "target": "ES2022",

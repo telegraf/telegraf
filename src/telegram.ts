@@ -1,31 +1,23 @@
 import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import { TT } from './telegram-types'
-import { Client, type Opts } from '@telegraf/client'
-import { isAbsolute } from 'path'
-import { URL } from 'url'
-import { TelegramError } from './index'
+import type { Client, Opts } from './core/network/client'
+import { TelegramError } from './core/network/error'
 
 export type EndoFunction<T> = (t: T) => T
 export type Transformer = EndoFunction<Client['call']>
 
 export class Telegram {
-  #client: Client
-  private call: Client['call']
+  call: Client['call']
+  readonly download: Client['download']
 
   constructor(client: Client) {
-    this.#client = client
-    this.call = this.#client.call.bind(this.#client)
+    this.call = client.call
+    this.download = client.download
   }
 
   use(transform: Transformer) {
     this.call = transform(this.call)
-  }
-
-  clone() {
-    const telegram = new Telegram(this.#client)
-    telegram.call = this.call
-    return telegram
   }
 
   async callApi<M extends keyof Opts>(
@@ -51,36 +43,6 @@ export class Telegram {
    */
   getFile(fileId: string) {
     return this.callApi('getFile', { file_id: fileId })
-  }
-
-  /**
-   * Get download link to a file.
-   */
-  async getFileLink(fileId: string | tg.File) {
-    if (typeof fileId === 'string') {
-      fileId = await this.getFile(fileId)
-    } else if (fileId.file_path === undefined) {
-      fileId = await this.getFile(fileId.file_id)
-    }
-
-    const root = this.#client.options.api.root.toString()
-
-    // Local bot API instances return the absolute path to the file
-    if (fileId.file_path !== undefined && isAbsolute(fileId.file_path)) {
-      const url = new URL(root)
-      url.port = ''
-      url.pathname = fileId.file_path
-      url.protocol = 'file:'
-      return url
-    }
-
-    return new URL(
-      `./file/${this.#client.options.api.mode}${
-        this.#client.token
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      }/${fileId.file_path!}`,
-      root
-    )
   }
 
   /**

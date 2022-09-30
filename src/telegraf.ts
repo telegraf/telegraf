@@ -113,7 +113,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
         if (!this.secretToken) return true
         else {
           const token = req.headers[TOKEN_HEADER] as string
-          if (safeCompare(token, this.secretToken)) return true
+          if (safeCompare(this.secretToken, token)) return true
           else debug('Secret token does not match:', token, this.secretToken)
         }
       } else debug('Path does not match:', req.url, this.hookPath)

@@ -38,13 +38,6 @@ export class Context<U extends Update = Update> {
     return this.botInfo?.username
   }
 
-  /**
-   * @deprecated Use ctx.telegram instead
-   */
-  get tg() {
-    return this.telegram
-  }
-
   get message(): U['message'] {
     return this.update.message
   }
@@ -387,14 +380,6 @@ export class Context<U extends Update = Update> {
   banChatMember(...args: Shorthand<'banChatMember'>) {
     this.assert(this.chat, 'banChatMember')
     return this.telegram.banChatMember(this.chat.id, ...args)
-  }
-
-  /**
-   * @see https://core.telegram.org/bots/api#banchatmember
-   * @deprecated since API 5.3. Use {@link Context.banChatMember}
-   */
-  get kickChatMember() {
-    return this.banChatMember
   }
 
   /**
@@ -864,14 +849,6 @@ export class Context<U extends Update = Update> {
   }
 
   /**
-   * @deprecated use {@link Telegram.getStickerSet}
-   * @see https://core.telegram.org/bots/api#getstickerset
-   */
-  getStickerSet(setName: string) {
-    return this.telegram.getStickerSet(setName)
-  }
-
-  /**
    * @see https://core.telegram.org/bots/api#setchatstickerset
    */
   setChatStickerSet(setName: string) {
@@ -885,30 +862,6 @@ export class Context<U extends Update = Update> {
   deleteChatStickerSet(this: Context) {
     this.assert(this.chat, 'deleteChatStickerSet')
     return this.telegram.deleteChatStickerSet(this.chat.id)
-  }
-
-  /**
-   * @deprecated use {@link Telegram.setStickerPositionInSet}
-   * @see https://core.telegram.org/bots/api#setstickerpositioninset
-   */
-  setStickerPositionInSet(sticker: string, position: number) {
-    return this.telegram.setStickerPositionInSet(sticker, position)
-  }
-
-  /**
-   * @deprecated use {@link Telegram.setStickerSetThumb}
-   * @see https://core.telegram.org/bots/api#setstickersetthumb
-   */
-  setStickerSetThumb(...args: Parameters<Telegram['setStickerSetThumb']>) {
-    return this.telegram.setStickerSetThumb(...args)
-  }
-
-  /**
-   * @deprecated use {@link Telegram.deleteStickerFromSet}
-   * @see https://core.telegram.org/bots/api#deletestickerfromset
-   */
-  deleteStickerFromSet(sticker: string) {
-    return this.telegram.deleteStickerFromSet(sticker)
   }
 
   /**
@@ -933,22 +886,6 @@ export class Context<U extends Update = Update> {
   addStickerToSet(...args: Shorthand<'addStickerToSet'>) {
     this.assert(this.from, 'addStickerToSet')
     return this.telegram.addStickerToSet(this.from.id, ...args)
-  }
-
-  /**
-   * @deprecated use {@link Telegram.getMyCommands}
-   * @see https://core.telegram.org/bots/api#getmycommands
-   */
-  getMyCommands(this: Context) {
-    return this.telegram.getMyCommands()
-  }
-
-  /**
-   * @deprecated use {@link Telegram.setMyCommands}
-   * @see https://core.telegram.org/bots/api#setmycommands
-   */
-  setMyCommands(commands: readonly tg.BotCommand[]) {
-    return this.telegram.setMyCommands(commands)
   }
 
   /**

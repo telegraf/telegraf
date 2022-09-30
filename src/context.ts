@@ -1,7 +1,6 @@
 import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import { Deunionize, PropOr, UnionKeys } from './deunionize'
-import { deprecate } from './util'
 import Telegram from './telegram'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
@@ -337,14 +336,9 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendmessage
    */
-  reply(...args: Shorthand<'sendMessage'>) {
-    deprecate(
-      'ctx.reply',
-      'reply',
-      'sendMessage',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendMessage(...args)
+  reply(text: string, extra?: tt.ExtraReplyMessage) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendMessage(text, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -552,14 +546,9 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendphoto
    */
-  replyWithPhoto(...args: Shorthand<'sendPhoto'>) {
-    deprecate(
-      'ctx.replyWithPhoto',
-      'reply',
-      'sendPhoto',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendPhoto(...args)
+  replyWithPhoto(photo: string | tt.InputFile, extra?: tt.ExtraPhoto) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendPhoto(photo, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -573,14 +562,12 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendmediagroup
    */
-  replyWithMediaGroup(...args: Shorthand<'sendMediaGroup'>) {
-    deprecate(
-      'ctx.replyWithMediaGroup',
-      'reply',
-      'sendMediaGroup',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendMediaGroup(...args)
+  replyWithMediaGroup(
+    media: Parameters<Telegram['sendMediaGroup']>[1],
+    extra?: tt.ExtraMediaGroup
+  ) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendMediaGroup(media, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -594,14 +581,9 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendaudio
    */
-  replyWithAudio(...args: Shorthand<'sendAudio'>) {
-    deprecate(
-      'ctx.replyWithAudio',
-      'reply',
-      'sendAudio',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendAudio(...args)
+  replyWithAudio(audio: string | tt.InputFile, extra?: tt.ExtraAudio) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendAudio(audio, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -615,14 +597,9 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#senddice
    */
-  replyWithDice(...args: Shorthand<'sendDice'>) {
-    deprecate(
-      'ctx.replyWithDice',
-      'reply',
-      'sendDice',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendDice(...args)
+  replyWithDice(extra?: tt.ExtraDice) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendDice({ reply_to_message_id, ...extra })
   }
 
   /**
@@ -636,14 +613,9 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#senddocument
    */
-  replyWithDocument(...args: Shorthand<'sendDocument'>) {
-    deprecate(
-      'ctx.replyWithDocument',
-      'reply',
-      'sendDocument',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendDocument(...args)
+  replyWithDocument(document: string | tt.InputFile, extra?: tt.ExtraDocument) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendDocument(document, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -657,14 +629,9 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendsticker
    */
-  replyWithSticker(...args: Shorthand<'sendSticker'>) {
-    deprecate(
-      'ctx.replyWithSticker',
-      'reply',
-      'sendSticker',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendSticker(...args)
+  replyWithSticker(sticker: string | tt.InputFile, extra?: tt.ExtraSticker) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendSticker(sticker, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -678,14 +645,9 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvideo
    */
-  replyWithVideo(...args: Shorthand<'sendVideo'>) {
-    deprecate(
-      'ctx.replyWithVideo',
-      'reply',
-      'sendVideo',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendVideo(...args)
+  replyWithVideo(video: string | tt.InputFile, extra?: tt.ExtraVideo) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendVideo(video, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -699,14 +661,12 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendanimation
    */
-  replyWithAnimation(...args: Shorthand<'sendAnimation'>) {
-    deprecate(
-      'ctx.replyWithAnimation',
-      'reply',
-      'sendAnimation',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendAnimation(...args)
+  replyWithAnimation(
+    animation: string | tt.InputFile,
+    extra?: tt.ExtraAnimation
+  ) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendAnimation(animation, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -720,14 +680,12 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvideonote
    */
-  replyWithVideoNote(...args: Shorthand<'sendVideoNote'>) {
-    deprecate(
-      'ctx.replyWithVideoNote',
-      'reply',
-      'sendVideoNote',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendVideoNote(...args)
+  replyWithVideoNote(
+    videoNote: string | tt.InputFile,
+    extra?: tt.ExtraVideoNote
+  ) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendVideoNote(videoNote, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -741,14 +699,9 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendinvoice
    */
-  replyWithInvoice(...args: Shorthand<'sendInvoice'>) {
-    deprecate(
-      'ctx.replyWithInvoice',
-      'reply',
-      'sendInvoice',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendInvoice(...args)
+  replyWithInvoice(invoice: tt.NewInvoiceParameters, extra?: tt.ExtraInvoice) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendInvoice(invoice, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -762,14 +715,9 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendgame
    */
-  replyWithGame(...args: Shorthand<'sendGame'>) {
-    deprecate(
-      'ctx.replyWithGame',
-      'reply',
-      'sendGame',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendGame(...args)
+  replyWithGame(gameName: string, extra?: tt.ExtraGame) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendGame(gameName, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -783,14 +731,9 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvoice
    */
-  replyWithVoice(...args: Shorthand<'sendVoice'>) {
-    deprecate(
-      'ctx.replyWithVoice',
-      'reply',
-      'sendVoice',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendVoice(...args)
+  replyWithVoice(voice: string | tt.InputFile, extra?: tt.ExtraVoice) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendVoice(voice, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -804,14 +747,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendpoll
    */
-  replyWithPoll(...args: Shorthand<'sendPoll'>) {
-    deprecate(
-      'ctx.replyWithPoll',
-      'reply',
-      'sendPoll',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendPoll(...args)
+  replyWithPoll(
+    question: string,
+    options: readonly string[],
+    extra?: tt.ExtraPoll
+  ) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendPoll(question, options, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -825,14 +767,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendquiz
    */
-  replyWithQuiz(...args: Shorthand<'sendQuiz'>) {
-    deprecate(
-      'ctx.replyWithQuiz',
-      'reply',
-      'sendQuiz',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendQuiz(...args)
+  replyWithQuiz(
+    question: string,
+    options: readonly string[],
+    extra: tt.ExtraPoll
+  ) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendQuiz(question, options, { reply_to_message_id, ...extra })
   }
 
   /**
@@ -852,14 +793,6 @@ export class Context<U extends Update = Update> {
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#sendchataction
-   */
-  replyWithChatAction(...args: Shorthand<'sendChatAction'>) {
-    deprecate('ctx.replyWithChatAction', 'reply', 'sendChatAction')
-    return this.sendChatAction(...args)
-  }
-
-  /**
    * @see https://core.telegram.org/bots/api#sendlocation
    */
   sendLocation(...args: Shorthand<'sendLocation'>) {
@@ -870,14 +803,16 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendlocation
    */
-  replyWithLocation(...args: Shorthand<'sendLocation'>) {
-    deprecate(
-      'ctx.replyWithLocation',
-      'reply',
-      'sendLocation',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendLocation(...args)
+  replyWithLocation(
+    latitude: number,
+    longitude: number,
+    extra?: tt.ExtraLocation
+  ) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendLocation(latitude, longitude, {
+      reply_to_message_id,
+      ...extra,
+    })
   }
 
   /**
@@ -891,14 +826,18 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvenue
    */
-  replyWithVenue(...args: Shorthand<'sendVenue'>) {
-    deprecate(
-      'ctx.replyWithVenue',
-      'reply',
-      'sendVenue',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendVenue(...args)
+  replyWithVenue(
+    latitude: number,
+    longitude: number,
+    title: string,
+    address: string,
+    extra?: tt.ExtraVenue
+  ) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendVenue(latitude, longitude, title, address, {
+      reply_to_message_id,
+      ...extra,
+    })
   }
 
   /**
@@ -912,14 +851,16 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendcontact
    */
-  replyWithContact(...args: Shorthand<'sendContact'>) {
-    deprecate(
-      'ctx.replyWithContact',
-      'reply',
-      'sendContact',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
-    return this.sendContact(...args)
+  replyWithContact(
+    phoneNumber: string,
+    firstName: string,
+    extra?: tt.ExtraContact
+  ) {
+    const reply_to_message_id = getMessageFromAnySource(this)?.message_id
+    return this.sendContact(phoneNumber, firstName, {
+      reply_to_message_id,
+      ...extra,
+    })
   }
 
   /**

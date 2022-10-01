@@ -23,9 +23,9 @@ export default function generateWebhook(
       return next()
     }
 
-    try {
-      let update: Update
+    let update: Update
 
+    try {
       if (req.body != null) {
         /* If req.body is already set, we expect it to be the parsed
          request body (update object) received from Telegram
@@ -46,13 +46,13 @@ export default function generateWebhook(
         // parse body to object
         update = JSON.parse(body)
       }
-
-      return await updateHandler(update, res)
     } catch (error: unknown) {
       // if any of the parsing steps fails, give up and respond with error
       res.writeHead(415).end()
       debug('Failed to parse request body:', error)
       return
     }
+
+    return await updateHandler(update, res)
   }
 }

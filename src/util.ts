@@ -17,8 +17,15 @@ export function fmtCaption<
 >(extra?: Extra): MaybeExtra<Extra> {
   const caption = extra?.caption
   if (!caption || typeof caption === 'string') return extra as MaybeExtra<Extra>
-  const { text, ...fmt } = caption
-  return { ...extra, caption: text, ...fmt }
+  const { text, entities } = caption
+  return {
+    ...extra,
+    caption: text,
+    ...(entities && {
+      caption_entities: entities,
+      parse_mode: undefined,
+    }),
+  }
 }
 
 export function deprecate(

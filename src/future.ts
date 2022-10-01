@@ -14,7 +14,7 @@ function makeReply<
 const replyContext: ReplyContext = {
   replyWithChatAction: function () {
     throw new TypeError(
-      'ctx.replyWithChatAction is removed, use sendChatAction instead'
+      'ctx.replyWithChatAction has been removed, use ctx.sendChatAction instead'
     )
   },
   reply(this: Context, text, extra) {

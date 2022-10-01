@@ -4,15 +4,11 @@ import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
 import Context from './context'
+import { Expand } from './util'
 
 export type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
 export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
-export type Expand<T> = T extends object
-  ? T extends infer O
-    ? { [K in keyof O]: O[K] }
-    : never
-  : T
 export type Triggers<C> = MaybeArray<
   string | RegExp | ((value: string, ctx: C) => RegExpExecArray | null)
 >

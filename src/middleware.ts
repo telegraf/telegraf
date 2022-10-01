@@ -9,7 +9,7 @@ import { Context } from './context'
 export type MiddlewareFn<C extends Context> = (
   ctx: C,
   next: () => Promise<void>
-) => Promise<unknown> | void
+) => Promise<unknown>
 
 export interface MiddlewareObj<C extends Context> {
   middleware: () => MiddlewareFn<C>

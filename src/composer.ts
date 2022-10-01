@@ -55,10 +55,7 @@ export interface GameQueryUpdate extends tg.Update.CallbackQueryUpdate {
   >
 }
 
-function always<T>(x: T) {
-  return () => x
-}
-const anoop = always(Promise.resolve())
+export const noop = () => Promise.resolve(undefined)
 
 export class Composer<C extends Context> implements MiddlewareObj<C> {
   private handler: MiddlewareFn<C>
@@ -248,14 +245,13 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   static fork<C extends Context>(middleware: Middleware<C>): MiddlewareFn<C> {
     const handler = Composer.unwrap(middleware)
     return async (ctx, next) => {
-      await Promise.all([handler(ctx, anoop), next()])
+      await Promise.all([handler(ctx, noop), next()])
     }
   }
 
   static tap<C extends Context>(middleware: Middleware<C>): MiddlewareFn<C> {
     const handler = Composer.unwrap(middleware)
-    return (ctx, next) =>
-      Promise.resolve(handler(ctx, anoop)).then(() => next())
+    return (ctx, next) => Promise.resolve(handler(ctx, noop)).then(() => next())
   }
 
   /**
@@ -320,14 +316,14 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   }
 
   static filter<C extends Context>(predicate: Predicate<C>): MiddlewareFn<C> {
-    return Composer.branch(predicate, Composer.passThru(), anoop)
+    return Composer.branch(predicate, Composer.passThru(), noop)
   }
 
   /**
    * Generates middleware for dropping matching updates.
    */
   static drop<C extends Context>(predicate: Predicate<C>): MiddlewareFn<C> {
-    return Composer.branch(predicate, anoop, Composer.passThru())
+    return Composer.branch(predicate, noop, Composer.passThru())
   }
 
   static dispatch<

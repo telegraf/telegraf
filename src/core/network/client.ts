@@ -223,7 +223,8 @@ async function attachFormMedia(
 ) {
   let fileName = media.filename ?? `${id}.${DEFAULT_EXTENSIONS[id] ?? 'dat'}`
   if (media.url !== undefined) {
-    const res = await fetch(media.url, { agent })
+    const timeout = 500_000 // ms
+    const res = await fetch(media.url, { agent, timeout })
     return form.addPart({
       headers: {
         'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
@@ -360,6 +361,7 @@ class ApiClient {
     )
     config.agent = options.agent
     config.signal = signal
+    config.timeout = 500_000 // ms
     const res = await fetch(apiUrl, config).catch(redactToken)
     if (res.status >= 500) {
       const errorPayload = {

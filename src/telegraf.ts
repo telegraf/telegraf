@@ -3,7 +3,7 @@ import * as http from 'http'
 import * as https from 'https'
 import * as tg from 'typegram'
 import * as tt from './telegram-types'
-import { Composer, MaybePromise } from './composer'
+import { Composer } from './composer'
 import { compactOptions } from './core/helpers/compact'
 import Context from './context'
 import d from 'debug'
@@ -122,12 +122,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return false
   }
 
-  private handleError = (err: unknown, ctx: C): MaybePromise<void> => {
-    // set exit code to emulate `warn-with-error-code` behavior of
-    // https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
-    // to prevent a clean exit despite an error being thrown
-    process.exitCode = 1
-    console.error('Unhandled error while processing', ctx.update)
+  private handleError = (err: unknown, ctx?: C): Promise<void> => {
+    if (ctx) console.error('Unhandled error while processing', ctx.update)
     throw err
   }
 
@@ -146,7 +142,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   /**
    * _Override_ error handling
    */
-  catch(handler: (err: unknown, ctx: C) => MaybePromise<void>) {
+  catch(handler: Telegraf['handleError']) {
     this.handleError = handler
     return this
   }

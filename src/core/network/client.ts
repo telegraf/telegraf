@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // for https://gist.github.com/2b1b226d52d675ec246c6f8abdab81ef
 export type { Update, UserFromGetMe } from 'typegram'
 import type { ApiResponse, File, Typegram } from 'typegram'
 import createDebug from 'debug'
-import { fetch, FormData, type RequestInit } from '../../vendor/fetch'
+import { fetch, type RequestInit } from '../../vendor/fetch'
+import { createPayload, type InputFile } from './payload'
 import { DeepPartial } from '../../util'
 
 const debug = createDebug('telegraf:client')
@@ -34,7 +34,6 @@ export const defaultOpts = {
 export type ClientOptions = DeepPartial<typeof defaultOpts>
 
 export type TelegrafTypegram = Typegram<InputFile>
-export type InputFile = Blob | StreamFile
 export type TelegramP = TelegrafTypegram['TelegramP']
 export type Opts = TelegrafTypegram['Opts']
 
@@ -42,61 +41,6 @@ type Telegram = TelegrafTypegram['Telegram']
 
 export type Ret = {
   [M in keyof Opts]: ReturnType<Telegram[M]>
-}
-
-export class StreamFile {
-  readonly size = NaN
-  constructor(
-    readonly stream: () => AsyncIterable<Uint8Array>,
-    readonly name: string
-  ) {}
-}
-
-Object.defineProperty(StreamFile.prototype, Symbol.toStringTag, {
-  value: 'File',
-})
-
-// based on https://github.com/node-fetch/fetch-blob/blob/8ab587d34080de94140b54f07168451e7d0b655e/index.js#L229-L241 (MIT License)
-export function isInputFile(value: any): value is InputFile {
-  return (
-    value !== null &&
-    typeof value === 'object' &&
-    typeof value.size === 'number' &&
-    typeof value.stream === 'function' &&
-    typeof value.constructor === 'function' &&
-    /^(?:Blob|File)$/.test(value[Symbol.toStringTag])
-  )
-}
-
-function stringify(value: unknown) {
-  if (typeof value === 'string') return value
-  if (isInputFile(value)) return value
-  return JSON.stringify(value)
-}
-
-function serialize(payload: Record<string, any>) {
-  const formData = new FormData()
-  const attach = (entry: any, index: number) => {
-    const result = { ...entry }
-    if (isInputFile(entry.media)) {
-      const id = entry.type + index
-      result.media = `attach://${id}`
-      formData.append(id, entry.media)
-    }
-    if (isInputFile(entry.thumb)) {
-      const id = 'thumb' + index
-      result.thumb = `attach://${id}`
-      formData.append(id, entry.thumb)
-    }
-    return result
-  }
-
-  // eslint-disable-next-line prefer-const
-  for (let [key, value] of Object.entries(payload)) {
-    if (key === 'media') value = value.map(attach)
-    if (value != null) formData.append(key, stringify(value) as any)
-  }
-  return formData
 }
 
 function redactToken(error: Error): never {
@@ -123,12 +67,11 @@ export function createClient(token: string, opts: ClientOptions = defaultOpts) {
     signal,
   }: Invocation<M>): Promise<ApiResponse<Ret[M]>> => {
     debug('HTTP call', method, payload)
-    const body = serialize(payload)
     const url = new URL(
       `./${mode}${token}${testEnv ? '/test' : ''}/${method}`,
       root
     )
-    const init: RequestInit = { body, signal, method: 'post' }
+    const init: RequestInit = { ...createPayload(payload), signal }
     const res = await fetch(url.href, init).catch(redactToken)
     if (res.status >= 500) {
       res.body?.cancel()

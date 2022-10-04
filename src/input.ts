@@ -2,7 +2,7 @@ import { createReadStream } from 'node:fs'
 import { basename } from 'node:path'
 import { Readable } from 'node:stream'
 import { ReadableStream } from 'node:stream/web'
-import { StreamFile } from './core/network/client'
+import { StreamFile } from './core/network/payload'
 import { URLStreamError } from './core/network/error'
 import { fetch } from './vendor/fetch'
 

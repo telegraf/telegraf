@@ -2,22 +2,17 @@
 
 import { Message, Update } from 'typegram'
 import { UnionKeys } from './deunionize'
-import {
-  TelegrafTypegram,
-  TelegramP,
-  InputFile,
-  Opts,
-} from './core/network/client'
+import { TelegrafTypegram, Opts } from './core/network/client'
 import { Expand } from './util'
 import { FmtString } from './format'
 
+export { InputFile } from './core/network/payload'
 export { Markup } from './markup'
 
 // tiny helper types
 export type ChatAction = Opts['sendChatAction']['action']
 
-export type Telegram = TelegramP
-export type { TelegrafTypegram as TT, InputFile, Opts }
+export type { TelegrafTypegram as TT, Opts }
 
 // Modify type so caption, if exists, can be FmtString
 type WrapCaption<T> = T extends { caption?: string }

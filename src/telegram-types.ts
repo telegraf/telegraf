@@ -8,6 +8,8 @@ import {
   InputFile,
   Opts,
 } from './core/network/client'
+import { Expand } from './util'
+import { FmtString } from './format'
 
 export { Markup } from './markup'
 
@@ -16,6 +18,11 @@ export type ChatAction = Opts['sendChatAction']['action']
 
 export type Telegram = TelegramP
 export type { TelegrafTypegram as TT, InputFile, Opts }
+
+// Modify type so caption, if exists, can be FmtString
+type WrapCaption<T> = T extends { caption?: string }
+  ? Expand<Omit<T, 'caption'> & { caption?: string | FmtString }>
+  : T
 
 // extra types
 /**
@@ -26,7 +33,7 @@ export type { TelegrafTypegram as TT, InputFile, Opts }
 type MakeExtra<
   M extends keyof Opts,
   K extends keyof Omit<Opts[M], 'chat_id'> = never
-> = Omit<Opts[M], 'chat_id' | K>
+> = WrapCaption<Omit<Opts[M], 'chat_id' | K>>
 
 export type ExtraAddStickerToSet = MakeExtra<
   'addStickerToSet',

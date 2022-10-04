@@ -1,6 +1,8 @@
 import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import { TT } from './telegram-types'
+import { FmtString } from './format'
+import { fmtCaption } from './util'
 import type { Client, Opts } from './core/network/client'
 import { TelegramError } from './core/network/error'
 
@@ -128,10 +130,11 @@ export class Telegram {
    */
   sendMessage(
     chatId: number | string,
-    text: string,
+    text: string | FmtString,
     extra?: tt.ExtraReplyMessage
   ) {
-    return this.callApi('sendMessage', { chat_id: chatId, text, ...extra })
+    const t = FmtString.normalise(text)
+    return this.callApi('sendMessage', { chat_id: chatId, ...extra, ...t })
   }
 
   /**
@@ -244,7 +247,11 @@ export class Telegram {
     photo: Opts['sendPhoto']['photo'],
     extra?: tt.ExtraPhoto
   ) {
-    return this.callApi('sendPhoto', { chat_id: chatId, photo, ...extra })
+    return this.callApi('sendPhoto', {
+      chat_id: chatId,
+      photo,
+      ...fmtCaption(extra),
+    })
   }
 
   /**
@@ -264,7 +271,11 @@ export class Telegram {
     document: Opts['sendDocument']['document'],
     extra?: tt.ExtraDocument
   ) {
-    return this.callApi('sendDocument', { chat_id: chatId, document, ...extra })
+    return this.callApi('sendDocument', {
+      chat_id: chatId,
+      document,
+      ...fmtCaption(extra),
+    })
   }
 
   /**
@@ -278,7 +289,11 @@ export class Telegram {
     audio: Opts['sendAudio']['audio'],
     extra?: tt.ExtraAudio
   ) {
-    return this.callApi('sendAudio', { chat_id: chatId, audio, ...extra })
+    return this.callApi('sendAudio', {
+      chat_id: chatId,
+      audio,
+      ...fmtCaption(extra),
+    })
   }
 
   /**
@@ -303,7 +318,11 @@ export class Telegram {
     video: Opts['sendVideo']['video'],
     extra?: tt.ExtraVideo
   ) {
-    return this.callApi('sendVideo', { chat_id: chatId, video, ...extra })
+    return this.callApi('sendVideo', {
+      chat_id: chatId,
+      video,
+      ...fmtCaption(extra),
+    })
   }
 
   /**
@@ -318,7 +337,7 @@ export class Telegram {
     return this.callApi('sendAnimation', {
       chat_id: chatId,
       animation,
-      ...extra,
+      ...fmtCaption(extra),
     })
   }
 
@@ -347,7 +366,11 @@ export class Telegram {
     voice: Opts['sendVoice']['voice'],
     extra?: tt.ExtraVoice
   ) {
-    return this.callApi('sendVoice', { chat_id: chatId, voice, ...extra })
+    return this.callApi('sendVoice', {
+      chat_id: chatId,
+      voice,
+      ...fmtCaption(extra),
+    })
   }
 
   /**
@@ -764,15 +787,16 @@ export class Telegram {
     chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
-    text: string,
+    text: string | FmtString,
     extra?: tt.ExtraEditMessageText
   ) {
+    const t = FmtString.normalise(text)
     return this.callApi('editMessageText', {
-      text,
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
       ...extra,
+      ...t,
     })
   }
 
@@ -789,15 +813,20 @@ export class Telegram {
     chatId: number | string | undefined,
     messageId: number | undefined,
     inlineMessageId: string | undefined,
-    caption: string | undefined,
+    caption: string | FmtString | undefined,
     extra?: tt.ExtraEditMessageCaption
   ) {
+    // fmt may have entities (and parse_mode: undefined if entities are present)
+    const { text, ...fmt } = caption
+      ? FmtString.normalise(caption)
+      : { text: undefined }
     return this.callApi('editMessageCaption', {
-      caption,
+      caption: text,
       chat_id: chatId,
       message_id: messageId,
       inline_message_id: inlineMessageId,
       ...extra,
+      ...fmt,
     })
   }
 
@@ -1061,7 +1090,7 @@ export class Telegram {
       chat_id: chatId,
       from_chat_id: fromChatId,
       message_id: messageId,
-      ...extra,
+      ...fmtCaption(extra),
     })
   }
 

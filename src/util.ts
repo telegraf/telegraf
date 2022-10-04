@@ -1,4 +1,32 @@
+import { FmtString } from './format'
+
 export const env = process.env
+
+export type Expand<T> = T extends object
+  ? T extends infer O
+    ? { [K in keyof O]: O[K] }
+    : never
+  : T
+
+type MaybeExtra<Extra> = (Extra & { caption?: string }) | undefined
+
+export function fmtCaption<
+  Extra extends {
+    caption?: string | FmtString
+  } & Record<string, unknown>
+>(extra?: Extra): MaybeExtra<Extra> {
+  const caption = extra?.caption
+  if (!caption || typeof caption === 'string') return extra as MaybeExtra<Extra>
+  const { text, entities } = caption
+  return {
+    ...extra,
+    caption: text,
+    ...(entities && {
+      caption_entities: entities,
+      parse_mode: undefined,
+    }),
+  }
+}
 
 export function deprecate(
   method: string,

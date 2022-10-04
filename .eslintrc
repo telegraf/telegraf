@@ -13,6 +13,7 @@
         "@typescript-eslint/no-explicit-any": "warn",
         "@typescript-eslint/no-non-null-assertion": "warn",
         "@typescript-eslint/promise-function-async": "off",
+        "@typescript-eslint/no-namespace": "off",
         "no-undef": "off"
       }
     }
@@ -32,6 +33,7 @@
     "/docs/",
     "/test/",
     "/types.*",
+    "/format.*",
     "/future.*"
   ],
   "reportUnusedDisableDirectives": true,

@@ -1,11 +1,13 @@
 import * as http from 'http'
 import d from 'debug'
 import { type Update } from 'typegram'
+import { json } from 'node:stream/consumers'
+
 const debug = d('telegraf:webhook')
 
 export default function generateWebhook(
   filter: (req: http.IncomingMessage) => boolean,
-  updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>
+  updateHandler: (update: Update) => Promise<void>
 ) {
   return async (
     req: http.IncomingMessage & { body?: Update },
@@ -40,11 +42,7 @@ export default function generateWebhook(
         if (typeof body === 'string') body = JSON.parse(body)
         update = body
       } else {
-        let body = ''
-        // parse each buffer to string and append to body
-        for await (const chunk of req) body += String(chunk)
-        // parse body to object
-        update = JSON.parse(body)
+        update = (await json(req)) as Update
       }
     } catch (error: unknown) {
       // if any of the parsing steps fails, give up and respond with error
@@ -53,6 +51,10 @@ export default function generateWebhook(
       return
     }
 
-    return await updateHandler(update, res)
+    try {
+      await updateHandler(update)
+    } finally {
+      if (!res.writableEnded) res.end()
+    }
   }
 }

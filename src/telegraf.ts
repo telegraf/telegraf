@@ -3,14 +3,14 @@ import * as http from 'http'
 import * as https from 'https'
 import * as tg from 'typegram'
 import * as tt from './telegram-types'
-import { Composer } from './composer'
+import { Composer, noop } from './composer'
 import { compactOptions } from './core/helpers/compact'
 import Context from './context'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
 import { Polling } from './core/network/polling'
 import pTimeout from 'p-timeout'
-import Telegram from './telegram'
+import Telegram, { Transformer } from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
 import safeCompare = require('safe-compare')
@@ -22,13 +22,8 @@ const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   contextType: Context,
 }
 
-function always<T>(x: T) {
-  return () => x
-}
+const identity = <T>(t: T) => t
 
-const anoop = always(Promise.resolve())
-
-// eslint-disable-next-line
 export namespace Telegraf {
   export interface Options<TContext extends Context> {
     contextType: new (
@@ -155,8 +150,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     const { secretToken } = opts
     return generateCallback(
       this.webhookFilter.bind({ hookPath, secretToken }),
-      (update: tg.Update, res: http.ServerResponse) =>
-        this.handleUpdate(update, res)
+      this.handleUpdate
     )
   }
 
@@ -198,9 +192,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
   private startPolling(allowedUpdates: tt.UpdateType[] = []) {
     this.polling = new Polling(this.telegram, allowedUpdates)
-    this.polling.loop(async (update) => {
-      await this.handleUpdate(update)
-    })
+    void this.polling.loop(this.handleUpdate)
   }
 
   private startWebhook(
@@ -283,7 +275,10 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   }
 
   private botInfoCall?: Promise<tg.UserFromGetMe>
-  async handleUpdate(update: tg.Update, webhookResponse?: http.ServerResponse) {
+  readonly handleUpdate = async (
+    update: tg.Update,
+    transform: Transformer = identity
+  ) => {
     this.botInfo ??=
       (debug(
         'Update %d is waiting for `botInfo` to be initialized',
@@ -291,22 +286,19 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ),
       await (this.botInfoCall ??= this.telegram.getMe()))
     debug('Processing update', update.update_id)
-    // webhookResponse // TODO(mkr): remove webhookResponse entirely or re-introduce?
     const tg = new Telegram(this.telegram)
+    tg.use(transform)
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
     try {
       await pTimeout(
-        Promise.resolve(this.middleware()(ctx, anoop)),
+        Promise.resolve(this.middleware()(ctx, noop)),
         this.options.handlerTimeout
       )
     } catch (err) {
       return await this.handleError(err, ctx)
     } finally {
-      if (webhookResponse?.writableEnded === false) {
-        webhookResponse.end()
-      }
       debug('Finished processing update', update.update_id)
     }
   }

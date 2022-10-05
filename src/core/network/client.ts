@@ -4,17 +4,35 @@ export type { Update, UserFromGetMe } from 'typegram'
 import type { ApiResponse, File, Typegram } from 'typegram'
 import createDebug from 'debug'
 import { fetch, FormData, type RequestInit } from '../../vendor/fetch'
+import { DeepPartial } from '../../util'
 
 const debug = createDebug('telegraf:client')
 
-export const defaultOptions = {
+export const defaultOpts = {
   api: {
+    /**
+     * If you use a Bot API server [that supports user accounts](https://github.com/tdlight-team/tdlight-telegram-bot-api),
+     * you may use this feature. `bot` is used by default.
+     */
     mode: 'bot' as 'bot' | 'user',
-    root: new URL('https://api.telegram.org'),
+    /**
+     * Root URL for the API.
+     * If you host your own [Bot API server](https://github.com/tdlib/telegram-bot-api),
+     * you must set the new base URL here. https://api.telegram.org is used by default.
+     */
+    root: 'https://api.telegram.org',
+    /**
+     * Pass `true` to use test environment.
+     * The test environment is completely separate from the main environment, so you will need to
+     * create a new user account and a new bot with [@BotFather](https://t.me/BotFather).
+     * @see https://core.telegram.org/bots/webapps#testing-web-apps
+     * */
+    testEnv: false,
   },
 }
 
-export type ClientOptions = typeof defaultOptions
+export type ClientOptions = DeepPartial<typeof defaultOpts>
+
 export type TelegrafTypegram = Typegram<InputFile>
 export type InputFile = Blob | StreamFile
 export type TelegramP = TelegrafTypegram['TelegramP']
@@ -95,7 +113,10 @@ export interface Invocation<M extends keyof Opts> {
   signal?: AbortSignal
 }
 
-export function createClient(token: string, { api } = defaultOptions) {
+export function createClient(token: string, opts: ClientOptions = defaultOpts) {
+  // override options that are explicitly passed
+  const { mode, root, testEnv } = { ...defaultOpts.api, ...opts.api }
+
   const call = async <M extends keyof Telegram>({
     method,
     payload,
@@ -103,7 +124,10 @@ export function createClient(token: string, { api } = defaultOptions) {
   }: Invocation<M>): Promise<ApiResponse<Ret[M]>> => {
     debug('HTTP call', method, payload)
     const body = serialize(payload)
-    const url = new URL(`./${api.mode}${token}/${method}`, api.root)
+    const url = new URL(
+      `./${mode}${token}${testEnv ? '/test' : ''}/${method}`,
+      root
+    )
     const init: RequestInit = { body, signal, method: 'post' }
     const res = await fetch(url.href, init).catch(redactToken)
     if (res.status >= 500) {
@@ -121,8 +145,8 @@ export function createClient(token: string, { api } = defaultOptions) {
   const download = async (file: File) => {
     const url = new URL(
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      `./file/${api.mode}${token}/${file.file_path!}`,
-      api.root
+      `./file/${mode}${token}/${file.file_path!}`,
+      root
     )
     return await fetch(url)
   }

@@ -2,6 +2,12 @@ import { FmtString } from './format'
 
 export const env = process.env
 
+export type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>
+    }
+  : T
+
 export type Expand<T> = T extends object
   ? T extends infer O
     ? { [K in keyof O]: O[K] }

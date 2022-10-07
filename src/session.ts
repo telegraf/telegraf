@@ -1,6 +1,7 @@
 import { Context } from './context'
 import { MaybePromise } from './util'
 import { MiddlewareFn } from './middleware'
+import d from 'debug'
 
 export interface SessionStore<T> {
   get: (name: string) => MaybePromise<T | undefined>
@@ -9,8 +10,9 @@ export interface SessionStore<T> {
 }
 
 interface SessionOptions<S extends object> {
-  getSessionKey?: (ctx: Context) => Promise<string | undefined>
+  initial?: () => S
   store?: SessionStore<S>
+  getSessionKey?: (ctx: Context) => Promise<string | undefined>
 }
 
 export interface SessionContext<S extends object> extends Context {
@@ -20,7 +22,7 @@ export interface SessionContext<S extends object> extends Context {
 /**
  * Returns middleware that adds `ctx.session` for storing arbitrary state per session key.
  *
- * The default `getSessionKey` is <code>\`${ctx.from.id}:${ctx.chat.id}\`</code>.
+ * The default `getSessionKey` is `${ctx.from.id}:${ctx.chat.id}`.
  * If either `ctx.from` or `ctx.chat` is `undefined`, default session key and thus `ctx.session` are also `undefined`.
  *
  * Session data is kept only in memory by default,
@@ -29,25 +31,96 @@ export interface SessionContext<S extends object> extends Context {
  * you can [install persistent session middleware from npm](https://www.npmjs.com/search?q=telegraf-session),
  * or pass custom `storage`.
  *
- * @example https://github.com/telegraf/telegraf/blob/develop/docs/examples/session-bot.ts
- * @deprecated https://github.com/telegraf/telegraf/issues/1372#issuecomment-782668499
+ * @example https://github.com/feathers-studio/telegraf-docs/blob/master/examples/session-bot.ts
  */
 export function session<S extends object>(
   options?: SessionOptions<S>
 ): MiddlewareFn<SessionContext<S>> {
   const getSessionKey = options?.getSessionKey ?? defaultGetSessionKey
   const store = options?.store ?? new MemorySessionStore()
+  // caches value from store in-memory while simultaneous updates share it
+  // when counter reaches 0, the cached ref will be freed from memory
+  const cache = new Map<string, { ref?: S; counter: number }>()
+  // temporarily stores concurrent requests
+  const concurrents = new Map<string, MaybePromise<S | undefined>>()
+
+  // this function must be handled with care
   return async (ctx, next) => {
+    const updId = ctx.update.update_id
+
+    const debug = d('telegraf:session')
+
+    // because this is async, requests may still race here, but it will get autocorrected at (1)
+    // v5 getSessionKey should probably be synchronous to avoid that
     const key = await getSessionKey(ctx)
-    if (key == null) {
+    if (!key) {
+      ctx.session = undefined
       return await next()
     }
-    ctx.session = await store.get(key)
-    await next()
-    if (ctx.session == null) {
-      await store.delete(key)
+
+    let cached = cache.get(key)
+    if (cached) {
+      debug(`(${updId}) found cached session, reusing from cache`)
+      ++cached.counter
     } else {
-      await store.set(key, ctx.session)
+      debug(`(${updId}) did not find cached session`)
+      // if another concurrent request has already sent a store request, fetch that instead
+      let promise = concurrents.get(key)
+      if (promise)
+        debug(`(${updId}) found a concurrent request, reusing promise`)
+      else {
+        debug(`(${updId}) fetching from upstream store`)
+        promise = store.get(key)
+      }
+      // synchronously store promise so concurrent requests can share response
+      concurrents.set(key, promise)
+      const upstream = await promise
+      // all concurrent awaits will have promise in their closure, safe to remove now
+      concurrents.delete(key)
+      debug(`(${updId}) updating cache`)
+      // another request may have beaten us to the punch
+      const c = cache.get(key)
+      // (1) preserve cached reference using Object.assign, or create new object if it doesn't exist
+      cached = Object.assign(c || {}, {
+        ref: upstream,
+        counter: (c?.counter || 0) + 1,
+      })
+      cache.set(key, cached)
+    }
+
+    Object.defineProperty(ctx, 'session', {
+      get() {
+        return cached?.ref
+      },
+      set(value: S) {
+        if (cached) cached.ref = value
+      },
+    })
+
+    const decrement = () => {
+      if (cached && --cached.counter === 0) {
+        debug(`(${updId}) refcounter reached 0, removing cached`)
+        cache.delete(key)
+      }
+    }
+
+    try {
+      await next()
+
+      debug(`(${updId}) middlewares ran successfully, checking session`)
+
+      decrement()
+      if (ctx.session == null) {
+        debug(`(${updId}) ctx.session missing, removing from store`)
+        await store.delete(key)
+      } else {
+        debug(`(${updId}) ctx.session found, updating store`)
+        await store.set(key, ctx.session)
+      }
+    } catch (e) {
+      // decrement to avoid memory leak, and rethrow error
+      decrement()
+      throw e
     }
   }
 }

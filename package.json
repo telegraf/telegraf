@@ -19,15 +19,9 @@
       "require": "./lib/index.js",
       "import": "./lib/index.js"
     },
-    "./future": {
-      "types": "./future.d.ts",
-      "require": "./future.js",
-      "import": "./future.js"
-    },
     "./types": {
-      "types": "./types.d.ts",
-      "require": "./types.js",
-      "import": "./types.js"
+      "types": "./typings/telegram-types.d.ts",
+      "default": "./lib/telegram-types.js"
     },
     "./format": {
       "types": "./typings/format.d.ts",
@@ -36,13 +30,10 @@
     }
   },
   "files": [
-    "bin/*",
     "src/**/*.ts",
     "lib/**/*.js",
     "typings/**/*.d.ts",
-    "typings/**/*.d.ts.map",
-    "types.*",
-    "future.*"
+    "typings/**/*.d.ts.map"
   ],
   "bin": {
     "telegraf": "lib/cli.mjs"

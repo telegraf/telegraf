@@ -97,19 +97,15 @@ export function session<S extends object>(
       },
     })
 
-    const decrement = () => {
+    try {
+      await next()
+    } finally {
       if (cached && --cached.counter === 0) {
+        // decrement to avoid memory leak
         debug(`(${updId}) refcounter reached 0, removing cached`)
         cache.delete(key)
       }
-    }
-
-    try {
-      await next()
-
-      debug(`(${updId}) middlewares ran successfully, checking session`)
-
-      decrement()
+      debug(`(${updId}) middlewares completed, checking session`)
       if (ctx.session == null) {
         debug(`(${updId}) ctx.session missing, removing from store`)
         await store.delete(key)
@@ -117,10 +113,6 @@ export function session<S extends object>(
         debug(`(${updId}) ctx.session found, updating store`)
         await store.set(key, ctx.session)
       }
-    } catch (e) {
-      // decrement to avoid memory leak, and rethrow error
-      decrement()
-      throw e
     }
   }
 }

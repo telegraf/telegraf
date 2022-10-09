@@ -48,7 +48,7 @@ export default class SceneContextScene<
   }
 
   get session(): D {
-    const defaultSession = this.options.defaultSession
+    const defaultSession = Object.assign({}, this.options.defaultSession)
 
     let session = this.ctx.session?.__scenes ?? defaultSession
     if (session.expires !== undefined && session.expires < now()) {
@@ -79,7 +79,7 @@ export default class SceneContextScene<
 
   reset() {
     if (this.ctx.session !== undefined)
-      this.ctx.session.__scenes = this.options.defaultSession
+      this.ctx.session.__scenes = Object.assign({}, this.options.defaultSession)
   }
 
   async enter(sceneId: string, initialState: object = {}, silent = false) {

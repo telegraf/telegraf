@@ -29,18 +29,21 @@ export namespace Types {
 
 type TemplateParts = string | TemplateStringsArray | string[]
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+type Any = {} | undefined | null
+
 export function _fmt(
   kind: Types.Containers | 'very-plain'
-): (parts: TemplateParts, ...items: (string | FmtString)[]) => FmtString
+): (parts: TemplateParts, ...items: (Any | FmtString)[]) => FmtString
 export function _fmt(
   kind: Types.NonContainers
-): (parts: TemplateParts, ...items: string[]) => FmtString
+): (parts: TemplateParts, ...items: Any[]) => FmtString
 export function _fmt(
   kind: 'pre',
   opts: { language: string }
-): (parts: TemplateParts, ...items: string[]) => FmtString
+): (parts: TemplateParts, ...items: Any[]) => FmtString
 export function _fmt(kind: Types.Text | 'very-plain', opts?: object) {
-  return function fmt(parts: TemplateParts, ...items: (string | FmtString)[]) {
+  return function fmt(parts: TemplateParts, ...items: (Any | FmtString)[]) {
     let text = ''
     const entities: MessageEntity[] = []
     parts = typeof parts === 'string' ? [parts] : parts
@@ -48,8 +51,8 @@ export function _fmt(kind: Types.Text | 'very-plain', opts?: object) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       text += parts[i]!
       const item = items[i]
-      if (!item) continue
-      if (typeof item === 'string') {
+      if (item == null) continue
+      if (!(item instanceof FmtString)) {
         text += item
         continue
       }
@@ -62,6 +65,7 @@ export function _fmt(kind: Types.Text | 'very-plain', opts?: object) {
     return new FmtString(text, entities.length ? entities : undefined)
   }
 }
+
 export const linkOrMention = (
   content: string | FmtString,
   data:

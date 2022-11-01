@@ -23,6 +23,10 @@
       "types": "./typings/telegram-types.d.ts",
       "default": "./lib/telegram-types.js"
     },
+    "./transformers": {
+      "types": "./typings/transformers/index.d.ts",
+      "default": "./lib/transformers/index.js"
+    },
     "./format": {
       "types": "./typings/format.d.ts",
       "require": "./lib/format.js",

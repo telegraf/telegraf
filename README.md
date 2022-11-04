@@ -43,12 +43,10 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 - [AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)
   / [Firebase](https://firebase.google.com/products/functions/)
   / [Glitch](https://glitch.com/edit/#!/dashing-light)
-  / [Heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction)
+  / [Fly.io](https://fly.io/docs/languages-and-frameworks/node)
   / Whatever ready
 - `http/https/fastify/Connect.js/express.js` compatible webhooks
 - Extensible
-
-> Notice: Heroku is [sunsetting free dynos](https://blog.heroku.com/next-chapter), so new and existing projects relying on it should likely start building elsewhere.
 
 ### Example
   

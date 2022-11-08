@@ -3,12 +3,11 @@
 import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
-import Context from './context'
-import { Expand } from './util'
+import Context, { FilteredContext, NarrowedContext } from './context'
+import { MaybeArray, NonemptyReadonlyArray, MaybePromise, Guard } from './util'
+import { type CallbackQuery } from './core/types/typegram'
+import { callbackQuery } from './filters'
 
-export type MaybeArray<T> = T | T[]
-export type MaybePromise<T> = T | Promise<T>
-export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 export type Triggers<C> = MaybeArray<
   string | RegExp | ((value: string, ctx: C) => RegExpExecArray | null)
 >
@@ -31,26 +30,6 @@ type MatchedContext<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType
 > = NarrowedContext<C, tt.MountMap[T]>
-
-/**
- * Narrows down `C['update']` (and derived getters)
- * to specific update type `U`.
- *
- * Used by [[`Composer`]],
- * possibly useful for splitting a bot into multiple files.
- */
-export type NarrowedContext<
-  C extends Context,
-  U extends tg.Update
-> = Context<U> & Omit<C, keyof Context>
-
-export interface GameQueryUpdate extends tg.Update.CallbackQueryUpdate {
-  callback_query: Expand<
-    Omit<tg.CallbackQuery, 'data'> & {
-      game_short_name: NonNullable<tg.CallbackQuery['game_short_name']>
-    }
-  >
-}
 
 function always<T>(x: T) {
   return () => x
@@ -135,7 +114,12 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   gameQuery(
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, GameQueryUpdate>>
+      Middleware<
+        NarrowedContext<
+          C,
+          tg.Update.CallbackQueryUpdate<CallbackQuery.GameQuery>
+        >
+      >
     >
   ) {
     return this.use(Composer.gameQuery(...fns))
@@ -747,14 +731,15 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static gameQuery<C extends Context>(
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, GameQueryUpdate>>
+      Middleware<
+        NarrowedContext<
+          C,
+          tg.Update.CallbackQueryUpdate<CallbackQuery.GameQuery>
+        >
+      >
     >
   ): MiddlewareFn<C> {
-    return Composer.guard(
-      (u): u is GameQueryUpdate =>
-        'callback_query' in u && 'game_short_name' in u.callback_query,
-      ...fns
-    )
+    return Composer.guard(callbackQuery('game_short_name'), ...fns)
   }
 
   static unwrap<C extends Context>(handler: Middleware<C>): MiddlewareFn<C> {

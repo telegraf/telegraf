@@ -2,7 +2,7 @@ import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import { Deunionize, PropOr, UnionKeys } from './deunionize'
 import ApiClient from './core/network/client'
-import { deprecate } from './util'
+import { deprecate, Guard, Guarded, MaybeArray } from './util'
 import Telegram from './telegram'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
@@ -10,6 +10,18 @@ type Tail<T> = T extends [unknown, ...infer U] ? U : never
 type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
+
+/**
+ * Narrows down `C['update']` (and derived getters)
+ * to specific update type `U`.
+ *
+ * Used by [[`Composer`]],
+ * possibly useful for splitting a bot into multiple files.
+ */
+export type NarrowedContext<
+  C extends Context,
+  U extends tg.Update
+> = Context<U> & Omit<C, keyof Context>
 
 export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

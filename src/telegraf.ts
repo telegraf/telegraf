@@ -3,7 +3,8 @@ import * as http from 'http'
 import * as https from 'https'
 import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
-import { Composer, MaybePromise } from './composer'
+import { Composer } from './composer'
+import { MaybePromise } from './util'
 import ApiClient from './core/network/client'
 import { compactOptions } from './core/helpers/compact'
 import Context from './context'
@@ -29,7 +30,6 @@ function always<T>(x: T) {
 
 const anoop = always(Promise.resolve())
 
-// eslint-disable-next-line
 export namespace Telegraf {
   export interface Options<TContext extends Context> {
     contextType: new (

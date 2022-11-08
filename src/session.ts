@@ -2,6 +2,7 @@ import { Context } from './context'
 import { MaybePromise } from './util'
 import { MiddlewareFn } from './middleware'
 import d from 'debug'
+const debug = d('telegraf:session')
 
 export interface SessionStore<T> {
   get: (name: string) => MaybePromise<T | undefined>
@@ -48,8 +49,6 @@ export function session<S extends object>(
   return async (ctx, next) => {
     const updId = ctx.update.update_id
 
-    const debug = d('telegraf:session')
-
     // because this is async, requests may still race here, but it will get autocorrected at (1)
     // v5 getSessionKey should probably be synchronous to avoid that
     const key = await getSessionKey(ctx)
@@ -88,19 +87,23 @@ export function session<S extends object>(
       cache.set(key, cached)
     }
 
+    // TS already knows cached is always defined by this point, but does not guard cached.
+    // It will, however, guard `c` here.
+    const c = cached
+
     Object.defineProperty(ctx, 'session', {
       get() {
-        return cached?.ref
+        return c.ref
       },
       set(value: S) {
-        if (cached) cached.ref = value
+        c.ref = value
       },
     })
 
     try {
       await next()
     } finally {
-      if (cached && --cached.counter === 0) {
+      if (--c.counter === 0) {
         // decrement to avoid memory leak
         debug(`(${updId}) refcounter reached 0, removing cached`)
         cache.delete(key)

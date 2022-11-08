@@ -217,7 +217,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
         typeof filter === 'function'
           ? // filter is a type guard
             filter(this.update)
-          : // filter is now type UpdateType
+          : // check if filter is the update type
             filter in this.update
       )
         return true

@@ -430,13 +430,11 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   ): MiddlewareFn<Ctx> {
     const filters = Array.isArray(updateType) ? updateType : [updateType]
 
-    return (ctx, next) => {
-      const { update } = ctx
-
+    const predicate = (update: tg.Update): update is tg.Update => {
       for (const filter of filters) {
         if (
           typeof filter === 'function'
-            ? // using filter function
+            ? // filter is a type guard
               filter(update)
             : // check if filter is the update type
               filter in update ||
@@ -444,12 +442,14 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
               // TODO: remove in v5!
               ('message' in update && filter in update.message)
         ) {
-          return Composer.compose(fns)(ctx, next)
+          return true
         }
       }
 
-      return next()
+      return false
     }
+
+    return Composer.optional((ctx) => predicate(ctx.update), ...fns)
   }
 
   /**

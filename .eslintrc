@@ -19,7 +19,6 @@
     }
   ],
   "rules": {
-    "no-warning-comments": "error",
     "prefer-promise-reject-errors": "off",
     "comma-dangle": "off",
     "space-before-function-paren": "off",
@@ -34,6 +33,7 @@
     "/test/",
     "/types.*",
     "/format.*",
+    "/filters.*",
     "/future.*"
   ],
   "reportUnusedDisableDirectives": true,

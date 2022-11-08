@@ -23,6 +23,13 @@ export type NarrowedContext<
   U extends tg.Update
 > = Context<U> & Omit<C, keyof Context>
 
+export type FilteredContext<
+  Ctx extends Context,
+  Filter extends tt.UpdateType | Guard<Ctx['update']>
+> = Filter extends tt.UpdateType
+  ? NarrowedContext<Ctx, Extract<tg.Update, Record<Filter, object>>>
+  : NarrowedContext<Ctx, Guarded<Filter>>
+
 export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly state: Record<string | symbol, any> = {}
@@ -107,7 +114,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   get chatJoinRequest() {
-    return this.update.chat_join_request
+    return this.update.chat_join_request as PropOr<U, 'chat_join_request'>
   }
 
   get chat(): Getter<U, 'chat'> {
@@ -198,6 +205,24 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
         `Telegraf: "${method}" isn't available for "${this.updateType}"`
       )
     }
+  }
+
+  has<Filter extends tt.UpdateType | Guard<Context['update']>>(
+    this: Context,
+    filters: MaybeArray<Filter>
+  ): this is FilteredContext<Context, Filter> {
+    if (!Array.isArray(filters)) filters = [filters]
+    for (const filter of filters)
+      if (
+        typeof filter === 'function'
+          ? // filter is a type guard
+            filter(this.update)
+          : // filter is now type UpdateType
+            filter in this.update
+      )
+        return true
+
+    return false
   }
 
   /**

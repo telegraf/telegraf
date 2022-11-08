@@ -63,13 +63,36 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   }
 
   /**
-   * Registers middleware for handling provided update types.
+   * Registers middleware for handling updates narrowed by update types or filter queries.
    */
-  on<T extends tt.UpdateType | tt.MessageSubType>(
-    updateType: MaybeArray<T>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
-  ) {
-    return this.use(Composer.on<C, T>(updateType, ...fns))
+  on<Filter extends tt.UpdateType | Guard<C['update']>>(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<FilteredContext<C, Filter>>>
+  ): this
+
+  /**
+   * Registers middleware for handling updates narrowed by update types or message subtypes.
+   * @deprecated Use filter utils instead. Support for Message subtype in `Composer::on` will be removed in Telegraf v5.
+   */
+  on<Filter extends tt.UpdateType | tt.MessageSubType>(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, Filter>>>
+  ): this
+
+  on<Filter extends tt.UpdateType | tt.MessageSubType | Guard<C['update']>>(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<
+      Middleware<
+        Filter extends tt.MessageSubType
+          ? MatchedContext<C, Filter>
+          : Filter extends tt.UpdateType | Guard<C['update']>
+          ? FilteredContext<C, Filter>
+          : never
+      >
+    >
+  ): this {
+    // @ts-expect-error This should get resolved when the overloads are removed in v5
+    return this.use(Composer.on(filters, ...fns))
   }
 
   /**
@@ -376,38 +399,64 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   }
 
   /**
-   * Generates middleware for handling provided update types.
-   * @deprecated use `Composer.on`
+   * Generates middleware for handling updates narrowed by update types or filter queries.
    */
-  static mount<C extends Context, T extends tt.UpdateType | tt.MessageSubType>(
-    updateType: MaybeArray<T>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
-  ): MiddlewareFn<C> {
-    return Composer.on(updateType, ...fns)
+  static on<
+    Ctx extends Context,
+    Filter extends tt.UpdateType | Guard<Ctx['update']>
+  >(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<FilteredContext<Ctx, Filter>>>
+  ): MiddlewareFn<Ctx>
+
+  /**
+   * Generates middleware for handling updates narrowed by update types or message subtype.
+   * @deprecated Use filter utils instead. Support for Message subtype in `Composer.on` will be removed in Telegraf v5.
+   */
+  static on<
+    Ctx extends Context,
+    Filter extends tt.UpdateType | tt.MessageSubType
+  >(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<Ctx, Filter>>>
+  ): MiddlewareFn<Ctx>
+
+  static on<
+    Ctx extends Context,
+    Filter extends tt.UpdateType | tt.MessageSubType | Guard<Ctx['update']>
+  >(
+    updateType: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<Ctx>>
+  ): MiddlewareFn<Ctx> {
+    const filters = Array.isArray(updateType) ? updateType : [updateType]
+
+    return (ctx, next) => {
+      const { update } = ctx
+
+      for (const filter of filters) {
+        if (
+          typeof filter === 'function'
+            ? // using filter function
+              filter(update)
+            : // check if filter is the update type
+              filter in update ||
+              // check if filter is the msg type
+              // TODO: remove in v5!
+              ('message' in update && filter in update.message)
+        ) {
+          return Composer.compose(fns)(ctx, next)
+        }
+      }
+
+      return next()
+    }
   }
 
   /**
    * Generates middleware for handling provided update types.
+   * @deprecated use `Composer.on` instead
    */
-  static on<C extends Context, T extends tt.UpdateType | tt.MessageSubType>(
-    updateType: MaybeArray<T>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
-  ): MiddlewareFn<C> {
-    const updateTypes = normalizeTextArguments(updateType)
-
-    const predicate = (
-      update: tg.Update
-    ): update is tg.Update & tt.MountMap[T] =>
-      updateTypes.some(
-        (type) =>
-          // Check update type
-          type in update ||
-          // Check message sub-type
-          ('message' in update && type in update.message)
-      )
-
-    return Composer.guard<C, tt.MountMap[T]>(predicate, ...fns)
-  }
+  static mount = Composer.on
 
   private static entity<
     C extends Context,

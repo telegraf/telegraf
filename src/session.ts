@@ -1,5 +1,5 @@
 import { Context } from './context'
-import { MaybePromise } from './composer'
+import { MaybePromise } from './util'
 import { MiddlewareFn } from './middleware'
 
 export interface SessionStore<T> {

@@ -25,7 +25,6 @@ const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
   'sendChatAction',
 ])
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace ApiClient {
   export type Agent = http.Agent | ((parsedUrl: URL) => http.Agent) | undefined
   export interface Options {

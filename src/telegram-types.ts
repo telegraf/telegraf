@@ -134,6 +134,7 @@ type ExtractPartial<T extends object, U extends object> = T extends unknown
 
 /**
  * Maps [[`Composer.on`]]'s `updateType` or `messageSubType` to a `tt.Update` subtype.
+ * @deprecated
  */
 export type MountMap = {
   [T in UpdateType]: Extract<Update, Record<T, object>>

@@ -2,7 +2,7 @@ import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import { Deunionize, PropOr, UnionKeys } from './deunionize'
 import ApiClient from './core/network/client'
-import { deprecate } from './util'
+import { deprecate, Guard, Guarded, MaybeArray } from './util'
 import Telegram from './telegram'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
@@ -10,6 +10,25 @@ type Tail<T> = T extends [unknown, ...infer U] ? U : never
 type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
+
+/**
+ * Narrows down `C['update']` (and derived getters)
+ * to specific update type `U`.
+ *
+ * Used by [[`Composer`]],
+ * possibly useful for splitting a bot into multiple files.
+ */
+export type NarrowedContext<
+  C extends Context,
+  U extends tg.Update
+> = Context<U> & Omit<C, keyof Context>
+
+export type FilteredContext<
+  Ctx extends Context,
+  Filter extends tt.UpdateType | Guard<Ctx['update']>
+> = Filter extends tt.UpdateType
+  ? NarrowedContext<Ctx, Extract<tg.Update, Record<Filter, object>>>
+  : NarrowedContext<Ctx, Guarded<Filter>>
 
 export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -95,7 +114,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   get chatJoinRequest() {
-    return this.update.chat_join_request
+    return this.update.chat_join_request as PropOr<U, 'chat_join_request'>
   }
 
   get chat(): Getter<U, 'chat'> {
@@ -186,6 +205,24 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
         `Telegraf: "${method}" isn't available for "${this.updateType}"`
       )
     }
+  }
+
+  has<Filter extends tt.UpdateType | Guard<Context['update']>>(
+    this: Context,
+    filters: MaybeArray<Filter>
+  ): this is FilteredContext<Context, Filter> {
+    if (!Array.isArray(filters)) filters = [filters]
+    for (const filter of filters)
+      if (
+        typeof filter === 'function'
+          ? // filter is a type guard
+            filter(this.update)
+          : // check if filter is the update type
+            filter in this.update
+      )
+        return true
+
+    return false
   }
 
   /**

@@ -3,12 +3,11 @@
 import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
-import Context from './context'
-import { Expand } from './util'
+import Context, { FilteredContext, NarrowedContext } from './context'
+import { MaybeArray, NonemptyReadonlyArray, MaybePromise, Guard } from './util'
+import { type CallbackQuery } from './core/types/typegram'
+import { callbackQuery } from './filters'
 
-export type MaybeArray<T> = T | T[]
-export type MaybePromise<T> = T | Promise<T>
-export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 export type Triggers<C> = MaybeArray<
   string | RegExp | ((value: string, ctx: C) => RegExpExecArray | null)
 >
@@ -31,26 +30,6 @@ type MatchedContext<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType
 > = NarrowedContext<C, tt.MountMap[T]>
-
-/**
- * Narrows down `C['update']` (and derived getters)
- * to specific update type `U`.
- *
- * Used by [[`Composer`]],
- * possibly useful for splitting a bot into multiple files.
- */
-export type NarrowedContext<
-  C extends Context,
-  U extends tg.Update
-> = Context<U> & Omit<C, keyof Context>
-
-export interface GameQueryUpdate extends tg.Update.CallbackQueryUpdate {
-  callback_query: Expand<
-    Omit<tg.CallbackQuery, 'data'> & {
-      game_short_name: NonNullable<tg.CallbackQuery['game_short_name']>
-    }
-  >
-}
 
 function always<T>(x: T) {
   return () => x
@@ -75,6 +54,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Registers middleware for handling updates
    * matching given type guard function.
+   * @deprecated use `Composer::on`
    */
   guard<U extends tg.Update>(
     guardFn: (update: tg.Update) => update is U,
@@ -84,13 +64,36 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   }
 
   /**
-   * Registers middleware for handling provided update types.
+   * Registers middleware for handling updates narrowed by update types or filter queries.
    */
-  on<T extends tt.UpdateType | tt.MessageSubType>(
-    updateType: MaybeArray<T>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
-  ) {
-    return this.use(Composer.on<C, T>(updateType, ...fns))
+  on<Filter extends tt.UpdateType | Guard<C['update']>>(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<FilteredContext<C, Filter>>>
+  ): this
+
+  /**
+   * Registers middleware for handling updates narrowed by update types or message subtypes.
+   * @deprecated Use filter utils instead. Support for Message subtype in `Composer::on` will be removed in Telegraf v5.
+   */
+  on<Filter extends tt.UpdateType | tt.MessageSubType>(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, Filter>>>
+  ): this
+
+  on<Filter extends tt.UpdateType | tt.MessageSubType | Guard<C['update']>>(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<
+      Middleware<
+        Filter extends tt.MessageSubType
+          ? MatchedContext<C, Filter>
+          : Filter extends tt.UpdateType | Guard<C['update']>
+          ? FilteredContext<C, Filter>
+          : never
+      >
+    >
+  ): this {
+    // @ts-expect-error This should get resolved when the overloads are removed in v5
+    return this.use(Composer.on(filters, ...fns))
   }
 
   /**
@@ -135,7 +138,12 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   gameQuery(
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, GameQueryUpdate>>
+      Middleware<
+        NarrowedContext<
+          C,
+          tg.Update.CallbackQueryUpdate<CallbackQuery.GameQuery>
+        >
+      >
     >
   ) {
     return this.use(Composer.gameQuery(...fns))
@@ -148,6 +156,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     return this.use(Composer.drop(predicate))
   }
 
+  /** @deprecated use `Composer::drop` */
   filter(predicate: Predicate<C>) {
     return this.use(Composer.filter(predicate))
   }
@@ -330,6 +339,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     )
   }
 
+  /** @deprecated use `Composer.drop` */
   static filter<C extends Context>(predicate: Predicate<C>): MiddlewareFn<C> {
     return Composer.branch(predicate, Composer.passThru(), anoop)
   }
@@ -379,6 +389,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * @param guardFn predicate to decide whether to run the middleware based on the `ctx.update` object
    * @param fns middleware to run if the predicate returns true
    * @see `Composer.optional` for a more generic version of this method that allows the predicate to operate on `ctx` itself
+   * @deprecated use `Composer.on`
    */
   static guard<C extends Context, U extends tg.Update>(
     guardFn: (u: tg.Update) => u is U,
@@ -392,38 +403,64 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   }
 
   /**
-   * Generates middleware for handling provided update types.
-   * @deprecated use `Composer.on`
+   * Generates middleware for handling updates narrowed by update types or filter queries.
    */
-  static mount<C extends Context, T extends tt.UpdateType | tt.MessageSubType>(
-    updateType: MaybeArray<T>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
-  ): MiddlewareFn<C> {
-    return Composer.on(updateType, ...fns)
+  static on<
+    Ctx extends Context,
+    Filter extends tt.UpdateType | Guard<Ctx['update']>
+  >(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<FilteredContext<Ctx, Filter>>>
+  ): MiddlewareFn<Ctx>
+
+  /**
+   * Generates middleware for handling updates narrowed by update types or message subtype.
+   * @deprecated Use filter utils instead. Support for Message subtype in `Composer.on` will be removed in Telegraf v5.
+   */
+  static on<
+    Ctx extends Context,
+    Filter extends tt.UpdateType | tt.MessageSubType
+  >(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<Ctx, Filter>>>
+  ): MiddlewareFn<Ctx>
+
+  static on<
+    Ctx extends Context,
+    Filter extends tt.UpdateType | tt.MessageSubType | Guard<Ctx['update']>
+  >(
+    updateType: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<Ctx>>
+  ): MiddlewareFn<Ctx> {
+    const filters = Array.isArray(updateType) ? updateType : [updateType]
+
+    const predicate = (update: tg.Update): update is tg.Update => {
+      for (const filter of filters) {
+        if (
+          typeof filter === 'function'
+            ? // filter is a type guard
+              filter(update)
+            : // check if filter is the update type
+              filter in update ||
+              // check if filter is the msg type
+              // TODO: remove in v5!
+              ('message' in update && filter in update.message)
+        ) {
+          return true
+        }
+      }
+
+      return false
+    }
+
+    return Composer.optional((ctx) => predicate(ctx.update), ...fns)
   }
 
   /**
    * Generates middleware for handling provided update types.
+   * @deprecated use `Composer.on` instead
    */
-  static on<C extends Context, T extends tt.UpdateType | tt.MessageSubType>(
-    updateType: MaybeArray<T>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
-  ): MiddlewareFn<C> {
-    const updateTypes = normalizeTextArguments(updateType)
-
-    const predicate = (
-      update: tg.Update
-    ): update is tg.Update & tt.MountMap[T] =>
-      updateTypes.some(
-        (type) =>
-          // Check update type
-          type in update ||
-          // Check message sub-type
-          ('message' in update && type in update.message)
-      )
-
-    return Composer.guard<C, tt.MountMap[T]>(predicate, ...fns)
-  }
+  static mount = Composer.on
 
   private static entity<
     C extends Context,
@@ -747,14 +784,15 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static gameQuery<C extends Context>(
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, GameQueryUpdate>>
+      Middleware<
+        NarrowedContext<
+          C,
+          tg.Update.CallbackQueryUpdate<CallbackQuery.GameQuery>
+        >
+      >
     >
   ): MiddlewareFn<C> {
-    return Composer.guard(
-      (u): u is GameQueryUpdate =>
-        'callback_query' in u && 'game_short_name' in u.callback_query,
-      ...fns
-    )
+    return Composer.guard(callbackQuery('game_short_name'), ...fns)
   }
 
   static unwrap<C extends Context>(handler: Middleware<C>): MiddlewareFn<C> {

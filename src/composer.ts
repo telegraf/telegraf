@@ -54,6 +54,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Registers middleware for handling updates
    * matching given type guard function.
+   * @deprecated use `Composer::on`
    */
   guard<U extends tg.Update>(
     guardFn: (update: tg.Update) => update is U,
@@ -155,6 +156,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     return this.use(Composer.drop(predicate))
   }
 
+  /** @deprecated use `Composer::drop` */
   filter(predicate: Predicate<C>) {
     return this.use(Composer.filter(predicate))
   }
@@ -337,6 +339,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     )
   }
 
+  /** @deprecated use `Composer.drop` */
   static filter<C extends Context>(predicate: Predicate<C>): MiddlewareFn<C> {
     return Composer.branch(predicate, Composer.passThru(), anoop)
   }
@@ -386,6 +389,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * @param guardFn predicate to decide whether to run the middleware based on the `ctx.update` object
    * @param fns middleware to run if the predicate returns true
    * @see `Composer.optional` for a more generic version of this method that allows the predicate to operate on `ctx` itself
+   * @deprecated use `Composer.on`
    */
   static guard<C extends Context, U extends tg.Update>(
     guardFn: (u: tg.Update) => u is U,

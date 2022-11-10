@@ -18,7 +18,7 @@ export type MatchedMiddleware<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post'
 > = NonemptyReadonlyArray<
-  Middleware<MatchedContext<C & { match: RegExpExecArray }, T>>
+  Middleware<NarrowedContext<C & { match: RegExpExecArray }, tt.MountMap[T]>>
 >
 
 /** Takes: a context type and an update type (or message subtype).
@@ -77,7 +77,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   on<Filter extends tt.UpdateType | tt.MessageSubType>(
     filters: MaybeArray<Filter>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, Filter>>>
+    ...fns: NonemptyReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap[Filter]>>
+    >
   ): this
 
   on<Filter extends tt.UpdateType | tt.MessageSubType | Guard<C['update']>>(
@@ -108,7 +110,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   command(
     command: MaybeArray<string>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
+    ...fns: NonemptyReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+    >
   ) {
     return this.use(Composer.command<C>(command, ...fns))
   }
@@ -169,7 +173,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     predicate:
       | MaybeArray<string>
       | ((entity: tg.MessageEntity, s: string, ctx: C) => boolean),
-    ...fns: ReadonlyArray<Middleware<MatchedContext<C, T>>>
+    ...fns: ReadonlyArray<Middleware<NarrowedContext<C, tt.MountMap[T]>>>
   ) {
     return this.use(Composer.entity<C, T>(predicate, ...fns))
   }
@@ -215,7 +219,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   start(
     ...fns: NonemptyReadonlyArray<
-      Middleware<MatchedContext<C, 'text'> & { startPayload: string }>
+      Middleware<
+        NarrowedContext<C, tt.MountMap['text']> & { startPayload: string }
+      >
     >
   ) {
     const handler = Composer.compose(fns)
@@ -231,7 +237,11 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Registers a middleware for handling /help
    */
-  help(...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>) {
+  help(
+    ...fns: NonemptyReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+    >
+  ) {
     return this.command('help', ...fns)
   }
 
@@ -239,7 +249,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Registers a middleware for handling /settings
    */
   settings(
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
+    ...fns: NonemptyReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+    >
   ) {
     return this.command('settings', ...fns)
   }
@@ -422,7 +434,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     Filter extends tt.UpdateType | tt.MessageSubType
   >(
     filters: MaybeArray<Filter>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<Ctx, Filter>>>
+    ...fns: NonemptyReadonlyArray<
+      Middleware<NarrowedContext<Ctx, tt.MountMap[Filter]>>
+    >
   ): MiddlewareFn<Ctx>
 
   static on<
@@ -471,7 +485,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     predicate:
       | MaybeArray<string>
       | ((entity: tg.MessageEntity, s: string, ctx: C) => boolean),
-    ...fns: ReadonlyArray<Middleware<MatchedContext<C, T>>>
+    ...fns: ReadonlyArray<Middleware<NarrowedContext<C, tt.MountMap[T]>>>
   ): MiddlewareFn<C> {
     if (typeof predicate !== 'function') {
       const entityTypes = normalizeTextArguments(predicate)
@@ -611,7 +625,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   >(
     triggers: ReadonlyArray<(text: string, ctx: C) => RegExpExecArray | null>,
     ...fns: MatchedMiddleware<C, T>
-  ): MiddlewareFn<MatchedContext<C, T>> {
+  ): MiddlewareFn<NarrowedContext<C, tt.MountMap[T]>> {
     const handler = Composer.compose(fns)
     return (ctx, next) => {
       const text =
@@ -650,7 +664,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static command<C extends Context>(
     command: MaybeArray<string>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
+    ...fns: NonemptyReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+    >
   ): MiddlewareFn<C> {
     if (fns.length === 0) {
       // @ts-expect-error command is really the middleware
@@ -659,12 +675,12 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     const commands = normalizeTextArguments(command, '/')
     return Composer.on<C, 'text'>(
       'text',
-      Composer.lazy<MatchedContext<C, 'text'>>((ctx) => {
+      Composer.lazy<NarrowedContext<C, tt.MountMap['text']>>((ctx) => {
         const groupCommands =
           ctx.me && ctx.chat?.type.endsWith('group')
             ? commands.map((command) => `${command}@${ctx.me}`)
             : []
-        return Composer.entity<MatchedContext<C, 'text'>>(
+        return Composer.entity<NarrowedContext<C, tt.MountMap['text']>>(
           ({ offset, type }, value) =>
             offset === 0 &&
             type === 'bot_command' &&

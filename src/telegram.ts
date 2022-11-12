@@ -148,7 +148,7 @@ export class Telegram extends ApiClient {
     chatId: number | string,
     fromChatId: number | string,
     messageId: number,
-    extra?: { disable_notification?: boolean }
+    extra?: tt.ExtraForwardMessage
   ) {
     return this.callApi('forwardMessage', {
       chat_id: chatId,
@@ -941,6 +941,130 @@ export class Telegram extends ApiClient {
 
   deleteChatStickerSet(chatId: number | string) {
     return this.callApi('deleteChatStickerSet', { chat_id: chatId })
+  }
+
+  /**
+   * Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user.
+   * Requires no parameters. Returns an Array of Sticker objects.
+   *
+   * @see https://core.telegram.org/bots/api#getforumtopiciconstickers
+   */
+  getForumTopicIconStickers() {
+    return this.callApi('getForumTopicIconStickers', {})
+  }
+
+  /**
+   * Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this
+   * to work and must have the can_manage_topics administrator rights. Returns information about the created topic as a
+   * ForumTopic object.
+   *
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param name Topic name, 1-128 characters
+   *
+   * @see https://core.telegram.org/bots/api#createforumtopic
+   */
+  createForumTopic(
+    chat_id: number | string,
+    name: string,
+    extra?: tt.ExtraCreateForumTopic
+  ) {
+    return this.callApi('createForumTopic', {
+      chat_id,
+      name,
+      ...extra,
+    })
+  }
+
+  /**
+   * Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in
+   * the chat for this to work and must have can_manage_topics administrator rights, unless it is the creator of the
+   * topic. Returns True on success.
+   *
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param message_thread_id Unique identifier for the target message thread of the forum topic
+   *
+   * @see https://core.telegram.org/bots/api#editforumtopic
+   */
+  editForumTopic(
+    chat_id: number | string,
+    message_thread_id: number,
+    extra: tt.ExtraEditForumTopic
+  ) {
+    return this.callApi('editForumTopic', {
+      chat_id,
+      message_thread_id,
+      ...extra,
+    })
+  }
+
+  /**
+   * Use this method to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat
+   * for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic.
+   * Returns True on success.
+   *
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param message_thread_id Unique identifier for the target message thread of the forum topic
+   *
+   * @see https://core.telegram.org/bots/api#closeforumtopic
+   */
+  closeForumTopic(chat_id: number | string, message_thread_id: number) {
+    return this.callApi('closeForumTopic', {
+      chat_id,
+      message_thread_id,
+    })
+  }
+
+  /**
+   * Use this method to reopen a closed topic in a forum supergroup chat. The bot must be an administrator in the chat
+   * for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic.
+   * Returns True on success.
+   *
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param message_thread_id Unique identifier for the target message thread of the forum topic
+   *
+   * @see https://core.telegram.org/bots/api#reopenforumtopic
+   */
+  reopenForumTopic(chat_id: number | string, message_thread_id: number) {
+    return this.callApi('reopenForumTopic', {
+      chat_id,
+      message_thread_id,
+    })
+  }
+
+  /**
+   * Use this method to delete a forum topic along with all its messages in a forum supergroup chat. The bot must be an
+   * administrator in the chat for this to work and must have the can_delete_messages administrator rights.
+   * Returns True on success.
+   *
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param message_thread_id Unique identifier for the target message thread of the forum topic
+   *
+   * @see https://core.telegram.org/bots/api#deleteforumtopic
+   */
+  deleteForumTopic(chat_id: number | string, message_thread_id: number) {
+    return this.callApi('deleteForumTopic', {
+      chat_id,
+      message_thread_id,
+    })
+  }
+
+  /**
+   * Use this method to clear the list of pinned messages in a forum topic. The bot must be an administrator in the chat
+   * for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success.
+   *
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param message_thread_id Unique identifier for the target message thread of the forum topic
+   *
+   * @see https://core.telegram.org/bots/api#unpinallforumtopicmessages
+   */
+  unpinAllForumTopicMessages(
+    chat_id: number | string,
+    message_thread_id: number
+  ) {
+    return this.callApi('unpinAllForumTopicMessages', {
+      chat_id,
+      message_thread_id,
+    })
   }
 
   getStickerSet(name: string) {

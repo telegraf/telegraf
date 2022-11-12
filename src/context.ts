@@ -196,7 +196,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @internal
    */
-  assert<T extends string | object>(
+  assert<T extends string | number | object>(
     value: T | undefined,
     method: string
   ): asserts value is T {
@@ -1030,6 +1030,102 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   deleteChatStickerSet(this: Context) {
     this.assert(this.chat, 'deleteChatStickerSet')
     return this.telegram.deleteChatStickerSet(this.chat.id)
+  }
+
+  /**
+   * Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this
+   * to work and must have the can_manage_topics administrator rights. Returns information about the created topic as a
+   * ForumTopic object.
+   *
+   * @see https://core.telegram.org/bots/api#createforumtopic
+   */
+  createForumTopic(this: Context, ...args: Shorthand<'createForumTopic'>) {
+    this.assert(this.chat, 'createForumTopic')
+    return this.telegram.createForumTopic(this.chat.id, ...args)
+  }
+
+  /**
+   * Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in
+   * the chat for this to work and must have can_manage_topics administrator rights, unless it is the creator of the
+   * topic. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#editforumtopic
+   */
+  editForumTopic(this: Context, extra: tt.ExtraEditForumTopic) {
+    this.assert(this.chat, 'editForumTopic')
+    this.assert(this.message?.message_thread_id, 'editForumTopic')
+    return this.telegram.editForumTopic(
+      this.chat.id,
+      this.message.message_thread_id,
+      extra
+    )
+  }
+
+  /**
+   * Use this method to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat
+   * for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic.
+   * Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#closeforumtopic
+   */
+  closeForumTopic(this: Context) {
+    this.assert(this.chat, 'closeForumTopic')
+    this.assert(this.message?.message_thread_id, 'closeForumTopic')
+
+    return this.telegram.closeForumTopic(
+      this.chat.id,
+      this.message.message_thread_id
+    )
+  }
+
+  /**
+   * Use this method to reopen a closed topic in a forum supergroup chat. The bot must be an administrator in the chat
+   * for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic.
+   * Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#reopenforumtopic
+   */
+  reopenForumTopic(this: Context) {
+    this.assert(this.chat, 'reopenForumTopic')
+    this.assert(this.message?.message_thread_id, 'reopenForumTopic')
+
+    return this.telegram.reopenForumTopic(
+      this.chat.id,
+      this.message.message_thread_id
+    )
+  }
+
+  /**
+   * Use this method to delete a forum topic along with all its messages in a forum supergroup chat. The bot must be an
+   * administrator in the chat for this to work and must have the can_delete_messages administrator rights.
+   * Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#deleteforumtopic
+   */
+  deleteForumTopic(this: Context) {
+    this.assert(this.chat, 'deleteForumTopic')
+    this.assert(this.message?.message_thread_id, 'deleteForumTopic')
+
+    return this.telegram.deleteForumTopic(
+      this.chat.id,
+      this.message.message_thread_id
+    )
+  }
+
+  /**
+   * Use this method to clear the list of pinned messages in a forum topic. The bot must be an administrator in the chat
+   * for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#unpinallforumtopicmessages
+   */
+  unpinAllForumTopicMessages(this: Context) {
+    this.assert(this.chat, 'unpinAllForumTopicMessages')
+    this.assert(this.message?.message_thread_id, 'unpinAllForumTopicMessages')
+
+    return this.telegram.unpinAllForumTopicMessages(
+      this.chat.id,
+      this.message.message_thread_id
+    )
   }
 
   /**

@@ -4,6 +4,7 @@ import { Deunionize, PropOr, UnionKeys } from './deunionize'
 import ApiClient from './core/network/client'
 import { deprecate, Guard, Guarded, MaybeArray } from './util'
 import Telegram from './telegram'
+import { FmtString } from './format'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
 
@@ -392,9 +393,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendmessage
    */
-  sendMessage(this: Context, ...args: Shorthand<'sendMessage'>) {
+  sendMessage(
+    this: Context,
+    text: string | FmtString,
+    extra?: Shorthand<'sendMessage'>[1]
+  ) {
     this.assert(this.chat, 'sendMessage')
-    return this.telegram.sendMessage(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendMessage(this.chat.id, text, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -629,9 +638,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendphoto
    */
-  sendPhoto(this: Context, ...args: Shorthand<'sendPhoto'>) {
+  sendPhoto(
+    this: Context,
+    photo: string | tg.InputFile,
+    extra?: Shorthand<'sendPhoto'>[1]
+  ) {
     this.assert(this.chat, 'sendPhoto')
-    return this.telegram.sendPhoto(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendPhoto(this.chat.id, photo, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -650,9 +667,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendmediagroup
    */
-  sendMediaGroup(this: Context, ...args: Shorthand<'sendMediaGroup'>) {
+  sendMediaGroup(
+    this: Context,
+    media: Shorthand<'sendMediaGroup'>[0],
+    extra?: Shorthand<'sendMediaGroup'>[1]
+  ) {
     this.assert(this.chat, 'sendMediaGroup')
-    return this.telegram.sendMediaGroup(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendMediaGroup(this.chat.id, media, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -671,9 +696,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendaudio
    */
-  sendAudio(this: Context, ...args: Shorthand<'sendAudio'>) {
+  sendAudio(
+    this: Context,
+    audio: string | tg.InputFile,
+    extra?: Shorthand<'sendAudio'>[1]
+  ) {
     this.assert(this.chat, 'sendAudio')
-    return this.telegram.sendAudio(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendAudio(this.chat.id, audio, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -692,9 +725,13 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#senddice
    */
-  sendDice(this: Context, ...args: Shorthand<'sendDice'>) {
+  sendDice(this: Context, extra?: Shorthand<'sendDice'>[0]) {
     this.assert(this.chat, 'sendDice')
-    return this.telegram.sendDice(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendDice(this.chat.id, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -713,9 +750,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#senddocument
    */
-  sendDocument(this: Context, ...args: Shorthand<'sendDocument'>) {
+  sendDocument(
+    this: Context,
+    document: string | tg.InputFile,
+    extra?: Shorthand<'sendDocument'>[1]
+  ) {
     this.assert(this.chat, 'sendDocument')
-    return this.telegram.sendDocument(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendDocument(this.chat.id, document, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -734,9 +779,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendsticker
    */
-  sendSticker(this: Context, ...args: Shorthand<'sendSticker'>) {
+  sendSticker(
+    this: Context,
+    sticker: string | tg.InputFile,
+    extra?: Shorthand<'sendSticker'>[1]
+  ) {
     this.assert(this.chat, 'sendSticker')
-    return this.telegram.sendSticker(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendSticker(this.chat.id, sticker, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -755,9 +808,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvideo
    */
-  sendVideo(this: Context, ...args: Shorthand<'sendVideo'>) {
+  sendVideo(
+    this: Context,
+    video: string | tg.InputFile,
+    extra?: Shorthand<'sendVideo'>[1]
+  ) {
     this.assert(this.chat, 'sendVideo')
-    return this.telegram.sendVideo(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendVideo(this.chat.id, video, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -776,9 +837,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendanimation
    */
-  sendAnimation(this: Context, ...args: Shorthand<'sendAnimation'>) {
+  sendAnimation(
+    this: Context,
+    animation: string | tg.InputFile,
+    extra?: Shorthand<'sendAnimation'>[1]
+  ) {
     this.assert(this.chat, 'sendAnimation')
-    return this.telegram.sendAnimation(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendAnimation(this.chat.id, animation, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -797,9 +866,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvideonote
    */
-  sendVideoNote(this: Context, ...args: Shorthand<'sendVideoNote'>) {
+  sendVideoNote(
+    this: Context,
+    videoNote: string | tg.InputFileVideoNote,
+    extra?: Shorthand<'sendVideoNote'>[1]
+  ) {
     this.assert(this.chat, 'sendVideoNote')
-    return this.telegram.sendVideoNote(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendVideoNote(this.chat.id, videoNote, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -818,9 +895,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendinvoice
    */
-  sendInvoice(this: Context, ...args: Shorthand<'sendInvoice'>) {
+  sendInvoice(
+    this: Context,
+    invoice: Shorthand<'sendInvoice'>[0],
+    extra?: Shorthand<'sendInvoice'>[1]
+  ) {
     this.assert(this.chat, 'sendInvoice')
-    return this.telegram.sendInvoice(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendInvoice(this.chat.id, invoice, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -839,9 +924,13 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendgame
    */
-  sendGame(this: Context, ...args: Shorthand<'sendGame'>) {
+  sendGame(this: Context, game: string, extra?: Shorthand<'sendGame'>[1]) {
     this.assert(this.chat, 'sendGame')
-    return this.telegram.sendGame(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendGame(this.chat.id, game, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -860,9 +949,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvoice
    */
-  sendVoice(this: Context, ...args: Shorthand<'sendVoice'>) {
+  sendVoice(
+    this: Context,
+    voice: string | tg.InputFile,
+    extra?: Shorthand<'sendVoice'>[1]
+  ) {
     this.assert(this.chat, 'sendVoice')
-    return this.telegram.sendVoice(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendVoice(this.chat.id, voice, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -881,9 +978,18 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendpoll
    */
-  sendPoll(this: Context, ...args: Shorthand<'sendPoll'>) {
+  sendPoll(
+    this: Context,
+    poll: string,
+    options: readonly string[],
+    extra?: Shorthand<'sendPoll'>[2]
+  ) {
     this.assert(this.chat, 'sendPoll')
-    return this.telegram.sendPoll(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendPoll(this.chat.id, poll, options, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -900,15 +1006,24 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#sendquiz
+   * @see https://core.telegram.org/bots/api#sendpoll
    */
-  sendQuiz(this: Context, ...args: Shorthand<'sendQuiz'>) {
+  sendQuiz(
+    this: Context,
+    quiz: string,
+    options: readonly string[],
+    extra?: Shorthand<'sendQuiz'>[2]
+  ) {
     this.assert(this.chat, 'sendQuiz')
-    return this.telegram.sendQuiz(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendQuiz(this.chat.id, quiz, options, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#sendquiz
+   * @see https://core.telegram.org/bots/api#sendpoll
    */
   replyWithQuiz(this: Context, ...args: Shorthand<'sendQuiz'>) {
     deprecate(
@@ -948,9 +1063,18 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendlocation
    */
-  sendLocation(this: Context, ...args: Shorthand<'sendLocation'>) {
+  sendLocation(
+    this: Context,
+    latitude: number,
+    longitude: number,
+    extra?: Shorthand<'sendLocation'>[2]
+  ) {
     this.assert(this.chat, 'sendLocation')
-    return this.telegram.sendLocation(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendLocation(this.chat.id, latitude, longitude, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -969,9 +1093,24 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvenue
    */
-  sendVenue(this: Context, ...args: Shorthand<'sendVenue'>) {
+  sendVenue(
+    this: Context,
+    latitude: number,
+    longitude: number,
+    title: string,
+    address: string,
+    extra?: Shorthand<'sendVenue'>[4]
+  ) {
     this.assert(this.chat, 'sendVenue')
-    return this.telegram.sendVenue(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendVenue(
+      this.chat.id,
+      latitude,
+      longitude,
+      title,
+      address,
+      { message_thread_id, ...extra }
+    )
   }
 
   /**
@@ -990,9 +1129,18 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendcontact
    */
-  sendContact(this: Context, ...args: Shorthand<'sendContact'>) {
+  sendContact(
+    this: Context,
+    phoneNumber: string,
+    firstName: string,
+    extra?: Shorthand<'sendContact'>[2]
+  ) {
     this.assert(this.chat, 'sendContact')
-    return this.telegram.sendContact(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendContact(this.chat.id, phoneNumber, firstName, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -1247,9 +1395,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   forwardMessage(
     this: Context,
     chatId: string | number,
-    extra?: {
-      disable_notification?: boolean
-    }
+    extra?: Shorthand<'forwardMessage'>[2]
   ) {
     const message = getMessageFromAnySource(this)
     this.assert(message, 'forwardMessage')

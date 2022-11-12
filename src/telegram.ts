@@ -393,10 +393,7 @@ export class Telegram extends ApiClient {
    */
   sendMediaGroup(
     chatId: number | string,
-    media:
-      | ReadonlyArray<tg.InputMediaPhoto | tg.InputMediaVideo>
-      | readonly tg.InputMediaAudio[]
-      | readonly tg.InputMediaDocument[],
+    media: tt.MediaGroup,
     extra?: tt.ExtraMediaGroup
   ) {
     return this.callApi('sendMediaGroup', { chat_id: chatId, media, ...extra })

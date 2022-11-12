@@ -2,6 +2,12 @@
 
 import { Expand } from './util'
 import { Message, Opts, Telegram, Update } from './core/types/typegram'
+import {
+  InputMediaAudio,
+  InputMediaDocument,
+  InputMediaPhoto,
+  InputMediaVideo,
+} from 'typegram'
 import { UnionKeys } from './deunionize'
 import { FmtString } from './format'
 
@@ -122,6 +128,11 @@ export type ExtraEditForumTopic = MakeExtra<
   'editForumTopic',
   'message_thread_id'
 >
+
+export type MediaGroup =
+  | readonly (InputMediaPhoto | InputMediaVideo)[]
+  | readonly InputMediaAudio[]
+  | readonly InputMediaDocument[]
 
 // types used for inference of ctx object
 

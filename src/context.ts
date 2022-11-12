@@ -396,7 +396,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   sendMessage(
     this: Context,
     text: string | FmtString,
-    extra?: Shorthand<'sendMessage'>[1]
+    extra?: tt.ExtraReplyMessage
   ) {
     this.assert(this.chat, 'sendMessage')
     const { message_thread_id } = this.message || {}
@@ -641,7 +641,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   sendPhoto(
     this: Context,
     photo: string | tg.InputFile,
-    extra?: Shorthand<'sendPhoto'>[1]
+    extra?: tt.ExtraPhoto
   ) {
     this.assert(this.chat, 'sendPhoto')
     const { message_thread_id } = this.message || {}
@@ -669,8 +669,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   sendMediaGroup(
     this: Context,
-    media: Shorthand<'sendMediaGroup'>[0],
-    extra?: Shorthand<'sendMediaGroup'>[1]
+    media: tt.MediaGroup,
+    extra?: tt.ExtraMediaGroup
   ) {
     this.assert(this.chat, 'sendMediaGroup')
     const { message_thread_id } = this.message || {}
@@ -699,7 +699,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   sendAudio(
     this: Context,
     audio: string | tg.InputFile,
-    extra?: Shorthand<'sendAudio'>[1]
+    extra?: tt.ExtraAudio
   ) {
     this.assert(this.chat, 'sendAudio')
     const { message_thread_id } = this.message || {}
@@ -725,7 +725,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#senddice
    */
-  sendDice(this: Context, extra?: Shorthand<'sendDice'>[0]) {
+  sendDice(this: Context, extra?: tt.ExtraDice) {
     this.assert(this.chat, 'sendDice')
     const { message_thread_id } = this.message || {}
     return this.telegram.sendDice(this.chat.id, {
@@ -753,7 +753,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   sendDocument(
     this: Context,
     document: string | tg.InputFile,
-    extra?: Shorthand<'sendDocument'>[1]
+    extra?: tt.ExtraDocument
   ) {
     this.assert(this.chat, 'sendDocument')
     const { message_thread_id } = this.message || {}
@@ -782,7 +782,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   sendSticker(
     this: Context,
     sticker: string | tg.InputFile,
-    extra?: Shorthand<'sendSticker'>[1]
+    extra?: tt.ExtraSticker
   ) {
     this.assert(this.chat, 'sendSticker')
     const { message_thread_id } = this.message || {}
@@ -811,7 +811,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   sendVideo(
     this: Context,
     video: string | tg.InputFile,
-    extra?: Shorthand<'sendVideo'>[1]
+    extra?: tt.ExtraVideo
   ) {
     this.assert(this.chat, 'sendVideo')
     const { message_thread_id } = this.message || {}
@@ -840,7 +840,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   sendAnimation(
     this: Context,
     animation: string | tg.InputFile,
-    extra?: Shorthand<'sendAnimation'>[1]
+    extra?: tt.ExtraAnimation
   ) {
     this.assert(this.chat, 'sendAnimation')
     const { message_thread_id } = this.message || {}
@@ -869,7 +869,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   sendVideoNote(
     this: Context,
     videoNote: string | tg.InputFileVideoNote,
-    extra?: Shorthand<'sendVideoNote'>[1]
+    extra?: tt.ExtraVideoNote
   ) {
     this.assert(this.chat, 'sendVideoNote')
     const { message_thread_id } = this.message || {}
@@ -897,8 +897,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   sendInvoice(
     this: Context,
-    invoice: Shorthand<'sendInvoice'>[0],
-    extra?: Shorthand<'sendInvoice'>[1]
+    invoice: tt.NewInvoiceParameters,
+    extra?: tt.ExtraInvoice
   ) {
     this.assert(this.chat, 'sendInvoice')
     const { message_thread_id } = this.message || {}
@@ -924,7 +924,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendgame
    */
-  sendGame(this: Context, game: string, extra?: Shorthand<'sendGame'>[1]) {
+  sendGame(this: Context, game: string, extra?: tt.ExtraGame) {
     this.assert(this.chat, 'sendGame')
     const { message_thread_id } = this.message || {}
     return this.telegram.sendGame(this.chat.id, game, {
@@ -952,7 +952,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   sendVoice(
     this: Context,
     voice: string | tg.InputFile,
-    extra?: Shorthand<'sendVoice'>[1]
+    extra?: tt.ExtraVoice
   ) {
     this.assert(this.chat, 'sendVoice')
     const { message_thread_id } = this.message || {}
@@ -982,7 +982,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this: Context,
     poll: string,
     options: readonly string[],
-    extra?: Shorthand<'sendPoll'>[2]
+    extra?: tt.ExtraPoll
   ) {
     this.assert(this.chat, 'sendPoll')
     const { message_thread_id } = this.message || {}
@@ -1012,7 +1012,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this: Context,
     quiz: string,
     options: readonly string[],
-    extra?: Shorthand<'sendQuiz'>[2]
+    extra?: tt.ExtraPoll
   ) {
     this.assert(this.chat, 'sendQuiz')
     const { message_thread_id } = this.message || {}
@@ -1067,7 +1067,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this: Context,
     latitude: number,
     longitude: number,
-    extra?: Shorthand<'sendLocation'>[2]
+    extra?: tt.ExtraLocation
   ) {
     this.assert(this.chat, 'sendLocation')
     const { message_thread_id } = this.message || {}
@@ -1099,7 +1099,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     longitude: number,
     title: string,
     address: string,
-    extra?: Shorthand<'sendVenue'>[4]
+    extra?: tt.ExtraVenue
   ) {
     this.assert(this.chat, 'sendVenue')
     const { message_thread_id } = this.message || {}
@@ -1133,7 +1133,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this: Context,
     phoneNumber: string,
     firstName: string,
-    extra?: Shorthand<'sendContact'>[2]
+    extra?: tt.ExtraContact
   ) {
     this.assert(this.chat, 'sendContact')
     const { message_thread_id } = this.message || {}

@@ -11,9 +11,8 @@ export interface SessionStore<T> {
 }
 
 interface SessionOptions<S extends object> {
-  initial?: () => S
-  store?: SessionStore<S>
   getSessionKey?: (ctx: Context) => Promise<string | undefined>
+  store?: SessionStore<S>
 }
 
 export interface SessionContext<S extends object> extends Context {

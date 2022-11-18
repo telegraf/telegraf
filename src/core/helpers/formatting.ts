@@ -49,16 +49,20 @@ export function _fmt(kind: Types.Text | 'very-plain', opts?: object) {
     parts = typeof parts === 'string' ? [parts] : parts
     for (let i = 0; i < parts.length; i++) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      text += parts[i]!
+      text = `${text}${parts[i]!}`
+
       const item = items[i]
       if (item == null) continue
       if (!(item instanceof FmtString)) {
-        text += item
+        // item is some value that's not FmtString
+        text = `${text}${item}`
         continue
       }
+
+      // item is FmtString
       for (const child of item.entities || [])
         entities.push({ ...child, offset: text.length + child.offset })
-      text += item.text
+      text = `${text}${item.text}`
     }
     if (kind !== 'very-plain')
       entities.unshift({ type: kind, offset: 0, length: text.length, ...opts })

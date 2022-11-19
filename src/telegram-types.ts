@@ -1,15 +1,8 @@
 /** @format */
 
-import {
-  InputMediaAudio,
-  InputMediaDocument,
-  InputMediaPhoto,
-  InputMediaVideo,
-  Message,
-  Update,
-} from 'typegram'
+import { Message, Update } from 'typegram'
 import { UnionKeys } from './deunionize'
-import { TelegrafTypegram, Opts } from './core/network/client'
+import { TelegrafTypegram as TT, Opts } from './core/network/client'
 import { Expand } from './util'
 import { FmtString } from './format'
 
@@ -19,7 +12,7 @@ export { Markup } from './markup'
 // tiny helper types
 export type ChatAction = Opts['sendChatAction']['action']
 
-export type { TelegrafTypegram as TT, Opts }
+export type { TT, Opts }
 
 // Modify type so caption, if exists, can be FmtString
 type WrapCaption<T> = T extends { caption?: string }
@@ -135,9 +128,9 @@ export type ExtraEditForumTopic = MakeExtra<
 >
 
 export type MediaGroup =
-  | readonly (InputMediaPhoto | InputMediaVideo)[]
-  | readonly InputMediaAudio[]
-  | readonly InputMediaDocument[]
+  | readonly (TT['InputMediaPhoto'] | TT['InputMediaVideo'])[]
+  | readonly TT['InputMediaAudio'][]
+  | readonly TT['InputMediaDocument'][]
 
 // types used for inference of ctx object
 

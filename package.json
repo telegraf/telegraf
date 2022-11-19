@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "4.10.0",
+  "version": "4.11.0",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -18,6 +18,14 @@
       "types": "./typings/index.d.ts",
       "require": "./lib/index.js",
       "import": "./lib/index.js"
+    },
+    "./filters": {
+      "types": "./typings/filters.d.ts",
+      "default": "./lib/filters.js"
+    },
+    "./scenes": {
+      "types": "./typings/scenes/index.d.ts",
+      "default": "./lib/scenes/index.js"
     },
     "./types": {
       "types": "./typings/telegram-types.d.ts",
@@ -59,28 +67,28 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "debug": "^4.3.3",
+    "debug": "^4.3.4",
     "mri": "^1.2.0",
     "p-timeout": "^4.1.0",
     "safe-compare": "^1.1.4",
-    "typegram": "^3.11.0"
+    "typegram": "^4.1.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",
-    "@types/node": "^18.7.23",
+    "@types/node": "^18.11.9",
     "@types/safe-compare": "^1.1.0",
-    "@typescript-eslint/eslint-plugin": "^5.38.1",
-    "@typescript-eslint/parser": "^5.38.1",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
     "ava": "^4.0.1",
-    "eslint": "^8.24.0",
+    "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-ava": "^13.2.0",
-    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-promise": "^6.0.0",
-    "prettier": "^2.5.1",
-    "typedoc": "^0.23.15",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "prettier": "^2.7.1",
+    "typedoc": "^0.23.20",
     "typescript": "^4.8.4"
   },
   "keywords": [

@@ -1,5 +1,6 @@
 const { default: test } = require('ava')
 const { Composer, Telegraf } = require('../')
+const { message } = require('../filters')
 
 function createBot(...args) {
   const bot = new Telegraf(...args)
@@ -39,16 +40,28 @@ topLevelUpdates.forEach((update) =>
   )
 )
 
-test('should route many types', (t) =>
-  t.notThrowsAsync(
-    new Promise((resolve) => {
-      const bot = createBot()
-      bot.on(['chosen_inline_result', 'message'], () => resolve())
-      bot.handleUpdate({ inline_query: baseMessage })
-      bot.handleUpdate({ message: baseMessage })
-    })
-  ))
+test('should route many types', async (t) => {
+  t.plan(1)
+  const bot = createBot()
+  bot.on(['chosen_inline_result', message()], async (ctx) => {
+    t.assert(ctx.message)
+  })
+  await bot.handleUpdate({ inline_query: baseMessage })
+  await bot.handleUpdate({ message: baseMessage })
+})
 
+test('should route filters', async (t) => {
+  t.plan(1)
+  const bot = createBot()
+  const filter = message('text')
+  bot.on(filter, async (ctx) => {
+    t.assert(ctx.has(filter))
+  })
+  await bot.handleUpdate({ message: { voice: {}, ...baseMessage } })
+  await bot.handleUpdate({ message: { text: 'hello', ...baseMessage } })
+})
+
+/** @deprecated */
 test('should route sub types', (t) =>
   t.notThrowsAsync(
     new Promise((resolve) => {

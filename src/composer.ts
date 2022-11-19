@@ -3,12 +3,10 @@
 import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
-import Context from './context'
-import { Expand } from './util'
+import Context, { FilteredContext, NarrowedContext } from './context'
+import { MaybeArray, NonemptyReadonlyArray, MaybePromise, Guard } from './util'
+import { callbackQuery } from './filters'
 
-export type MaybeArray<T> = T | T[]
-export type MaybePromise<T> = T | Promise<T>
-export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 export type Triggers<C> = MaybeArray<
   string | RegExp | ((value: string, ctx: C) => RegExpExecArray | null)
 >
@@ -19,37 +17,8 @@ export type MatchedMiddleware<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post'
 > = NonemptyReadonlyArray<
-  Middleware<MatchedContext<C & { match: RegExpExecArray }, T>>
+  Middleware<NarrowedContext<C & { match: RegExpExecArray }, tt.MountMap[T]>>
 >
-
-/** Takes: a context type and an update type (or message subtype).
-    Produces: a context that has some properties required, and some undefined.
-    The required ones are those that are always present when the given update (or message) arrives.
-    The undefined ones are those that are always absent when the given update (or message) arrives. */
-/** @deprecated */
-type MatchedContext<
-  C extends Context,
-  T extends tt.UpdateType | tt.MessageSubType
-> = NarrowedContext<C, tt.MountMap[T]>
-
-/**
- * Narrows down `C['update']` (and derived getters)
- * to specific update type `U`.
- *
- * Used by [[`Composer`]],
- * possibly useful for splitting a bot into multiple files.
- */
-export type NarrowedContext<C extends Context, U extends tg.Update> = C & {
-  update: U
-}
-
-export interface GameQueryUpdate extends tg.Update.CallbackQueryUpdate {
-  callback_query: Expand<
-    Omit<tg.CallbackQuery, 'data'> & {
-      game_short_name: NonNullable<tg.CallbackQuery['game_short_name']>
-    }
-  >
-}
 
 export const noop = () => Promise.resolve(undefined)
 
@@ -68,24 +37,13 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   }
 
   /**
-   * Registers middleware for handling updates
-   * matching given type guard function.
+   * Registers middleware for handling updates narrowed by update types or filter queries.
    */
-  guard<U extends tg.Update>(
-    guardFn: (update: tg.Update) => update is U,
-    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>>>
+  on<Filter extends tt.UpdateType | Guard<C['update']>>(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<FilteredContext<C, Filter>>>
   ) {
-    return this.use(Composer.guard<C, U>(guardFn, ...fns))
-  }
-
-  /**
-   * Registers middleware for handling provided update types.
-   */
-  on<T extends tt.UpdateType | tt.MessageSubType>(
-    updateType: MaybeArray<T>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
-  ) {
-    return this.use(Composer.on<C, T>(updateType, ...fns))
+    return this.use(Composer.on(filters, ...fns))
   }
 
   /**
@@ -100,7 +58,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   command(
     command: MaybeArray<string>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
+    ...fns: NonemptyReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+    >
   ) {
     return this.use(Composer.command<C>(command, ...fns))
   }
@@ -130,7 +90,12 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   gameQuery(
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, GameQueryUpdate>>
+      Middleware<
+        NarrowedContext<
+          C,
+          tg.Update.CallbackQueryUpdate<tg.CallbackQuery.GameQuery>
+        >
+      >
     >
   ) {
     return this.use(Composer.gameQuery(...fns))
@@ -141,10 +106,6 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   drop(predicate: Predicate<C>) {
     return this.use(Composer.drop(predicate))
-  }
-
-  filter(predicate: Predicate<C>) {
-    return this.use(Composer.filter(predicate))
   }
 
   email(email: Triggers<C>, ...fns: MatchedMiddleware<C>) {
@@ -188,7 +149,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   start(
     ...fns: NonemptyReadonlyArray<
-      Middleware<MatchedContext<C, 'text'> & { startPayload: string }>
+      Middleware<
+        NarrowedContext<C, tt.MountMap['text']> & { startPayload: string }
+      >
     >
   ) {
     const handler = Composer.compose(fns)
@@ -204,7 +167,11 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Registers a middleware for handling /help
    */
-  help(...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>) {
+  help(
+    ...fns: NonemptyReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+    >
+  ) {
     return this.command('help', ...fns)
   }
 
@@ -212,7 +179,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Registers a middleware for handling /settings
    */
   settings(
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
+    ...fns: NonemptyReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+    >
   ) {
     return this.command('settings', ...fns)
   }
@@ -311,10 +280,6 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     )
   }
 
-  static filter<C extends Context>(predicate: Predicate<C>): MiddlewareFn<C> {
-    return Composer.branch(predicate, Composer.passThru(), noop)
-  }
-
   /**
    * Generates middleware for dropping matching updates.
    */
@@ -343,56 +308,17 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   // determined automatically.
 
   /**
-   * Generates optional middleware based on a predicate that only operates on `ctx.update`.
-   *
-   * Example:
-   * ```ts
-   * import { Composer, Update } from 'telegraf'
-   *
-   * const predicate = (u): u is Update.MessageUpdate => 'message' in u
-   * const middleware = Composer.guard(predicate, (ctx) => {
-   *   const message = ctx.update.message
-   * })
-   * ```
-   *
-   * Note that `Composer.on('message')` is preferred over this.
-   *
-   * @param guardFn predicate to decide whether to run the middleware based on the `ctx.update` object
-   * @param fns middleware to run if the predicate returns true
-   * @see `Composer.optional` for a more generic version of this method that allows the predicate to operate on `ctx` itself
+   * Generates middleware for handling updates narrowed by update types or filter queries.
    */
-  static guard<C extends Context, U extends tg.Update>(
-    guardFn: (u: tg.Update) => u is U,
-    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>>>
-  ): MiddlewareFn<C> {
-    return Composer.optional<C>(
-      (ctx) => guardFn(ctx.update),
-      // @ts-expect-error see explanation above
-      ...fns
-    )
-  }
-
-  /**
-   * Generates middleware for handling provided update types.
-   */
-  static on<C extends Context, T extends tt.UpdateType | tt.MessageSubType>(
-    updateType: MaybeArray<T>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, T>>>
-  ): MiddlewareFn<C> {
-    const updateTypes = normalizeTextArguments(updateType)
-
-    const predicate = (
-      update: tg.Update
-    ): update is tg.Update & tt.MountMap[T] =>
-      updateTypes.some(
-        (type) =>
-          // Check update type
-          type in update ||
-          // Check message sub-type
-          ('message' in update && type in update.message)
-      )
-
-    return Composer.guard<C, tt.MountMap[T]>(predicate, ...fns)
+  static on<
+    Ctx extends Context,
+    Filter extends tt.UpdateType | Guard<Ctx['update']>
+  >(
+    filters: MaybeArray<Filter>,
+    ...fns: NonemptyReadonlyArray<Middleware<FilteredContext<Ctx, Filter>>>
+  ): MiddlewareFn<Ctx> {
+    const handler = Composer.compose(fns)
+    return (ctx, next) => (ctx.has(filters) ? handler(ctx, next) : next())
   }
 
   private static entity<
@@ -404,7 +330,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     predicate:
       | MaybeArray<string>
       | ((entity: tg.MessageEntity, s: string, ctx: C) => boolean),
-    ...fns: ReadonlyArray<Middleware<MatchedContext<C, T>>>
+    ...fns: ReadonlyArray<Middleware<NarrowedContext<C, tt.MountMap[T]>>>
   ): MiddlewareFn<C> {
     if (typeof predicate !== 'function') {
       const entityTypes = normalizeTextArguments(predicate)
@@ -544,7 +470,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   >(
     triggers: ReadonlyArray<(text: string, ctx: C) => RegExpExecArray | null>,
     ...fns: MatchedMiddleware<C, T>
-  ): MiddlewareFn<MatchedContext<C, T>> {
+  ): MiddlewareFn<NarrowedContext<C, tt.MountMap[T]>> {
     const handler = Composer.compose(fns)
     return (ctx, next) => {
       const text =
@@ -581,7 +507,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static command<C extends Context>(
     command: MaybeArray<string>,
-    ...fns: NonemptyReadonlyArray<Middleware<MatchedContext<C, 'text'>>>
+    ...fns: NonemptyReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+    >
   ): MiddlewareFn<C> {
     if (fns.length === 0) {
       // @ts-expect-error command is really the middleware
@@ -590,12 +518,12 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     const commands = normalizeTextArguments(command, '/')
     return Composer.on<C, 'text'>(
       'text',
-      Composer.lazy<MatchedContext<C, 'text'>>((ctx) => {
+      Composer.lazy<NarrowedContext<C, tt.MountMap['text']>>((ctx) => {
         const groupCommands =
           ctx.me && ctx.chat?.type.endsWith('group')
             ? commands.map((command) => `${command}@${ctx.me}`)
             : []
-        return Composer.entity<MatchedContext<C, 'text'>>(
+        return Composer.entity<NarrowedContext<C, tt.MountMap['text']>>(
           ({ offset, type }, value) =>
             offset === 0 &&
             type === 'bot_command' &&
@@ -714,14 +642,15 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static gameQuery<C extends Context>(
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, GameQueryUpdate>>
+      Middleware<
+        NarrowedContext<
+          C,
+          tg.Update.CallbackQueryUpdate<tg.CallbackQuery.GameQuery>
+        >
+      >
     >
   ): MiddlewareFn<C> {
-    return Composer.guard(
-      (u): u is GameQueryUpdate =>
-        'callback_query' in u && 'game_short_name' in u.callback_query,
-      ...fns
-    )
+    return Composer.on(callbackQuery('game_short_name'), ...fns)
   }
 
   static unwrap<C extends Context>(handler: Middleware<C>): MiddlewareFn<C> {

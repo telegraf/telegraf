@@ -1,7 +1,9 @@
 import * as tg from 'typegram'
 import * as tt from './telegram-types'
 import { Deunionize, PropOr, UnionKeys } from './deunionize'
+import { Guard, Guarded, MaybeArray } from './util'
 import Telegram from './telegram'
+import { FmtString } from './format'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
 
@@ -10,6 +12,24 @@ type Shorthand<FName extends keyof Telegram> = Telegram[FName] extends (
 ) => unknown
   ? Tail<Parameters>
   : never
+
+/**
+ * Narrows down `C['update']` (and derived getters)
+ * to specific update type `U`.
+ *
+ * Used by [[`Composer`]],
+ * possibly useful for splitting a bot into multiple files.
+ */
+export type NarrowedContext<C extends Context, U extends tg.Update> = C & {
+  update: U
+}
+
+export type FilteredContext<
+  Ctx extends Context,
+  Filter extends tt.UpdateType | Guard<Ctx['update']>
+> = Filter extends tt.UpdateType
+  ? NarrowedContext<Ctx, Extract<tg.Update, Record<Filter, object>>>
+  : NarrowedContext<Ctx, Guarded<Filter>>
 
 // for types readability
 export type Update = Deunionize<tg.Update>
@@ -162,7 +182,7 @@ export class Context<U extends Update = Update> {
   /**
    * @internal
    */
-  assert<T extends string | object>(
+  assert<T extends string | number | object>(
     value: T | undefined,
     method: string
   ): asserts value is T {
@@ -171,6 +191,23 @@ export class Context<U extends Update = Update> {
         `Telegraf: "${method}" isn't available for "${this.updateType}"`
       )
     }
+  }
+
+  has<Filter extends tt.UpdateType | Guard<Context['update']>>(
+    filters: MaybeArray<Filter>
+  ): this is FilteredContext<Context, Filter> {
+    if (!Array.isArray(filters)) filters = [filters]
+    for (const filter of filters)
+      if (
+        typeof filter === 'function'
+          ? // filter is a type guard
+            filter(this.update)
+          : // check if filter is the update type
+            filter in this.update
+      )
+        return true
+
+    return false
   }
 
   /**
@@ -321,9 +358,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendmessage
    */
-  sendMessage(...args: Shorthand<'sendMessage'>) {
+  sendMessage(text: string | FmtString, extra?: tt.ExtraReplyMessage) {
     this.assert(this.chat, 'sendMessage')
-    return this.telegram.sendMessage(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendMessage(this.chat.id, text, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -523,9 +564,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendphoto
    */
-  sendPhoto(...args: Shorthand<'sendPhoto'>) {
+  sendPhoto(photo: string | tt.InputFile, extra?: tt.ExtraPhoto) {
     this.assert(this.chat, 'sendPhoto')
-    return this.telegram.sendPhoto(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendPhoto(this.chat.id, photo, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -539,18 +584,19 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendmediagroup
    */
-  sendMediaGroup(...args: Shorthand<'sendMediaGroup'>) {
+  sendMediaGroup(media: tt.MediaGroup, extra?: tt.ExtraMediaGroup) {
     this.assert(this.chat, 'sendMediaGroup')
-    return this.telegram.sendMediaGroup(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendMediaGroup(this.chat.id, media, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendmediagroup
    */
-  replyWithMediaGroup(
-    media: Parameters<Telegram['sendMediaGroup']>[1],
-    extra?: tt.ExtraMediaGroup
-  ) {
+  replyWithMediaGroup(media: tt.MediaGroup, extra?: tt.ExtraMediaGroup) {
     const reply_to_message_id = getMessageFromAnySource(this)?.message_id
     return this.sendMediaGroup(media, { reply_to_message_id, ...extra })
   }
@@ -558,9 +604,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendaudio
    */
-  sendAudio(...args: Shorthand<'sendAudio'>) {
+  sendAudio(audio: string | tt.InputFile, extra?: tt.ExtraAudio) {
     this.assert(this.chat, 'sendAudio')
-    return this.telegram.sendAudio(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendAudio(this.chat.id, audio, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -574,9 +624,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#senddice
    */
-  sendDice(...args: Shorthand<'sendDice'>) {
+  sendDice(extra?: tt.ExtraDice) {
     this.assert(this.chat, 'sendDice')
-    return this.telegram.sendDice(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendDice(this.chat.id, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -590,9 +644,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#senddocument
    */
-  sendDocument(...args: Shorthand<'sendDocument'>) {
+  sendDocument(document: string | tt.InputFile, extra?: tt.ExtraDocument) {
     this.assert(this.chat, 'sendDocument')
-    return this.telegram.sendDocument(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendDocument(this.chat.id, document, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -606,9 +664,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendsticker
    */
-  sendSticker(...args: Shorthand<'sendSticker'>) {
+  sendSticker(sticker: string | tt.InputFile, extra?: tt.ExtraSticker) {
     this.assert(this.chat, 'sendSticker')
-    return this.telegram.sendSticker(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendSticker(this.chat.id, sticker, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -622,9 +684,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvideo
    */
-  sendVideo(...args: Shorthand<'sendVideo'>) {
+  sendVideo(video: string | tt.InputFile, extra?: tt.ExtraVideo) {
     this.assert(this.chat, 'sendVideo')
-    return this.telegram.sendVideo(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendVideo(this.chat.id, video, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -638,9 +704,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendanimation
    */
-  sendAnimation(...args: Shorthand<'sendAnimation'>) {
+  sendAnimation(animation: string | tt.InputFile, extra?: tt.ExtraAnimation) {
     this.assert(this.chat, 'sendAnimation')
-    return this.telegram.sendAnimation(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendAnimation(this.chat.id, animation, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -657,9 +727,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvideonote
    */
-  sendVideoNote(...args: Shorthand<'sendVideoNote'>) {
+  sendVideoNote(videoNote: string | tt.InputFile, extra?: tt.ExtraVideoNote) {
     this.assert(this.chat, 'sendVideoNote')
-    return this.telegram.sendVideoNote(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendVideoNote(this.chat.id, videoNote, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -676,9 +750,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendinvoice
    */
-  sendInvoice(...args: Shorthand<'sendInvoice'>) {
+  sendInvoice(invoice: tt.NewInvoiceParameters, extra?: tt.ExtraInvoice) {
     this.assert(this.chat, 'sendInvoice')
-    return this.telegram.sendInvoice(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendInvoice(this.chat.id, invoice, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -692,9 +770,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendgame
    */
-  sendGame(...args: Shorthand<'sendGame'>) {
+  sendGame(game: string, extra?: tt.ExtraGame) {
     this.assert(this.chat, 'sendGame')
-    return this.telegram.sendGame(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendGame(this.chat.id, game, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -708,9 +790,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvoice
    */
-  sendVoice(...args: Shorthand<'sendVoice'>) {
+  sendVoice(voice: string | tt.InputFile, extra?: tt.ExtraVoice) {
     this.assert(this.chat, 'sendVoice')
-    return this.telegram.sendVoice(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendVoice(this.chat.id, voice, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -724,9 +810,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendpoll
    */
-  sendPoll(...args: Shorthand<'sendPoll'>) {
+  sendPoll(poll: string, options: readonly string[], extra?: tt.ExtraPoll) {
     this.assert(this.chat, 'sendPoll')
-    return this.telegram.sendPoll(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendPoll(this.chat.id, poll, options, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -742,15 +832,19 @@ export class Context<U extends Update = Update> {
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#sendquiz
+   * @see https://core.telegram.org/bots/api#sendpoll
    */
-  sendQuiz(...args: Shorthand<'sendQuiz'>) {
+  sendQuiz(quiz: string, options: readonly string[], extra?: tt.ExtraPoll) {
     this.assert(this.chat, 'sendQuiz')
-    return this.telegram.sendQuiz(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendQuiz(this.chat.id, quiz, options, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
-   * @see https://core.telegram.org/bots/api#sendquiz
+   * @see https://core.telegram.org/bots/api#sendpoll
    */
   replyWithQuiz(
     question: string,
@@ -780,9 +874,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendlocation
    */
-  sendLocation(...args: Shorthand<'sendLocation'>) {
+  sendLocation(latitude: number, longitude: number, extra?: tt.ExtraLocation) {
     this.assert(this.chat, 'sendLocation')
-    return this.telegram.sendLocation(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendLocation(this.chat.id, latitude, longitude, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -803,9 +901,23 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvenue
    */
-  sendVenue(...args: Shorthand<'sendVenue'>) {
+  sendVenue(
+    latitude: number,
+    longitude: number,
+    title: string,
+    address: string,
+    extra?: tt.ExtraVenue
+  ) {
     this.assert(this.chat, 'sendVenue')
-    return this.telegram.sendVenue(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendVenue(
+      this.chat.id,
+      latitude,
+      longitude,
+      title,
+      address,
+      { message_thread_id, ...extra }
+    )
   }
 
   /**
@@ -828,9 +940,13 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendcontact
    */
-  sendContact(...args: Shorthand<'sendContact'>) {
+  sendContact(phoneNumber: string, firstName: string, extra?: tt.ExtraContact) {
     this.assert(this.chat, 'sendContact')
-    return this.telegram.sendContact(this.chat.id, ...args)
+    const { message_thread_id } = this.message || {}
+    return this.telegram.sendContact(this.chat.id, phoneNumber, firstName, {
+      message_thread_id,
+      ...extra,
+    })
   }
 
   /**
@@ -859,9 +975,129 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#deletechatstickerset
    */
-  deleteChatStickerSet(this: Context) {
+  deleteChatStickerSet() {
     this.assert(this.chat, 'deleteChatStickerSet')
     return this.telegram.deleteChatStickerSet(this.chat.id)
+  }
+
+  /**
+   * Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this
+   * to work and must have the can_manage_topics administrator rights. Returns information about the created topic as a
+   * ForumTopic object.
+   *
+   * @see https://core.telegram.org/bots/api#createforumtopic
+   */
+  createForumTopic(...args: Shorthand<'createForumTopic'>) {
+    this.assert(this.chat, 'createForumTopic')
+    return this.telegram.createForumTopic(this.chat.id, ...args)
+  }
+
+  /**
+   * Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in
+   * the chat for this to work and must have can_manage_topics administrator rights, unless it is the creator of the
+   * topic. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#editforumtopic
+   */
+  editForumTopic(extra: tt.ExtraEditForumTopic) {
+    this.assert(this.chat, 'editForumTopic')
+    this.assert(this.message?.message_thread_id, 'editForumTopic')
+    return this.telegram.editForumTopic(
+      this.chat.id,
+      this.message.message_thread_id,
+      extra
+    )
+  }
+
+  /**
+   * Use this method to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat
+   * for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic.
+   * Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#closeforumtopic
+   */
+  closeForumTopic() {
+    this.assert(this.chat, 'closeForumTopic')
+    this.assert(this.message?.message_thread_id, 'closeForumTopic')
+
+    return this.telegram.closeForumTopic(
+      this.chat.id,
+      this.message.message_thread_id
+    )
+  }
+
+  /**
+   * Use this method to reopen a closed topic in a forum supergroup chat. The bot must be an administrator in the chat
+   * for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic.
+   * Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#reopenforumtopic
+   */
+  reopenForumTopic() {
+    this.assert(this.chat, 'reopenForumTopic')
+    this.assert(this.message?.message_thread_id, 'reopenForumTopic')
+
+    return this.telegram.reopenForumTopic(
+      this.chat.id,
+      this.message.message_thread_id
+    )
+  }
+
+  /**
+   * Use this method to delete a forum topic along with all its messages in a forum supergroup chat. The bot must be an
+   * administrator in the chat for this to work and must have the can_delete_messages administrator rights.
+   * Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#deleteforumtopic
+   */
+  deleteForumTopic() {
+    this.assert(this.chat, 'deleteForumTopic')
+    this.assert(this.message?.message_thread_id, 'deleteForumTopic')
+
+    return this.telegram.deleteForumTopic(
+      this.chat.id,
+      this.message.message_thread_id
+    )
+  }
+
+  /**
+   * Use this method to clear the list of pinned messages in a forum topic. The bot must be an administrator in the chat
+   * for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#unpinallforumtopicmessages
+   */
+  unpinAllForumTopicMessages() {
+    this.assert(this.chat, 'unpinAllForumTopicMessages')
+    this.assert(this.message?.message_thread_id, 'unpinAllForumTopicMessages')
+
+    return this.telegram.unpinAllForumTopicMessages(
+      this.chat.id,
+      this.message.message_thread_id
+    )
+  }
+
+  /**
+   * @deprecated use {@link Telegram.setStickerPositionInSet}
+   * @see https://core.telegram.org/bots/api#setstickerpositioninset
+   */
+  setStickerPositionInSet(sticker: string, position: number) {
+    return this.telegram.setStickerPositionInSet(sticker, position)
+  }
+
+  /**
+   * @deprecated use {@link Telegram.setStickerSetThumb}
+   * @see https://core.telegram.org/bots/api#setstickersetthumb
+   */
+  setStickerSetThumb(...args: Parameters<Telegram['setStickerSetThumb']>) {
+    return this.telegram.setStickerSetThumb(...args)
+  }
+
+  /**
+   * @deprecated use {@link Telegram.deleteStickerFromSet}
+   * @see https://core.telegram.org/bots/api#deletestickerfromset
+   */
+  deleteStickerFromSet(sticker: string) {
+    return this.telegram.deleteStickerFromSet(sticker)
   }
 
   /**
@@ -928,9 +1164,7 @@ export class Context<U extends Update = Update> {
    */
   forwardMessage(
     chatId: string | number,
-    extra?: {
-      disable_notification?: boolean
-    }
+    extra?: Shorthand<'forwardMessage'>[2]
   ) {
     const message = getMessageFromAnySource(this)
     this.assert(message, 'forwardMessage')

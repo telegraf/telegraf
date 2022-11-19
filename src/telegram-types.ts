@@ -1,6 +1,13 @@
 /** @format */
 
-import { Message, Update } from 'typegram'
+import {
+  InputMediaAudio,
+  InputMediaDocument,
+  InputMediaPhoto,
+  InputMediaVideo,
+  Message,
+  Update,
+} from 'typegram'
 import { UnionKeys } from './deunionize'
 import { TelegrafTypegram, Opts } from './core/network/client'
 import { Expand } from './util'
@@ -87,6 +94,7 @@ export type NewInvoiceParameters = MakeExtra<
   | 'reply_to_message_id'
   | 'allow_sending_without_reply'
   | 'reply_markup'
+  | 'message_thread_id'
 >
 export type ExtraInvoice = MakeExtra<'sendInvoice', keyof NewInvoiceParameters>
 export type ExtraBanChatMember = MakeExtra<
@@ -100,6 +108,10 @@ export type ExtraPhoto = MakeExtra<'sendPhoto', 'photo'>
 export type ExtraPoll = MakeExtra<'sendPoll', 'question' | 'options' | 'type'>
 export type ExtraPromoteChatMember = MakeExtra<'promoteChatMember', 'user_id'>
 export type ExtraReplyMessage = MakeExtra<'sendMessage', 'text'>
+export type ExtraForwardMessage = MakeExtra<
+  'forwardMessage',
+  'from_chat_id' | 'message_id'
+>
 export type ExtraRestrictChatMember = MakeExtra<'restrictChatMember', 'user_id'>
 export type ExtraSetMyCommands = MakeExtra<'setMyCommands', 'commands'>
 export type ExtraSetWebhook = MakeExtra<'setWebhook', 'url'>
@@ -116,6 +128,16 @@ export type ExtraBanChatSenderChat = MakeExtra<
   'banChatSenderChat',
   'sender_chat_id'
 >
+export type ExtraCreateForumTopic = MakeExtra<'createForumTopic', 'name'>
+export type ExtraEditForumTopic = MakeExtra<
+  'editForumTopic',
+  'message_thread_id'
+>
+
+export type MediaGroup =
+  | readonly (InputMediaPhoto | InputMediaVideo)[]
+  | readonly InputMediaAudio[]
+  | readonly InputMediaDocument[]
 
 // types used for inference of ctx object
 
@@ -138,6 +160,7 @@ type ExtractPartial<T extends object, U extends object> = T extends unknown
 
 /**
  * Maps [[`Composer.on`]]'s `updateType` or `messageSubType` to a `tt.Update` subtype.
+ * @deprecated
  */
 export type MountMap = {
   [T in UpdateType]: Extract<Update, Record<T, object>>

@@ -117,7 +117,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return false
   }
 
-  private handleError = (err: unknown, ctx?: C): Promise<void> => {
+  private handleError = (err: unknown, ctx: C): Promise<void> => {
     if (ctx) console.error('Unhandled error while processing', ctx.update)
     throw err
   }
@@ -192,7 +192,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
   private startPolling(allowedUpdates: tt.UpdateType[] = []) {
     this.polling = new Polling(this.telegram, allowedUpdates)
-    void this.polling.loop(this.handleUpdate)
+    return this.polling.loop(this.handleUpdate)
   }
 
   private startWebhook(
@@ -238,8 +238,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       await this.telegram.deleteWebhook({
         drop_pending_updates: config.dropPendingUpdates,
       })
-      this.startPolling(config.allowedUpdates)
       debug('Bot started with long polling')
+      await this.startPolling(config.allowedUpdates)
       return
     }
 

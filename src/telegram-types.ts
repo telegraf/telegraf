@@ -1,13 +1,17 @@
 /** @format */
 
 import { Expand } from './util'
-import { Message, Opts, Telegram, Update } from './core/types/typegram'
 import {
+  Message,
+  Opts,
+  Telegram,
+  Update,
   InputMediaAudio,
   InputMediaDocument,
   InputMediaPhoto,
   InputMediaVideo,
-} from 'typegram'
+} from './core/types/typegram'
+
 import { UnionKeys } from './deunionize'
 import { FmtString } from './format'
 

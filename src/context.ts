@@ -193,9 +193,10 @@ export class Context<U extends Update = Update> {
     }
   }
 
-  has<Filter extends tt.UpdateType | Guard<Context['update']>>(
+  has<Ctx extends Context, Filter extends tt.UpdateType | Guard<Ctx['update']>>(
+    this: Ctx,
     filters: MaybeArray<Filter>
-  ): this is FilteredContext<Context, Filter> {
+  ): this is FilteredContext<Ctx, Filter> {
     if (!Array.isArray(filters)) filters = [filters]
     for (const filter of filters)
       if (

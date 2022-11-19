@@ -16,17 +16,15 @@
   "exports": {
     ".": {
       "types": "./typings/index.d.ts",
-      "require": "./lib/index.js",
-      "import": "./lib/index.js"
+      "default": "./lib/index.js"
     },
     "./filters": {
-      "types": "./typings/filters.d.ts",
-      "default": "./lib/filters.js"
+      "types": "./filters.d.ts",
+      "default": "./filters.js"
     },
     "./future": {
       "types": "./future.d.ts",
-      "require": "./future.js",
-      "import": "./future.js"
+      "default": "./future.js"
     },
     "./scenes": {
       "types": "./typings/scenes/index.d.ts",
@@ -34,13 +32,11 @@
     },
     "./types": {
       "types": "./types.d.ts",
-      "require": "./types.js",
-      "import": "./types.js"
+      "default": "./types.js"
     },
     "./format": {
       "types": "./format.d.ts",
-      "require": "./format.js",
-      "import": "./format.js"
+      "default": "./format.js"
     }
   },
   "files": [
@@ -51,6 +47,7 @@
     "typings/**/*.d.ts.map",
     "types.*",
     "format.*",
+    "filters.*",
     "future.*"
   ],
   "bin": {

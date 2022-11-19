@@ -399,9 +399,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraReplyMessage
   ) {
     this.assert(this.chat, 'sendMessage')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendMessage(this.chat.id, text, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -644,9 +643,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraPhoto
   ) {
     this.assert(this.chat, 'sendPhoto')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendPhoto(this.chat.id, photo, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -673,9 +671,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraMediaGroup
   ) {
     this.assert(this.chat, 'sendMediaGroup')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendMediaGroup(this.chat.id, media, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -702,9 +699,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraAudio
   ) {
     this.assert(this.chat, 'sendAudio')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendAudio(this.chat.id, audio, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -727,9 +723,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   sendDice(this: Context, extra?: tt.ExtraDice) {
     this.assert(this.chat, 'sendDice')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendDice(this.chat.id, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -756,9 +751,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraDocument
   ) {
     this.assert(this.chat, 'sendDocument')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendDocument(this.chat.id, document, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -785,9 +779,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraSticker
   ) {
     this.assert(this.chat, 'sendSticker')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendSticker(this.chat.id, sticker, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -814,9 +807,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraVideo
   ) {
     this.assert(this.chat, 'sendVideo')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendVideo(this.chat.id, video, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -843,9 +835,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraAnimation
   ) {
     this.assert(this.chat, 'sendAnimation')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendAnimation(this.chat.id, animation, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -872,9 +863,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraVideoNote
   ) {
     this.assert(this.chat, 'sendVideoNote')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendVideoNote(this.chat.id, videoNote, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -901,9 +891,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraInvoice
   ) {
     this.assert(this.chat, 'sendInvoice')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendInvoice(this.chat.id, invoice, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -926,9 +915,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   sendGame(this: Context, game: string, extra?: tt.ExtraGame) {
     this.assert(this.chat, 'sendGame')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendGame(this.chat.id, game, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -955,9 +943,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraVoice
   ) {
     this.assert(this.chat, 'sendVoice')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendVoice(this.chat.id, voice, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -985,9 +972,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraPoll
   ) {
     this.assert(this.chat, 'sendPoll')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendPoll(this.chat.id, poll, options, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -1015,9 +1001,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraPoll
   ) {
     this.assert(this.chat, 'sendQuiz')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendQuiz(this.chat.id, quiz, options, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -1070,9 +1055,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraLocation
   ) {
     this.assert(this.chat, 'sendLocation')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendLocation(this.chat.id, latitude, longitude, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -1102,14 +1086,13 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraVenue
   ) {
     this.assert(this.chat, 'sendVenue')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendVenue(
       this.chat.id,
       latitude,
       longitude,
       title,
       address,
-      { message_thread_id, ...extra }
+      { message_thread_id: getThreadId(this.message), ...extra }
     )
   }
 
@@ -1136,9 +1119,8 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     extra?: tt.ExtraContact
   ) {
     this.assert(this.chat, 'sendContact')
-    const { message_thread_id } = this.message || {}
     return this.telegram.sendContact(this.chat.id, phoneNumber, firstName, {
-      message_thread_id,
+      message_thread_id: getThreadId(this.message),
       ...extra,
     })
   }
@@ -1520,3 +1502,6 @@ function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
     ctx.editedChannelPost
   )
 }
+
+const getThreadId = (msg?: tg.Message) =>
+  msg?.is_topic_message ? msg.message_thread_id : undefined

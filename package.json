@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "4.11.0",
+  "version": "4.11.2",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -16,36 +16,42 @@
   "exports": {
     ".": {
       "types": "./typings/index.d.ts",
-      "require": "./lib/index.js",
-      "import": "./lib/index.js"
+      "default": "./lib/index.js"
     },
     "./filters": {
-      "types": "./typings/filters.d.ts",
-      "default": "./lib/filters.js"
+      "types": "./filters.d.ts",
+      "default": "./filters.js"
+    },
+    "./future": {
+      "types": "./future.d.ts",
+      "default": "./future.js"
     },
     "./scenes": {
       "types": "./typings/scenes/index.d.ts",
       "default": "./lib/scenes/index.js"
     },
     "./types": {
-      "types": "./typings/telegram-types.d.ts",
-      "default": "./lib/telegram-types.js"
+      "types": "./types.d.ts",
+      "default": "./types.js"
     },
     "./transformers": {
       "types": "./typings/transformers/index.d.ts",
       "default": "./lib/transformers/index.js"
     },
     "./format": {
-      "types": "./typings/format.d.ts",
-      "require": "./lib/format.js",
-      "import": "./lib/format.js"
+      "types": "./format.d.ts",
+      "default": "./format.js"
     }
   },
   "files": [
     "src/**/*.ts",
     "lib/**/*.js",
     "typings/**/*.d.ts",
-    "typings/**/*.d.ts.map"
+    "typings/**/*.d.ts.map",
+    "types.*",
+    "format.*",
+    "filters.*",
+    "future.*"
   ],
   "bin": {
     "telegraf": "lib/cli.mjs"

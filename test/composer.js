@@ -1,6 +1,6 @@
 const { default: test } = require('ava')
 const { Composer, Telegraf } = require('../')
-const { message } = require('../filters')
+const { message } = require('../lib/filters')
 
 function createBot(...args) {
   const bot = new Telegraf(...args)
@@ -61,23 +61,12 @@ test('should route filters', async (t) => {
   await bot.handleUpdate({ message: { text: 'hello', ...baseMessage } })
 })
 
-/** @deprecated */
-test('should route sub types', (t) =>
-  t.notThrowsAsync(
-    new Promise((resolve) => {
-      const bot = createBot()
-      bot.on('text', () => resolve())
-      bot.handleUpdate({ message: { voice: {}, ...baseMessage } })
-      bot.handleUpdate({ message: { text: 'hello', ...baseMessage } })
-    })
-  ))
-
 topLevelUpdates.forEach((update) =>
   test('should guard ' + update.type, (t) =>
     t.notThrowsAsync(
       new Promise((resolve) => {
         const bot = createBot()
-        bot.guard(
+        bot.on(
           (u) => update.type in u,
           () => resolve()
         )
@@ -87,7 +76,7 @@ topLevelUpdates.forEach((update) =>
   )
 )
 
-const updateTypes = [
+const updateSubtypes = [
   'voice',
   'video_note',
   'video',
@@ -108,6 +97,7 @@ const updateTypes = [
   'left_chat_member',
   'invoice',
   'group_chat_created',
+  'forward_date',
   'game',
   'dice',
   'document',
@@ -118,66 +108,19 @@ const updateTypes = [
   'poll',
 ]
 
-updateTypes.forEach((update) =>
-  test('should route update type: ' + update, (t) =>
+updateSubtypes.forEach((subtype) =>
+  test('should route update subtype: ' + subtype, (t) =>
     t.notThrowsAsync(
       new Promise((resolve) => {
         const bot = createBot()
-        bot.on(update, (ctx) => {
+        bot.on(message(subtype), (ctx) => {
           resolve()
         })
-        const message = { ...baseMessage }
-        message[update] = {}
-        bot.handleUpdate({ message: message })
+        bot.handleUpdate({ message: { ...baseMessage, [subtype]: {} } })
       })
     )
   )
 )
-
-test('should route venue', (t) =>
-  t.notThrowsAsync(
-    new Promise((resolve) => {
-      const bot = createBot()
-      bot.on('venue', () => resolve())
-      const message = {
-        location: {},
-        venue: { title: 'location', address: 'n/a' },
-        ...baseMessage,
-      }
-      bot.handleUpdate({ message: message })
-    })
-  ))
-
-test('should route location', (t) =>
-  t.notThrowsAsync(
-    new Promise((resolve) => {
-      const bot = createBot()
-      bot.on('venue', (ctx) => {
-        resolve()
-      })
-      const message = {
-        location: {},
-        venue: { title: 'location', address: 'n/a' },
-        ...baseMessage,
-      }
-      bot.handleUpdate({ message: message })
-    })
-  ))
-
-test('should route forward_date', (t) =>
-  t.notThrowsAsync(
-    new Promise((resolve) => {
-      const bot = createBot()
-      bot.on('forward_date', (ctx) => {
-        resolve()
-      })
-      const message = {
-        forward_date: 1460829948,
-        ...baseMessage,
-      }
-      bot.handleUpdate({ message: message })
-    })
-  ))
 
 test('should throw error then called with undefined middleware', (t) =>
   t.throwsAsync(
@@ -232,7 +175,7 @@ test('should support Composer instance as middleware', (t) =>
     new Promise((resolve) => {
       const bot = createBot()
       const composer = new Composer()
-      composer.on('text', (ctx) => {
+      composer.on(message('text'), (ctx) => {
         t.is('bar', ctx.state.foo)
         resolve()
       })
@@ -249,8 +192,8 @@ test('should support Composer instance as handler', (t) =>
     new Promise((resolve) => {
       const bot = createBot()
       const composer = new Composer()
-      composer.on('text', () => resolve())
-      bot.on('text', composer)
+      composer.on(message('text'), () => resolve())
+      bot.on(message('text'), composer)
       bot.handleUpdate({ message: { text: 'hello', ...baseMessage } })
     })
   ))
@@ -441,35 +384,6 @@ test('Composer.optional should work with async fn', (t) =>
         )
       )
       bot.use(() => resolve())
-      bot.handleUpdate({ message: { text: 'hello world', ...baseMessage } })
-    })
-  ))
-
-test('Composer.filter should work with fn', (t) =>
-  t.notThrowsAsync(
-    new Promise((resolve) => {
-      const bot = createBot()
-      bot.filter(({ message }) => message.text.length < 2)
-      bot.use(() => resolve())
-      bot.handleUpdate({ message: { text: '-', ...baseMessage } })
-      bot.handleUpdate({ message: { text: 'hello', ...baseMessage } })
-      bot.handleUpdate({ message: { text: 'hello world ', ...baseMessage } })
-    })
-  ))
-
-test('Composer.filter should work with async fn', (t) =>
-  t.notThrowsAsync(
-    new Promise((resolve) => {
-      const bot = createBot()
-      bot.filter(({ message }) => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(message.text.length < 2)
-          }, 100)
-        })
-      })
-      bot.use(() => resolve())
-      bot.handleUpdate({ message: { text: '-', ...baseMessage } })
       bot.handleUpdate({ message: { text: 'hello world', ...baseMessage } })
     })
   ))

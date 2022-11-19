@@ -19,12 +19,12 @@
       "default": "./lib/index.js"
     },
     "./filters": {
-      "types": "./filters.d.ts",
-      "default": "./filters.js"
+      "types": "./typings/filters.d.ts",
+      "default": "./lib/filters.js"
     },
-    "./future": {
-      "types": "./future.d.ts",
-      "default": "./future.js"
+    "./format": {
+      "types": "./typings/format.d.ts",
+      "default": "./lib/format.js"
     },
     "./scenes": {
       "types": "./typings/scenes/index.d.ts",
@@ -37,10 +37,6 @@
     "./transformers": {
       "types": "./typings/transformers/index.d.ts",
       "default": "./lib/transformers/index.js"
-    },
-    "./format": {
-      "types": "./format.d.ts",
-      "default": "./format.js"
     }
   },
   "files": [

@@ -29,8 +29,8 @@
 
 ## Introduction
 
-Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
-Users can interact with bots by sending them command messages in private or group chats. 
+Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically.
+Users can interact with bots by sending them command messages in private or group chats.
 These accounts serve as an interface for code running somewhere on your server.
 
 Telegraf is a library that makes it simple for you to develop your own Telegram bots using JavaScript or [TypeScript](https://www.typescriptlang.org/).
@@ -49,14 +49,15 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 - Extensible
 
 ### Example
-  
+
 ```js
 const { Telegraf } = require('telegraf');
+const { message } = require('telegraf/filters');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 bot.start((ctx) => ctx.reply('Welcome'));
 bot.help((ctx) => ctx.reply('Send me a sticker'));
-bot.on('sticker', (ctx) => ctx.reply('👍'));
+bot.on(message('sticker'), (ctx) => ctx.reply('👍'));
 bot.hears('hi', (ctx) => ctx.reply('Hey there'));
 bot.launch();
 
@@ -96,8 +97,8 @@ For additional bot examples see the new [`docs repo`](https://github.com/feather
 
 ### Telegram token
 
-To use the [Telegram Bot API](https://core.telegram.org/bots/api), 
-you first have to [get a bot account](https://core.telegram.org/bots) 
+To use the [Telegram Bot API](https://core.telegram.org/bots/api),
+you first have to [get a bot account](https://core.telegram.org/bots)
 by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
 BotFather will give you a *token*, something like `123456789:AbCdefGhIJKlmNoPQRsTUVwxyZ`.
@@ -157,6 +158,7 @@ Here is a list of
 
 ```js
 import { Telegraf } from 'telegraf';
+const { message } = require('telegraf/filters');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -168,7 +170,7 @@ bot.command('quit', async (ctx) => {
   await ctx.leaveChat();
 });
 
-bot.on('text', async (ctx) => {
+bot.on(message('text'), async (ctx) => {
   // Explicit usage
   await ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`);
 
@@ -206,10 +208,11 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'));
 
 ```TS
 import { Telegraf } from "telegraf";
+const { message } = require('telegraf/filters');
 
 const bot = new Telegraf(token);
 
-bot.on("text", ctx => ctx.reply("Hello"));
+bot.on(message("text"), ctx => ctx.reply("Hello"));
 
 // Start webhook via launch method (preferred)
 bot.launch({
@@ -261,8 +264,6 @@ createServer(tlsOptions, await bot.createWebhook({ domain: "example.com" })).lis
 If middleware throws an error or times out, Telegraf calls `bot.handleError`. If it rethrows, update source closes, and then the error is printed to console and process [hopefully](https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode) terminates. If it does not rethrow, the error is swallowed.
 
 Default `bot.handleError` always rethrows. You can overwrite it using `bot.catch` if you need to.
-
-⚠️ Always rethrow `TimeoutError`!
 
 ⚠️ Swallowing unknown errors might leave the process in invalid state!
 
@@ -322,6 +323,7 @@ As in Koa and some other middleware-based libraries,
 
 ```TS
 import { Telegraf } from 'telegraf';
+const { message } = require('telegraf/filters');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -332,7 +334,7 @@ bot.use(async (ctx, next) => {
   console.timeEnd(`Processing update ${ctx.update.update_id}`);
 })
 
-bot.on('text', (ctx) => ctx.reply('Hello World'));
+bot.on(message('text'), (ctx) => ctx.reply('Hello World'));
 bot.launch();
 
 // Enable graceful stop

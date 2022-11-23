@@ -78,12 +78,16 @@ export function session<S extends object>(
       debug(`(${updId}) updating cache`)
       // another request may have beaten us to the punch
       const c = cache.get(key)
-      // (1) preserve cached reference using Object.assign, or create new object if it doesn't exist
-      cached = Object.assign(c || {}, {
-        ref: upstream,
-        counter: (c?.counter || 0) + 1,
-      })
-      cache.set(key, cached)
+      if (c) {
+        // another request did beat us to the punch
+        c.counter++
+        // (1) preserve cached reference; in-memory reference is always newer than from store
+        cached = c
+      } else {
+        // we're the first, so we must cache the reference
+        cached = { ref: upstream, counter: 0 }
+        cache.set(key, cached)
+      }
     }
 
     // TS already knows cached is always defined by this point, but does not guard cached.

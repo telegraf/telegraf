@@ -7,7 +7,7 @@
 <p>Modern Telegram Bot API framework for Node.js</p>
 
 <a href="https://core.telegram.org/bots/api">
-	<img src="https://img.shields.io/badge/Bot%20API-v6.2-f36caf.svg?style=flat-square" alt="Bot API Version" />
+	<img src="https://img.shields.io/badge/Bot%20API-v6.3-f36caf.svg?style=flat-square" alt="Bot API Version" />
 </a>
 <a href="https://packagephobia.com/result?p=telegraf,node-telegram-bot-api">
 	<img src="https://flat.badgen.net/packagephobia/install/telegraf" alt="install size" />
@@ -37,7 +37,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 
 ### Features
 
-- Full [Telegram Bot API 6.2](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 6.3](https://core.telegram.org/bots/api) support
 - [Excellent TypeScript typings](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
 - [Lightweight](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 - [AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)
@@ -261,7 +261,7 @@ createServer(tlsOptions, await bot.createWebhook({ domain: "example.com" })).lis
 
 ### Error handling
 
-If middleware throws an error or times out, Telegraf calls `bot.handleError`. If it rethrows, update source closes, and then the error is printed to console and process [hopefully](https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode) terminates. If it does not rethrow, the error is swallowed.
+If middleware throws an error or times out, Telegraf calls `bot.handleError`. If it rethrows, update source closes, and then the error is printed to console and process terminates. If it does not rethrow, the error is swallowed.
 
 Default `bot.handleError` always rethrows. You can overwrite it using `bot.catch` if you need to.
 
@@ -291,26 +291,19 @@ bot.on('message', async (ctx) => {
   await ctx.replyWithSticker('123123jkbhj6b');
 
   // send file
-  await ctx.replyWithVideo({ source: '/path/to/video.mp4' });
+  await ctx.replyWithVideo(Input.fromLocalFile('/path/to/video.mp4'));
 
   // send stream
-  await ctx.replyWithVideo({
-    source: fs.createReadStream('/path/to/video.mp4')
-  });
+  await ctx.replyWithVideo(Input.fromReadableStream(fs.createReadStream('/path/to/video.mp4')));
 
   // send buffer
-  await ctx.replyWithVoice({
-    source: Buffer.alloc()
-  });
+  await ctx.replyWithVoice(Input.fromBuffer(Buffer.alloc()));
 
   // send url via Telegram server
-  await ctx.replyWithPhoto('https://picsum.photos/200/300/');
+  await ctx.replyWithPhoto(Input.fromURL('https://picsum.photos/200/300/'));
 
   // pipe url content
-  await ctx.replyWithPhoto({
-    url: 'https://picsum.photos/200/300/?random',
-    filename: 'kitten.jpg'
-  });
+  await ctx.replyWithPhoto(Input.fromURLStream('https://picsum.photos/200/300/?random', 'kitten.jpg'));
 })
 ```
 

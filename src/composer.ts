@@ -1,11 +1,16 @@
 /** @format */
 
-import * as tg from 'typegram'
-import * as tt from './telegram-types'
-import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
-import Context, { FilteredContext, NarrowedContext } from './context'
-import { MaybeArray, NonemptyReadonlyArray, MaybePromise, Guard } from './util'
-import { callbackQuery, message } from './filters'
+import type * as tg from './deps/typegram.ts'
+import * as tt from './telegram-types.ts'
+import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware.ts'
+import Context, { FilteredContext, NarrowedContext } from './context.ts'
+import type {
+  MaybeArray,
+  NonemptyReadonlyArray,
+  MaybePromise,
+  Guard,
+} from './util.ts'
+import { callbackQuery, message } from './filters.ts'
 
 export type Triggers<C> = MaybeArray<
   string | RegExp | ((value: string, ctx: C) => RegExpExecArray | null)

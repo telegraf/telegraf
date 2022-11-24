@@ -4,8 +4,8 @@ import type {
   CommonMessageBundle,
   Message,
   Update,
-} from 'typegram'
-import type { Deunionize, UnionKeys } from './deunionize'
+} from './deps/typegram.ts'
+import type { Deunionize, UnionKeys } from './deunionize.ts'
 
 type DistinctKeys<T extends object> = Exclude<UnionKeys<T>, keyof T>
 

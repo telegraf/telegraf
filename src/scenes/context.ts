@@ -1,9 +1,9 @@
-import BaseScene from './base'
-import Composer from '../composer'
-import Context from '../context'
-import d from 'debug'
-import { SessionContext } from '../session'
-const debug = d('telegraf:scenes:context')
+import BaseScene from './base.ts'
+import Composer from '../composer.ts'
+import Context from '../context.ts'
+import { debug } from '../deps/debug.ts'
+import { SessionContext } from '../session.ts'
+const d = debug('telegraf:scenes:context')
 
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
@@ -89,7 +89,7 @@ export default class SceneContextScene<
     if (!silent) {
       await this.leave()
     }
-    debug('Entering scene', sceneId, initialState, silent)
+    d('Entering scene', sceneId, initialState, silent)
     this.session.current = sceneId
     this.state = initialState
     const ttl = this.current?.ttl ?? this.options.ttl
@@ -116,7 +116,7 @@ export default class SceneContextScene<
   private leaving = false
   async leave() {
     if (this.leaving) return
-    debug('Leaving scene')
+    d('Leaving scene')
     try {
       this.leaving = true
       if (this.current === undefined) {

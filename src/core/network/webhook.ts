@@ -1,9 +1,9 @@
-import * as http from 'http'
-import d from 'debug'
-import { type Update } from 'typegram'
-import { json } from 'node:stream/consumers'
+import { http, Buffer } from '../../platform/network.ts'
+import { debug } from '../../deps/debug.ts'
+import { type Update } from '../../deps/typegram.ts'
+import { json } from '../../vendor/stream-consumers.ts'
 
-const debug = d('telegraf:webhook')
+const d = debug('telegraf:webhook')
 
 export default function generateWebhook(
   filter: (req: http.IncomingMessage) => boolean,
@@ -14,14 +14,14 @@ export default function generateWebhook(
     res: http.ServerResponse,
     next = (): void => {
       res.statusCode = 403
-      debug('Replying with status code', res.statusCode)
+      d('Replying with status code', res.statusCode)
       res.end()
     }
   ): Promise<void> => {
-    debug('Incoming request', req.method, req.url)
+    d('Incoming request', req.method, req.url)
 
     if (!filter(req)) {
-      debug('Webhook filter failed', req.method, req.url)
+      d('Webhook filter failed', req.method, req.url)
       return next()
     }
 
@@ -46,8 +46,8 @@ export default function generateWebhook(
       }
     } catch (error: unknown) {
       // if any of the parsing steps fails, give up and respond with error
-      res.writeHead(415).end()
-      debug('Failed to parse request body:', error)
+      res.writeHead(415, {}).end()
+      d('Failed to parse request body:', error)
       return
     }
 

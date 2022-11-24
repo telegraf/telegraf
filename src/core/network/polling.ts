@@ -1,14 +1,16 @@
-import * as tg from 'typegram'
-import * as tt from '../../telegram-types'
-import d from 'debug'
-import { promisify } from 'util'
-import { TelegramError } from './error'
-import Telegram from '../../telegram'
-const debug = d('telegraf:polling')
-const wait = promisify(setTimeout)
+import type * as tg from '../../deps/typegram.ts'
+import * as tt from '../../telegram-types.ts'
+import { debug } from '../../deps/debug.ts'
+import { TelegramError } from './error.ts'
+import Telegram from '../../telegram.ts'
+import { sleep } from '../../util.ts'
+
+const d = debug('telegraf:polling')
+
 function always<T>(x: T) {
   return () => x
 }
+
 const noop = always(Promise.resolve())
 
 export class Polling {
@@ -21,7 +23,7 @@ export class Polling {
   ) {}
 
   private async *[Symbol.asyncIterator]() {
-    debug('Starting long polling')
+    d('Starting long polling')
     do {
       try {
         const updates = await this.telegram.callApi(
@@ -50,8 +52,8 @@ export class Polling {
           (err instanceof TelegramError && err.code >= 500)
         ) {
           const retryAfter: number = err.parameters?.retry_after ?? 5
-          debug('Failed to fetch updates, retrying after %ds.', retryAfter, err)
-          await wait(retryAfter * 1000)
+          d('Failed to fetch updates, retrying after %ds.', retryAfter, err)
+          await sleep(retryAfter * 1000)
           continue
         }
         if (
@@ -69,7 +71,7 @@ export class Polling {
 
   private async syncUpdateOffset() {
     if (this.skipOffsetSync) return
-    debug('Syncing update offset...')
+    d('Syncing update offset...')
     await this.telegram.callApi('getUpdates', { offset: this.offset, limit: 1 })
   }
 
@@ -82,7 +84,7 @@ export class Polling {
         await Promise.all(updates.map(handleUpdate))
       }
     } finally {
-      debug('Long polling stopped')
+      d('Long polling stopped')
       // prevent instance reuse
       this.stop()
       await this.syncUpdateOffset().catch(noop)

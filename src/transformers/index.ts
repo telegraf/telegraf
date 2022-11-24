@@ -1,2 +1,2 @@
-export type { Transformer } from '../telegram'
-export { autoRetry } from './auto_retry'
+export type { Transformer } from '../telegram.ts'
+export { autoRetry } from './auto_retry.ts'

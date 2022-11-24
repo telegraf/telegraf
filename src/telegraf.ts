@@ -1,21 +1,20 @@
-import * as crypto from 'crypto'
-import * as http from 'http'
-import * as https from 'https'
-import * as tg from 'typegram'
-import * as tt from './telegram-types'
-import { Composer, noop } from './composer'
-import { compactOptions } from './core/helpers/compact'
-import Context from './context'
-import d from 'debug'
-import generateCallback from './core/network/webhook'
-import { Polling } from './core/network/polling'
-import pTimeout from 'p-timeout'
-import Telegram, { Transformer } from './telegram'
-import { TlsOptions } from 'tls'
-import { URL } from 'url'
-import safeCompare = require('safe-compare')
-import { createClient, type ClientOptions } from './core/network/client'
-const debug = d('telegraf:main')
+import { http, https, TlsOptions } from './platform/network.ts'
+import type * as tg from './deps/typegram.ts'
+import * as tt from './telegram-types.ts'
+import { Composer, noop } from './composer.ts'
+import { compactOptions } from './core/helpers/compact.ts'
+import Context from './context.ts'
+import { debug } from './deps/debug.ts'
+import generateCallback from './core/network/webhook.ts'
+import { Polling } from './core/network/polling.ts'
+import Telegram, { Transformer } from './telegram.ts'
+import { createClient, type ClientOptions } from './core/network/client.ts'
+import { hash } from './platform/crypto.ts'
+import { safeCompare } from './vendor/safe-compare.ts'
+import { sleep } from './util.ts'
+import { TimeoutError } from './core/network/error.ts'
+
+const d = debug('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   handlerTimeout: 90_000, // 90s in ms
@@ -100,7 +99,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     this: { hookPath: string; secretToken?: string },
     req: http.IncomingMessage
   ) {
-    const debug = d('telegraf:webhook')
+    const d = debug('telegraf:webhook')
 
     if (req.method === 'POST') {
       if (safeCompare(this.hookPath, req.url as string)) {
@@ -109,10 +108,10 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
         else {
           const token = req.headers[TOKEN_HEADER] as string
           if (safeCompare(this.secretToken, token)) return true
-          else debug('Secret token does not match:', token, this.secretToken)
+          else d('Secret token does not match:', token, this.secretToken)
         }
-      } else debug('Path does not match:', req.url, this.hookPath)
-    } else debug('Unexpected request method, not POST. Received:', req.method)
+      } else d('Path does not match:', req.url, this.hookPath)
+    } else d('Unexpected request method, not POST. Received:', req.method)
 
     return false
   }
@@ -131,7 +130,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     }
     this.#token = token
     this.telegram = new Telegram(createClient(token, this.options.client))
-    debug('Created a `Telegraf` instance')
+    d('Created a `Telegraf` instance')
   }
 
   /**
@@ -159,10 +158,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       opts.domain.startsWith('https://') || opts.domain.startsWith('http://')
 
     if (protocol)
-      debug(
-        'Unexpected protocol in domain, telegraf will use https:',
-        opts.domain
-      )
+      d('Unexpected protocol in domain, telegraf will use https:', opts.domain)
 
     const domain = protocol ? new URL(opts.domain).host : opts.domain
     const path = opts.path ?? `/telegraf/${this.secretPathComponent()}`
@@ -183,7 +179,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     const domainOpts = this.getDomainOpts({ domain, path })
 
     await this.telegram.setWebhook(domainOpts.url, extra)
-    debug(`Webhook set to ${domainOpts.url}`)
+    d(`Webhook set to ${domainOpts.url}`)
 
     return this.webhookCallback(domainOpts.path, {
       secretToken: extra.secret_token,
@@ -213,32 +209,28 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
         ? https.createServer(tlsOptions, callback)
         : http.createServer(callback)
     this.webhookServer.listen(port, host, () => {
-      debug('Webhook listening on port: %s', port)
+      d('Webhook listening on port: %s', port)
     })
     return this
   }
 
   secretPathComponent() {
-    return crypto
-      .createHash('sha3-256')
-      .update(this.#token)
-      .update(process.version) // salt
-      .digest('hex')
+    return hash(this.#token)
   }
 
   /**
    * @see https://github.com/telegraf/telegraf/discussions/1344#discussioncomment-335700
    */
   async launch(config: Telegraf.LaunchOptions = {}) {
-    debug('Connecting to Telegram')
+    d('Connecting to Telegram')
     this.botInfo ??= await this.telegram.getMe()
-    debug(`Launching @${this.botInfo.username}`)
+    d(`Launching @${this.botInfo.username}`)
 
     if (config.webhook === undefined) {
       await this.telegram.deleteWebhook({
         drop_pending_updates: config.dropPendingUpdates,
       })
-      debug('Bot started with long polling')
+      d('Bot started with long polling')
       await this.startPolling(config.allowedUpdates)
       return
     }
@@ -261,11 +253,11 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       certificate: config.webhook.certificate,
     })
 
-    debug(`Bot started with webhook @ ${domainOpts.url}`)
+    d(`Bot started with webhook @ ${domainOpts.url}`)
   }
 
   stop(reason = 'unspecified') {
-    debug('Stopping bot... Reason:', reason)
+    d('Stopping bot... Reason:', reason)
     // https://github.com/telegraf/telegraf/pull/1224#issuecomment-742693770
     if (this.polling === undefined && this.webhookServer === undefined) {
       throw new Error('Bot is not running!')
@@ -280,26 +272,30 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     transform: Transformer = identity
   ) => {
     this.botInfo ??=
-      (debug(
+      (d(
         'Update %d is waiting for `botInfo` to be initialized',
         update.update_id
       ),
       await (this.botInfoCall ??= this.telegram.getMe()))
-    debug('Processing update', update.update_id)
+    d('Processing update', update.update_id)
     const tg = new Telegram(this.telegram)
     tg.use(transform)
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)
+
+    const { handlerTimeout } = this.options
     try {
-      await pTimeout(
+      await Promise.race([
         Promise.resolve(this.middleware()(ctx, noop)),
-        this.options.handlerTimeout
-      )
+        sleep(handlerTimeout).then(() =>
+          Promise.reject(new TimeoutError(handlerTimeout))
+        ),
+      ])
     } catch (err) {
       return await this.handleError(err, ctx)
     } finally {
-      debug('Finished processing update', update.update_id)
+      d('Finished processing update', update.update_id)
     }
   }
 }

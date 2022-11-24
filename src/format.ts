@@ -1,5 +1,5 @@
-import { User } from 'typegram'
-import { FmtString, _fmt, linkOrMention } from './core/helpers/formatting'
+import type { User } from './deps/typegram.ts'
+import { FmtString, _fmt, linkOrMention } from './core/helpers/formatting.ts'
 
 export { FmtString }
 

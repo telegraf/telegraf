@@ -1,9 +1,9 @@
-import * as tg from 'typegram'
-import * as tt from './telegram-types'
-import { Deunionize, PropOr, UnionKeys } from './deunionize'
-import { Guard, Guarded, MaybeArray } from './util'
-import Telegram from './telegram'
-import { FmtString } from './format'
+import type * as tg from './deps/typegram.ts'
+import * as tt from './telegram-types.ts'
+import { Deunionize, PropOr, UnionKeys } from './deunionize.ts'
+import { Guard, Guarded, MaybeArray } from './util.ts'
+import Telegram from './telegram.ts'
+import { FmtString } from './format.ts'
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
 

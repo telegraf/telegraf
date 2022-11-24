@@ -1,13 +1,13 @@
 /** @format */
 
-import { Message, Update } from 'typegram'
-import { UnionKeys } from './deunionize'
-import { TelegrafTypegram as TT, Opts } from './core/network/client'
-import { Expand } from './util'
-import { FmtString } from './format'
+import type { Message, Update } from './deps/typegram.ts'
+import { UnionKeys } from './deunionize.ts'
+import { TelegrafTypegram as TT, Opts } from './core/network/client.ts'
+import { Expand } from './util.ts'
+import { FmtString } from './format.ts'
 
-export { InputFile } from './core/network/payload'
-export { Markup } from './markup'
+export type { InputFile } from './core/network/payload.ts'
+export { Markup } from './markup.ts'
 
 // tiny helper types
 export type ChatAction = Opts['sendChatAction']['action']

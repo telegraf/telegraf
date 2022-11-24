@@ -1,11 +1,11 @@
 // for https://gist.github.com/2b1b226d52d675ec246c6f8abdab81ef
-export type { Update, UserFromGetMe } from 'typegram'
-import type { ApiResponse, File, Typegram } from 'typegram'
-import createDebug from 'debug'
-import { fetch, type RequestInit } from '../../vendor/fetch'
-import { createPayload, type InputFile } from './payload'
+export type { Update, UserFromGetMe } from '../../deps/typegram.ts'
+import type { ApiResponse, File, Typegram } from '../../deps/typegram.ts'
+import { debug } from '../../deps/debug.ts'
+import { fetch, type RequestInit } from '../../vendor/fetch.ts'
+import { createPayload, type InputFile } from './payload.ts'
 
-const debug = createDebug('telegraf:client')
+const d = debug('telegraf:client')
 
 export const defaultOpts = {
   /**
@@ -60,7 +60,7 @@ export function createClient(token: string, opts: ClientOptions = {}) {
     payload,
     signal,
   }: Invocation<M>): Promise<ApiResponse<Ret[M]>> => {
-    debug('HTTP call', method, payload)
+    d('HTTP call', method, payload)
     const url = new URL(
       `./${apiMode}${token}${testEnv ? '/test' : ''}/${method}`,
       apiRoot

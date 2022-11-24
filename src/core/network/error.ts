@@ -1,5 +1,5 @@
-import { ResponseParameters } from 'typegram'
-import type { Response } from '../../vendor/fetch'
+import type { ResponseParameters } from '../../deps/typegram.ts'
+import type { Response } from '../../vendor/fetch.ts'
 
 interface ErrorPayload {
   error_code: number
@@ -31,3 +31,18 @@ export class URLStreamError extends Error {
     )
   }
 }
+
+export class TimeoutError extends Error {
+  name: string = 'TimeoutError'
+  constructor(millis: number) {
+    super(
+      // TODO: write documentation for why it's bad to have long-running handlers and provide solutions
+      `A handler took too long. Promise timed out after ${millis} milliseconds.\n\n` +
+        '> This may be a bug in your code.\n' +
+        "> If you know what you're doing, pass `new Telegraf(token, { handlerTimeout: 600000 })` (5 minutes in milliseconds) or longer.\n" +
+        '> This can cause your bot to slow down!\n'
+    )
+  }
+}
+
+throw new TimeoutError(500)

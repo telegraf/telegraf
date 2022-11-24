@@ -1,7 +1,10 @@
-import SceneContextScene, { SceneSession, SceneSessionData } from '../context'
-import Context from '../../context'
-import { Middleware } from '../../middleware'
-import { SessionContext } from '../../session'
+import SceneContextScene, {
+  type SceneSession,
+  type SceneSessionData,
+} from '../context.ts'
+import Context from '../../context.ts'
+import { Middleware } from '../../middleware.ts'
+import { SessionContext } from '../../session.ts'
 
 export interface WizardContext<D extends WizardSessionData = WizardSessionData>
   extends Context {

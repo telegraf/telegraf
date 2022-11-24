@@ -1,0 +1,5 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "deno.lint": false,
+  "deno.enablePaths": ["./src/"]
+}

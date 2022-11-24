@@ -1,4 +1,5 @@
-import { Context } from './context'
+import { Context } from './context.ts'
+import { Any, MaybePromise } from './util.ts'
 
 /*
   next's parameter is in a contravariant position, and thus, trying to type it
@@ -9,7 +10,7 @@ import { Context } from './context'
 export type MiddlewareFn<C extends Context> = (
   ctx: C,
   next: () => Promise<void>
-) => Promise<unknown>
+) => MaybePromise<Any>
 
 export interface MiddlewareObj<C extends Context> {
   middleware: () => MiddlewareFn<C>

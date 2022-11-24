@@ -4,10 +4,13 @@
 // based on https://github.com/Ethan-Arrowood/undici-fetch/blob/249269714db874351589d2d364a0645d5160ae71/index.d.ts (MIT license)
 // and https://github.com/node-fetch/node-fetch/blob/914ce6be5ec67a8bab63d68510aabf07cb818b6d/index.d.ts (MIT license)
 
-import { Blob } from 'node:buffer'
-import { URL, URLSearchParams } from 'node:url'
-import { ReadableStream } from 'node:stream/web'
-import { FormData } from './formdata'
+import type {
+  Blob,
+  URL,
+  URLSearchParams,
+  ReadableStream,
+} from '../platform/vendor/fetch.ts'
+import { FormData } from './formdata.ts'
 
 export type RequestInfo = string | URL | Request
 
@@ -22,7 +25,7 @@ export type BodyInit =
   | Blob
   | FormData
   | Iterable<Uint8Array>
-  | NodeJS.ArrayBufferView
+  | ArrayBufferView
   | URLSearchParams
   | null
   | string

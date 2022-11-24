@@ -1,4 +1,4 @@
-import { MessageEntity, User } from 'typegram'
+import type { MessageEntity, User } from '../../deps/typegram.ts'
 
 export interface FmtString {
   text: string

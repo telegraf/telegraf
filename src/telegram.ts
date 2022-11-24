@@ -1,10 +1,10 @@
-import * as tg from 'typegram'
-import * as tt from './telegram-types'
-import { TT } from './telegram-types'
-import { FmtString } from './format'
-import { fmtCaption } from './util'
-import type { Client, Opts } from './core/network/client'
-import { TelegramError } from './core/network/error'
+import type * as tg from './deps/typegram.ts'
+import * as tt from './telegram-types.ts'
+import { TT } from './telegram-types.ts'
+import { FmtString } from './format.ts'
+import { fmtCaption } from './util.ts'
+import type { Client, Opts } from './core/network/client.ts'
+import { TelegramError } from './core/network/error.ts'
 
 export type EndoFunction<T> = (t: T) => T
 export type Transformer = EndoFunction<Client['call']>

@@ -1,6 +1,4 @@
 // file based on https://github.com/grammyjs/grammY/blob/d340d97c080b3e1bb34a593a9a238d4b8ac79c0f/src/core/payload.ts (MIT license)
-import { ReadableStream } from 'node:stream/web'
-import { TextEncoder } from 'node:util'
 
 export class StreamFile {
   constructor(

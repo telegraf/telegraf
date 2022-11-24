@@ -1,18 +1,8 @@
-import { createReadStream } from 'node:fs'
-import { basename } from 'node:path'
-import { Readable } from 'node:stream'
-import { ReadableStream } from 'node:stream/web'
-import { StreamFile } from './core/network/payload'
-import { URLStreamError } from './core/network/error'
-import { fetch } from './vendor/fetch'
+import { StreamFile } from './core/network/payload.ts'
+import { URLStreamError } from './core/network/error.ts'
+import { fetch } from './vendor/fetch.ts'
 
-/**
- * The local file specified by path will be uploaded to Telegram using multipart/form-data.
- *
- * 10 MB max size for photos, 50 MB for other files.
- */
-export const fromLocalFile = (path: string, filename = basename(path)) =>
-  new StreamFile(() => createReadStream(path), filename)
+export { fromLocalFile } from './platform/input.ts'
 
 /**
  * The buffer will be uploaded as file to Telegram using multipart/form-data.
@@ -20,7 +10,9 @@ export const fromLocalFile = (path: string, filename = basename(path)) =>
  * 10 MB max size for photos, 50 MB for other files.
  */
 export const fromBuffer = (buffer: Uint8Array, name: string) =>
-  new StreamFile(() => Readable.from(buffer), name)
+  new StreamFile(async function* () {
+    yield buffer
+  }, name)
 
 /**
  * Contents of the stream will be uploaded as file to Telegram using multipart/form-data.

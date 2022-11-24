@@ -1,12 +1,12 @@
-import {
+import type {
   ForceReply,
   InlineKeyboardButton,
   InlineKeyboardMarkup,
   KeyboardButton,
   ReplyKeyboardMarkup,
   ReplyKeyboardRemove,
-} from 'typegram'
-import { is2D } from './core/helpers/check'
+} from './deps/typegram.ts'
+import { is2D } from './core/helpers/check.ts'
 
 type Hideable<B> = B & { hide?: boolean }
 type HideableKBtn = Hideable<KeyboardButton>
@@ -53,7 +53,7 @@ export class Markup<
   }
 }
 
-export * as button from './button'
+export * as button from './button.ts'
 
 export function removeKeyboard(): Markup<ReplyKeyboardRemove> {
   return new Markup<ReplyKeyboardRemove>({ remove_keyboard: true })

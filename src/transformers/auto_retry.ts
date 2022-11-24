@@ -1,5 +1,5 @@
-import type { Transformer } from '../telegram'
-import { setTimeout as sleep } from 'node:timers/promises'
+import type { Transformer } from '../telegram.ts'
+import { sleep } from '../util.ts'
 
 export function autoRetry({ maxRetries = 3 } = {}): Transformer {
   return (call) => async (invocation) => {

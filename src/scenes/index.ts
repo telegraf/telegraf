@@ -4,18 +4,18 @@
  * @packageDocumentation
  */
 
-export { Stage } from './stage'
+export { Stage } from './stage.ts'
 export {
-  SceneContext,
-  SceneSession,
+  type SceneContext,
+  type SceneSession,
+  type SceneSessionData,
   default as SceneContextScene,
-  SceneSessionData,
-} from './context'
-export { BaseScene } from './base'
-export { WizardScene } from './wizard'
+} from './context.ts'
+export { BaseScene } from './base.ts'
+export { WizardScene } from './wizard/index.ts'
 export {
-  WizardContext,
-  WizardSession,
+  type WizardContext,
+  type WizardSession,
+  type WizardSessionData,
   default as WizardContextWizard,
-  WizardSessionData,
-} from './wizard/context'
+} from './wizard/context.ts'

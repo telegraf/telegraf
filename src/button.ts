@@ -1,4 +1,4 @@
-import { InlineKeyboardButton, KeyboardButton } from 'typegram'
+import type { InlineKeyboardButton, KeyboardButton } from './deps/typegram.ts'
 
 type Hideable<B> = B & { hide: boolean }
 

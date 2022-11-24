@@ -1,6 +1,6 @@
-import { Middleware, MiddlewareFn } from '../middleware'
-import Composer from '../composer'
-import Context from '../context'
+import { Middleware, MiddlewareFn } from '../middleware.ts'
+import Composer from '../composer.ts'
+import Context from '../context.ts'
 
 const { compose } = Composer
 

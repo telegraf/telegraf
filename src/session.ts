@@ -1,6 +1,6 @@
-import { Context } from './context'
-import { MaybePromise } from './util'
-import { MiddlewareFn } from './middleware'
+import { Context } from './context.ts'
+import { MaybePromise } from './util.ts'
+import { MiddlewareFn } from './middleware.ts'
 
 export interface SessionStore<T> {
   get: (name: string) => MaybePromise<T | undefined>

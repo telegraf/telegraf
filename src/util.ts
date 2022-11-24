@@ -1,6 +1,4 @@
-import { FmtString } from './format'
-
-export const env = process.env
+import { FmtString } from './format.ts'
 
 export type DeepPartial<T> = T extends object
   ? {
@@ -14,6 +12,7 @@ export type Expand<T> = T extends object
     : never
   : T
 
+export type Any = {} | null | undefined
 export type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
 export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
@@ -46,27 +45,4 @@ export type Guarded<F> =
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   F extends (x: any) => x is infer T ? T : never
 
-export function deprecate(
-  method: string,
-  ignorable: string | undefined,
-  use: string | undefined,
-  see?: string
-) {
-  // don't use deprecate() yet
-  // wait for a couple minor releases of telegraf so the news reaches more people
-  return
-
-  const ignorer = `IGNORE_DEPRECATED_${ignorable}`
-  if (env[ignorer]) return
-
-  const stack: { stack: string } = { stack: '' }
-  Error.captureStackTrace(stack)
-  const line = (stack.stack.split('\n')[3] || '').trim()
-
-  const useOther = use ? `; use ${use} instead` : ''
-  const pad = ' '.repeat('[WARN]'.length)
-
-  console.warn(`[WARN] ${method} is deprecated${useOther}`)
-  if (line) console.warn(pad, line)
-  if (see) console.warn(pad, `SEE ${see}`)
-}
+export const sleep = (t: number) => new Promise((r) => setTimeout(r, t))

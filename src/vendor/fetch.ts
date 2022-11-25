@@ -197,4 +197,16 @@ declare class Response implements BodyMixin {
   static redirect(url: string | URL, status: ResponseRedirectStatus): Response
 }
 
-export { fetch, Request, Response, FormData, ReadableStream }
+// required because you can only export what's defined in a module
+const globalFetch = fetch
+const GlobalRequest = Request
+const GlobalResponse = Response
+const GlobalFormData = FormData
+
+export {
+  globalFetch as fetch,
+  GlobalRequest as Request,
+  GlobalResponse as Response,
+  GlobalFormData as FormData,
+  ReadableStream,
+}

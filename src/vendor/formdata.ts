@@ -111,4 +111,7 @@ declare class FormData {
   readonly [Symbol.toStringTag]: string
 }
 
-export { FormData }
+// required because you can only export what's defined in a module
+const GlobalFormData = FormData
+
+export { GlobalFormData as FormData }

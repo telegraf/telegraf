@@ -1,7 +1,7 @@
 // for https://gist.github.com/2b1b226d52d675ec246c6f8abdab81ef
 export type { Update, UserFromGetMe } from '../../deps/typegram.ts'
 import type { ApiResponse, File, Typegram } from '../../deps/typegram.ts'
-import { debug } from '../../deps/debug.ts'
+import { debug } from '../../platform/deps/debug.ts'
 import { fetch, type RequestInit } from '../../vendor/fetch.ts'
 import { createPayload, type InputFile } from './payload.ts'
 

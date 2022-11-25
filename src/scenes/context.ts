@@ -1,7 +1,7 @@
 import BaseScene from './base.ts'
 import Composer from '../composer.ts'
 import Context from '../context.ts'
-import { debug } from '../deps/debug.ts'
+import { debug } from '../platform/deps/debug.ts'
 import { SessionContext } from '../session.ts'
 const d = debug('telegraf:scenes:context')
 

@@ -4,8 +4,8 @@ import * as tt from './telegram-types.ts'
 import { Composer, noop } from './composer.ts'
 import { compactOptions } from './core/helpers/compact.ts'
 import Context from './context.ts'
-import { debug } from './deps/debug.ts'
-import generateCallback from './core/network/webhook.ts'
+import { debug } from './platform/deps/debug.ts'
+import { generateWebhook } from './core/network/webhook.ts'
 import { Polling } from './core/network/polling.ts'
 import Telegram, { Transformer } from './telegram.ts'
 import { createClient, type ClientOptions } from './core/network/client.ts'
@@ -13,6 +13,7 @@ import { hash } from './platform/crypto.ts'
 import { safeCompare } from './vendor/safe-compare.ts'
 import { sleep } from './util.ts'
 import { TimeoutError } from './core/network/error.ts'
+import { WebhookContract, defaultContract } from './platform/core/webhook.ts'
 
 const d = debug('telegraf:main')
 
@@ -20,6 +21,31 @@ const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   handlerTimeout: 90_000, // 90s in ms
   contextType: Context,
 }
+
+const defaultFilter =
+  (check: { path: string; secret?: string }): WebhookContract.Filter =>
+  (method, path, secret) => {
+    const d = debug('telegraf:webhook')
+
+    if (method !== 'POST') {
+      d('Unexpected request method. Expected POST. Received: %s', method)
+      return false
+    }
+
+    if (!safeCompare(check.path, path)) {
+      d('Unexpected path. Expected: %s, received: %s', check.path, path)
+      return false
+    }
+
+    // no need to check if secret_token was not set
+    if (!check.secret) return true
+
+    if (secret && safeCompare(check.secret, secret)) return true
+    else {
+      d('Secret token does not match')
+      return false
+    }
+  }
 
 const identity = <T>(t: T) => t
 
@@ -30,6 +56,7 @@ export namespace Telegraf {
     ) => TContext
     handlerTimeout: number
     client?: ClientOptions
+    webhookFilter?: typeof defaultFilter
   }
 
   export interface LaunchOptions {
@@ -77,44 +104,18 @@ export namespace Telegraf {
   }
 }
 
-const TOKEN_HEADER = 'x-telegram-bot-api-secret-token'
-
 export class Telegraf<C extends Context = Context> extends Composer<C> {
   private readonly options: Telegraf.Options<C>
   private webhookServer?: http.Server | https.Server
   private polling?: Polling
+
   /** Set manually to avoid implicit `getMe` call in `launch` or `webhookCallback` */
   public botInfo?: tg.UserFromGetMe
   public telegram: Telegram
+  public webhookFilter: typeof defaultFilter
+
   readonly context: Partial<C> = {}
   readonly #token: string
-
-  /** Assign to this to customise the webhook filter middleware.
-   * `{ hookPath, secretToken }` will be bound to this rather than the Telegraf instance.
-   * Remember to assign a regular function and not an arrow function so it's bindable.
-   */
-  public webhookFilter = function (
-    // NOTE: this function is assigned to a variable instead of being a method to signify that it's assignable
-    // NOTE: the `this` binding is so custom impls don't need to double wrap
-    this: { hookPath: string; secretToken?: string },
-    req: http.IncomingMessage
-  ) {
-    const d = debug('telegraf:webhook')
-
-    if (req.method === 'POST') {
-      if (safeCompare(this.hookPath, req.url as string)) {
-        // no need to check if secret_token was not set
-        if (!this.secretToken) return true
-        else {
-          const token = req.headers[TOKEN_HEADER] as string
-          if (safeCompare(this.secretToken, token)) return true
-          else d('Secret token does not match:', token, this.secretToken)
-        }
-      } else d('Path does not match:', req.url, this.hookPath)
-    } else d('Unexpected request method, not POST. Received:', req.method)
-
-    return false
-  }
 
   private handleError = (err: unknown, ctx: C): Promise<void> => {
     if (ctx) console.error('Unhandled error while processing', ctx.update)
@@ -130,6 +131,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     }
     this.#token = token
     this.telegram = new Telegram(createClient(token, this.options.client))
+    this.webhookFilter = options?.webhookFilter || defaultFilter
     d('Created a `Telegraf` instance')
   }
 
@@ -145,11 +147,17 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
    * You must call `bot.telegram.setWebhook` for this to work.
    * You should probably use {@link Telegraf.createWebhook} instead.
    */
-  webhookCallback(hookPath = '/', opts: { secretToken?: string } = {}) {
-    const { secretToken } = opts
-    return generateCallback(
-      this.webhookFilter.bind({ hookPath, secretToken }),
-      this.handleUpdate
+  webhookCallback(
+    hookPath = '/',
+    opts: {
+      secretToken?: string
+      webhookContract?: WebhookContract.Contract
+    } = {}
+  ) {
+    return generateWebhook(
+      this.handleUpdate,
+      this.webhookFilter({ path: hookPath, secret: opts.secretToken }),
+      opts.webhookContract || defaultContract
     )
   }
 

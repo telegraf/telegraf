@@ -13,10 +13,13 @@ export namespace http {
 
 /** Not implemented */
 export namespace https {
-  export declare const createServer: (
+  export const createServer = (
     opts: TlsOptions,
     callback: http.RequestListener
-  ) => http.Server
+  ): http.Server =>
+    (() => {
+      throw new Error('Not implemented')
+    }) as any
   export type Server = http.Server
 }
 

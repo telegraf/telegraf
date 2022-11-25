@@ -44,5 +44,3 @@ export class TimeoutError extends Error {
     )
   }
 }
-
-throw new TimeoutError(500)

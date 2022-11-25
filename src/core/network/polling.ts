@@ -1,6 +1,6 @@
 import type * as tg from '../../deps/typegram.ts'
 import * as tt from '../../telegram-types.ts'
-import { debug } from '../../deps/debug.ts'
+import { debug } from '../../platform/deps/debug.ts'
 import { TelegramError } from './error.ts'
 import Telegram from '../../telegram.ts'
 import { sleep } from '../../util.ts'

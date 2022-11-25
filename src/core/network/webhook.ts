@@ -1,60 +1,39 @@
-import { http, Buffer } from '../../platform/network.ts'
-import { debug } from '../../deps/debug.ts'
+import { debug } from '../../platform/deps/debug.ts'
 import { type Update } from '../../deps/typegram.ts'
-import { json } from '../../vendor/stream-consumers.ts'
+import { defaultContract } from '../../platform/core/webhook.ts'
+import { WebhookContract } from './webhook-contract.ts'
+
+export type { WebhookContract }
 
 const d = debug('telegraf:webhook')
 
-export default function generateWebhook(
-  filter: (req: http.IncomingMessage) => boolean,
-  updateHandler: (update: Update) => Promise<void>
+export function generateWebhook(
+  updateHandler: (update: Update) => Promise<void>,
+  filter: WebhookContract.Filter,
+  contract: WebhookContract.Contract = defaultContract
 ) {
-  return async (
-    req: http.IncomingMessage & { body?: Update },
-    res: http.ServerResponse,
-    next = (): void => {
-      res.statusCode = 403
-      d('Replying with status code', res.statusCode)
-      res.end()
-    }
-  ): Promise<void> => {
-    d('Incoming request', req.method, req.url)
-
-    if (!filter(req)) {
-      d('Webhook filter failed', req.method, req.url)
-      return next()
-    }
+  const wrapper = contract(filter)
+  return async (...params: any[]) => {
+    const ctx = await wrapper(...params)
+    if (!ctx) return
 
     let update: Update
 
     try {
-      if (req.body != null) {
-        /* If req.body is already set, we expect it to be the parsed
-         request body (update object) received from Telegram
-         However, some libraries such as `serverless-http` set req.body to the
-         raw buffer, so we'll handle that additionally */
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let body: any = req.body
-        // if body is Buffer, parse it into string
-        if (body instanceof Buffer) body = String(req.body)
-        // if body is string, parse it into object
-        if (typeof body === 'string') body = JSON.parse(body)
-        update = body
-      } else {
-        update = (await json(req)) as Update
-      }
+      update = await ctx.update()
     } catch (error: unknown) {
-      // if any of the parsing steps fails, give up and respond with error
-      res.writeHead(415, {}).end()
+      // if parsing fails, give up and respond with error
+      await ctx.reply(null, 415)
       d('Failed to parse request body:', error)
-      return
+      return ctx.returns
     }
 
     try {
       await updateHandler(update)
     } finally {
-      if (!res.writableEnded) res.end()
+      if (!ctx.done) ctx.reply()
     }
+
+    return ctx.returns
   }
 }

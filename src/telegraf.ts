@@ -7,11 +7,11 @@ import Context from './context.ts'
 import { debug } from './platform/deps/debug.ts'
 import { generateWebhook } from './core/network/webhook.ts'
 import { Polling } from './core/network/polling.ts'
-import Telegram, { Transformer } from './telegram.ts'
+import Telegram from './telegram.ts'
 import { createClient, type ClientOptions } from './core/network/client.ts'
 import { hash } from './platform/crypto.ts'
 import { safeCompare } from './vendor/safe-compare.ts'
-import { sleep } from './util.ts'
+import { sleep, UpdateHandler } from './util.ts'
 import { TimeoutError } from './core/network/error.ts'
 import { WebhookContract, defaultContract } from './platform/core/webhook.ts'
 
@@ -46,8 +46,6 @@ const defaultFilter =
       return false
     }
   }
-
-const identity = <T>(t: T) => t
 
 export namespace Telegraf {
   export interface Options<TContext extends Context> {
@@ -275,10 +273,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   }
 
   private botInfoCall?: Promise<tg.UserFromGetMe>
-  readonly handleUpdate = async (
-    update: tg.Update,
-    transform: Transformer = identity
-  ) => {
+  readonly handleUpdate: UpdateHandler = async (update, transform) => {
     this.botInfo ??=
       (d(
         'Update %d is waiting for `botInfo` to be initialized',
@@ -287,7 +282,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       await (this.botInfoCall ??= this.telegram.getMe()))
     d('Processing update', update.update_id)
     const tg = new Telegram(this.telegram)
-    tg.use(transform)
+    if (transform) tg.use(transform)
     const TelegrafContext = this.options.contextType
     const ctx = new TelegrafContext(update, tg, this.botInfo)
     Object.assign(ctx, this.context)

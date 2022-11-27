@@ -3,7 +3,7 @@ import * as tt from '../../telegram-types.ts'
 import { debug } from '../../platform/deps/debug.ts'
 import { TelegramError } from './error.ts'
 import Telegram from '../../telegram.ts'
-import { sleep } from '../../util.ts'
+import { sleep, UpdateHandler } from '../../util.ts'
 
 const d = debug('telegraf:polling')
 
@@ -75,13 +75,13 @@ export class Polling {
     await this.telegram.callApi('getUpdates', { offset: this.offset, limit: 1 })
   }
 
-  async start(handleUpdate: (updates: tg.Update) => Promise<void>) {
+  async start(handleUpdate: UpdateHandler) {
     if (this.abortController.signal.aborted) {
       throw new Error('Polling instances must not be reused!')
     }
     try {
       for await (const updates of this) {
-        await Promise.all(updates.map(handleUpdate))
+        await Promise.all(updates.map((update) => handleUpdate(update)))
       }
     } finally {
       d('Long polling stopped')

@@ -1,3 +1,5 @@
+import { Update } from './deps/typegram.ts'
+import { Client } from './core/network/client.ts'
 import { FmtString } from './format.ts'
 
 export type DeepPartial<T> = T extends object
@@ -44,5 +46,12 @@ export type Guard<X = unknown, Y extends X = X> = (x: X) => x is Y
 export type Guarded<F> =
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   F extends (x: any) => x is infer T ? T : never
+
+export type Transformer = (call: Client['call']) => Client['call']
+
+export type UpdateHandler = (
+  update: Update,
+  transformer?: Transformer
+) => Promise<void>
 
 export const sleep = (t: number) => new Promise((r) => setTimeout(r, t))

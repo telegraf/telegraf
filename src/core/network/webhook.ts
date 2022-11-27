@@ -2,13 +2,14 @@ import { debug } from '../../platform/deps/debug.ts'
 import { type Update } from '../../deps/typegram.ts'
 import { defaultContract } from '../../platform/core/webhook.ts'
 import { WebhookContract } from './webhook-contract.ts'
+import { UpdateHandler } from '../../util.ts'
 
 export type { WebhookContract }
 
 const d = debug('telegraf:webhook')
 
 export function generateWebhook(
-  updateHandler: (update: Update) => Promise<void>,
+  updateHandler: UpdateHandler,
   filter: WebhookContract.Filter,
   contract: WebhookContract.Contract = defaultContract
 ) {

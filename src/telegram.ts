@@ -2,12 +2,9 @@ import type * as tg from './deps/typegram.ts'
 import * as tt from './telegram-types.ts'
 import { TT } from './telegram-types.ts'
 import { FmtString } from './format.ts'
-import { fmtCaption } from './util.ts'
+import { fmtCaption, Transformer } from './util.ts'
 import type { Client, Opts } from './core/network/client.ts'
 import { TelegramError } from './core/network/error.ts'
-
-export type EndoFunction<T> = (t: T) => T
-export type Transformer = EndoFunction<Client['call']>
 
 export class Telegram {
   call: Client['call']

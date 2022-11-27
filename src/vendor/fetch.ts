@@ -197,11 +197,20 @@ declare class Response implements BodyMixin {
   static redirect(url: string | URL, status: ResponseRedirectStatus): Response
 }
 
-// required because you can only export what's defined in a module
+/* these assigned re-exports are required because you can only export what's defined in a module */
+
 const globalFetch = fetch
+
+/* these are classes, so must be declared as both const and type */
+
 const GlobalRequest = Request
+type GlobalRequest = Request
+
 const GlobalResponse = Response
+type GlobalResponse = Response
+
 const GlobalFormData = FormData
+type GlobalFormData = FormData
 
 export {
   globalFetch as fetch,

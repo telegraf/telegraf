@@ -722,13 +722,13 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Generates middleware responding only to specified users.
    */
   static acl<C extends Context>(
-    userId: MaybeArray<number>,
+    predicateOrUserId: Predicate<C> | AsyncPredicate<C> | MaybeArray<number>,
     ...fns: NonemptyReadonlyArray<Middleware<C>>
   ): MiddlewareFn<C> {
-    if (typeof userId === 'function') {
-      return Composer.optional(userId, ...fns)
+    if (typeof predicateOrUserId === 'function') {
+      return Composer.optional(predicateOrUserId, ...fns)
     }
-    const allowed = Array.isArray(userId) ? userId : [userId]
+    const allowed = Array.isArray(predicateOrUserId) ? predicateOrUserId : [predicateOrUserId]
     // prettier-ignore
     return Composer.optional((ctx) => !ctx.from || allowed.includes(ctx.from.id), ...fns)
   }

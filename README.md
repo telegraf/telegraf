@@ -239,13 +239,13 @@ Use `createWebhook()` if you want to attach Telegraf to an existing http server.
 <!-- global bot, tlsOptions -->
 
 ```TS
-const { createServer } from "http";
+import { createServer } from "http";
 
 createServer(await bot.createWebhook({ domain: "example.com" })).listen(3000);
 ```
 
 ```TS
-const { createServer } from "https";
+import { createServer } from "https";
 
 createServer(tlsOptions, await bot.createWebhook({ domain: "example.com" })).listen(8443);
 ```

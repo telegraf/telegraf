@@ -87,9 +87,9 @@ For additional bot examples see the new [`docs repo`](https://github.com/feather
 - [API reference](https://telegraf.js.org/modules.html)
 - Telegram groups (sorted by number of members):
   * [English](https://t.me/TelegrafJSChat)
+  * [Russian](https://t.me/telegrafjs_ru)
   * [Uzbek](https://t.me/botjs_uz)
   * [Ethiopian](https://t.me/telegraf_et)
-  * [Russian](https://t.me/telegrafjs_ru)
 - [GitHub Discussions](https://github.com/telegraf/telegraf/discussions)
 - [Dependent repositories](https://libraries.io/npm/telegraf/dependent_repositories)
 

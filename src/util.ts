@@ -12,15 +12,18 @@ export type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
 export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 
-type MaybeExtra<Extra> = (Extra & { caption?: string }) | undefined
-
 export function fmtCaption<
-  Extra extends {
-    caption?: string | FmtString
-  } & Record<string, unknown>
->(extra?: Extra): MaybeExtra<Extra> {
-  const caption = extra?.caption
-  if (!caption || typeof caption === 'string') return extra as MaybeExtra<Extra>
+  Extra extends { caption?: string | FmtString } | undefined
+>(
+  extra?: Extra
+): Extra extends undefined
+  ? undefined
+  : Omit<Extra, 'caption'> & { caption?: string }
+
+export function fmtCaption(extra?: { caption?: string | FmtString }) {
+  if (!extra) return
+  const caption = extra.caption
+  if (!caption || typeof caption === 'string') return extra
   const { text, entities } = caption
   return {
     ...extra,

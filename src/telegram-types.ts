@@ -21,7 +21,7 @@ export { Markup } from './markup'
 export type ChatAction = Opts<'sendChatAction'>['action']
 
 // Modify type so caption, if exists, can be FmtString
-type WrapCaption<T> = T extends { caption?: string }
+export type WrapCaption<T> = T extends { caption?: string }
   ? Expand<Omit<T, 'caption'> & { caption?: string | FmtString }>
   : T
 

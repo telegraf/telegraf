@@ -301,7 +301,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   editMessageCaption(
     this: Context,
-    caption: string | undefined,
+    caption: string | FmtString | undefined,
     extra?: tt.ExtraEditMessageCaption
   ) {
     this.assert(
@@ -322,7 +322,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   editMessageMedia(
     this: Context,
-    media: tg.InputMedia,
+    media: tt.WrapCaption<tg.InputMedia>,
     extra?: tt.ExtraEditMessageMedia
   ) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageMedia')

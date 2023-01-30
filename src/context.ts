@@ -154,6 +154,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
 
   get passportData() {
     if (this.message == null) return undefined
+    // @ts-expect-error Bug in TS 4.9+, fix will land in 5.0 https://github.com/microsoft/TypeScript/pull/51502
     if (!('passport_data' in this.message)) return undefined
     return this.message?.passport_data
   }
@@ -215,7 +216,9 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     if (!Array.isArray(filters)) filters = [filters]
     for (const filter of filters)
       if (
-        typeof filter === 'function'
+        // TODO: this should change to === 'function' once TS bug is fixed
+        // https://github.com/microsoft/TypeScript/pull/51502
+        typeof filter !== 'string'
           ? // filter is a type guard
             filter(this.update)
           : // check if filter is the update type

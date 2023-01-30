@@ -451,7 +451,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     const predicate = (update: tg.Update): update is tg.Update => {
       for (const filter of filters) {
         if (
-          typeof filter === 'function'
+          // TODO: this should change to === 'function' once TS bug is fixed
+          // https://github.com/microsoft/TypeScript/pull/51502
+          typeof filter !== 'string'
             ? // filter is a type guard
               filter(update)
             : // check if filter is the update type

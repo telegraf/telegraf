@@ -1058,6 +1058,63 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Use this method to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator
+   * in the chat for this to work and must have can_manage_topics administrator rights. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#editgeneralforumtopic
+   */
+  editGeneralForumTopic(name: string) {
+    this.assert(this.chat, 'editGeneralForumTopic')
+    return this.telegram.editGeneralForumTopic(this.chat.id, name)
+  }
+
+  /**
+   * Use this method to close an open 'General' topic in a forum supergroup chat. The bot must be an administrator in the
+   * chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#closegeneralforumtopic
+   */
+  closeGeneralForumTopic() {
+    this.assert(this.chat, 'closeGeneralForumTopic')
+    return this.telegram.closeGeneralForumTopic(this.chat.id)
+  }
+
+  /**
+   * Use this method to reopen a closed 'General' topic in a forum supergroup chat. The bot must be an administrator in
+   * the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically
+   * unhidden if it was hidden. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#reopengeneralforumtopic
+   */
+  reopenGeneralForumTopic() {
+    this.assert(this.chat, 'reopenGeneralForumTopic')
+    return this.telegram.reopenGeneralForumTopic(this.chat.id)
+  }
+
+  /**
+   * Use this method to hide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat
+   * for this to work and must have the can_manage_topics administrator rights. The topic will be automatically closed
+   * if it was open. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#hidegeneralforumtopic
+   */
+  hideGeneralForumTopic() {
+    this.assert(this.chat, 'hideGeneralForumTopic')
+    return this.telegram.hideGeneralForumTopic(this.chat.id)
+  }
+
+  /**
+   * Use this method to unhide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the
+   * chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#unhidegeneralforumtopic
+   */
+  unhideGeneralForumTopic() {
+    this.assert(this.chat, 'unhideGeneralForumTopic')
+    return this.telegram.unhideGeneralForumTopic(this.chat.id)
+  }
+
+  /**
    * @deprecated use {@link Telegram.setStickerPositionInSet}
    * @see https://core.telegram.org/bots/api#setstickerpositioninset
    */

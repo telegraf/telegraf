@@ -2,7 +2,7 @@ import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import { Deunionize, PropOr, UnionKeys } from './deunionize'
 import ApiClient from './core/network/client'
-import { deprecate, Guard, Guarded, MaybeArray } from './util'
+import { Guard, Guarded, MaybeArray } from './util'
 import Telegram from './telegram'
 import { FmtString } from './format'
 
@@ -412,12 +412,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendmessage
    */
   reply(this: Context, ...args: Shorthand<'sendMessage'>) {
-    deprecate(
-      'ctx.reply',
-      'reply',
-      'sendMessage',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendMessage(...args)
   }
 
@@ -656,12 +650,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendphoto
    */
   replyWithPhoto(this: Context, ...args: Shorthand<'sendPhoto'>) {
-    deprecate(
-      'ctx.replyWithPhoto',
-      'reply',
-      'sendPhoto',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendPhoto(...args)
   }
 
@@ -684,12 +672,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendmediagroup
    */
   replyWithMediaGroup(this: Context, ...args: Shorthand<'sendMediaGroup'>) {
-    deprecate(
-      'ctx.replyWithMediaGroup',
-      'reply',
-      'sendMediaGroup',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendMediaGroup(...args)
   }
 
@@ -712,12 +694,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendaudio
    */
   replyWithAudio(this: Context, ...args: Shorthand<'sendAudio'>) {
-    deprecate(
-      'ctx.replyWithAudio',
-      'reply',
-      'sendAudio',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendAudio(...args)
   }
 
@@ -736,12 +712,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#senddice
    */
   replyWithDice(this: Context, ...args: Shorthand<'sendDice'>) {
-    deprecate(
-      'ctx.replyWithDice',
-      'reply',
-      'sendDice',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendDice(...args)
   }
 
@@ -764,12 +734,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#senddocument
    */
   replyWithDocument(this: Context, ...args: Shorthand<'sendDocument'>) {
-    deprecate(
-      'ctx.replyWithDocument',
-      'reply',
-      'sendDocument',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendDocument(...args)
   }
 
@@ -792,12 +756,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendsticker
    */
   replyWithSticker(this: Context, ...args: Shorthand<'sendSticker'>) {
-    deprecate(
-      'ctx.replyWithSticker',
-      'reply',
-      'sendSticker',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendSticker(...args)
   }
 
@@ -820,12 +778,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendvideo
    */
   replyWithVideo(this: Context, ...args: Shorthand<'sendVideo'>) {
-    deprecate(
-      'ctx.replyWithVideo',
-      'reply',
-      'sendVideo',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendVideo(...args)
   }
 
@@ -848,12 +800,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendanimation
    */
   replyWithAnimation(this: Context, ...args: Shorthand<'sendAnimation'>) {
-    deprecate(
-      'ctx.replyWithAnimation',
-      'reply',
-      'sendAnimation',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendAnimation(...args)
   }
 
@@ -876,12 +822,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendvideonote
    */
   replyWithVideoNote(this: Context, ...args: Shorthand<'sendVideoNote'>) {
-    deprecate(
-      'ctx.replyWithVideoNote',
-      'reply',
-      'sendVideoNote',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendVideoNote(...args)
   }
 
@@ -904,12 +844,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendinvoice
    */
   replyWithInvoice(this: Context, ...args: Shorthand<'sendInvoice'>) {
-    deprecate(
-      'ctx.replyWithInvoice',
-      'reply',
-      'sendInvoice',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendInvoice(...args)
   }
 
@@ -928,12 +862,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendgame
    */
   replyWithGame(this: Context, ...args: Shorthand<'sendGame'>) {
-    deprecate(
-      'ctx.replyWithGame',
-      'reply',
-      'sendGame',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendGame(...args)
   }
 
@@ -956,12 +884,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendvoice
    */
   replyWithVoice(this: Context, ...args: Shorthand<'sendVoice'>) {
-    deprecate(
-      'ctx.replyWithVoice',
-      'reply',
-      'sendVoice',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendVoice(...args)
   }
 
@@ -985,12 +907,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendpoll
    */
   replyWithPoll(this: Context, ...args: Shorthand<'sendPoll'>) {
-    deprecate(
-      'ctx.replyWithPoll',
-      'reply',
-      'sendPoll',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendPoll(...args)
   }
 
@@ -1014,12 +930,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendpoll
    */
   replyWithQuiz(this: Context, ...args: Shorthand<'sendQuiz'>) {
-    deprecate(
-      'ctx.replyWithQuiz',
-      'reply',
-      'sendQuiz',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendQuiz(...args)
   }
 
@@ -1051,7 +961,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendchataction
    */
   replyWithChatAction(this: Context, ...args: Shorthand<'sendChatAction'>) {
-    deprecate('ctx.replyWithChatAction', 'reply', 'sendChatAction')
     return this.sendChatAction(...args)
   }
 
@@ -1075,12 +984,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendlocation
    */
   replyWithLocation(this: Context, ...args: Shorthand<'sendLocation'>) {
-    deprecate(
-      'ctx.replyWithLocation',
-      'reply',
-      'sendLocation',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendLocation(...args)
   }
 
@@ -1110,12 +1013,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendvenue
    */
   replyWithVenue(this: Context, ...args: Shorthand<'sendVenue'>) {
-    deprecate(
-      'ctx.replyWithVenue',
-      'reply',
-      'sendVenue',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendVenue(...args)
   }
 
@@ -1139,12 +1036,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendcontact
    */
   replyWithContact(this: Context, ...args: Shorthand<'sendContact'>) {
-    deprecate(
-      'ctx.replyWithContact',
-      'reply',
-      'sendContact',
-      'https://telegraf.js.org/experimental#new-reply'
-    )
     return this.sendContact(...args)
   }
 

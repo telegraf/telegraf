@@ -1034,9 +1034,16 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendchataction
    */
-  sendChatAction(this: Context, ...args: Shorthand<'sendChatAction'>) {
+  sendChatAction(
+    this: Context,
+    action: Shorthand<'sendChatAction'>[0],
+    extra?: tt.ExtraSendChatAction
+  ) {
     this.assert(this.chat, 'sendChatAction')
-    return this.telegram.sendChatAction(this.chat.id, ...args)
+    return this.telegram.sendChatAction(this.chat.id, action, {
+      message_thread_id: getThreadId(this),
+      ...extra,
+    })
   }
 
   /**

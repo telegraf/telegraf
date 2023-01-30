@@ -111,6 +111,7 @@ export type ExtraForwardMessage = MakeExtra<
   'forwardMessage',
   'from_chat_id' | 'message_id'
 >
+export type ExtraSendChatAction = MakeExtra<'sendChatAction', 'action'>
 export type ExtraRestrictChatMember = MakeExtra<'restrictChatMember', 'user_id'>
 export type ExtraSetMyCommands = MakeExtra<'setMyCommands', 'commands'>
 export type ExtraSetWebhook = MakeExtra<'setWebhook', 'url'>

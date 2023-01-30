@@ -210,7 +210,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   has<Filter extends tt.UpdateType | Guard<Context['update']>>(
-    this: Context,
     filters: MaybeArray<Filter>
   ): this is FilteredContext<Context, Filter> {
     if (!Array.isArray(filters)) filters = [filters]
@@ -232,7 +231,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#answerinlinequery
    */
-  answerInlineQuery(this: Context, ...args: Shorthand<'answerInlineQuery'>) {
+  answerInlineQuery(...args: Shorthand<'answerInlineQuery'>) {
     this.assert(this.inlineQuery, 'answerInlineQuery')
     return this.telegram.answerInlineQuery(this.inlineQuery.id, ...args)
   }
@@ -240,7 +239,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#answercallbackquery
    */
-  answerCbQuery(this: Context, ...args: Shorthand<'answerCbQuery'>) {
+  answerCbQuery(...args: Shorthand<'answerCbQuery'>) {
     this.assert(this.callbackQuery, 'answerCbQuery')
     return this.telegram.answerCbQuery(this.callbackQuery.id, ...args)
   }
@@ -248,7 +247,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#answercallbackquery
    */
-  answerGameQuery(this: Context, ...args: Shorthand<'answerGameQuery'>) {
+  answerGameQuery(...args: Shorthand<'answerGameQuery'>) {
     this.assert(this.callbackQuery, 'answerGameQuery')
     return this.telegram.answerGameQuery(this.callbackQuery.id, ...args)
   }
@@ -256,10 +255,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#answershippingquery
    */
-  answerShippingQuery(
-    this: Context,
-    ...args: Shorthand<'answerShippingQuery'>
-  ) {
+  answerShippingQuery(...args: Shorthand<'answerShippingQuery'>) {
     this.assert(this.shippingQuery, 'answerShippingQuery')
     return this.telegram.answerShippingQuery(this.shippingQuery.id, ...args)
   }
@@ -267,10 +263,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#answerprecheckoutquery
    */
-  answerPreCheckoutQuery(
-    this: Context,
-    ...args: Shorthand<'answerPreCheckoutQuery'>
-  ) {
+  answerPreCheckoutQuery(...args: Shorthand<'answerPreCheckoutQuery'>) {
     this.assert(this.preCheckoutQuery, 'answerPreCheckoutQuery')
     return this.telegram.answerPreCheckoutQuery(
       this.preCheckoutQuery.id,
@@ -281,11 +274,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#editmessagetext
    */
-  editMessageText(
-    this: Context,
-    text: string,
-    extra?: tt.ExtraEditMessageText
-  ) {
+  editMessageText(text: string, extra?: tt.ExtraEditMessageText) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageText')
     return this.telegram.editMessageText(
       this.chat?.id,
@@ -300,7 +289,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#editmessagecaption
    */
   editMessageCaption(
-    this: Context,
     caption: string | FmtString | undefined,
     extra?: tt.ExtraEditMessageCaption
   ) {
@@ -321,7 +309,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#editmessagemedia
    */
   editMessageMedia(
-    this: Context,
     media: tt.WrapCaption<tg.InputMedia>,
     extra?: tt.ExtraEditMessageMedia
   ) {
@@ -338,10 +325,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#editmessagereplymarkup
    */
-  editMessageReplyMarkup(
-    this: Context,
-    markup: tg.InlineKeyboardMarkup | undefined
-  ) {
+  editMessageReplyMarkup(markup: tg.InlineKeyboardMarkup | undefined) {
     this.assert(
       this.callbackQuery ?? this.inlineMessageId,
       'editMessageReplyMarkup'
@@ -358,7 +342,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#editmessagelivelocation
    */
   editMessageLiveLocation(
-    this: Context,
     latitude: number,
     longitude: number,
     extra?: tt.ExtraEditMessageLiveLocation
@@ -380,7 +363,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#stopmessagelivelocation
    */
-  stopMessageLiveLocation(this: Context, markup?: tg.InlineKeyboardMarkup) {
+  stopMessageLiveLocation(markup?: tg.InlineKeyboardMarkup) {
     this.assert(
       this.callbackQuery ?? this.inlineMessageId,
       'stopMessageLiveLocation'
@@ -396,11 +379,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendmessage
    */
-  sendMessage(
-    this: Context,
-    text: string | FmtString,
-    extra?: tt.ExtraReplyMessage
-  ) {
+  sendMessage(text: string | FmtString, extra?: tt.ExtraReplyMessage) {
     this.assert(this.chat, 'sendMessage')
     return this.telegram.sendMessage(this.chat.id, text, {
       message_thread_id: getThreadId(this),
@@ -411,14 +390,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendmessage
    */
-  reply(this: Context, ...args: Shorthand<'sendMessage'>) {
+  reply(...args: Shorthand<'sendMessage'>) {
     return this.sendMessage(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#getchat
    */
-  getChat(this: Context, ...args: Shorthand<'getChat'>) {
+  getChat(...args: Shorthand<'getChat'>) {
     this.assert(this.chat, 'getChat')
     return this.telegram.getChat(this.chat.id, ...args)
   }
@@ -426,10 +405,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#exportchatinvitelink
    */
-  exportChatInviteLink(
-    this: Context,
-    ...args: Shorthand<'exportChatInviteLink'>
-  ) {
+  exportChatInviteLink(...args: Shorthand<'exportChatInviteLink'>) {
     this.assert(this.chat, 'exportChatInviteLink')
     return this.telegram.exportChatInviteLink(this.chat.id, ...args)
   }
@@ -437,10 +413,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#createchatinvitelink
    */
-  createChatInviteLink(
-    this: Context,
-    ...args: Shorthand<'createChatInviteLink'>
-  ) {
+  createChatInviteLink(...args: Shorthand<'createChatInviteLink'>) {
     this.assert(this.chat, 'createChatInviteLink')
     return this.telegram.createChatInviteLink(this.chat.id, ...args)
   }
@@ -448,7 +421,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#editchatinvitelink
    */
-  editChatInviteLink(this: Context, ...args: Shorthand<'editChatInviteLink'>) {
+  editChatInviteLink(...args: Shorthand<'editChatInviteLink'>) {
     this.assert(this.chat, 'editChatInviteLink')
     return this.telegram.editChatInviteLink(this.chat.id, ...args)
   }
@@ -456,10 +429,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#revokechatinvitelink
    */
-  revokeChatInviteLink(
-    this: Context,
-    ...args: Shorthand<'revokeChatInviteLink'>
-  ) {
+  revokeChatInviteLink(...args: Shorthand<'revokeChatInviteLink'>) {
     this.assert(this.chat, 'revokeChatInviteLink')
     return this.telegram.revokeChatInviteLink(this.chat.id, ...args)
   }
@@ -467,7 +437,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#banchatmember
    */
-  banChatMember(this: Context, ...args: Shorthand<'banChatMember'>) {
+  banChatMember(...args: Shorthand<'banChatMember'>) {
     this.assert(this.chat, 'banChatMember')
     return this.telegram.banChatMember(this.chat.id, ...args)
   }
@@ -483,7 +453,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#unbanchatmember
    */
-  unbanChatMember(this: Context, ...args: Shorthand<'unbanChatMember'>) {
+  unbanChatMember(...args: Shorthand<'unbanChatMember'>) {
     this.assert(this.chat, 'unbanChatMember')
     return this.telegram.unbanChatMember(this.chat.id, ...args)
   }
@@ -491,7 +461,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#restrictchatmember
    */
-  restrictChatMember(this: Context, ...args: Shorthand<'restrictChatMember'>) {
+  restrictChatMember(...args: Shorthand<'restrictChatMember'>) {
     this.assert(this.chat, 'restrictChatMember')
     return this.telegram.restrictChatMember(this.chat.id, ...args)
   }
@@ -499,7 +469,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#promotechatmember
    */
-  promoteChatMember(this: Context, ...args: Shorthand<'promoteChatMember'>) {
+  promoteChatMember(...args: Shorthand<'promoteChatMember'>) {
     this.assert(this.chat, 'promoteChatMember')
     return this.telegram.promoteChatMember(this.chat.id, ...args)
   }
@@ -508,7 +478,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#setchatadministratorcustomtitle
    */
   setChatAdministratorCustomTitle(
-    this: Context,
     ...args: Shorthand<'setChatAdministratorCustomTitle'>
   ) {
     this.assert(this.chat, 'setChatAdministratorCustomTitle')
@@ -518,7 +487,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#setchatphoto
    */
-  setChatPhoto(this: Context, ...args: Shorthand<'setChatPhoto'>) {
+  setChatPhoto(...args: Shorthand<'setChatPhoto'>) {
     this.assert(this.chat, 'setChatPhoto')
     return this.telegram.setChatPhoto(this.chat.id, ...args)
   }
@@ -526,7 +495,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#deletechatphoto
    */
-  deleteChatPhoto(this: Context, ...args: Shorthand<'deleteChatPhoto'>) {
+  deleteChatPhoto(...args: Shorthand<'deleteChatPhoto'>) {
     this.assert(this.chat, 'deleteChatPhoto')
     return this.telegram.deleteChatPhoto(this.chat.id, ...args)
   }
@@ -534,7 +503,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#setchattitle
    */
-  setChatTitle(this: Context, ...args: Shorthand<'setChatTitle'>) {
+  setChatTitle(...args: Shorthand<'setChatTitle'>) {
     this.assert(this.chat, 'setChatTitle')
     return this.telegram.setChatTitle(this.chat.id, ...args)
   }
@@ -542,7 +511,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#setchatdescription
    */
-  setChatDescription(this: Context, ...args: Shorthand<'setChatDescription'>) {
+  setChatDescription(...args: Shorthand<'setChatDescription'>) {
     this.assert(this.chat, 'setChatDescription')
     return this.telegram.setChatDescription(this.chat.id, ...args)
   }
@@ -550,7 +519,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#pinchatmessage
    */
-  pinChatMessage(this: Context, ...args: Shorthand<'pinChatMessage'>) {
+  pinChatMessage(...args: Shorthand<'pinChatMessage'>) {
     this.assert(this.chat, 'pinChatMessage')
     return this.telegram.pinChatMessage(this.chat.id, ...args)
   }
@@ -558,7 +527,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#unpinchatmessage
    */
-  unpinChatMessage(this: Context, ...args: Shorthand<'unpinChatMessage'>) {
+  unpinChatMessage(...args: Shorthand<'unpinChatMessage'>) {
     this.assert(this.chat, 'unpinChatMessage')
     return this.telegram.unpinChatMessage(this.chat.id, ...args)
   }
@@ -566,10 +535,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#unpinallchatmessages
    */
-  unpinAllChatMessages(
-    this: Context,
-    ...args: Shorthand<'unpinAllChatMessages'>
-  ) {
+  unpinAllChatMessages(...args: Shorthand<'unpinAllChatMessages'>) {
     this.assert(this.chat, 'unpinAllChatMessages')
     return this.telegram.unpinAllChatMessages(this.chat.id, ...args)
   }
@@ -577,7 +543,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#leavechat
    */
-  leaveChat(this: Context, ...args: Shorthand<'leaveChat'>) {
+  leaveChat(...args: Shorthand<'leaveChat'>) {
     this.assert(this.chat, 'leaveChat')
     return this.telegram.leaveChat(this.chat.id, ...args)
   }
@@ -585,7 +551,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#setchatpermissions
    */
-  setChatPermissions(this: Context, ...args: Shorthand<'setChatPermissions'>) {
+  setChatPermissions(...args: Shorthand<'setChatPermissions'>) {
     this.assert(this.chat, 'setChatPermissions')
     return this.telegram.setChatPermissions(this.chat.id, ...args)
   }
@@ -593,10 +559,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#getchatadministrators
    */
-  getChatAdministrators(
-    this: Context,
-    ...args: Shorthand<'getChatAdministrators'>
-  ) {
+  getChatAdministrators(...args: Shorthand<'getChatAdministrators'>) {
     this.assert(this.chat, 'getChatAdministrators')
     return this.telegram.getChatAdministrators(this.chat.id, ...args)
   }
@@ -604,7 +567,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#getchatmember
    */
-  getChatMember(this: Context, ...args: Shorthand<'getChatMember'>) {
+  getChatMember(...args: Shorthand<'getChatMember'>) {
     this.assert(this.chat, 'getChatMember')
     return this.telegram.getChatMember(this.chat.id, ...args)
   }
@@ -612,10 +575,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#getchatmembercount
    */
-  getChatMembersCount(
-    this: Context,
-    ...args: Shorthand<'getChatMembersCount'>
-  ) {
+  getChatMembersCount(...args: Shorthand<'getChatMembersCount'>) {
     this.assert(this.chat, 'getChatMembersCount')
     return this.telegram.getChatMembersCount(this.chat.id, ...args)
   }
@@ -623,10 +583,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#setpassportdataerrors
    */
-  setPassportDataErrors(
-    this: Context,
-    errors: readonly tg.PassportElementError[]
-  ) {
+  setPassportDataErrors(errors: readonly tg.PassportElementError[]) {
     this.assert(this.from, 'setPassportDataErrors')
     return this.telegram.setPassportDataErrors(this.from.id, errors)
   }
@@ -634,11 +591,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendphoto
    */
-  sendPhoto(
-    this: Context,
-    photo: string | tg.InputFile,
-    extra?: tt.ExtraPhoto
-  ) {
+  sendPhoto(photo: string | tg.InputFile, extra?: tt.ExtraPhoto) {
     this.assert(this.chat, 'sendPhoto')
     return this.telegram.sendPhoto(this.chat.id, photo, {
       message_thread_id: getThreadId(this),
@@ -649,18 +602,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendphoto
    */
-  replyWithPhoto(this: Context, ...args: Shorthand<'sendPhoto'>) {
+  replyWithPhoto(...args: Shorthand<'sendPhoto'>) {
     return this.sendPhoto(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendmediagroup
    */
-  sendMediaGroup(
-    this: Context,
-    media: tt.MediaGroup,
-    extra?: tt.ExtraMediaGroup
-  ) {
+  sendMediaGroup(media: tt.MediaGroup, extra?: tt.ExtraMediaGroup) {
     this.assert(this.chat, 'sendMediaGroup')
     return this.telegram.sendMediaGroup(this.chat.id, media, {
       message_thread_id: getThreadId(this),
@@ -671,18 +620,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendmediagroup
    */
-  replyWithMediaGroup(this: Context, ...args: Shorthand<'sendMediaGroup'>) {
+  replyWithMediaGroup(...args: Shorthand<'sendMediaGroup'>) {
     return this.sendMediaGroup(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendaudio
    */
-  sendAudio(
-    this: Context,
-    audio: string | tg.InputFile,
-    extra?: tt.ExtraAudio
-  ) {
+  sendAudio(audio: string | tg.InputFile, extra?: tt.ExtraAudio) {
     this.assert(this.chat, 'sendAudio')
     return this.telegram.sendAudio(this.chat.id, audio, {
       message_thread_id: getThreadId(this),
@@ -693,14 +638,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendaudio
    */
-  replyWithAudio(this: Context, ...args: Shorthand<'sendAudio'>) {
+  replyWithAudio(...args: Shorthand<'sendAudio'>) {
     return this.sendAudio(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#senddice
    */
-  sendDice(this: Context, extra?: tt.ExtraDice) {
+  sendDice(extra?: tt.ExtraDice) {
     this.assert(this.chat, 'sendDice')
     return this.telegram.sendDice(this.chat.id, {
       message_thread_id: getThreadId(this),
@@ -711,18 +656,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#senddice
    */
-  replyWithDice(this: Context, ...args: Shorthand<'sendDice'>) {
+  replyWithDice(...args: Shorthand<'sendDice'>) {
     return this.sendDice(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#senddocument
    */
-  sendDocument(
-    this: Context,
-    document: string | tg.InputFile,
-    extra?: tt.ExtraDocument
-  ) {
+  sendDocument(document: string | tg.InputFile, extra?: tt.ExtraDocument) {
     this.assert(this.chat, 'sendDocument')
     return this.telegram.sendDocument(this.chat.id, document, {
       message_thread_id: getThreadId(this),
@@ -733,18 +674,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#senddocument
    */
-  replyWithDocument(this: Context, ...args: Shorthand<'sendDocument'>) {
+  replyWithDocument(...args: Shorthand<'sendDocument'>) {
     return this.sendDocument(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendsticker
    */
-  sendSticker(
-    this: Context,
-    sticker: string | tg.InputFile,
-    extra?: tt.ExtraSticker
-  ) {
+  sendSticker(sticker: string | tg.InputFile, extra?: tt.ExtraSticker) {
     this.assert(this.chat, 'sendSticker')
     return this.telegram.sendSticker(this.chat.id, sticker, {
       message_thread_id: getThreadId(this),
@@ -755,18 +692,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendsticker
    */
-  replyWithSticker(this: Context, ...args: Shorthand<'sendSticker'>) {
+  replyWithSticker(...args: Shorthand<'sendSticker'>) {
     return this.sendSticker(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendvideo
    */
-  sendVideo(
-    this: Context,
-    video: string | tg.InputFile,
-    extra?: tt.ExtraVideo
-  ) {
+  sendVideo(video: string | tg.InputFile, extra?: tt.ExtraVideo) {
     this.assert(this.chat, 'sendVideo')
     return this.telegram.sendVideo(this.chat.id, video, {
       message_thread_id: getThreadId(this),
@@ -777,18 +710,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvideo
    */
-  replyWithVideo(this: Context, ...args: Shorthand<'sendVideo'>) {
+  replyWithVideo(...args: Shorthand<'sendVideo'>) {
     return this.sendVideo(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendanimation
    */
-  sendAnimation(
-    this: Context,
-    animation: string | tg.InputFile,
-    extra?: tt.ExtraAnimation
-  ) {
+  sendAnimation(animation: string | tg.InputFile, extra?: tt.ExtraAnimation) {
     this.assert(this.chat, 'sendAnimation')
     return this.telegram.sendAnimation(this.chat.id, animation, {
       message_thread_id: getThreadId(this),
@@ -799,7 +728,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendanimation
    */
-  replyWithAnimation(this: Context, ...args: Shorthand<'sendAnimation'>) {
+  replyWithAnimation(...args: Shorthand<'sendAnimation'>) {
     return this.sendAnimation(...args)
   }
 
@@ -807,7 +736,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendvideonote
    */
   sendVideoNote(
-    this: Context,
     videoNote: string | tg.InputFileVideoNote,
     extra?: tt.ExtraVideoNote
   ) {
@@ -821,18 +749,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvideonote
    */
-  replyWithVideoNote(this: Context, ...args: Shorthand<'sendVideoNote'>) {
+  replyWithVideoNote(...args: Shorthand<'sendVideoNote'>) {
     return this.sendVideoNote(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendinvoice
    */
-  sendInvoice(
-    this: Context,
-    invoice: tt.NewInvoiceParameters,
-    extra?: tt.ExtraInvoice
-  ) {
+  sendInvoice(invoice: tt.NewInvoiceParameters, extra?: tt.ExtraInvoice) {
     this.assert(this.chat, 'sendInvoice')
     return this.telegram.sendInvoice(this.chat.id, invoice, {
       message_thread_id: getThreadId(this),
@@ -843,14 +767,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendinvoice
    */
-  replyWithInvoice(this: Context, ...args: Shorthand<'sendInvoice'>) {
+  replyWithInvoice(...args: Shorthand<'sendInvoice'>) {
     return this.sendInvoice(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendgame
    */
-  sendGame(this: Context, game: string, extra?: tt.ExtraGame) {
+  sendGame(game: string, extra?: tt.ExtraGame) {
     this.assert(this.chat, 'sendGame')
     return this.telegram.sendGame(this.chat.id, game, {
       message_thread_id: getThreadId(this),
@@ -861,18 +785,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendgame
    */
-  replyWithGame(this: Context, ...args: Shorthand<'sendGame'>) {
+  replyWithGame(...args: Shorthand<'sendGame'>) {
     return this.sendGame(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendvoice
    */
-  sendVoice(
-    this: Context,
-    voice: string | tg.InputFile,
-    extra?: tt.ExtraVoice
-  ) {
+  sendVoice(voice: string | tg.InputFile, extra?: tt.ExtraVoice) {
     this.assert(this.chat, 'sendVoice')
     return this.telegram.sendVoice(this.chat.id, voice, {
       message_thread_id: getThreadId(this),
@@ -883,19 +803,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvoice
    */
-  replyWithVoice(this: Context, ...args: Shorthand<'sendVoice'>) {
+  replyWithVoice(...args: Shorthand<'sendVoice'>) {
     return this.sendVoice(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendpoll
    */
-  sendPoll(
-    this: Context,
-    poll: string,
-    options: readonly string[],
-    extra?: tt.ExtraPoll
-  ) {
+  sendPoll(poll: string, options: readonly string[], extra?: tt.ExtraPoll) {
     this.assert(this.chat, 'sendPoll')
     return this.telegram.sendPoll(this.chat.id, poll, options, {
       message_thread_id: getThreadId(this),
@@ -906,19 +821,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendpoll
    */
-  replyWithPoll(this: Context, ...args: Shorthand<'sendPoll'>) {
+  replyWithPoll(...args: Shorthand<'sendPoll'>) {
     return this.sendPoll(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendpoll
    */
-  sendQuiz(
-    this: Context,
-    quiz: string,
-    options: readonly string[],
-    extra?: tt.ExtraPoll
-  ) {
+  sendQuiz(quiz: string, options: readonly string[], extra?: tt.ExtraPoll) {
     this.assert(this.chat, 'sendQuiz')
     return this.telegram.sendQuiz(this.chat.id, quiz, options, {
       message_thread_id: getThreadId(this),
@@ -929,14 +839,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendpoll
    */
-  replyWithQuiz(this: Context, ...args: Shorthand<'sendQuiz'>) {
+  replyWithQuiz(...args: Shorthand<'sendQuiz'>) {
     return this.sendQuiz(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#stoppoll
    */
-  stopPoll(this: Context, ...args: Shorthand<'stopPoll'>) {
+  stopPoll(...args: Shorthand<'stopPoll'>) {
     this.assert(this.chat, 'stopPoll')
     return this.telegram.stopPoll(this.chat.id, ...args)
   }
@@ -945,7 +855,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendchataction
    */
   sendChatAction(
-    this: Context,
     action: Shorthand<'sendChatAction'>[0],
     extra?: tt.ExtraSendChatAction
   ) {
@@ -960,19 +869,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @deprecated use {@link Context.sendChatAction} instead
    * @see https://core.telegram.org/bots/api#sendchataction
    */
-  replyWithChatAction(this: Context, ...args: Shorthand<'sendChatAction'>) {
+  replyWithChatAction(...args: Shorthand<'sendChatAction'>) {
     return this.sendChatAction(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendlocation
    */
-  sendLocation(
-    this: Context,
-    latitude: number,
-    longitude: number,
-    extra?: tt.ExtraLocation
-  ) {
+  sendLocation(latitude: number, longitude: number, extra?: tt.ExtraLocation) {
     this.assert(this.chat, 'sendLocation')
     return this.telegram.sendLocation(this.chat.id, latitude, longitude, {
       message_thread_id: getThreadId(this),
@@ -983,7 +887,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendlocation
    */
-  replyWithLocation(this: Context, ...args: Shorthand<'sendLocation'>) {
+  replyWithLocation(...args: Shorthand<'sendLocation'>) {
     return this.sendLocation(...args)
   }
 
@@ -991,7 +895,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#sendvenue
    */
   sendVenue(
-    this: Context,
     latitude: number,
     longitude: number,
     title: string,
@@ -1012,19 +915,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvenue
    */
-  replyWithVenue(this: Context, ...args: Shorthand<'sendVenue'>) {
+  replyWithVenue(...args: Shorthand<'sendVenue'>) {
     return this.sendVenue(...args)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendcontact
    */
-  sendContact(
-    this: Context,
-    phoneNumber: string,
-    firstName: string,
-    extra?: tt.ExtraContact
-  ) {
+  sendContact(phoneNumber: string, firstName: string, extra?: tt.ExtraContact) {
     this.assert(this.chat, 'sendContact')
     return this.telegram.sendContact(this.chat.id, phoneNumber, firstName, {
       message_thread_id: getThreadId(this),
@@ -1035,7 +933,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendcontact
    */
-  replyWithContact(this: Context, ...args: Shorthand<'sendContact'>) {
+  replyWithContact(...args: Shorthand<'sendContact'>) {
     return this.sendContact(...args)
   }
 
@@ -1043,14 +941,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @deprecated use {@link Telegram.getStickerSet}
    * @see https://core.telegram.org/bots/api#getstickerset
    */
-  getStickerSet(this: Context, setName: string) {
+  getStickerSet(setName: string) {
     return this.telegram.getStickerSet(setName)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#setchatstickerset
    */
-  setChatStickerSet(this: Context, setName: string) {
+  setChatStickerSet(setName: string) {
     this.assert(this.chat, 'setChatStickerSet')
     return this.telegram.setChatStickerSet(this.chat.id, setName)
   }
@@ -1058,7 +956,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#deletechatstickerset
    */
-  deleteChatStickerSet(this: Context) {
+  deleteChatStickerSet() {
     this.assert(this.chat, 'deleteChatStickerSet')
     return this.telegram.deleteChatStickerSet(this.chat.id)
   }
@@ -1070,7 +968,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    *
    * @see https://core.telegram.org/bots/api#createforumtopic
    */
-  createForumTopic(this: Context, ...args: Shorthand<'createForumTopic'>) {
+  createForumTopic(...args: Shorthand<'createForumTopic'>) {
     this.assert(this.chat, 'createForumTopic')
     return this.telegram.createForumTopic(this.chat.id, ...args)
   }
@@ -1082,7 +980,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    *
    * @see https://core.telegram.org/bots/api#editforumtopic
    */
-  editForumTopic(this: Context, extra: tt.ExtraEditForumTopic) {
+  editForumTopic(extra: tt.ExtraEditForumTopic) {
     this.assert(this.chat, 'editForumTopic')
     this.assert(this.message?.message_thread_id, 'editForumTopic')
     return this.telegram.editForumTopic(
@@ -1099,7 +997,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    *
    * @see https://core.telegram.org/bots/api#closeforumtopic
    */
-  closeForumTopic(this: Context) {
+  closeForumTopic() {
     this.assert(this.chat, 'closeForumTopic')
     this.assert(this.message?.message_thread_id, 'closeForumTopic')
 
@@ -1116,7 +1014,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    *
    * @see https://core.telegram.org/bots/api#reopenforumtopic
    */
-  reopenForumTopic(this: Context) {
+  reopenForumTopic() {
     this.assert(this.chat, 'reopenForumTopic')
     this.assert(this.message?.message_thread_id, 'reopenForumTopic')
 
@@ -1133,7 +1031,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    *
    * @see https://core.telegram.org/bots/api#deleteforumtopic
    */
-  deleteForumTopic(this: Context) {
+  deleteForumTopic() {
     this.assert(this.chat, 'deleteForumTopic')
     this.assert(this.message?.message_thread_id, 'deleteForumTopic')
 
@@ -1149,7 +1047,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    *
    * @see https://core.telegram.org/bots/api#unpinallforumtopicmessages
    */
-  unpinAllForumTopicMessages(this: Context) {
+  unpinAllForumTopicMessages() {
     this.assert(this.chat, 'unpinAllForumTopicMessages')
     this.assert(this.message?.message_thread_id, 'unpinAllForumTopicMessages')
 
@@ -1163,7 +1061,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @deprecated use {@link Telegram.setStickerPositionInSet}
    * @see https://core.telegram.org/bots/api#setstickerpositioninset
    */
-  setStickerPositionInSet(this: Context, sticker: string, position: number) {
+  setStickerPositionInSet(sticker: string, position: number) {
     return this.telegram.setStickerPositionInSet(sticker, position)
   }
 
@@ -1171,10 +1069,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @deprecated use {@link Telegram.setStickerSetThumb}
    * @see https://core.telegram.org/bots/api#setstickersetthumb
    */
-  setStickerSetThumb(
-    this: Context,
-    ...args: Parameters<Telegram['setStickerSetThumb']>
-  ) {
+  setStickerSetThumb(...args: Parameters<Telegram['setStickerSetThumb']>) {
     return this.telegram.setStickerSetThumb(...args)
   }
 
@@ -1182,14 +1077,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @deprecated use {@link Telegram.deleteStickerFromSet}
    * @see https://core.telegram.org/bots/api#deletestickerfromset
    */
-  deleteStickerFromSet(this: Context, sticker: string) {
+  deleteStickerFromSet(sticker: string) {
     return this.telegram.deleteStickerFromSet(sticker)
   }
 
   /**
    * @see https://core.telegram.org/bots/api#uploadstickerfile
    */
-  uploadStickerFile(this: Context, ...args: Shorthand<'uploadStickerFile'>) {
+  uploadStickerFile(...args: Shorthand<'uploadStickerFile'>) {
     this.assert(this.from, 'uploadStickerFile')
     return this.telegram.uploadStickerFile(this.from.id, ...args)
   }
@@ -1197,10 +1092,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#createnewstickerset
    */
-  createNewStickerSet(
-    this: Context,
-    ...args: Shorthand<'createNewStickerSet'>
-  ) {
+  createNewStickerSet(...args: Shorthand<'createNewStickerSet'>) {
     this.assert(this.from, 'createNewStickerSet')
     return this.telegram.createNewStickerSet(this.from.id, ...args)
   }
@@ -1208,7 +1100,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#addstickertoset
    */
-  addStickerToSet(this: Context, ...args: Shorthand<'addStickerToSet'>) {
+  addStickerToSet(...args: Shorthand<'addStickerToSet'>) {
     this.assert(this.from, 'addStickerToSet')
     return this.telegram.addStickerToSet(this.from.id, ...args)
   }
@@ -1217,7 +1109,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @deprecated use {@link Telegram.getMyCommands}
    * @see https://core.telegram.org/bots/api#getmycommands
    */
-  getMyCommands(this: Context) {
+  getMyCommands() {
     return this.telegram.getMyCommands()
   }
 
@@ -1225,7 +1117,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @deprecated use {@link Telegram.setMyCommands}
    * @see https://core.telegram.org/bots/api#setmycommands
    */
-  setMyCommands(this: Context, commands: readonly tg.BotCommand[]) {
+  setMyCommands(commands: readonly tg.BotCommand[]) {
     return this.telegram.setMyCommands(commands)
   }
 
@@ -1233,36 +1125,28 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @deprecated use {@link Context.replyWithMarkdownV2}
    * @see https://core.telegram.org/bots/api#sendmessage
    */
-  replyWithMarkdown(
-    this: Context,
-    markdown: string,
-    extra?: tt.ExtraReplyMessage
-  ) {
+  replyWithMarkdown(markdown: string, extra?: tt.ExtraReplyMessage) {
     return this.reply(markdown, { parse_mode: 'Markdown', ...extra })
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendmessage
    */
-  replyWithMarkdownV2(
-    this: Context,
-    markdown: string,
-    extra?: tt.ExtraReplyMessage
-  ) {
+  replyWithMarkdownV2(markdown: string, extra?: tt.ExtraReplyMessage) {
     return this.reply(markdown, { parse_mode: 'MarkdownV2', ...extra })
   }
 
   /**
    * @see https://core.telegram.org/bots/api#sendmessage
    */
-  replyWithHTML(this: Context, html: string, extra?: tt.ExtraReplyMessage) {
+  replyWithHTML(html: string, extra?: tt.ExtraReplyMessage) {
     return this.reply(html, { parse_mode: 'HTML', ...extra })
   }
 
   /**
    * @see https://core.telegram.org/bots/api#deletemessage
    */
-  deleteMessage(this: Context, messageId?: number) {
+  deleteMessage(messageId?: number) {
     this.assert(this.chat, 'deleteMessage')
     if (typeof messageId !== 'undefined') {
       return this.telegram.deleteMessage(this.chat.id, messageId)
@@ -1276,7 +1160,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#forwardmessage
    */
   forwardMessage(
-    this: Context,
     chatId: string | number,
     extra?: Shorthand<'forwardMessage'>[2]
   ) {
@@ -1293,11 +1176,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#copymessage
    */
-  copyMessage(
-    this: Context,
-    chatId: string | number,
-    extra?: tt.ExtraCopyMessage
-  ) {
+  copyMessage(chatId: string | number, extra?: tt.ExtraCopyMessage) {
     const message = getMessageFromAnySource(this)
     this.assert(message, 'copyMessage')
     return this.telegram.copyMessage(
@@ -1311,7 +1190,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#approvechatjoinrequest
    */
-  approveChatJoinRequest(this: Context, userId: number) {
+  approveChatJoinRequest(userId: number) {
     this.assert(this.chat, 'approveChatJoinRequest')
     return this.telegram.approveChatJoinRequest(this.chat.id, userId)
   }
@@ -1319,7 +1198,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#declinechatjoinrequest
    */
-  declineChatJoinRequest(this: Context, userId: number) {
+  declineChatJoinRequest(userId: number) {
     this.assert(this.chat, 'declineChatJoinRequest')
     return this.telegram.declineChatJoinRequest(this.chat.id, userId)
   }
@@ -1327,7 +1206,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#banchatsenderchat
    */
-  banChatSenderChat(this: Context, senderChatId: number) {
+  banChatSenderChat(senderChatId: number) {
     this.assert(this.chat, 'banChatSenderChat')
     return this.telegram.banChatSenderChat(this.chat.id, senderChatId)
   }
@@ -1335,7 +1214,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#unbanchatsenderchat
    */
-  unbanChatSenderChat(this: Context, senderChatId: number) {
+  unbanChatSenderChat(senderChatId: number) {
     this.assert(this.chat, 'unbanChatSenderChat')
     return this.telegram.unbanChatSenderChat(this.chat.id, senderChatId)
   }
@@ -1344,7 +1223,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * Use this method to change the bot's menu button in the current private chat. Returns true on success.
    * @see https://core.telegram.org/bots/api#setchatmenubutton
    */
-  setChatMenuButton(this: Context, menuButton?: tg.MenuButton) {
+  setChatMenuButton(menuButton?: tg.MenuButton) {
     this.assert(this.chat, 'setChatMenuButton')
     return this.telegram.setChatMenuButton({ chatId: this.chat.id, menuButton })
   }

@@ -163,8 +163,12 @@ export class Telegram extends ApiClient {
    * The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status).
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
    */
-  sendChatAction(chatId: number | string, action: tt.ChatAction) {
-    return this.callApi('sendChatAction', { chat_id: chatId, action })
+  sendChatAction(
+    chat_id: number | string,
+    action: tt.ChatAction,
+    extra?: tt.ExtraSendChatAction
+  ) {
+    return this.callApi('sendChatAction', { chat_id, action, ...extra })
   }
 
   getUserProfilePhotos(userId: number, offset?: number, limit?: number) {
@@ -1057,6 +1061,69 @@ export class Telegram extends ApiClient {
       chat_id,
       message_thread_id,
     })
+  }
+
+  /**
+   * Use this method to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator
+   * in the chat for this to work and must have can_manage_topics administrator rights. Returns True on success.
+   *
+   * @param chat_id Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   * @param name New topic name, 1-128 characters
+   *
+   * @see https://core.telegram.org/bots/api#editgeneralforumtopic
+   */
+  editGeneralForumTopic(chat_id: number | string, name: string) {
+    return this.callApi('editGeneralForumTopic', { chat_id, name })
+  }
+
+  /**
+   * Use this method to close an open 'General' topic in a forum supergroup chat. The bot must be an administrator in the
+   * chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
+   *
+   * @param chat_id Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   *
+   * @see https://core.telegram.org/bots/api#closegeneralforumtopic
+   */
+  closeGeneralForumTopic(chat_id: number | string) {
+    return this.callApi('closeGeneralForumTopic', { chat_id })
+  }
+
+  /**
+   * Use this method to reopen a closed 'General' topic in a forum supergroup chat. The bot must be an administrator in
+   * the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically
+   * unhidden if it was hidden. Returns True on success.
+   *
+   * @param chat_id Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   *
+   * @see https://core.telegram.org/bots/api#reopengeneralforumtopic
+   */
+  reopenGeneralForumTopic(chat_id: number | string) {
+    return this.callApi('reopenGeneralForumTopic', { chat_id })
+  }
+
+  /**
+   * Use this method to hide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat
+   * for this to work and must have the can_manage_topics administrator rights. The topic will be automatically closed
+   * if it was open. Returns True on success.
+   *
+   * @param chat_id Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   *
+   * @see https://core.telegram.org/bots/api#hidegeneralforumtopic
+   */
+  hideGeneralForumTopic(chat_id: number | string) {
+    return this.callApi('hideGeneralForumTopic', { chat_id })
+  }
+
+  /**
+   * Use this method to unhide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the
+   * chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
+   *
+   * @param chat_id Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   *
+   * @see https://core.telegram.org/bots/api#unhidegeneralforumtopic
+   */
+  unhideGeneralForumTopic(chat_id: number | string) {
+    return this.callApi('unhideGeneralForumTopic', { chat_id })
   }
 
   getStickerSet(name: string) {

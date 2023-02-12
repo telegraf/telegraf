@@ -122,3 +122,75 @@ test('must resist session racing (with async store)', (t) =>
       })
     })
   ))
+
+/*
+
+This test is the same as above, but a defaultSession is passed.
+It tests that defaultSession is not erraneously stored in the db when it's not used.
+
+*/
+test('must not write default session back if session not touched', (t) =>
+  t.notThrowsAsync(
+    new Promise((resolve) => {
+      /** @type {import('..').Telegraf<MyCtx>} */
+      const bot = createBot()
+
+      const { store, map } = AsyncStore()
+      bot.use(session({ store, defaultSession: () => ({ count: 0 }) }))
+
+      bot.on('message', async (ctx) => {
+        // pretend we make an API call, etc
+        await randSleep(200)
+
+        // ctx.session is not touched
+      })
+
+      Promise.all(
+        Array
+          // create 100 text message updates and fire them all at once
+          .from({ length: 100 }, Fixtures.message.text)
+          .map((fixture) => bot.handleUpdate(fixture))
+      ).then(() => {
+        const entries = [...map.entries()]
+        t.deepEqual(entries.length, 0)
+        resolve(true)
+      })
+    })
+  ))
+
+/*
+
+This test is the same as above, but a defaultSession is passed.
+It tests that defaultSession is not erraneously stored in the db when it's not used.
+
+*/
+test('must write default session back if session was touched', (t) =>
+  t.notThrowsAsync(
+    new Promise((resolve) => {
+      /** @type {import('..').Telegraf<MyCtx>} */
+      const bot = createBot()
+
+      const { store, map } = AsyncStore()
+      bot.use(session({ store, defaultSession: () => ({ count: 0 }) }))
+
+      bot.on('message', async (ctx) => {
+        ctx.session.count++
+        // pretend we make an API call, etc
+        await randSleep(200)
+      })
+
+      Promise.all(
+        Array
+          // create 100 text message updates and fire them all at once
+          .from({ length: 100 }, Fixtures.message.text)
+          .map((fixture) => bot.handleUpdate(fixture))
+      ).then(() => {
+        const entries = [...map.entries()]
+        t.deepEqual(entries.length, 1)
+        const [key, value] = entries[0]
+        t.deepEqual(key, '1:1')
+        t.deepEqual(value, { count: 100 })
+        resolve(true)
+      })
+    })
+  ))

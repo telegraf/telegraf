@@ -13,6 +13,7 @@ export interface SessionStore<T> {
 interface SessionOptions<S extends object> {
   getSessionKey?: (ctx: Context) => Promise<string | undefined>
   store?: SessionStore<S>
+  defaultSession?: () => S
 }
 
 export interface SessionContext<S extends object> extends Context {
@@ -45,6 +46,8 @@ export function session<S extends object>(
   const concurrents = new Map<string, MaybePromise<S | undefined>>()
 
   // this function must be handled with care
+  // read full description on the original PR: https://github.com/telegraf/telegraf/pull/1713
+  // make sure to update the tests in test/session.js if you make any changes or fix bugs here
   return async (ctx, next) => {
     const updId = ctx.update.update_id
 
@@ -85,7 +88,7 @@ export function session<S extends object>(
         cached = c
       } else {
         // we're the first, so we must cache the reference
-        cached = { ref: upstream, counter: 0 }
+        cached = { ref: upstream ?? options?.defaultSession?.(), counter: 0 }
         cache.set(key, cached)
       }
     }
@@ -94,11 +97,15 @@ export function session<S extends object>(
     // It will, however, guard `c` here.
     const c = cached
 
+    let touched = false
+
     Object.defineProperty(ctx, 'session', {
       get() {
+        touched = true
         return c.ref
       },
       set(value: S) {
+        touched = true
         c.ref = value
       },
     })
@@ -112,13 +119,16 @@ export function session<S extends object>(
         cache.delete(key)
       }
       debug(`(${updId}) middlewares completed, checking session`)
-      if (ctx.session == null) {
-        debug(`(${updId}) ctx.session missing, removing from store`)
-        await store.delete(key)
-      } else {
-        debug(`(${updId}) ctx.session found, updating store`)
-        await store.set(key, ctx.session)
-      }
+
+      // only update store if ctx.session was touched
+      if (touched)
+        if (ctx.session == null) {
+          debug(`(${updId}) ctx.session missing, removing from store`)
+          await store.delete(key)
+        } else {
+          debug(`(${updId}) ctx.session found, updating store`)
+          await store.set(key, ctx.session)
+        }
     }
   }
 }

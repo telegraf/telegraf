@@ -509,8 +509,16 @@ export class Telegram extends ApiClient {
     })
   }
 
-  setChatPermissions(chatId: number | string, permissions: tg.ChatPermissions) {
-    return this.callApi('setChatPermissions', { chat_id: chatId, permissions })
+  setChatPermissions(
+    chatId: number | string,
+    permissions: tg.ChatPermissions,
+    extra?: tt.ExtraSetChatPermissions
+  ) {
+    return this.callApi('setChatPermissions', {
+      chat_id: chatId,
+      permissions,
+      ...extra,
+    })
   }
 
   /**

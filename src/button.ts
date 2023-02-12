@@ -1,4 +1,8 @@
-import { InlineKeyboardButton, KeyboardButton } from './core/types/typegram'
+import {
+  InlineKeyboardButton,
+  KeyboardButton,
+  KeyboardButtonRequestChat,
+} from './core/types/typegram'
 
 type Hideable<B> = B & { hide: boolean }
 
@@ -29,6 +33,63 @@ export function pollRequest(
   hide = false
 ): Hideable<KeyboardButton.RequestPollButton> {
   return { text, request_poll: { type }, hide }
+}
+
+export function userRequest(
+  text: string,
+  /** Must fit in a signed 32 bit int */
+  request_id: number,
+  user_is_premium?: boolean,
+  hide = false
+): Hideable<KeyboardButton.RequestUserButton> {
+  return { text, request_user: { request_id, user_is_premium }, hide }
+}
+
+export function botRequest(
+  text: string,
+  /** Must fit in a signed 32 bit int */
+  request_id: number,
+  hide = false
+): Hideable<KeyboardButton.RequestUserButton> {
+  return { text, request_user: { request_id, user_is_bot: true }, hide }
+}
+
+type KeyboardButtonRequestGroup = Omit<
+  KeyboardButtonRequestChat,
+  'request_id' | 'chat_is_channel'
+>
+
+export function groupRequest(
+  text: string,
+  /** Must fit in a signed 32 bit int */
+  request_id: number,
+  extra?: KeyboardButtonRequestGroup,
+  hide = false
+): Hideable<KeyboardButton.RequestChatButton> {
+  return {
+    text,
+    request_chat: { request_id, chat_is_channel: false, ...extra },
+    hide,
+  }
+}
+
+type KeyboardButtonRequestChannel = Omit<
+  KeyboardButtonRequestChat,
+  'request_id' | 'chat_is_channel' | 'chat_is_forum'
+>
+
+export function channelRequest(
+  text: string,
+  /** Must fit in a signed 32 bit int */
+  request_id: number,
+  extra?: KeyboardButtonRequestChannel,
+  hide = false
+): Hideable<KeyboardButton.RequestChatButton> {
+  return {
+    text,
+    request_chat: { request_id, chat_is_channel: true, ...extra },
+    hide,
+  }
 }
 
 export function url(
@@ -98,6 +159,7 @@ export function webApp(
   text: string,
   url: string,
   hide = false
+  // works as both InlineKeyboardButton and KeyboardButton
 ): Hideable<InlineKeyboardButton.WebAppButton> {
   return {
     text,

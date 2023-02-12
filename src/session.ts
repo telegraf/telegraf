@@ -10,10 +10,10 @@ export interface SessionStore<T> {
   delete: (name: string) => MaybePromise<void>
 }
 
-interface SessionOptions<S extends object> {
-  getSessionKey?: (ctx: Context) => Promise<string | undefined>
+interface SessionOptions<S extends object, C extends Context = Context> {
+  getSessionKey?: (ctx: C) => Promise<string | undefined>
   store?: SessionStore<S>
-  defaultSession?: () => S
+  defaultSession?: (ctx: C) => S
 }
 
 export interface SessionContext<S extends object> extends Context {
@@ -34,9 +34,9 @@ export interface SessionContext<S extends object> extends Context {
  *
  * @example https://github.com/feathers-studio/telegraf-docs/blob/master/examples/session-bot.ts
  */
-export function session<S extends object>(
-  options?: SessionOptions<S>
-): MiddlewareFn<SessionContext<S>> {
+export function session<S extends object, C extends Context = Context>(
+  options?: SessionOptions<S, C>
+): MiddlewareFn<C & { session?: S }> {
   const getSessionKey = options?.getSessionKey ?? defaultGetSessionKey
   const store = options?.store ?? new MemorySessionStore()
   // caches value from store in-memory while simultaneous updates share it
@@ -88,7 +88,7 @@ export function session<S extends object>(
         cached = c
       } else {
         // we're the first, so we must cache the reference
-        cached = { ref: upstream ?? options?.defaultSession?.(), counter: 0 }
+        cached = { ref: upstream ?? options?.defaultSession?.(ctx), counter: 0 }
         cache.set(key, cached)
       }
     }

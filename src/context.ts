@@ -868,9 +868,25 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     })
   }
 
-  persistentChatAction(action: Shorthand<'sendChatAction'>[0], callback: () => Promise<void>, extra?: tt.ExtraSendChatAction) {
-    return new Promise<void>(async (resolve) => {
-      await this.sendChatAction(action, {...extra})
+  /**
+   * @see https://core.telegram.org/bots/api#sendchataction
+   * 
+   * Sends the sendChatAction request repeatedly, with a delay between requests, 
+   * as long as the provided callback function is being processed.
+   * 
+   * The sendChatAction errors should be ignored, because the goal is the actual long process completing and performing an action.
+   * 
+   * @param action - chat action type.
+   * @param callback - a function to run along with the chat action.
+   * @param extra - extra parameters for sendChatAction.
+   * @param {number} [extra.intervalDuration=8000] - The duration (in milliseconds) between subsequent sendChatAction requests.
+   */
+  async persistentChatAction(
+    action: Shorthand<'sendChatAction'>[0],
+    callback: () => Promise<void>,
+    extra?: tt.ExtraSendChatAction & { intervalDuration?: number }
+  ) {
+    await this.sendChatAction(action, { ...extra })
 
       const timer = setInterval(
         async () => await this.sendChatAction(action, {...extra}),

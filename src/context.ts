@@ -865,18 +865,18 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     })
   }
 
-  persistentChatAction(action: Shorthand<'sendChatAction'>[0], callback: Function, extra?: tt.ExtraSendChatAction) {
+  persistentChatAction(action: Shorthand<'sendChatAction'>[0], callback: () => Promise<void>, extra?: tt.ExtraSendChatAction) {
     return new Promise<void>(async (resolve) => {
       await this.sendChatAction(action, {...extra})
+
       const timer = setInterval(
         async () => await this.sendChatAction(action, {...extra}),
-        8000
+        extra?.intervalDuration ?? 8000
       )
-  
-      await Promise.resolve(callback()).then(async () => {
-        clearInterval(timer)
-        resolve()
-      })
+        
+      await callback();
+      clearInterval(timer);
+      resolve();
     })
   }
 

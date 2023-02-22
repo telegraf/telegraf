@@ -1,7 +1,4 @@
 import { FmtString } from './format'
-import { ChatAction } from './core/types/typegram'
-import { ExtraSendChatAction } from './telegram-types'
-import { Context } from './context'
 
 export const env = process.env
 
@@ -63,40 +60,4 @@ export function* zip<X, Y>(xs: Iterable<X>, ys: Iterable<Y>): Iterable<X | Y> {
     yield y1.value
     y1 = y.next()
   }
-}
-
-export async function persistentChatAction(
-  ctx: Context,
-  callback: () => Promise<void>,
-  action: ChatAction,
-  every: number = 8000
-) {
-  return new Promise<void>(async (resolve) => {
-    await ctx.sendChatAction(action)
-
-    const timer = setInterval(
-      async () => await ctx.sendChatAction(action),
-      every
-    )
-
-    await callback()
-    clearInterval(timer)
-    resolve()
-  })
-}
-
-export async function timedChatAction(ctx: any, action: ChatAction, duration: number, every?: number) {
-  return new Promise<void>(async (resolve) => {
-    await ctx.sendChatAction(action)
-
-    const timer = setInterval(
-      async () => await ctx.sendChatAction(action),
-      every ?? 8000
-    )
-
-    setTimeout(async () => {
-      clearInterval(timer)
-      resolve()
-    }, duration)
-  })
 }

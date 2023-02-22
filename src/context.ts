@@ -888,15 +888,16 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   ) {
     await this.sendChatAction(action, { ...extra })
 
-      const timer = setInterval(
-        async () => await this.sendChatAction(action, {...extra}),
-        extra?.intervalDuration ?? 8000
-      )
-        
-      await callback();
-      clearInterval(timer);
-      resolve();
-    })
+    const timer = setInterval(
+      async () =>
+        await this.sendChatAction(action, { ...extra }).catch((err) => {
+          debug('Ignored error while persisting sendChatAction:', err)
+        }),
+      extra?.intervalDuration ?? 8000
+    )
+
+    await callback()
+    clearInterval(timer)
   }
 
   /**

@@ -870,12 +870,12 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
 
   /**
    * @see https://core.telegram.org/bots/api#sendchataction
-   * 
-   * Sends the sendChatAction request repeatedly, with a delay between requests, 
+   *
+   * Sends the sendChatAction request repeatedly, with a delay between requests,
    * as long as the provided callback function is being processed.
-   * 
+   *
    * The sendChatAction errors should be ignored, because the goal is the actual long process completing and performing an action.
-   * 
+   *
    * @param action - chat action type.
    * @param callback - a function to run along with the chat action.
    * @param extra - extra parameters for sendChatAction.

@@ -856,7 +856,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   sendChatAction(
     action: Shorthand<'sendChatAction'>[0],
-    extra?: tt.ExtraSendChatAction
+    extra?: Omit<tt.ExtraSendChatAction, 'intervalDuration'>
   ) {
     this.assert(this.chat, 'sendChatAction')
     return this.telegram.sendChatAction(this.chat.id, action, {

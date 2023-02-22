@@ -5,6 +5,9 @@ import ApiClient from './core/network/client'
 import { Guard, Guarded, MaybeArray } from './util'
 import Telegram from './telegram'
 import { FmtString } from './format'
+import d from 'debug'
+
+const debug = d('telegraf:context')
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
 

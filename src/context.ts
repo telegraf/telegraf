@@ -884,7 +884,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   async persistentChatAction(
     action: Shorthand<'sendChatAction'>[0],
     callback: () => Promise<void>,
-    extra?: tt.ExtraSendChatAction & { intervalDuration?: number }
+    {
+      intervalDuration,
+      ...extra
+    }: tt.ExtraSendChatAction & { intervalDuration?: number } = {}
   ) {
     await this.sendChatAction(action, { ...extra })
 

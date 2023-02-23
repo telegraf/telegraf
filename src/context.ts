@@ -893,7 +893,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
         await this.sendChatAction(action, { ...extra }).catch((err) => {
           debug('Ignored error while persisting sendChatAction:', err)
         }),
-      extra?.intervalDuration ?? 8000
+      extra?.intervalDuration ?? 4000
     )
 
     await callback()

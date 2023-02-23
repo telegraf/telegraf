@@ -5,6 +5,9 @@ import ApiClient from './core/network/client'
 import { Guard, Guarded, MaybeArray } from './util'
 import Telegram from './telegram'
 import { FmtString } from './format'
+import d from 'debug'
+
+const debug = d('telegraf:context')
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
 
@@ -863,6 +866,44 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
       message_thread_id: getThreadId(this),
       ...extra,
     })
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendchataction
+   *
+   * Sends the sendChatAction request repeatedly, with a delay between requests,
+   * as long as the provided callback function is being processed.
+   *
+   * The sendChatAction errors should be ignored, because the goal is the actual long process completing and performing an action.
+   *
+   * @param action - chat action type.
+   * @param callback - a function to run along with the chat action.
+   * @param extra - extra parameters for sendChatAction.
+   * @param {number} [extra.intervalDuration=8000] - The duration (in milliseconds) between subsequent sendChatAction requests.
+   */
+  async persistentChatAction(
+    action: Shorthand<'sendChatAction'>[0],
+    callback: () => Promise<void>,
+    {
+      intervalDuration,
+      ...extra
+    }: tt.ExtraSendChatAction & { intervalDuration?: number } = {}
+  ) {
+    await this.sendChatAction(action, { ...extra })
+
+    const timer = setInterval(
+      () =>
+        this.sendChatAction(action, { ...extra }).catch((err) => {
+          debug('Ignored error while persisting sendChatAction:', err)
+        }),
+      intervalDuration ?? 4000
+    )
+
+    try {
+      await callback()
+    } finally {
+      clearInterval(timer)
+    }
   }
 
   /**

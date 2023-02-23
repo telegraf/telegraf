@@ -896,8 +896,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
       extra?.intervalDuration ?? 4000
     )
 
-    await callback()
-    clearInterval(timer)
+    try {
+      await callback()
+    } finally {
+      clearInterval(timer)
+    }
   }
 
   /**

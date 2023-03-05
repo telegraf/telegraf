@@ -679,7 +679,8 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
 
     return Composer.on<C, typeof filter>(filter, (ctx, next) => {
       const first = ctx.message.entities?.[0]
-      if (first?.type !== 'bot_command' || first.offset > 0) return next()
+      if (first?.type !== 'bot_command') return next()
+      if (first.offset > 0) return next()
       const [cmdPart, to] = ctx.message.text.slice(0, first.length).split('@')
       if (!cmdPart) return next()
       // always check for bot's own username case-insensitively

@@ -2,6 +2,9 @@ import { FmtString } from './format'
 
 export const env = process.env
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Any = {} | undefined | null
+
 export type Expand<T> = T extends object
   ? T extends infer O
     ? { [K in keyof O]: O[K] }

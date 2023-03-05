@@ -58,11 +58,17 @@
     "build": "tsc",
     "build:docs": "typedoc src/index.ts",
     "pretest": "npm run build",
-    "test": "ava test/*",
+    "test": "ava",
     "lint": "eslint .",
     "checks": "npm test && npm run lint",
     "refresh": "npm run clean && npm ci",
     "clean": "git clean -fX .eslintcache docs/build/ lib/ typings/"
+  },
+  "ava": {
+    "files": [
+      "test/*",
+      "!test/_*"
+    ]
   },
   "type": "commonjs",
   "engines": {

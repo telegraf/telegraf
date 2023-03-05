@@ -1,13 +1,13 @@
 import { Context } from './context'
-import { MaybePromise } from './util'
+import { Any, MaybePromise } from './util'
 import { MiddlewareFn } from './middleware'
 import d from 'debug'
 const debug = d('telegraf:session')
 
 export interface SessionStore<T> {
   get: (name: string) => MaybePromise<T | undefined>
-  set: (name: string, value: T) => MaybePromise<void>
-  delete: (name: string) => MaybePromise<void>
+  set: (name: string, value: T) => MaybePromise<Any>
+  delete: (name: string) => MaybePromise<Any>
 }
 
 interface SessionOptions<S extends object, C extends Context = Context> {
@@ -26,13 +26,13 @@ export interface SessionContext<S extends object> extends Context {
  * The default `getSessionKey` is `${ctx.from.id}:${ctx.chat.id}`.
  * If either `ctx.from` or `ctx.chat` is `undefined`, default session key and thus `ctx.session` are also `undefined`.
  *
- * Session data is kept only in memory by default,
- * which means that all data will be lost when the process is terminated.
- * If you want to store data across restarts, or share it among workers,
- * you can [install persistent session middleware from npm](https://www.npmjs.com/search?q=telegraf-session),
- * or pass custom `storage`.
+ * > ⚠️ Session data is kept only in memory by default,  which means that all data will be lost when the process is terminated.
+ * >
+ * > If you want to store data across restarts, or share it among workers, you should use
+ * [@telegraf/session](https://www.npmjs.com/package/@telegraf/session), or pass custom `storage`.
  *
- * @example https://github.com/feathers-studio/telegraf-docs/blob/master/examples/session-bot.ts
+ * @see {@link https://github.com/feathers-studio/telegraf-docs/blob/b694bcc36b4f71fb1cd650a345c2009ab4d2a2a5/guide/session.md Telegraf Docs | Session}
+ * @see {@link https://github.com/feathers-studio/telegraf-docs/blob/master/examples/session-bot.ts Example}
  */
 export function session<S extends object, C extends Context = Context>(
   options?: SessionOptions<S, C>
@@ -142,7 +142,7 @@ async function defaultGetSessionKey(ctx: Context): Promise<string | undefined> {
   return `${fromId}:${chatId}`
 }
 
-/** @deprecated https://github.com/telegraf/telegraf/issues/1372#issuecomment-782668499 */
+/** @deprecated Use `Map` */
 export class MemorySessionStore<T> implements SessionStore<T> {
   private readonly store = new Map<string, { session: T; expires: number }>()
 

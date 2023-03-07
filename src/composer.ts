@@ -684,7 +684,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       const [cmdPart, to] = ctx.message.text.slice(0, first.length).split('@')
       if (!cmdPart) return next()
       // always check for bot's own username case-insensitively
-      if (to && to.toLowerCase() !== ctx.me) return next()
+      if (to && to.toLowerCase() !== ctx.me.toLowerCase()) return next()
       const cmd = cmdPart.slice(1)
       for (const trigger of triggers)
         if (trigger(cmd, ctx as C)) return Composer.compose(fns)(ctx, next)

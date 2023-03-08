@@ -7,7 +7,7 @@
 <p>Modern Telegram Bot API framework for Node.js</p>
 
 <a href="https://core.telegram.org/bots/api">
-	<img src="https://img.shields.io/badge/Bot%20API-v6.2-f36caf.svg?style=flat-square" alt="Bot API Version" />
+	<img src="https://img.shields.io/badge/Bot%20API-v6.5-f36caf.svg?style=flat-square" alt="Bot API Version" />
 </a>
 <a href="https://packagephobia.com/result?p=telegraf,node-telegram-bot-api">
 	<img src="https://flat.badgen.net/packagephobia/install/telegraf" alt="install size" />
@@ -29,15 +29,15 @@
 
 ## Introduction
 
-Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically. 
-Users can interact with bots by sending them command messages in private or group chats. 
+Bots are special [Telegram](https://telegram.org) accounts designed to handle messages automatically.
+Users can interact with bots by sending them command messages in private or group chats.
 These accounts serve as an interface for code running somewhere on your server.
 
 Telegraf is a library that makes it simple for you to develop your own Telegram bots using JavaScript or [TypeScript](https://www.typescriptlang.org/).
 
 ### Features
 
-- Full [Telegram Bot API 6.2](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 6.5](https://core.telegram.org/bots/api) support
 - [Excellent TypeScript typings](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
 - [Lightweight](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 - [AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)
@@ -49,14 +49,15 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 - Extensible
 
 ### Example
-  
+
 ```js
 const { Telegraf } = require('telegraf');
+const { message } = require('telegraf/filters');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 bot.start((ctx) => ctx.reply('Welcome'));
 bot.help((ctx) => ctx.reply('Send me a sticker'));
-bot.on('sticker', (ctx) => ctx.reply('👍'));
+bot.on(message('sticker'), (ctx) => ctx.reply('👍'));
 bot.hears('hi', (ctx) => ctx.reply('Hey there'));
 bot.launch();
 
@@ -86,9 +87,9 @@ For additional bot examples see the new [`docs repo`](https://github.com/feather
 - [API reference](https://telegraf.js.org/modules.html)
 - Telegram groups (sorted by number of members):
   * [English](https://t.me/TelegrafJSChat)
+  * [Russian](https://t.me/telegrafjs_ru)
   * [Uzbek](https://t.me/botjs_uz)
   * [Ethiopian](https://t.me/telegraf_et)
-  * [Russian](https://t.me/telegrafjs_ru)
 - [GitHub Discussions](https://github.com/telegraf/telegraf/discussions)
 - [Dependent repositories](https://libraries.io/npm/telegraf/dependent_repositories)
 
@@ -96,8 +97,8 @@ For additional bot examples see the new [`docs repo`](https://github.com/feather
 
 ### Telegram token
 
-To use the [Telegram Bot API](https://core.telegram.org/bots/api), 
-you first have to [get a bot account](https://core.telegram.org/bots) 
+To use the [Telegram Bot API](https://core.telegram.org/bots/api),
+you first have to [get a bot account](https://core.telegram.org/bots)
 by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
 BotFather will give you a *token*, something like `123456789:AbCdefGhIJKlmNoPQRsTUVwxyZ`.
@@ -157,6 +158,7 @@ Here is a list of
 
 ```js
 import { Telegraf } from 'telegraf';
+import { message } from 'telegraf/filters';
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -168,7 +170,7 @@ bot.command('quit', async (ctx) => {
   await ctx.leaveChat();
 });
 
-bot.on('text', async (ctx) => {
+bot.on(message('text'), async (ctx) => {
   // Explicit usage
   await ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`);
 
@@ -206,10 +208,11 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'));
 
 ```TS
 import { Telegraf } from "telegraf";
+import { message } from 'telegraf/filters';
 
 const bot = new Telegraf(token);
 
-bot.on("text", ctx => ctx.reply("Hello"));
+bot.on(message("text"), ctx => ctx.reply("Hello"));
 
 // Start webhook via launch method (preferred)
 bot.launch({
@@ -236,13 +239,13 @@ Use `createWebhook()` if you want to attach Telegraf to an existing http server.
 <!-- global bot, tlsOptions -->
 
 ```TS
-const { createServer } from "http";
+import { createServer } from "http";
 
 createServer(await bot.createWebhook({ domain: "example.com" })).listen(3000);
 ```
 
 ```TS
-const { createServer } from "https";
+import { createServer } from "https";
 
 createServer(tlsOptions, await bot.createWebhook({ domain: "example.com" })).listen(8443);
 ```
@@ -258,11 +261,9 @@ createServer(tlsOptions, await bot.createWebhook({ domain: "example.com" })).lis
 
 ### Error handling
 
-If middleware throws an error or times out, Telegraf calls `bot.handleError`. If it rethrows, update source closes, and then the error is printed to console and process [hopefully](https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode) terminates. If it does not rethrow, the error is swallowed.
+If middleware throws an error or times out, Telegraf calls `bot.handleError`. If it rethrows, update source closes, and then the error is printed to console and process terminates. If it does not rethrow, the error is swallowed.
 
 Default `bot.handleError` always rethrows. You can overwrite it using `bot.catch` if you need to.
-
-⚠️ Always rethrow `TimeoutError`!
 
 ⚠️ Swallowing unknown errors might leave the process in invalid state!
 
@@ -290,26 +291,19 @@ bot.on('message', async (ctx) => {
   await ctx.replyWithSticker('123123jkbhj6b');
 
   // send file
-  await ctx.replyWithVideo({ source: '/path/to/video.mp4' });
+  await ctx.replyWithVideo(Input.fromLocalFile('/path/to/video.mp4'));
 
   // send stream
-  await ctx.replyWithVideo({
-    source: fs.createReadStream('/path/to/video.mp4')
-  });
+  await ctx.replyWithVideo(Input.fromReadableStream(fs.createReadStream('/path/to/video.mp4')));
 
   // send buffer
-  await ctx.replyWithVoice({
-    source: Buffer.alloc()
-  });
+  await ctx.replyWithVoice(Input.fromBuffer(Buffer.alloc()));
 
   // send url via Telegram server
-  await ctx.replyWithPhoto('https://picsum.photos/200/300/');
+  await ctx.replyWithPhoto(Input.fromURL('https://picsum.photos/200/300/'));
 
   // pipe url content
-  await ctx.replyWithPhoto({
-    url: 'https://picsum.photos/200/300/?random',
-    filename: 'kitten.jpg'
-  });
+  await ctx.replyWithPhoto(Input.fromURLStream('https://picsum.photos/200/300/?random', 'kitten.jpg'));
 })
 ```
 
@@ -322,6 +316,7 @@ As in Koa and some other middleware-based libraries,
 
 ```TS
 import { Telegraf } from 'telegraf';
+import { message } from 'telegraf/filters';
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -332,7 +327,7 @@ bot.use(async (ctx, next) => {
   console.timeEnd(`Processing update ${ctx.update.update_id}`);
 })
 
-bot.on('text', (ctx) => ctx.reply('Hello World'));
+bot.on(message('text'), (ctx) => ctx.reply('Hello World'));
 bot.launch();
 
 // Enable graceful stop

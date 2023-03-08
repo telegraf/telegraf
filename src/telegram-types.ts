@@ -15,7 +15,7 @@ export type ChatAction = Opts['sendChatAction']['action']
 export type { TT, Opts }
 
 // Modify type so caption, if exists, can be FmtString
-type WrapCaption<T> = T extends { caption?: string }
+export type WrapCaption<T> = T extends { caption?: string }
   ? Expand<Omit<T, 'caption'> & { caption?: string | FmtString }>
   : T
 
@@ -42,6 +42,10 @@ export type ExtraAnswerCbQuery = MakeExtra<
 export type ExtraAnswerInlineQuery = MakeExtra<
   'answerInlineQuery',
   'inline_query_id' | 'results'
+>
+export type ExtraSetChatPermissions = MakeExtra<
+  'setChatPermissions',
+  'permissions'
 >
 export type ExtraAudio = MakeExtra<'sendAudio', 'audio'>
 export type ExtraContact = MakeExtra<
@@ -105,6 +109,7 @@ export type ExtraForwardMessage = MakeExtra<
   'forwardMessage',
   'from_chat_id' | 'message_id'
 >
+export type ExtraSendChatAction = MakeExtra<'sendChatAction', 'action'>
 export type ExtraRestrictChatMember = MakeExtra<'restrictChatMember', 'user_id'>
 export type ExtraSetMyCommands = MakeExtra<'setMyCommands', 'commands'>
 export type ExtraSetWebhook = MakeExtra<'setWebhook', 'url'>

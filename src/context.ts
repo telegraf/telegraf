@@ -4,6 +4,9 @@ import { Deunionize, PropOr, UnionKeys } from './deunionize'
 import { Guard, Guarded, MaybeArray } from './util'
 import Telegram from './telegram'
 import { FmtString } from './format'
+import d from 'debug'
+
+const debug = d('telegraf:context')
 
 type Tail<T> = T extends [unknown, ...infer U] ? U : never
 
@@ -150,6 +153,7 @@ export class Context<U extends Update = Update> {
 
   get passportData() {
     if (this.message == null) return undefined
+    // @ts-expect-error Bug in TS 4.9+, fix will land in 5.0 https://github.com/microsoft/TypeScript/pull/51502
     if (!('passport_data' in this.message)) return undefined
     return this.message?.passport_data
   }
@@ -200,7 +204,9 @@ export class Context<U extends Update = Update> {
     if (!Array.isArray(filters)) filters = [filters]
     for (const filter of filters)
       if (
-        typeof filter === 'function'
+        // TODO: this should change to === 'function' once TS bug is fixed
+        // https://github.com/microsoft/TypeScript/pull/51502
+        typeof filter !== 'string'
           ? // filter is a type guard
             filter(this.update)
           : // check if filter is the update type
@@ -272,7 +278,7 @@ export class Context<U extends Update = Update> {
    * @see https://core.telegram.org/bots/api#editmessagecaption
    */
   editMessageCaption(
-    caption: string | undefined,
+    caption: string | FmtString | undefined,
     extra?: tt.ExtraEditMessageCaption
   ) {
     this.assert(
@@ -291,7 +297,10 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#editmessagemedia
    */
-  editMessageMedia(media: tg.InputMedia, extra?: tt.ExtraEditMessageMedia) {
+  editMessageMedia(
+    media: tt.WrapCaption<tg.InputMedia>,
+    extra?: tt.ExtraEditMessageMedia
+  ) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageMedia')
     return this.telegram.editMessageMedia(
       this.chat?.id,
@@ -362,7 +371,7 @@ export class Context<U extends Update = Update> {
   sendMessage(text: string | FmtString, extra?: tt.ExtraReplyMessage) {
     this.assert(this.chat, 'sendMessage')
     return this.telegram.sendMessage(this.chat.id, text, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -567,7 +576,7 @@ export class Context<U extends Update = Update> {
   sendPhoto(photo: string | tt.InputFile, extra?: tt.ExtraPhoto) {
     this.assert(this.chat, 'sendPhoto')
     return this.telegram.sendPhoto(this.chat.id, photo, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -586,7 +595,7 @@ export class Context<U extends Update = Update> {
   sendMediaGroup(media: tt.MediaGroup, extra?: tt.ExtraMediaGroup) {
     this.assert(this.chat, 'sendMediaGroup')
     return this.telegram.sendMediaGroup(this.chat.id, media, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -605,7 +614,7 @@ export class Context<U extends Update = Update> {
   sendAudio(audio: string | tt.InputFile, extra?: tt.ExtraAudio) {
     this.assert(this.chat, 'sendAudio')
     return this.telegram.sendAudio(this.chat.id, audio, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -624,7 +633,7 @@ export class Context<U extends Update = Update> {
   sendDice(extra?: tt.ExtraDice) {
     this.assert(this.chat, 'sendDice')
     return this.telegram.sendDice(this.chat.id, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -643,7 +652,7 @@ export class Context<U extends Update = Update> {
   sendDocument(document: string | tt.InputFile, extra?: tt.ExtraDocument) {
     this.assert(this.chat, 'sendDocument')
     return this.telegram.sendDocument(this.chat.id, document, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -662,7 +671,7 @@ export class Context<U extends Update = Update> {
   sendSticker(sticker: string | tt.InputFile, extra?: tt.ExtraSticker) {
     this.assert(this.chat, 'sendSticker')
     return this.telegram.sendSticker(this.chat.id, sticker, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -681,7 +690,7 @@ export class Context<U extends Update = Update> {
   sendVideo(video: string | tt.InputFile, extra?: tt.ExtraVideo) {
     this.assert(this.chat, 'sendVideo')
     return this.telegram.sendVideo(this.chat.id, video, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -700,7 +709,7 @@ export class Context<U extends Update = Update> {
   sendAnimation(animation: string | tt.InputFile, extra?: tt.ExtraAnimation) {
     this.assert(this.chat, 'sendAnimation')
     return this.telegram.sendAnimation(this.chat.id, animation, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -722,7 +731,7 @@ export class Context<U extends Update = Update> {
   sendVideoNote(videoNote: string | tt.InputFile, extra?: tt.ExtraVideoNote) {
     this.assert(this.chat, 'sendVideoNote')
     return this.telegram.sendVideoNote(this.chat.id, videoNote, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -744,7 +753,7 @@ export class Context<U extends Update = Update> {
   sendInvoice(invoice: tt.NewInvoiceParameters, extra?: tt.ExtraInvoice) {
     this.assert(this.chat, 'sendInvoice')
     return this.telegram.sendInvoice(this.chat.id, invoice, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -763,7 +772,7 @@ export class Context<U extends Update = Update> {
   sendGame(game: string, extra?: tt.ExtraGame) {
     this.assert(this.chat, 'sendGame')
     return this.telegram.sendGame(this.chat.id, game, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -782,7 +791,7 @@ export class Context<U extends Update = Update> {
   sendVoice(voice: string | tt.InputFile, extra?: tt.ExtraVoice) {
     this.assert(this.chat, 'sendVoice')
     return this.telegram.sendVoice(this.chat.id, voice, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -801,7 +810,7 @@ export class Context<U extends Update = Update> {
   sendPoll(poll: string, options: readonly string[], extra?: tt.ExtraPoll) {
     this.assert(this.chat, 'sendPoll')
     return this.telegram.sendPoll(this.chat.id, poll, options, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -824,7 +833,7 @@ export class Context<U extends Update = Update> {
   sendQuiz(quiz: string, options: readonly string[], extra?: tt.ExtraPoll) {
     this.assert(this.chat, 'sendQuiz')
     return this.telegram.sendQuiz(this.chat.id, quiz, options, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -852,9 +861,53 @@ export class Context<U extends Update = Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendchataction
    */
-  sendChatAction(...args: Shorthand<'sendChatAction'>) {
+  sendChatAction(
+    action: Shorthand<'sendChatAction'>[0],
+    extra?: tt.ExtraSendChatAction
+  ) {
     this.assert(this.chat, 'sendChatAction')
-    return this.telegram.sendChatAction(this.chat.id, ...args)
+    return this.telegram.sendChatAction(this.chat.id, action, {
+      message_thread_id: getThreadId(this),
+      ...extra,
+    })
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendchataction
+   *
+   * Sends the sendChatAction request repeatedly, with a delay between requests,
+   * as long as the provided callback function is being processed.
+   *
+   * The sendChatAction errors should be ignored, because the goal is the actual long process completing and performing an action.
+   *
+   * @param action - chat action type.
+   * @param callback - a function to run along with the chat action.
+   * @param extra - extra parameters for sendChatAction.
+   * @param {number} [extra.intervalDuration=8000] - The duration (in milliseconds) between subsequent sendChatAction requests.
+   */
+  async persistentChatAction(
+    action: Shorthand<'sendChatAction'>[0],
+    callback: () => Promise<void>,
+    {
+      intervalDuration,
+      ...extra
+    }: tt.ExtraSendChatAction & { intervalDuration?: number } = {}
+  ) {
+    await this.sendChatAction(action, { ...extra })
+
+    const timer = setInterval(
+      () =>
+        this.sendChatAction(action, { ...extra }).catch((err) => {
+          debug('Ignored error while persisting sendChatAction:', err)
+        }),
+      intervalDuration ?? 4000
+    )
+
+    try {
+      await callback()
+    } finally {
+      clearInterval(timer)
+    }
   }
 
   /**
@@ -863,7 +916,7 @@ export class Context<U extends Update = Update> {
   sendLocation(latitude: number, longitude: number, extra?: tt.ExtraLocation) {
     this.assert(this.chat, 'sendLocation')
     return this.telegram.sendLocation(this.chat.id, latitude, longitude, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -900,7 +953,7 @@ export class Context<U extends Update = Update> {
       longitude,
       title,
       address,
-      { message_thread_id: getThreadId(this.message), ...extra }
+      { message_thread_id: getThreadId(this), ...extra }
     )
   }
 
@@ -927,7 +980,7 @@ export class Context<U extends Update = Update> {
   sendContact(phoneNumber: string, firstName: string, extra?: tt.ExtraContact) {
     this.assert(this.chat, 'sendContact')
     return this.telegram.sendContact(this.chat.id, phoneNumber, firstName, {
-      message_thread_id: getThreadId(this.message),
+      message_thread_id: getThreadId(this),
       ...extra,
     })
   }
@@ -945,6 +998,14 @@ export class Context<U extends Update = Update> {
       reply_to_message_id,
       ...extra,
     })
+  }
+
+  /**
+   * @deprecated use {@link Telegram.getStickerSet}
+   * @see https://core.telegram.org/bots/api#getstickerset
+   */
+  getStickerSet(setName: string) {
+    return this.telegram.getStickerSet(setName)
   }
 
   /**
@@ -1057,6 +1118,63 @@ export class Context<U extends Update = Update> {
       this.chat.id,
       this.message.message_thread_id
     )
+  }
+
+  /**
+   * Use this method to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator
+   * in the chat for this to work and must have can_manage_topics administrator rights. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#editgeneralforumtopic
+   */
+  editGeneralForumTopic(name: string) {
+    this.assert(this.chat, 'editGeneralForumTopic')
+    return this.telegram.editGeneralForumTopic(this.chat.id, name)
+  }
+
+  /**
+   * Use this method to close an open 'General' topic in a forum supergroup chat. The bot must be an administrator in the
+   * chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#closegeneralforumtopic
+   */
+  closeGeneralForumTopic() {
+    this.assert(this.chat, 'closeGeneralForumTopic')
+    return this.telegram.closeGeneralForumTopic(this.chat.id)
+  }
+
+  /**
+   * Use this method to reopen a closed 'General' topic in a forum supergroup chat. The bot must be an administrator in
+   * the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically
+   * unhidden if it was hidden. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#reopengeneralforumtopic
+   */
+  reopenGeneralForumTopic() {
+    this.assert(this.chat, 'reopenGeneralForumTopic')
+    return this.telegram.reopenGeneralForumTopic(this.chat.id)
+  }
+
+  /**
+   * Use this method to hide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat
+   * for this to work and must have the can_manage_topics administrator rights. The topic will be automatically closed
+   * if it was open. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#hidegeneralforumtopic
+   */
+  hideGeneralForumTopic() {
+    this.assert(this.chat, 'hideGeneralForumTopic')
+    return this.telegram.hideGeneralForumTopic(this.chat.id)
+  }
+
+  /**
+   * Use this method to unhide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the
+   * chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
+   *
+   * @see https://core.telegram.org/bots/api#unhidegeneralforumtopic
+   */
+  unhideGeneralForumTopic() {
+    this.assert(this.chat, 'unhideGeneralForumTopic')
+    return this.telegram.unhideGeneralForumTopic(this.chat.id)
   }
 
   /**
@@ -1271,5 +1389,7 @@ function getMessageFromAnySource<U extends Deunionize<tg.Update>>(
   )
 }
 
-const getThreadId = (msg?: tg.Message) =>
-  msg?.is_topic_message ? msg.message_thread_id : undefined
+const getThreadId = <U extends Deunionize<tg.Update>>(ctx: Context<U>) => {
+  const msg = getMessageFromAnySource(ctx)
+  return msg?.is_topic_message ? msg.message_thread_id : undefined
+}

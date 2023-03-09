@@ -88,7 +88,7 @@ export function session<S extends object, C extends Context = Context>(
         cached = c
       } else {
         // we're the first, so we must cache the reference
-        cached = { ref: upstream ?? options?.defaultSession?.(ctx), counter: 0 }
+        cached = { ref: upstream ?? options?.defaultSession?.(ctx), counter: 1 }
         cache.set(key, cached)
       }
     }

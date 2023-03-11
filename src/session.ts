@@ -44,7 +44,7 @@ export function session<S extends object, C extends Context = Context>(
   options?: SessionOptions<S, C>
 ): MiddlewareFn<C & { session?: S }> {
   const getSessionKey = options?.getSessionKey ?? defaultGetSessionKey
-  const store = options?.store ?? new MemorySessionStore()
+  const store = options?.store ?? new Map()
   // caches value from store in-memory while simultaneous updates share it
   // when counter reaches 0, the cached ref will be freed from memory
   const cache = new Map<string, { ref?: S; counter: number }>()
@@ -146,33 +146,6 @@ async function defaultGetSessionKey(ctx: Context): Promise<string | undefined> {
     return undefined
   }
   return `${fromId}:${chatId}`
-}
-
-/** @deprecated Use `Map` */
-export class MemorySessionStore<T> implements SessionStore<T> {
-  private readonly store = new Map<string, { session: T; expires: number }>()
-
-  constructor(private readonly ttl = Infinity) {}
-
-  get(name: string): T | undefined {
-    const entry = this.store.get(name)
-    if (entry == null) {
-      return undefined
-    } else if (entry.expires < Date.now()) {
-      this.delete(name)
-      return undefined
-    }
-    return entry.session
-  }
-
-  set(name: string, value: T): void {
-    const now = Date.now()
-    this.store.set(name, { session: value, expires: now + this.ttl })
-  }
-
-  delete(name: string): void {
-    this.store.delete(name)
-  }
 }
 
 export function isSessionContext<S extends object>(

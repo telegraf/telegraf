@@ -1,14 +1,22 @@
 import { Context } from './context'
-import { Any, MaybePromise } from './util'
+import { MaybePromise } from './util'
 import { MiddlewareFn } from './middleware'
 import d from 'debug'
 const debug = d('telegraf:session')
 
-export interface SessionStore<T> {
-  get: (name: string) => MaybePromise<T | undefined>
-  set: (name: string, value: T) => MaybePromise<Any>
-  delete: (name: string) => MaybePromise<Any>
+export interface SyncSessionStore<T> {
+  get: (name: string) => T | undefined
+  set: (name: string, value: T) => void
+  delete: (name: string) => void
 }
+
+export interface AsyncSessionStore<T> {
+  get: (name: string) => Promise<T | undefined>
+  set: (name: string, value: T) => Promise<unknown>
+  delete: (name: string) => Promise<unknown>
+}
+
+export type SessionStore<T> = SyncSessionStore<T> | AsyncSessionStore<T>
 
 interface SessionOptions<S extends object, C extends Context = Context> {
   getSessionKey?: (ctx: C) => Promise<string | undefined>

@@ -21,7 +21,7 @@ export interface SceneSessionData {
 }
 
 export interface SceneSession<S extends SceneSessionData = SceneSessionData> {
-  __scenes: S
+  __scenes?: S
 }
 
 export interface SceneContextSceneOptions<D extends SceneSessionData> {

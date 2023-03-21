@@ -151,7 +151,7 @@ async function defaultGetSessionKey(ctx: Context): Promise<string | undefined> {
 }
 
 /** @deprecated Use `Map` */
-export class MemorySessionStore<T> implements SessionStore<T> {
+export class MemorySessionStore<T> implements SyncSessionStore<T> {
   private readonly store = new Map<string, { session: T; expires: number }>()
 
   constructor(private readonly ttl = Infinity) {}

@@ -12,7 +12,6 @@ import { Polling } from './core/network/polling'
 import pTimeout from 'p-timeout'
 import Telegram, { Transformer } from './telegram'
 import { TlsOptions } from 'tls'
-import { URL } from 'url'
 import safeCompare = require('safe-compare')
 import { createClient, type ClientOptions } from './core/network/client'
 const debug = d('telegraf:main')

@@ -5,7 +5,6 @@
 // and https://github.com/node-fetch/node-fetch/blob/914ce6be5ec67a8bab63d68510aabf07cb818b6d/index.d.ts (MIT license)
 
 import { Blob } from 'node:buffer'
-import { URL, URLSearchParams } from 'node:url'
 import { ReadableStream } from 'node:stream/web'
 import { FormData } from './formdata'
 

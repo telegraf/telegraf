@@ -81,6 +81,48 @@ export const join = (
   return result
 }
 
+export const replace = (
+  source: string,
+  search: string | RegExp,
+  value: string | FmtString
+): FmtString => {
+  const v = FmtString.normalise(value)
+  let entities: MessageEntity[] | undefined = undefined
+
+  if (typeof search === 'string') {
+    const offset = source.indexOf(search)
+    const length = search.length
+    source = source.slice(0, offset) + v.text + source.slice(offset + length)
+    entities = v.entities?.map((e) => ({ ...e, offset: e.offset + offset }))
+  } else {
+    let index = 0 // context position in source string
+    let acc = '' // incremental return value
+    let correction = 0
+
+    let regexArray
+    while ((regexArray = search.exec(source))) {
+      const offset = regexArray.index
+      const length = regexArray[0].length
+      acc += source.slice(index, offset) + v.text
+
+      if (v.entities && v.entities.length)
+        (entities ??= []).push(
+          ...v.entities.map((e) => ({
+            ...e,
+            offset: e.offset + offset + correction,
+          }))
+        )
+
+      index = offset + length
+      correction += v.text.length - length
+    }
+
+    source = acc + source.slice(index)
+  }
+
+  return new FmtString(source, entities)
+}
+
 /** Internal constructor for all fmt helpers */
 export function _fmt(
   kind?: Types.Containers

@@ -12,6 +12,6 @@ export * as Input from './input'
 export * as Format from './format'
 
 export { deunionize } from './deunionize'
-export { session, MemorySessionStore } from './session'
+export { session, MemorySessionStore, SessionStore } from './session'
 
 export * as Scenes from './scenes'

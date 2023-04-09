@@ -62,11 +62,11 @@ export default class SceneContextScene<
     return session
   }
 
-  get state() {
+  get state(): D["state"] {
     return (this.session.state ??= {})
   }
 
-  set state(value) {
+  set state(value: D["state"]) {
     this.session.state = { ...value }
   }
 
@@ -82,7 +82,7 @@ export default class SceneContextScene<
       this.ctx.session.__scenes = Object.assign({}, this.options.defaultSession)
   }
 
-  async enter(sceneId: string, initialState: object = {}, silent = false) {
+  async enter(sceneId: string, initialState: D["state"] = {}, silent = false) {
     if (!this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }

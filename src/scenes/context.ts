@@ -14,10 +14,10 @@ export interface SceneContext<D extends SceneSessionData = SceneSessionData>
   scene: SceneContextScene<SceneContext<D>, D>
 }
 
-export interface SceneSessionData {
+export interface SceneSessionData<S extends object = object> {
   current?: string
   expires?: number
-  state?: object
+  state?: Partial<S>
 }
 
 export interface SceneSession<S extends SceneSessionData = SceneSessionData> {
@@ -62,11 +62,12 @@ export default class SceneContextScene<
     return session
   }
 
-  get state(): D["state"] {
+  get state(): Exclude<D["state"], undefined> {
+    // @ts-expect-error {} might not be assignable to Exclude<D["state"], undefined>
     return (this.session.state ??= {})
   }
 
-  set state(value: D["state"]) {
+  set state(value: Exclude<D["state"], undefined>) {
     this.session.state = { ...value }
   }
 
@@ -82,7 +83,8 @@ export default class SceneContextScene<
       this.ctx.session.__scenes = Object.assign({}, this.options.defaultSession)
   }
 
-  async enter(sceneId: string, initialState: D["state"] = {}, silent = false) {
+  // @ts-expect-error {} might not be assignable to Exclude<D["state"], undefined>
+  async enter(sceneId: string, initialState: Exclude<D["state"], undefined> = {}, silent = false) {
     if (!this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }

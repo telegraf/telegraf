@@ -2,25 +2,28 @@ import SceneContextScene, { SceneSession, SceneSessionData } from '../context'
 import Context from '../../context'
 import { Middleware } from '../../middleware'
 import { SessionContext } from '../../session'
+import type { HasAllOptionalProps } from '../utilTypes'
 
-export interface WizardContext<D extends WizardSessionData = WizardSessionData>
-  extends Context {
+export type WizardSessionData<T extends object = object> =
+  SceneSessionData<T> extends string
+    ? SceneSessionData<T>
+    : SceneSessionData<T> & { cursor: number }
+
+export interface WizardContext<
+  D extends WizardSessionData<object> & object = WizardSessionData<object>
+> extends Context {
   session: WizardSession<D>
   scene: SceneContextScene<WizardContext<D>, D>
-  wizard: WizardContextWizard<WizardContext<D>>
+  wizard: WizardContextWizard<WizardContext<D>, D>
 }
 
-export interface WizardSessionData extends SceneSessionData {
-  cursor: number
-}
-
-export interface WizardSession<S extends WizardSessionData = WizardSessionData>
-  extends SceneSession<S> {}
+export interface WizardSession<
+  S extends WizardSessionData<object> & object = WizardSessionData<object>
+> extends SceneSession<S> {}
 
 export default class WizardContextWizard<
-  C extends SessionContext<WizardSession> & {
-    scene: SceneContextScene<C, WizardSessionData>
-  }
+  C extends WizardContext<D>,
+  D extends WizardSessionData<object> & object = WizardSessionData<object>
 > {
   readonly state: object
   constructor(

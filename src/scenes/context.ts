@@ -3,28 +3,38 @@ import Composer from '../composer'
 import Context from '../context'
 import d from 'debug'
 import { SessionContext } from '../session'
+import type { HasAllOptionalProps } from './utilTypes'
 const debug = d('telegraf:scenes:context')
 
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
-export interface SceneContext<D extends SceneSessionData = SceneSessionData>
-  extends Context {
+export type SceneSessionData<S extends object> =
+  HasAllOptionalProps<S> extends never
+    ? // This is needed to give the developer some info about what's wrong
+      'Error: All state properties must be optional.'
+    : {
+        current?: string
+        expires?: number
+        state?: S
+      }
+
+export interface SceneSession<
+  S extends SceneSessionData<object> & object = SceneSessionData<object>
+> {
+  __scenes?: S
+}
+
+export interface SceneContext<
+  D extends SceneSessionData<object> & object = SceneSessionData<object>
+> extends Context {
   session: SceneSession<D>
   scene: SceneContextScene<SceneContext<D>, D>
 }
 
-export interface SceneSessionData<S extends object = object> {
-  current?: string
-  expires?: number
-  state?: Partial<S>
-}
-
-export interface SceneSession<S extends SceneSessionData = SceneSessionData> {
-  __scenes?: S
-}
-
-export interface SceneContextSceneOptions<D extends SceneSessionData> {
+export interface SceneContextSceneOptions<
+  D extends SceneSessionData<object> & object
+> {
   ttl?: number
   default?: string
   defaultSession: D
@@ -32,7 +42,7 @@ export interface SceneContextSceneOptions<D extends SceneSessionData> {
 
 export default class SceneContextScene<
   C extends SessionContext<SceneSession<D>>,
-  D extends SceneSessionData = SceneSessionData
+  D extends SceneSessionData<object> & object = SceneSessionData<object>
 > {
   private readonly options: SceneContextSceneOptions<D>
 
@@ -62,12 +72,11 @@ export default class SceneContextScene<
     return session
   }
 
-  get state(): Exclude<D["state"], undefined> {
-    // @ts-expect-error {} might not be assignable to Exclude<D["state"], undefined>
+  get state(): NonNullable<D['state']> {
     return (this.session.state ??= {})
   }
 
-  set state(value: Exclude<D["state"], undefined>) {
+  set state(value: NonNullable<D['state']>) {
     this.session.state = { ...value }
   }
 
@@ -83,8 +92,11 @@ export default class SceneContextScene<
       this.ctx.session.__scenes = Object.assign({}, this.options.defaultSession)
   }
 
-  // @ts-expect-error {} might not be assignable to Exclude<D["state"], undefined>
-  async enter(sceneId: string, initialState: Exclude<D["state"], undefined> = {}, silent = false) {
+  async enter(
+    sceneId: string,
+    initialState: NonNullable<D['state']> = {},
+    silent = false
+  ) {
     if (!this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }

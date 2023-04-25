@@ -4,26 +4,33 @@ import { Middleware } from '../../middleware'
 import { SessionContext } from '../../session'
 import type { HasAllOptionalProps } from '../utilTypes'
 
-export type WizardSessionData<T extends object = object> =
-  SceneSessionData<T> extends string
-    ? SceneSessionData<T>
-    : SceneSessionData<T> & { cursor: number }
+export type WizardSessionData<
+  T extends object = object,
+  MustBeValid extends boolean = false
+> = SceneSessionData<T> extends string
+  ? MustBeValid extends true
+    ? never
+    : SceneSessionData<T>
+  : SceneSessionData<T> & { cursor: number }
 
+// Adding `& Cursor` guarantees that we're not getting the string case
 export interface WizardContext<
-  D extends WizardSessionData<object> & object = WizardSessionData<object>
+  D extends WizardSessionData<object, true> = WizardSessionData<object>
 > extends Context {
   session: WizardSession<D>
   scene: SceneContextScene<WizardContext<D>, D>
   wizard: WizardContextWizard<WizardContext<D>, D>
 }
 
+// Adding `& Cursor` guarantees that we're not getting the string case
 export interface WizardSession<
-  S extends WizardSessionData<object> & object = WizardSessionData<object>
+  S extends WizardSessionData<object, true> = WizardSessionData<object>
 > extends SceneSession<S> {}
 
+// Adding `& Cursor` guarantees that we're not getting the string case
 export default class WizardContextWizard<
   C extends WizardContext<D>,
-  D extends WizardSessionData<object> & object = WizardSessionData<object>
+  D extends WizardSessionData<object, true> = WizardSessionData<object>
 > {
   readonly state: object
   constructor(

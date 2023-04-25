@@ -8,12 +8,11 @@ import Composer from '../../composer'
 import Context from '../../context'
 import SceneContextScene from '../context'
 
-type WC<
-  T extends WizardSessionData<object> & object = WizardSessionData<object>
-> = WizardContext<T>
+type WC<T extends WizardSessionData<object, true> = WizardSessionData<object>> =
+  WizardContext<T>
 
 export class WizardScene<
-    T extends WizardSessionData<object> & object = WizardSessionData<object>
+    T extends WizardSessionData<object, true> = WizardSessionData<object>
   >
   extends BaseScene<WC<T>>
   implements MiddlewareObj<WC<T>>

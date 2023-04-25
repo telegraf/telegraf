@@ -9,6 +9,12 @@ const debug = d('telegraf:scenes:context')
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
+export type DefaultSceneSessionData = {
+  current?: string
+  expires?: number
+  state?: object
+}
+
 export type SceneSessionData<
   S extends object,
   MustBeValid extends boolean = false
@@ -31,9 +37,9 @@ export interface SceneSession<
 
 export interface SceneContext<
   D extends SceneSessionData<object, true> = SceneSessionData<object>
-> extends Context {
+> {
   session: SceneSession<D>
-  scene: SceneContextScene<SceneContext<D>, D>
+  scene: SceneContextScene<D>
 }
 
 export interface SceneContextSceneOptions<
@@ -50,15 +56,19 @@ type RS<SD extends SceneSessionData<object, true>> = NonNullable<
 
 type D<SD extends SceneSessionData<object, true>> = NonNullable<RS<SD>['state']>
 
+type C<SD extends SceneSessionData<object, true>> = SessionContext<
+  SceneSession<SD>
+>
+
 export default class SceneContextScene<
-  C extends SessionContext<SceneSession<SD>>,
-  SD extends SceneSessionData<object, true> = SceneSessionData<object>
+  SD extends SceneSessionData<object, true>,
+  CC extends C<SD> = C<SD>
 > {
   private readonly options: SceneContextSceneOptions<SD>
 
   constructor(
-    private readonly ctx: C,
-    private readonly scenes: Map<string, BaseScene<C>>,
+    private readonly ctx: C<SD>,
+    private readonly scenes: Map<string, BaseScene<C<DefaultSceneSessionData>>>,
     options: Partial<SceneContextSceneOptions<SD>>
   ) {
     const fallbackSessionDefault = {} as SD

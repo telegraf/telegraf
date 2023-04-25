@@ -18,8 +18,8 @@ export interface WizardContext<
   D extends WizardSessionData<object, true> = WizardSessionData<object>
 > extends Context {
   session: WizardSession<D>
-  scene: SceneContextScene<WizardContext<D>, D>
-  wizard: WizardContextWizard<WizardContext<D>, D>
+  scene: SceneContextScene<D>
+  wizard: WizardContextWizard<D>
 }
 
 // Adding `& Cursor` guarantees that we're not getting the string case

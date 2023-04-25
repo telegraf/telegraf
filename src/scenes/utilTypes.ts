@@ -14,3 +14,5 @@ export type HasAllOptionalProps<T extends object> = IsEqual<
 > extends true
   ? T
   : never
+
+export type Modify<T, K> = Omit<T, keyof K> & K

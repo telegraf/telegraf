@@ -1,18 +1,22 @@
 import { isSessionContext, SessionContext } from '../session'
 import SceneContextScene, {
+  DefaultSceneSessionData,
   SceneContextSceneOptions,
   SceneSession,
+  SceneContext,
   SceneSessionData,
 } from './context'
 import { BaseScene } from './base'
 import { Composer } from '../composer'
 import { Context } from '../context'
+import { Modify } from './utilTypes'
+
+type D = DefaultSceneSessionData
 
 export class Stage<
   C extends SessionContext<SceneSession<D>> & {
-    scene: SceneContextScene<C, D>
-  },
-  D extends SceneSessionData<object> & object = SceneSessionData<object>
+    scene: SceneContextScene<D>
+  }
 > extends Composer<C> {
   options: Partial<SceneContextSceneOptions<D>>
   scenes: Map<string, BaseScene<C>>
@@ -41,7 +45,7 @@ export class Stage<
     const handler = Composer.compose<C>([
       (ctx, next) => {
         const scenes: Map<string, BaseScene<C>> = this.scenes
-        const scene = new SceneContextScene<C, D>(ctx, scenes, this.options)
+        const scene = new SceneContextScene<object>(ctx, scenes, this.options)
         ctx.scene = scene
         return next()
       },
@@ -51,21 +55,21 @@ export class Stage<
     return Composer.optional(isSessionContext, handler)
   }
 
-  static enter<C extends Context & { scene: SceneContextScene<C> }>(
-    ...args: Parameters<SceneContextScene<C>['enter']>
+  static enter<D extends SceneSessionData<object, true>, C>(
+    ...args: Parameters<SceneContext<D>['scene']['enter']>
   ) {
-    return (ctx: C) => ctx.scene.enter(...args)
+    return (ctx: Modify<C, SceneContext<D>>) => ctx.scene.enter(...args)
   }
 
-  static reenter<C extends Context & { scene: SceneContextScene<C> }>(
-    ...args: Parameters<SceneContextScene<C>['reenter']>
+  static reenter<D extends SceneSessionData<object, true>, C>(
+    ...args: Parameters<SceneContext<D>['scene']['reenter']>
   ) {
-    return (ctx: C) => ctx.scene.reenter(...args)
+    return (ctx: Modify<C, SceneContext<D>>) => ctx.scene.reenter(...args)
   }
 
-  static leave<C extends Context & { scene: SceneContextScene<C> }>(
-    ...args: Parameters<SceneContextScene<C>['leave']>
+  static leave<D extends SceneSessionData<object, true>, C>(
+    ...args: Parameters<SceneContext<D>['scene']['leave']>
   ) {
-    return (ctx: C) => ctx.scene.leave(...args)
+    return (ctx: Modify<C, SceneContext<D>>) => ctx.scene.leave(...args)
   }
 }

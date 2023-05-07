@@ -5,8 +5,14 @@ export function compactOptions<T extends { [key: string]: unknown }>(
     return options
   }
 
-  const keys = Object.keys(options) as Array<keyof T>
-  const compactKeys = keys.filter((key) => options[key] !== undefined)
-  const compactEntries = compactKeys.map((key) => [key, options[key]])
-  return Object.fromEntries(compactEntries)
+  const compacted: Partial<T> = {}
+  for (const key in options) {
+    if (
+      Object.prototype.hasOwnProperty.call(options, key) &&
+      options[key] !== undefined
+    ) {
+      compacted[key] = options[key]
+    }
+  }
+  return compacted as T | undefined
 }

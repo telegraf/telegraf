@@ -198,13 +198,31 @@ async function attachFormValue(
   ) {
     const attachmentId = crypto.randomBytes(16).toString('hex')
     await attachFormMedia(form, value.media as FormMedia, attachmentId, agent)
-    return form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: JSON.stringify({
-        ...value,
-        media: `attach://${attachmentId}`,
-      }),
-    })
+
+    if (
+      hasProp(value, 'thumb') &&
+      typeof value.thumb !== 'undefined'
+    ) {
+      const thumbAttachmentId = crypto.randomBytes(16).toString('hex')
+      await attachFormMedia(form, value.thumb as FormMedia, thumbAttachmentId, agent)
+
+      return form.addPart({
+        headers: { 'content-disposition': `form-data; name="${id}"` },
+        body: JSON.stringify({
+          ...value,
+          media: `attach://${attachmentId}`,
+          thumb: `attach://${thumbAttachmentId}`,
+        }),
+      })
+    } else {
+      return form.addPart({
+        headers: { 'content-disposition': `form-data; name="${id}"` },
+        body: JSON.stringify({
+          ...value,
+          media: `attach://${attachmentId}`,
+        }),
+      })
+    }
   }
   return await attachFormMedia(form, value as FormMedia, id, agent)
 }

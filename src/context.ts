@@ -277,7 +277,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#editmessagetext
    */
-  editMessageText(text: string, extra?: tt.ExtraEditMessageText) {
+  editMessageText(text: string | FmtString, extra?: tt.ExtraEditMessageText) {
     this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageText')
     return this.telegram.editMessageText(
       this.chat?.id,

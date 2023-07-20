@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { MessageEntity, User } from 'typegram'
 import { zip } from '../../util'
 

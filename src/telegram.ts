@@ -1146,11 +1146,13 @@ export class Telegram extends ApiClient {
    */
   uploadStickerFile(
     ownerId: number,
-    stickerFile: tg.Opts<'uploadStickerFile'>['png_sticker']
+    sticker: tg.Opts<'uploadStickerFile'>['sticker'],
+    sticker_format: tg.Opts<'uploadStickerFile'>['sticker_format']
   ) {
     return this.callApi('uploadStickerFile', {
       user_id: ownerId,
-      png_sticker: stickerFile,
+      sticker_format,
+      sticker,
     })
   }
 
@@ -1203,12 +1205,61 @@ export class Telegram extends ApiClient {
     })
   }
 
+  /**
+   * @deprecated use `setStickerSetThumbnail`
+   */
   setStickerSetThumb(
     name: string,
     userId: number,
-    thumb?: tg.Opts<'setStickerSetThumb'>['thumb']
+    thumbnail?: tg.Opts<'setStickerSetThumbnail'>['thumbnail']
   ) {
-    return this.callApi('setStickerSetThumb', { name, user_id: userId, thumb })
+    return this.callApi('setStickerSetThumbnail', {
+      name,
+      user_id: userId,
+      thumbnail,
+    })
+  }
+
+  setStickerSetThumbnail(
+    name: string,
+    userId: number,
+    thumbnail?: tg.Opts<'setStickerSetThumbnail'>['thumbnail']
+  ) {
+    return this.callApi('setStickerSetThumbnail', {
+      name,
+      user_id: userId,
+      thumbnail,
+    })
+  }
+
+  setStickerMaskPosition(
+    sticker: string,
+    mask_position?: tg.Opts<'setStickerMaskPosition'>['mask_position']
+  ) {
+    return this.callApi('setStickerMaskPosition', { sticker, mask_position })
+  }
+
+  setStickerKeywords(sticker: string, keywords?: string[]) {
+    return this.callApi('setStickerKeywords', { sticker, keywords })
+  }
+
+  setStickerEmojiList(sticker: string, emoji_list: string[]) {
+    return this.callApi('setStickerEmojiList', { sticker, emoji_list })
+  }
+
+  deleteStickerSet(name: string) {
+    return this.callApi('deleteStickerSet', { name })
+  }
+
+  setStickerSetTitle(name: string, title: string) {
+    return this.callApi('setStickerSetTitle', { name, title })
+  }
+
+  setCustomEmojiStickerSetThumbnail(name: string, custom_emoji_id: string) {
+    return this.callApi('setCustomEmojiStickerSetThumbnail', {
+      name,
+      custom_emoji_id,
+    })
   }
 
   /**

@@ -355,7 +355,9 @@ class ApiClient {
         )
       : await buildJSONConfig(payload)
     const apiUrl = new URL(
-      `./${options.apiMode}${token}${options.testEnv ? '/test' : ''}/${method}`,
+      `./${options.apiMode}${token}${options.testEnv ? '/test' : ''}/${
+        method as string
+      }`,
       options.apiRoot
     )
     config.agent = options.agent

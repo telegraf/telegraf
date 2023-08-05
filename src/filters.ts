@@ -4,7 +4,7 @@ import type {
   CommonMessageBundle,
   Message,
   Update,
-} from 'typegram'
+} from '@telegraf/types'
 import type { Deunionize, UnionKeys } from './deunionize'
 
 type DistinctKeys<T extends object> = Exclude<UnionKeys<T>, keyof T>

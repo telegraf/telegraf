@@ -1,16 +1,16 @@
-import * as Typegram from 'typegram'
+import * as Typegram from '@telegraf/types'
 
 // internal type provisions
-export * from 'typegram/api'
-export * from 'typegram/inline'
-export * from 'typegram/manage'
-export * from 'typegram/markup'
-export * from 'typegram/message'
-export * from 'typegram/methods'
-export * from 'typegram/passport'
-export * from 'typegram/payment'
-export * from 'typegram/settings'
-export * from 'typegram/update'
+export * from '@telegraf/types/api'
+export * from '@telegraf/types/inline'
+export * from '@telegraf/types/manage'
+export * from '@telegraf/types/markup'
+export * from '@telegraf/types/message'
+export * from '@telegraf/types/methods'
+export * from '@telegraf/types/passport'
+export * from '@telegraf/types/payment'
+export * from '@telegraf/types/settings'
+export * from '@telegraf/types/update'
 
 // telegraf input file definition
 interface InputFileByPath {

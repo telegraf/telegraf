@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { MessageEntity, User } from 'typegram'
+import { MessageEntity, User } from '@telegraf/types'
 import { zip } from '../../util'
 
 export interface FmtString {

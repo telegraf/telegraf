@@ -1206,20 +1206,28 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * @deprecated use `setStickerSetThumbnail`
+   * @deprecated since API 6.8. Use {@link Telegram.setStickerSetThumbnail}
    */
-  setStickerSetThumb(
-    name: string,
-    userId: number,
-    thumbnail?: tg.Opts<'setStickerSetThumbnail'>['thumbnail']
-  ) {
-    return this.callApi('setStickerSetThumbnail', {
-      name,
-      user_id: userId,
-      thumbnail,
-    })
+  get setStickerSetThumb() {
+    return this.setStickerSetThumbnail
   }
 
+  /**
+   * Use this method to set the thumbnail of a regular or mask sticker set.
+   * The format of the thumbnail file must match the format of the stickers in the set.
+   * @param name Sticker set name
+   * @param userId User identifier of the sticker set owner
+   * @param thumbnail A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size
+   * and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to
+   * 32 kilobytes in size (see
+   * [animated sticker technical requirements](https://core.telegram.org/stickers#animated-sticker-requirements)),
+   * or a WEBM video with the thumbnail up to 32 kilobytes in size; see
+   * [video sticker technical requirements](https://core.telegram.org/stickers#video-sticker-requirements).
+   * Pass a file_id as a String to send a file that already exists on the Telegram servers, pass a
+   * HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using
+   * Input helpers. Animated and video sticker set thumbnails can't be uploaded via HTTP URL.
+   * If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail.
+   */
   setStickerSetThumbnail(
     name: string,
     userId: number,

@@ -1240,10 +1240,7 @@ export class Telegram extends ApiClient {
     })
   }
 
-  setStickerMaskPosition(
-    sticker: string,
-    mask_position?: tg.Opts<'setStickerMaskPosition'>['mask_position']
-  ) {
+  setStickerMaskPosition(sticker: string, mask_position?: tg.MaskPosition) {
     return this.callApi('setStickerMaskPosition', { sticker, mask_position })
   }
 
@@ -1283,13 +1280,6 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Get the current list of the bot's commands.
-   */
-  getMyCommands(extra: tg.Opts<'getMyCommands'> = {}) {
-    return this.callApi('getMyCommands', extra)
-  }
-
-  /**
    * Change the list of the bot's commands.
    * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
    */
@@ -1302,6 +1292,50 @@ export class Telegram extends ApiClient {
 
   deleteMyCommands(extra: tg.Opts<'deleteMyCommands'> = {}) {
     return this.callApi('deleteMyCommands', extra)
+  }
+
+  /**
+   * Get the current list of the bot's commands.
+   */
+  getMyCommands(extra: tg.Opts<'getMyCommands'> = {}) {
+    return this.callApi('getMyCommands', extra)
+  }
+
+  /**
+   * Use this method to change the bot's description, which is shown in the chat with the bot if the chat is empty.
+   * @param description New bot description; 0-512 characters. Pass an empty string to remove the dedicated description for the given language.
+   * @param language_code A two-letter ISO 639-1 language code. If empty, the description will be applied to all users for whose language there is no dedicated description.
+   */
+  setMyDescription(description: string, language_code?: string) {
+    return this.callApi('setMyDescription', { description, language_code })
+  }
+
+  /**
+   * Use this method to get the current bot description for the given user language.
+   * @param language_code A two-letter ISO 639-1 language code.
+   */
+  getMyDescription(language_code?: string) {
+    return this.callApi('getMyDescription', { language_code })
+  }
+
+  /**
+   * Use this method to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot.
+   * @param description New short description for the bot; 0-120 characters. Pass an empty string to remove the dedicated short description for the given language.
+   * @param language_code A two-letter ISO 639-1 language code. If empty, the short description will be applied to all users for whose language there is no dedicated short description.
+   */
+  setMyShortDescription(short_description: string, language_code?: string) {
+    return this.callApi('setMyShortDescription', {
+      short_description,
+      language_code,
+    })
+  }
+
+  /**
+   * Use this method to get the current bot short description for the given user language.
+   * @param language_code A two-letter ISO 639-1 language code or an empty string
+   */
+  getMyShortDescription(language_code?: string) {
+    return this.callApi('getMyShortDescription', { language_code })
   }
 
   setPassportDataErrors(

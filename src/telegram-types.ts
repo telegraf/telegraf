@@ -22,12 +22,7 @@ export type ChatAction = Opts<'sendChatAction'>['action']
 
 // Modify type so caption, if exists, can be FmtString
 export type WrapCaption<T> = T extends { caption?: string }
-  ? Expand<
-      Omit<T, 'caption'> & {
-        caption?: string | FmtString
-        message_thread_id?: number | undefined
-      }
-    >
+  ? Expand<Omit<T, 'caption'> & { caption?: string | FmtString }>
   : T
 
 // extra types

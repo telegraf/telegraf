@@ -26,6 +26,7 @@ interface SessionOptions<S, C extends Context, P extends string> {
   defaultSession?: (ctx: C) => S
 }
 
+/** @deprecated session can use custom properties now. Construct this type directly. */
 export interface SessionContext<S extends object> extends Context {
   session?: S
 }
@@ -185,6 +186,7 @@ export class MemorySessionStore<T> implements SyncSessionStore<T> {
   }
 }
 
+/** @deprecated session can use custom properties now. Directly use `'session' in ctx` instead */
 export function isSessionContext<S extends object>(
   ctx: Context
 ): ctx is SessionContext<S> {

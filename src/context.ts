@@ -1155,6 +1155,20 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Use this method to clear the list of pinned messages in a General forum topic.
+   * The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator
+   * right in the supergroup.
+   *
+   * @param chat_id Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   *
+   * @see https://core.telegram.org/bots/api#unpinallgeneralforumtopicmessages
+   */
+  unpinAllGeneralForumTopicMessages() {
+    this.assert(this.chat, 'unpinAllGeneralForumTopicMessages')
+    return this.telegram.unpinAllGeneralForumTopicMessages(this.chat.id)
+  }
+
+  /**
    * @deprecated use {@link Telegram.setStickerPositionInSet}
    * @see https://core.telegram.org/bots/api#setstickerpositioninset
    */

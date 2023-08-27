@@ -4,6 +4,12 @@ import { MiddlewareFn } from './middleware'
 import d from 'debug'
 const debug = d('telegraf:session')
 
+interface MinimalContext {
+  update?: { update_id: number }
+  from?: { id: number }
+  chat?: { id: number }
+}
+
 export interface SyncSessionStore<T> {
   get: (name: string) => T | undefined
   set: (name: string, value: T) => void
@@ -18,7 +24,7 @@ export interface AsyncSessionStore<T> {
 
 export type SessionStore<T> = SyncSessionStore<T> | AsyncSessionStore<T>
 
-interface SessionOptions<S, C extends Context, P extends string> {
+interface SessionOptions<S, C extends MinimalContext, P extends string> {
   /** Customise the session prop. Defaults to "session" and is available as ctx.session. */
   property?: P
   getSessionKey?: (ctx: C) => MaybePromise<string | undefined>
@@ -46,7 +52,7 @@ export interface SessionContext<S extends object> extends Context {
  */
 export function session<
   S extends NonNullable<C[P]>,
-  C extends Context & { [key in P]?: C[P] },
+  C extends MinimalContext & { [key in P]?: C[P] },
   P extends (ExclusiveKeys<C, Context> & string) | 'session' = 'session'
   // ^ Only allow prop names that aren't keys in base Context.
   // At type level, this is cosmetic. To not get cluttered with all Context keys.
@@ -64,7 +70,7 @@ export function session<
   // read full description on the original PR: https://github.com/telegraf/telegraf/pull/1713
   // make sure to update the tests in test/session.js if you make any changes or fix bugs here
   return async (ctx, next) => {
-    const updId = ctx.update.update_id
+    const updId = ctx.update?.update_id || 'unknown'
 
     // because this is async, requests may still race here, but it will get autocorrected at (1)
     // v5 getSessionKey should probably be synchronous to avoid that
@@ -149,7 +155,9 @@ export function session<
   }
 }
 
-async function defaultGetSessionKey(ctx: Context): Promise<string | undefined> {
+async function defaultGetSessionKey(
+  ctx: MinimalContext
+): Promise<string | undefined> {
   const fromId = ctx.from?.id
   const chatId = ctx.chat?.id
   if (fromId == null || chatId == null) {

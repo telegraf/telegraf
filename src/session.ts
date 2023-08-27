@@ -21,7 +21,7 @@ export type SessionStore<T> = SyncSessionStore<T> | AsyncSessionStore<T>
 interface SessionOptions<S, C extends Context, P extends string> {
   /** Customise the session prop. Defaults to "session" and is available as ctx.session. */
   property?: P
-  getSessionKey?: (ctx: C) => Promise<string | undefined>
+  getSessionKey?: (ctx: C) => MaybePromise<string | undefined>
   store?: SessionStore<S>
   defaultSession?: (ctx: C) => S
 }

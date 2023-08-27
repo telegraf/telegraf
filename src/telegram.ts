@@ -1311,6 +1311,23 @@ export class Telegram extends ApiClient {
   }
 
   /**
+   * Use this method to change the bot's name.
+   * @param name New bot name; 0-64 characters. Pass an empty string to remove the dedicated name for the given language.
+   * @param language_code A two-letter ISO 639-1 language code. If empty, the name will be shown to all users for whose language there is no dedicated name.
+   */
+  setMyName(name: string, language_code?: string) {
+    return this.callApi('setMyName', { name, language_code })
+  }
+
+  /**
+   * Use this method to get the current bot name for the given user language.
+   * @param language_code A two-letter ISO 639-1 language code or an empty string
+   */
+  getMyName(language_code?: string) {
+    return this.callApi('getMyName', { language_code })
+  }
+
+  /**
    * Use this method to get the current bot description for the given user language.
    * @param language_code A two-letter ISO 639-1 language code.
    */

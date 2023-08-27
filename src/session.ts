@@ -1,5 +1,5 @@
 import { Context } from './context'
-import { MaybePromise } from './util'
+import { ExclusiveKeys, MaybePromise } from './util'
 import { MiddlewareFn } from './middleware'
 import d from 'debug'
 const debug = d('telegraf:session')
@@ -18,12 +18,15 @@ export interface AsyncSessionStore<T> {
 
 export type SessionStore<T> = SyncSessionStore<T> | AsyncSessionStore<T>
 
-interface SessionOptions<S extends object, C extends Context = Context> {
-  getSessionKey?: (ctx: C) => Promise<string | undefined>
+interface SessionOptions<S, C extends Context, P extends string> {
+  /** Customise the session prop. Defaults to "session" and is available as ctx.session. */
+  property?: P
+  getSessionKey?: (ctx: C) => MaybePromise<string | undefined>
   store?: SessionStore<S>
   defaultSession?: (ctx: C) => S
 }
 
+/** @deprecated session can use custom properties now. Construct this type directly. */
 export interface SessionContext<S extends object> extends Context {
   session?: S
 }
@@ -36,15 +39,20 @@ export interface SessionContext<S extends object> extends Context {
  *
  * > ⚠️ Session data is kept only in memory by default,  which means that all data will be lost when the process is terminated.
  * >
- * > If you want to store data across restarts, or share it among workers, you should use
+ * > If you want to persist data across process restarts, or share it among multiple instances, you should use
  * [@telegraf/session](https://www.npmjs.com/package/@telegraf/session), or pass custom `storage`.
  *
  * @see {@link https://github.com/feathers-studio/telegraf-docs/blob/b694bcc36b4f71fb1cd650a345c2009ab4d2a2a5/guide/session.md Telegraf Docs | Session}
  * @see {@link https://github.com/feathers-studio/telegraf-docs/blob/master/examples/session-bot.ts Example}
  */
-export function session<S extends object, C extends Context = Context>(
-  options?: SessionOptions<S, C>
-): MiddlewareFn<C & { session?: S }> {
+export function session<
+  S extends NonNullable<C[P]>,
+  C extends Context & { [key in P]?: C[P] },
+  P extends (ExclusiveKeys<C, Context> & string) | 'session' = 'session'
+  // ^ Only allow prop names that aren't keys in base Context.
+  // At type level, this is cosmetic. To not get cluttered with all Context keys.
+>(options?: SessionOptions<S, C, P>): MiddlewareFn<C> {
+  const prop = options?.property ?? ('session' as P)
   const getSessionKey = options?.getSessionKey ?? defaultGetSessionKey
   const store = options?.store ?? new MemorySessionStore()
   // caches value from store in-memory while simultaneous updates share it
@@ -63,7 +71,8 @@ export function session<S extends object, C extends Context = Context>(
     // v5 getSessionKey should probably be synchronous to avoid that
     const key = await getSessionKey(ctx)
     if (!key) {
-      ctx.session = undefined
+      // Leaving this here could be useful to check for `prop in ctx` in future middleware
+      ctx[prop] = undefined as unknown as S
       return await next()
     }
 
@@ -107,7 +116,7 @@ export function session<S extends object, C extends Context = Context>(
 
     let touched = false
 
-    Object.defineProperty(ctx, 'session', {
+    Object.defineProperty(ctx, prop, {
       get() {
         touched = true
         return c.ref
@@ -130,12 +139,12 @@ export function session<S extends object, C extends Context = Context>(
 
       // only update store if ctx.session was touched
       if (touched)
-        if (ctx.session == null) {
-          debug(`(${updId}) ctx.session missing, removing from store`)
+        if (ctx[prop] == null) {
+          debug(`(${updId}) ctx.${prop} missing, removing from store`)
           await store.delete(key)
         } else {
-          debug(`(${updId}) ctx.session found, updating store`)
-          await store.set(key, ctx.session)
+          debug(`(${updId}) ctx.${prop} found, updating store`)
+          await store.set(key, ctx[prop] as S)
         }
     }
   }
@@ -177,6 +186,7 @@ export class MemorySessionStore<T> implements SyncSessionStore<T> {
   }
 }
 
+/** @deprecated session can use custom properties now. Directly use `'session' in ctx` instead */
 export function isSessionContext<S extends object>(
   ctx: Context
 ): ctx is SessionContext<S> {

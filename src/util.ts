@@ -15,6 +15,9 @@ export type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
 export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 
+// prettier-ignore
+export type ExclusiveKeys<A extends object, B extends object> = keyof Omit<A, keyof B>
+
 export function fmtCaption<
   Extra extends { caption?: string | FmtString } | undefined
 >(

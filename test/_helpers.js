@@ -29,8 +29,8 @@ const Fixtures = {
       message: {
         message_id: message_id++,
         date: Date.now(),
-        from,
-        chat,
+        from: { ...from },
+        chat: { ...chat },
         text: 'foo',
       },
     }),

@@ -2,25 +2,35 @@ import SceneContextScene, { SceneSession, SceneSessionData } from '../context'
 import Context from '../../context'
 import { Middleware } from '../../middleware'
 import { SessionContext } from '../../session'
+import type { HasAllOptionalProps } from '../utilTypes'
 
-export interface WizardContext<D extends WizardSessionData = WizardSessionData>
-  extends Context {
+export type WizardSessionData<
+  T extends object = object,
+  MustBeValid extends boolean = false
+> = SceneSessionData<T> extends string
+  ? MustBeValid extends true
+    ? never
+    : SceneSessionData<T>
+  : SceneSessionData<T> & { cursor: number }
+
+// Adding `& Cursor` guarantees that we're not getting the string case
+export interface WizardContext<
+  D extends WizardSessionData<object, true> = WizardSessionData<object>
+> extends Context {
   session: WizardSession<D>
-  scene: SceneContextScene<WizardContext<D>, D>
-  wizard: WizardContextWizard<WizardContext<D>>
+  scene: SceneContextScene<D>
+  wizard: WizardContextWizard<D>
 }
 
-export interface WizardSessionData extends SceneSessionData {
-  cursor: number
-}
+// Adding `& Cursor` guarantees that we're not getting the string case
+export interface WizardSession<
+  S extends WizardSessionData<object, true> = WizardSessionData<object>
+> extends SceneSession<S> {}
 
-export interface WizardSession<S extends WizardSessionData = WizardSessionData>
-  extends SceneSession<S> {}
-
+// Adding `& Cursor` guarantees that we're not getting the string case
 export default class WizardContextWizard<
-  C extends SessionContext<WizardSession> & {
-    scene: SceneContextScene<C, WizardSessionData>
-  }
+  C extends WizardContext<D>,
+  D extends WizardSessionData<object, true> = WizardSessionData<object>
 > {
   readonly state: object
   constructor(

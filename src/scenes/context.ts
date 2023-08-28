@@ -3,52 +3,81 @@ import Composer from '../composer'
 import Context from '../context'
 import d from 'debug'
 import { SessionContext } from '../session'
+import type { HasAllOptionalProps } from './utilTypes'
 const debug = d('telegraf:scenes:context')
 
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
-export interface SceneContext<D extends SceneSessionData = SceneSessionData>
-  extends Context {
-  session: SceneSession<D>
-  scene: SceneContextScene<SceneContext<D>, D>
-}
-
-export interface SceneSessionData {
+export type DefaultSceneSessionData = {
   current?: string
   expires?: number
   state?: object
 }
 
-export interface SceneSession<S extends SceneSessionData = SceneSessionData> {
+export type SceneSessionData<
+  S extends object,
+  MustBeValid extends boolean = false
+> = HasAllOptionalProps<S> extends never
+  ? MustBeValid extends true
+    ? never
+    : // This is needed to give the developer some info about what's wrong
+      'Error: All state properties must be optional.'
+  : {
+      current?: string
+      expires?: number
+      state?: S
+    }
+
+export interface SceneSession<
+  S extends SceneSessionData<object, true> = SceneSessionData<object>
+> {
   __scenes?: S
 }
 
-export interface SceneContextSceneOptions<D extends SceneSessionData> {
+export interface SceneContext<
+  D extends SceneSessionData<object, true> = SceneSessionData<object>
+> {
+  session: SceneSession<D>
+  scene: SceneContextScene<D>
+}
+
+export interface SceneContextSceneOptions<
+  D extends SceneSessionData<object, true>
+> {
   ttl?: number
   default?: string
   defaultSession: D
 }
 
+type RS<SD extends SceneSessionData<object, true>> = NonNullable<
+  NonNullable<SessionContext<SceneSession<SD>>['session']>['__scenes']
+>
+
+type D<SD extends SceneSessionData<object, true>> = NonNullable<RS<SD>['state']>
+
+type C<SD extends SceneSessionData<object, true>> = SessionContext<
+  SceneSession<SD>
+>
+
 export default class SceneContextScene<
-  C extends SessionContext<SceneSession<D>>,
-  D extends SceneSessionData = SceneSessionData
+  SD extends SceneSessionData<object, true>,
+  CC extends C<SD> = C<SD>
 > {
-  private readonly options: SceneContextSceneOptions<D>
+  private readonly options: SceneContextSceneOptions<SD>
 
   constructor(
-    private readonly ctx: C,
-    private readonly scenes: Map<string, BaseScene<C>>,
-    options: Partial<SceneContextSceneOptions<D>>
+    private readonly ctx: C<SD>,
+    private readonly scenes: Map<string, BaseScene<C<DefaultSceneSessionData>>>,
+    options: Partial<SceneContextSceneOptions<SD>>
   ) {
-    // @ts-expect-error {} might not be assignable to D
-    const fallbackSessionDefault: D = {}
+    const fallbackSessionDefault = {} as SD
 
     this.options = { defaultSession: fallbackSessionDefault, ...options }
   }
 
-  get session(): D {
-    const defaultSession = Object.assign({}, this.options.defaultSession)
+  get session(): RS<SD> {
+    const defaultSession = { ...this.options.defaultSession }
 
     let session = this.ctx.session?.__scenes ?? defaultSession
     if (session.expires !== undefined && session.expires < now()) {
@@ -62,11 +91,11 @@ export default class SceneContextScene<
     return session
   }
 
-  get state() {
+  get state(): D<SD> {
     return (this.session.state ??= {})
   }
 
-  set state(value) {
+  set state(value: D<SD>) {
     this.session.state = { ...value }
   }
 
@@ -82,7 +111,7 @@ export default class SceneContextScene<
       this.ctx.session.__scenes = Object.assign({}, this.options.defaultSession)
   }
 
-  async enter(sceneId: string, initialState: object = {}, silent = false) {
+  async enter(sceneId: string, initialState: D<SD> = {}, silent = false) {
     if (!this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }

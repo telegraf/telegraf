@@ -1,34 +1,37 @@
 import BaseScene, { SceneOptions } from '../base'
 import { Middleware, MiddlewareObj } from '../../middleware'
-import WizardContextWizard, { WizardSessionData } from './context'
+import WizardContextWizard, {
+  WizardSessionData,
+  WizardContext,
+} from './context'
 import Composer from '../../composer'
 import Context from '../../context'
 import SceneContextScene from '../context'
 
-export class WizardScene<
-    C extends Context & {
-      scene: SceneContextScene<C, WizardSessionData>
-      wizard: WizardContextWizard<C>
-    }
-  >
-  extends BaseScene<C>
-  implements MiddlewareObj<C>
-{
-  steps: Array<Middleware<C>>
+type WC<T extends WizardSessionData<object, true> = WizardSessionData<object>> =
+  WizardContext<T>
 
-  constructor(id: string, ...steps: Array<Middleware<C>>)
+export class WizardScene<
+    T extends WizardSessionData<object, true> = WizardSessionData<object>
+  >
+  extends BaseScene<WC<T>>
+  implements MiddlewareObj<WC<T>>
+{
+  steps: Array<Middleware<WC<T>>>
+
+  constructor(id: string, ...steps: Array<Middleware<WC<T>>>)
   constructor(
     id: string,
-    options: SceneOptions<C>,
-    ...steps: Array<Middleware<C>>
+    options: SceneOptions<WC<T>>,
+    ...steps: Array<Middleware<WC<T>>>
   )
   constructor(
     id: string,
-    options: SceneOptions<C> | Middleware<C>,
-    ...steps: Array<Middleware<C>>
+    options: SceneOptions<WC<T>> | Middleware<WC<T>>,
+    ...steps: Array<Middleware<WC<T>>>
   ) {
-    let opts: SceneOptions<C> | undefined
-    let s: Array<Middleware<C>>
+    let opts: SceneOptions<WC<T>> | undefined
+    let s: Array<Middleware<WC<T>>>
     if (typeof options === 'function' || 'middleware' in options) {
       opts = undefined
       s = [options, ...steps]
@@ -41,9 +44,9 @@ export class WizardScene<
   }
 
   middleware() {
-    return Composer.compose<C>([
+    return Composer.compose<WC<T>>([
       (ctx, next) => {
-        ctx.wizard = new WizardContextWizard<C>(ctx, this.steps)
+        ctx.wizard = new WizardContextWizard<WC<T>, T>(ctx, this.steps)
         return next()
       },
       super.middleware(),

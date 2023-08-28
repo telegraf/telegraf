@@ -1134,6 +1134,17 @@ export class Telegram extends ApiClient {
     return this.callApi('unhideGeneralForumTopic', { chat_id })
   }
 
+  /**
+   * Use this method to clear the list of pinned messages in a General forum topic.
+   * The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator
+   * right in the supergroup.
+   *
+   * @param chat_id Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   */
+  unpinAllGeneralForumTopicMessages(chat_id: number | string) {
+    return this.callApi('unpinAllGeneralForumTopicMessages', { chat_id })
+  }
+
   getStickerSet(name: string) {
     return this.callApi('getStickerSet', { name })
   }
@@ -1146,11 +1157,13 @@ export class Telegram extends ApiClient {
    */
   uploadStickerFile(
     ownerId: number,
-    stickerFile: tg.Opts<'uploadStickerFile'>['png_sticker']
+    sticker: tg.Opts<'uploadStickerFile'>['sticker'],
+    sticker_format: tg.Opts<'uploadStickerFile'>['sticker_format']
   ) {
     return this.callApi('uploadStickerFile', {
       user_id: ownerId,
-      png_sticker: stickerFile,
+      sticker_format,
+      sticker,
     })
   }
 
@@ -1203,12 +1216,66 @@ export class Telegram extends ApiClient {
     })
   }
 
-  setStickerSetThumb(
+  /**
+   * @deprecated since API 6.8. Use {@link Telegram.setStickerSetThumbnail}
+   */
+  get setStickerSetThumb() {
+    return this.setStickerSetThumbnail
+  }
+
+  /**
+   * Use this method to set the thumbnail of a regular or mask sticker set.
+   * The format of the thumbnail file must match the format of the stickers in the set.
+   * @param name Sticker set name
+   * @param userId User identifier of the sticker set owner
+   * @param thumbnail A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size
+   * and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to
+   * 32 kilobytes in size (see
+   * [animated sticker technical requirements](https://core.telegram.org/stickers#animated-sticker-requirements)),
+   * or a WEBM video with the thumbnail up to 32 kilobytes in size; see
+   * [video sticker technical requirements](https://core.telegram.org/stickers#video-sticker-requirements).
+   * Pass a file_id as a String to send a file that already exists on the Telegram servers, pass a
+   * HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using
+   * Input helpers. Animated and video sticker set thumbnails can't be uploaded via HTTP URL.
+   * If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail.
+   */
+  setStickerSetThumbnail(
     name: string,
     userId: number,
-    thumb?: tg.Opts<'setStickerSetThumb'>['thumb']
+    thumbnail?: tg.Opts<'setStickerSetThumbnail'>['thumbnail']
   ) {
-    return this.callApi('setStickerSetThumb', { name, user_id: userId, thumb })
+    return this.callApi('setStickerSetThumbnail', {
+      name,
+      user_id: userId,
+      thumbnail,
+    })
+  }
+
+  setStickerMaskPosition(sticker: string, mask_position?: tg.MaskPosition) {
+    return this.callApi('setStickerMaskPosition', { sticker, mask_position })
+  }
+
+  setStickerKeywords(sticker: string, keywords?: string[]) {
+    return this.callApi('setStickerKeywords', { sticker, keywords })
+  }
+
+  setStickerEmojiList(sticker: string, emoji_list: string[]) {
+    return this.callApi('setStickerEmojiList', { sticker, emoji_list })
+  }
+
+  deleteStickerSet(name: string) {
+    return this.callApi('deleteStickerSet', { name })
+  }
+
+  setStickerSetTitle(name: string, title: string) {
+    return this.callApi('setStickerSetTitle', { name, title })
+  }
+
+  setCustomEmojiStickerSetThumbnail(name: string, custom_emoji_id: string) {
+    return this.callApi('setCustomEmojiStickerSetThumbnail', {
+      name,
+      custom_emoji_id,
+    })
   }
 
   /**
@@ -1224,13 +1291,6 @@ export class Telegram extends ApiClient {
   }
 
   /**
-   * Get the current list of the bot's commands.
-   */
-  getMyCommands(extra: tg.Opts<'getMyCommands'> = {}) {
-    return this.callApi('getMyCommands', extra)
-  }
-
-  /**
    * Change the list of the bot's commands.
    * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
    */
@@ -1243,6 +1303,67 @@ export class Telegram extends ApiClient {
 
   deleteMyCommands(extra: tg.Opts<'deleteMyCommands'> = {}) {
     return this.callApi('deleteMyCommands', extra)
+  }
+
+  /**
+   * Get the current list of the bot's commands.
+   */
+  getMyCommands(extra: tg.Opts<'getMyCommands'> = {}) {
+    return this.callApi('getMyCommands', extra)
+  }
+
+  /**
+   * Use this method to change the bot's description, which is shown in the chat with the bot if the chat is empty.
+   * @param description New bot description; 0-512 characters. Pass an empty string to remove the dedicated description for the given language.
+   * @param language_code A two-letter ISO 639-1 language code. If empty, the description will be applied to all users for whose language there is no dedicated description.
+   */
+  setMyDescription(description: string, language_code?: string) {
+    return this.callApi('setMyDescription', { description, language_code })
+  }
+
+  /**
+   * Use this method to change the bot's name.
+   * @param name New bot name; 0-64 characters. Pass an empty string to remove the dedicated name for the given language.
+   * @param language_code A two-letter ISO 639-1 language code. If empty, the name will be shown to all users for whose language there is no dedicated name.
+   */
+  setMyName(name: string, language_code?: string) {
+    return this.callApi('setMyName', { name, language_code })
+  }
+
+  /**
+   * Use this method to get the current bot name for the given user language.
+   * @param language_code A two-letter ISO 639-1 language code or an empty string
+   */
+  getMyName(language_code?: string) {
+    return this.callApi('getMyName', { language_code })
+  }
+
+  /**
+   * Use this method to get the current bot description for the given user language.
+   * @param language_code A two-letter ISO 639-1 language code.
+   */
+  getMyDescription(language_code?: string) {
+    return this.callApi('getMyDescription', { language_code })
+  }
+
+  /**
+   * Use this method to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot.
+   * @param description New short description for the bot; 0-120 characters. Pass an empty string to remove the dedicated short description for the given language.
+   * @param language_code A two-letter ISO 639-1 language code. If empty, the short description will be applied to all users for whose language there is no dedicated short description.
+   */
+  setMyShortDescription(short_description: string, language_code?: string) {
+    return this.callApi('setMyShortDescription', {
+      short_description,
+      language_code,
+    })
+  }
+
+  /**
+   * Use this method to get the current bot short description for the given user language.
+   * @param language_code A two-letter ISO 639-1 language code or an empty string
+   */
+  getMyShortDescription(language_code?: string) {
+    return this.callApi('getMyShortDescription', { language_code })
   }
 
   setPassportDataErrors(

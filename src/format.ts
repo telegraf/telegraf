@@ -1,4 +1,4 @@
-import { User } from 'typegram'
+import { User } from '@telegraf/types'
 import { FmtString, _fmt, linkOrMention, join } from './core/helpers/formatting'
 
 export { FmtString }

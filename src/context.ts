@@ -157,7 +157,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
 
   get passportData() {
     if (this.message == null) return undefined
-    // @ts-expect-error Bug in TS 4.9+, fix will land in 5.0 https://github.com/microsoft/TypeScript/pull/51502
     if (!('passport_data' in this.message)) return undefined
     return this.message?.passport_data
   }
@@ -1156,6 +1155,20 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Use this method to clear the list of pinned messages in a General forum topic.
+   * The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator
+   * right in the supergroup.
+   *
+   * @param chat_id Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+   *
+   * @see https://core.telegram.org/bots/api#unpinallgeneralforumtopicmessages
+   */
+  unpinAllGeneralForumTopicMessages() {
+    this.assert(this.chat, 'unpinAllGeneralForumTopicMessages')
+    return this.telegram.unpinAllGeneralForumTopicMessages(this.chat.id)
+  }
+
+  /**
    * @deprecated use {@link Telegram.setStickerPositionInSet}
    * @see https://core.telegram.org/bots/api#setstickerpositioninset
    */
@@ -1164,11 +1177,45 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
-   * @deprecated use {@link Telegram.setStickerSetThumb}
-   * @see https://core.telegram.org/bots/api#setstickersetthumb
+   * @deprecated use {@link Telegram.setStickerSetThumbnail}
+   * @see https://core.telegram.org/bots/api#setstickersetthumbnail
    */
-  setStickerSetThumb(...args: Parameters<Telegram['setStickerSetThumb']>) {
-    return this.telegram.setStickerSetThumb(...args)
+  setStickerSetThumb(...args: Parameters<Telegram['setStickerSetThumbnail']>) {
+    return this.telegram.setStickerSetThumbnail(...args)
+  }
+
+  setStickerSetThumbnail(
+    ...args: Parameters<Telegram['setStickerSetThumbnail']>
+  ) {
+    return this.telegram.setStickerSetThumbnail(...args)
+  }
+
+  setStickerMaskPosition(
+    ...args: Parameters<Telegram['setStickerMaskPosition']>
+  ) {
+    return this.telegram.setStickerMaskPosition(...args)
+  }
+
+  setStickerKeywords(...args: Parameters<Telegram['setStickerKeywords']>) {
+    return this.telegram.setStickerKeywords(...args)
+  }
+
+  setStickerEmojiList(...args: Parameters<Telegram['setStickerEmojiList']>) {
+    return this.telegram.setStickerEmojiList(...args)
+  }
+
+  deleteStickerSet(...args: Parameters<Telegram['deleteStickerSet']>) {
+    return this.telegram.deleteStickerSet(...args)
+  }
+
+  setStickerSetTitle(...args: Parameters<Telegram['setStickerSetTitle']>) {
+    return this.telegram.setStickerSetTitle(...args)
+  }
+
+  setCustomEmojiStickerSetThumbnail(
+    ...args: Parameters<Telegram['setCustomEmojiStickerSetThumbnail']>
+  ) {
+    return this.telegram.setCustomEmojiStickerSetThumbnail(...args)
   }
 
   /**

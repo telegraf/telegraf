@@ -1,15 +1,16 @@
-import { Typegram } from 'typegram'
+import * as Typegram from '@telegraf/types'
 
 // internal type provisions
-export * from 'typegram/api'
-export * from 'typegram/markup'
-export * from 'typegram/menu-button'
-export * from 'typegram/inline'
-export * from 'typegram/manage'
-export * from 'typegram/message'
-export * from 'typegram/passport'
-export * from 'typegram/payment'
-export * from 'typegram/update'
+export * from '@telegraf/types/api'
+export * from '@telegraf/types/inline'
+export * from '@telegraf/types/manage'
+export * from '@telegraf/types/markup'
+export * from '@telegraf/types/message'
+export * from '@telegraf/types/methods'
+export * from '@telegraf/types/passport'
+export * from '@telegraf/types/payment'
+export * from '@telegraf/types/settings'
+export * from '@telegraf/types/update'
 
 // telegraf input file definition
 interface InputFileByPath {
@@ -34,17 +35,15 @@ export type InputFile =
   | InputFileByBuffer
   | InputFileByURL
 
-// typegram proxy type setup
-type TelegrafTypegram = Typegram<InputFile>
+export type Telegram = Typegram.ApiMethods<InputFile>
 
-export type Telegram = TelegrafTypegram['Telegram']
-export type Opts<M extends keyof Telegram> = TelegrafTypegram['Opts'][M]
-export type InputMedia = TelegrafTypegram['InputMedia']
-export type InputMediaPhoto = TelegrafTypegram['InputMediaPhoto']
-export type InputMediaVideo = TelegrafTypegram['InputMediaVideo']
-export type InputMediaAnimation = TelegrafTypegram['InputMediaAnimation']
-export type InputMediaAudio = TelegrafTypegram['InputMediaAudio']
-export type InputMediaDocument = TelegrafTypegram['InputMediaDocument']
+export type Opts<M extends keyof Telegram> = Typegram.Opts<InputFile>[M]
+export type InputMedia = Typegram.InputMedia<InputFile>
+export type InputMediaPhoto = Typegram.InputMediaPhoto<InputFile>
+export type InputMediaVideo = Typegram.InputMediaVideo<InputFile>
+export type InputMediaAnimation = Typegram.InputMediaAnimation<InputFile>
+export type InputMediaAudio = Typegram.InputMediaAudio<InputFile>
+export type InputMediaDocument = Typegram.InputMediaDocument<InputFile>
 
 // tiny helper types
 export type ChatAction = Opts<'sendChatAction'>['action']

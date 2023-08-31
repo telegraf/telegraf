@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import debug from 'debug'
+import d from 'debug'
 import parse from 'mri'
 import path from 'path'
 
@@ -8,7 +8,7 @@ import type { RequestListener } from 'http'
 import type { TlsOptions } from 'tls'
 import { Telegraf, type Context, type Middleware } from './index.js'
 
-const log = debug('telegraf:cli')
+const debug = d('telegraf:cli')
 
 const helpMsg = `Usage: telegraf [opts] <bot-file>
 
@@ -140,7 +140,7 @@ export async function main(argv: string[], env: Env = {}) {
       }
 
   try {
-    if (args.logs) debug.enable('telegraf:*')
+    if (args.logs) d.enable('telegraf:*')
 
     const mod: Mod = await import(file)
     const botHandler = mod.botHandler || mod.default
@@ -160,7 +160,7 @@ export async function main(argv: string[], env: Env = {}) {
 
     bot.use(botHandler)
 
-    log(`Starting module ${file}`)
+    debug(`Starting module ${file}`)
     await bot.launch(config)
   } catch (err) {
     console.error(`Error launching bot from ${file}`, (err as Error)?.stack)

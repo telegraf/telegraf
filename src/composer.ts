@@ -7,6 +7,7 @@ import Context, { FilteredContext, NarrowedContext } from './context'
 import { MaybeArray, NonemptyReadonlyArray, MaybePromise, Guard } from './util'
 import { type CallbackQuery } from './core/types/typegram'
 import { message, callbackQuery } from './filters'
+import { argParser } from './core/helpers/args'
 
 export type Triggers<C> = MaybeArray<
   string | RegExp | ((value: string, ctx: C) => RegExpExecArray | null)
@@ -34,6 +35,21 @@ type MatchedContext<
 function always<T>(x: T) {
   return () => x
 }
+
+interface ContextArgs {
+  /**
+   * Command args parsed into an array.
+   *
+   * ```
+   * /command token1 token2 -> [ "token1", "token2" ]
+   * /command "token1 token2" -> [ "token1 token2" ]
+   * /command token1 "token2 token3" -> [ token1 "token2 token3" ]
+   * ```
+   * @unstable Parser implementation might vary until considered stable
+   * */
+  args: string[]
+}
+
 const anoop = always(Promise.resolve())
 
 export class Composer<C extends Context> implements MiddlewareObj<C> {
@@ -665,9 +681,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Generates middleware for handling specified commands.
    */
   static command<C extends Context>(
-    command: Triggers<C>,
+    command: Triggers<NarrowedContext<C, tt.MountMap['text']>>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+      Middleware<NarrowedContext<C, tt.MountMap['text']> & ContextArgs>
     >
   ): MiddlewareFn<C> {
     if (fns.length === 0)
@@ -678,16 +694,36 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     const filter = message('text')
 
     return Composer.on<C, typeof filter>(filter, (ctx, next) => {
-      const first = ctx.message.entities?.[0]
-      if (first?.type !== 'bot_command') return next()
-      if (first.offset > 0) return next()
-      const [cmdPart, to] = ctx.message.text.slice(0, first.length).split('@')
+      const { entities } = ctx.message
+      const cmdEntity = entities?.[0]
+      if (cmdEntity?.type !== 'bot_command') return next()
+      if (cmdEntity.offset > 0) return next()
+      const len = cmdEntity.length
+      const text = ctx.message.text
+      const [cmdPart, to] = text.slice(0, len).split('@')
       if (!cmdPart) return next()
       // always check for bot's own username case-insensitively
       if (to && to.toLowerCase() !== ctx.me.toLowerCase()) return next()
       const cmd = cmdPart.slice(1)
       for (const trigger of triggers)
-        if (trigger(cmd, ctx as C)) return Composer.compose(fns)(ctx, next)
+        if (trigger(cmd, ctx)) {
+          let _args: string[] | undefined = undefined
+          Object.defineProperty(ctx, 'args', {
+            enumerable: true,
+            configurable: true,
+            get() {
+              if (_args != null) return _args
+              return (_args = argParser(text.slice(len), entities))
+            },
+            set(args: string[]) {
+              _args = args
+            },
+          })
+          return Composer.compose(fns)(
+            ctx as NarrowedContext<C, tt.MountMap['text']> & { args: string[] },
+            next
+          )
+        }
       return next()
     })
   }

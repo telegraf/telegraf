@@ -86,7 +86,8 @@ test('argParser should respect text_mention and text_link', (t) => {
 
 test('argParser - simple property based tests', (t) => {
   fc.assert(
-    // test with arbitrary strings containing no quotes or escapes
+    // @ts-expect-error TS doesn't know what it's doing here, maybe a bug when running TS on JS
+    // generate arbitrary strings containing no quotes or escapes
     fc.property(fc.stringMatching(/^[^'"\\]+$/), (str) => {
       const parsed = argParser(str)
       // Property 1: none of the parsed strings must contain spaces

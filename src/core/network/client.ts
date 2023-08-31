@@ -359,6 +359,7 @@ class ApiClient {
       options.apiRoot
     )
     config.agent = options.agent
+    // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
     config.signal = signal
     config.timeout = 500_000 // ms
     const res = await fetch(apiUrl, config).catch(redactToken)

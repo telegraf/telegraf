@@ -57,7 +57,7 @@ export function argParser(
     else continue
   }
 
-  if (done !== str.length) flush(str.length)
+  if (done < str.length) flush(str.length)
 
   return args
 }

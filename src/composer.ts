@@ -726,11 +726,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
             configurable: true,
             get() {
               if (_args != null) return _args
-              return (_args = argParser(
-                text.slice(len),
-                entities,
-                cmdPart.length
-              ))
+              return (_args = argParser(text.slice(len), entities, len))
             },
             set(args: string[]) {
               _args = args

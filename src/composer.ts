@@ -36,6 +36,13 @@ function always<T>(x: T) {
   return () => x
 }
 
+interface StartContextExtn {
+  /**
+   * @deprecated Use ctx.payload instead
+   */
+  startPayload: string
+}
+
 interface CommandContextExtn {
   /**
    * Matched command. This will always be the actual command, excluding preceeding slash and `@botname`
@@ -47,6 +54,16 @@ interface CommandContextExtn {
    * ```
    */
   command: string
+  /**
+   * The unparsed payload part of the command
+   *
+   * Examples:
+   * ```
+   * /command abc def -> "abc def"
+   * /command "token1 token2" -> "\"token1 token2\""
+   * ```
+   */
+  payload: string
   /**
    * Command args parsed into an array.
    *
@@ -249,19 +266,13 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   start(
     ...fns: NonemptyReadonlyArray<
-      Middleware<
-        NarrowedContext<C, tt.MountMap['text']> & { startPayload: string }
-      >
+      Middleware<NarrowedContext<C, tt.MountMap['text']> & StartContextExtn>
     >
   ) {
     const handler = Composer.compose(fns)
-    return this.command('start', (ctx, next) => {
-      // First entity is the /start bot_command itself
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const entity = ctx.message.entities![0]!
-      const startPayload = ctx.message.text.slice(entity.length + 1)
-      return handler(Object.assign(ctx, { startPayload }), next)
-    })
+    return this.command('start', (ctx, next) =>
+      handler(Object.assign(ctx, { startPayload: ctx.payload }), next)
+    )
   }
 
   /**
@@ -703,6 +714,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
 
     const triggers = normaliseTriggers(command)
     const filter = message('text')
+    const handler = Composer.compose(fns)
 
     return Composer.on<C, typeof filter>(filter, (ctx, next) => {
       const { entities } = ctx.message
@@ -715,27 +727,27 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       if (!cmdPart) return next()
       // always check for bot's own username case-insensitively
       if (to && to.toLowerCase() !== ctx.me.toLowerCase()) return next()
-      const cmd = cmdPart.slice(1)
+      const command = cmdPart.slice(1)
       for (const trigger of triggers)
-        if (trigger(cmd, ctx)) {
-          // @ts-expect-error ctx.command is an addition for command middleware
-          ctx.command = cmd
+        if (trigger(command, ctx)) {
+          const payloadOffset = len + 1
+          const payload = text.slice(payloadOffset)
+          const c = Object.assign(ctx, { command, payload, args: [] })
           let _args: string[] | undefined = undefined
-          Object.defineProperty(ctx, 'args', {
+          // using defineProperty only to make parsing lazy on access
+          Object.defineProperty(c, 'args', {
             enumerable: true,
             configurable: true,
             get() {
               if (_args != null) return _args
-              return (_args = argsParser(text.slice(len), entities, len))
+              // once parsed, cache and don't parse again on every access
+              return (_args = argsParser(payload, entities, payloadOffset))
             },
             set(args: string[]) {
               _args = args
             },
           })
-          return Composer.compose(fns)(
-            ctx as NarrowedContext<C, tt.MountMap['text']> & CommandContextExtn,
-            next
-          )
+          return handler(c, next)
         }
       return next()
     })

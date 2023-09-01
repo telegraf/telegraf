@@ -10,19 +10,10 @@ interface Entity {
 const SINGLE_QUOTE = "'"
 const DOUBLE_QUOTE = '"'
 
-const debug = `
-console.log("________________________\\n");
-console.log(str);
-console.log(
-	">".padStart(done) + (i - done ? " " + "<".padStart(i - done) : ""),
-	"'" + str.slice(done, i) + "'",
-);`
-
 export function argParser(
   str: string,
   entities: Entity[] = [],
-  entityOffset = 0,
-  DEBUG = false
+  entityOffset = 0
 ) {
   const mentions: { [offset: string]: number } = {}
   for (const entity of entities) // extract all text_mentions into an { offset: length } map
@@ -41,7 +32,6 @@ export function argParser(
   }
 
   for (let i = 0; i < str.length; i++) {
-    if (DEBUG) eval(debug)
     const char = str[i]
     // quick lookup length of mention starting at i
     const mention = mentions[i]
@@ -68,8 +58,6 @@ export function argParser(
   }
 
   if (done !== str.length) flush(str.length)
-
-  if (DEBUG) console.log(args)
 
   return args
 }

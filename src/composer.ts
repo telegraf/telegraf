@@ -36,14 +36,25 @@ function always<T>(x: T) {
   return () => x
 }
 
-interface ContextArgs {
+interface CommandContextExtn {
+  /**
+   * Matched command. This will always be the actual command, excluding preceeding slash and `@botname`
+   *
+   * Examples:
+   * ```
+   * /command abc -> command
+   * /command@xyzbot abc -> command
+   * ```
+   */
+  command: string
   /**
    * Command args parsed into an array.
    *
+   * Examples:
    * ```
    * /command token1 token2 -> [ "token1", "token2" ]
    * /command "token1 token2" -> [ "token1 token2" ]
-   * /command token1 "token2 token3" -> [ token1 "token2 token3" ]
+   * /command token1 "token2 token3" -> [ "token1" "token2 token3" ]
    * ```
    * @unstable Parser implementation might vary until considered stable
    * */
@@ -130,7 +141,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   command(
     command: Triggers<NarrowedContext<C, tt.MountMap['text']>>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap['text']> & ContextArgs>
+      Middleware<NarrowedContext<C, tt.MountMap['text']> & CommandContextExtn>
     >
   ) {
     return this.use(Composer.command<C>(command, ...fns))
@@ -683,7 +694,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   static command<C extends Context>(
     command: Triggers<NarrowedContext<C, tt.MountMap['text']>>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap['text']> & ContextArgs>
+      Middleware<NarrowedContext<C, tt.MountMap['text']> & CommandContextExtn>
     >
   ): MiddlewareFn<C> {
     if (fns.length === 0)
@@ -707,20 +718,26 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       const cmd = cmdPart.slice(1)
       for (const trigger of triggers)
         if (trigger(cmd, ctx)) {
+          // @ts-expect-error ctx.command is an addition for command middleware
+          ctx.command = cmd
           let _args: string[] | undefined = undefined
           Object.defineProperty(ctx, 'args', {
             enumerable: true,
             configurable: true,
             get() {
               if (_args != null) return _args
-              return (_args = argParser(text.slice(len), entities))
+              return (_args = argParser(
+                text.slice(len),
+                entities,
+                cmdPart.length
+              ))
             },
             set(args: string[]) {
               _args = args
             },
           })
           return Composer.compose(fns)(
-            ctx as NarrowedContext<C, tt.MountMap['text']> & { args: string[] },
+            ctx as NarrowedContext<C, tt.MountMap['text']> & CommandContextExtn,
             next
           )
         }

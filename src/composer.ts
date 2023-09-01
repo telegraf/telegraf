@@ -9,17 +9,17 @@ import { type CallbackQuery } from './core/types/typegram'
 import { message, callbackQuery } from './filters'
 import { argParser } from './core/helpers/args'
 
-export type Triggers<C> = MaybeArray<
-  string | RegExp | ((value: string, ctx: C) => RegExpExecArray | null)
->
+export type Triggers<C> = MaybeArray<string | RegExp | TriggerFn<C>>
+type TriggerFn<C> = (value: string, ctx: C) => RegExpExecArray | null
+
 export type Predicate<T> = (t: T) => boolean
 export type AsyncPredicate<T> = (t: T) => Promise<boolean>
 
 export type MatchedMiddleware<
   C extends Context,
-  T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post'
+  T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post',
 > = NonemptyReadonlyArray<
-  Middleware<NarrowedContext<C & { match: RegExpExecArray }, tt.MountMap[T]>>
+  Middleware<NarrowedContext<C, tt.MountMap[T]> & { match: RegExpExecArray }>
 >
 
 /** Takes: a context type and an update type (or message subtype).
@@ -29,7 +29,7 @@ export type MatchedMiddleware<
 /** @deprecated */
 type MatchedContext<
   C extends Context,
-  T extends tt.UpdateType | tt.MessageSubType
+  T extends tt.UpdateType | tt.MessageSubType,
 > = NarrowedContext<C, tt.MountMap[T]>
 
 function always<T>(x: T) {
@@ -117,7 +117,10 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Registers middleware for handling matching text messages.
    */
-  hears(triggers: Triggers<C>, ...fns: MatchedMiddleware<C, 'text'>) {
+  hears(
+    triggers: Triggers<NarrowedContext<C, tt.MountMap['text']>>,
+    ...fns: MatchedMiddleware<C, 'text'>
+  ) {
     return this.use(Composer.hears<C>(triggers, ...fns))
   }
 
@@ -125,9 +128,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Registers middleware for handling specified commands.
    */
   command(
-    command: Triggers<C>,
+    command: Triggers<NarrowedContext<C, tt.MountMap['text']>>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+      Middleware<NarrowedContext<C, tt.MountMap['text']> & ContextArgs>
     >
   ) {
     return this.use(Composer.command<C>(command, ...fns))
@@ -137,7 +140,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Registers middleware for handling matching callback queries.
    */
   action(
-    triggers: Triggers<C>,
+    triggers: Triggers<NarrowedContext<C, tt.MountMap['callback_query']>>,
     ...fns: MatchedMiddleware<C, 'callback_query'>
   ) {
     return this.use(Composer.action<C>(triggers, ...fns))
@@ -147,7 +150,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Registers middleware for handling matching inline queries.
    */
   inlineQuery(
-    triggers: Triggers<C>,
+    triggers: Triggers<NarrowedContext<C, tt.MountMap['inline_query']>>,
     ...fns: MatchedMiddleware<C, 'inline_query'>
   ) {
     return this.use(Composer.inlineQuery<C>(triggers, ...fns))
@@ -184,7 +187,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   private entity<
     T extends 'message' | 'channel_post' | tt.MessageSubType =
       | 'message'
-      | 'channel_post'
+      | 'channel_post',
   >(
     predicate:
       | MaybeArray<string>
@@ -381,7 +384,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
 
   static dispatch<
     C extends Context,
-    Handlers extends Record<string | number | symbol, Middleware<C>>
+    Handlers extends Record<string | number | symbol, Middleware<C>>,
   >(
     routeFn: (ctx: C) => MaybePromise<keyof Handlers>,
     handlers: Handlers
@@ -435,7 +438,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static on<
     Ctx extends Context,
-    Filter extends tt.UpdateType | Guard<Ctx['update']>
+    Filter extends tt.UpdateType | Guard<Ctx['update']>,
   >(
     filters: MaybeArray<Filter>,
     ...fns: NonemptyReadonlyArray<Middleware<FilteredContext<Ctx, Filter>>>
@@ -447,7 +450,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static on<
     Ctx extends Context,
-    Filter extends tt.UpdateType | tt.MessageSubType
+    Filter extends tt.UpdateType | tt.MessageSubType,
   >(
     filters: MaybeArray<Filter>,
     ...fns: NonemptyReadonlyArray<
@@ -457,7 +460,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
 
   static on<
     Ctx extends Context,
-    Filter extends tt.UpdateType | tt.MessageSubType | Guard<Ctx['update']>
+    Filter extends tt.UpdateType | tt.MessageSubType | Guard<Ctx['update']>,
   >(
     updateType: MaybeArray<Filter>,
     ...fns: NonemptyReadonlyArray<Middleware<Ctx>>
@@ -498,7 +501,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     C extends Context,
     T extends 'message' | 'channel_post' | tt.MessageSubType =
       | 'message'
-      | 'channel_post'
+      | 'channel_post',
   >(
     predicate:
       | MaybeArray<string>
@@ -506,26 +509,29 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     ...fns: ReadonlyArray<Middleware<NarrowedContext<C, tt.MountMap[T]>>>
   ): MiddlewareFn<C> {
     if (typeof predicate !== 'function') {
-      const entityTypes = normalizeTextArguments(predicate)
+      const entityTypes = normaliseTextArguments(predicate)
       return Composer.entity(({ type }) => entityTypes.includes(type), ...fns)
     }
-    return Composer.optional<C>((ctx) => {
-      const msg: tg.Message | undefined = ctx.message ?? ctx.channelPost
-      if (msg === undefined) {
-        return false
-      }
-      const text = getText(msg)
-      const entities = getEntities(msg)
-      if (text === undefined) return false
-      return entities.some((entity) =>
-        predicate(
-          entity,
-          text.substring(entity.offset, entity.offset + entity.length),
-          ctx
+    return Composer.optional<C>(
+      (ctx) => {
+        const msg: tg.Message | undefined = ctx.message ?? ctx.channelPost
+        if (msg === undefined) {
+          return false
+        }
+        const text = getText(msg)
+        const entities = getEntities(msg)
+        if (text === undefined) return false
+        return entities.some((entity) =>
+          predicate(
+            entity,
+            text.substring(entity.offset, entity.offset + entity.length),
+            ctx
+          )
         )
-      )
+      },
       // @ts-expect-error see explanation above
-    }, ...fns)
+      ...fns
+    )
   }
 
   static entityText<C extends Context>(
@@ -541,20 +547,23 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
         // @ts-expect-error predicate is really the middleware
         : Composer.entity(entityType, predicate)
     }
-    const triggers = normalizeTriggers(predicate)
-    return Composer.entity<C>(({ type }, value, ctx) => {
-      if (type !== entityType) {
-        return false
-      }
-      for (const trigger of triggers) {
-        // @ts-expect-error define so far unknown property `match`
-        if ((ctx.match = trigger(value, ctx))) {
-          return true
+    const triggers = normaliseTriggers(predicate)
+    return Composer.entity<C>(
+      ({ type }, value, ctx) => {
+        if (type !== entityType) {
+          return false
         }
-      }
-      return false
+        for (const trigger of triggers) {
+          // @ts-expect-error define so far unknown property `match`
+          if ((ctx.match = trigger(value, ctx))) {
+            return true
+          }
+        }
+        return false
+      },
       // @ts-expect-error see explanation above
-    }, ...fns)
+      ...fns
+    )
   }
 
   static email<C extends Context>(
@@ -598,7 +607,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   ): MiddlewareFn<C> {
     return Composer.entityText<C>(
       'mention',
-      normalizeTextArguments(mention, '@'),
+      normaliseTextArguments(mention, '@'),
       ...fns
     )
   }
@@ -609,7 +618,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   ): MiddlewareFn<C> {
     return Composer.entityText<C>(
       'hashtag',
-      normalizeTextArguments(hashtag, '#'),
+      normaliseTextArguments(hashtag, '#'),
       ...fns
     )
   }
@@ -620,7 +629,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   ): MiddlewareFn<C> {
     return Composer.entityText<C>(
       'cashtag',
-      normalizeTextArguments(cashtag, '$'),
+      normaliseTextArguments(cashtag, '$'),
       ...fns
     )
   }
@@ -632,18 +641,10 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     return Composer.entityText<C>('spoiler', text, ...fns)
   }
 
-  private static match<
-    C extends Context,
-    T extends
-      | 'message'
-      | 'channel_post'
-      | 'callback_query'
-      | 'inline_query'
-      | tt.MessageSubType
-  >(
-    triggers: ReadonlyArray<(text: string, ctx: C) => RegExpExecArray | null>,
-    ...fns: MatchedMiddleware<C, T>
-  ): MiddlewareFn<NarrowedContext<C, tt.MountMap[T]>> {
+  private static match<C extends Context>(
+    triggers: ReadonlyArray<TriggerFn<C>>,
+    ...fns: Middleware<C & { match: RegExpExecArray }>[]
+  ): MiddlewareFn<C> {
     const handler = Composer.compose(fns)
     return (ctx, next) => {
       const text =
@@ -653,12 +654,8 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
         ctx.inlineQuery?.query
       if (text === undefined) return next()
       for (const trigger of triggers) {
-        // @ts-expect-error Trust me, TS!
         const match = trigger(text, ctx)
-        if (match) {
-          // @ts-expect-error define so far unknown property `match`
-          return handler(Object.assign(ctx, { match }), next)
-        }
+        if (match) return handler(Object.assign(ctx, { match }), next)
       }
       return next()
     }
@@ -668,12 +665,15 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Generates middleware for handling matching text messages.
    */
   static hears<C extends Context>(
-    triggers: Triggers<C>,
+    triggers: Triggers<NarrowedContext<C, tt.MountMap['text']>>,
     ...fns: MatchedMiddleware<C, 'text'>
   ): MiddlewareFn<C> {
     return Composer.on(
       'text',
-      Composer.match<C, 'text'>(normalizeTriggers(triggers), ...fns)
+      Composer.match<NarrowedContext<C, tt.MountMap['text']>>(
+        normaliseTriggers(triggers),
+        ...fns
+      )
     )
   }
 
@@ -690,7 +690,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       // @ts-expect-error command is really the middleware
       return Composer.entity('bot_command', command)
 
-    const triggers = normalizeTriggers<C>(command)
+    const triggers = normaliseTriggers(command)
     const filter = message('text')
 
     return Composer.on<C, typeof filter>(filter, (ctx, next) => {
@@ -732,12 +732,12 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Generates middleware for handling matching callback queries.
    */
   static action<C extends Context>(
-    triggers: Triggers<C>,
+    triggers: Triggers<NarrowedContext<C, tt.MountMap['callback_query']>>,
     ...fns: MatchedMiddleware<C, 'callback_query'>
   ): MiddlewareFn<C> {
     return Composer.on(
       'callback_query',
-      Composer.match<C, 'callback_query'>(normalizeTriggers(triggers), ...fns)
+      Composer.match(normaliseTriggers(triggers), ...fns)
     )
   }
 
@@ -745,12 +745,12 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * Generates middleware for handling matching inline queries.
    */
   static inlineQuery<C extends Context>(
-    triggers: Triggers<C>,
+    triggers: Triggers<NarrowedContext<C, tt.MountMap['inline_query']>>,
     ...fns: MatchedMiddleware<C, 'inline_query'>
   ): MiddlewareFn<C> {
     return Composer.on(
       'inline_query',
-      Composer.match<C, 'inline_query'>(normalizeTriggers(triggers), ...fns)
+      Composer.match(normaliseTriggers(triggers), ...fns)
     )
   }
 
@@ -774,11 +774,14 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     ...fns: NonemptyReadonlyArray<Middleware<C>>
   ): MiddlewareFn<C> {
     const statuses = Array.isArray(status) ? status : [status]
-    return Composer.optional(async (ctx) => {
-      if (ctx.message === undefined) return false
-      const member = await ctx.getChatMember(ctx.message.from.id)
-      return statuses.includes(member.status)
-    }, ...fns)
+    return Composer.optional(
+      async (ctx) => {
+        if (ctx.message === undefined) return false
+        const member = await ctx.getChatMember(ctx.message.from.id)
+        return statuses.includes(member.status)
+      },
+      ...fns
+    )
   }
 
   /**
@@ -807,10 +810,13 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     ...fns: NonemptyReadonlyArray<Middleware<C>>
   ): MiddlewareFn<C> {
     const types = Array.isArray(type) ? type : [type]
-    return Composer.optional((ctx) => {
-      const chat = ctx.chat
-      return chat !== undefined && types.includes(chat.type)
-    }, ...fns)
+    return Composer.optional(
+      (ctx) => {
+        const chat = ctx.chat
+        return chat !== undefined && types.includes(chat.type)
+      },
+      ...fns
+    )
   }
 
   /**
@@ -893,9 +899,9 @@ function escapeRegExp(s: string) {
   return s.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&')
 }
 
-function normalizeTriggers<C extends Context>(
+function normaliseTriggers<C extends Context>(
   triggers: Triggers<C>
-): Array<(value: string, ctx: C) => RegExpExecArray | null> {
+): Array<TriggerFn<C>> {
   if (!Array.isArray(triggers)) triggers = [triggers]
 
   return triggers.map((trigger) => {
@@ -930,7 +936,7 @@ function getText(
   return undefined
 }
 
-function normalizeTextArguments(argument: MaybeArray<string>, prefix = '') {
+function normaliseTextArguments(argument: MaybeArray<string>, prefix = '') {
   const args = Array.isArray(argument) ? argument : [argument]
   // prettier-ignore
   return args

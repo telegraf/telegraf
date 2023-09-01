@@ -7,7 +7,7 @@ import Context, { FilteredContext, NarrowedContext } from './context'
 import { MaybeArray, NonemptyReadonlyArray, MaybePromise, Guard } from './util'
 import { type CallbackQuery } from './core/types/typegram'
 import { message, callbackQuery } from './filters'
-import { argParser } from './core/helpers/args'
+import { argsParser } from './core/helpers/args'
 
 export type Triggers<C> = MaybeArray<string | RegExp | TriggerFn<C>>
 type TriggerFn<C> = (value: string, ctx: C) => RegExpExecArray | null
@@ -726,7 +726,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
             configurable: true,
             get() {
               if (_args != null) return _args
-              return (_args = argParser(text.slice(len), entities, len))
+              return (_args = argsParser(text.slice(len), entities, len))
             },
             set(args: string[]) {
               _args = args

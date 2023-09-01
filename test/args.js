@@ -2,67 +2,67 @@
 
 const test = require('ava').default
 const fc = require('fast-check')
-const { argParser } = require('../lib/core/helpers/args')
+const { argsParser } = require('../lib/core/helpers/args')
 const { deepStrictEqual } = require('assert')
 
-test('argParser should act predictably', (t) => {
+test('argsParser should act predictably', (t) => {
   t.deepEqual(
     //
-    argParser(`A "quick fox" jumps`),
+    argsParser(`A "quick fox" jumps`),
     ['A', 'quick fox', 'jumps']
   )
   t.deepEqual(
     //
-    argParser(`A "quick" fox" jumps`),
+    argsParser(`A "quick" fox" jumps`),
     ['A', 'quick', 'fox', ' jumps']
   )
   t.deepEqual(
     //
-    argParser(`A "quick"fox jumps`),
+    argsParser(`A "quick"fox jumps`),
     ['A', 'quick', 'fox', 'jumps']
   )
   t.deepEqual(
     //
-    argParser(`A "quick\\" fox"" jumps`),
+    argsParser(`A "quick\\" fox"" jumps`),
     ['A', 'quick" fox', ' jumps']
   )
   t.deepEqual(
     //
-    argParser(`A "quick\\\\" fox"" jumps`),
+    argsParser(`A "quick\\\\" fox"" jumps`),
     ['A', 'quick\\', 'fox', ' jumps']
   )
   t.deepEqual(
     //
-    argParser(`\\\\ (`),
+    argsParser(`\\\\ (`),
     ['\\', '(']
   )
   t.deepEqual(
     //
-    argParser(`-a="b"`),
+    argsParser(`-a="b"`),
     ['-a=', 'b']
   )
 })
 
-test('argParser should break multiple lines', (t) => {
+test('argsParser should break multiple lines', (t) => {
   t.deepEqual(
     //
-    argParser(`A "quick\n fox" jumps`),
+    argsParser(`A "quick\n fox" jumps`),
     ['A', 'quick', 'fox', ' jumps']
   )
 })
 
-test('argParser should not break newline preceeded by \\', (t) => {
+test('argsParser should not break newline preceeded by \\', (t) => {
   t.deepEqual(
     //
-    argParser(`A "quick\\\n fox" jumps`),
+    argsParser(`A "quick\\\n fox" jumps`),
     ['A', 'quick\n fox', 'jumps']
   )
 })
 
-test('argParser should respect text_mention and text_link', (t) => {
+test('argsParser should respect text_mention and text_link', (t) => {
   t.deepEqual(
     //
-    argParser(`A "quick" Mr. Brown 'fox' "jumps`, [
+    argsParser(`A "quick" Mr. Brown 'fox' "jumps`, [
       {
         type: 'text_mention',
         offset: `A "quick" `.length,
@@ -73,7 +73,7 @@ test('argParser should respect text_mention and text_link', (t) => {
   )
   t.deepEqual(
     //
-    argParser(`A "quick Mr. Brown fox" jumps`, [
+    argsParser(`A "quick Mr. Brown fox" jumps`, [
       {
         type: 'text_link',
         offset: `A "quick `.length,
@@ -84,12 +84,12 @@ test('argParser should respect text_mention and text_link', (t) => {
   )
 })
 
-test('argParser - simple property based tests', (t) => {
+test('argsParser - simple property based tests', (t) => {
   fc.assert(
     // @ts-expect-error TS doesn't know what it's doing here, maybe a bug when running TS on JS
     // generate arbitrary strings containing no quotes or escapes
     fc.property(fc.stringMatching(/^[^'"\\]+$/), (str) => {
-      const parsed = argParser(str)
+      const parsed = argsParser(str)
       // Property 1: none of the parsed strings must contain spaces
       deepStrictEqual(!parsed.some((x) => x.includes(' ')), true)
 

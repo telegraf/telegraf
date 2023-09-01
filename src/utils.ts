@@ -1,1 +1,1 @@
-export { argParser } from './core/helpers/args'
+export { argsParser } from './core/helpers/args'

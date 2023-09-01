@@ -10,7 +10,7 @@ interface Entity {
 const SINGLE_QUOTE = "'"
 const DOUBLE_QUOTE = '"'
 
-export function argParser(
+export function argsParser(
   str: string,
   entities: Entity[] = [],
   entityOffset = 0

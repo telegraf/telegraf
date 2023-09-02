@@ -7,7 +7,7 @@
 <p>Modern Telegram Bot API framework for Node.js</p>
 
 <a href="https://core.telegram.org/bots/api">
-	<img src="https://img.shields.io/badge/Bot%20API-v6.5-f36caf.svg?style=flat-square" alt="Bot API Version" />
+	<img src="https://img.shields.io/badge/Bot%20API-v6.8-f36caf.svg?style=flat-square" alt="Bot API Version" />
 </a>
 <a href="https://packagephobia.com/result?p=telegraf,node-telegram-bot-api">
 	<img src="https://flat.badgen.net/packagephobia/install/telegraf" alt="install size" />
@@ -37,7 +37,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 
 ### Features
 
-- Full [Telegram Bot API 6.5](https://core.telegram.org/bots/api) support
+- Full [Telegram Bot API 6.8](https://core.telegram.org/bots/api) support
 - [Excellent TypeScript typings](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
 - [Lightweight](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 - [AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)
@@ -51,32 +51,32 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 ### Example
 
 ```js
-const { Telegraf } = require('telegraf');
-const { message } = require('telegraf/filters');
+const { Telegraf } = require('telegraf')
+const { message } = require('telegraf/filters')
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
-bot.start((ctx) => ctx.reply('Welcome'));
-bot.help((ctx) => ctx.reply('Send me a sticker'));
-bot.on(message('sticker'), (ctx) => ctx.reply('👍'));
-bot.hears('hi', (ctx) => ctx.reply('Hey there'));
-bot.launch();
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.start((ctx) => ctx.reply('Welcome'))
+bot.help((ctx) => ctx.reply('Send me a sticker'))
+bot.on(message('sticker'), (ctx) => ctx.reply('👍'))
+bot.hears('hi', (ctx) => ctx.reply('Hey there'))
+bot.launch()
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 ```js
-const { Telegraf } = require('telegraf');
+const { Telegraf } = require('telegraf')
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
-bot.command('oldschool', (ctx) => ctx.reply('Hello'));
-bot.command('hipster', Telegraf.reply('λ'));
-bot.launch();
+const bot = new Telegraf(process.env.BOT_TOKEN)
+bot.command('oldschool', (ctx) => ctx.reply('Hello'))
+bot.command('hipster', Telegraf.reply('λ'))
+bot.launch()
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 For additional bot examples see the new [`docs repo`](https://github.com/feathers-studio/telegraf-docs/).
@@ -86,10 +86,10 @@ For additional bot examples see the new [`docs repo`](https://github.com/feather
 - [Getting started](#getting-started)
 - [API reference](https://telegraf.js.org/modules.html)
 - Telegram groups (sorted by number of members):
-  * [English](https://t.me/TelegrafJSChat)
-  * [Russian](https://t.me/telegrafjs_ru)
-  * [Uzbek](https://t.me/botjs_uz)
-  * [Ethiopian](https://t.me/telegraf_et)
+  - [English](https://t.me/TelegrafJSChat)
+  - [Russian](https://t.me/telegrafjs_ru)
+  - [Uzbek](https://t.me/botjs_uz)
+  - [Ethiopian](https://t.me/telegraf_et)
 - [GitHub Discussions](https://github.com/telegraf/telegraf/discussions)
 - [Dependent repositories](https://libraries.io/npm/telegraf/dependent_repositories)
 
@@ -101,18 +101,22 @@ To use the [Telegram Bot API](https://core.telegram.org/bots/api),
 you first have to [get a bot account](https://core.telegram.org/bots)
 by [chatting with BotFather](https://core.telegram.org/bots#6-botfather).
 
-BotFather will give you a *token*, something like `123456789:AbCdefGhIJKlmNoPQRsTUVwxyZ`.
+BotFather will give you a _token_, something like `123456789:AbCdefGhIJKlmNoPQRsTUVwxyZ`.
 
 ### Installation
 
 ```shellscript
 $ npm install telegraf
 ```
+
 or
+
 ```shellscript
 $ yarn add telegraf
 ```
+
 or
+
 ```shellscript
 $ pnpm add telegraf
 ```
@@ -131,7 +135,6 @@ It contains the `update`, `botInfo`, and `telegram` for making arbitrary Bot API
 as well as shorthand methods and getters.
 
 This is probably the class you'll be using the most.
-
 
 <!--
 TODO: Verify and update list
@@ -157,49 +160,49 @@ Here is a list of
 #### Shorthand methods
 
 ```js
-import { Telegraf } from 'telegraf';
-import { message } from 'telegraf/filters';
+import { Telegraf } from 'telegraf'
+import { message } from 'telegraf/filters'
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.command('quit', async (ctx) => {
   // Explicit usage
-  await ctx.telegram.leaveChat(ctx.message.chat.id);
+  await ctx.telegram.leaveChat(ctx.message.chat.id)
 
   // Using context shortcut
-  await ctx.leaveChat();
-});
+  await ctx.leaveChat()
+})
 
 bot.on(message('text'), async (ctx) => {
   // Explicit usage
-  await ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`);
+  await ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`)
 
   // Using context shortcut
-  await ctx.reply(`Hello ${ctx.state.role}`);
-});
+  await ctx.reply(`Hello ${ctx.state.role}`)
+})
 
 bot.on('callback_query', async (ctx) => {
   // Explicit usage
-  await ctx.telegram.answerCbQuery(ctx.callbackQuery.id);
+  await ctx.telegram.answerCbQuery(ctx.callbackQuery.id)
 
   // Using context shortcut
-  await ctx.answerCbQuery();
-});
+  await ctx.answerCbQuery()
+})
 
 bot.on('inline_query', async (ctx) => {
-  const result = [];
+  const result = []
   // Explicit usage
-  await ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result);
+  await ctx.telegram.answerInlineQuery(ctx.inlineQuery.id, result)
 
   // Using context shortcut
-  await ctx.answerInlineQuery(result);
-});
+  await ctx.answerInlineQuery(result)
+})
 
-bot.launch();
+bot.launch()
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
 ## Production
@@ -288,22 +291,26 @@ Also, you can provide an optional name of a file as `filename` when you send the
 ```js
 bot.on('message', async (ctx) => {
   // resend existing file by file_id
-  await ctx.replyWithSticker('123123jkbhj6b');
+  await ctx.replyWithSticker('123123jkbhj6b')
 
   // send file
-  await ctx.replyWithVideo(Input.fromLocalFile('/path/to/video.mp4'));
+  await ctx.replyWithVideo(Input.fromLocalFile('/path/to/video.mp4'))
 
   // send stream
-  await ctx.replyWithVideo(Input.fromReadableStream(fs.createReadStream('/path/to/video.mp4')));
+  await ctx.replyWithVideo(
+    Input.fromReadableStream(fs.createReadStream('/path/to/video.mp4'))
+  )
 
   // send buffer
-  await ctx.replyWithVoice(Input.fromBuffer(Buffer.alloc()));
+  await ctx.replyWithVoice(Input.fromBuffer(Buffer.alloc()))
 
   // send url via Telegram server
-  await ctx.replyWithPhoto(Input.fromURL('https://picsum.photos/200/300/'));
+  await ctx.replyWithPhoto(Input.fromURL('https://picsum.photos/200/300/'))
 
   // pipe url content
-  await ctx.replyWithPhoto(Input.fromURLStream('https://picsum.photos/200/300/?random', 'kitten.jpg'));
+  await ctx.replyWithPhoto(
+    Input.fromURLStream('https://picsum.photos/200/300/?random', 'kitten.jpg')
+  )
 })
 ```
 
@@ -336,6 +343,7 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'));
 ```
 
 With this simple ability, you can:
+
 - extract information from updates and then `await next()` to avoid disrupting other middleware,
 - like [`Composer`] and [`Router`], `await next()` for updates you don't wish to handle,
 - like [`session`] and [`Scenes`], [extend the context](#extending-context) by mutating `ctx` before `await next()`,
@@ -364,7 +372,7 @@ Consequently, you can change the type of `ctx` to fit your needs in order for yo
 This is done through Generics:
 
 ```ts
-import { Context, Telegraf } from 'telegraf';
+import { Context, Telegraf } from 'telegraf'
 
 // Define your own context type
 interface MyContext extends Context {
@@ -373,13 +381,13 @@ interface MyContext extends Context {
 }
 
 // Create your bot and tell it about your context type
-const bot = new Telegraf<MyContext>('SECRET TOKEN');
+const bot = new Telegraf<MyContext>('SECRET TOKEN')
 
 // Register middleware and launch your bot as usual
 bot.use((ctx, next) => {
   // Yay, `myProp` is now available here as `string | undefined`!
-  ctx.myProp = ctx.chat?.first_name?.toUpperCase();
-  return next();
-});
+  ctx.myProp = ctx.chat?.first_name?.toUpperCase()
+  return next()
+})
 // ...
 ```

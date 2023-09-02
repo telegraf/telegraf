@@ -37,6 +37,10 @@
     "./format": {
       "types": "./format.d.ts",
       "default": "./format.js"
+    },
+    "./utils": {
+      "types": "./typings/utils.d.ts",
+      "default": "./lib/utils.d.ts"
     }
   },
   "files": [

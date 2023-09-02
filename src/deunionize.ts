@@ -1,7 +1,7 @@
 export type PropOr<
   T extends object | undefined,
   P extends string | symbol | number,
-  D = undefined
+  D = undefined,
 > = T extends Partial<Record<P, unknown>> ? T[P] : D
 
 export type UnionKeys<T> = T extends unknown ? keyof T : never
@@ -13,7 +13,7 @@ type AddOptionalKeys<K extends PropertyKey> = { readonly [P in K]?: never }
  */
 export type Deunionize<
   B extends object | undefined,
-  T extends B = B
+  T extends B = B,
 > = T extends object ? T & AddOptionalKeys<Exclude<UnionKeys<B>, keyof T>> : T
 
 /**

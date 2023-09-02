@@ -6,7 +6,10 @@ interface ErrorPayload {
   parameters?: ResponseParameters
 }
 export class TelegramError extends Error {
-  constructor(readonly response: ErrorPayload, readonly on = {}) {
+  constructor(
+    readonly response: ErrorPayload,
+    readonly on = {}
+  ) {
     super(`${response.error_code}: ${response.description}`)
   }
 

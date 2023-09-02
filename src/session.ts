@@ -48,7 +48,7 @@ export interface SessionContext<S extends object> extends Context {
 export function session<
   S extends NonNullable<C[P]>,
   C extends Context & { [key in P]?: C[P] },
-  P extends (ExclusiveKeys<C, Context> & string) | 'session' = 'session'
+  P extends (ExclusiveKeys<C, Context> & string) | 'session' = 'session',
   // ^ Only allow prop names that aren't keys in base Context.
   // At type level, this is cosmetic. To not get cluttered with all Context keys.
 >(options?: SessionOptions<S, C, P>): MiddlewareFn<C> {

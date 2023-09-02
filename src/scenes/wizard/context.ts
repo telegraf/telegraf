@@ -20,7 +20,7 @@ export interface WizardSession<S extends WizardSessionData = WizardSessionData>
 export default class WizardContextWizard<
   C extends SessionContext<WizardSession> & {
     scene: SceneContextScene<C, WizardSessionData>
-  }
+  },
 > {
   readonly state: object
   constructor(

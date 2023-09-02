@@ -50,7 +50,7 @@ export function hasPropType<
   O extends object,
   K extends PropertyKey,
   T extends keyof Mapping,
-  V extends Mapping[T]
+  V extends Mapping[T],
 >(obj: O | undefined, prop: K, type: T): obj is O & Record<K, V> {
   return hasProp(obj, prop) && type === typeof obj[prop]
 }

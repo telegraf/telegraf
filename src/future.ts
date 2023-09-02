@@ -5,7 +5,7 @@ type ReplyContext = { [key in keyof Context & `reply${string}`]: Context[key] }
 
 function makeReply<
   C extends Context,
-  E extends { reply_to_message_id?: number }
+  E extends { reply_to_message_id?: number },
 >(ctx: C, extra?: E) {
   const reply_to_message_id = ctx.message?.message_id
   return { reply_to_message_id, ...extra }

@@ -24,12 +24,12 @@ type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
  */
 export type NarrowedContext<
   C extends Context,
-  U extends tg.Update
+  U extends tg.Update,
 > = Context<U> & Omit<C, keyof Context>
 
 export type FilteredContext<
   Ctx extends Context,
-  Filter extends tt.UpdateType | Guard<Ctx['update']>
+  Filter extends tt.UpdateType | Guard<Ctx['update']>,
 > = Filter extends tt.UpdateType
   ? NarrowedContext<Ctx, Extract<tg.Update, Record<Filter, object>>>
   : NarrowedContext<Ctx, Guarded<Filter>>

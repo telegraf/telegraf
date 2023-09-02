@@ -32,7 +32,7 @@ export interface SceneContextSceneOptions<D extends SceneSessionData> {
 
 export default class SceneContextScene<
   C extends SessionContext<SceneSession<D>>,
-  D extends SceneSessionData = SceneSessionData
+  D extends SceneSessionData = SceneSessionData,
 > {
   private readonly options: SceneContextSceneOptions<D>
 

@@ -9,7 +9,10 @@ export interface FmtString {
 }
 
 export class FmtString implements FmtString {
-  constructor(public text: string, entities?: MessageEntity[]) {
+  constructor(
+    public text: string,
+    entities?: MessageEntity[]
+  ) {
     if (entities) {
       this.entities = entities
       // force parse_mode to undefined if entities are present

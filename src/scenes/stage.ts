@@ -12,7 +12,7 @@ export class Stage<
   C extends SessionContext<SceneSession<D>> & {
     scene: SceneContextScene<C, D>
   },
-  D extends SceneSessionData = SceneSessionData
+  D extends SceneSessionData = SceneSessionData,
 > extends Composer<C> {
   options: Partial<SceneContextSceneOptions<D>>
   scenes: Map<string, BaseScene<C>>

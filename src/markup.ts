@@ -17,7 +17,7 @@ export class Markup<
     | InlineKeyboardMarkup
     | ReplyKeyboardMarkup
     | ReplyKeyboardRemove
-    | ForceReply
+    | ForceReply,
 > {
   constructor(readonly reply_markup: T) {}
 

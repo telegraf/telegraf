@@ -33,7 +33,7 @@ export type WrapCaption<T> = T extends { caption?: string }
  */
 type MakeExtra<
   M extends keyof Telegram,
-  K extends keyof Omit<Opts<M>, 'chat_id'> = never
+  K extends keyof Omit<Opts<M>, 'chat_id'> = never,
 > = WrapCaption<Omit<Opts<M>, 'chat_id' | K>>
 
 export type ExtraAddStickerToSet = MakeExtra<

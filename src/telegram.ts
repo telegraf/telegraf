@@ -4,7 +4,7 @@ import ApiClient from './core/network/client'
 import { isAbsolute } from 'path'
 import { URL } from 'url'
 import { FmtString } from './format'
-import { fmtCaption } from './util'
+import { fmtCaption } from './core/helpers/util'
 
 export class Telegram extends ApiClient {
   /**

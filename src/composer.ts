@@ -4,7 +4,12 @@ import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import { Middleware, MiddlewareFn, MiddlewareObj } from './middleware'
 import Context, { FilteredContext, NarrowedContext } from './context'
-import { MaybeArray, NonemptyReadonlyArray, MaybePromise, Guard } from './util'
+import {
+  MaybeArray,
+  NonemptyReadonlyArray,
+  MaybePromise,
+  Guard,
+} from './core/helpers/util'
 import { type CallbackQuery } from './core/types/typegram'
 import { message, callbackQuery } from './filters'
 import { argsParser } from './core/helpers/args'

@@ -1,6 +1,6 @@
 /** @format */
 
-import { Expand } from './util'
+import { Expand } from './core/helpers/util'
 import {
   Message,
   Opts,

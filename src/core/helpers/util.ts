@@ -1,4 +1,4 @@
-import { FmtString } from './format'
+import { FmtString } from './formatting'
 
 export const env = process.env
 

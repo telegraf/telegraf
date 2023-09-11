@@ -9,9 +9,8 @@ import { generateWebhook } from './core/network/webhook.ts'
 import { Polling } from './core/network/polling.ts'
 import Telegram from './telegram.ts'
 import { createClient, type ClientOptions } from './core/network/client.ts'
-import { hash } from './platform/crypto.ts'
 import { safeCompare } from './vendor/safe-compare.ts'
-import { sleep, UpdateHandler } from './util.ts'
+import { hash, sleep, UpdateHandler } from './util.ts'
 import { TimeoutError } from './core/network/error.ts'
 import { WebhookContract, defaultContract } from './platform/core/webhook.ts'
 
@@ -167,7 +166,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       d('Unexpected protocol in domain, telegraf will use https:', opts.domain)
 
     const domain = protocol ? new URL(opts.domain).host : opts.domain
-    const path = opts.path ?? `/telegraf/${this.secretPathComponent()}`
+    const path = opts.path ?? `/telegraf`
     const url = `https://${domain}${path}`
 
     return { domain, path, url }
@@ -181,14 +180,17 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     opts: { domain: string; path?: string } & tt.ExtraSetWebhook
   ) {
     const { domain, path, ...extra } = opts
-
+    const secretToken = opts.secret_token || await this.generateTokenSecret()
     const domainOpts = this.getDomainOpts({ domain, path })
 
-    await this.telegram.setWebhook(domainOpts.url, extra)
+    await this.telegram.setWebhook(domainOpts.url, {
+      ...extra, secret_token: secretToken
+    })
+
     d(`Webhook set to ${domainOpts.url}`)
 
     return this.webhookCallback(domainOpts.path, {
-      secretToken: extra.secret_token,
+      secretToken,
     })
   }
 
@@ -220,7 +222,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return this
   }
 
-  secretPathComponent() {
+  generateTokenSecret() {
     return hash(this.#token)
   }
 
@@ -246,7 +248,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       path: config.webhook.hookPath,
     })
 
-    const { tlsOptions, port, host, cb, secretToken } = config.webhook
+    const { tlsOptions, port, host, cb } = config.webhook
+    const secretToken = config.webhook.secretToken || await this.generateTokenSecret()
 
     this.startWebhook(domainOpts.path, tlsOptions, port, host, cb, secretToken)
 
@@ -255,7 +258,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       allowed_updates: config.allowedUpdates,
       ip_address: config.webhook.ipAddress,
       max_connections: config.webhook.maxConnections,
-      secret_token: config.webhook.secretToken,
+      secret_token: secretToken,
       certificate: config.webhook.certificate,
     })
 

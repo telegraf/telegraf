@@ -61,10 +61,10 @@ export const hash = async (value: string): Promise<string> => {
     .decode(crypto.getRandomValues(new Uint8Array(16)))
 
   const hashBuffer = await crypto.subtle.digest(
-    { name: "SHA2-512" },
+    { name: "SHA-512" },
     new TextEncoder().encode(salt + value))
 
-  // return hashBuffer to as a hex
+  // return hashBuffer as a hex
   return Array
     .from(new Uint8Array(hashBuffer))
     .map(b => b.toString(16).padStart(2, "0"))

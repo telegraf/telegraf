@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "4.13.1",
+  "version": "4.14.0",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "Vitaly Domnikov <oss@vitaly.codes>",
@@ -80,7 +80,7 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "@telegraf/types": "^6.8.1",
+    "@telegraf/types": "^6.9.0",
     "abort-controller": "^3.0.0",
     "debug": "^4.3.4",
     "mri": "^1.2.0",

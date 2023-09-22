@@ -150,12 +150,10 @@ export function session<
   }
 }
 
-async function defaultGetSessionKey(ctx: Context): Promise<string | undefined> {
+function defaultGetSessionKey(ctx: Context): string | undefined {
   const fromId = ctx.from?.id
   const chatId = ctx.chat?.id
-  if (fromId == null || chatId == null) {
-    return undefined
-  }
+  if (fromId == null || chatId == null) return undefined
   return `${fromId}:${chatId}`
 }
 

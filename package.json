@@ -3,7 +3,7 @@
   "version": "4.14.0",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
-  "author": "Vitaly Domnikov <oss@vitaly.codes>",
+  "author": "The Telegraf Contributors",
   "homepage": "https://telegraf.js.org",
   "repository": {
     "type": "git",

@@ -51,6 +51,13 @@ export class Markup<
       one_time_keyboard: value,
     })
   }
+
+  persistent(this: Markup<ReplyKeyboardMarkup>, value = true) {
+    return new Markup<ReplyKeyboardMarkup>({
+      ...this.reply_markup,
+      is_persistent: value,
+    })
+  }
 }
 
 export * as button from './button'

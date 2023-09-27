@@ -1,4 +1,3 @@
-import type * as tg from '../../deps/typegram.ts'
 import * as tt from '../../telegram-types.ts'
 import { debug } from '../../platform/deps/debug.ts'
 import { TelegramError } from './error.ts'

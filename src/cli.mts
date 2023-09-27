@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-import debug from 'debug'
+import { debug } from './deps/debug.ts'
 import parse from 'mri'
 import path from 'path'
 
 import type { RequestListener } from 'http'
 import type { TlsOptions } from 'tls'
-import { Telegraf, type Context, type Middleware } from './index.js'
+import { Telegraf, type Context, type Middleware } from './index.ts'
 
 const log = debug('telegraf:cli')
 

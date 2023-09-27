@@ -24,7 +24,7 @@ type MaybeExtra<Extra> = (Extra & { caption?: string }) | undefined
 export function fmtCaption<
   Extra extends {
     caption?: string | FmtString
-  } & Record<string, unknown>
+  } & Record<string, unknown>,
 >(extra?: Extra): MaybeExtra<Extra> {
   const caption = extra?.caption
   if (!caption || typeof caption === 'string') return extra as MaybeExtra<Extra>
@@ -51,7 +51,7 @@ export type Transformer = (call: Client['call']) => Client['call']
 
 export type UpdateHandler = (
   update: Update,
-  transformer?: Transformer
+  transformer?: Transformer,
 ) => Promise<void>
 
 export const sleep = (t: number) => new Promise((r) => setTimeout(r, t))

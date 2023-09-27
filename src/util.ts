@@ -1,6 +1,7 @@
 import { Update } from './deps/typegram.ts'
 import { Client } from './core/network/client.ts'
 import { FmtString } from './format.ts'
+import { version } from './platform/process.ts'
 
 export type DeepPartial<T> = T extends object
   ? {
@@ -14,6 +15,7 @@ export type Expand<T> = T extends object
     : never
   : T
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type Any = {} | null | undefined
 export type MaybeArray<T> = T | T[]
 export type MaybePromise<T> = T | Promise<T>
@@ -56,17 +58,16 @@ export type UpdateHandler = (
 
 export const sleep = (t: number) => new Promise((r) => setTimeout(r, t))
 
-export const hash = async (value: string): Promise<string> => {
-  const salt = new TextDecoder()
-    .decode(crypto.getRandomValues(new Uint8Array(16)))
+const toHex = (buf: ArrayBuffer): string =>
+  Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
 
+export const hash = async (data: string, salt = version): Promise<string> => {
   const hashBuffer = await crypto.subtle.digest(
-    { name: "SHA-512" },
-    new TextEncoder().encode(salt + value))
+    { name: 'SHA-512' },
+    new TextEncoder().encode(salt + data),
+  )
 
-  // return hashBuffer as a hex
-  return Array
-    .from(new Uint8Array(hashBuffer))
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("")
+  return toHex(hashBuffer)
 }

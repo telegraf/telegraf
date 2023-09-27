@@ -1,1 +1,1 @@
-export const process = { version: Deno.version.deno }
+export const version = Deno.version.deno

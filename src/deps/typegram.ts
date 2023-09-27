@@ -1,1 +1,1 @@
-export * from 'https://esm.sh/typegram@4.1.0'
+export * from 'https://deno.land/x/telegraf_types@v6.9.1/index.ts'

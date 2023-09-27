@@ -162,16 +162,9 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   get webAppData() {
-    if (
-      !(
-        'message' in this.update &&
-        this.update.message &&
-        'web_app_data' in this.update.message
-      )
-    )
-      return undefined
+    if (!(this.message && 'web_app_data' in this.message)) return undefined
 
-    const { data, button_text } = this.update.message.web_app_data
+    const { data, button_text } = this.message.web_app_data
 
     return {
       data: {

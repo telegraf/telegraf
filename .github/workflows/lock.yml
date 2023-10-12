@@ -2,7 +2,7 @@ name: 'Lock old issues'
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '0 2 * * *'
   workflow_dispatch:
 
 permissions:

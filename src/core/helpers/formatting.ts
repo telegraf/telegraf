@@ -1,17 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { MessageEntity, User } from '@telegraf/types'
+import { ParseMode } from '@telegraf/types/message';
 import { zip } from './util'
 
 export interface FmtString {
   text: string
   entities?: MessageEntity[]
-  parse_mode?: undefined
+  parse_mode?: ParseMode
 }
 
 export class FmtString implements FmtString {
   constructor(
     public text: string,
-    entities?: MessageEntity[]
+    entities?: MessageEntity[],
+    public parse_mode?: ParseMode
   ) {
     if (entities) {
       this.entities = entities

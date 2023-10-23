@@ -6,6 +6,7 @@ import type {
   Update,
 } from '@telegraf/types'
 import type { Deunionize, UnionKeys } from './deunionize'
+import { Guarded } from './core/helpers/util'
 
 type DistinctKeys<T extends object> = Exclude<UnionKeys<T>, keyof T>
 
@@ -78,15 +79,34 @@ export const callbackQuery =
     return true
   }
 
-export const either =
+/** Any of the provided filters must match */
+export const anyOf =
   <Us extends Update[]>(
     ...filters: {
       [UIdx in keyof Us]: Filter<Us[UIdx]>
     }
   ) =>
   (update: Update): update is Us[number] => {
-    for (const filter of filters) {
-      if (filter(update)) return true
-    }
+    for (const filter of filters) if (filter(update)) return true
     return false
+  }
+
+export type AllGuarded<Fs extends Filter<Update>[]> = Fs extends [
+  infer A,
+  ...infer B,
+]
+  ? B extends []
+    ? Guarded<A>
+    : // TS doesn't know otherwise that B is Filter[]
+    B extends Filter<Update>[]
+    ? Guarded<A> & AllGuarded<B>
+    : never
+  : never
+
+/** All of the provided filters must match */
+export const allOf =
+  <U extends Update, Fs extends Filter<U>[]>(...filters: Fs) =>
+  (update: Update): update is AllGuarded<Fs> => {
+    for (const filter of filters) if (!filter(update)) return false
+    return true
   }

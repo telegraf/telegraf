@@ -15,6 +15,20 @@ type Keyed<T extends object, K extends DistinctKeys<T>> = Record<K, {}> &
 
 export type Filter<U extends Update> = (update: Update) => update is U
 
+export { Guarded }
+
+export type AllGuarded<Fs extends Filter<Update>[]> = Fs extends [
+  infer A,
+  ...infer B,
+]
+  ? B extends []
+    ? Guarded<A>
+    : // TS doesn't know otherwise that B is Filter[]
+    B extends Filter<Update>[]
+    ? Guarded<A> & AllGuarded<B>
+    : never
+  : never
+
 export const message =
   <Ks extends DistinctKeys<Message>[]>(...keys: Ks) =>
   (
@@ -90,18 +104,6 @@ export const anyOf =
     for (const filter of filters) if (filter(update)) return true
     return false
   }
-
-export type AllGuarded<Fs extends Filter<Update>[]> = Fs extends [
-  infer A,
-  ...infer B,
-]
-  ? B extends []
-    ? Guarded<A>
-    : // TS doesn't know otherwise that B is Filter[]
-    B extends Filter<Update>[]
-    ? Guarded<A> & AllGuarded<B>
-    : never
-  : never
 
 /** All of the provided filters must match */
 export const allOf =

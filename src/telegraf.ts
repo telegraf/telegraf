@@ -48,8 +48,14 @@ export namespace Telegraf {
       /** Public domain for webhook. */
       domain: string
 
-      /** Webhook url path; will be automatically generated if not specified */
+      /**
+       * Webhook url path; will be automatically generated if not specified
+       * @deprecated Pass `path` instead
+       * */
       hookPath?: string
+
+      /** Webhook url path; will be automatically generated if not specified */
+      path?: string
 
       host?: string
       port?: number
@@ -96,19 +102,24 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   readonly context: Partial<C> = {}
 
   /** Assign to this to customise the webhook filter middleware.
-   * `{ hookPath, secretToken }` will be bound to this rather than the Telegraf instance.
+   * `{ path, secretToken }` will be bound to this rather than the Telegraf instance.
    * Remember to assign a regular function and not an arrow function so it's bindable.
    */
   public webhookFilter = function (
     // NOTE: this function is assigned to a variable instead of being a method to signify that it's assignable
     // NOTE: the `this` binding is so custom impls don't need to double wrap
-    this: { hookPath: string; secretToken?: string },
+    this: {
+      /** @deprecated Use path instead */
+      hookPath: string
+      path: string
+      secretToken?: string
+    },
     req: http.IncomingMessage
   ) {
     const debug = d('telegraf:webhook')
 
     if (req.method === 'POST') {
-      if (safeCompare(this.hookPath, req.url as string)) {
+      if (safeCompare(this.path, req.url as string)) {
         // no need to check if secret_token was not set
         if (!this.secretToken) return true
         else {
@@ -116,7 +127,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
           if (safeCompare(this.secretToken, token)) return true
           else debug('Secret token does not match:', token, this.secretToken)
         }
-      } else debug('Path does not match:', req.url, this.hookPath)
+      } else debug('Path does not match:', req.url, this.path)
     } else debug('Unexpected request method, not POST. Received:', req.method)
 
     return false
@@ -168,10 +179,10 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
    * You must call `bot.telegram.setWebhook` for this to work.
    * You should probably use {@link Telegraf.createWebhook} instead.
    */
-  webhookCallback(hookPath = '/', opts: { secretToken?: string } = {}) {
+  webhookCallback(path = '/', opts: { secretToken?: string } = {}) {
     const { secretToken } = opts
     return generateCallback(
-      this.webhookFilter.bind({ hookPath, secretToken }),
+      this.webhookFilter.bind({ hookPath: path, path, secretToken }),
       (update: tg.Update, res: http.ServerResponse) =>
         this.handleUpdate(update, res)
     )
@@ -221,14 +232,14 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   }
 
   private startWebhook(
-    hookPath: string,
+    path: string,
     tlsOptions?: TlsOptions,
     port?: number,
     host?: string,
     cb?: http.RequestListener,
     secretToken?: string
   ) {
-    const webhookCb = this.webhookCallback(hookPath, { secretToken })
+    const webhookCb = this.webhookCallback(path, { secretToken })
     const callback: http.RequestListener =
       typeof cb === 'function'
         ? (req, res) => webhookCb(req, res, () => cb(req, res))
@@ -270,7 +281,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
     const domainOpts = this.getDomainOpts({
       domain: config.webhook.domain,
-      path: config.webhook.hookPath,
+      path: config.webhook.path ?? config.webhook.hookPath,
     })
 
     const { tlsOptions, port, host, cb, secretToken } = config.webhook

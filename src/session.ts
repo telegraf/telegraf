@@ -67,6 +67,15 @@ export function session<
   return async (ctx, next) => {
     const updId = ctx.update.update_id
 
+    let released = false
+
+    function releaseChecks() {
+      if (released && process.env.EXPERIMENTAL_SESSION_CHECKS)
+        throw new Error(
+          "Session was accessed after middleware chain exhausted. This is a bug in your code. You're probably missing awaits."
+        )
+    }
+
     // because this is async, requests may still race here, but it will get autocorrected at (1)
     // v5 getSessionKey should probably be synchronous to avoid that
     const key = await getSessionKey(ctx)
@@ -118,10 +127,12 @@ export function session<
 
     Object.defineProperty(ctx, prop, {
       get() {
+        releaseChecks()
         touched = true
         return c.ref
       },
       set(value: S) {
+        releaseChecks()
         touched = true
         c.ref = value
       },
@@ -129,6 +140,7 @@ export function session<
 
     try {
       await next()
+      released = true
     } finally {
       if (--c.counter === 0) {
         // decrement to avoid memory leak

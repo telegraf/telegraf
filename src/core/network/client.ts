@@ -129,10 +129,11 @@ async function buildFormDataConfig(
   }
   const boundary = crypto.randomBytes(32).toString('hex')
   const formData = new MultipartStream(boundary)
-  const tasks = Object.keys(payload).map((key) =>
-    attachFormValue(formData, key, payload[key], agent)
+  Promise.all(
+    Object.keys(payload).map((key) =>
+      attachFormValue(formData, key, payload[key], agent)
+    )
   )
-  await Promise.all(tasks)
   return {
     method: 'POST',
     compress: true,
@@ -214,6 +215,15 @@ interface FormMedia {
   url?: RequestInfo
   source?: string
 }
+
+function getReadStream(file: string) {
+  const stream = fs.createReadStream(file)
+  return new Promise<ReadStream>((resolve, reject) => {
+    stream.on('error', reject)
+    stream.on('readable', () => resolve(stream))
+  })
+}
+
 async function attachFormMedia(
   form: MultipartStream,
   media: FormMedia,
@@ -235,7 +245,7 @@ async function attachFormMedia(
     let mediaSource: string | ReadStream = media.source
     if (fs.existsSync(media.source)) {
       fileName = media.filename ?? path.basename(media.source)
-      mediaSource = fs.createReadStream(media.source)
+      mediaSource = await getReadStream(media.source)
     }
     if (isStream(mediaSource) || Buffer.isBuffer(mediaSource)) {
       form.addPart({

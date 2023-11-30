@@ -72,7 +72,7 @@ export function session<
     function releaseChecks() {
       if (released && process.env.EXPERIMENTAL_SESSION_CHECKS)
         throw new Error(
-          "Session was accessed after middleware chain exhausted. This is a bug in your code. You're probably missing awaits."
+          "Session was accessed or assigned to after the middleware chain exhausted. This is a bug in your code. You're probably missing awaits."
         )
     }
 
@@ -151,12 +151,12 @@ export function session<
 
       // only update store if ctx.session was touched
       if (touched)
-        if (ctx[prop] == null) {
+        if (c.ref == null) {
           debug(`(${updId}) ctx.${prop} missing, removing from store`)
           await store.delete(key)
         } else {
           debug(`(${updId}) ctx.${prop} found, updating store`)
-          await store.set(key, ctx[prop] as S)
+          await store.set(key, c.ref)
         }
     }
   }

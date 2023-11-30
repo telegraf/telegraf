@@ -72,7 +72,7 @@ export function session<
     function releaseChecks() {
       if (released && process.env.EXPERIMENTAL_SESSION_CHECKS)
         throw new Error(
-          "Session was accessed or assigned to after the middleware chain exhausted. This is a bug in your code. You're probably missing awaits."
+          "Session was accessed or assigned to after the middleware chain exhausted. This is a bug in your code. You're probably accessing session asynchronously and missing awaits."
         )
     }
 

@@ -165,7 +165,7 @@ async function attachFormValue(
     })
     return
   }
-  if (id === 'thumb') {
+  if (id === 'thumb' || id === 'thumbnail') {
     const attachmentId = crypto.randomBytes(16).toString('hex')
     await attachFormMedia(form, value as FormMedia, attachmentId, agent)
     return form.addPart({

@@ -1,16 +1,16 @@
 /* eslint @typescript-eslint/restrict-template-expressions: [ "error", { "allowNumber": true, "allowBoolean": true } ] */
 import * as crypto from 'crypto'
 import * as fs from 'fs'
+import { stat, realpath } from 'fs/promises'
 import * as http from 'http'
 import * as https from 'https'
 import * as path from 'path'
-import fetch, { RequestInfo, RequestInit } from 'node-fetch'
+import fetch, { RequestInit } from 'node-fetch'
 import { hasProp, hasPropType } from '../helpers/check'
-import { Opts, Telegram } from '../types/typegram'
+import { InputFile, Opts, Telegram } from '../types/typegram'
 import { AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
 import MultipartStream from './multipart-stream'
-import { ReadStream } from 'fs'
 import TelegramError from './error'
 import { URL } from 'url'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -116,10 +116,10 @@ const FORM_DATA_JSON_FIELDS = [
   'mask_position',
   'shipping_options',
   'errors',
-]
+] as const
 
 async function buildFormDataConfig(
-  payload: Record<string, unknown>,
+  payload: Opts<keyof Telegram>,
   agent: ApiClient.Agent
 ) {
   for (const field of FORM_DATA_JSON_FIELDS) {
@@ -129,8 +129,9 @@ async function buildFormDataConfig(
   }
   const boundary = crypto.randomBytes(32).toString('hex')
   const formData = new MultipartStream(boundary)
-  Promise.all(
+  await Promise.all(
     Object.keys(payload).map((key) =>
+      // @ts-expect-error payload[key] can obviously index payload, but TS doesn't trust us
       attachFormValue(formData, key, payload[key], agent)
     )
   )
@@ -167,7 +168,7 @@ async function attachFormValue(
   }
   if (id === 'thumb' || id === 'thumbnail') {
     const attachmentId = crypto.randomBytes(16).toString('hex')
-    await attachFormMedia(form, value as FormMedia, attachmentId, agent)
+    await attachFormMedia(form, value as InputFile, attachmentId, agent)
     return form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
       body: `attach://${attachmentId}`,
@@ -198,7 +199,7 @@ async function attachFormValue(
     typeof value.type !== 'undefined'
   ) {
     const attachmentId = crypto.randomBytes(16).toString('hex')
-    await attachFormMedia(form, value.media as FormMedia, attachmentId, agent)
+    await attachFormMedia(form, value.media as InputFile, attachmentId, agent)
     return form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
       body: JSON.stringify({
@@ -207,31 +208,17 @@ async function attachFormValue(
       }),
     })
   }
-  return await attachFormMedia(form, value as FormMedia, id, agent)
-}
-
-interface FormMedia {
-  filename?: string
-  url?: RequestInfo
-  source?: string
-}
-
-function getReadStream(file: string) {
-  const stream = fs.createReadStream(file)
-  return new Promise<ReadStream>((resolve, reject) => {
-    stream.on('error', reject)
-    stream.on('readable', () => resolve(stream))
-  })
+  return await attachFormMedia(form, value as InputFile, id, agent)
 }
 
 async function attachFormMedia(
   form: MultipartStream,
-  media: FormMedia,
+  media: InputFile,
   id: string,
   agent: ApiClient.Agent
 ) {
   let fileName = media.filename ?? `${id}.${DEFAULT_EXTENSIONS[id] ?? 'dat'}`
-  if (media.url !== undefined) {
+  if ('url' in media && media.url !== undefined) {
     const timeout = 500_000 // ms
     const res = await fetch(media.url, { agent, timeout })
     return form.addPart({
@@ -241,11 +228,16 @@ async function attachFormMedia(
       body: res.body,
     })
   }
-  if (media.source) {
-    let mediaSource: string | ReadStream = media.source
-    if (fs.existsSync(media.source)) {
-      fileName = media.filename ?? path.basename(media.source)
-      mediaSource = await getReadStream(media.source)
+  if ('source' in media && media.source) {
+    let mediaSource = media.source
+    if (typeof media.source === 'string' && fs.existsSync(media.source)) {
+      const source = await realpath(media.source)
+      if ((await stat(source)).isFile()) {
+        fileName = media.filename ?? path.basename(media.source)
+        mediaSource = await fs.createReadStream(media.source)
+      } else {
+        throw new TypeError(`Unable to upload '${media.source}', not a file`)
+      }
     }
     if (isStream(mediaSource) || Buffer.isBuffer(mediaSource)) {
       form.addPart({
@@ -260,7 +252,7 @@ async function attachFormMedia(
 
 async function answerToWebhook(
   response: Response,
-  payload: Record<string, unknown>,
+  payload: Opts<keyof Telegram>,
   options: ApiClient.Options
 ): Promise<true> {
   if (!includesMedia(payload)) {

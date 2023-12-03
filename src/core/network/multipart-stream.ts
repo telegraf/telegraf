@@ -5,7 +5,7 @@ const CRNL = '\r\n'
 
 interface Part {
   headers: { [key: string]: string }
-  body: NodeJS.ReadStream | NodeJS.ReadableStream | string
+  body: NodeJS.ReadStream | NodeJS.ReadableStream | Buffer | string
 }
 
 class MultipartStream extends SandwichStream {

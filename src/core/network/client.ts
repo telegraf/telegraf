@@ -230,7 +230,7 @@ async function attachFormMedia(
   }
   if ('source' in media && media.source) {
     let mediaSource = media.source
-    if (typeof media.source === 'string' && fs.existsSync(media.source)) {
+    if (typeof media.source === 'string') {
       const source = await realpath(media.source)
       if ((await stat(source)).isFile()) {
         fileName = media.filename ?? path.basename(media.source)

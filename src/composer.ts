@@ -84,9 +84,9 @@ interface StatusContextExtn {
     /** */
     change: StatusChange
     /** Shorthand for update.my_chat_member.old_chat_member.status */
-    old: tg.ChatMember['status']
+    prev: tg.ChatMember['status']
     /** Shorthand for update.my_chat_member.new_chat_member.status */
-    new: tg.ChatMember['status']
+    current: tg.ChatMember['status']
   }
 }
 
@@ -970,14 +970,14 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
 
     return Composer.on('my_chat_member', async (ctx, next) => {
       const status = {
-        new: ctx.myChatMember.new_chat_member.status,
-        old: ctx.myChatMember.old_chat_member.status,
+        prev: ctx.myChatMember.new_chat_member.status,
+        current: ctx.myChatMember.old_chat_member.status,
       }
 
       for (const change of changes) {
         // todo: decide whether to normalise and fire for all matching changes, or just the first matching one
         // ref: https://github.com/telegraf/telegraf/issues/1872
-        if (checkStatusChange(change, ctx.chat.type, status.new, status.old))
+        if (checkStatusChange(change, ctx.chat.type, status))
           return handler(
             Object.assign(ctx, { status: Object.assign(status, { change }) }),
             next
@@ -1041,19 +1041,19 @@ function normaliseTextArguments(argument: MaybeArray<string>, prefix = '') {
 function checkStatusChange(
   change: StatusChange,
   chatType: tg.Chat['type'],
-  current: tg.ChatMember['status'],
-  old: tg.ChatMember['status']
+  status: Record<'prev' | 'current', tg.ChatMember['status']>
 ) {
+  const { prev, current } = status
   if (chatType === 'private') {
     if (change === 'blocked') return current === 'kicked'
     if (change === 'unblocked') return current === 'member'
   } else {
-    if (change === 'joined') return old === 'left' || old === 'kicked'
+    if (change === 'joined') return prev === 'left' || prev === 'kicked'
     if (change === 'banned') return current === 'kicked'
     if (change === 'left') return current === 'left'
     if (change === 'restricted') return current === 'restricted'
     if (change === 'promoted') return current === 'administrator'
-    if (change === 'demoted') return old === 'administrator'
+    if (change === 'demoted') return prev === 'administrator'
   }
 }
 

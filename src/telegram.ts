@@ -434,7 +434,7 @@ export class Telegram extends ApiClient {
     chatId: number | string,
     question: string,
     options: readonly string[],
-    extra: tt.ExtraPoll
+    extra?: tt.ExtraPoll
   ) {
     return this.callApi('sendPoll', {
       chat_id: chatId,

@@ -41,8 +41,8 @@ export function userRequest(
   request_id: number,
   user_is_premium?: boolean,
   hide = false
-): Hideable<KeyboardButton.RequestUserButton> {
-  return { text, request_user: { request_id, user_is_premium }, hide }
+): Hideable<KeyboardButton.RequestUsersButton> {
+  return { text, request_users: { request_id, user_is_premium }, hide }
 }
 
 export function botRequest(
@@ -50,8 +50,8 @@ export function botRequest(
   /** Must fit in a signed 32 bit int */
   request_id: number,
   hide = false
-): Hideable<KeyboardButton.RequestUserButton> {
-  return { text, request_user: { request_id, user_is_bot: true }, hide }
+): Hideable<KeyboardButton.RequestUsersButton> {
+  return { text, request_users: { request_id, user_is_bot: true }, hide }
 }
 
 type KeyboardButtonRequestGroup = Omit<

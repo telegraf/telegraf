@@ -94,8 +94,7 @@ export type ExtraGame = MakeExtra<'sendGame', 'game_short_name'>
 export type NewInvoiceParameters = MakeExtra<
   'sendInvoice',
   | 'disable_notification'
-  | 'reply_to_message_id'
-  | 'allow_sending_without_reply'
+  | 'reply_parameters'
   | 'reply_markup'
   | 'message_thread_id'
 >

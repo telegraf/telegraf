@@ -2,6 +2,7 @@ import {
   InlineKeyboardButton,
   KeyboardButton,
   KeyboardButtonRequestChat,
+  KeyboardButtonRequestUsers,
 } from './core/types/typegram'
 
 type Hideable<B> = B & { hide: boolean }
@@ -39,19 +40,31 @@ export function userRequest(
   text: string,
   /** Must fit in a signed 32 bit int */
   request_id: number,
-  user_is_premium?: boolean,
+  extra?: Omit<KeyboardButtonRequestUsers, 'request_id' | 'text'>,
   hide = false
 ): Hideable<KeyboardButton.RequestUsersButton> {
-  return { text, request_users: { request_id, user_is_premium }, hide }
+  return {
+    text,
+    request_users: { request_id, ...extra },
+    hide,
+  }
 }
 
 export function botRequest(
   text: string,
   /** Must fit in a signed 32 bit int */
   request_id: number,
+  extra?: Omit<
+    KeyboardButtonRequestUsers,
+    'request_id' | 'user_is_bot' | 'text'
+  >,
   hide = false
 ): Hideable<KeyboardButton.RequestUsersButton> {
-  return { text, request_users: { request_id, user_is_bot: true }, hide }
+  return {
+    text,
+    request_users: { request_id, user_is_bot: true, ...extra },
+    hide,
+  }
 }
 
 type KeyboardButtonRequestGroup = Omit<

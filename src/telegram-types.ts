@@ -62,6 +62,10 @@ export type ExtraCopyMessage = MakeExtra<
   'copyMessage',
   'from_chat_id' | 'message_id'
 >
+export type ExtraCopyMessages = MakeExtra<
+  'copyMessages',
+  'from_chat_id' | 'message_ids'
+>
 export type ExtraCreateChatInviteLink = MakeExtra<'createChatInviteLink'>
 export type NewInvoiceLinkParameters = MakeExtra<'createInvoiceLink'>
 export type ExtraCreateNewStickerSet = MakeExtra<
@@ -113,6 +117,10 @@ export type ExtraReplyMessage = MakeExtra<'sendMessage', 'text'>
 export type ExtraForwardMessage = MakeExtra<
   'forwardMessage',
   'from_chat_id' | 'message_id'
+>
+export type ExtraForwardMessages = MakeExtra<
+  'forwardMessages',
+  'from_chat_id' | 'message_ids'
 >
 export type ExtraSendChatAction = MakeExtra<'sendChatAction', 'action'>
 export type ExtraRestrictChatMember = MakeExtra<'restrictChatMember', 'user_id'>

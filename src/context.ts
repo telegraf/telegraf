@@ -15,6 +15,13 @@ type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
 
+// prettier-ignore
+const TgEmojiSet = new Set<tg.TelegramEmoji>([
+  "👍" , "👎" , "❤" , "🔥" , "🥰" , "👏" , "😁" , "🤔" , "🤯" , "😱" , "🤬" , "😢" , "🎉" , "🤩" , "🤮" , "💩" , "🙏" , "👌" , "🕊" , "🤡" , "🥱" , "🥴" , "😍" , "🐳" , "❤‍🔥" , "🌚" , "🌭" , "💯" , "🤣" , "⚡" , "🍌" , "🏆" , "💔" , "🤨" , "😐" , "🍓" , "🍾" , "💋" , "🖕" , "😈" , "😴" , "😭" , "🤓" , "👻" , "👨‍💻" , "👀" , "🎃" , "🙈" , "😇" , "😨" , "🤝" , "✍" , "🤗" , "🫡" , "🎅" , "🎄" , "☃" , "💅" , "🤪" , "🗿" , "🆒" , "💘" , "🙉" , "🦄" , "😘" , "💊" , "🙊" , "😎" , "👾" , "🤷‍♂" , "🤷" , "🤷‍♀" , "😡"
+]);
+
+type Digit = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+
 /**
  * Narrows down `C['update']` (and derived getters)
  * to specific update type `U`.
@@ -907,6 +914,40 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Shorthand for {@link Telegram.setMessageReaction}
+   * @param reaction An emoji or custom_emoji_id to set as reaction to current message. Leave empty to remove reactions.
+   * @param is_big Pass True to set the reaction with a big animation
+   */
+  react(
+    reaction?: MaybeArray<
+      tg.TelegramEmoji | `${Digit}${string}` | tg.ReactionType
+    >,
+    is_big?: boolean
+  ) {
+    this.assert(this.chat, 'setMessageReaction')
+    this.assert(this.message?.message_id, 'setMessageReaction')
+    const emojis = reaction
+      ? Array.isArray(reaction)
+        ? reaction
+        : [reaction]
+      : undefined
+    const reactions = emojis?.map(
+      (emoji): tg.ReactionType =>
+        typeof emoji === 'string'
+          ? TgEmojiSet.has(emoji as tg.TelegramEmoji)
+            ? { type: 'emoji', emoji: emoji as tg.TelegramEmoji }
+            : { type: 'custom_emoji', custom_emoji_id: emoji }
+          : emoji
+    )
+    return this.telegram.setMessageReaction(
+      this.chat.id,
+      this.message.message_id,
+      reactions,
+      is_big
+    )
+  }
+
+  /**
    * @see https://core.telegram.org/bots/api#sendlocation
    */
   sendLocation(latitude: number, longitude: number, extra?: tt.ExtraLocation) {
@@ -1295,6 +1336,15 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Context-aware shorthand for {@link Telegram.deleteMessages}
+   * @param messageIds Identifiers of 1-100 messages to delete. See deleteMessage for limitations on which messages can be deleted
+   */
+  deleteMessages(messageIds: number[]) {
+    this.assert(this.chat, 'deleteMessages')
+    return this.telegram.deleteMessages(this.chat.id, messageIds)
+  }
+
+  /**
    * @see https://core.telegram.org/bots/api#forwardmessage
    */
   forwardMessage(
@@ -1312,6 +1362,24 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Shorthand for {@link Telegram.forwardMessages}
+   * @see https://core.telegram.org/bots/api#forwardmessages
+   */
+  forwardMessages(
+    chatId: string | number,
+    messageIds: number[],
+    extra?: Shorthand<'forwardMessages'>[2]
+  ) {
+    this.assert(this.chat, 'forwardMessages')
+    return this.telegram.forwardMessages(
+      chatId,
+      this.chat.id,
+      messageIds,
+      extra
+    )
+  }
+
+  /**
    * @see https://core.telegram.org/bots/api#copymessage
    */
   copyMessage(chatId: string | number, extra?: tt.ExtraCopyMessage) {
@@ -1323,6 +1391,20 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
       message.message_id,
       extra
     )
+  }
+
+  /**
+   * Context-aware shorthand for {@link Telegram.copyMessages}
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageIds Identifiers of 1-100 messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order.
+   */
+  copyMessages(
+    chatId: number | string,
+    messageIds: number[],
+    extra?: tt.ExtraCopyMessages
+  ) {
+    this.assert(this.chat, 'copyMessages')
+    return this.telegram.copyMessages(chatId, this.chat?.id, messageIds, extra)
   }
 
   /**

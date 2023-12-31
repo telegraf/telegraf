@@ -3,7 +3,7 @@ import {
   FmtString,
   createFmt,
   linkOrMention,
-  join,
+  join as _join,
 } from './core/helpers/formatting'
 
 export { FmtString }
@@ -17,71 +17,94 @@ type Nests<Is extends string, Kind extends string> = (
   ...args: Nesting<Kind>
 ) => FmtString<Is>
 
-const fmt = createFmt()
+// Nests<A, B> means the function will return A, and it can nest B
+// Nests<'fmt', string> means it will nest anything
+// Nests<'code', never> means it will not nest anything
 
-const bold = createFmt('bold') as Nests<
+// Allowing everything to nest 'fmt' is a necessary evil; it allows to indirectly nest illegal entities
+// Except for 'code' and 'pre', which don't nest anything anyway, so they only deal with strings
+
+export const join = _join as Nests<'fmt', string>
+
+export const fmt = createFmt() as Nests<'fmt', string>
+
+export const bold = createFmt('bold') as Nests<
   'bold',
-  'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler'
+  'fmt' | 'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler'
 >
 
-const italic = createFmt('italic') as Nests<
+export const italic = createFmt('italic') as Nests<
   'italic',
-  'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler'
+  'fmt' | 'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler'
 >
 
-const spoiler = createFmt('spoiler') as Nests<
+export const spoiler = createFmt('spoiler') as Nests<
   'spoiler',
-  'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler'
+  'fmt' | 'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler'
 >
 
-const strikethrough = createFmt('strikethrough') as Nests<
-  'strikethrough',
-  'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler'
->
+export const strikethrough =
+  //
+  createFmt('strikethrough') as Nests<
+    'strikethrough',
+    'fmt' | 'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler'
+  >
 
-const underline = createFmt('underline') as Nests<
-  'underline',
-  'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler'
->
+export const underline =
+  //
+  createFmt('underline') as Nests<
+    'underline',
+    'fmt' | 'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler'
+  >
 
-const code = createFmt('code') as Nests<'code', never>
+export const quote =
+  //
+  createFmt('blockquote') as Nests<
+    'blockquote',
+    | 'fmt'
+    | 'bold'
+    | 'italic'
+    | 'underline'
+    | 'strikethrough'
+    | 'spoiler'
+    | 'code'
+  >
 
-const quote = createFmt('blockquote') as Nests<
-  'blockquote',
-  'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler' | 'code'
->
+export const code = createFmt('code') as Nests<'code', never>
 
-const pre = (language: string) =>
+export const pre = (language: string) =>
   createFmt('pre', { language }) as Nests<'pre', never>
 
-const link = (
+export const link = (
   content: Nestable<
-    'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler' | 'code'
+    | 'fmt'
+    | 'bold'
+    | 'italic'
+    | 'underline'
+    | 'strikethrough'
+    | 'spoiler'
+    | 'code'
   >,
   url: string
-) => linkOrMention(content, { type: 'text_link', url })
+) =>
+  //
+  linkOrMention(content, { type: 'text_link', url }) as FmtString<'text_link'>
 
-const mention = (
+export const mention = (
   name: Nestable<
-    'bold' | 'italic' | 'underline' | 'strikethrough' | 'spoiler' | 'code'
+    | 'fmt'
+    | 'bold'
+    | 'italic'
+    | 'underline'
+    | 'strikethrough'
+    | 'spoiler'
+    | 'code'
   >,
   user: number | User
 ) =>
   typeof user === 'number'
     ? link(name, 'tg://user?id=' + user)
-    : linkOrMention(name, { type: 'text_mention', user })
-
-export {
-  fmt,
-  bold,
-  italic,
-  spoiler,
-  strikethrough,
-  underline,
-  code,
-  quote,
-  pre,
-  link,
-  mention,
-  join,
-}
+    : (linkOrMention(name, {
+        type: 'text_mention',
+        user,
+      }) as FmtString<'text_mention'>)

@@ -1,8 +1,8 @@
 import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
-import { Deunionize, PropOr, UnionKeys } from './deunionize'
+import { Deunionize, PropOr, UnionKeys } from './core/helpers/deunionize'
 import ApiClient from './core/network/client'
-import { Guard, Guarded, MaybeArray } from './core/helpers/util'
+import { Guard, Guarded, Keyed, MaybeArray } from './core/helpers/util'
 import Telegram from './telegram'
 import { FmtString } from './format'
 import d from 'debug'
@@ -133,18 +133,22 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
       this.chatMember ??
       this.myChatMember ??
       this.chatJoinRequest ??
-      getMessageFromAnySource(this)
+      this.msg()
     )?.chat as Getter<U, 'chat'>
   }
 
   get senderChat() {
-    return getMessageFromAnySource(this)?.sender_chat as Getter<
+    const msg = this.msg()
+    return (msg?.has('sender_chat') && msg.sender_chat) as Getter<
       U,
       'sender_chat'
     >
   }
 
   get from() {
+    const msg = this.msg()
+    if (msg?.has('from')) return msg.from as Getter<U, 'from'>
+
     return (
       this.callbackQuery ??
       this.inlineQuery ??
@@ -153,8 +157,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
       this.chosenInlineResult ??
       this.chatMember ??
       this.myChatMember ??
-      this.chatJoinRequest ??
-      getMessageFromAnySource(this)
+      this.chatJoinRequest
     )?.from as Getter<U, 'from'>
   }
 
@@ -228,6 +231,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
         return true
 
     return false
+  }
+
+  msg() {
+    return getMessageFromAnySource(this) as GetMsg<U> & Msg
   }
 
   /**
@@ -1330,7 +1337,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     if (typeof messageId !== 'undefined') {
       return this.telegram.deleteMessage(this.chat.id, messageId)
     }
-    const message = getMessageFromAnySource(this)
+    const message = this.msg()
     this.assert(message, 'deleteMessage')
     return this.telegram.deleteMessage(this.chat.id, message.message_id)
   }
@@ -1351,7 +1358,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     chatId: string | number,
     extra?: Shorthand<'forwardMessage'>[2]
   ) {
-    const message = getMessageFromAnySource(this)
+    const message = this.msg()
     this.assert(message, 'forwardMessage')
     return this.telegram.forwardMessage(
       chatId,
@@ -1383,7 +1390,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#copymessage
    */
   copyMessage(chatId: string | number, extra?: tt.ExtraCopyMessage) {
-    const message = getMessageFromAnySource(this)
+    const message = this.msg()
     this.assert(message, 'copyMessage')
     return this.telegram.copyMessage(
       chatId,
@@ -1493,17 +1500,59 @@ type Getter<U extends Deunionize<tg.Update>, P extends string> = PropOr<
   P
 >
 
-function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
-  return (
+interface Msg {
+  isAccessible(): this is MaybeMessage<tg.Message>
+  has<Ks extends UnionKeys<tg.Message>[]>(
+    ...keys: Ks
+  ): this is MaybeMessage<Keyed<tg.Message, Ks[number]>>
+}
+
+const Msg: Msg = {
+  isAccessible() {
+    return 'date' in this && this.date !== 0
+  },
+  has(...keys) {
+    return keys.some(
+      (key) =>
+        // @ts-expect-error TS doesn't understand key
+        this[key] != undefined
+    )
+  },
+}
+
+export type MaybeMessage<
+  M extends tg.MaybeInaccessibleMessage = tg.MaybeInaccessibleMessage,
+> = M & Msg
+
+type GetMsg<U extends tg.Update> = U extends tg.Update.CallbackQueryUpdate
+  ? U['callback_query']['message']
+  : U extends tg.Update.ChannelPostUpdate
+  ? U['channel_post']
+  : U extends tg.Update.EditedChannelPostUpdate
+  ? U['edited_channel_post']
+  : U extends tg.Update.EditedMessageUpdate
+  ? U['edited_message']
+  : U extends tg.Update.MessageUpdate
+  ? U['message']
+  : undefined
+
+function getMessageFromAnySource<U extends tg.Update>(
+  ctx: Context<U>
+): (GetMsg<U> & Msg) | undefined {
+  const msg =
     ctx.message ??
     ctx.editedMessage ??
     ctx.callbackQuery?.message ??
     ctx.channelPost ??
     ctx.editedChannelPost
-  )
+  if (msg) return Object.assign(Object.create(Msg), msg)
 }
 
 const getThreadId = <U extends tg.Update>(ctx: Context<U>) => {
   const msg = getMessageFromAnySource(ctx)
-  return msg?.is_topic_message ? msg.message_thread_id : undefined
+  return msg?.isAccessible()
+    ? msg.is_topic_message
+      ? msg.message_thread_id
+      : undefined
+    : undefined
 }

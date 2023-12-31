@@ -11,7 +11,7 @@ export * as Markup from './markup'
 export * as Input from './input'
 export * as Format from './format'
 
-export { deunionize } from './deunionize'
+export { deunionize } from './core/helpers/deunionize'
 export { session, MemorySessionStore, SessionStore } from './session'
 
 export * as Scenes from './scenes'

@@ -1,4 +1,5 @@
 import { FmtString } from './formatting'
+import { Deunionize, UnionKeys } from './deunionize'
 
 export const env = process.env
 
@@ -40,6 +41,16 @@ export function fmtCaption(extra?: { caption?: string | FmtString }) {
     }),
   }
 }
+
+export type DistinctKeys<T extends object> = Exclude<UnionKeys<T>, keyof T>
+
+// prettier-ignore
+/* eslint-disable-next-line @typescript-eslint/ban-types */
+export type KeyedDistinct<T extends object, K extends DistinctKeys<T>> = Record<K, {}> & Deunionize<Record<K, {}>, T>
+
+// prettier-ignore
+/* eslint-disable-next-line @typescript-eslint/ban-types */
+export type Keyed<T extends object, K extends UnionKeys<T>> = Record<K, {}> & Deunionize<Record<K, {}>, T>
 
 /** Construct a generic type guard */
 export type Guard<X = unknown, Y extends X = X> = (x: X) => x is Y

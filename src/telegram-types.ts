@@ -12,7 +12,7 @@ import {
   InputMediaVideo,
 } from './core/types/typegram'
 
-import { UnionKeys } from './deunionize'
+import { UnionKeys } from './core/helpers/deunionize'
 import { FmtString } from './format'
 
 export { Markup } from './markup'

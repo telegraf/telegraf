@@ -24,7 +24,10 @@ export type MatchedMiddleware<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post',
 > = NonemptyReadonlyArray<
-  Middleware<NarrowedContext<C, tt.MountMap[T]> & { match: RegExpExecArray }>
+  Middleware<
+    NarrowedContext<C, tt.MountMap[T]> & { match: RegExpExecArray },
+    tt.MountMap[T]
+  >
 >
 
 /** Takes: a context type and an update type (or message subtype).
@@ -107,7 +110,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   guard<U extends tg.Update>(
     guardFn: (update: tg.Update) => update is U,
-    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>>>
+    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>, U>>
   ) {
     return this.use(Composer.guard<C, U>(guardFn, ...fns))
   }
@@ -127,7 +130,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   on<Filter extends tt.UpdateType | tt.MessageSubType>(
     filters: MaybeArray<Filter>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap[Filter]>>
+      Middleware<NarrowedContext<C, tt.MountMap[Filter]>, tt.MountMap[Filter]>
     >
   ): this
 
@@ -225,7 +228,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     predicate:
       | MaybeArray<string>
       | ((entity: tg.MessageEntity, s: string, ctx: C) => boolean),
-    ...fns: ReadonlyArray<Middleware<NarrowedContext<C, tt.MountMap[T]>>>
+    ...fns: ReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap[T]>, tt.MountMap[T]>
+    >
   ) {
     return this.use(Composer.entity<C, T>(predicate, ...fns))
   }
@@ -451,7 +456,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static guard<C extends Context, U extends tg.Update>(
     guardFn: (u: tg.Update) => u is U,
-    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>>>
+    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>, U>>
   ): MiddlewareFn<C> {
     return Composer.optional<C>(
       (ctx) => guardFn(ctx.update),
@@ -481,7 +486,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   >(
     filters: MaybeArray<Filter>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<Ctx, tt.MountMap[Filter]>>
+      Middleware<NarrowedContext<Ctx, tt.MountMap[Filter]>, tt.MountMap[Filter]>
     >
   ): MiddlewareFn<Ctx>
 
@@ -533,7 +538,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     predicate:
       | MaybeArray<string>
       | ((entity: tg.MessageEntity, s: string, ctx: C) => boolean),
-    ...fns: ReadonlyArray<Middleware<NarrowedContext<C, tt.MountMap[T]>>>
+    ...fns: ReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap[T]>, tt.MountMap[T]>
+    >
   ): MiddlewareFn<C> {
     if (typeof predicate !== 'function') {
       const entityTypes = normaliseTextArguments(predicate)

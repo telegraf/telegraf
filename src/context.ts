@@ -147,17 +147,25 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.update.removed_chat_boost as PropOr<U, 'removed_chat_boost'>
   }
 
+  /** Shorthand for any `message` object present in the current update. One of
+   * `message`, `edited_message`, `channel_post`, `edited_channel_post` or
+   * `callback_query.message`
+   */
+  get msg() {
+    return getMessageFromAnySource(this) as GetMsg<U> & Msg
+  }
+
   get chat(): Getter<U, 'chat'> {
     return (
       this.chatMember ??
       this.myChatMember ??
       this.chatJoinRequest ??
-      this.msg()
+      this.msg
     )?.chat as Getter<U, 'chat'>
   }
 
   get senderChat() {
-    const msg = this.msg()
+    const msg = this.msg
     return (msg?.has('sender_chat') && msg.sender_chat) as Getter<
       U,
       'sender_chat'
@@ -165,7 +173,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   get from() {
-    const msg = this.msg()
+    const msg = this.msg
     if (msg?.has('from')) return msg.from as Getter<U, 'from'>
 
     return (
@@ -250,10 +258,6 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
         return true
 
     return false
-  }
-
-  msg() {
-    return getMessageFromAnySource(this) as GetMsg<U> & Msg
   }
 
   /**

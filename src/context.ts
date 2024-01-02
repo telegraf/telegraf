@@ -104,6 +104,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.update.edited_channel_post as PropOr<U, 'edited_channel_post'>
   }
 
+  get messageReaction() {
+    return this.update.message_reaction as PropOr<U, 'message_reaction'>
+  }
+
+  get messageReactionCount() {
+    return this.update.message_reaction_count as PropOr<
+      U,
+      'message_reaction_count'
+    >
+  }
+
   get callbackQuery() {
     return this.update.callback_query as PropOr<U, 'callback_query'>
   }
@@ -126,6 +137,14 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
 
   get chatJoinRequest() {
     return this.update.chat_join_request as PropOr<U, 'chat_join_request'>
+  }
+
+  get chatBoost() {
+    return this.update.chat_boost as PropOr<U, 'chat_boost'>
+  }
+
+  get removedChatBoost() {
+    return this.update.removed_chat_boost as PropOr<U, 'removed_chat_boost'>
   }
 
   get chat(): Getter<U, 'chat'> {
@@ -259,6 +278,15 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   answerGameQuery(...args: Shorthand<'answerGameQuery'>) {
     this.assert(this.callbackQuery, 'answerGameQuery')
     return this.telegram.answerGameQuery(this.callbackQuery.id, ...args)
+  }
+
+  /**
+   * Shorthand for {@link Telegram.getUserChatBoosts}
+   */
+  getUserChatBoosts() {
+    this.assert(this.chat, 'getUserChatBoosts')
+    this.assert(this.from, 'getUserChatBoosts')
+    return this.telegram.getUserChatBoosts(this.chat.id, this.from.id)
   }
 
   /**

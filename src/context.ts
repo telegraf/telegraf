@@ -155,6 +155,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return getMessageFromAnySource(this) as GetMsg<U> & Msg
   }
 
+  /** Shorthand for any message_id present in the current update. */
+  get msgId() {
+    return getMsgIdFromAnySource(this) as GetMsgId<U>
+  }
+
   get chat(): Getter<U, 'chat'> {
     return (
       this.chatMember ??
@@ -964,7 +969,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     is_big?: boolean
   ) {
     this.assert(this.chat, 'setMessageReaction')
-    this.assert(this.message?.message_id, 'setMessageReaction')
+    this.assert(this.msgId, 'setMessageReaction')
     const emojis = reaction
       ? Array.isArray(reaction)
         ? reaction
@@ -980,7 +985,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     )
     return this.telegram.setMessageReaction(
       this.chat.id,
-      this.message.message_id,
+      this.msgId,
       reactions,
       is_big
     )
@@ -1366,12 +1371,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   deleteMessage(messageId?: number) {
     this.assert(this.chat, 'deleteMessage')
-    if (typeof messageId !== 'undefined') {
+    if (typeof messageId !== 'undefined')
       return this.telegram.deleteMessage(this.chat.id, messageId)
-    }
-    const message = this.msg()
-    this.assert(message, 'deleteMessage')
-    return this.telegram.deleteMessage(this.chat.id, message.message_id)
+
+    this.assert(this.msgId, 'deleteMessage')
+    return this.telegram.deleteMessage(this.chat.id, this.msgId)
   }
 
   /**
@@ -1390,14 +1394,9 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     chatId: string | number,
     extra?: Shorthand<'forwardMessage'>[2]
   ) {
-    const message = this.msg()
-    this.assert(message, 'forwardMessage')
-    return this.telegram.forwardMessage(
-      chatId,
-      message.chat.id,
-      message.message_id,
-      extra
-    )
+    this.assert(this.chat, 'forwardMessage')
+    this.assert(this.msgId, 'forwardMessage')
+    return this.telegram.forwardMessage(chatId, this.chat.id, this.msgId, extra)
   }
 
   /**
@@ -1422,14 +1421,9 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#copymessage
    */
   copyMessage(chatId: string | number, extra?: tt.ExtraCopyMessage) {
-    const message = this.msg()
-    this.assert(message, 'copyMessage')
-    return this.telegram.copyMessage(
-      chatId,
-      message.chat.id,
-      message.message_id,
-      extra
-    )
+    this.assert(this.chat, 'copyMessage')
+    this.assert(this.msgId, 'copyMessage')
+    return this.telegram.copyMessage(chatId, this.chat.id, this.msgId, extra)
   }
 
   /**
@@ -1578,6 +1572,22 @@ function getMessageFromAnySource<U extends tg.Update>(
     ctx.channelPost ??
     ctx.editedChannelPost
   if (msg) return Object.assign(Object.create(Msg), msg)
+}
+
+type GetMsgId<U extends tg.Update> = GetMsg<U> extends { message_id: number }
+  ? number
+  : U extends tg.Update.MessageReactionUpdate
+  ? number
+  : U extends tg.Update.MessageReactionCountUpdate
+  ? number
+  : undefined
+
+function getMsgIdFromAnySource<U extends tg.Update>(
+  ctx: Context<U>
+): GetMsgId<U> {
+  const msg = getMessageFromAnySource(ctx)
+  return (msg ?? ctx.messageReaction ?? ctx.messageReactionCount)
+    ?.message_id as GetMsgId<U>
 }
 
 const getThreadId = <U extends tg.Update>(ctx: Context<U>) => {

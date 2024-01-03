@@ -321,10 +321,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#editmessagetext
    */
   editMessageText(text: string | FmtString, extra?: tt.ExtraEditMessageText) {
-    this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageText')
+    this.assert(this.msgId ?? this.inlineMessageId, 'editMessageText')
     return this.telegram.editMessageText(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       text,
       extra
@@ -338,13 +338,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     caption: string | FmtString | undefined,
     extra?: tt.ExtraEditMessageCaption
   ) {
-    this.assert(
-      this.callbackQuery ?? this.inlineMessageId,
-      'editMessageCaption'
-    )
+    this.assert(this.msgId ?? this.inlineMessageId, 'editMessageCaption')
     return this.telegram.editMessageCaption(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       caption,
       extra
@@ -358,10 +355,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     media: tt.WrapCaption<tg.InputMedia>,
     extra?: tt.ExtraEditMessageMedia
   ) {
-    this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageMedia')
+    this.assert(this.msgId ?? this.inlineMessageId, 'editMessageMedia')
     return this.telegram.editMessageMedia(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       media,
       extra
@@ -372,13 +369,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#editmessagereplymarkup
    */
   editMessageReplyMarkup(markup: tg.InlineKeyboardMarkup | undefined) {
-    this.assert(
-      this.callbackQuery ?? this.inlineMessageId,
-      'editMessageReplyMarkup'
-    )
+    this.assert(this.msgId ?? this.inlineMessageId, 'editMessageReplyMarkup')
     return this.telegram.editMessageReplyMarkup(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       markup
     )
@@ -392,13 +386,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     longitude: number,
     extra?: tt.ExtraEditMessageLiveLocation
   ) {
-    this.assert(
-      this.callbackQuery ?? this.inlineMessageId,
-      'editMessageLiveLocation'
-    )
+    this.assert(this.msgId ?? this.inlineMessageId, 'editMessageLiveLocation')
     return this.telegram.editMessageLiveLocation(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       latitude,
       longitude,
@@ -410,13 +401,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#stopmessagelivelocation
    */
   stopMessageLiveLocation(markup?: tg.InlineKeyboardMarkup) {
-    this.assert(
-      this.callbackQuery ?? this.inlineMessageId,
-      'stopMessageLiveLocation'
-    )
+    this.assert(this.msgId ?? this.inlineMessageId, 'stopMessageLiveLocation')
     return this.telegram.stopMessageLiveLocation(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       markup
     )

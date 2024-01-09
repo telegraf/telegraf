@@ -275,7 +275,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
         drop_pending_updates: config.dropPendingUpdates,
       })
       debug('Bot started with long polling')
-      await this.startPolling(config.allowedUpdates)
+      this.startPolling(config.allowedUpdates)
       return
     }
 

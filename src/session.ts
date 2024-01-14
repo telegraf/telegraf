@@ -164,7 +164,7 @@ export function session<
 
 function defaultGetSessionKey(ctx: Context): string | undefined {
   const fromId = ctx.from?.id
-  const chatId = ctx.chat?.id
+  const chatId = ctx.chat?.id || fromId
   if (fromId == null || chatId == null) return undefined
   return `${fromId}:${chatId}`
 }

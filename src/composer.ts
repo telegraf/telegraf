@@ -83,6 +83,28 @@ interface CommandContextExtn {
   args: string[]
 }
 
+interface StatusContextExtn {
+  /** Shorthand for old and new my_chat_member status */
+  status: {
+    /** */
+    change: StatusChange
+    /** Shorthand for update.my_chat_member.old_chat_member.status */
+    prev: tg.ChatMember['status']
+    /** Shorthand for update.my_chat_member.new_chat_member.status */
+    current: tg.ChatMember['status']
+  }
+}
+
+type StatusChange =
+  | 'blocked'
+  | 'unblocked'
+  | 'joined'
+  | 'left'
+  | 'banned'
+  | 'restricted'
+  | 'promoted'
+  | 'demoted'
+
 const anoop = always(Promise.resolve())
 
 export class Composer<C extends Context> implements MiddlewareObj<C> {
@@ -166,7 +188,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       Middleware<NarrowedContext<C, tt.MountMap['text']> & CommandContextExtn>
     >
   ) {
-    return this.use(Composer.command<C>(command, ...fns))
+    return this.use(Composer.command(command, ...fns))
   }
 
   /**
@@ -300,6 +322,23 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     >
   ) {
     return this.command('settings', ...fns)
+  }
+
+  /**
+   * Listen for the bot's status change in chats
+   *
+   * * `joined`, `left`, `promoted`, `demoted`, `banned`, `restricted` will only be triggered in non-private chats
+   * * `blocked`, `unblocked` will only be triggered in private chats
+   */
+  myStatus(
+    change: MaybeArray<StatusChange>,
+    ...fns: NonemptyReadonlyArray<
+      Middleware<
+        NarrowedContext<C, tt.MountMap['my_chat_member']> & StatusContextExtn
+      >
+    >
+  ) {
+    return this.use(Composer.myStatus(change, Composer.compose(fns)))
   }
 
   middleware() {
@@ -922,6 +961,35 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       }
     }
   }
+
+  static myStatus<C extends Context>(
+    type: MaybeArray<StatusChange>,
+    ...fns: NonemptyReadonlyArray<
+      Middleware<
+        NarrowedContext<C, tt.MountMap['my_chat_member']> & StatusContextExtn
+      >
+    >
+  ): MiddlewareFn<C> {
+    const changes = Array.isArray(type) ? type : [type]
+    const handler = Composer.compose(fns)
+
+    return Composer.on('my_chat_member', async (ctx, next) => {
+      const status = {
+        prev: ctx.myChatMember.new_chat_member.status,
+        current: ctx.myChatMember.old_chat_member.status,
+      }
+
+      for (const change of changes) {
+        // todo: decide whether to normalise and fire for all matching changes, or just the first matching one
+        // ref: https://github.com/telegraf/telegraf/issues/1872
+        if (checkStatusChange(change, ctx.chat.type, status))
+          return handler(
+            Object.assign(ctx, { status: Object.assign(status, { change }) }),
+            next
+          )
+      }
+    })
+  }
 }
 
 function escapeRegExp(s: string) {
@@ -955,6 +1023,7 @@ function getEntities(msg: tg.Message | undefined): tg.MessageEntity[] {
   if ('entities' in msg) return msg.entities ?? []
   return []
 }
+
 function getText(
   msg: tg.Message | tg.CallbackQuery | undefined
 ): string | undefined {
@@ -972,6 +1041,25 @@ function normaliseTextArguments(argument: MaybeArray<string>, prefix = '') {
   return args
     .filter(Boolean)
     .map((arg) => prefix && typeof arg === 'string' && !arg.startsWith(prefix) ? `${prefix}${arg}` : arg)
+}
+
+function checkStatusChange(
+  change: StatusChange,
+  chatType: tg.Chat['type'],
+  status: Record<'prev' | 'current', tg.ChatMember['status']>
+) {
+  const { prev, current } = status
+  if (chatType === 'private') {
+    if (change === 'blocked') return current === 'kicked'
+    if (change === 'unblocked') return current === 'member'
+  } else {
+    if (change === 'joined') return prev === 'left' || prev === 'kicked'
+    if (change === 'banned') return current === 'kicked'
+    if (change === 'left') return current === 'left'
+    if (change === 'restricted') return current === 'restricted'
+    if (change === 'promoted') return current === 'administrator'
+    if (change === 'demoted') return prev === 'administrator'
+  }
 }
 
 export default Composer

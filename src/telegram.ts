@@ -42,8 +42,10 @@ export class Telegram extends ApiClient {
     }
 
     return new URL(
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      `./file/${this.options.apiMode}${this.token}${this.options.testEnv ? '/test' : ''}/${fileId.file_path!}`,
+      `./file/${this.options.apiMode}${this.token}${
+        this.options.testEnv ? '/test' : ''
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      }/${fileId.file_path!}`,
       this.options.apiRoot
     )
   }

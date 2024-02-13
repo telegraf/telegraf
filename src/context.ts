@@ -265,6 +265,25 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return false
   }
 
+  entities<EntityTypes extends tg.MessageEntity['type'][]>(
+    ...types: EntityTypes
+  ) {
+    const [text = '', entities = []] = getTextAndEntitiesFromAnySource(this)
+
+    type SelectedTypes = EntityTypes extends []
+      ? tg.MessageEntity['type']
+      : EntityTypes[number]
+
+    return (
+      types.length
+        ? entities.filter((entity) => types.includes(entity.type))
+        : entities
+    ).map((entity) => ({
+      ...entity,
+      fragment: text.slice(entity.offset, entity.length),
+    })) as (tg.MessageEntity & { type: SelectedTypes; fragment: string })[]
+  }
+
   /**
    * @see https://core.telegram.org/bots/api#answerinlinequery
    */
@@ -1538,21 +1557,17 @@ export type MaybeMessage<
   M extends tg.MaybeInaccessibleMessage = tg.MaybeInaccessibleMessage,
 > = M & Msg
 
-type GetMsg<U extends tg.Update> = U extends tg.Update.CallbackQueryUpdate
-  ? U['callback_query']['message']
-  : U extends tg.Update.ChannelPostUpdate
-  ? U['channel_post']
-  : U extends tg.Update.EditedChannelPostUpdate
-  ? U['edited_channel_post']
-  : U extends tg.Update.EditedMessageUpdate
-  ? U['edited_message']
-  : U extends tg.Update.MessageUpdate
-  ? U['message']
+type GetMsg<U extends tg.Update> = U extends
+  | tg.Update.ChannelPostUpdate
+  | tg.Update.EditedChannelPostUpdate
+  | tg.Update.EditedMessageUpdate
+  | tg.Update.MessageUpdate
+  ? tg.Message
+  : U extends tg.Update.CallbackQueryUpdate
+  ? tg.MaybeInaccessibleMessage
   : undefined
 
-function getMessageFromAnySource<U extends tg.Update>(
-  ctx: Context<U>
-): (GetMsg<U> & Msg) | undefined {
+function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg =
     ctx.message ??
     ctx.editedMessage ??
@@ -1570,16 +1585,40 @@ type GetMsgId<U extends tg.Update> = GetMsg<U> extends { message_id: number }
   ? number
   : undefined
 
-function getMsgIdFromAnySource<U extends tg.Update>(
-  ctx: Context<U>
-): GetMsgId<U> {
+function getMsgIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg = getMessageFromAnySource(ctx)
   return (msg ?? ctx.messageReaction ?? ctx.messageReactionCount)
     ?.message_id as GetMsgId<U>
 }
 
+type GetTextAndEntities<U extends tg.Update> = GetMsg<U> extends
+  | tg.Message.TextMessage
+  | tg.Message.MediaMessage
+  | tg.Message.GameMessage
+  ? [string, tg.MessageEntity[]]
+  : U extends tg.Update.PollUpdate
+  ? [string, tg.MessageEntity[]]
+  : [undefined, undefined]
+
+function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
+  const msg = ctx.msg
+
+  let text, entities
+
+  if (msg) {
+    if ('entities' in msg) (text = msg.text), (entities = msg.entities)
+    else if ('caption_entities' in msg)
+      (text = msg.caption), (entities = msg.caption_entities)
+    else if ('game' in msg)
+      (text = msg.game.text), (entities = msg.game.text_entities)
+  } else if (ctx.poll)
+    (text = ctx.poll.explanation), (entities = ctx.poll.explanation_entities)
+
+  return [text, entities] as GetTextAndEntities<U>
+}
+
 const getThreadId = <U extends tg.Update>(ctx: Context<U>) => {
-  const msg = getMessageFromAnySource(ctx)
+  const msg = ctx.msg
   return msg?.isAccessible()
     ? msg.is_topic_message
       ? msg.message_thread_id

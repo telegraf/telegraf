@@ -280,7 +280,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
         : entities
     ).map((entity) => ({
       ...entity,
-      fragment: text.slice(entity.offset, entity.length),
+      fragment: text.slice(entity.offset, entity.offset + entity.length),
     })) as (tg.MessageEntity & { type: SelectedTypes; fragment: string })[]
   }
 

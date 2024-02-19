@@ -78,3 +78,19 @@ export function* zip<X, Y>(xs: Iterable<X>, ys: Iterable<Y>): Iterable<X | Y> {
     y1 = y.next()
   }
 }
+
+export function indexed<T extends object, U>(
+  target: T,
+  indexer: (index: number) => U
+) {
+  return new Proxy(target, {
+    get: function (target, prop, receiver) {
+      if (
+        (typeof prop === 'string' || typeof prop === 'number') &&
+        !isNaN(+prop)
+      )
+        return indexer.call(target, +prop)
+      return Reflect.get(target, prop, receiver)
+    },
+  })
+}

@@ -6,6 +6,7 @@ import { Guard, Guarded, Keyed, MaybeArray } from './core/helpers/util'
 import Telegram from './telegram'
 import { FmtString } from './format'
 import d from 'debug'
+import { Digit, MessageReactions } from './reactions'
 
 const debug = d('telegraf:context')
 
@@ -14,13 +15,6 @@ type Tail<T> = T extends [unknown, ...infer U] ? U : never
 type Shorthand<FName extends Exclude<keyof Telegram, keyof ApiClient>> = Tail<
   Parameters<Telegram[FName]>
 >
-
-// prettier-ignore
-const TgEmojiSet = new Set<tg.TelegramEmoji>([
-  "👍" , "👎" , "❤" , "🔥" , "🥰" , "👏" , "😁" , "🤔" , "🤯" , "😱" , "🤬" , "😢" , "🎉" , "🤩" , "🤮" , "💩" , "🙏" , "👌" , "🕊" , "🤡" , "🥱" , "🥴" , "😍" , "🐳" , "❤‍🔥" , "🌚" , "🌭" , "💯" , "🤣" , "⚡" , "🍌" , "🏆" , "💔" , "🤨" , "😐" , "🍓" , "🍾" , "💋" , "🖕" , "😈" , "😴" , "😭" , "🤓" , "👻" , "👨‍💻" , "👀" , "🎃" , "🙈" , "😇" , "😨" , "🤝" , "✍" , "🤗" , "🫡" , "🎅" , "🎄" , "☃" , "💅" , "🤪" , "🗿" , "🆒" , "💘" , "🙉" , "🦄" , "😘" , "💊" , "🙊" , "😎" , "👾" , "🤷‍♂" , "🤷" , "🤷‍♀" , "😡"
-]);
-
-type Digit = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
 
 /**
  * Narrows down `C['update']` (and derived getters)
@@ -230,6 +224,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
 
   set webhookReply(enable: boolean) {
     this.telegram.webhookReply = enable
+  }
+
+  get reactions() {
+    return MessageReactions.from(this)
   }
 
   /**
@@ -985,9 +983,9 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     const reactions = emojis?.map(
       (emoji): tg.ReactionType =>
         typeof emoji === 'string'
-          ? TgEmojiSet.has(emoji as tg.TelegramEmoji)
-            ? { type: 'emoji', emoji: emoji as tg.TelegramEmoji }
-            : { type: 'custom_emoji', custom_emoji_id: emoji }
+          ? Digit.has(emoji[0] as string)
+            ? { type: 'custom_emoji', custom_emoji_id: emoji }
+            : { type: 'emoji', emoji: emoji as tg.TelegramEmoji }
           : emoji
     )
     return this.telegram.setMessageReaction(

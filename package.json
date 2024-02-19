@@ -88,7 +88,7 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "@telegraf/types": "^7.0.1",
+    "@telegraf/types": "^7.1.0",
     "abort-controller": "^3.0.0",
     "debug": "^4.3.4",
     "mri": "^1.2.0",

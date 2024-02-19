@@ -92,7 +92,7 @@
     "abort-controller": "^3.0.0",
     "debug": "^4.3.4",
     "mri": "^1.2.0",
-    "node-fetch": "^2.6.8",
+    "node-fetch": "^2.7.0",
     "p-timeout": "^4.1.0",
     "safe-compare": "^1.1.4",
     "sandwich-stream": "^2.0.2"

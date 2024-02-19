@@ -41,6 +41,10 @@
     "./utils": {
       "types": "./utils.d.ts",
       "default": "./utils.js"
+    },
+    "./markup": {
+      "types": "./markup.d.ts",
+      "default": "./markup.js"
     }
   },
   "files": [
@@ -52,7 +56,10 @@
     "types.*",
     "format.*",
     "filters.*",
-    "future.*"
+    "future.*",
+    "scenes.*",
+    "utils.*",
+    "markup.*"
   ],
   "bin": {
     "telegraf": "lib/cli.mjs"
@@ -60,7 +67,7 @@
   "scripts": {
     "prepare": "npm run --silent build",
     "build": "tsc && npm run expose",
-    "expose": "tsx build/expose.ts types scenes filters format future utils",
+    "expose": "tsx build/expose.ts types scenes filters format future utils markup",
     "build:docs": "typedoc src/index.ts",
     "pretest": "npm run build",
     "test": "ava",

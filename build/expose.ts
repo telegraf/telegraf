@@ -20,6 +20,11 @@ for (const module of modules) {
     types: `./${module}.d.ts`,
     default: `./${module}.js`,
   }
+
+  const files = new Set(pkg.files)
+  files.add(`${module}.*`)
+
+  pkg.files = Array.from(files)
 }
 
 writeFileSync('package.json', JSON.stringify(pkg, null, 2))

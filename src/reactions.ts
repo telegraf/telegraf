@@ -1,4 +1,3 @@
-import { Context } from '.'
 import { Deunionize } from './core/helpers/deunionize'
 import { indexed } from './core/helpers/util'
 import * as tg from './core/types/typegram'
@@ -10,16 +9,22 @@ export type Reaction =
   | `${Digit}${string}`
   | Deunionize<tg.ReactionType>
 
-export class MessageReactions<U extends tg.Update> {
+export class MessageReactions {
   // this is a lie, proxy will be used to access the properties
   [index: number]: tg.ReactionType
 
-  private constructor(public ctx: Context<U>) {}
+  private constructor(
+    public ctx: {
+      messageReaction?: tg.Update.MessageReactionUpdate['message_reaction']
+    }
+  ) {}
 
-  static from<U extends tg.Update>(ctx: Context<U>) {
+  static from(ctx: {
+    messageReaction?: tg.Update.MessageReactionUpdate['message_reaction']
+  }) {
     return indexed(
       new MessageReactions(ctx),
-      function (this: MessageReactions<U>, index) {
+      function (this: MessageReactions, index) {
         return this.new[index]
       }
     )

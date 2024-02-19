@@ -906,7 +906,7 @@ export class Telegram extends ApiClient {
    * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
    * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
    * @param media New media of message
-   * @param markup Markup of inline keyboard
+   * @param extra Additional parameters, such as reply_markup
    */
   editMessageMedia(
     chatId: number | string | undefined,

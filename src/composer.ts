@@ -372,7 +372,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    * @param falseMiddleware middleware to run if the predicate returns false
    */
   static branch<C extends Context>(
-    predicate: Predicate<C> | AsyncPredicate<C>,
+    predicate: boolean | Predicate<C> | AsyncPredicate<C>,
     trueMiddleware: Middleware<C>,
     falseMiddleware: Middleware<C>
   ): MiddlewareFn<C> {

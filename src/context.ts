@@ -175,19 +175,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   get from() {
-    const msg = this.msg
-    if (msg?.has('from')) return msg.from as Getter<U, 'from'>
-
-    return (
-      this.callbackQuery ??
-      this.inlineQuery ??
-      this.shippingQuery ??
-      this.preCheckoutQuery ??
-      this.chosenInlineResult ??
-      this.chatMember ??
-      this.myChatMember ??
-      this.chatJoinRequest
-    )?.from as Getter<U, 'from'>
+    return getUserFromAnySource(this) as GetUserFromAnySource<U>
   }
 
   get inlineMessageId() {
@@ -1578,6 +1566,45 @@ function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
     ctx.channelPost ??
     ctx.editedChannelPost
   if (msg) return Object.assign(Object.create(Msg), msg)
+}
+
+type GetUserFromAnySource<U extends tg.Update> =
+  // check if it's a message type with `from`
+  GetMsg<U> extends { from: tg.User }
+    ? tg.User
+    : U extends  // these updates have `from`
+        | tg.Update.CallbackQueryUpdate
+        | tg.Update.InlineQueryUpdate
+        | tg.Update.ShippingQueryUpdate
+        | tg.Update.PreCheckoutQueryUpdate
+        | tg.Update.ChosenInlineResultUpdate
+        | tg.Update.ChatMemberUpdate
+        | tg.Update.MyChatMemberUpdate
+        | tg.Update.ChatJoinRequestUpdate
+        // these updates have `user`
+        | tg.Update.MessageReactionUpdate
+        | tg.Update.PollAnswerUpdate
+        | tg.Update.ChatBoostUpdate
+    ? tg.User
+    : undefined
+
+function getUserFromAnySource<U extends tg.Update>(ctx: Context<U>) {
+  const msg = ctx.msg
+  if (msg?.has('from')) return msg.from
+
+  return (
+    (
+      ctx.callbackQuery ??
+      ctx.inlineQuery ??
+      ctx.shippingQuery ??
+      ctx.preCheckoutQuery ??
+      ctx.chosenInlineResult ??
+      ctx.chatMember ??
+      ctx.myChatMember ??
+      ctx.chatJoinRequest
+    )?.from ??
+    (ctx.messageReaction ?? ctx.pollAnswer ?? ctx.chatBoost?.boost.source)?.user
+  )
 }
 
 type GetMsgId<U extends tg.Update> = GetMsg<U> extends { message_id: number }

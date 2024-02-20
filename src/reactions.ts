@@ -19,11 +19,11 @@ const inspectReaction = (reaction: tg.ReactionType) => {
 
 export class ReactionList {
   // this is a lie, proxy will be used to access the properties
-  [index: number]: tg.ReactionType
+  [index: number]: Deunionize<tg.ReactionType>
 
   protected constructor(protected list: tg.ReactionType[]) {}
 
-  static fromArray(list: tg.ReactionType[]): ReactionList {
+  static fromArray(list: tg.ReactionType[] = []): ReactionList {
     return indexed(
       new ReactionList(list),
       function (this: ReactionList, index) {
@@ -35,20 +35,18 @@ export class ReactionList {
   static has(reactions: tg.ReactionType[], reaction: Reaction): boolean {
     if (typeof reaction === 'string')
       if (Digit.has(reaction[0] as string))
-          // prettier-ignore
-          return reactions.some((r: Deunionize<tg.ReactionType>) => r.custom_emoji_id === reaction)
-        else
-          // prettier-ignore
-          return reactions.some((r: Deunionize<tg.ReactionType>) => r.emoji === reaction)
+        return reactions.some(
+          (r: Deunionize<tg.ReactionType>) => r.custom_emoji_id === reaction
+        )
+      else
+        return reactions.some(
+          (r: Deunionize<tg.ReactionType>) => r.emoji === reaction
+        )
 
     return reactions.some((r: Deunionize<tg.ReactionType>) => {
       if (r.type === 'custom_emoji')
-        // prettier-ignore
-        // assertion is a performance optimisation to skip an unnecessary check
-        return (r.custom_emoji_id === reaction.custom_emoji_id)
-      else if (r.type === 'emoji')
-        // assertion is a performance optimisation to skip an unnecessary check
-        return r.emoji === reaction.emoji
+        return r.custom_emoji_id === reaction.custom_emoji_id
+      else if (r.type === 'emoji') return r.emoji === reaction.emoji
     })
   }
 
@@ -96,13 +94,13 @@ export class MessageReactions extends ReactionList {
 
   get old() {
     return ReactionList.fromArray(
-      this.ctx.update.message_reaction?.old_reaction ?? []
+      this.ctx.update.message_reaction?.old_reaction
     )
   }
 
   get new() {
     return ReactionList.fromArray(
-      this.ctx.update.message_reaction?.new_reaction ?? []
+      this.ctx.update.message_reaction?.new_reaction
     )
   }
 

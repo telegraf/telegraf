@@ -27,7 +27,7 @@ for (const module of modules) {
   pkg.files = Array.from(files)
 }
 
-writeFileSync('package.json', JSON.stringify(pkg, null, 2))
+writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n')
 
 writeFileSync(
   '.eslintignore',

@@ -156,10 +156,13 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
 
   get chat(): Getter<U, 'chat'> {
     return (
+      this.msg ??
+      this.messageReaction ??
+      this.messageReactionCount ??
+      this.chatJoinRequest ??
       this.chatMember ??
       this.myChatMember ??
-      this.chatJoinRequest ??
-      this.msg
+      this.removedChatBoost
     )?.chat as Getter<U, 'chat'>
   }
 

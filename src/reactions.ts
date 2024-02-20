@@ -51,7 +51,7 @@ export class ReactionList {
   }
 
   toArray(): tg.ReactionType[] {
-    return this.list
+    return [...this.list]
   }
 
   filter(

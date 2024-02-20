@@ -13,6 +13,12 @@ import {
 import { type CallbackQuery } from './core/types/typegram'
 import { message, callbackQuery } from './filters'
 import { argsParser } from './core/helpers/args'
+import { Digit, Reaction } from './reactions'
+
+type ReactionAddedOrRemoved =
+  | Reaction
+  | `-${tg.TelegramEmoji}`
+  | `-${Digit}${string}`
 
 export type Triggers<C> = MaybeArray<string | RegExp | TriggerFn<C>>
 type TriggerFn<C> = (value: string, ctx: C) => RegExpExecArray | null
@@ -208,6 +214,18 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     return this.use(Composer.gameQuery(...fns))
   }
 
+  reaction(
+    reaction: MaybeArray<ReactionAddedOrRemoved>,
+    ...fns: NonemptyReadonlyArray<
+      Middleware<
+        NarrowedContext<C, tg.Update.MessageReactionUpdate>,
+        tg.Update.MessageReactionUpdate
+      >
+    >
+  ) {
+    return this.use(Composer.reaction<C>(reaction, ...fns))
+  }
+
   /**
    * Registers middleware for dropping matching updates.
    */
@@ -389,7 +407,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Generates optional middleware.
    * @param predicate predicate to decide on a context object whether to run the middleware
-   * @param middleware middleware to run if the predicate returns true
+   * @param fns middleware to run if the predicate returns true
    */
   static optional<C extends Context>(
     predicate: Predicate<C> | AsyncPredicate<C>,
@@ -788,6 +806,31 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     return Composer.on(
       'inline_query',
       Composer.match(normaliseTriggers(triggers), ...fns)
+    )
+  }
+
+  static reaction<C extends Context>(
+    reaction: MaybeArray<ReactionAddedOrRemoved>,
+    ...fns: NonemptyReadonlyArray<
+      Middleware<
+        NarrowedContext<C, tg.Update.MessageReactionUpdate>,
+        tg.Update.MessageReactionUpdate
+      >
+    >
+  ): MiddlewareFn<C> {
+    const reactions = Array.isArray(reaction) ? reaction : [reaction]
+
+    return Composer.on<C, 'message_reaction'>(
+      'message_reaction',
+      Composer.optional(
+        (ctx) =>
+          reactions.some((r) =>
+            typeof r === 'string' && r.startsWith('-')
+              ? ctx.reactions.removed.has(r.slice(1) as Reaction)
+              : ctx.reactions.added.has(r as Reaction)
+          ),
+        ...fns
+      )
     )
   }
 

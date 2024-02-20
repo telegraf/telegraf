@@ -1558,14 +1558,16 @@ export type MaybeMessage<
   M extends tg.MaybeInaccessibleMessage = tg.MaybeInaccessibleMessage,
 > = M & Msg
 
-type GetMsg<U extends tg.Update> = U extends
-  | tg.Update.ChannelPostUpdate
-  | tg.Update.EditedChannelPostUpdate
-  | tg.Update.EditedMessageUpdate
-  | tg.Update.MessageUpdate
-  ? tg.Message
+type GetMsg<U extends tg.Update> = U extends tg.Update.MessageUpdate
+  ? U['message']
+  : U extends tg.Update.ChannelPostUpdate
+  ? U['channel_post']
+  : U extends tg.Update.EditedChannelPostUpdate
+  ? U['edited_channel_post']
+  : U extends tg.Update.EditedMessageUpdate
+  ? U['edited_message']
   : U extends tg.Update.CallbackQueryUpdate
-  ? tg.MaybeInaccessibleMessage
+  ? U['callback_query']['message']
   : undefined
 
 function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {

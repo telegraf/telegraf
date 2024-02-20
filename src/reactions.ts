@@ -11,6 +11,12 @@ export type Reaction =
 
 type ReactionCtx = { update: Partial<tg.Update.MessageReactionUpdate> }
 
+const inspectReaction = (reaction: tg.ReactionType) => {
+  if (reaction.type === 'custom_emoji')
+    return `Custom(${reaction.custom_emoji_id})`
+  else return reaction.emoji
+}
+
 export class ReactionList {
   // this is a lie, proxy will be used to access the properties
   [index: number]: tg.ReactionType
@@ -66,6 +72,11 @@ export class ReactionList {
 
   [Symbol.iterator]() {
     return this.list[Symbol.iterator]()
+  }
+
+  [Symbol.for('nodejs.util.inspect.custom')]() {
+    const flattened = this.list.map(inspectReaction).join(', ')
+    return ['ReactionList {', flattened, '}'].join(' ')
   }
 }
 

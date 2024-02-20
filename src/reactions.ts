@@ -9,36 +9,24 @@ export type Reaction =
   | `${Digit}${string}`
   | Deunionize<tg.ReactionType>
 
-export class MessageReactions {
+type ReactionCtx = { update: Partial<tg.Update.MessageReactionUpdate> }
+
+export class ReactionList {
   // this is a lie, proxy will be used to access the properties
   [index: number]: tg.ReactionType
 
-  private constructor(
-    public ctx: {
-      messageReaction?: tg.Update.MessageReactionUpdate['message_reaction']
-    }
-  ) {}
+  protected constructor(protected list: tg.ReactionType[]) {}
 
-  static from(ctx: {
-    messageReaction?: tg.Update.MessageReactionUpdate['message_reaction']
-  }) {
+  static fromArray(list: tg.ReactionType[]): ReactionList {
     return indexed(
-      new MessageReactions(ctx),
-      function (this: MessageReactions, index) {
-        return this.new[index]
+      new ReactionList(list),
+      function (this: ReactionList, index) {
+        return this.list[index]
       }
     )
   }
 
-  get new() {
-    return this.ctx.messageReaction?.new_reaction ?? []
-  }
-
-  get old() {
-    return this.ctx.messageReaction?.old_reaction ?? []
-  }
-
-  static includes(reactions: tg.ReactionType[], reaction: Reaction): boolean {
+  static has(reactions: tg.ReactionType[], reaction: Reaction): boolean {
     if (typeof reaction === 'string')
       if (Digit.has(reaction[0] as string))
           // prettier-ignore
@@ -58,29 +46,64 @@ export class MessageReactions {
     })
   }
 
-  includes(reaction: Reaction): boolean {
-    return MessageReactions.includes(this.new, reaction)
+  toArray(): tg.ReactionType[] {
+    return this.list
   }
 
-  get length(): number {
-    return this.new.length
+  filter(
+    filterFn: (value: tg.ReactionType, index: number) => boolean
+  ): ReactionList {
+    return ReactionList.fromArray(this.list.filter(filterFn))
   }
 
-  get added(): tg.ReactionType[] {
-    return this.new.filter(
-      (reaction) => !MessageReactions.includes(this.old, reaction)
+  has(reaction: Reaction): boolean {
+    return ReactionList.has(this.list, reaction)
+  }
+
+  get size(): number {
+    return this.list.length
+  }
+
+  [Symbol.iterator]() {
+    return this.list[Symbol.iterator]()
+  }
+}
+
+export class MessageReactions extends ReactionList {
+  private constructor(public ctx: ReactionCtx) {
+    super(ctx.update.message_reaction?.new_reaction ?? [])
+  }
+
+  static from(ctx: ReactionCtx) {
+    return indexed(
+      new MessageReactions(ctx),
+      function (this: MessageReactions, index) {
+        return this.list[index]
+      }
     )
   }
 
-  get removed(): tg.ReactionType[] {
-    return this.old.filter(
-      (reaction) => !MessageReactions.includes(this.new, reaction)
+  get old() {
+    return ReactionList.fromArray(
+      this.ctx.update.message_reaction?.old_reaction ?? []
     )
   }
 
-  get kept(): tg.ReactionType[] {
-    return this.new.filter((reaction) =>
-      MessageReactions.includes(this.old, reaction)
+  get new() {
+    return ReactionList.fromArray(
+      this.ctx.update.message_reaction?.new_reaction ?? []
     )
+  }
+
+  get added(): ReactionList {
+    return this.new.filter((reaction) => !this.old.has(reaction))
+  }
+
+  get removed(): ReactionList {
+    return this.old.filter((reaction) => !this.new.has(reaction))
+  }
+
+  get kept(): ReactionList {
+    return this.new.filter((reaction) => this.old.has(reaction))
   }
 }

@@ -254,6 +254,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return false
   }
 
+  get text() {
+    return getTextAndEntitiesFromAnySource(this)[0] as GetText<U>
+  }
+
   entities<EntityTypes extends tg.MessageEntity['type'][]>(
     ...types: EntityTypes
   ) {
@@ -1621,14 +1625,13 @@ function getMsgIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
     ?.message_id as GetMsgId<U>
 }
 
-type GetTextAndEntities<U extends tg.Update> = GetMsg<U> extends
-  | tg.Message.TextMessage
-  | tg.Message.MediaMessage
-  | tg.Message.GameMessage
-  ? [string, tg.MessageEntity[]]
+type GetText<U extends tg.Update> = GetMsg<U> extends tg.Message.TextMessage
+  ? string
+  : GetMsg<U> extends tg.Message
+  ? string | undefined
   : U extends tg.Update.PollUpdate
-  ? [string, tg.MessageEntity[]]
-  : [undefined, undefined]
+  ? string | undefined
+  : undefined
 
 function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg = ctx.msg
@@ -1644,7 +1647,7 @@ function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   } else if (ctx.poll)
     (text = ctx.poll.explanation), (entities = ctx.poll.explanation_entities)
 
-  return [text, entities] as GetTextAndEntities<U>
+  return [text, entities] as const
 }
 
 const getThreadId = <U extends tg.Update>(ctx: Context<U>) => {

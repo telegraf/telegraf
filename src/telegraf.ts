@@ -272,6 +272,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
    */
   async launch(
     config: Telegraf.LaunchOptions | (() => void) = {},
+    /** @experimental */
     onLaunch?: () => void
   ) {
     const [cfg, onMe] =

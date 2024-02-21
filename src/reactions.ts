@@ -64,7 +64,7 @@ export class ReactionList {
     return ReactionList.has(this.list, reaction)
   }
 
-  get size(): number {
+  get count(): number {
     return this.list.length
   }
 

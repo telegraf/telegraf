@@ -185,7 +185,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     reaction: MaybeArray<ReactionAddedOrRemoved>,
     ...fns: NonemptyReadonlyArray<
       Middleware<
-        NarrowedContext<C, tg.Update.MessageReactionUpdate>,
+        NarrowedContext<C, tg.Update.MessageReactionUpdate> & {
+          match: ReactionAddedOrRemoved
+        },
         tg.Update.MessageReactionUpdate
       >
     >
@@ -782,24 +784,28 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     reaction: MaybeArray<ReactionAddedOrRemoved>,
     ...fns: NonemptyReadonlyArray<
       Middleware<
-        NarrowedContext<C, tg.Update.MessageReactionUpdate>,
+        NarrowedContext<C, tg.Update.MessageReactionUpdate> & {
+          match: ReactionAddedOrRemoved
+        },
         tg.Update.MessageReactionUpdate
       >
     >
   ): MiddlewareFn<C> {
     const reactions = Array.isArray(reaction) ? reaction : [reaction]
+    const handler = Composer.compose(fns)
 
     return Composer.on<C, 'message_reaction'>(
       'message_reaction',
-      Composer.optional(
-        (ctx) =>
-          reactions.some((r) =>
-            typeof r === 'string' && r.startsWith('-')
-              ? ctx.reactions.removed.has(r.slice(1) as Reaction)
-              : ctx.reactions.added.has(r as Reaction)
-          ),
-        ...fns
-      )
+      (ctx, next) => {
+        const match = reactions.find((r) =>
+          typeof r === 'string' && r.startsWith('-')
+            ? ctx.reactions.removed.has(r.slice(1) as Reaction)
+            : ctx.reactions.added.has(r as Reaction)
+        )
+
+        if (match) return handler(Object.assign(ctx, { match }), next)
+        return next()
+      }
     )
   }
 

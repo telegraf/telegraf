@@ -8,11 +8,11 @@ function makeReply<
   C extends Context,
   E extends { reply_parameters?: ReplyParameters },
 >(ctx: C, extra?: E) {
-  if (ctx.message)
+  if (ctx.msgId)
     return {
       // overrides in this order so user can override all properties
       reply_parameters: {
-        message_id: ctx.message.message_id,
+        message_id: ctx.msgId,
         ...extra?.reply_parameters,
       },
       ...extra,

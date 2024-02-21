@@ -729,11 +729,12 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       // always check for bot's own username case-insensitively
       if (to && to.toLowerCase() !== ctx.me.toLowerCase()) return next()
       const command = cmdPart.slice(1)
-      for (const trigger of triggers)
-        if (trigger(command, ctx)) {
+      for (const trigger of triggers) {
+        const match = trigger(command, ctx)
+        if (match) {
           const payloadOffset = len + 1
           const payload = text.slice(payloadOffset)
-          const c = Object.assign(ctx, { command, payload, args: [] })
+          const c = Object.assign(ctx, { match, command, payload, args: [] })
           let _args: string[] | undefined = undefined
           // using defineProperty only to make parsing lazy on access
           Object.defineProperty(c, 'args', {
@@ -750,6 +751,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
           })
           return handler(c, next)
         }
+      }
       return next()
     })
   }

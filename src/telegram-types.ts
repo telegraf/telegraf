@@ -183,6 +183,7 @@ export type MountMap = {
 }
 
 export interface CommandContextExtn {
+  match: RegExpExecArray
   /**
    * Matched command. This will always be the actual command, excluding preceeding slash and `@botname`
    *

@@ -57,41 +57,6 @@ interface StartContextExtn {
   startPayload: string
 }
 
-interface CommandContextExtn {
-  /**
-   * Matched command. This will always be the actual command, excluding preceeding slash and `@botname`
-   *
-   * Examples:
-   * ```
-   * /command abc -> command
-   * /command@xyzbot abc -> command
-   * ```
-   */
-  command: string
-  /**
-   * The unparsed payload part of the command
-   *
-   * Examples:
-   * ```
-   * /command abc def -> "abc def"
-   * /command "token1 token2" -> "\"token1 token2\""
-   * ```
-   */
-  payload: string
-  /**
-   * Command args parsed into an array.
-   *
-   * Examples:
-   * ```
-   * /command token1 token2 -> [ "token1", "token2" ]
-   * /command "token1 token2" -> [ "token1 token2" ]
-   * /command token1 "token2 token3" -> [ "token1" "token2 token3" ]
-   * ```
-   * @unstable Parser implementation might vary until considered stable
-   * */
-  args: string[]
-}
-
 const anoop = always(Promise.resolve())
 
 export class Composer<C extends Context> implements MiddlewareObj<C> {
@@ -172,7 +137,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   command(
     command: Triggers<NarrowedContext<C, tt.MountMap['text']>>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap['text']> & CommandContextExtn>
+      Middleware<
+        NarrowedContext<C, tt.MountMap['text']> & tt.CommandContextExtn
+      >
     >
   ) {
     return this.use(Composer.command<C>(command, ...fns))
@@ -735,7 +702,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   static command<C extends Context>(
     command: Triggers<NarrowedContext<C, tt.MountMap['text']>>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap['text']> & CommandContextExtn>
+      Middleware<
+        NarrowedContext<C, tt.MountMap['text']> & tt.CommandContextExtn
+      >
     >
   ): MiddlewareFn<C> {
     if (fns.length === 0)

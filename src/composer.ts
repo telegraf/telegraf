@@ -13,6 +13,12 @@ import {
 import { type CallbackQuery } from './core/types/typegram'
 import { message, callbackQuery } from './filters'
 import { argsParser } from './core/helpers/args'
+import { Digit, Reaction } from './reactions'
+
+type ReactionAddedOrRemoved =
+  | Reaction
+  | `-${tg.TelegramEmoji}`
+  | `-${Digit}${string}`
 
 export type Triggers<C> = MaybeArray<string | RegExp | TriggerFn<C>>
 type TriggerFn<C> = (value: string, ctx: C) => RegExpExecArray | null
@@ -24,7 +30,10 @@ export type MatchedMiddleware<
   C extends Context,
   T extends tt.UpdateType | tt.MessageSubType = 'message' | 'channel_post',
 > = NonemptyReadonlyArray<
-  Middleware<NarrowedContext<C, tt.MountMap[T]> & { match: RegExpExecArray }>
+  Middleware<
+    NarrowedContext<C, tt.MountMap[T]> & { match: RegExpExecArray },
+    tt.MountMap[T]
+  >
 >
 
 /** Takes: a context type and an update type (or message subtype).
@@ -46,41 +55,6 @@ interface StartContextExtn {
    * @deprecated Use ctx.payload instead
    */
   startPayload: string
-}
-
-interface CommandContextExtn {
-  /**
-   * Matched command. This will always be the actual command, excluding preceeding slash and `@botname`
-   *
-   * Examples:
-   * ```
-   * /command abc -> command
-   * /command@xyzbot abc -> command
-   * ```
-   */
-  command: string
-  /**
-   * The unparsed payload part of the command
-   *
-   * Examples:
-   * ```
-   * /command abc def -> "abc def"
-   * /command "token1 token2" -> "\"token1 token2\""
-   * ```
-   */
-  payload: string
-  /**
-   * Command args parsed into an array.
-   *
-   * Examples:
-   * ```
-   * /command token1 token2 -> [ "token1", "token2" ]
-   * /command "token1 token2" -> [ "token1 token2" ]
-   * /command token1 "token2 token3" -> [ "token1" "token2 token3" ]
-   * ```
-   * @unstable Parser implementation might vary until considered stable
-   * */
-  args: string[]
 }
 
 const anoop = always(Promise.resolve())
@@ -107,7 +81,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   guard<U extends tg.Update>(
     guardFn: (update: tg.Update) => update is U,
-    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>>>
+    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>, U>>
   ) {
     return this.use(Composer.guard<C, U>(guardFn, ...fns))
   }
@@ -127,7 +101,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   on<Filter extends tt.UpdateType | tt.MessageSubType>(
     filters: MaybeArray<Filter>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap[Filter]>>
+      Middleware<NarrowedContext<C, tt.MountMap[Filter]>, tt.MountMap[Filter]>
     >
   ): this
 
@@ -163,7 +137,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   command(
     command: Triggers<NarrowedContext<C, tt.MountMap['text']>>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap['text']> & CommandContextExtn>
+      Middleware<
+        NarrowedContext<C, tt.MountMap['text']> & tt.CommandContextExtn
+      >
     >
   ) {
     return this.use(Composer.command<C>(command, ...fns))
@@ -205,6 +181,20 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     return this.use(Composer.gameQuery(...fns))
   }
 
+  reaction(
+    reaction: MaybeArray<ReactionAddedOrRemoved>,
+    ...fns: NonemptyReadonlyArray<
+      Middleware<
+        NarrowedContext<C, tg.Update.MessageReactionUpdate> & {
+          match: ReactionAddedOrRemoved
+        },
+        tg.Update.MessageReactionUpdate
+      >
+    >
+  ) {
+    return this.use(Composer.reaction<C>(reaction, ...fns))
+  }
+
   /**
    * Registers middleware for dropping matching updates.
    */
@@ -225,7 +215,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     predicate:
       | MaybeArray<string>
       | ((entity: tg.MessageEntity, s: string, ctx: C) => boolean),
-    ...fns: ReadonlyArray<Middleware<NarrowedContext<C, tt.MountMap[T]>>>
+    ...fns: ReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap[T]>, tt.MountMap[T]>
+    >
   ) {
     return this.use(Composer.entity<C, T>(predicate, ...fns))
   }
@@ -384,7 +376,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   /**
    * Generates optional middleware.
    * @param predicate predicate to decide on a context object whether to run the middleware
-   * @param middleware middleware to run if the predicate returns true
+   * @param fns middleware to run if the predicate returns true
    */
   static optional<C extends Context>(
     predicate: Predicate<C> | AsyncPredicate<C>,
@@ -451,7 +443,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   static guard<C extends Context, U extends tg.Update>(
     guardFn: (u: tg.Update) => u is U,
-    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>>>
+    ...fns: NonemptyReadonlyArray<Middleware<NarrowedContext<C, U>, U>>
   ): MiddlewareFn<C> {
     return Composer.optional<C>(
       (ctx) => guardFn(ctx.update),
@@ -481,7 +473,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   >(
     filters: MaybeArray<Filter>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<Ctx, tt.MountMap[Filter]>>
+      Middleware<NarrowedContext<Ctx, tt.MountMap[Filter]>, tt.MountMap[Filter]>
     >
   ): MiddlewareFn<Ctx>
 
@@ -533,7 +525,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     predicate:
       | MaybeArray<string>
       | ((entity: tg.MessageEntity, s: string, ctx: C) => boolean),
-    ...fns: ReadonlyArray<Middleware<NarrowedContext<C, tt.MountMap[T]>>>
+    ...fns: ReadonlyArray<
+      Middleware<NarrowedContext<C, tt.MountMap[T]>, tt.MountMap[T]>
+    >
   ): MiddlewareFn<C> {
     if (typeof predicate !== 'function') {
       const entityTypes = normaliseTextArguments(predicate)
@@ -710,7 +704,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   static command<C extends Context>(
     command: Triggers<NarrowedContext<C, tt.MountMap['text']>>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap['text']> & CommandContextExtn>
+      Middleware<
+        NarrowedContext<C, tt.MountMap['text']> & tt.CommandContextExtn
+      >
     >
   ): MiddlewareFn<C> {
     if (fns.length === 0)
@@ -733,11 +729,12 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
       // always check for bot's own username case-insensitively
       if (to && to.toLowerCase() !== ctx.me.toLowerCase()) return next()
       const command = cmdPart.slice(1)
-      for (const trigger of triggers)
-        if (trigger(command, ctx)) {
+      for (const trigger of triggers) {
+        const match = trigger(command, ctx)
+        if (match) {
           const payloadOffset = len + 1
           const payload = text.slice(payloadOffset)
-          const c = Object.assign(ctx, { command, payload, args: [] })
+          const c = Object.assign(ctx, { match, command, payload, args: [] })
           let _args: string[] | undefined = undefined
           // using defineProperty only to make parsing lazy on access
           Object.defineProperty(c, 'args', {
@@ -754,6 +751,7 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
           })
           return handler(c, next)
         }
+      }
       return next()
     })
   }
@@ -781,6 +779,35 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     return Composer.on(
       'inline_query',
       Composer.match(normaliseTriggers(triggers), ...fns)
+    )
+  }
+
+  static reaction<C extends Context>(
+    reaction: MaybeArray<ReactionAddedOrRemoved>,
+    ...fns: NonemptyReadonlyArray<
+      Middleware<
+        NarrowedContext<C, tg.Update.MessageReactionUpdate> & {
+          match: ReactionAddedOrRemoved
+        },
+        tg.Update.MessageReactionUpdate
+      >
+    >
+  ): MiddlewareFn<C> {
+    const reactions = Array.isArray(reaction) ? reaction : [reaction]
+    const handler = Composer.compose(fns)
+
+    return Composer.on<C, 'message_reaction'>(
+      'message_reaction',
+      (ctx, next) => {
+        const match = reactions.find((r) =>
+          typeof r === 'string' && r.startsWith('-')
+            ? ctx.reactions.removed.has(r.slice(1) as Reaction)
+            : ctx.reactions.added.has(r as Reaction)
+        )
+
+        if (match) return handler(Object.assign(ctx, { match }), next)
+        return next()
+      }
     )
   }
 

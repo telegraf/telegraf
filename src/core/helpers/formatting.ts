@@ -1,14 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { MessageEntity, User } from '@telegraf/types'
-import { zip } from './util'
+import { Any, zip } from './util'
 
-export interface FmtString {
+export type Nestable<Kind extends string> =
+  | string
+  | number
+  | boolean
+  | FmtString<Kind>
+export type MaybeNestableList<Kind extends string> =
+  | Nestable<Kind>
+  | readonly Nestable<Kind>[]
+
+export interface FmtString<Brand extends string> {
   text: string
   entities?: MessageEntity[]
   parse_mode?: undefined
+  __to_nest: Brand
 }
 
-export class FmtString implements FmtString {
+export class FmtString<Brand extends string = string>
+  implements FmtString<Brand>
+{
   constructor(
     public text: string,
     entities?: MessageEntity[]
@@ -19,23 +31,11 @@ export class FmtString implements FmtString {
       this.parse_mode = undefined
     }
   }
-  static normalise(content: string | FmtString) {
-    if (typeof content === 'string') return new FmtString(content)
-    return content
+  static normalise(content: Nestable<string>) {
+    if (content instanceof FmtString) return content
+    return new FmtString(String(content))
   }
 }
-
-export namespace Types {
-  // prettier-ignore
-  export type Containers = 'bold' | 'italic' | 'spoiler' | 'strikethrough' | 'underline'
-  export type NonContainers = 'code' | 'pre'
-  export type Text = Containers | NonContainers
-}
-
-type TemplateParts = string | FmtString | readonly (FmtString | string)[]
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-type Any = {} | undefined | null
 
 const isArray: <T>(xs: T | readonly T[]) => xs is readonly T[] = Array.isArray
 
@@ -86,18 +86,11 @@ export const join = (
 }
 
 /** Internal constructor for all fmt helpers */
-export function _fmt(
-  kind?: Types.Containers
-): (parts: TemplateParts, ...items: (Any | FmtString)[]) => FmtString
-export function _fmt(
-  kind: Types.NonContainers
-): (parts: TemplateParts, ...items: Any[]) => FmtString
-export function _fmt(
-  kind: 'pre',
-  opts: { language: string }
-): (parts: TemplateParts, ...items: Any[]) => FmtString
-export function _fmt(kind: Types.Text | undefined, opts?: object) {
-  return function fmt(parts: TemplateParts, ...items: (Any | FmtString)[]) {
+export function createFmt(kind?: MessageEntity['type'], opts?: object) {
+  return function fmt(
+    parts: MaybeNestableList<string>,
+    ...items: Nestable<string>[]
+  ) {
     parts = isArray(parts) ? parts : [parts]
     const result = join(zip(parts, items))
     if (kind) {
@@ -107,7 +100,7 @@ export function _fmt(kind: Types.Text | undefined, opts?: object) {
         offset: 0,
         length: result.text.length,
         ...opts,
-      })
+      } as MessageEntity)
       result.parse_mode = undefined
     }
     return result
@@ -115,7 +108,7 @@ export function _fmt(kind: Types.Text | undefined, opts?: object) {
 }
 
 export const linkOrMention = (
-  content: string | FmtString,
+  content: Nestable<string>,
   data:
     | { type: 'text_link'; url: string }
     | { type: 'text_mention'; user: User }

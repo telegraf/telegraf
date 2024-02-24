@@ -161,6 +161,26 @@ export class Telegram extends ApiClient {
   }
 
   /**
+   * Use this method to forward multiple messages of any kind. If some of the specified messages can't be found or forwarded, they are skipped. Service messages and messages with protected content can't be forwarded. Album grouping is kept for forwarded messages.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param fromChatId Unique identifier for the chat where the original messages were sent (or channel username in the format @channelusername)
+   * @param messageIds Identifiers of 1-100 messages in the chat from_chat_id to forward. The identifiers must be specified in a strictly increasing order.
+   */
+  forwardMessages(
+    chatId: number | string,
+    fromChatId: number | string,
+    messageIds: number[],
+    extra?: tt.ExtraForwardMessages
+  ) {
+    return this.callApi('forwardMessages', {
+      chat_id: chatId,
+      from_chat_id: fromChatId,
+      message_ids: messageIds,
+      ...extra,
+    })
+  }
+
+  /**
    * Use this method when you need to tell the user that something is happening on the bot's side.
    * The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status).
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
@@ -171,6 +191,32 @@ export class Telegram extends ApiClient {
     extra?: tt.ExtraSendChatAction
   ) {
     return this.callApi('sendChatAction', { chat_id, action, ...extra })
+  }
+
+  /**
+   * Use this method to change the chosen reactions on a message. Service messages can't be reacted to.
+   * Automatically forwarded messages from a channel to its discussion group have the same available
+   * reactions as messages in the channel. In albums, bots must react to the first message.
+   * @param chat_id Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+   * @param message_id Identifier of the target message
+   * @param reaction New list of reaction types to set on the message. Currently, as non-premium users, bots can set up
+   * to one reaction per message. A custom emoji reaction can be used if it is either already present on the message
+   * or explicitly allowed by chat administrators.
+   * @param is_big Pass True to set the reaction with a big animation
+   * @returns
+   */
+  setMessageReaction(
+    chat_id: number | string,
+    message_id: number,
+    reaction?: tg.ReactionType[],
+    is_big?: boolean
+  ) {
+    return this.callApi('setMessageReaction', {
+      chat_id,
+      message_id,
+      reaction,
+      is_big,
+    })
   }
 
   getUserProfilePhotos(userId: number, offset?: number, limit?: number) {
@@ -436,7 +482,7 @@ export class Telegram extends ApiClient {
     chatId: number | string,
     question: string,
     options: readonly string[],
-    extra: tt.ExtraPoll
+    extra?: tt.ExtraPoll
   ) {
     return this.callApi('sendPoll', {
       chat_id: chatId,
@@ -743,6 +789,18 @@ export class Telegram extends ApiClient {
   }
 
   /**
+   * Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a UserChatBoosts object.
+   * @param chat_id Unique identifier for the chat or username of the channel (in the format `@channelusername`)
+   * @param user_id Unique identifier of the target user
+   */
+  getUserChatBoosts(chat_id: number | string, user_id: number) {
+    return this.callApi('getUserChatBoosts', {
+      chat_id,
+      user_id,
+    })
+  }
+
+  /**
    * If you sent an invoice requesting a shipping address and the parameter is_flexible was specified,
    * the Bot API will send an Update with a shipping_query field to the bot.
    * Reply to shipping queries.
@@ -850,7 +908,7 @@ export class Telegram extends ApiClient {
    * @param messageId Required if inlineMessageId is not specified. Identifier of the sent message
    * @param inlineMessageId Required if chatId and messageId are not specified. Identifier of the inline message
    * @param media New media of message
-   * @param markup Markup of inline keyboard
+   * @param extra Additional parameters, such as reply_markup
    */
   editMessageMedia(
     chatId: number | string | undefined,
@@ -930,11 +988,24 @@ export class Telegram extends ApiClient {
    * - If the bot is an administrator of a group, it can delete any message there.
    * - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
    * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageId Identifier of the message to delete
    */
   deleteMessage(chatId: number | string, messageId: number) {
     return this.callApi('deleteMessage', {
       chat_id: chatId,
       message_id: messageId,
+    })
+  }
+
+  /**
+   * Use this method to delete multiple messages simultaneously. If some of the specified messages can't be found, they are skipped.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageIds Identifiers of 1-100 messages to delete. See deleteMessage for limitations on which messages can be deleted
+   */
+  deleteMessages(chatId: number | string, messageIds: number[]) {
+    return this.callApi('deleteMessages', {
+      chat_id: chatId,
+      message_ids: messageIds,
     })
   }
 
@@ -1409,6 +1480,26 @@ export class Telegram extends ApiClient {
       from_chat_id: fromChatId,
       message_id: messageId,
       ...fmtCaption(extra),
+    })
+  }
+
+  /**
+   * Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param fromChatId Unique identifier for the chat where the original messages were sent (or channel username in the format @channelusername)
+   * @param messageIds Identifiers of 1-100 messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order.
+   */
+  copyMessages(
+    chatId: number | string,
+    fromChatId: number | string,
+    messageIds: number[],
+    extra?: tt.ExtraCopyMessages
+  ) {
+    return this.callApi('copyMessages', {
+      chat_id: chatId,
+      from_chat_id: fromChatId,
+      message_ids: messageIds,
+      ...extra,
     })
   }
 

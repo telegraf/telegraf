@@ -12,7 +12,7 @@ import {
   InputMediaVideo,
 } from './core/types/typegram'
 
-import { UnionKeys } from './deunionize'
+import { UnionKeys } from './core/helpers/deunionize'
 import { FmtString } from './format'
 
 export { Markup } from './markup'
@@ -62,6 +62,10 @@ export type ExtraCopyMessage = MakeExtra<
   'copyMessage',
   'from_chat_id' | 'message_id'
 >
+export type ExtraCopyMessages = MakeExtra<
+  'copyMessages',
+  'from_chat_id' | 'message_ids'
+>
 export type ExtraCreateChatInviteLink = MakeExtra<'createChatInviteLink'>
 export type NewInvoiceLinkParameters = MakeExtra<'createInvoiceLink'>
 export type ExtraCreateNewStickerSet = MakeExtra<
@@ -94,8 +98,7 @@ export type ExtraGame = MakeExtra<'sendGame', 'game_short_name'>
 export type NewInvoiceParameters = MakeExtra<
   'sendInvoice',
   | 'disable_notification'
-  | 'reply_to_message_id'
-  | 'allow_sending_without_reply'
+  | 'reply_parameters'
   | 'reply_markup'
   | 'message_thread_id'
 >
@@ -114,6 +117,10 @@ export type ExtraReplyMessage = MakeExtra<'sendMessage', 'text'>
 export type ExtraForwardMessage = MakeExtra<
   'forwardMessage',
   'from_chat_id' | 'message_id'
+>
+export type ExtraForwardMessages = MakeExtra<
+  'forwardMessages',
+  'from_chat_id' | 'message_ids'
 >
 export type ExtraSendChatAction = MakeExtra<'sendChatAction', 'action'>
 export type ExtraRestrictChatMember = MakeExtra<'restrictChatMember', 'user_id'>
@@ -173,4 +180,40 @@ export type MountMap = {
     message: ExtractPartial<Update.MessageUpdate['message'], Record<T, unknown>>
     update_id: number
   }
+}
+
+export interface CommandContextExtn {
+  match: RegExpExecArray
+  /**
+   * Matched command. This will always be the actual command, excluding preceeding slash and `@botname`
+   *
+   * Examples:
+   * ```
+   * /command abc -> command
+   * /command@xyzbot abc -> command
+   * ```
+   */
+  command: string
+  /**
+   * The unparsed payload part of the command
+   *
+   * Examples:
+   * ```
+   * /command abc def -> "abc def"
+   * /command "token1 token2" -> "\"token1 token2\""
+   * ```
+   */
+  payload: string
+  /**
+   * Command args parsed into an array.
+   *
+   * Examples:
+   * ```
+   * /command token1 token2 -> [ "token1", "token2" ]
+   * /command "token1 token2" -> [ "token1 token2" ]
+   * /command token1 "token2 token3" -> [ "token1" "token2 token3" ]
+   * ```
+   * @unstable Parser implementation might vary until considered stable
+   * */
+  args: string[]
 }

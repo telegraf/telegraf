@@ -262,39 +262,53 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       .digest('hex')
   }
 
+  async launch(onLaunch?: () => void): Promise<void>
+  async launch(
+    config: Telegraf.LaunchOptions,
+    onLaunch?: () => void
+  ): Promise<void>
   /**
    * @see https://github.com/telegraf/telegraf/discussions/1344#discussioncomment-335700
    */
-  async launch(config: Telegraf.LaunchOptions = {}) {
+  async launch(
+    config: Telegraf.LaunchOptions | (() => void) = {},
+    /** @experimental */
+    onLaunch?: () => void
+  ) {
+    const [cfg, onMe] =
+      typeof config === 'function' ? [{}, config] : [config, onLaunch]
+    const drop_pending_updates = cfg.dropPendingUpdates
+    const allowed_updates = cfg.allowedUpdates
+    const webhook = cfg.webhook
+
     debug('Connecting to Telegram')
     this.botInfo ??= await this.telegram.getMe()
+    onMe?.()
     debug(`Launching @${this.botInfo.username}`)
 
-    if (config.webhook === undefined) {
-      await this.telegram.deleteWebhook({
-        drop_pending_updates: config.dropPendingUpdates,
-      })
+    if (webhook === undefined) {
+      await this.telegram.deleteWebhook({ drop_pending_updates })
       debug('Bot started with long polling')
-      await this.startPolling(config.allowedUpdates)
+      await this.startPolling(allowed_updates)
       return
     }
 
     const domainOpts = this.getDomainOpts({
-      domain: config.webhook.domain,
-      path: config.webhook.path ?? config.webhook.hookPath,
+      domain: webhook.domain,
+      path: webhook.path ?? webhook.hookPath,
     })
 
-    const { tlsOptions, port, host, cb, secretToken } = config.webhook
+    const { tlsOptions, port, host, cb, secretToken } = webhook
 
     this.startWebhook(domainOpts.path, tlsOptions, port, host, cb, secretToken)
 
     await this.telegram.setWebhook(domainOpts.url, {
-      drop_pending_updates: config.dropPendingUpdates,
-      allowed_updates: config.allowedUpdates,
-      ip_address: config.webhook.ipAddress,
-      max_connections: config.webhook.maxConnections,
-      secret_token: config.webhook.secretToken,
-      certificate: config.webhook.certificate,
+      drop_pending_updates: drop_pending_updates,
+      allowed_updates: allowed_updates,
+      ip_address: webhook.ipAddress,
+      max_connections: webhook.maxConnections,
+      secret_token: webhook.secretToken,
+      certificate: webhook.certificate,
     })
 
     debug(`Bot started with webhook @ ${domainOpts.url}`)

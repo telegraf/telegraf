@@ -1,11 +1,12 @@
 import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
-import { Deunionize, PropOr, UnionKeys } from './deunionize'
+import { Deunionize, PropOr, UnionKeys } from './core/helpers/deunionize'
 import ApiClient from './core/network/client'
-import { Guard, Guarded, MaybeArray } from './core/helpers/util'
+import { Guard, Guarded, Keyed, MaybeArray } from './core/helpers/util'
 import Telegram from './telegram'
 import { FmtString } from './format'
 import d from 'debug'
+import { Digit, MessageReactions } from './reactions'
 
 const debug = d('telegraf:context')
 
@@ -97,6 +98,17 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.update.edited_channel_post as PropOr<U, 'edited_channel_post'>
   }
 
+  get messageReaction() {
+    return this.update.message_reaction as PropOr<U, 'message_reaction'>
+  }
+
+  get messageReactionCount() {
+    return this.update.message_reaction_count as PropOr<
+      U,
+      'message_reaction_count'
+    >
+  }
+
   get callbackQuery() {
     return this.update.callback_query as PropOr<U, 'callback_query'>
   }
@@ -121,34 +133,49 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.update.chat_join_request as PropOr<U, 'chat_join_request'>
   }
 
+  get chatBoost() {
+    return this.update.chat_boost as PropOr<U, 'chat_boost'>
+  }
+
+  get removedChatBoost() {
+    return this.update.removed_chat_boost as PropOr<U, 'removed_chat_boost'>
+  }
+
+  /** Shorthand for any `message` object present in the current update. One of
+   * `message`, `edited_message`, `channel_post`, `edited_channel_post` or
+   * `callback_query.message`
+   */
+  get msg() {
+    return getMessageFromAnySource(this) as GetMsg<U> & Msg
+  }
+
+  /** Shorthand for any message_id present in the current update. */
+  get msgId() {
+    return getMsgIdFromAnySource(this) as GetMsgId<U>
+  }
+
   get chat(): Getter<U, 'chat'> {
     return (
+      this.msg ??
+      this.messageReaction ??
+      this.messageReactionCount ??
+      this.chatJoinRequest ??
       this.chatMember ??
       this.myChatMember ??
-      this.chatJoinRequest ??
-      getMessageFromAnySource(this)
+      this.removedChatBoost
     )?.chat as Getter<U, 'chat'>
   }
 
   get senderChat() {
-    return getMessageFromAnySource(this)?.sender_chat as Getter<
+    const msg = this.msg
+    return (msg?.has('sender_chat') && msg.sender_chat) as Getter<
       U,
       'sender_chat'
     >
   }
 
   get from() {
-    return (
-      this.callbackQuery ??
-      this.inlineQuery ??
-      this.shippingQuery ??
-      this.preCheckoutQuery ??
-      this.chosenInlineResult ??
-      this.chatMember ??
-      this.myChatMember ??
-      this.chatJoinRequest ??
-      getMessageFromAnySource(this)
-    )?.from as Getter<U, 'from'>
+    return getUserFromAnySource(this) as GetUserFromAnySource<U>
   }
 
   get inlineMessageId() {
@@ -190,6 +217,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.telegram.webhookReply = enable
   }
 
+  get reactions() {
+    return MessageReactions.from(this)
+  }
+
   /**
    * @internal
    */
@@ -223,6 +254,29 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return false
   }
 
+  get text() {
+    return getTextAndEntitiesFromAnySource(this)[0] as GetText<U>
+  }
+
+  entities<EntityTypes extends tg.MessageEntity['type'][]>(
+    ...types: EntityTypes
+  ) {
+    const [text = '', entities = []] = getTextAndEntitiesFromAnySource(this)
+
+    type SelectedTypes = EntityTypes extends []
+      ? tg.MessageEntity['type']
+      : EntityTypes[number]
+
+    return (
+      types.length
+        ? entities.filter((entity) => types.includes(entity.type))
+        : entities
+    ).map((entity) => ({
+      ...entity,
+      fragment: text.slice(entity.offset, entity.offset + entity.length),
+    })) as (tg.MessageEntity & { type: SelectedTypes; fragment: string })[]
+  }
+
   /**
    * @see https://core.telegram.org/bots/api#answerinlinequery
    */
@@ -248,6 +302,15 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Shorthand for {@link Telegram.getUserChatBoosts}
+   */
+  getUserChatBoosts() {
+    this.assert(this.chat, 'getUserChatBoosts')
+    this.assert(this.from, 'getUserChatBoosts')
+    return this.telegram.getUserChatBoosts(this.chat.id, this.from.id)
+  }
+
+  /**
    * @see https://core.telegram.org/bots/api#answershippingquery
    */
   answerShippingQuery(...args: Shorthand<'answerShippingQuery'>) {
@@ -270,10 +333,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#editmessagetext
    */
   editMessageText(text: string | FmtString, extra?: tt.ExtraEditMessageText) {
-    this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageText')
+    this.assert(this.msgId ?? this.inlineMessageId, 'editMessageText')
     return this.telegram.editMessageText(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       text,
       extra
@@ -287,13 +350,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     caption: string | FmtString | undefined,
     extra?: tt.ExtraEditMessageCaption
   ) {
-    this.assert(
-      this.callbackQuery ?? this.inlineMessageId,
-      'editMessageCaption'
-    )
+    this.assert(this.msgId ?? this.inlineMessageId, 'editMessageCaption')
     return this.telegram.editMessageCaption(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       caption,
       extra
@@ -307,10 +367,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     media: tt.WrapCaption<tg.InputMedia>,
     extra?: tt.ExtraEditMessageMedia
   ) {
-    this.assert(this.callbackQuery ?? this.inlineMessageId, 'editMessageMedia')
+    this.assert(this.msgId ?? this.inlineMessageId, 'editMessageMedia')
     return this.telegram.editMessageMedia(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       media,
       extra
@@ -321,13 +381,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#editmessagereplymarkup
    */
   editMessageReplyMarkup(markup: tg.InlineKeyboardMarkup | undefined) {
-    this.assert(
-      this.callbackQuery ?? this.inlineMessageId,
-      'editMessageReplyMarkup'
-    )
+    this.assert(this.msgId ?? this.inlineMessageId, 'editMessageReplyMarkup')
     return this.telegram.editMessageReplyMarkup(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       markup
     )
@@ -341,13 +398,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     longitude: number,
     extra?: tt.ExtraEditMessageLiveLocation
   ) {
-    this.assert(
-      this.callbackQuery ?? this.inlineMessageId,
-      'editMessageLiveLocation'
-    )
+    this.assert(this.msgId ?? this.inlineMessageId, 'editMessageLiveLocation')
     return this.telegram.editMessageLiveLocation(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       latitude,
       longitude,
@@ -359,13 +413,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#stopmessagelivelocation
    */
   stopMessageLiveLocation(markup?: tg.InlineKeyboardMarkup) {
-    this.assert(
-      this.callbackQuery ?? this.inlineMessageId,
-      'stopMessageLiveLocation'
-    )
+    this.assert(this.msgId ?? this.inlineMessageId, 'stopMessageLiveLocation')
     return this.telegram.stopMessageLiveLocation(
       this.chat?.id,
-      this.callbackQuery?.message?.message_id,
+      this.msgId,
       this.inlineMessageId,
       markup
     )
@@ -907,6 +958,40 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Shorthand for {@link Telegram.setMessageReaction}
+   * @param reaction An emoji or custom_emoji_id to set as reaction to current message. Leave empty to remove reactions.
+   * @param is_big Pass True to set the reaction with a big animation
+   */
+  react(
+    reaction?: MaybeArray<
+      tg.TelegramEmoji | `${Digit}${string}` | tg.ReactionType
+    >,
+    is_big?: boolean
+  ) {
+    this.assert(this.chat, 'setMessageReaction')
+    this.assert(this.msgId, 'setMessageReaction')
+    const emojis = reaction
+      ? Array.isArray(reaction)
+        ? reaction
+        : [reaction]
+      : undefined
+    const reactions = emojis?.map(
+      (emoji): tg.ReactionType =>
+        typeof emoji === 'string'
+          ? Digit.has(emoji[0] as string)
+            ? { type: 'custom_emoji', custom_emoji_id: emoji }
+            : { type: 'emoji', emoji: emoji as tg.TelegramEmoji }
+          : emoji
+    )
+    return this.telegram.setMessageReaction(
+      this.chat.id,
+      this.msgId,
+      reactions,
+      is_big
+    )
+  }
+
+  /**
    * @see https://core.telegram.org/bots/api#sendlocation
    */
   sendLocation(latitude: number, longitude: number, extra?: tt.ExtraLocation) {
@@ -1286,12 +1371,20 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   deleteMessage(messageId?: number) {
     this.assert(this.chat, 'deleteMessage')
-    if (typeof messageId !== 'undefined') {
+    if (typeof messageId !== 'undefined')
       return this.telegram.deleteMessage(this.chat.id, messageId)
-    }
-    const message = getMessageFromAnySource(this)
-    this.assert(message, 'deleteMessage')
-    return this.telegram.deleteMessage(this.chat.id, message.message_id)
+
+    this.assert(this.msgId, 'deleteMessage')
+    return this.telegram.deleteMessage(this.chat.id, this.msgId)
+  }
+
+  /**
+   * Context-aware shorthand for {@link Telegram.deleteMessages}
+   * @param messageIds Identifiers of 1-100 messages to delete. See deleteMessage for limitations on which messages can be deleted
+   */
+  deleteMessages(messageIds: number[]) {
+    this.assert(this.chat, 'deleteMessages')
+    return this.telegram.deleteMessages(this.chat.id, messageIds)
   }
 
   /**
@@ -1301,12 +1394,25 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     chatId: string | number,
     extra?: Shorthand<'forwardMessage'>[2]
   ) {
-    const message = getMessageFromAnySource(this)
-    this.assert(message, 'forwardMessage')
-    return this.telegram.forwardMessage(
+    this.assert(this.chat, 'forwardMessage')
+    this.assert(this.msgId, 'forwardMessage')
+    return this.telegram.forwardMessage(chatId, this.chat.id, this.msgId, extra)
+  }
+
+  /**
+   * Shorthand for {@link Telegram.forwardMessages}
+   * @see https://core.telegram.org/bots/api#forwardmessages
+   */
+  forwardMessages(
+    chatId: string | number,
+    messageIds: number[],
+    extra?: Shorthand<'forwardMessages'>[2]
+  ) {
+    this.assert(this.chat, 'forwardMessages')
+    return this.telegram.forwardMessages(
       chatId,
-      message.chat.id,
-      message.message_id,
+      this.chat.id,
+      messageIds,
       extra
     )
   }
@@ -1315,14 +1421,23 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @see https://core.telegram.org/bots/api#copymessage
    */
   copyMessage(chatId: string | number, extra?: tt.ExtraCopyMessage) {
-    const message = getMessageFromAnySource(this)
-    this.assert(message, 'copyMessage')
-    return this.telegram.copyMessage(
-      chatId,
-      message.chat.id,
-      message.message_id,
-      extra
-    )
+    this.assert(this.chat, 'copyMessage')
+    this.assert(this.msgId, 'copyMessage')
+    return this.telegram.copyMessage(chatId, this.chat.id, this.msgId, extra)
+  }
+
+  /**
+   * Context-aware shorthand for {@link Telegram.copyMessages}
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param messageIds Identifiers of 1-100 messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order.
+   */
+  copyMessages(
+    chatId: number | string,
+    messageIds: number[],
+    extra?: tt.ExtraCopyMessages
+  ) {
+    this.assert(this.chat, 'copyMessages')
+    return this.telegram.copyMessages(chatId, this.chat?.id, messageIds, extra)
   }
 
   /**
@@ -1411,17 +1526,135 @@ type Getter<U extends Deunionize<tg.Update>, P extends string> = PropOr<
   P
 >
 
+interface Msg {
+  isAccessible(): this is MaybeMessage<tg.Message>
+  has<Ks extends UnionKeys<tg.Message>[]>(
+    ...keys: Ks
+  ): this is MaybeMessage<Keyed<tg.Message, Ks[number]>>
+}
+
+const Msg: Msg = {
+  isAccessible() {
+    return 'date' in this && this.date !== 0
+  },
+  has(...keys) {
+    return keys.some(
+      (key) =>
+        // @ts-expect-error TS doesn't understand key
+        this[key] != undefined
+    )
+  },
+}
+
+export type MaybeMessage<
+  M extends tg.MaybeInaccessibleMessage = tg.MaybeInaccessibleMessage,
+> = M & Msg
+
+type GetMsg<U extends tg.Update> = U extends tg.Update.MessageUpdate
+  ? U['message']
+  : U extends tg.Update.ChannelPostUpdate
+  ? U['channel_post']
+  : U extends tg.Update.EditedChannelPostUpdate
+  ? U['edited_channel_post']
+  : U extends tg.Update.EditedMessageUpdate
+  ? U['edited_message']
+  : U extends tg.Update.CallbackQueryUpdate
+  ? U['callback_query']['message']
+  : undefined
+
 function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
-  return (
+  const msg =
     ctx.message ??
     ctx.editedMessage ??
     ctx.callbackQuery?.message ??
     ctx.channelPost ??
     ctx.editedChannelPost
+  if (msg) return Object.assign(Object.create(Msg), msg)
+}
+
+type GetUserFromAnySource<U extends tg.Update> =
+  // check if it's a message type with `from`
+  GetMsg<U> extends { from: tg.User }
+    ? tg.User
+    : U extends  // these updates have `from`
+        | tg.Update.CallbackQueryUpdate
+        | tg.Update.InlineQueryUpdate
+        | tg.Update.ShippingQueryUpdate
+        | tg.Update.PreCheckoutQueryUpdate
+        | tg.Update.ChosenInlineResultUpdate
+        | tg.Update.ChatMemberUpdate
+        | tg.Update.MyChatMemberUpdate
+        | tg.Update.ChatJoinRequestUpdate
+        // these updates have `user`
+        | tg.Update.MessageReactionUpdate
+        | tg.Update.PollAnswerUpdate
+        | tg.Update.ChatBoostUpdate
+    ? tg.User
+    : undefined
+
+function getUserFromAnySource<U extends tg.Update>(ctx: Context<U>) {
+  const msg = ctx.msg
+  if (msg?.has('from')) return msg.from
+
+  return (
+    (
+      ctx.callbackQuery ??
+      ctx.inlineQuery ??
+      ctx.shippingQuery ??
+      ctx.preCheckoutQuery ??
+      ctx.chosenInlineResult ??
+      ctx.chatMember ??
+      ctx.myChatMember ??
+      ctx.chatJoinRequest
+    )?.from ??
+    (ctx.messageReaction ?? ctx.pollAnswer ?? ctx.chatBoost?.boost.source)?.user
   )
 }
 
-const getThreadId = <U extends tg.Update>(ctx: Context<U>) => {
+type GetMsgId<U extends tg.Update> = GetMsg<U> extends { message_id: number }
+  ? number
+  : U extends tg.Update.MessageReactionUpdate
+  ? number
+  : U extends tg.Update.MessageReactionCountUpdate
+  ? number
+  : undefined
+
+function getMsgIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg = getMessageFromAnySource(ctx)
-  return msg?.is_topic_message ? msg.message_thread_id : undefined
+  return (msg ?? ctx.messageReaction ?? ctx.messageReactionCount)
+    ?.message_id as GetMsgId<U>
+}
+
+type GetText<U extends tg.Update> = GetMsg<U> extends tg.Message.TextMessage
+  ? string
+  : GetMsg<U> extends tg.Message
+  ? string | undefined
+  : U extends tg.Update.PollUpdate
+  ? string | undefined
+  : undefined
+
+function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
+  const msg = ctx.msg
+
+  let text, entities
+
+  if (msg) {
+    if ('entities' in msg) (text = msg.text), (entities = msg.entities)
+    else if ('caption_entities' in msg)
+      (text = msg.caption), (entities = msg.caption_entities)
+    else if ('game' in msg)
+      (text = msg.game.text), (entities = msg.game.text_entities)
+  } else if (ctx.poll)
+    (text = ctx.poll.explanation), (entities = ctx.poll.explanation_entities)
+
+  return [text, entities] as const
+}
+
+const getThreadId = <U extends tg.Update>(ctx: Context<U>) => {
+  const msg = ctx.msg
+  return msg?.isAccessible()
+    ? msg.is_topic_message
+      ? msg.message_thread_id
+      : undefined
+    : undefined
 }

@@ -1,4 +1,5 @@
 import { FmtString } from './formatting'
+import { Deunionize, UnionKeys } from './deunionize'
 
 export const env = process.env
 
@@ -41,6 +42,16 @@ export function fmtCaption(extra?: { caption?: string | FmtString }) {
   }
 }
 
+export type DistinctKeys<T extends object> = Exclude<UnionKeys<T>, keyof T>
+
+// prettier-ignore
+/* eslint-disable-next-line @typescript-eslint/ban-types */
+export type KeyedDistinct<T extends object, K extends DistinctKeys<T>> = Record<K, {}> & Deunionize<Record<K, {}>, T>
+
+// prettier-ignore
+/* eslint-disable-next-line @typescript-eslint/ban-types */
+export type Keyed<T extends object, K extends UnionKeys<T>> = Record<K, {}> & Deunionize<Record<K, {}>, T>
+
 /** Construct a generic type guard */
 export type Guard<X = unknown, Y extends X = X> = (x: X) => x is Y
 
@@ -66,4 +77,20 @@ export function* zip<X, Y>(xs: Iterable<X>, ys: Iterable<Y>): Iterable<X | Y> {
     yield y1.value
     y1 = y.next()
   }
+}
+
+export function indexed<T extends object, U>(
+  target: T,
+  indexer: (index: number) => U
+) {
+  return new Proxy(target, {
+    get: function (target, prop, receiver) {
+      if (
+        (typeof prop === 'string' || typeof prop === 'number') &&
+        !isNaN(+prop)
+      )
+        return indexer.call(target, +prop)
+      return Reflect.get(target, prop, receiver)
+    },
+  })
 }

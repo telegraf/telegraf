@@ -234,3 +234,44 @@ test('should deterministically generate `secretPathComponent`', (t) => {
   t.deepEqual(bar.secretPathComponent(), bar.secretPathComponent())
   t.notDeepEqual(foo.secretPathComponent(), bar.secretPathComponent())
 })
+
+test('ctx.entities() should return entities from message', (t) => {
+  const bot = createBot()
+  bot.on('message', (ctx) => {
+    t.deepEqual(ctx.entities(), [
+      { type: 'bot_command', offset: 0, length: 6, fragment: '/start' },
+      { type: 'code', offset: 7, length: 4, fragment: 'test' },
+    ])
+  })
+  return bot.handleUpdate({
+    message: {
+      chat: { id: 1 },
+      text: '/start test',
+      entities: [
+        { type: 'bot_command', offset: 0, length: 6 },
+        { type: 'code', offset: 7, length: 4 },
+      ],
+    },
+  })
+})
+
+test('ctx.entities() should return only requested entities', (t) => {
+  const bot = createBot()
+  bot.on('message', (ctx) => {
+    t.deepEqual(ctx.entities('bold', 'code'), [
+      { type: 'bold', offset: 7, length: 4, fragment: 'bold' },
+      { type: 'code', offset: 12, length: 4, fragment: 'code' },
+    ])
+  })
+  return bot.handleUpdate({
+    message: {
+      chat: { id: 1 },
+      text: '/start bold code',
+      entities: [
+        { type: 'bot_command', offset: 0, length: 6 },
+        { type: 'bold', offset: 7, length: 4 },
+        { type: 'code', offset: 12, length: 4 },
+      ],
+    },
+  })
+})

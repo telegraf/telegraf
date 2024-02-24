@@ -1,3 +1,4 @@
+import { ReplyParameters } from '@telegraf/types'
 import Context from './context'
 import { Middleware } from './middleware'
 
@@ -5,10 +6,18 @@ type ReplyContext = { [key in keyof Context & `reply${string}`]: Context[key] }
 
 function makeReply<
   C extends Context,
-  E extends { reply_to_message_id?: number },
+  E extends { reply_parameters?: ReplyParameters },
 >(ctx: C, extra?: E) {
-  const reply_to_message_id = ctx.message?.message_id
-  return { reply_to_message_id, ...extra }
+  if (ctx.msgId)
+    return {
+      // overrides in this order so user can override all properties
+      reply_parameters: {
+        message_id: ctx.msgId,
+        ...extra?.reply_parameters,
+      },
+      ...extra,
+    }
+  else return extra
 }
 
 const replyContext: ReplyContext = {
@@ -66,8 +75,7 @@ const replyContext: ReplyContext = {
     this.assert(this.chat, 'replyWithHTML')
     return this.telegram.sendMessage(this.chat.id, html, {
       parse_mode: 'HTML',
-      reply_to_message_id: this.message?.message_id,
-      ...extra,
+      ...makeReply(this, extra),
     })
   },
   replyWithInvoice(this: Context, invoice, extra) {
@@ -91,16 +99,14 @@ const replyContext: ReplyContext = {
     this.assert(this.chat, 'replyWithMarkdown')
     return this.telegram.sendMessage(this.chat.id, markdown, {
       parse_mode: 'Markdown',
-      reply_to_message_id: this.message?.message_id,
-      ...extra,
+      ...makeReply(this, extra),
     })
   },
   replyWithMarkdownV2(this: Context, markdown, extra) {
     this.assert(this.chat, 'replyWithMarkdownV2')
     return this.telegram.sendMessage(this.chat.id, markdown, {
       parse_mode: 'MarkdownV2',
-      reply_to_message_id: this.message?.message_id,
-      ...extra,
+      ...makeReply(this, extra),
     })
   },
   replyWithMediaGroup(this: Context, media, extra) {

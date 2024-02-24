@@ -182,6 +182,16 @@ async function attachFormValue(
         }
         const attachmentId = crypto.randomBytes(16).toString('hex')
         await attachFormMedia(form, item.media, attachmentId, agent)
+        const thumb = item.thumb ?? item.thumbnail
+        if (typeof thumb === 'object') {
+          const thumbAttachmentId = crypto.randomBytes(16).toString('hex')
+          await attachFormMedia(form, thumb, thumbAttachmentId, agent)
+          return {
+            ...item,
+            media: `attach://${attachmentId}`,
+            thumbnail: `attach://${thumbAttachmentId}`,
+          }
+        }
         return { ...item, media: `attach://${attachmentId}` }
       })
     )

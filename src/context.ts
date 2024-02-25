@@ -1593,12 +1593,13 @@ type GetUserFromAnySource<U extends tg.Update> =
     : undefined
 
 function getUserFromAnySource<U extends tg.Update>(ctx: Context<U>) {
+  if (ctx.callbackQuery) return ctx.callbackQuery.from
+
   const msg = ctx.msg
   if (msg?.has('from')) return msg.from
 
   return (
     (
-      ctx.callbackQuery ??
       ctx.inlineQuery ??
       ctx.shippingQuery ??
       ctx.preCheckoutQuery ??

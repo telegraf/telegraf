@@ -1640,8 +1640,8 @@ function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   let text, entities
 
   if (msg) {
-    if ('entities' in msg) (text = msg.text), (entities = msg.entities)
-    else if ('caption_entities' in msg)
+    if ('text' in msg) (text = msg.text), (entities = msg.entities)
+    else if ('caption' in msg)
       (text = msg.caption), (entities = msg.caption_entities)
     else if ('game' in msg)
       (text = msg.game.text), (entities = msg.game.text_entities)

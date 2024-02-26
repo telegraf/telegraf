@@ -1553,14 +1553,14 @@ export type MaybeMessage<
 type GetMsg<U extends tg.Update> = U extends tg.Update.MessageUpdate
   ? U['message']
   : U extends tg.Update.ChannelPostUpdate
-  ? U['channel_post']
-  : U extends tg.Update.EditedChannelPostUpdate
-  ? U['edited_channel_post']
-  : U extends tg.Update.EditedMessageUpdate
-  ? U['edited_message']
-  : U extends tg.Update.CallbackQueryUpdate
-  ? U['callback_query']['message']
-  : undefined
+    ? U['channel_post']
+    : U extends tg.Update.EditedChannelPostUpdate
+      ? U['edited_channel_post']
+      : U extends tg.Update.EditedMessageUpdate
+        ? U['edited_message']
+        : U extends tg.Update.CallbackQueryUpdate
+          ? U['callback_query']['message']
+          : undefined
 
 function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg =
@@ -1577,20 +1577,20 @@ type GetUserFromAnySource<U extends tg.Update> =
   GetMsg<U> extends { from: tg.User }
     ? tg.User
     : U extends  // these updates have `from`
-        | tg.Update.CallbackQueryUpdate
-        | tg.Update.InlineQueryUpdate
-        | tg.Update.ShippingQueryUpdate
-        | tg.Update.PreCheckoutQueryUpdate
-        | tg.Update.ChosenInlineResultUpdate
-        | tg.Update.ChatMemberUpdate
-        | tg.Update.MyChatMemberUpdate
-        | tg.Update.ChatJoinRequestUpdate
-        // these updates have `user`
-        | tg.Update.MessageReactionUpdate
-        | tg.Update.PollAnswerUpdate
-        | tg.Update.ChatBoostUpdate
-    ? tg.User
-    : undefined
+          | tg.Update.CallbackQueryUpdate
+          | tg.Update.InlineQueryUpdate
+          | tg.Update.ShippingQueryUpdate
+          | tg.Update.PreCheckoutQueryUpdate
+          | tg.Update.ChosenInlineResultUpdate
+          | tg.Update.ChatMemberUpdate
+          | tg.Update.MyChatMemberUpdate
+          | tg.Update.ChatJoinRequestUpdate
+          // these updates have `user`
+          | tg.Update.MessageReactionUpdate
+          | tg.Update.PollAnswerUpdate
+          | tg.Update.ChatBoostUpdate
+      ? tg.User
+      : undefined
 
 function getUserFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   if (ctx.callbackQuery) return ctx.callbackQuery.from
@@ -1612,13 +1612,14 @@ function getUserFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   )
 }
 
-type GetMsgId<U extends tg.Update> = GetMsg<U> extends { message_id: number }
-  ? number
-  : U extends tg.Update.MessageReactionUpdate
-  ? number
-  : U extends tg.Update.MessageReactionCountUpdate
-  ? number
-  : undefined
+type GetMsgId<U extends tg.Update> =
+  GetMsg<U> extends { message_id: number }
+    ? number
+    : U extends tg.Update.MessageReactionUpdate
+      ? number
+      : U extends tg.Update.MessageReactionCountUpdate
+        ? number
+        : undefined
 
 function getMsgIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg = getMessageFromAnySource(ctx)
@@ -1626,13 +1627,14 @@ function getMsgIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
     ?.message_id as GetMsgId<U>
 }
 
-type GetText<U extends tg.Update> = GetMsg<U> extends tg.Message.TextMessage
-  ? string
-  : GetMsg<U> extends tg.Message
-  ? string | undefined
-  : U extends tg.Update.PollUpdate
-  ? string | undefined
-  : undefined
+type GetText<U extends tg.Update> =
+  GetMsg<U> extends tg.Message.TextMessage
+    ? string
+    : GetMsg<U> extends tg.Message
+      ? string | undefined
+      : U extends tg.Update.PollUpdate
+        ? string | undefined
+        : undefined
 
 function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg = ctx.msg
@@ -1640,8 +1642,8 @@ function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   let text, entities
 
   if (msg) {
-    if ('entities' in msg) (text = msg.text), (entities = msg.entities)
-    else if ('caption_entities' in msg)
+    if ('text' in msg) (text = msg.text), (entities = msg.entities)
+    else if ('caption' in msg)
       (text = msg.caption), (entities = msg.caption_entities)
     else if ('game' in msg)
       (text = msg.game.text), (entities = msg.game.text_entities)

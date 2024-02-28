@@ -77,7 +77,9 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
 }
 
 function includesMedia(payload: Record<string, unknown>) {
-  return Object.values(payload).some((value) => {
+  return Object.entries(payload).some(([key, value]) => {
+    if (key !== 'link_preview_options') return false
+
     if (Array.isArray(value)) {
       return value.some(
         ({ media }) =>

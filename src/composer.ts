@@ -50,7 +50,7 @@ function always<T>(x: T) {
   return () => x
 }
 
-interface StartContextExtn {
+interface StartContextExtn extends tt.CommandContextExtn {
   /**
    * @deprecated Use ctx.payload instead
    */
@@ -112,8 +112,8 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
         Filter extends tt.MessageSubType
           ? MatchedContext<C, Filter>
           : Filter extends tt.UpdateType | Guard<C['update']>
-          ? FilteredContext<C, Filter>
-          : never
+            ? FilteredContext<C, Filter>
+            : never
       >
     >
   ): this {
@@ -277,7 +277,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   help(
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+      Middleware<
+        NarrowedContext<C, tt.MountMap['text']> & tt.CommandContextExtn
+      >
     >
   ) {
     return this.command('help', ...fns)
@@ -288,7 +290,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
    */
   settings(
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap['text']>>
+      Middleware<
+        NarrowedContext<C, tt.MountMap['text']> & tt.CommandContextExtn
+      >
     >
   ) {
     return this.command('settings', ...fns)

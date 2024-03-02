@@ -7,7 +7,10 @@ on:
   push:
     branches: [ v4 ]
   pull_request:
-    {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -21,22 +24,29 @@ jobs:
           - 20
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-    - name: Reconfigure git to use HTTP authentication
-      run: >
-        git config --global url."https://github.com/".insteadOf ssh://git@github.com/
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-    - uses: actions/cache@v3
-      id: cache
-      with:
-        path: node_modules/
-        key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('package*.json') }}
-    - run: npm ci --ignore-scripts
-      if: steps.cache.outputs.cache-hit != 'true'
-    - run: npm test
-    - run: npm run lint
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Reconfigure git to use HTTP authentication
+        run: >
+          git config --global url."https://github.com/".insteadOf ssh://git@github.com/
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: node_modules/
+          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('package*.json') }}
+      - run: npm ci --ignore-scripts
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Tests
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format
+        run: npm run format:check

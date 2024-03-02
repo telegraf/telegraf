@@ -79,7 +79,9 @@
     "lint": "eslint .",
     "checks": "npm test && npm run lint",
     "refresh": "npm run clean && npm ci",
-    "clean": "git clean -fX .eslintcache docs/build/ lib/ typings/"
+    "clean": "git clean -fX .eslintcache docs/build/ lib/ typings/",
+    "format": "prettier --write .",
+    "format:check": "prettier --check \"**/*.{js,ts,json,md}\""
   },
   "ava": {
     "files": [

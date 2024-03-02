@@ -17,9 +17,9 @@ export type AllGuarded<Fs extends Filter<Update>[]> = Fs extends [
   ? B extends []
     ? Guarded<A>
     : // TS doesn't know otherwise that B is Filter[]
-    B extends Filter<Update>[]
-    ? Guarded<A> & AllGuarded<B>
-    : never
+      B extends Filter<Update>[]
+      ? Guarded<A> & AllGuarded<B>
+      : never
   : never
 
 export const message =

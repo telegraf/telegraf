@@ -527,13 +527,16 @@ test('Composer.dispatch should work with handlers array', (t) =>
     new Promise((resolve, reject) => {
       const bot = createBot()
       bot.use(
-        Composer.dispatch(() => 1, [
-          () => {
-            reject()
-            resolve()
-          },
-          () => resolve(),
-        ])
+        Composer.dispatch(
+          () => 1,
+          [
+            () => {
+              reject()
+              resolve()
+            },
+            () => resolve(),
+          ]
+        )
       )
       bot.handleUpdate({ message: { text: 'hello world', ...baseMessage } })
     })

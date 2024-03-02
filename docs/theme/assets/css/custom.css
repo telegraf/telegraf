@@ -1,6 +1,6 @@
 /** @format */
 
-li.tsd-kind-namespace > a[href$="telegraf.html"] {
+li.tsd-kind-namespace > a[href$='telegraf.html'] {
   display: none;
 }
 
@@ -16,11 +16,11 @@ a {
   color: #e74625;
 }
 
-[data-tsd-kind="Class"] {
-  color: #0672DE;
+[data-tsd-kind='Class'] {
+  color: #0672de;
 }
 
-[data-tsd-kind="Class"],
+[data-tsd-kind='Class'],
 nav .tsd-kind-class,
 .tsd-legend > .tsd-kind-constructor,
 .tsd-legend > .tsd-kind-method,

@@ -1,7 +1,6 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-
 ---
 
 <!--
@@ -20,9 +19,9 @@ will make it more difficult for us to help you.
 Please provide any relevant information about your setup. This is important in case the issue is not reproducible except for under certain conditions.
 -->
 
-* Telegraf.js Version:
-* Node.js Version:
-* Operating System:
+- Telegraf.js Version:
+- Node.js Version:
+- Operating System:
 
 ## Minimal Example Code Reproducing the Issue
 

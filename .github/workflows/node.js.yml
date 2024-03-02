@@ -5,7 +5,6 @@ name: Node.js CI
 
 on:
   push:
-    branches: [v4]
   pull_request:
 
 concurrency:

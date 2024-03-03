@@ -77,6 +77,7 @@
     "pretest": "npm run build",
     "test": "ava",
     "lint": "eslint .",
+    "lint:fix": "npm run lint -- --fix",
     "checks": "npm test && npm run lint",
     "refresh": "npm run clean && npm ci",
     "clean": "git clean -fX .eslintcache docs/build/ lib/ typings/"

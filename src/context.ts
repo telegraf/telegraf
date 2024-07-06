@@ -1564,7 +1564,7 @@ interface Msg {
   ): this is MaybeMessage<Keyed<tg.Message, Ks[number]>>
 }
 
-const Msg: Msg = {
+const Msg = {
   isAccessible() {
     return 'date' in this && this.date !== 0
   },
@@ -1575,7 +1575,7 @@ const Msg: Msg = {
         this[key] != undefined
     )
   },
-}
+} as Msg
 
 export type MaybeMessage<
   M extends tg.MaybeInaccessibleMessage = tg.MaybeInaccessibleMessage,

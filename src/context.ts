@@ -98,6 +98,28 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.update.edited_channel_post as PropOr<U, 'edited_channel_post'>
   }
 
+  get businessConnection() {
+    return this.update.business_connection as PropOr<U, 'business_connection'>
+  }
+
+  get businessMessage() {
+    return this.update.business_message as PropOr<U, 'business_message'>
+  }
+
+  get editedBusinessMessage() {
+    return this.update.edited_business_message as PropOr<
+      U,
+      'edited_business_message'
+    >
+  }
+
+  get deletedBusinessMessages() {
+    return this.update.deleted_business_messages as PropOr<
+      U,
+      'deleted_business_messages'
+    >
+  }
+
   get messageReaction() {
     return this.update.message_reaction as PropOr<U, 'message_reaction'>
   }
@@ -152,6 +174,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /** Shorthand for any message_id present in the current update. */
   get msgId() {
     return getMsgIdFromAnySource(this) as GetMsgId<U>
+  }
+
+  get bizConnId() {
+    return getBizConnFromAnySource(this) as GetBizConnId<U>
   }
 
   get chat(): Getter<U, 'chat'> {
@@ -1336,6 +1362,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.telegram.getMyCommands()
   }
 
+  getBusinessConnection() {
+    this.assert(this.bizConnId, 'getBusinessConnection')
+    return this.telegram.getBusinessConnection(this.bizConnId)
+  }
+
   /**
    * @deprecated use {@link Telegram.setMyCommands}
    * @see https://core.telegram.org/bots/api#setmycommands
@@ -1558,9 +1589,16 @@ type GetMsg<U extends tg.Update> = U extends tg.Update.MessageUpdate
   ? U['edited_channel_post']
   : U extends tg.Update.EditedMessageUpdate
   ? U['edited_message']
+  : U extends tg.Update.BusinessMessageUpdate
+  ? U['business_message']
+  : U extends tg.Update.EditedBusinessMessageUpdate
+  ? U['edited_business_message']
   : U extends tg.Update.CallbackQueryUpdate
   ? U['callback_query']['message']
   : undefined
+
+type x = GetMsg<tg.Update.BusinessMessageUpdate>
+type y = x['business_connection_id']
 
 function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg =
@@ -1568,7 +1606,9 @@ function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
     ctx.editedMessage ??
     ctx.callbackQuery?.message ??
     ctx.channelPost ??
-    ctx.editedChannelPost
+    ctx.editedChannelPost ??
+    ctx.businessMessage ??
+    ctx.editedBusinessMessage
   if (msg) return Object.assign(Object.create(Msg), msg)
 }
 
@@ -1624,6 +1664,23 @@ function getMsgIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg = getMessageFromAnySource(ctx)
   return (msg ?? ctx.messageReaction ?? ctx.messageReactionCount)
     ?.message_id as GetMsgId<U>
+}
+
+type GetBizConnId<U extends tg.Update> = U extends
+  | tg.Update.BusinessConnectionUpdate
+  | tg.Update.DeletedBusinessMessagesUpdate
+  ? string
+  : GetMsg<U> extends { business_connection_id: string }
+  ? string
+  : undefined
+
+function getBizConnFromAnySource<U extends tg.Update>(ctx: Context<U>) {
+  if (ctx.businessConnection) return ctx.businessConnection.id
+  if (ctx.businessMessage) return ctx.businessMessage.business_connection_id
+  if (ctx.editedBusinessMessage)
+    return ctx.editedBusinessMessage.business_connection_id
+  if (ctx.deletedBusinessMessages)
+    return ctx.deletedBusinessMessages.business_connection_id
 }
 
 type GetText<U extends tg.Update> = GetMsg<U> extends tg.Message.TextMessage

@@ -1363,6 +1363,11 @@ export class Telegram extends ApiClient {
     return this.callApi('getCustomEmojiStickers', { custom_emoji_ids })
   }
 
+  /** Use this method to get information about the connection of the bot with a business account. */
+  getBusinessConnection(business_connection_id: string) {
+    return this.callApi('getBusinessConnection', { business_connection_id })
+  }
+
   /**
    * Change the list of the bot's commands.
    * @param commands A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.

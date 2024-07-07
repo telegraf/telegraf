@@ -1315,12 +1315,14 @@ export class Telegram extends ApiClient {
   setStickerSetThumbnail(
     name: string,
     userId: number,
-    thumbnail?: tg.Opts<'setStickerSetThumbnail'>['thumbnail']
+    thumbnail: tg.Opts<'setStickerSetThumbnail'>['thumbnail'] | undefined,
+    format: 'static' | 'animated' | 'video'
   ) {
     return this.callApi('setStickerSetThumbnail', {
       name,
       user_id: userId,
       thumbnail,
+      format,
     })
   }
 

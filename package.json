@@ -1,6 +1,6 @@
 {
   "name": "telegraf",
-  "version": "4.16.3",
+  "version": "4.17.0",
   "description": "Modern Telegram Bot Framework",
   "license": "MIT",
   "author": "The Telegraf Contributors",
@@ -94,7 +94,7 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "@telegraf/types": "^7.1.0",
+    "@telegraf/types": "danielrhodes/telegraf-types#feat/api-7.8",
     "abort-controller": "^3.0.0",
     "debug": "^4.3.4",
     "mri": "^1.2.0",

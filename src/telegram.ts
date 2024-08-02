@@ -427,6 +427,27 @@ export class Telegram extends ApiClient {
   }
 
   /**
+   * Send paid media to channel chats. On success, the sent Message is returned.
+   * @param chatId Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+   * @param media A JSON-serialized array describing photos and videos to be sent, must include up to 10 items.
+   * @param starCount The number of Telegram Stars that must be paid to buy access to the media
+   * @param extra Additional parameters for the message.
+   */
+  sendPaidMedia(
+    chatId: number | string,
+    media: tg.Opts<'sendPaidMedia'>['media'],
+    starCount: number,
+    extra?: tt.ExtraPaidMedia
+  ) {
+    return this.callApi('sendPaidMedia', {
+      chat_id: chatId,
+      media,
+      star_count: starCount,
+      ...fmtCaption(extra),
+    })
+  }
+
+  /**
    * @param chatId Unique identifier for the target chat
    * @param gameShortName Short name of the game, serves as the unique identifier for the game. Set up your games via Botfather.
    */
@@ -1621,6 +1642,27 @@ export class Telegram extends ApiClient {
   }: { forChannels?: boolean } = {}) {
     return this.callApi('getMyDefaultAdministratorRights', {
       for_channels: forChannels,
+    })
+  }
+
+  /**
+   * Returns the bot's Telegram Star transactions in chronological order.
+   * @param offset
+   * @param limit
+   * @returns StarTransactions
+   */
+  getStarTransactions(offset?: number, limit?: number) {
+    return this.callApi('getStarTransactions', { offset, limit })
+  }
+
+  /**
+   * Refunds a successful payment in Telegram Stars.
+   * @returns true on success
+   */
+  refundStarPayment(userId: number, telegramPaymentChargeId: number) {
+    return this.callApi('refundStarPayment', {
+      user_id: userId,
+      telegram_payment_charge_id: telegramPaymentChargeId,
     })
   }
 

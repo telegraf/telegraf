@@ -94,7 +94,7 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "@telegraf/types": "^7.1.0",
+    "@telegraf/types": "danielrhodes/telegraf-types#feat/api-7.8",
     "abort-controller": "^3.0.0",
     "debug": "^4.3.5",
     "mri": "^1.2.0",

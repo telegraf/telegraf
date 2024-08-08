@@ -212,6 +212,11 @@ async function attachFormValue(
   ) {
     const attachmentId = crypto.randomBytes(16).toString('hex')
     await attachFormMedia(form, value.media as InputFile, attachmentId, agent)
+    if (hasProp(value, 'thumbnail') && value.thumbnail) {
+      const thumbnailId = crypto.randomBytes(16).toString('hex');
+      await attachFormMedia(form, value.thumbnail as InputFile, thumbnailId, agent);
+      value.thumbnail = `attach://${thumbnailId}`;
+    }
     return form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
       body: JSON.stringify({

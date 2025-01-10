@@ -220,7 +220,23 @@ async function attachFormValue(
       }),
     })
   }
-  return await attachFormMedia(form, value as InputFile, id, agent)
+  if (
+    value &&
+    typeof value === 'object' &&
+    (
+      hasProp(value, 'source') ||
+      hasProp(value, 'url')
+    ) && (
+      typeof value.source !== 'undefined' ||
+      typeof value.url !== 'undefined'
+    )
+  ) {
+    return await attachFormMedia(form, value as InputFile, id, agent)
+  }
+  return form.addPart({
+    headers: { 'content-disposition': `form-data; name="${id}"` },
+    body: JSON.stringify(value),
+  })
 }
 
 async function attachFormMedia(

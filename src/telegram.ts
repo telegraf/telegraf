@@ -1315,12 +1315,14 @@ export class Telegram extends ApiClient {
   setStickerSetThumbnail(
     name: string,
     userId: number,
-    thumbnail?: tg.Opts<'setStickerSetThumbnail'>['thumbnail']
+    thumbnail: tg.Opts<'setStickerSetThumbnail'>['thumbnail'] | undefined,
+    format: 'static' | 'animated' | 'video'
   ) {
     return this.callApi('setStickerSetThumbnail', {
       name,
       user_id: userId,
       thumbnail,
+      format,
     })
   }
 
@@ -1361,6 +1363,11 @@ export class Telegram extends ApiClient {
 
   getCustomEmojiStickers(custom_emoji_ids: string[]) {
     return this.callApi('getCustomEmojiStickers', { custom_emoji_ids })
+  }
+
+  /** Use this method to get information about the connection of the bot with a business account. */
+  getBusinessConnection(business_connection_id: string) {
+    return this.callApi('getBusinessConnection', { business_connection_id })
   }
 
   /**

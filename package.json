@@ -96,7 +96,7 @@
   "dependencies": {
     "@telegraf/types": "danielrhodes/telegraf-types#feat/api-7.8",
     "abort-controller": "^3.0.0",
-    "debug": "^4.3.5",
+    "debug": "^4.4.0",
     "mri": "^1.2.0",
     "node-fetch": "^2.7.0",
     "p-timeout": "^4.1.0",

@@ -291,12 +291,12 @@ async function answerToWebhook(
   return true
 }
 
-function redactToken(error: Error): never {
-  error.message = error.message.replace(
-    /\/(bot|user)(\d+):[^/]+\//,
-    '/$1$2:[REDACTED]/'
+function redactToken(error: Error): Promise<never> {
+  return Promise.reject(
+    new Error(
+      error?.message?.replace(/\/(bot|user)(\d+):[^/]+\//, '/$1$2:[REDACTED]/')
+    ) ?? 'Unknown error'
   )
-  throw error
 }
 
 type Response = http.ServerResponse

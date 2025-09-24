@@ -294,8 +294,11 @@ async function answerToWebhook(
 function redactToken(error: Error): Promise<never> {
   return Promise.reject(
     new Error(
-      error?.message?.replace(/\/(bot|user)(\d+):[^/]+\//, '/$1$2:[REDACTED]/')
-    ) ?? 'Unknown error'
+      error?.message?.replace(
+        /\/(bot|user)(\d+):[^/]+\//,
+        '/$1$2:[REDACTED]/'
+      ) ?? 'Unknown error'
+    )
   )
 }
 

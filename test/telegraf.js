@@ -275,3 +275,45 @@ test('ctx.entities() should return only requested entities', (t) => {
     },
   })
 })
+
+// Webhook status code tests
+test('webhookCallback should return 405 for non-POST requests', async (t) => {
+  const bot = createBot()
+  const callback = bot.webhookCallback('/webhook')
+  const req = {
+    method: 'GET',
+    url: '/webhook',
+    headers: {},
+  }
+  const res = new MockResponse()
+  await callback(req, res)
+  t.is(res.statusCode, 405)
+})
+
+test('webhookCallback should return 404 for path mismatch', async (t) => {
+  const bot = createBot()
+  const callback = bot.webhookCallback('/webhook')
+  const req = {
+    method: 'POST',
+    url: '/wrong-path',
+    headers: {},
+  }
+  const res = new MockResponse()
+  await callback(req, res)
+  t.is(res.statusCode, 404)
+})
+
+test('webhookCallback should return 403 for secret token mismatch', async (t) => {
+  const bot = createBot()
+  const callback = bot.webhookCallback('/webhook', { secretToken: 'mysecret' })
+  const req = {
+    method: 'POST',
+    url: '/webhook',
+    headers: {
+      'x-telegram-bot-api-secret-token': 'wrongsecret',
+    },
+  }
+  const res = new MockResponse()
+  await callback(req, res)
+  t.is(res.statusCode, 403)
+})

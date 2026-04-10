@@ -5,7 +5,7 @@ import { stat, realpath } from 'fs/promises'
 import * as http from 'http'
 import * as https from 'https'
 import * as path from 'path'
-import fetch, { RequestInit } from 'node-fetch'
+import nodeFetch, { RequestInit } from 'node-fetch'
 import { hasProp, hasPropType } from '../helpers/check'
 import { InputFile, Opts, Telegram } from '../types/typegram'
 import { AbortSignal } from 'abort-controller'
@@ -25,11 +25,15 @@ const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
   'sendChatAction',
 ])
 
+type FetchModel = typeof nodeFetch
+
 namespace ApiClient {
   export type Agent = http.Agent | ((parsedUrl: URL) => http.Agent) | undefined
   export interface Options {
     /**
-     * Agent for communicating with the bot API.
+     * @deprecated Use `fetch` instead. This feature will be removed in future
+     * major versions of Telegraf in favour of custom fetch, because Telegraf
+     * will transition away from the node-fetch package to native platform fetch.
      */
     agent?: http.Agent
     /**
@@ -47,7 +51,7 @@ namespace ApiClient {
     apiMode: 'bot' | 'user'
     webhookReply: boolean
     testEnv: boolean
-    customFetch: typeof fetch
+    fetch: FetchModel
   }
 
   export interface CallApiOptions {
@@ -75,7 +79,7 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
   }),
   attachmentAgent: undefined,
   testEnv: false,
-  customFetch: fetch,
+  fetch: nodeFetch,
 }
 
 function includesMedia(payload: Record<string, unknown>) {
@@ -125,7 +129,7 @@ const FORM_DATA_JSON_FIELDS = [
 async function buildFormDataConfig(
   payload: Opts<keyof Telegram>,
   agent: ApiClient.Agent,
-  customFetch: typeof fetch
+  fetch: FetchModel
 ) {
   for (const field of FORM_DATA_JSON_FIELDS) {
     if (hasProp(payload, field) && typeof payload[field] !== 'string') {
@@ -137,7 +141,7 @@ async function buildFormDataConfig(
   await Promise.all(
     Object.keys(payload).map((key) =>
       // @ts-expect-error payload[key] can obviously index payload, but TS doesn't trust us
-      attachFormValue(formData, key, payload[key], agent, customFetch)
+      attachFormValue(formData, key, payload[key], agent, fetch)
     )
   )
   return {
@@ -156,7 +160,7 @@ async function attachFormValue(
   id: string,
   value: unknown,
   agent: ApiClient.Agent,
-  customFetch: typeof fetch
+  fetch: FetchModel
 ) {
   if (value == null) {
     return
@@ -174,13 +178,7 @@ async function attachFormValue(
   }
   if (id === 'thumb' || id === 'thumbnail') {
     const attachmentId = crypto.randomBytes(16).toString('hex')
-    await attachFormMedia(
-      form,
-      value as InputFile,
-      attachmentId,
-      agent,
-      customFetch
-    )
+    await attachFormMedia(form, value as InputFile, attachmentId, agent, fetch)
     return form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
       body: `attach://${attachmentId}`,
@@ -193,23 +191,11 @@ async function attachFormValue(
           return await Promise.resolve(item)
         }
         const attachmentId = crypto.randomBytes(16).toString('hex')
-        await attachFormMedia(
-          form,
-          item.media,
-          attachmentId,
-          agent,
-          customFetch
-        )
+        await attachFormMedia(form, item.media, attachmentId, agent, fetch)
         const thumb = item.thumb ?? item.thumbnail
         if (typeof thumb === 'object') {
           const thumbAttachmentId = crypto.randomBytes(16).toString('hex')
-          await attachFormMedia(
-            form,
-            thumb,
-            thumbAttachmentId,
-            agent,
-            customFetch
-          )
+          await attachFormMedia(form, thumb, thumbAttachmentId, agent, fetch)
           return {
             ...item,
             media: `attach://${attachmentId}`,
@@ -238,7 +224,7 @@ async function attachFormValue(
       value.media as InputFile,
       attachmentId,
       agent,
-      customFetch
+      fetch
     )
     return form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
@@ -248,7 +234,7 @@ async function attachFormValue(
       }),
     })
   }
-  return await attachFormMedia(form, value as InputFile, id, agent, customFetch)
+  return await attachFormMedia(form, value as InputFile, id, agent, fetch)
 }
 
 async function attachFormMedia(
@@ -256,12 +242,12 @@ async function attachFormMedia(
   media: InputFile,
   id: string,
   agent: ApiClient.Agent,
-  customFetch: typeof fetch
+  fetch: FetchModel
 ) {
   let fileName = media.filename ?? `${id}.${DEFAULT_EXTENSIONS[id] ?? 'dat'}`
   if ('url' in media && media.url !== undefined) {
     const timeout = 500_000 // ms
-    const res = await customFetch(media.url, { agent, timeout })
+    const res = await fetch(media.url, { agent, timeout })
     return form.addPart({
       headers: {
         'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
@@ -307,7 +293,7 @@ async function answerToWebhook(
   const { headers, body } = await buildFormDataConfig(
     payload,
     options.attachmentAgent,
-    options.customFetch
+    options.fetch
   )
   if (!response.headersSent) {
     for (const [key, value] of Object.entries(headers)) {
@@ -396,7 +382,7 @@ class ApiClient {
       ? await buildFormDataConfig(
           { method, ...payload },
           options.attachmentAgent,
-          options.customFetch
+          options.fetch
         )
       : await buildJSONConfig(payload)
     const apiUrl = new URL(
@@ -407,9 +393,7 @@ class ApiClient {
     // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
     config.signal = signal
     config.timeout = 500_000 // ms
-    const res = await this.options
-      .customFetch(apiUrl, config)
-      .catch(redactToken)
+    const res = await this.options.fetch(apiUrl, config).catch(redactToken)
     if (res.status >= 500) {
       const errorPayload = {
         error_code: res.status,

@@ -5,7 +5,10 @@ import { stat, realpath } from 'fs/promises'
 import * as http from 'http'
 import * as https from 'https'
 import * as path from 'path'
-import nodeFetch, { RequestInit } from 'node-fetch'
+import nodeFetch, {
+  RequestInit,
+  Response as ResponseNodeFetch,
+} from 'node-fetch'
 import { hasProp, hasPropType } from '../helpers/check'
 import { InputFile, Opts, Telegram } from '../types/typegram'
 import { AbortSignal } from 'abort-controller'
@@ -25,7 +28,29 @@ const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
   'sendChatAction',
 ])
 
-type FetchModel = typeof nodeFetch
+type FetchInitModel = Pick<
+  RequestInit,
+  | 'signal'
+  | 'timeout'
+  | 'body'
+  | 'method'
+  /*
+  @deprecated read bellow
+   */
+  | 'agent'
+  | 'compress'
+  | 'headers'
+> & {
+  headers?: {
+    'content-type'?: 'application/json' | string
+    connection?: 'keep-alive'
+  }
+}
+
+type FetchModel = (
+  url: URL | string,
+  init: FetchInitModel
+) => Promise<ResponseNodeFetch>
 
 namespace ApiClient {
   export type Agent = http.Agent | ((parsedUrl: URL) => http.Agent) | undefined

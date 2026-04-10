@@ -3,10 +3,14 @@
 import d from 'debug'
 import parse from 'mri'
 import path from 'path'
+import { pathToFileURL } from 'node:url';
 
 import type { RequestListener } from 'http'
 import type { TlsOptions } from 'tls'
 import { Telegraf, type Context, type Middleware } from './index.js'
+
+import { access } from 'node:fs/promises'
+import { constants } from 'node:fs'
 
 const debug = d('telegraf:cli')
 
@@ -24,154 +28,189 @@ const helpMsg = `Usage: telegraf [opts] <bot-file>
 const help = () => console.log(helpMsg)
 
 export type Expand<T> = T extends object
-  ? T extends infer O
+    ? T extends infer O
     ? { [K in keyof O]: O[K] }
     : never
-  : T
+    : T
 
 type Parsed = {
-  // string params, all optional
-  token?: string
-  domain?: string
-  method?: string
-  data?: string
+    // string params, all optional
+    token?: string
+    domain?: string
+    method?: string
+    data?: string
 
-  // defaults exist
-  host: string
-  port: string
+    // defaults exist
+    host: string
+    port: string
 
-  // boolean params
-  logs: boolean
-  help: boolean
+    // boolean params
+    logs: boolean
+    help: boolean
 
-  // argv
-  _: [program: string, entryfile: string, ...paths: string[]]
+    // argv
+    _: [program: string, entryfile: string, ...paths: string[]]
 }
 
 type Env = {
-  BOT_TOKEN?: string
-  BOT_DOMAIN?: string
-  PORT?: string
+    BOT_TOKEN?: string
+    BOT_DOMAIN?: string
+    PORT?: string
 }
 
 /**
  * Runs the cli program and returns exit code
  */
 export async function main(argv: string[], env: Env = {}) {
-  const args = parse(argv, {
-    alias: {
-      // string params, all optional
-      t: 'token',
-      d: 'domain',
-      m: 'method',
-      D: 'data',
+    const args = parse(argv, {
+        alias: {
+            // string params, all optional
+            t: 'token',
+            d: 'domain',
+            m: 'method',
+            D: 'data',
 
-      // defaults exist
-      H: 'host',
-      p: 'port',
+            // defaults exist
+            H: 'host',
+            p: 'port',
 
-      // boolean params
-      l: 'logs',
-      h: 'help',
-    },
-    boolean: ['h', 'l'],
-    default: {
-      H: '0.0.0.0',
-      p: env.PORT || '3000',
-    },
-  }) as Parsed
+            // boolean params
+            l: 'logs',
+            h: 'help',
+        },
+        boolean: ['h', 'l'],
+        default: {
+            H: '0.0.0.0',
+            p: env.PORT || '3000',
+        },
+    }) as Parsed
 
-  if (args.help) {
-    help()
-    return 0
-  }
-
-  const token = args.token || env.BOT_TOKEN
-  const domain = args.domain || env.BOT_DOMAIN
-
-  if (!token) {
-    console.error('Please supply Bot Token')
-    help()
-    return 1
-  }
-
-  const bot = new Telegraf(token)
-
-  if (args.method) {
-    const method = args.method as Parameters<typeof bot.telegram.callApi>[0]
-    console.log(
-      await bot.telegram.callApi(method, JSON.parse(args.data || '{}'))
-    )
-    return 0
-  }
-
-  let [, , file] = args._
-
-  if (!file) {
-    try {
-      const packageJson = (await import(
-        path.resolve(process.cwd(), 'package.json')
-      )) as { main?: string }
-      file = packageJson.main || 'index.js'
-      // eslint-disable-next-line no-empty
-    } catch (err) {}
-  }
-
-  if (!file) {
-    console.error('Please supply a bot handler file.\n')
-    help()
-    return 2
-  }
-
-  if (file[0] !== '/') file = path.resolve(process.cwd(), file)
-
-  type Mod =
-    | {
-        default: Middleware<Context>
-        botHandler: undefined
-        httpHandler: undefined
-        tlsOptions: undefined
-      }
-    | {
-        default: undefined
-        botHandler: Middleware<Context>
-        httpHandler?: RequestListener
-        tlsOptions?: TlsOptions
-      }
-
-  try {
-    if (args.logs) d.enable('telegraf:*')
-
-    const mod: Mod = await import(file)
-    const botHandler = mod.botHandler || mod.default
-    const httpHandler = mod.httpHandler
-    const tlsOptions = mod.tlsOptions
-
-    const config: Telegraf.LaunchOptions = {}
-    if (domain) {
-      config.webhook = {
-        domain,
-        host: args.host,
-        port: Number(args.port),
-        tlsOptions,
-        cb: httpHandler,
-      }
+    if (args.help) {
+        help()
+        return 0
     }
 
-    bot.use(botHandler)
+    const token = args.token || env.BOT_TOKEN
+    const domain = args.domain || env.BOT_DOMAIN
 
-    debug(`Starting module ${file}`)
-    await bot.launch(config)
-  } catch (err) {
-    console.error(`Error launching bot from ${file}`, (err as Error)?.stack)
-    return 3
-  }
+    if (!token) {
+        console.error('Please supply Bot Token')
+        help()
+        return 1
+    }
 
-  // Enable graceful stop
-  process.once('SIGINT', () => bot.stop('SIGINT'))
-  process.once('SIGTERM', () => bot.stop('SIGTERM'))
+    const bot = new Telegraf(token)
 
-  return 0
+    if (args.method) {
+        const method = args.method as Parameters<typeof bot.telegram.callApi>[0]
+        type BotApiData = Record<string, unknown>
+        let parsedData: BotApiData = {}
+
+        if (args.data) {
+            try {
+                const raw = JSON.parse(args.data);
+                if (typeof raw !== 'object' || raw === null) {
+                    throw new Error('Data must be a JSON object')
+                };
+                parsedData = raw as BotApiData;
+            } catch (err) {
+                console.error(`❌ Invalid JSON in --data (-D): ${(err as Error).message}`)
+                return 1
+            };
+        }
+        console.log(
+            await bot.telegram.callApi(method, parsedData)
+        );
+        return 0;
+    };
+
+    let [, , file] = args._
+
+    if (!file) {
+        try {
+            const packageJson = (await import(
+                path.resolve(process.cwd(), 'package.json')
+            )) as { main?: string }
+            file = packageJson.main || 'index.js'
+            // eslint-disable-next-line no-empty
+        } catch (err) { }
+    }
+
+    if (!file) {
+        console.error('Please supply a bot handler file.\n')
+        help()
+        return 2
+    }
+
+    if (file[0] !== '/') file = path.resolve(process.cwd(), file)
+
+    type Mod =
+        | {
+            default: Middleware<Context>
+            botHandler: undefined
+            httpHandler: undefined
+            tlsOptions: undefined
+        }
+        | {
+            default: undefined
+            botHandler: Middleware<Context>
+            httpHandler?: RequestListener
+            tlsOptions?: TlsOptions
+        }
+
+    try {
+        if (args.logs) d.enable('telegraf:*')
+
+        const canRead = async (p: string): Promise<boolean> => {
+            try {
+                await access(p, constants.R_OK)
+                return true
+            } catch {
+                return false
+            }
+        }
+
+        const absolutePath = path.resolve(process.cwd(), file);
+        const fileUrl = pathToFileURL(absolutePath).href;
+        const isFile: boolean = await canRead(fileUrl);
+
+        if (!isFile) {
+            console.error(`❌ File not found(by jopa228)`)
+            return 1
+        }
+
+        const mod: Mod = await import(fileUrl);
+        const botHandler = mod.botHandler || mod.default;
+        const httpHandler = mod.httpHandler;
+        const tlsOptions = mod.tlsOptions;
+
+        const config: Telegraf.LaunchOptions = {}
+        if (domain) {
+            config.webhook = {
+                domain,
+                host: args.host,
+                port: Number(args.port),
+                tlsOptions,
+                cb: httpHandler,
+            }
+        }
+
+        bot.use(botHandler)
+
+        debug(`Starting module ${file}`)
+        await bot.launch(config)
+    } catch (err) {
+        console.error(`Error launching bot from ${file}`, (err as Error)?.stack)
+        return 3
+    }
+
+    // Enable graceful stop
+    process.once('SIGINT', () => bot.stop('SIGINT'))
+    process.once('SIGTERM', () => bot.stop('SIGTERM'))
+
+    return 0
 }
 
 process.exitCode = await main(process.argv, process.env as Env)
+
+// Jopa228 was here

@@ -1585,11 +1585,13 @@ interface Msg {
   ): this is MaybeMessage<Keyed<tg.Message, Ks[number]>>
 }
 
-const Msg = {
-  isAccessible() {
+const Msg: Msg = {
+  isAccessible(): this is MaybeMessage<tg.Message> {
     return 'date' in this && this.date !== 0
   },
-  has(...keys) {
+  has<Ks extends UnionKeys<tg.Message>[]>(
+    ...keys: Ks
+  ): this is MaybeMessage<Keyed<tg.Message, Ks[number]>> {
     return keys.some(
       (key) =>
         // @ts-expect-error TS doesn't understand key
@@ -1617,9 +1619,6 @@ type GetMsg<U extends tg.Update> = U extends tg.Update.MessageUpdate
             : U extends tg.Update.CallbackQueryUpdate
               ? U['callback_query']['message']
               : undefined
-
-type x = GetMsg<tg.Update.BusinessMessageUpdate>
-type y = x['business_connection_id']
 
 function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg =
@@ -1720,13 +1719,13 @@ function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   let text, entities
 
   if (msg) {
-    if ('text' in msg) (text = msg.text), (entities = msg.entities)
+    if ('text' in msg) ((text = msg.text), (entities = msg.entities))
     else if ('caption' in msg)
-      (text = msg.caption), (entities = msg.caption_entities)
+      ((text = msg.caption), (entities = msg.caption_entities))
     else if ('game' in msg)
-      (text = msg.game.text), (entities = msg.game.text_entities)
+      ((text = msg.game.text), (entities = msg.game.text_entities))
   } else if (ctx.poll)
-    (text = ctx.poll.explanation), (entities = ctx.poll.explanation_entities)
+    ((text = ctx.poll.explanation), (entities = ctx.poll.explanation_entities))
 
   return [text, entities] as const
 }

@@ -1,4 +1,4 @@
-const test = require('ava')
+const test = require('ava').default
 const { Telegraf, session } = require('../')
 
 function createBot(...args) {

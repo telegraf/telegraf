@@ -11,12 +11,16 @@ import Context from './context'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
 import { Polling } from './core/network/polling'
-import pTimeout from 'p-timeout'
 import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
 import safeCompare = require('safe-compare')
 const debug = d('telegraf:main')
+
+async function pTimeout<T>(input: PromiseLike<T>, milliseconds: number) {
+  const { default: timeout } = await import('p-timeout')
+  return await timeout(input, { milliseconds })
+}
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   telegram: {},

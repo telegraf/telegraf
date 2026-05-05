@@ -1,6 +1,5 @@
 import * as tg from '../types/typegram'
 import * as tt from '../../telegram-types'
-import AbortController from 'abort-controller'
 import ApiClient from './client'
 import d from 'debug'
 import { promisify } from 'util'

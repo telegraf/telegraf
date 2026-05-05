@@ -5,17 +5,76 @@ import { stat, realpath } from 'fs/promises'
 import * as http from 'http'
 import * as https from 'https'
 import * as path from 'path'
-import fetch, { RequestInit } from 'node-fetch'
+import type { RequestInfo, RequestInit } from 'node-fetch' with {
+  'resolution-mode': 'import',
+}
 import { hasProp } from '../helpers/check'
 import { InputFile, Opts, Telegram } from '../types/typegram'
-import { AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
 import MultipartStream from './multipart-stream'
 import TelegramError from './error'
 import { URL } from 'url'
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const debug = require('debug')('telegraf:client')
 const { isStream } = MultipartStream
+const REQUEST_TIMEOUT = 500_000 // ms
+
+async function nodeFetch(url: URL | RequestInfo, init?: RequestInit) {
+  const { default: nodeFetch } = await import('node-fetch')
+  return await nodeFetch(url, init)
+}
+
+function withTimeout(config: RequestInit) {
+  const timeoutSignal = AbortSignal.timeout(REQUEST_TIMEOUT)
+  if (!config.signal) {
+    return {
+      config: { ...config, signal: timeoutSignal },
+      cleanup: () => undefined,
+    }
+  }
+  if (typeof AbortSignal.any === 'function') {
+    return {
+      config: {
+        ...config,
+        signal: AbortSignal.any([
+          config.signal as globalThis.AbortSignal,
+          timeoutSignal,
+        ]),
+      },
+      cleanup: () => undefined,
+    }
+  }
+
+  const controller = new AbortController()
+  const abort = () => controller.abort()
+  const signal = config.signal as globalThis.AbortSignal
+  if (signal.aborted || timeoutSignal.aborted) controller.abort()
+  else {
+    signal.addEventListener('abort', abort, { once: true })
+    timeoutSignal.addEventListener('abort', abort, { once: true })
+  }
+  return {
+    config: {
+      ...config,
+      signal: controller.signal,
+    },
+    cleanup: () => {
+      signal.removeEventListener('abort', abort)
+      timeoutSignal.removeEventListener('abort', abort)
+    },
+  }
+}
+
+async function fetch(url: URL | RequestInfo, config: RequestInit) {
+  const request = withTimeout(config)
+  try {
+    return await nodeFetch(url, request.config)
+  } finally {
+    request.cleanup()
+  }
+}
+
+type ErrorPayload = ConstructorParameters<typeof TelegramError>[0]
+type ApiResponse<T> = { ok: true; result: T } | ({ ok: false } & ErrorPayload)
 
 const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
   'answerCallbackQuery',
@@ -219,8 +278,8 @@ async function attachFormMedia(
 ) {
   let fileName = media.filename ?? `${id}.${DEFAULT_EXTENSIONS[id] ?? 'dat'}`
   if ('url' in media && media.url !== undefined) {
-    const timeout = 500_000 // ms
-    const res = await fetch(media.url, { agent, timeout })
+    const res = await fetch(media.url, { agent })
+    if (!res.body) throw new TypeError(`Unable to download '${media.url}'`)
     return form.addPart({
       headers: {
         'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
@@ -365,9 +424,7 @@ class ApiClient {
       options.apiRoot
     )
     config.agent = options.agent
-    // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
     config.signal = signal
-    config.timeout = 500_000 // ms
     const res = await fetch(apiUrl, config).catch(redactToken)
     if (res.status >= 500) {
       const errorPayload = {
@@ -376,7 +433,7 @@ class ApiClient {
       }
       throw new TelegramError(errorPayload, { method, payload })
     }
-    const data = await res.json()
+    const data = (await res.json()) as ApiResponse<ReturnType<Telegram[M]>>
     if (!data.ok) {
       debug('API call failed', data)
       throw new TelegramError(data, { method, payload })

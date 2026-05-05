@@ -1,7 +1,7 @@
 const http = require('http')
 const fs = require('fs')
 const path = require('path')
-const test = require('ava')
+const test = require('ava').default
 const { Input, Telegram } = require('../')
 
 function readTypeFile(name) {

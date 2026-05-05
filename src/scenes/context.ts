@@ -8,8 +8,9 @@ const debug = d('telegraf:scenes:context')
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
-export interface SceneContext<D extends SceneSessionData = SceneSessionData>
-  extends Context {
+export interface SceneContext<
+  D extends SceneSessionData = SceneSessionData,
+> extends Context {
   session: SceneSession<D>
   scene: SceneContextScene<SceneContext<D>, D>
 }

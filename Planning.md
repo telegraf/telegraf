@@ -65,6 +65,11 @@ The types package has a method coverage check against the official API:
 - Typed methods: 169
 - Missing: 0
 
+Until `telegraf/types` publishes this update, the Telegraf branch temporarily
+depends on `git+https://github.com/Leask/types.git#bot-api-9.6-sync`. Before an
+upstream Telegraf PR is ready to merge, replace this with the official
+`@telegraf/types` release or accepted upstream branch.
+
 ### Runtime Wrappers
 
 `Telegram` now exposes a callable wrapper for every typed Bot API method. Newer
@@ -111,7 +116,7 @@ npm run lint
 
 Current status:
 
-- `npm test`: 168 passing
+- `npm test`: 169 passing
 - `npm run lint`: passing
 
 New tests:
@@ -120,8 +125,9 @@ New tests:
   by `@telegraf/types`.
 - `test/api.js` verifies that each typed method has a matching `callApi(...)`
   call in `src/telegram.ts`.
-- `test/api.js` verifies representative Bot API 9.4-9.6 changelog fields and
-  objects in generated `@telegraf/types` declarations.
+- `test/api.js` verifies representative Bot API 9.4-9.6 changelog fields,
+  objects, and method parameters in their generated `@telegraf/types`
+  declaration blocks.
 - `test/api.js` verifies nested `InputFile` multipart packing through
   `setMyProfilePhoto`.
 

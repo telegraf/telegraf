@@ -56,6 +56,7 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 - Runtime wrappers for every typed official Bot API method
 - TypeScript declarations backed by `@telegraf/types`
 - Nested `InputFile` multipart uploads for modern media payloads
+- Native `fetch` by default on Node.js 20+
 - [Lightweight](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 - [AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)
   / [Firebase](https://firebase.google.com/products/functions/)
@@ -137,6 +138,26 @@ or
 ```shellscript
 $ pnpm add telegraf
 ```
+
+### Runtime networking
+
+Telegraf uses the Node.js native `globalThis.fetch` implementation by default.
+It does not bundle `node-fetch` or expose `node-fetch`-specific `agent` options.
+
+If your bot needs a proxy, custom TLS handling, custom compression, or another
+special network path, install the fetch implementation you need and pass it
+explicitly:
+
+```js
+import { Telegraf } from 'telegraf'
+import fetch from 'node-fetch'
+
+const bot = new Telegraf(process.env.BOT_TOKEN, {
+  telegram: { fetch },
+})
+```
+
+The custom fetch is used for both Bot API calls and URL attachments.
 
 ### `Telegraf` class
 

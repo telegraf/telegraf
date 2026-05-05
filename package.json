@@ -97,7 +97,6 @@
     "@telegraf/types": "git+https://github.com/Leask/types.git#bot-api-9.6-sync",
     "debug": "^4.4.3",
     "mri": "^1.2.0",
-    "node-fetch": "^3.3.2",
     "p-timeout": "^7.0.1",
     "safe-compare": "^1.1.4",
     "sandwich-stream": "^2.0.2"

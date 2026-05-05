@@ -3,12 +3,8 @@ import * as crypto from 'crypto'
 import * as fs from 'fs'
 import { stat, realpath } from 'fs/promises'
 import * as http from 'http'
-import * as https from 'https'
 import * as path from 'path'
 import { Readable } from 'stream'
-import type { RequestInit } from 'node-fetch' with {
-  'resolution-mode': 'import',
-}
 import { hasProp } from '../helpers/check'
 import { InputFile, Opts, Telegram } from '../types/typegram'
 import { compactOptions } from '../helpers/compact'
@@ -31,12 +27,20 @@ type Fetch = (
   init?: globalThis.RequestInit
 ) => Promise<FetchResponse>
 
-async function nodeFetch(url: URL | string, init?: globalThis.RequestInit) {
-  const { default: nodeFetch } = await import('node-fetch')
-  return await nodeFetch(url, init as RequestInit)
+type RequestConfig = Omit<globalThis.RequestInit, 'body'> & {
+  body?:
+    | globalThis.RequestInit['body']
+    | NodeJS.ReadableStream
+    | Buffer
+    | string
+  duplex?: 'half'
 }
 
-function withTimeout(config: RequestInit, timeout: number) {
+async function nativeFetch(url: URL | string, init?: globalThis.RequestInit) {
+  return await globalThis.fetch(url, init)
+}
+
+function withTimeout(config: RequestConfig, timeout: number) {
   if (timeout <= 0 || !Number.isFinite(timeout)) {
     return {
       config,
@@ -87,7 +91,7 @@ function withTimeout(config: RequestInit, timeout: number) {
 async function fetchWithTimeout(
   fetch: Fetch,
   url: URL | string,
-  config: RequestInit,
+  config: RequestConfig,
   timeout: number
 ) {
   const request = withTimeout(config, timeout)
@@ -110,19 +114,7 @@ const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
 ])
 
 namespace ApiClient {
-  export type Agent = http.Agent | ((parsedUrl: URL) => http.Agent) | undefined
   export interface Options {
-    /**
-     * Agent for communicating with the bot API.
-     */
-    agent?: http.Agent
-    /**
-     * Agent for attaching files via URL.
-     * 1. Not all agents support both `http:` and `https:`.
-     * 2. When passing a function, create the agents once, outside of the function.
-     *    Creating new agent every request probably breaks `keepAlive`.
-     */
-    attachmentAgent?: Agent
     apiRoot: string
     /**
      * @default 'bot'
@@ -133,6 +125,10 @@ namespace ApiClient {
     testEnv: boolean
     /**
      * Fetch implementation used for Bot API calls and URL attachments.
+     * The default is `globalThis.fetch`.
+     *
+     * Provide a custom fetch implementation for proxy agents, custom TLS,
+     * custom compression, or other non-standard network behavior.
      */
     fetch: Fetch
     /**
@@ -160,13 +156,8 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
   apiRoot: 'https://api.telegram.org',
   apiMode: 'bot',
   webhookReply: true,
-  agent: new https.Agent({
-    keepAlive: true,
-    keepAliveMsecs: 10000,
-  }),
-  attachmentAgent: undefined,
   testEnv: false,
-  fetch: nodeFetch,
+  fetch: nativeFetch,
   requestTimeout: REQUEST_TIMEOUT,
 }
 
@@ -199,11 +190,10 @@ function replacer(_: unknown, value: unknown) {
   return value
 }
 
-function buildJSONConfig(payload: unknown): Promise<RequestInit> {
+function buildJSONConfig(payload: unknown): Promise<RequestConfig> {
   return Promise.resolve({
     method: 'POST',
-    compress: true,
-    headers: { 'content-type': 'application/json', connection: 'keep-alive' },
+    headers: { 'content-type': 'application/json' },
     body: JSON.stringify(payload, replacer),
   })
 }
@@ -235,12 +225,11 @@ async function buildFormDataConfig(
   )
   return {
     method: 'POST',
-    compress: true,
     headers: {
       'content-type': `multipart/form-data; boundary=${boundary}`,
-      connection: 'keep-alive',
     },
     body: formData,
+    duplex: 'half' as const,
   }
 }
 
@@ -328,7 +317,7 @@ async function attachFormMedia(
     const res = await fetchWithTimeout(
       options.fetch,
       media.url,
-      { agent: options.attachmentAgent },
+      {},
       options.requestTimeout
     )
     if (!res.body) throw new TypeError(`Unable to download '${media.url}'`)
@@ -408,9 +397,6 @@ class ApiClient {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
     }
-    if (this.options.apiRoot.startsWith('http://')) {
-      this.options.agent = undefined
-    }
   }
 
   /**
@@ -458,7 +444,7 @@ class ApiClient {
 
     debug('HTTP call', method, payload)
 
-    const config: RequestInit = includesMedia(payload)
+    const config: RequestConfig = includesMedia(payload)
       ? await buildFormDataConfig({ method, ...payload }, options)
       : await buildJSONConfig(payload)
     const apiUrl = new URL(
@@ -467,7 +453,6 @@ class ApiClient {
       )}`,
       options.apiRoot
     )
-    config.agent = options.agent
     config.signal = signal
     const res = await fetchWithTimeout(
       options.fetch,

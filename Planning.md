@@ -120,6 +120,8 @@ New tests:
   by `@telegraf/types`.
 - `test/api.js` verifies that each typed method has a matching `callApi(...)`
   call in `src/telegram.ts`.
+- `test/api.js` verifies representative Bot API 9.4-9.6 changelog fields and
+  objects in generated `@telegraf/types` declarations.
 - `test/api.js` verifies nested `InputFile` multipart packing through
   `setMyProfilePhoto`.
 

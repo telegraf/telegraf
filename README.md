@@ -145,15 +145,19 @@ Telegraf uses the Node.js native `globalThis.fetch` implementation by default.
 It does not bundle `node-fetch` or expose `node-fetch`-specific `agent` options.
 
 If your bot needs a proxy, custom TLS handling, custom compression, or another
-special network path, install the fetch implementation you need and pass it
-explicitly:
+special network path, install the fetch and agent packages you need and inject
+that behavior through a custom fetch:
 
 ```js
 import { Telegraf } from 'telegraf'
 import fetch from 'node-fetch'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+
+const agent = new HttpsProxyAgent(process.env.HTTPS_PROXY)
+const fetchWithProxy = (url, init) => fetch(url, { ...init, agent })
 
 const bot = new Telegraf(process.env.BOT_TOKEN, {
-  telegram: { fetch },
+  telegram: { fetch: fetchWithProxy },
 })
 ```
 

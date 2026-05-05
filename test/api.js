@@ -527,8 +527,9 @@ test('custom fetch is used for Bot API calls', async (t) => {
 
 test('custom fetch is used for URL attachments', async (t) => {
   const calls = []
+  let botApiInit
   const telegram = new Telegram('123:abc', {
-    fetch: async (url) => {
+    fetch: async (url, init) => {
       calls.push(String(url))
       if (String(url) === 'https://example.test/avatar.png') {
         return {
@@ -543,6 +544,7 @@ test('custom fetch is used for URL attachments', async (t) => {
           json: async () => ({ ok: true, result: true }),
         }
       }
+      botApiInit = init
       return {
         status: 200,
         statusText: 'OK',
@@ -559,6 +561,9 @@ test('custom fetch is used for URL attachments', async (t) => {
     'https://example.test/avatar.png',
     'https://api.telegram.org/bot123:abc/sendPhoto',
   ])
+  t.is(botApiInit.method, 'POST')
+  t.is(botApiInit.duplex, 'half')
+  t.regex(botApiInit.headers['content-type'], /^multipart\/form-data/)
 })
 
 test('request timeout aborts fetch calls', async (t) => {

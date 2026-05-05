@@ -1,4 +1,6 @@
 const http = require('http')
+const { execFileSync } = require('child_process')
+const os = require('os')
 const fs = require('fs')
 const path = require('path')
 const test = require('ava').default
@@ -64,6 +66,29 @@ function hasAnyField(block, name) {
 function hasTypeMember(source, name, member) {
   const match = new RegExp(`\\btype ${name} = ([\\s\\S]*?);`).exec(source)
   return Boolean(match && compact(match[1]).includes(member))
+}
+
+function compileTypeScript(name, source) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'telegraf-types-'))
+  const file = path.join(dir, name)
+  fs.writeFileSync(file, source)
+  execFileSync(
+    path.join(process.cwd(), 'node_modules/.bin/tsc'),
+    [
+      '--noEmit',
+      '--strict',
+      '--module',
+      'node16',
+      '--moduleResolution',
+      'node16',
+      '--target',
+      'es2022',
+      '--skipLibCheck',
+      '--ignoreConfig',
+      file,
+    ],
+    { stdio: 'pipe' }
+  )
 }
 
 test('Telegram wraps every typed Bot API method', (t) => {
@@ -447,4 +472,137 @@ test('multipart form data serializes nested input files', async (t) => {
   t.true(captured.body.includes(`name="${attachment[1]}"`))
   t.true(captured.body.includes('filename="avatar.png"'))
   t.true(captured.body.includes('avatar-bytes'))
+})
+
+test('custom fetch is used for Bot API calls', async (t) => {
+  let captured
+  const telegram = new Telegram('123:abc', {
+    fetch: async (url, init) => {
+      captured = { url, init }
+      return {
+        status: 200,
+        statusText: 'OK',
+        json: async () => ({
+          ok: true,
+          result: { id: 42, is_bot: true, first_name: 'Bot' },
+        }),
+      }
+    },
+  })
+
+  const result = await telegram.getMe()
+
+  t.is(String(captured.url), 'https://api.telegram.org/bot123:abc/getMe')
+  t.is(captured.init.method, 'POST')
+  t.deepEqual(JSON.parse(captured.init.body), {})
+  t.deepEqual(result, { id: 42, is_bot: true, first_name: 'Bot' })
+})
+
+test('custom fetch is used for URL attachments', async (t) => {
+  const calls = []
+  const telegram = new Telegram('123:abc', {
+    fetch: async (url) => {
+      calls.push(String(url))
+      if (String(url) === 'https://example.test/avatar.png') {
+        return {
+          status: 200,
+          statusText: 'OK',
+          body: new ReadableStream({
+            start(controller) {
+              controller.enqueue(Buffer.from('image-bytes'))
+              controller.close()
+            },
+          }),
+          json: async () => ({ ok: true, result: true }),
+        }
+      }
+      return {
+        status: 200,
+        statusText: 'OK',
+        json: async () => ({ ok: true, result: true }),
+      }
+    },
+  })
+
+  await telegram.sendPhoto(1, Input.fromURLStream(
+    'https://example.test/avatar.png'
+  ))
+
+  t.deepEqual(calls, [
+    'https://example.test/avatar.png',
+    'https://api.telegram.org/bot123:abc/sendPhoto',
+  ])
+})
+
+test('request timeout aborts fetch calls', async (t) => {
+  const telegram = new Telegram('123:abc', {
+    requestTimeout: 1,
+    fetch: async (_url, init) =>
+      await new Promise((_resolve, reject) => {
+        init.signal.addEventListener('abort', () => {
+          const err = new Error('aborted')
+          err.name = 'AbortError'
+          reject(err)
+        })
+      }),
+  })
+
+  const err = await t.throwsAsync(telegram.getMe())
+  t.is(err.name, 'AbortError')
+})
+
+test('native fetch is accepted as telegram fetch type', (t) => {
+  compileTypeScript(
+    'native-fetch.ts',
+    [
+      `import { Telegraf } from '${process.cwd()}'`,
+      '',
+      'new Telegraf("token", {',
+      '  telegram: {',
+      '    fetch: globalThis.fetch,',
+      '  },',
+      '})',
+    ].join('\n')
+  )
+  t.pass()
+})
+
+test('scene helper types are exported and infer state', (t) => {
+  compileTypeScript(
+    'scene-types.ts',
+    [
+      `import { Context, Scenes } from '${process.cwd()}'`,
+      '',
+      'interface MySceneSession extends Scenes.SceneSessionData {',
+      '  state?: { lastMessageId?: number }',
+      '}',
+      '',
+      'interface MyContext extends Context {',
+      '  session: Scenes.SceneSession<MySceneSession>',
+      '  scene: Scenes.SceneContextScene<MyContext, MySceneSession>',
+      '}',
+      '',
+      'class CustomSceneContext extends Scenes.SceneContextScene<',
+      '  MyContext,',
+      '  MySceneSession',
+      '> {',
+      '  get ttl() {',
+      '    return this.options.ttl',
+      '  }',
+      '}',
+      '',
+      'const options: Scenes.SceneOptions<MyContext> = {',
+      '  handlers: [],',
+      '  enterHandlers: [],',
+      '  leaveHandlers: [],',
+      '}',
+      'void options',
+      '',
+      'declare const ctx: MyContext',
+      'ctx.scene.state.lastMessageId = 1',
+      'ctx.scene.enter("next", { lastMessageId: 2 })',
+      'void CustomSceneContext',
+    ].join('\n')
+  )
+  t.pass()
 })

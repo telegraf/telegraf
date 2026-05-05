@@ -6,18 +6,29 @@ import { promisify } from 'util'
 import { TelegramError } from './error'
 const debug = d('telegraf:polling')
 const wait = promisify(setTimeout)
+const DEFAULT_CONFLICT_RETRY_DELAY = 1_000
+const DEFAULT_MAX_CONFLICT_RETRY_DELAY = 60_000
+
 function always<T>(x: T) {
   return () => x
 }
 const noop = always(Promise.resolve())
 
+export interface PollingOptions {
+  retryOnConflict?: boolean
+  conflictRetryDelay?: number
+  maxConflictRetryDelay?: number
+}
+
 export class Polling {
   private readonly abortController = new AbortController()
   private skipOffsetSync = false
   private offset = 0
+  private conflictRetryCount = 0
   constructor(
     private readonly telegram: ApiClient,
-    private readonly allowedUpdates: readonly tt.UpdateType[]
+    private readonly allowedUpdates: readonly tt.UpdateType[],
+    private readonly options: PollingOptions = {}
   ) {}
 
   private async *[Symbol.asyncIterator]() {
@@ -37,6 +48,7 @@ export class Polling {
         if (last !== undefined) {
           this.offset = last.update_id + 1
         }
+        this.conflictRetryCount = 0
         yield updates
       } catch (error) {
         const err = error as Error & {
@@ -52,6 +64,25 @@ export class Polling {
           const retryAfter: number = err.parameters?.retry_after ?? 5
           debug('Failed to fetch updates, retrying after %ds.', retryAfter, err)
           await wait(retryAfter * 1000)
+          continue
+        }
+        if (
+          err instanceof TelegramError &&
+          err.code === 409 &&
+          this.options.retryOnConflict
+        ) {
+          const baseDelay =
+            this.options.conflictRetryDelay ?? DEFAULT_CONFLICT_RETRY_DELAY
+          const maxDelay =
+            this.options.maxConflictRetryDelay ??
+            DEFAULT_MAX_CONFLICT_RETRY_DELAY
+          const retryDelay = Math.min(
+            baseDelay * 2 ** this.conflictRetryCount,
+            maxDelay
+          )
+          this.conflictRetryCount++
+          debug('Polling conflict, retrying after %dms.', retryDelay, err)
+          await wait(retryDelay)
           continue
         }
         if (

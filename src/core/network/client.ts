@@ -5,7 +5,8 @@ import { stat, realpath } from 'fs/promises'
 import * as http from 'http'
 import * as https from 'https'
 import * as path from 'path'
-import type { RequestInfo, RequestInit } from 'node-fetch' with {
+import { Readable } from 'stream'
+import type { RequestInit } from 'node-fetch' with {
   'resolution-mode': 'import',
 }
 import { hasProp } from '../helpers/check'
@@ -18,13 +19,32 @@ const debug = require('debug')('telegraf:client')
 const { isStream } = MultipartStream
 const REQUEST_TIMEOUT = 500_000 // ms
 
-async function nodeFetch(url: URL | RequestInfo, init?: RequestInit) {
-  const { default: nodeFetch } = await import('node-fetch')
-  return await nodeFetch(url, init)
+interface FetchResponse {
+  status: number
+  statusText: string
+  body?: unknown
+  json: () => Promise<unknown>
 }
 
-function withTimeout(config: RequestInit) {
-  const timeoutSignal = AbortSignal.timeout(REQUEST_TIMEOUT)
+type Fetch = (
+  url: URL | string,
+  init?: globalThis.RequestInit
+) => Promise<FetchResponse>
+
+async function nodeFetch(url: URL | string, init?: globalThis.RequestInit) {
+  const { default: nodeFetch } = await import('node-fetch')
+  return await nodeFetch(url, init as RequestInit)
+}
+
+function withTimeout(config: RequestInit, timeout: number) {
+  if (timeout <= 0 || !Number.isFinite(timeout)) {
+    return {
+      config,
+      cleanup: () => undefined,
+    }
+  }
+
+  const timeoutSignal = AbortSignal.timeout(timeout)
   if (!config.signal) {
     return {
       config: { ...config, signal: timeoutSignal },
@@ -64,10 +84,15 @@ function withTimeout(config: RequestInit) {
   }
 }
 
-async function fetch(url: URL | RequestInfo, config: RequestInit) {
-  const request = withTimeout(config)
+async function fetchWithTimeout(
+  fetch: Fetch,
+  url: URL | string,
+  config: RequestInit,
+  timeout: number
+) {
+  const request = withTimeout(config, timeout)
   try {
-    return await nodeFetch(url, request.config)
+    return await fetch(url, request.config as globalThis.RequestInit)
   } finally {
     request.cleanup()
   }
@@ -106,6 +131,14 @@ namespace ApiClient {
     apiMode: 'bot' | 'user'
     webhookReply: boolean
     testEnv: boolean
+    /**
+     * Fetch implementation used for Bot API calls and URL attachments.
+     */
+    fetch: Fetch
+    /**
+     * Request timeout in milliseconds. Use 0 or Infinity to disable it.
+     */
+    requestTimeout: number
   }
 
   export interface CallApiOptions {
@@ -133,6 +166,8 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
   }),
   attachmentAgent: undefined,
   testEnv: false,
+  fetch: nodeFetch,
+  requestTimeout: REQUEST_TIMEOUT,
 }
 
 function isInputFile(value: unknown): value is InputFile {
@@ -183,7 +218,7 @@ const FORM_DATA_JSON_FIELDS = [
 
 async function buildFormDataConfig(
   payload: Opts<keyof Telegram>,
-  agent: ApiClient.Agent
+  options: ApiClient.Options
 ) {
   for (const field of FORM_DATA_JSON_FIELDS) {
     if (hasProp(payload, field) && typeof payload[field] !== 'string') {
@@ -195,7 +230,7 @@ async function buildFormDataConfig(
   await Promise.all(
     Object.keys(payload).map((key) =>
       // @ts-expect-error payload[key] can obviously index payload, but TS doesn't trust us
-      attachFormValue(formData, key, payload[key], agent)
+      attachFormValue(formData, key, payload[key], options)
     )
   )
   return {
@@ -213,7 +248,7 @@ async function attachFormValue(
   form: MultipartStream,
   id: string,
   value: unknown,
-  agent: ApiClient.Agent
+  options: ApiClient.Options
 ) {
   if (value == null) {
     return
@@ -230,10 +265,10 @@ async function attachFormValue(
     return
   }
   if (isInputFile(value)) {
-    return await attachFormMedia(form, value, id, agent)
+    return await attachFormMedia(form, value, id, options)
   }
   if (Array.isArray(value) || typeof value === 'object') {
-    const packedValue = await attachNestedFiles(form, value, agent)
+    const packedValue = await attachNestedFiles(form, value, options)
     return form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
       body: JSON.stringify(packedValue),
@@ -248,43 +283,60 @@ async function attachFormValue(
 async function attachNestedFiles(
   form: MultipartStream,
   value: unknown,
-  agent: ApiClient.Agent
+  options: ApiClient.Options
 ): Promise<unknown> {
   if (!value || typeof value !== 'object') return value
   if (Buffer.isBuffer(value) || isStream(value)) return value
   if (isInputFile(value)) {
     const attachmentId = crypto.randomBytes(16).toString('hex')
-    await attachFormMedia(form, value, attachmentId, agent)
+    await attachFormMedia(form, value, attachmentId, options)
     return `attach://${attachmentId}`
   }
   if (Array.isArray(value)) {
     return await Promise.all(
-      value.map((item) => attachNestedFiles(form, item, agent))
+      value.map((item) => attachNestedFiles(form, item, options))
     )
   }
 
   const result: Record<string, unknown> = {}
   for (const [key, nestedValue] of Object.entries(value)) {
-    result[key] = await attachNestedFiles(form, nestedValue, agent)
+    result[key] = await attachNestedFiles(form, nestedValue, options)
   }
   return result
+}
+
+function toAttachmentBody(
+  body: unknown
+): NodeJS.ReadableStream | Buffer | string {
+  if (typeof body === 'string' || Buffer.isBuffer(body) || isStream(body)) {
+    return body as NodeJS.ReadableStream | Buffer | string
+  }
+  if (body instanceof ReadableStream) {
+    return Readable.fromWeb(body as never)
+  }
+  throw new TypeError('Unable to read attachment response body')
 }
 
 async function attachFormMedia(
   form: MultipartStream,
   media: InputFile,
   id: string,
-  agent: ApiClient.Agent
+  options: ApiClient.Options
 ) {
   let fileName = media.filename ?? `${id}.${DEFAULT_EXTENSIONS[id] ?? 'dat'}`
   if ('url' in media && media.url !== undefined) {
-    const res = await fetch(media.url, { agent })
+    const res = await fetchWithTimeout(
+      options.fetch,
+      media.url,
+      { agent: options.attachmentAgent },
+      options.requestTimeout
+    )
     if (!res.body) throw new TypeError(`Unable to download '${media.url}'`)
     return form.addPart({
       headers: {
         'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
       },
-      body: res.body,
+      body: toAttachmentBody(res.body),
     })
   }
   if ('source' in media && media.source) {
@@ -322,10 +374,7 @@ async function answerToWebhook(
     return true
   }
 
-  const { headers, body } = await buildFormDataConfig(
-    payload,
-    options.attachmentAgent
-  )
+  const { headers, body } = await buildFormDataConfig(payload, options)
   if (!response.headersSent) {
     for (const [key, value] of Object.entries(headers)) {
       response.setHeader(key, value)
@@ -344,6 +393,7 @@ function redactToken(error: Error): never {
     '/$1$2:[REDACTED]/'
   )
   const newError = new Error(message)
+  newError.name = error.name
   newError.stack = error.stack
   throw newError
 }
@@ -412,10 +462,7 @@ class ApiClient {
     debug('HTTP call', method, payload)
 
     const config: RequestInit = includesMedia(payload)
-      ? await buildFormDataConfig(
-          { method, ...payload },
-          options.attachmentAgent
-        )
+      ? await buildFormDataConfig({ method, ...payload }, options)
       : await buildJSONConfig(payload)
     const apiUrl = new URL(
       `./${options.apiMode}${token}${options.testEnv ? '/test' : ''}/${String(
@@ -425,7 +472,12 @@ class ApiClient {
     )
     config.agent = options.agent
     config.signal = signal
-    const res = await fetch(apiUrl, config).catch(redactToken)
+    const res = await fetchWithTimeout(
+      options.fetch,
+      apiUrl,
+      config,
+      options.requestTimeout
+    ).catch(redactToken)
     if (res.status >= 500) {
       const errorPayload = {
         error_code: res.status,

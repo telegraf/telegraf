@@ -3,6 +3,7 @@ const { execFileSync } = require('child_process')
 const os = require('os')
 const fs = require('fs')
 const path = require('path')
+const ts = require('typescript')
 const test = require('ava').default
 const { Input, Telegram } = require('../')
 
@@ -15,13 +16,32 @@ function readTypeFile(name) {
 
 function readMethodsFromTypes() {
   const methods = readTypeFile('methods')
-  return [
-    ...new Set(
-      [...methods.matchAll(/^ {4}([a-z][A-Za-z0-9]+)\(/gm)].map(
-        (match) => match[1]
-      )
-    ),
-  ]
+  const source = ts.createSourceFile(
+    'methods.d.ts',
+    methods,
+    ts.ScriptTarget.Latest,
+    true
+  )
+  const names = []
+  const getName = (name) =>
+    ts.isIdentifier(name) || ts.isStringLiteral(name)
+      ? name.text
+      : undefined
+  const visit = (node) => {
+    if (
+      ts.isTypeAliasDeclaration(node) &&
+      node.name.text === 'ApiMethods' &&
+      ts.isTypeLiteralNode(node.type)
+    ) {
+      for (const member of node.type.members) {
+        const name = member.name && getName(member.name)
+        if (name) names.push(name)
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  return [...new Set(names)]
 }
 
 function getBlock(source, pattern) {
@@ -108,7 +128,14 @@ test('Telegram wrappers call through to matching Bot API methods', (t) => {
       (match) => match[1]
     )
   )
-  const missing = readMethodsFromTypes().filter((method) => !wrapped.has(method))
+  const aliases = new Set(
+    [...source.matchAll(/get ([a-zA-Z0-9]+)\(\) \{\n {4}return this\./g)].map(
+      (match) => match[1]
+    )
+  )
+  const missing = readMethodsFromTypes().filter(
+    (method) => !wrapped.has(method) && !aliases.has(method)
+  )
   t.deepEqual(missing, [])
 })
 
@@ -549,6 +576,39 @@ test('request timeout aborts fetch calls', async (t) => {
 
   const err = await t.throwsAsync(telegram.getMe())
   t.is(err.name, 'AbortError')
+})
+
+test('fetch errors redact token and preserve metadata', async (t) => {
+  class FetchLikeError extends Error {
+    constructor(message, options) {
+      super(message, options)
+      this.name = 'FetchLikeError'
+      this.code = 'ECONNRESET'
+    }
+  }
+
+  const cause = new Error('root cause')
+  const err = new FetchLikeError(
+    'request to https://api.telegram.org/bot123:secret/getMe failed',
+    { cause }
+  )
+  err.stack = `${err.name}: ${err.message}\n    at userland.js:1:1`
+
+  const telegram = new Telegram('123:secret', {
+    fetch: async () => {
+      throw err
+    },
+  })
+
+  const thrown = await t.throwsAsync(telegram.getMe())
+  t.is(thrown, err)
+  t.true(thrown instanceof FetchLikeError)
+  t.is(thrown.name, 'FetchLikeError')
+  t.is(thrown.code, 'ECONNRESET')
+  t.is(thrown.cause, cause)
+  t.true(thrown.message.includes('[REDACTED]'))
+  t.false(thrown.message.includes('secret'))
+  t.false(thrown.stack.includes('secret'))
 })
 
 test('native fetch is accepted as telegram fetch type', (t) => {

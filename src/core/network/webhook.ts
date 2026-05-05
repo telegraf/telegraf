@@ -25,6 +25,7 @@ export default function generateWebhook(
       if (req.method !== 'POST') {
         // 405 Method Not Allowed for non-POST requests
         res.statusCode = 405
+        res.setHeader('Allow', 'POST')
       } else if (options?.path && req.url !== options.path) {
         // 404 Not Found for path mismatches
         res.statusCode = 404

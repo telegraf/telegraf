@@ -388,14 +388,11 @@ async function answerToWebhook(
 }
 
 function redactToken(error: Error): never {
-  const message = error.message.replace(
-    /\/(bot|user)(\d+):[^/]+\//,
-    '/$1$2:[REDACTED]/'
-  )
-  const newError = new Error(message)
-  newError.name = error.name
-  newError.stack = error.stack
-  throw newError
+  const redact = (value: string) =>
+    value.replace(/\/(bot|user)(\d+):[^/]+\//, '/$1$2:[REDACTED]/')
+  error.message = redact(error.message)
+  error.stack = error.stack ? redact(error.stack) : undefined
+  throw error
 }
 
 type Response = http.ServerResponse

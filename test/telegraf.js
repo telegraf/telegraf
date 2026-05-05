@@ -198,9 +198,13 @@ test('should work with context extensions', (t) =>
 class MockResponse {
   constructor() {
     this.writableEnded = false
+    this.headers = {}
   }
 
-  setHeader() {}
+  setHeader(name, value) {
+    this.headers[name.toLowerCase()] = value
+  }
+
   end(body) {
     this.writableEnded = true
     this.body = body
@@ -272,6 +276,19 @@ test('should deterministically generate `secretPathComponent`', (t) => {
   t.deepEqual(foo.secretPathComponent(), foo.secretPathComponent())
   t.deepEqual(bar.secretPathComponent(), bar.secretPathComponent())
   t.notDeepEqual(foo.secretPathComponent(), bar.secretPathComponent())
+})
+
+test('should enforce handler timeout', async (t) => {
+  const bot = createBot('token', { handlerTimeout: 1 })
+  bot.catch((err) => {
+    throw err
+  })
+  bot.on('message', () => new Promise(() => undefined))
+
+  const err = await t.throwsAsync(
+    bot.handleUpdate({ message: BaseTextMessage })
+  )
+  t.regex(err.message, /timed out|timeout/i)
 })
 
 test('launch callback runs after polling is initialized', async (t) => {
@@ -369,6 +386,7 @@ test('webhookCallback should return 405 for non-POST requests', async (t) => {
   const res = new MockResponse()
   await callback(req, res)
   t.is(res.statusCode, 405)
+  t.is(res.headers.allow, 'POST')
 })
 
 test('webhookCallback should return 404 for path mismatch', async (t) => {

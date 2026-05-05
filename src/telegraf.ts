@@ -17,8 +17,15 @@ import { URL } from 'url'
 import safeCompare = require('safe-compare')
 const debug = d('telegraf:main')
 
+type PTimeout = <T>(
+  input: PromiseLike<T>,
+  options: { milliseconds: number }
+) => Promise<T>
+let pTimeoutModule: Promise<PTimeout> | undefined
+
 async function pTimeout<T>(input: PromiseLike<T>, milliseconds: number) {
-  const { default: timeout } = await import('p-timeout')
+  pTimeoutModule ??= import('p-timeout').then(({ default: timeout }) => timeout)
+  const timeout = await pTimeoutModule
   return await timeout(input, { milliseconds })
 }
 

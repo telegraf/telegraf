@@ -94,7 +94,7 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "@telegraf/types": "danielrhodes/telegraf-types#feat/api-7.8",
+    "@telegraf/types": "github:Leask/types#bot-api-9.6-sync",
     "abort-controller": "^3.0.0",
     "debug": "^4.4.0",
     "mri": "^1.2.0",

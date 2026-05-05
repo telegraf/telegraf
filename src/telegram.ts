@@ -6,6 +6,14 @@ import { URL } from 'url'
 import { FmtString } from './format'
 import { fmtCaption } from './core/helpers/util'
 
+function normalisePollOptions(
+  options: readonly string[] | readonly tg.InputPollOption[]
+): readonly tg.InputPollOption[] {
+  return options.map((option) =>
+    typeof option === 'string' ? { text: option } : option
+  )
+}
+
 export class Telegram extends ApiClient {
   /**
    * Get basic information about the bot
@@ -481,14 +489,14 @@ export class Telegram extends ApiClient {
   sendPoll(
     chatId: number | string,
     question: string,
-    options: readonly string[],
+    options: readonly string[] | readonly tg.InputPollOption[],
     extra?: tt.ExtraPoll
   ) {
     return this.callApi('sendPoll', {
       chat_id: chatId,
       type: 'regular',
       question,
-      options,
+      options: normalisePollOptions(options),
       ...extra,
     })
   }
@@ -502,14 +510,14 @@ export class Telegram extends ApiClient {
   sendQuiz(
     chatId: number | string,
     question: string,
-    options: readonly string[],
+    options: readonly string[] | readonly tg.InputPollOption[],
     extra?: tt.ExtraPoll
   ) {
     return this.callApi('sendPoll', {
       chat_id: chatId,
       type: 'quiz',
       question,
-      options,
+      options: normalisePollOptions(options),
       ...extra,
     })
   }
@@ -560,6 +568,10 @@ export class Telegram extends ApiClient {
    */
   getChatMembersCount(chatId: string | number) {
     return this.callApi('getChatMembersCount', { chat_id: chatId })
+  }
+
+  getChatMemberCount(chatId: string | number) {
+    return this.callApi('getChatMemberCount', { chat_id: chatId })
   }
 
   /**
@@ -802,6 +814,10 @@ export class Telegram extends ApiClient {
     })
   }
 
+  answerCallbackQuery(args: tg.Opts<'answerCallbackQuery'>) {
+    return this.callApi('answerCallbackQuery', args)
+  }
+
   answerGameQuery(callbackQueryId: string, url: string) {
     return this.callApi('answerCallbackQuery', {
       url,
@@ -891,7 +907,7 @@ export class Telegram extends ApiClient {
       inline_message_id: inlineMessageId,
       ...extra,
       ...t,
-    })
+    } as tg.Opts<'editMessageText'>)
   }
 
   /**
@@ -1659,11 +1675,207 @@ export class Telegram extends ApiClient {
    * Refunds a successful payment in Telegram Stars.
    * @returns true on success
    */
-  refundStarPayment(userId: number, telegramPaymentChargeId: number) {
+  refundStarPayment(userId: number, telegramPaymentChargeId: string) {
     return this.callApi('refundStarPayment', {
       user_id: userId,
       telegram_payment_charge_id: telegramPaymentChargeId,
     })
+  }
+
+  sendChecklist(args: tg.Opts<'sendChecklist'>) {
+    return this.callApi('sendChecklist', args)
+  }
+
+  sendMessageDraft(args: tg.Opts<'sendMessageDraft'>) {
+    return this.callApi('sendMessageDraft', args)
+  }
+
+  getUserProfileAudios(args: tg.Opts<'getUserProfileAudios'>) {
+    return this.callApi('getUserProfileAudios', args)
+  }
+
+  setUserEmojiStatus(args: tg.Opts<'setUserEmojiStatus'>) {
+    return this.callApi('setUserEmojiStatus', args)
+  }
+
+  setChatMemberTag(args: tg.Opts<'setChatMemberTag'>) {
+    return this.callApi('setChatMemberTag', args)
+  }
+
+  createChatSubscriptionInviteLink(
+    args: tg.Opts<'createChatSubscriptionInviteLink'>
+  ) {
+    return this.callApi('createChatSubscriptionInviteLink', args)
+  }
+
+  editChatSubscriptionInviteLink(
+    args: tg.Opts<'editChatSubscriptionInviteLink'>
+  ) {
+    return this.callApi('editChatSubscriptionInviteLink', args)
+  }
+
+  getManagedBotToken(args: tg.Opts<'getManagedBotToken'>) {
+    return this.callApi('getManagedBotToken', args)
+  }
+
+  replaceManagedBotToken(args: tg.Opts<'replaceManagedBotToken'>) {
+    return this.callApi('replaceManagedBotToken', args)
+  }
+
+  setMyProfilePhoto(args: tg.Opts<'setMyProfilePhoto'>) {
+    return this.callApi('setMyProfilePhoto', args)
+  }
+
+  removeMyProfilePhoto(args: tg.Opts<'removeMyProfilePhoto'>) {
+    return this.callApi('removeMyProfilePhoto', args)
+  }
+
+  getAvailableGifts() {
+    return this.callApi('getAvailableGifts', {})
+  }
+
+  sendGift(args: tg.Opts<'sendGift'>) {
+    return this.callApi('sendGift', args)
+  }
+
+  giftPremiumSubscription(args: tg.Opts<'giftPremiumSubscription'>) {
+    return this.callApi('giftPremiumSubscription', args)
+  }
+
+  verifyUser(args: tg.Opts<'verifyUser'>) {
+    return this.callApi('verifyUser', args)
+  }
+
+  verifyChat(args: tg.Opts<'verifyChat'>) {
+    return this.callApi('verifyChat', args)
+  }
+
+  removeUserVerification(args: tg.Opts<'removeUserVerification'>) {
+    return this.callApi('removeUserVerification', args)
+  }
+
+  removeChatVerification(args: tg.Opts<'removeChatVerification'>) {
+    return this.callApi('removeChatVerification', args)
+  }
+
+  readBusinessMessage(args: tg.Opts<'readBusinessMessage'>) {
+    return this.callApi('readBusinessMessage', args)
+  }
+
+  deleteBusinessMessages(args: tg.Opts<'deleteBusinessMessages'>) {
+    return this.callApi('deleteBusinessMessages', args)
+  }
+
+  setBusinessAccountName(args: tg.Opts<'setBusinessAccountName'>) {
+    return this.callApi('setBusinessAccountName', args)
+  }
+
+  setBusinessAccountUsername(args: tg.Opts<'setBusinessAccountUsername'>) {
+    return this.callApi('setBusinessAccountUsername', args)
+  }
+
+  setBusinessAccountBio(args: tg.Opts<'setBusinessAccountBio'>) {
+    return this.callApi('setBusinessAccountBio', args)
+  }
+
+  setBusinessAccountProfilePhoto(
+    args: tg.Opts<'setBusinessAccountProfilePhoto'>
+  ) {
+    return this.callApi('setBusinessAccountProfilePhoto', args)
+  }
+
+  removeBusinessAccountProfilePhoto(
+    args: tg.Opts<'removeBusinessAccountProfilePhoto'>
+  ) {
+    return this.callApi('removeBusinessAccountProfilePhoto', args)
+  }
+
+  setBusinessAccountGiftSettings(
+    args: tg.Opts<'setBusinessAccountGiftSettings'>
+  ) {
+    return this.callApi('setBusinessAccountGiftSettings', args)
+  }
+
+  getBusinessAccountStarBalance(
+    args: tg.Opts<'getBusinessAccountStarBalance'>
+  ) {
+    return this.callApi('getBusinessAccountStarBalance', args)
+  }
+
+  transferBusinessAccountStars(args: tg.Opts<'transferBusinessAccountStars'>) {
+    return this.callApi('transferBusinessAccountStars', args)
+  }
+
+  getBusinessAccountGifts(args: tg.Opts<'getBusinessAccountGifts'>) {
+    return this.callApi('getBusinessAccountGifts', args)
+  }
+
+  getUserGifts(args: tg.Opts<'getUserGifts'>) {
+    return this.callApi('getUserGifts', args)
+  }
+
+  getChatGifts(args: tg.Opts<'getChatGifts'>) {
+    return this.callApi('getChatGifts', args)
+  }
+
+  convertGiftToStars(args: tg.Opts<'convertGiftToStars'>) {
+    return this.callApi('convertGiftToStars', args)
+  }
+
+  upgradeGift(args: tg.Opts<'upgradeGift'>) {
+    return this.callApi('upgradeGift', args)
+  }
+
+  transferGift(args: tg.Opts<'transferGift'>) {
+    return this.callApi('transferGift', args)
+  }
+
+  postStory(args: tg.Opts<'postStory'>) {
+    return this.callApi('postStory', args)
+  }
+
+  repostStory(args: tg.Opts<'repostStory'>) {
+    return this.callApi('repostStory', args)
+  }
+
+  editStory(args: tg.Opts<'editStory'>) {
+    return this.callApi('editStory', args)
+  }
+
+  deleteStory(args: tg.Opts<'deleteStory'>) {
+    return this.callApi('deleteStory', args)
+  }
+
+  savePreparedInlineMessage(args: tg.Opts<'savePreparedInlineMessage'>) {
+    return this.callApi('savePreparedInlineMessage', args)
+  }
+
+  savePreparedKeyboardButton(args: tg.Opts<'savePreparedKeyboardButton'>) {
+    return this.callApi('savePreparedKeyboardButton', args)
+  }
+
+  editMessageChecklist(args: tg.Opts<'editMessageChecklist'>) {
+    return this.callApi('editMessageChecklist', args)
+  }
+
+  approveSuggestedPost(args: tg.Opts<'approveSuggestedPost'>) {
+    return this.callApi('approveSuggestedPost', args)
+  }
+
+  declineSuggestedPost(args: tg.Opts<'declineSuggestedPost'>) {
+    return this.callApi('declineSuggestedPost', args)
+  }
+
+  replaceStickerInSet(args: tg.Opts<'replaceStickerInSet'>) {
+    return this.callApi('replaceStickerInSet', args)
+  }
+
+  getMyStarBalance() {
+    return this.callApi('getMyStarBalance', {})
+  }
+
+  editUserStarSubscription(args: tg.Opts<'editUserStarSubscription'>) {
+    return this.callApi('editUserStarSubscription', args)
   }
 
   /**

@@ -894,7 +894,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendpoll
    */
-  sendPoll(poll: string, options: readonly string[], extra?: tt.ExtraPoll) {
+  sendPoll(
+    poll: string,
+    options: readonly string[] | readonly tg.InputPollOption[],
+    extra?: tt.ExtraPoll
+  ) {
     this.assert(this.chat, 'sendPoll')
     return this.telegram.sendPoll(this.chat.id, poll, options, {
       message_thread_id: getThreadId(this),
@@ -913,7 +917,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendpoll
    */
-  sendQuiz(quiz: string, options: readonly string[], extra?: tt.ExtraPoll) {
+  sendQuiz(
+    quiz: string,
+    options: readonly string[] | readonly tg.InputPollOption[],
+    extra?: tt.ExtraPoll
+  ) {
     this.assert(this.chat, 'sendQuiz')
     return this.telegram.sendQuiz(this.chat.id, quiz, options, {
       message_thread_id: getThreadId(this),
@@ -1579,19 +1587,23 @@ type Getter<U extends Deunionize<tg.Update>, P extends string> = PropOr<
 >
 
 interface Msg {
-  isAccessible(): this is MaybeMessage<tg.Message>
+  isAccessible(
+    this: tg.MaybeInaccessibleMessage
+  ): this is MaybeMessage<tg.Message>
   has<Ks extends UnionKeys<tg.Message>[]>(
+    this: tg.MaybeInaccessibleMessage,
     ...keys: Ks
   ): this is MaybeMessage<Keyed<tg.Message, Ks[number]>>
 }
 
-const Msg: Msg = {
-  isAccessible(): this is MaybeMessage<tg.Message> {
+const Msg = {
+  isAccessible(this: tg.MaybeInaccessibleMessage) {
     return 'date' in this && this.date !== 0
   },
   has<Ks extends UnionKeys<tg.Message>[]>(
+    this: tg.MaybeInaccessibleMessage,
     ...keys: Ks
-  ): this is MaybeMessage<Keyed<tg.Message, Ks[number]>> {
+  ) {
     return keys.some(
       (key) =>
         // @ts-expect-error TS doesn't understand key
@@ -1719,13 +1731,20 @@ function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   let text, entities
 
   if (msg) {
-    if ('text' in msg) ((text = msg.text), (entities = msg.entities))
-    else if ('caption' in msg)
-      ((text = msg.caption), (entities = msg.caption_entities))
-    else if ('game' in msg)
-      ((text = msg.game.text), (entities = msg.game.text_entities))
-  } else if (ctx.poll)
-    ((text = ctx.poll.explanation), (entities = ctx.poll.explanation_entities))
+    if ('text' in msg) {
+      text = msg.text
+      entities = msg.entities
+    } else if ('caption' in msg) {
+      text = msg.caption
+      entities = msg.caption_entities
+    } else if ('game' in msg) {
+      text = msg.game.text
+      entities = msg.game.text_entities
+    }
+  } else if (ctx.poll) {
+    text = ctx.poll.explanation
+    entities = ctx.poll.explanation_entities
+  }
 
   return [text, entities] as const
 }

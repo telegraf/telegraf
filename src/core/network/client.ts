@@ -376,12 +376,58 @@ async function answerToWebhook(
   return true
 }
 
+function setErrorField(
+  error: Error,
+  key: 'message' | 'stack',
+  value: string | undefined
+) {
+  try {
+    error[key] = value as never
+    return true
+  } catch {
+    try {
+      Object.defineProperty(error, key, {
+        value,
+        configurable: true,
+        writable: true,
+      })
+      return true
+    } catch {
+      return false
+    }
+  }
+}
+
+function withCause(error: Error, cause: Error) {
+  try {
+    Object.defineProperty(error, 'cause', {
+      value: cause,
+      configurable: true,
+      writable: true,
+    })
+  } catch {
+    // Ignore: this is only a best-effort fallback when redacting native errors.
+  }
+  return error
+}
+
 function redactToken(error: Error): never {
   const redact = (value: string) =>
     value.replace(/\/(bot|user)(\d+):[^/]+\//, '/$1$2:[REDACTED]/')
-  error.message = redact(error.message)
-  error.stack = error.stack ? redact(error.stack) : undefined
-  throw error
+  const message = redact(error.message)
+  const stack = error.stack ? redact(error.stack) : undefined
+  const redacted =
+    setErrorField(error, 'message', message) &&
+    (stack === undefined || setErrorField(error, 'stack', stack))
+  if (redacted) {
+    throw error
+  }
+  const fallback = withCause(new Error(message), error)
+  fallback.name = error.name
+  if (stack !== undefined) {
+    setErrorField(fallback, 'stack', stack)
+  }
+  throw fallback
 }
 
 type Response = http.ServerResponse

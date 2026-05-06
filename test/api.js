@@ -616,6 +616,27 @@ test('fetch errors redact token and preserve metadata', async (t) => {
   t.false(thrown.stack.includes('secret'))
 })
 
+test('fetch errors redact token on getter-only native errors', async (t) => {
+  const err = new DOMException(
+    'request to https://api.telegram.org/bot123:secret/getMe failed',
+    'AbortError'
+  )
+
+  const telegram = new Telegram('123:secret', {
+    fetch: async () => {
+      throw err
+    },
+  })
+
+  const thrown = await t.throwsAsync(telegram.getMe())
+  t.is(thrown, err)
+  t.true(thrown instanceof DOMException)
+  t.is(thrown.name, 'AbortError')
+  t.true(thrown.message.includes('[REDACTED]'))
+  t.false(thrown.message.includes('secret'))
+  t.false(thrown.stack.includes('secret'))
+})
+
 test('native fetch is accepted as telegram fetch type', (t) => {
   compileTypeScript(
     'native-fetch.ts',

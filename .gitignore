@@ -36,6 +36,8 @@ node_modules
 # Optional REPL history
 .node_repl_history
 .env
+.env.local
+telegram.local.json
 .vscode
 /lib
 /docs/build

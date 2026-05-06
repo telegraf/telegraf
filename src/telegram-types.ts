@@ -135,6 +135,7 @@ export type ExtraVenue = MakeExtra<
 export type ExtraVideo = MakeExtra<'sendVideo', 'video'>
 export type ExtraVideoNote = MakeExtra<'sendVideoNote', 'video_note'>
 export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
+export type ExtraPaidMedia = MakeExtra<'sendPaidMedia', 'media' | 'star_count'>
 export type ExtraBanChatSenderChat = MakeExtra<
   'banChatSenderChat',
   'sender_chat_id'

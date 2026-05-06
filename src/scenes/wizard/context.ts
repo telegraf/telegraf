@@ -3,8 +3,9 @@ import Context from '../../context'
 import { Middleware } from '../../middleware'
 import { SessionContext } from '../../session'
 
-export interface WizardContext<D extends WizardSessionData = WizardSessionData>
-  extends Context {
+export interface WizardContext<
+  D extends WizardSessionData = WizardSessionData,
+> extends Context {
   session: WizardSession<D>
   scene: SceneContextScene<WizardContext<D>, D>
   wizard: WizardContextWizard<WizardContext<D>>
@@ -14,8 +15,9 @@ export interface WizardSessionData extends SceneSessionData {
   cursor: number
 }
 
-export interface WizardSession<S extends WizardSessionData = WizardSessionData>
-  extends SceneSession<S> {}
+export interface WizardSession<
+  S extends WizardSessionData = WizardSessionData,
+> extends SceneSession<S> {}
 
 export default class WizardContextWizard<
   C extends SessionContext<WizardSession> & {

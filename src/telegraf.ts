@@ -10,13 +10,24 @@ import { compactOptions } from './core/helpers/compact'
 import Context from './context'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
-import { Polling } from './core/network/polling'
-import pTimeout from 'p-timeout'
+import { Polling, PollingOptions } from './core/network/polling'
 import Telegram from './telegram'
 import { TlsOptions } from 'tls'
 import { URL } from 'url'
 import safeCompare = require('safe-compare')
 const debug = d('telegraf:main')
+
+type PTimeout = <T>(
+  input: PromiseLike<T>,
+  options: { milliseconds: number }
+) => Promise<T>
+let pTimeoutModule: Promise<PTimeout> | undefined
+
+async function pTimeout<T>(input: PromiseLike<T>, milliseconds: number) {
+  pTimeoutModule ??= import('p-timeout').then(({ default: timeout }) => timeout)
+  const timeout = await pTimeoutModule
+  return await timeout(input, { milliseconds })
+}
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
   telegram: {},
@@ -43,6 +54,8 @@ export namespace Telegraf {
     dropPendingUpdates?: boolean
     /** List the types of updates you want your bot to receive */
     allowedUpdates?: tt.UpdateType[]
+    /** Configuration options for when the bot is run via long polling */
+    polling?: PollingOptions
     /** Configuration options for when the bot is run via webhooks */
     webhook?: {
       /** Public domain for webhook. */
@@ -184,7 +197,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return generateCallback(
       this.webhookFilter.bind({ hookPath: path, path, secretToken }),
       (update: tg.Update, res: http.ServerResponse) =>
-        this.handleUpdate(update, res)
+        this.handleUpdate(update, res),
+      { path }
     )
   }
 
@@ -224,8 +238,11 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     })
   }
 
-  private startPolling(allowedUpdates: tt.UpdateType[] = []) {
-    this.polling = new Polling(this.telegram, allowedUpdates)
+  private startPolling(
+    allowedUpdates: tt.UpdateType[] = [],
+    options?: PollingOptions
+  ) {
+    this.polling = new Polling(this.telegram, allowedUpdates, options)
     return this.polling.loop(async (update) => {
       await this.handleUpdate(update)
     })
@@ -283,13 +300,14 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
 
     debug('Connecting to Telegram')
     this.botInfo ??= await this.telegram.getMe()
-    onMe?.()
     debug(`Launching @${this.botInfo.username}`)
 
     if (webhook === undefined) {
       await this.telegram.deleteWebhook({ drop_pending_updates })
       debug('Bot started with long polling')
-      await this.startPolling(allowed_updates)
+      const polling = this.startPolling(allowed_updates, cfg.polling)
+      onMe?.()
+      await polling
       return
     }
 
@@ -312,6 +330,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     })
 
     debug(`Bot started with webhook @ ${domainOpts.url}`)
+    onMe?.()
   }
 
   stop(reason = 'unspecified') {

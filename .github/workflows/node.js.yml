@@ -21,27 +21,27 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 16
-          - 18
-          - 20
+          - 22.20
+          - 24.12
+          - 25
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6.0.2
       with:
         persist-credentials: false
     - name: Reconfigure git to use HTTP authentication
       run: >
         git config --global url."https://github.com/".insteadOf ssh://git@github.com/
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v6.4.0
       with:
         node-version: ${{ matrix.node-version }}
-    - uses: actions/cache@v3
+    - uses: actions/cache@v5.0.5
       id: cache
       with:
         path: node_modules/
         key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('package*.json') }}
-    - run: npm ci --ignore-scripts
+    - run: npm ci
       if: steps.cache.outputs.cache-hit != 'true'
     - run: npm test
     - run: npm run lint

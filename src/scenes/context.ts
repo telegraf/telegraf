@@ -8,8 +8,9 @@ const debug = d('telegraf:scenes:context')
 const noop = () => Promise.resolve()
 const now = () => Math.floor(Date.now() / 1000)
 
-export interface SceneContext<D extends SceneSessionData = SceneSessionData>
-  extends Context {
+export interface SceneContext<
+  D extends SceneSessionData = SceneSessionData,
+> extends Context {
   session: SceneSession<D>
   scene: SceneContextScene<SceneContext<D>, D>
 }
@@ -30,15 +31,17 @@ export interface SceneContextSceneOptions<D extends SceneSessionData> {
   defaultSession: D
 }
 
+type SceneState<D extends SceneSessionData> = NonNullable<D['state']>
+
 export default class SceneContextScene<
   C extends SessionContext<SceneSession<D>>,
   D extends SceneSessionData = SceneSessionData,
 > {
-  private readonly options: SceneContextSceneOptions<D>
+  protected readonly options: SceneContextSceneOptions<D>
 
   constructor(
-    private readonly ctx: C,
-    private readonly scenes: Map<string, BaseScene<C>>,
+    protected readonly ctx: C,
+    protected readonly scenes: Map<string, BaseScene<C>>,
     options: Partial<SceneContextSceneOptions<D>>
   ) {
     // @ts-expect-error {} might not be assignable to D
@@ -62,11 +65,11 @@ export default class SceneContextScene<
     return session
   }
 
-  get state() {
-    return (this.session.state ??= {})
+  get state(): SceneState<D> {
+    return (this.session.state ??= {}) as SceneState<D>
   }
 
-  set state(value) {
+  set state(value: SceneState<D>) {
     this.session.state = { ...value }
   }
 
@@ -82,7 +85,11 @@ export default class SceneContextScene<
       this.ctx.session.__scenes = Object.assign({}, this.options.defaultSession)
   }
 
-  async enter(sceneId: string, initialState: object = {}, silent = false) {
+  async enter(
+    sceneId: string,
+    initialState: SceneState<D> = {} as SceneState<D>,
+    silent = false
+  ) {
     if (!this.scenes.has(sceneId)) {
       throw new Error(`Can't find scene: ${sceneId}`)
     }

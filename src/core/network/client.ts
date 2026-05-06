@@ -3,19 +3,107 @@ import * as crypto from 'crypto'
 import * as fs from 'fs'
 import { stat, realpath } from 'fs/promises'
 import * as http from 'http'
-import * as https from 'https'
 import * as path from 'path'
-import fetch, { RequestInit } from 'node-fetch'
-import { hasProp, hasPropType } from '../helpers/check'
+import { Readable } from 'stream'
+import { hasProp } from '../helpers/check'
 import { InputFile, Opts, Telegram } from '../types/typegram'
-import { AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
 import MultipartStream from './multipart-stream'
 import TelegramError from './error'
 import { URL } from 'url'
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const debug = require('debug')('telegraf:client')
 const { isStream } = MultipartStream
+const REQUEST_TIMEOUT = 500_000 // ms
+
+interface FetchResponse {
+  status: number
+  statusText: string
+  body?: unknown
+  json: () => Promise<unknown>
+}
+
+type Fetch = (
+  url: URL | string,
+  init?: globalThis.RequestInit
+) => Promise<FetchResponse>
+
+type RequestConfig = Omit<globalThis.RequestInit, 'body'> & {
+  body?:
+    | globalThis.RequestInit['body']
+    | NodeJS.ReadableStream
+    | Buffer
+    | string
+  duplex?: 'half'
+}
+
+async function nativeFetch(url: URL | string, init?: globalThis.RequestInit) {
+  return await globalThis.fetch(url, init)
+}
+
+function withTimeout(config: RequestConfig, timeout: number) {
+  if (timeout <= 0 || !Number.isFinite(timeout)) {
+    return {
+      config,
+      cleanup: () => undefined,
+    }
+  }
+
+  const timeoutSignal = AbortSignal.timeout(timeout)
+  if (!config.signal) {
+    return {
+      config: { ...config, signal: timeoutSignal },
+      cleanup: () => undefined,
+    }
+  }
+  if (typeof AbortSignal.any === 'function') {
+    return {
+      config: {
+        ...config,
+        signal: AbortSignal.any([
+          config.signal as globalThis.AbortSignal,
+          timeoutSignal,
+        ]),
+      },
+      cleanup: () => undefined,
+    }
+  }
+
+  const controller = new AbortController()
+  const abort = () => controller.abort()
+  const signal = config.signal as globalThis.AbortSignal
+  if (signal.aborted || timeoutSignal.aborted) controller.abort()
+  else {
+    signal.addEventListener('abort', abort, { once: true })
+    timeoutSignal.addEventListener('abort', abort, { once: true })
+  }
+  return {
+    config: {
+      ...config,
+      signal: controller.signal,
+    },
+    cleanup: () => {
+      signal.removeEventListener('abort', abort)
+      timeoutSignal.removeEventListener('abort', abort)
+    },
+  }
+}
+
+async function fetchWithTimeout(
+  fetch: Fetch,
+  url: URL | string,
+  config: RequestConfig,
+  timeout: number
+) {
+  const request = withTimeout(config, timeout)
+  try {
+    return await fetch(url, request.config as globalThis.RequestInit)
+  } finally {
+    request.cleanup()
+  }
+}
+
+type ErrorPayload = ConstructorParameters<typeof TelegramError>[0]
+type ApiResponse<T> = { ok: true; result: T } | ({ ok: false } & ErrorPayload)
 
 const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
   'answerCallbackQuery',
@@ -26,19 +114,7 @@ const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
 ])
 
 namespace ApiClient {
-  export type Agent = http.Agent | ((parsedUrl: URL) => http.Agent) | undefined
   export interface Options {
-    /**
-     * Agent for communicating with the bot API.
-     */
-    agent?: http.Agent
-    /**
-     * Agent for attaching files via URL.
-     * 1. Not all agents support both `http:` and `https:`.
-     * 2. When passing a function, create the agents once, outside of the function.
-     *    Creating new agent every request probably breaks `keepAlive`.
-     */
-    attachmentAgent?: Agent
     apiRoot: string
     /**
      * @default 'bot'
@@ -47,6 +123,18 @@ namespace ApiClient {
     apiMode: 'bot' | 'user'
     webhookReply: boolean
     testEnv: boolean
+    /**
+     * Fetch implementation used for Bot API calls and URL attachments.
+     * The default is `globalThis.fetch`.
+     *
+     * Provide a custom fetch implementation for proxy agents, custom TLS,
+     * custom compression, or other non-standard network behavior.
+     */
+    fetch: Fetch
+    /**
+     * Request timeout in milliseconds. Use 0 or Infinity to disable it.
+     */
+    requestTimeout: number
   }
 
   export interface CallApiOptions {
@@ -68,33 +156,32 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
   apiRoot: 'https://api.telegram.org',
   apiMode: 'bot',
   webhookReply: true,
-  agent: new https.Agent({
-    keepAlive: true,
-    keepAliveMsecs: 10000,
-  }),
-  attachmentAgent: undefined,
   testEnv: false,
+  fetch: nativeFetch,
+  requestTimeout: REQUEST_TIMEOUT,
+}
+
+function isInputFile(value: unknown): value is InputFile {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    ((hasProp(value, 'source') && !!value.source) ||
+      (hasProp(value, 'url') && !!value.url))
+  )
+}
+
+function includesMediaValue(value: unknown): boolean {
+  if (!value || typeof value !== 'object') return false
+  if (Buffer.isBuffer(value) || isStream(value)) return false
+  if (isInputFile(value)) return true
+  if (Array.isArray(value)) return value.some(includesMediaValue)
+  return Object.values(value).some(includesMediaValue)
 }
 
 function includesMedia(payload: Record<string, unknown>) {
   return Object.entries(payload).some(([key, value]) => {
     if (key === 'link_preview_options') return false
-
-    if (Array.isArray(value)) {
-      return value.some(
-        ({ media }) =>
-          media && typeof media === 'object' && (media.source || media.url)
-      )
-    }
-    return (
-      value &&
-      typeof value === 'object' &&
-      ((hasProp(value, 'source') && value.source) ||
-        (hasProp(value, 'url') && value.url) ||
-        (hasPropType(value, 'media', 'object') &&
-          ((hasProp(value.media, 'source') && value.media.source) ||
-            (hasProp(value.media, 'url') && value.media.url))))
-    )
+    return includesMediaValue(value)
   })
 }
 
@@ -103,11 +190,10 @@ function replacer(_: unknown, value: unknown) {
   return value
 }
 
-function buildJSONConfig(payload: unknown): Promise<RequestInit> {
+function buildJSONConfig(payload: unknown): Promise<RequestConfig> {
   return Promise.resolve({
     method: 'POST',
-    compress: true,
-    headers: { 'content-type': 'application/json', connection: 'keep-alive' },
+    headers: { 'content-type': 'application/json' },
     body: JSON.stringify(payload, replacer),
   })
 }
@@ -122,7 +208,7 @@ const FORM_DATA_JSON_FIELDS = [
 
 async function buildFormDataConfig(
   payload: Opts<keyof Telegram>,
-  agent: ApiClient.Agent
+  options: ApiClient.Options
 ) {
   for (const field of FORM_DATA_JSON_FIELDS) {
     if (hasProp(payload, field) && typeof payload[field] !== 'string') {
@@ -134,17 +220,16 @@ async function buildFormDataConfig(
   await Promise.all(
     Object.keys(payload).map((key) =>
       // @ts-expect-error payload[key] can obviously index payload, but TS doesn't trust us
-      attachFormValue(formData, key, payload[key], agent)
+      attachFormValue(formData, key, payload[key], options)
     )
   )
   return {
     method: 'POST',
-    compress: true,
     headers: {
       'content-type': `multipart/form-data; boundary=${boundary}`,
-      connection: 'keep-alive',
     },
     body: formData,
+    duplex: 'half' as const,
   }
 }
 
@@ -152,7 +237,7 @@ async function attachFormValue(
   form: MultipartStream,
   id: string,
   value: unknown,
-  agent: ApiClient.Agent
+  options: ApiClient.Options
 ) {
   if (value == null) {
     return
@@ -168,76 +253,79 @@ async function attachFormValue(
     })
     return
   }
-  if (id === 'thumb' || id === 'thumbnail') {
-    const attachmentId = crypto.randomBytes(16).toString('hex')
-    await attachFormMedia(form, value as InputFile, attachmentId, agent)
+  if (isInputFile(value)) {
+    return await attachFormMedia(form, value, id, options)
+  }
+  if (Array.isArray(value) || typeof value === 'object') {
+    const packedValue = await attachNestedFiles(form, value, options)
     return form.addPart({
       headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: `attach://${attachmentId}`,
+      body: JSON.stringify(packedValue),
     })
+  }
+  return form.addPart({
+    headers: { 'content-disposition': `form-data; name="${id}"` },
+    body: JSON.stringify(value),
+  })
+}
+
+async function attachNestedFiles(
+  form: MultipartStream,
+  value: unknown,
+  options: ApiClient.Options
+): Promise<unknown> {
+  if (!value || typeof value !== 'object') return value
+  if (Buffer.isBuffer(value) || isStream(value)) return value
+  if (isInputFile(value)) {
+    const attachmentId = crypto.randomBytes(16).toString('hex')
+    await attachFormMedia(form, value, attachmentId, options)
+    return `attach://${attachmentId}`
   }
   if (Array.isArray(value)) {
-    const items = await Promise.all(
-      value.map(async (item) => {
-        if (typeof item.media !== 'object') {
-          return await Promise.resolve(item)
-        }
-        const attachmentId = crypto.randomBytes(16).toString('hex')
-        await attachFormMedia(form, item.media, attachmentId, agent)
-        const thumb = item.thumb ?? item.thumbnail
-        if (typeof thumb === 'object') {
-          const thumbAttachmentId = crypto.randomBytes(16).toString('hex')
-          await attachFormMedia(form, thumb, thumbAttachmentId, agent)
-          return {
-            ...item,
-            media: `attach://${attachmentId}`,
-            thumbnail: `attach://${thumbAttachmentId}`,
-          }
-        }
-        return { ...item, media: `attach://${attachmentId}` }
-      })
+    return await Promise.all(
+      value.map((item) => attachNestedFiles(form, item, options))
     )
-    return form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: JSON.stringify(items),
-    })
   }
-  if (
-    value &&
-    typeof value === 'object' &&
-    hasProp(value, 'media') &&
-    hasProp(value, 'type') &&
-    typeof value.media !== 'undefined' &&
-    typeof value.type !== 'undefined'
-  ) {
-    const attachmentId = crypto.randomBytes(16).toString('hex')
-    await attachFormMedia(form, value.media as InputFile, attachmentId, agent)
-    return form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: JSON.stringify({
-        ...value,
-        media: `attach://${attachmentId}`,
-      }),
-    })
+
+  const result: Record<string, unknown> = {}
+  for (const [key, nestedValue] of Object.entries(value)) {
+    result[key] = await attachNestedFiles(form, nestedValue, options)
   }
-  return await attachFormMedia(form, value as InputFile, id, agent)
+  return result
+}
+
+function toAttachmentBody(
+  body: unknown
+): NodeJS.ReadableStream | Buffer | string {
+  if (typeof body === 'string' || Buffer.isBuffer(body) || isStream(body)) {
+    return body as NodeJS.ReadableStream | Buffer | string
+  }
+  if (body instanceof ReadableStream) {
+    return Readable.fromWeb(body as never)
+  }
+  throw new TypeError('Unable to read attachment response body')
 }
 
 async function attachFormMedia(
   form: MultipartStream,
   media: InputFile,
   id: string,
-  agent: ApiClient.Agent
+  options: ApiClient.Options
 ) {
   let fileName = media.filename ?? `${id}.${DEFAULT_EXTENSIONS[id] ?? 'dat'}`
   if ('url' in media && media.url !== undefined) {
-    const timeout = 500_000 // ms
-    const res = await fetch(media.url, { agent, timeout })
+    const res = await fetchWithTimeout(
+      options.fetch,
+      media.url,
+      {},
+      options.requestTimeout
+    )
+    if (!res.body) throw new TypeError(`Unable to download '${media.url}'`)
     return form.addPart({
       headers: {
         'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
       },
-      body: res.body,
+      body: toAttachmentBody(res.body),
     })
   }
   if ('source' in media && media.source) {
@@ -275,10 +363,7 @@ async function answerToWebhook(
     return true
   }
 
-  const { headers, body } = await buildFormDataConfig(
-    payload,
-    options.attachmentAgent
-  )
+  const { headers, body } = await buildFormDataConfig(payload, options)
   if (!response.headersSent) {
     for (const [key, value] of Object.entries(headers)) {
       response.setHeader(key, value)
@@ -291,12 +376,58 @@ async function answerToWebhook(
   return true
 }
 
+function setErrorField(
+  error: Error,
+  key: 'message' | 'stack',
+  value: string | undefined
+) {
+  try {
+    error[key] = value as never
+    return true
+  } catch {
+    try {
+      Object.defineProperty(error, key, {
+        value,
+        configurable: true,
+        writable: true,
+      })
+      return true
+    } catch {
+      return false
+    }
+  }
+}
+
+function withCause(error: Error, cause: Error) {
+  try {
+    Object.defineProperty(error, 'cause', {
+      value: cause,
+      configurable: true,
+      writable: true,
+    })
+  } catch {
+    // Ignore: this is only a best-effort fallback when redacting native errors.
+  }
+  return error
+}
+
 function redactToken(error: Error): never {
-  error.message = error.message.replace(
-    /\/(bot|user)(\d+):[^/]+\//,
-    '/$1$2:[REDACTED]/'
-  )
-  throw error
+  const redact = (value: string) =>
+    value.replace(/\/(bot|user)(\d+):[^/]+\//, '/$1$2:[REDACTED]/')
+  const message = redact(error.message)
+  const stack = error.stack ? redact(error.stack) : undefined
+  const redacted =
+    setErrorField(error, 'message', message) &&
+    (stack === undefined || setErrorField(error, 'stack', stack))
+  if (redacted) {
+    throw error
+  }
+  const fallback = withCause(new Error(message), error)
+  fallback.name = error.name
+  if (stack !== undefined) {
+    setErrorField(fallback, 'stack', stack)
+  }
+  throw fallback
 }
 
 type Response = http.ServerResponse
@@ -311,9 +442,6 @@ class ApiClient {
     this.options = {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
-    }
-    if (this.options.apiRoot.startsWith('http://')) {
-      this.options.agent = undefined
     }
   }
 
@@ -362,21 +490,22 @@ class ApiClient {
 
     debug('HTTP call', method, payload)
 
-    const config: RequestInit = includesMedia(payload)
-      ? await buildFormDataConfig(
-          { method, ...payload },
-          options.attachmentAgent
-        )
+    const config: RequestConfig = includesMedia(payload)
+      ? await buildFormDataConfig({ method, ...payload }, options)
       : await buildJSONConfig(payload)
     const apiUrl = new URL(
-      `./${options.apiMode}${token}${options.testEnv ? '/test' : ''}/${method}`,
+      `./${options.apiMode}${token}${options.testEnv ? '/test' : ''}/${String(
+        method
+      )}`,
       options.apiRoot
     )
-    config.agent = options.agent
-    // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
     config.signal = signal
-    config.timeout = 500_000 // ms
-    const res = await fetch(apiUrl, config).catch(redactToken)
+    const res = await fetchWithTimeout(
+      options.fetch,
+      apiUrl,
+      config,
+      options.requestTimeout
+    ).catch(redactToken)
     if (res.status >= 500) {
       const errorPayload = {
         error_code: res.status,
@@ -384,7 +513,7 @@ class ApiClient {
       }
       throw new TelegramError(errorPayload, { method, payload })
     }
-    const data = await res.json()
+    const data = (await res.json()) as ApiResponse<ReturnType<Telegram[M]>>
     if (!data.ok) {
       debug('API call failed', data)
       throw new TelegramError(data, { method, payload })

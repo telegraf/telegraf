@@ -114,7 +114,7 @@ export async function main(argv: string[], env: Env = {}) {
       )) as { main?: string }
       file = packageJson.main || 'index.js'
       // eslint-disable-next-line no-empty
-    } catch (err) {}
+    } catch {}
   }
 
   if (!file) {

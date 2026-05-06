@@ -94,7 +94,7 @@
   },
   "types": "./typings/index.d.ts",
   "dependencies": {
-    "@telegraf/types": "git+https://github.com/Leask/types.git#bot-api-9.6-sync",
+    "@telegraf/types": "npm:@leask/types@9.6.0",
     "debug": "^4.4.3",
     "mri": "^1.2.0",
     "p-timeout": "^7.0.1",

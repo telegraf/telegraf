@@ -37,10 +37,10 @@ positional convenience helpers are kept where Telegraf already had an
 established pattern.
 
 > Maintainer note: until the Bot API 9.6 update lands in the upstream
-> `telegraf/types` package, this branch temporarily depends on
-> `git+https://github.com/Leask/types.git#bot-api-9.6-sync`. Before publishing
-> or merging upstream, replace this dependency with the official
-> `@telegraf/types` 9.6 release or accepted upstream branch.
+> `telegraf/types` package, this branch uses the published temporary npm alias
+> `@telegraf/types: npm:@leask/types@9.6.0`. Before the final upstream release,
+> replace this dependency with the official `@telegraf/types` 9.6 release or
+> accepted upstream branch.
 
 ## Introduction
 
@@ -382,9 +382,10 @@ It includes types for the complete Telegram API via `@telegraf/types`.
 While most types of Telegraf's API surface are self-explanatory, there are some notable things to keep in mind.
 
 Until `@telegraf/types` publishes the Bot API 9.6 update upstream, this v6
-branch pins a temporary fork dependency. This is a release-preparation detail,
-not a public API change; the dependency should be switched back to the official
-package before the final upstream release.
+branch pins the published temporary npm alias
+`@telegraf/types: npm:@leask/types@9.6.0`. This is a release-preparation
+detail, not a public API change; the dependency should be switched back to the
+official package before the final upstream release.
 
 #### Extending `Context`
 

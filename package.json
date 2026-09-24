@@ -100,8 +100,7 @@
     "mri": "^1.2.0",
     "node-fetch": "^2.7.0",
     "p-timeout": "^4.1.0",
-    "safe-compare": "^1.1.4",
-    "sandwich-stream": "^2.0.2"
+    "safe-compare": "^1.1.4"
   },
   "devDependencies": {
     "@types/debug": "^4.1.8",

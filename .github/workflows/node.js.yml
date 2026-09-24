@@ -21,23 +21,22 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 20
           - 22
           - 24
           - 26
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         persist-credentials: false
     - name: Reconfigure git to use HTTP authentication
       run: >
         git config --global url."https://github.com/".insteadOf ssh://git@github.com/
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
-    - uses: actions/cache@v3
+    - uses: actions/cache@v6
       id: cache
       with:
         path: node_modules/

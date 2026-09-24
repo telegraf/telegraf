@@ -98,6 +98,28 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.update.edited_channel_post as PropOr<U, 'edited_channel_post'>
   }
 
+  get businessConnection() {
+    return this.update.business_connection as PropOr<U, 'business_connection'>
+  }
+
+  get businessMessage() {
+    return this.update.business_message as PropOr<U, 'business_message'>
+  }
+
+  get editedBusinessMessage() {
+    return this.update.edited_business_message as PropOr<
+      U,
+      'edited_business_message'
+    >
+  }
+
+  get deletedBusinessMessages() {
+    return this.update.deleted_business_messages as PropOr<
+      U,
+      'deleted_business_messages'
+    >
+  }
+
   get messageReaction() {
     return this.update.message_reaction as PropOr<U, 'message_reaction'>
   }
@@ -152,6 +174,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /** Shorthand for any message_id present in the current update. */
   get msgId() {
     return getMsgIdFromAnySource(this) as GetMsgId<U>
+  }
+
+  get bizConnId() {
+    return getBizConnIdFromAnySource(this) as GetBizConnId<U>
   }
 
   get chat(): Getter<U, 'chat'> {
@@ -429,6 +455,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendMessage')
     return this.telegram.sendMessage(this.chat.id, text, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -641,6 +668,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendPhoto')
     return this.telegram.sendPhoto(this.chat.id, photo, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -659,6 +687,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendMediaGroup')
     return this.telegram.sendMediaGroup(this.chat.id, media, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -677,6 +706,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendAudio')
     return this.telegram.sendAudio(this.chat.id, audio, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -695,6 +725,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendDice')
     return this.telegram.sendDice(this.chat.id, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -713,6 +744,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendDocument')
     return this.telegram.sendDocument(this.chat.id, document, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -731,6 +763,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendSticker')
     return this.telegram.sendSticker(this.chat.id, sticker, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -749,6 +782,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendVideo')
     return this.telegram.sendVideo(this.chat.id, video, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -767,6 +801,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendAnimation')
     return this.telegram.sendAnimation(this.chat.id, animation, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -788,6 +823,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendVideoNote')
     return this.telegram.sendVideoNote(this.chat.id, videoNote, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -824,6 +860,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendGame')
     return this.telegram.sendGame(this.chat.id, game, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -842,6 +879,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendVoice')
     return this.telegram.sendVoice(this.chat.id, voice, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -860,6 +898,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendPoll')
     return this.telegram.sendPoll(this.chat.id, poll, options, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -878,6 +917,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendQuiz')
     return this.telegram.sendQuiz(this.chat.id, quiz, options, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -907,6 +947,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendChatAction')
     return this.telegram.sendChatAction(this.chat.id, action, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -998,6 +1039,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendLocation')
     return this.telegram.sendLocation(this.chat.id, latitude, longitude, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -1026,7 +1068,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
       longitude,
       title,
       address,
-      { message_thread_id: getThreadId(this), ...extra }
+      {
+        message_thread_id: getThreadId(this),
+        business_connection_id: getBizConnIdFromAnySource(this),
+        ...extra,
+      }
     )
   }
 
@@ -1044,6 +1090,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendContact')
     return this.telegram.sendContact(this.chat.id, phoneNumber, firstName, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -1336,6 +1383,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.telegram.getMyCommands()
   }
 
+  getBusinessConnection() {
+    this.assert(this.bizConnId, 'getBusinessConnection')
+    return this.telegram.getBusinessConnection(this.bizConnId)
+  }
+
   /**
    * @deprecated use {@link Telegram.setMyCommands}
    * @see https://core.telegram.org/bots/api#setmycommands
@@ -1533,7 +1585,7 @@ interface Msg {
   ): this is MaybeMessage<Keyed<tg.Message, Ks[number]>>
 }
 
-const Msg: Msg = {
+const Msg = {
   isAccessible() {
     return 'date' in this && this.date !== 0
   },
@@ -1544,7 +1596,7 @@ const Msg: Msg = {
         this[key] != undefined
     )
   },
-}
+} as Msg
 
 export type MaybeMessage<
   M extends tg.MaybeInaccessibleMessage = tg.MaybeInaccessibleMessage,
@@ -1553,14 +1605,21 @@ export type MaybeMessage<
 type GetMsg<U extends tg.Update> = U extends tg.Update.MessageUpdate
   ? U['message']
   : U extends tg.Update.ChannelPostUpdate
-  ? U['channel_post']
-  : U extends tg.Update.EditedChannelPostUpdate
-  ? U['edited_channel_post']
-  : U extends tg.Update.EditedMessageUpdate
-  ? U['edited_message']
-  : U extends tg.Update.CallbackQueryUpdate
-  ? U['callback_query']['message']
-  : undefined
+    ? U['channel_post']
+    : U extends tg.Update.EditedChannelPostUpdate
+      ? U['edited_channel_post']
+      : U extends tg.Update.EditedMessageUpdate
+        ? U['edited_message']
+        : U extends tg.Update.BusinessMessageUpdate
+          ? U['business_message']
+          : U extends tg.Update.EditedBusinessMessageUpdate
+            ? U['edited_business_message']
+            : U extends tg.Update.CallbackQueryUpdate
+              ? U['callback_query']['message']
+              : undefined
+
+type x = GetMsg<tg.Update.BusinessMessageUpdate>
+type y = x['business_connection_id']
 
 function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg =
@@ -1568,7 +1627,9 @@ function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
     ctx.editedMessage ??
     ctx.callbackQuery?.message ??
     ctx.channelPost ??
-    ctx.editedChannelPost
+    ctx.editedChannelPost ??
+    ctx.businessMessage ??
+    ctx.editedBusinessMessage
   if (msg) return Object.assign(Object.create(Msg), msg)
 }
 
@@ -1577,20 +1638,20 @@ type GetUserFromAnySource<U extends tg.Update> =
   GetMsg<U> extends { from: tg.User }
     ? tg.User
     : U extends  // these updates have `from`
-        | tg.Update.CallbackQueryUpdate
-        | tg.Update.InlineQueryUpdate
-        | tg.Update.ShippingQueryUpdate
-        | tg.Update.PreCheckoutQueryUpdate
-        | tg.Update.ChosenInlineResultUpdate
-        | tg.Update.ChatMemberUpdate
-        | tg.Update.MyChatMemberUpdate
-        | tg.Update.ChatJoinRequestUpdate
-        // these updates have `user`
-        | tg.Update.MessageReactionUpdate
-        | tg.Update.PollAnswerUpdate
-        | tg.Update.ChatBoostUpdate
-    ? tg.User
-    : undefined
+          | tg.Update.CallbackQueryUpdate
+          | tg.Update.InlineQueryUpdate
+          | tg.Update.ShippingQueryUpdate
+          | tg.Update.PreCheckoutQueryUpdate
+          | tg.Update.ChosenInlineResultUpdate
+          | tg.Update.ChatMemberUpdate
+          | tg.Update.MyChatMemberUpdate
+          | tg.Update.ChatJoinRequestUpdate
+          // these updates have `user`
+          | tg.Update.MessageReactionUpdate
+          | tg.Update.PollAnswerUpdate
+          | tg.Update.ChatBoostUpdate
+      ? tg.User
+      : undefined
 
 function getUserFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   if (ctx.callbackQuery) return ctx.callbackQuery.from
@@ -1612,13 +1673,14 @@ function getUserFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   )
 }
 
-type GetMsgId<U extends tg.Update> = GetMsg<U> extends { message_id: number }
-  ? number
-  : U extends tg.Update.MessageReactionUpdate
-  ? number
-  : U extends tg.Update.MessageReactionCountUpdate
-  ? number
-  : undefined
+type GetMsgId<U extends tg.Update> =
+  GetMsg<U> extends { message_id: number }
+    ? number
+    : U extends tg.Update.MessageReactionUpdate
+      ? number
+      : U extends tg.Update.MessageReactionCountUpdate
+        ? number
+        : undefined
 
 function getMsgIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg = getMessageFromAnySource(ctx)
@@ -1626,13 +1688,31 @@ function getMsgIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
     ?.message_id as GetMsgId<U>
 }
 
-type GetText<U extends tg.Update> = GetMsg<U> extends tg.Message.TextMessage
+type GetBizConnId<U extends tg.Update> = U extends
+  | tg.Update.BusinessConnectionUpdate
+  | tg.Update.DeletedBusinessMessagesUpdate
   ? string
-  : GetMsg<U> extends tg.Message
-  ? string | undefined
-  : U extends tg.Update.PollUpdate
-  ? string | undefined
-  : undefined
+  : GetMsg<U> extends { business_connection_id: string }
+    ? string
+    : undefined
+
+function getBizConnIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
+  if (ctx.businessConnection) return ctx.businessConnection.id
+  if (ctx.businessMessage) return ctx.businessMessage.business_connection_id
+  if (ctx.editedBusinessMessage)
+    return ctx.editedBusinessMessage.business_connection_id
+  if (ctx.deletedBusinessMessages)
+    return ctx.deletedBusinessMessages.business_connection_id
+}
+
+type GetText<U extends tg.Update> =
+  GetMsg<U> extends tg.Message.TextMessage
+    ? string
+    : GetMsg<U> extends tg.Message
+      ? string | undefined
+      : U extends tg.Update.PollUpdate
+        ? string | undefined
+        : undefined
 
 function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg = ctx.msg

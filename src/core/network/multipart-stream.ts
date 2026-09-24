@@ -80,7 +80,10 @@ class MultipartStream extends stream.Readable {
     if (returned !== undefined) returned.catch(() => undefined)
     for (const part of this.parts) {
       const body = part.body
-      if (MultipartStream.isStream(body) && typeof (body as stream.Readable).destroy === 'function') {
+      if (
+        MultipartStream.isStream(body) &&
+        typeof (body as stream.Readable).destroy === 'function'
+      ) {
         ;(body as stream.Readable).destroy()
       }
     }

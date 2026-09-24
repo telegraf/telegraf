@@ -123,6 +123,9 @@
     "typedoc": "^0.25.0",
     "typescript": "^5.2.2"
   },
+  "overrides": {
+    "minimatch": "^10.2.6"
+  },
   "keywords": [
     "telegraf",
     "telegram",

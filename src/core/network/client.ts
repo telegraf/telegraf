@@ -8,7 +8,7 @@ import * as path from 'path'
 import fetch, { RequestInit } from 'node-fetch'
 import { hasProp, hasPropType } from '../helpers/check'
 import { InputFile, Opts, Telegram } from '../types/typegram'
-import { AbortSignal } from 'abort-controller'
+import { AbortController, AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
 import MultipartStream from './multipart-stream'
 import TelegramError from './error'
@@ -389,10 +389,28 @@ class ApiClient {
       options.apiRoot
     )
     config.agent = options.agent
-    // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
-    config.signal = signal
     config.timeout = 500_000 // ms
-    const res = await fetch(apiUrl, config).catch(redactToken)
+
+    // Prevent leaking file-handles when a request fails during upload
+    const body =
+      config.body instanceof MultipartStream ? config.body : undefined
+    const aborter = new AbortController()
+    let bodyError: Error | undefined
+    if (signal !== undefined) {
+      if (signal.aborted) aborter.abort()
+      else signal.addEventListener('abort', () => aborter.abort())
+    }
+    body?.once('error', (error: Error) => {
+      bodyError = error
+      aborter.abort()
+    })
+    // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
+    config.signal = aborter.signal
+
+    const res = await fetch(apiUrl, config).catch((error: Error) => {
+      body?.destroy()
+      return redactToken(bodyError ?? error)
+    })
     if (res.status >= 500) {
       const errorPayload = {
         error_code: res.status,

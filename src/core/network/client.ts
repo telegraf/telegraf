@@ -148,7 +148,12 @@ async function buildFormDataConfig(
   }
 }
 
-async function attachFormValue(
+/**
+ * Turns one payload entry into form parts.
+ * Exported for tests
+ * @internal
+ */
+export async function attachFormValue(
   form: MultipartStream,
   id: string,
   value: unknown,

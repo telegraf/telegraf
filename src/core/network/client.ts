@@ -148,7 +148,12 @@ async function buildFormDataConfig(
   }
 }
 
-async function attachFormValue(
+/**
+ * Turns one payload entry into form parts.
+ * Exported for tests
+ * @internal
+ */
+export async function attachFormValue(
   form: MultipartStream,
   id: string,
   value: unknown,
@@ -220,7 +225,18 @@ async function attachFormValue(
       }),
     })
   }
-  return await attachFormMedia(form, value as InputFile, id, agent)
+  if (
+    value &&
+    typeof value === 'object' &&
+    ((hasProp(value, 'source') && typeof value.source !== 'undefined') ||
+      (hasProp(value, 'url') && typeof value.url !== 'undefined'))
+  ) {
+    return await attachFormMedia(form, value as InputFile, id, agent)
+  }
+  return form.addPart({
+    headers: { 'content-disposition': `form-data; name="${id}"` },
+    body: JSON.stringify(value),
+  })
 }
 
 async function attachFormMedia(

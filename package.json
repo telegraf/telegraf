@@ -103,6 +103,11 @@
     "safe-compare": "^1.1.4",
     "sandwich-stream": "^2.0.2"
   },
+  "overrides": {
+    "node-fetch": {
+      "whatwg-url": "^14.0.0"
+    }
+  },
   "devDependencies": {
     "@types/debug": "^4.1.8",
     "@types/node": "^20.4.2",

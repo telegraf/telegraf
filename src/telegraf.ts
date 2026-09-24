@@ -184,7 +184,8 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     return generateCallback(
       this.webhookFilter.bind({ hookPath: path, path, secretToken }),
       (update: tg.Update, res: http.ServerResponse) =>
-        this.handleUpdate(update, res)
+        this.handleUpdate(update, res),
+      { path }
     )
   }
 

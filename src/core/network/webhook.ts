@@ -3,15 +3,35 @@ import d from 'debug'
 import { type Update } from '../types/typegram'
 const debug = d('telegraf:webhook')
 
+export interface WebhookOptions {
+  /**
+   * Expected webhook path for proper status code responses.
+   * When provided, enables returning 404 for path mismatches
+   * and 405 for method mismatches instead of generic 403.
+   */
+  path?: string
+}
+
 export default function generateWebhook(
   filter: (req: http.IncomingMessage) => boolean,
-  updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>
+  updateHandler: (update: Update, res: http.ServerResponse) => Promise<void>,
+  options?: WebhookOptions
 ) {
   return async (
     req: http.IncomingMessage & { body?: Update },
     res: http.ServerResponse,
     next = (): void => {
-      res.statusCode = 403
+      // Use appropriate HTTP status codes based on rejection reason
+      if (req.method !== 'POST') {
+        // 405 Method Not Allowed for non-POST requests
+        res.statusCode = 405
+      } else if (options?.path && req.url !== options.path) {
+        // 404 Not Found for path mismatches
+        res.statusCode = 404
+      } else {
+        // 403 Forbidden for authentication failures (secret token mismatch)
+        res.statusCode = 403
+      }
       debug('Replying with status code', res.statusCode)
       res.end()
     }

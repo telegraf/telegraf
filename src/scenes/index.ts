@@ -12,6 +12,7 @@ export {
   SceneSessionData,
 } from './context'
 export { BaseScene } from './base'
+export type { SceneOptions } from './base'
 export { WizardScene } from './wizard'
 export {
   WizardContext,

@@ -28,129 +28,92 @@ const replyContext: ReplyContext = {
   },
   reply(this: Context, text, extra) {
     this.assert(this.chat, 'reply')
-    return this.telegram.sendMessage(this.chat.id, text, makeReply(this, extra))
+    return this.sendMessage(text, makeReply(this, extra))
   },
   replyWithAnimation(this: Context, animation, extra) {
     this.assert(this.chat, 'replyWithAnimation')
-    return this.telegram.sendAnimation(
-      this.chat.id,
-      animation,
-      makeReply(this, extra)
-    )
+    return this.sendAnimation(animation, makeReply(this, extra))
   },
   replyWithAudio(this: Context, audio, extra) {
     this.assert(this.chat, 'replyWithAudio')
-    return this.telegram.sendAudio(this.chat.id, audio, makeReply(this, extra))
+    return this.sendAudio(audio, makeReply(this, extra))
   },
   replyWithContact(this: Context, phoneNumber, firstName, extra) {
     this.assert(this.chat, 'replyWithContact')
-    return this.telegram.sendContact(
-      this.chat.id,
-      phoneNumber,
-      firstName,
-      makeReply(this, extra)
-    )
+    return this.sendContact(phoneNumber, firstName, makeReply(this, extra))
   },
   replyWithDice(this: Context, extra) {
     this.assert(this.chat, 'replyWithDice')
-    return this.telegram.sendDice(this.chat.id, makeReply(this, extra))
+    return this.sendDice(makeReply(this, extra))
   },
   replyWithDocument(this: Context, document, extra) {
     this.assert(this.chat, 'replyWithDocument')
-    return this.telegram.sendDocument(
-      this.chat.id,
-      document,
-      makeReply(this, extra)
-    )
+    return this.sendDocument(document, makeReply(this, extra))
   },
   replyWithGame(this: Context, gameName, extra) {
     this.assert(this.chat, 'replyWithGame')
-    return this.telegram.sendGame(
-      this.chat.id,
-      gameName,
-      makeReply(this, extra)
-    )
+    return this.sendGame(gameName, makeReply(this, extra))
   },
   replyWithHTML(this: Context, html, extra) {
     this.assert(this.chat, 'replyWithHTML')
-    return this.telegram.sendMessage(this.chat.id, html, {
+    return this.sendMessage(html, {
       parse_mode: 'HTML',
       ...makeReply(this, extra),
     })
   },
   replyWithInvoice(this: Context, invoice, extra) {
     this.assert(this.chat, 'replyWithInvoice')
-    return this.telegram.sendInvoice(
-      this.chat.id,
-      invoice,
-      makeReply(this, extra)
-    )
+    return this.sendInvoice(invoice, makeReply(this, extra))
   },
   replyWithLocation(this: Context, latitude, longitude, extra) {
     this.assert(this.chat, 'replyWithLocation')
-    return this.telegram.sendLocation(
-      this.chat.id,
-      latitude,
-      longitude,
-      makeReply(this, extra)
-    )
+    return this.sendLocation(latitude, longitude, makeReply(this, extra))
   },
   replyWithMarkdown(this: Context, markdown, extra) {
     this.assert(this.chat, 'replyWithMarkdown')
-    return this.telegram.sendMessage(this.chat.id, markdown, {
+    return this.sendMessage(markdown, {
       parse_mode: 'Markdown',
       ...makeReply(this, extra),
     })
   },
   replyWithMarkdownV2(this: Context, markdown, extra) {
     this.assert(this.chat, 'replyWithMarkdownV2')
-    return this.telegram.sendMessage(this.chat.id, markdown, {
+    return this.sendMessage(markdown, {
       parse_mode: 'MarkdownV2',
       ...makeReply(this, extra),
     })
   },
   replyWithMediaGroup(this: Context, media, extra) {
     this.assert(this.chat, 'replyWithMediaGroup')
-    return this.telegram.sendMediaGroup(
-      this.chat.id,
-      media,
-      makeReply(this, extra)
-    )
+    return this.sendMediaGroup(media, makeReply(this, extra))
   },
   replyWithPhoto(this: Context, photo, extra) {
     this.assert(this.chat, 'replyWithPhoto')
-    return this.telegram.sendPhoto(this.chat.id, photo, makeReply(this, extra))
+    return this.sendPhoto(photo, makeReply(this, extra))
   },
   replyWithPoll(this: Context, question, options, extra) {
     this.assert(this.chat, 'replyWithPoll')
-    return this.telegram.sendPoll(
-      this.chat.id,
-      question,
-      options,
-      makeReply(this, extra)
-    )
+    return this.sendPoll(question, options, makeReply(this, extra))
+  },
+  replyWithRichMessage(this: Context, richMessage, extra) {
+    this.assert(this.chat, 'replyWithRichMessage')
+    return this.sendRichMessage(richMessage, makeReply(this, extra))
+  },
+  replyWithLivePhoto(this: Context, photo, livePhoto, extra) {
+    this.assert(this.chat, 'replyWithLivePhoto')
+    return this.sendLivePhoto(photo, livePhoto, makeReply(this, extra))
   },
   replyWithQuiz(this: Context, question, options, extra) {
     this.assert(this.chat, 'replyWithQuiz')
-    return this.telegram.sendQuiz(
-      this.chat.id,
-      question,
-      options,
-      makeReply(this, extra)
-    )
+    return this.sendQuiz(question, options, makeReply(this, extra))
   },
   replyWithSticker(this: Context, sticker, extra) {
     this.assert(this.chat, 'replyWithSticker')
-    return this.telegram.sendSticker(
-      this.chat.id,
-      sticker,
-      makeReply(this, extra)
-    )
+    return this.sendSticker(sticker, makeReply(this, extra))
   },
   replyWithVenue(this: Context, latitude, longitude, title, address, extra) {
     this.assert(this.chat, 'replyWithVenue')
-    return this.telegram.sendVenue(
-      this.chat.id,
+    return this.sendVenue(
       latitude,
       longitude,
       title,
@@ -160,19 +123,15 @@ const replyContext: ReplyContext = {
   },
   replyWithVideo(this: Context, video, extra) {
     this.assert(this.chat, 'replyWithVideo')
-    return this.telegram.sendVideo(this.chat.id, video, makeReply(this, extra))
+    return this.sendVideo(video, makeReply(this, extra))
   },
   replyWithVideoNote(this: Context, videoNote, extra) {
     this.assert(this.chat, 'replyWithVideoNote')
-    return this.telegram.sendVideoNote(
-      this.chat.id,
-      videoNote,
-      makeReply(this, extra)
-    )
+    return this.sendVideoNote(videoNote, makeReply(this, extra))
   },
   replyWithVoice(this: Context, voice, extra) {
     this.assert(this.chat, 'replyWithVoice')
-    return this.telegram.sendVoice(this.chat.id, voice, makeReply(this, extra))
+    return this.sendVoice(voice, makeReply(this, extra))
   },
 }
 
@@ -188,6 +147,7 @@ export function useNewReplies<C extends Context>(): Middleware<C> {
   return (ctx, next) => {
     ctx.reply = replyContext.reply
     ctx.replyWithPhoto = replyContext.replyWithPhoto
+    ctx.replyWithLivePhoto = replyContext.replyWithLivePhoto
     ctx.replyWithMediaGroup = replyContext.replyWithMediaGroup
     ctx.replyWithAudio = replyContext.replyWithAudio
     ctx.replyWithDice = replyContext.replyWithDice
@@ -201,6 +161,7 @@ export function useNewReplies<C extends Context>(): Middleware<C> {
     ctx.replyWithVoice = replyContext.replyWithVoice
     ctx.replyWithPoll = replyContext.replyWithPoll
     ctx.replyWithQuiz = replyContext.replyWithQuiz
+    ctx.replyWithRichMessage = replyContext.replyWithRichMessage
     ctx.replyWithChatAction = replyContext.replyWithChatAction
     ctx.replyWithLocation = replyContext.replyWithLocation
     ctx.replyWithVenue = replyContext.replyWithVenue

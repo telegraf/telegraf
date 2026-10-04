@@ -28,8 +28,3 @@ for (const module of modules) {
 }
 
 writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n')
-
-writeFileSync(
-  '.eslintignore',
-  modules.map((module) => `/${module}.*`).join('\n')
-)

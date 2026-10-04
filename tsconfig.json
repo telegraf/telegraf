@@ -7,7 +7,8 @@
     "esModuleInterop": true,
     "outDir": "lib/",
     "rootDir": "src/",
-    "target": "ES2019",
+    "target": "ES2022",
+    "types": ["node"],
     "strict": true,
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": true,
@@ -21,7 +22,6 @@
     "customCss": "docs/theme/assets/css/custom.css",
     "excludeExternals": true,
     "includeVersion": true,
-    "media": "docs/assets/",
     "name": "telegraf.js",
     "out": "docs/build/",
     "readme": "README.md"

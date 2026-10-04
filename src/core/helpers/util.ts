@@ -3,7 +3,6 @@ import { Deunionize, UnionKeys } from './deunionize'
 
 export const env = process.env
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type Any = {} | undefined | null
 
 export type Expand<T> = T extends object
@@ -19,9 +18,9 @@ export type NonemptyReadonlyArray<T> = readonly [T, ...T[]]
 // prettier-ignore
 export type ExclusiveKeys<A extends object, B extends object> = keyof Omit<A, keyof B>
 
-export function fmtCaption<
-  Extra extends { caption?: string | FmtString } | undefined,
->(
+// Constrained to `object` rather than `{ caption?: ... }` so unions containing
+// caption-less members (e.g. InputMediaLocation) are accepted
+export function fmtCaption<Extra extends object | undefined>(
   extra?: Extra
 ): Extra extends undefined
   ? undefined
@@ -45,11 +44,9 @@ export function fmtCaption(extra?: { caption?: string | FmtString }) {
 export type DistinctKeys<T extends object> = Exclude<UnionKeys<T>, keyof T>
 
 // prettier-ignore
-/* eslint-disable-next-line @typescript-eslint/ban-types */
 export type KeyedDistinct<T extends object, K extends DistinctKeys<T>> = Record<K, {}> & Deunionize<Record<K, {}>, T>
 
 // prettier-ignore
-/* eslint-disable-next-line @typescript-eslint/ban-types */
 export type Keyed<T extends object, K extends UnionKeys<T>> = Record<K, {}> & Deunionize<Record<K, {}>, T>
 
 /** Construct a generic type guard */

@@ -1,6 +1,7 @@
 import * as tg from './core/types/typegram'
 import * as tt from './telegram-types'
 import { Deunionize, PropOr, UnionKeys } from './core/helpers/deunionize'
+import { hasProp } from './core/helpers/check'
 import ApiClient from './core/network/client'
 import { Guard, Guarded, Keyed, MaybeArray } from './core/helpers/util'
 import Telegram from './telegram'
@@ -98,6 +99,28 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.update.edited_channel_post as PropOr<U, 'edited_channel_post'>
   }
 
+  get businessConnection() {
+    return this.update.business_connection as PropOr<U, 'business_connection'>
+  }
+
+  get businessMessage() {
+    return this.update.business_message as PropOr<U, 'business_message'>
+  }
+
+  get editedBusinessMessage() {
+    return this.update.edited_business_message as PropOr<
+      U,
+      'edited_business_message'
+    >
+  }
+
+  get deletedBusinessMessages() {
+    return this.update.deleted_business_messages as PropOr<
+      U,
+      'deleted_business_messages'
+    >
+  }
+
   get messageReaction() {
     return this.update.message_reaction as PropOr<U, 'message_reaction'>
   }
@@ -141,6 +164,31 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.update.removed_chat_boost as PropOr<U, 'removed_chat_boost'>
   }
 
+  get managedBot() {
+    return this.update.managed_bot as PropOr<U, 'managed_bot'>
+  }
+
+  /** Message sent to the bot on behalf of a user by another, opted-in bot; answer it with {@link Context.answerGuestQuery} */
+  get guestMessage() {
+    return this.update.guest_message as PropOr<U, 'guest_message'>
+  }
+
+  /** Change of a user's payment subscription to the bot (the `subscription` update) */
+  get subscription() {
+    return this.update.subscription as PropOr<U, 'subscription'>
+  }
+
+  get stoppedMessageGeneration() {
+    return this.update.stopped_message_generation as PropOr<
+      U,
+      'stopped_message_generation'
+    >
+  }
+
+  get purchasedPaidMedia() {
+    return this.update.purchased_paid_media as PropOr<U, 'purchased_paid_media'>
+  }
+
   /** Shorthand for any `message` object present in the current update. One of
    * `message`, `edited_message`, `channel_post`, `edited_channel_post` or
    * `callback_query.message`
@@ -154,7 +202,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return getMsgIdFromAnySource(this) as GetMsgId<U>
   }
 
-  get chat(): Getter<U, 'chat'> {
+  get bizConnId() {
+    return getBizConnIdFromAnySource(this) as GetBizConnId<U>
+  }
+
+  get chat(): GetChat<U> {
     return (
       this.msg ??
       this.messageReaction ??
@@ -162,8 +214,9 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
       this.chatJoinRequest ??
       this.chatMember ??
       this.myChatMember ??
-      this.removedChatBoost
-    )?.chat as Getter<U, 'chat'>
+      this.removedChatBoost ??
+      this.stoppedMessageGeneration
+    )?.chat as GetChat<U>
   }
 
   get senderChat() {
@@ -179,7 +232,19 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   get inlineMessageId() {
-    return (this.callbackQuery ?? this.chosenInlineResult)?.inline_message_id
+    return (this.callbackQuery ?? this.chosenInlineResult)
+      ?.inline_message_id as PropOr<
+      PropOr<U, 'callback_query'> | PropOr<U, 'chosen_inline_result'>,
+      'inline_message_id'
+    >
+  }
+
+  /** Shorthand for `ephemeral_message_id` of the message in the current update, if that message is ephemeral. */
+  get ephemeralMessageId(): number | undefined {
+    const msg = this.msg
+    return msg?.has('ephemeral_message_id')
+      ? msg.ephemeral_message_id
+      : undefined
   }
 
   get passportData() {
@@ -302,6 +367,23 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Answers the guest query of the guest message in the current update.
+   * @see https://core.telegram.org/bots/api#answerguestquery
+   */
+  answerGuestQuery(result: tg.InlineQueryResult) {
+    const guestMessage = this.guestMessage
+    const guestQueryId =
+      guestMessage && 'guest_query_id' in guestMessage
+        ? guestMessage.guest_query_id
+        : undefined
+    this.assert(guestQueryId, 'answerGuestQuery')
+    return this.telegram.answerGuestQuery({
+      result,
+      guest_query_id: guestQueryId,
+    })
+  }
+
+  /**
    * Shorthand for {@link Telegram.getUserChatBoosts}
    */
   getUserChatBoosts() {
@@ -330,16 +412,21 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Pass `undefined` as text and `extra.rich_message` to turn the message into a rich message.
    * @see https://core.telegram.org/bots/api#editmessagetext
    */
-  editMessageText(text: string | FmtString, extra?: tt.ExtraEditMessageText) {
+  editMessageText(
+    ...content: tt.TextOrRichMessageEdit<
+      tt.ExtraEditMessageText,
+      tt.RichMessageForEdit<Context<U>['inlineMessageId']>
+    >
+  ) {
     this.assert(this.msgId ?? this.inlineMessageId, 'editMessageText')
     return this.telegram.editMessageText(
       this.chat?.id,
       this.msgId,
       this.inlineMessageId,
-      text,
-      extra
+      ...content
     )
   }
 
@@ -423,12 +510,120 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Edits the ephemeral message in the current update, or the one given by `extra.ephemeral_message_id`.
+   * Pass `undefined` as text and `extra.rich_message` to turn it into a rich message.
+   * @see https://core.telegram.org/bots/api#editephemeralmessagetext
+   */
+  editEphemeralMessageText(
+    receiverUserId: number,
+    ...[text, extra]: tt.TextOrRichMessageEdit<
+      tt.ExtraEditEphemeralMessageText & EphemeralMessageTarget
+    >
+  ) {
+    const { ephemeral_message_id = this.ephemeralMessageId, ...rest } =
+      extra ?? {}
+    this.assert(this.chat, 'editEphemeralMessageText')
+    this.assert(ephemeral_message_id, 'editEphemeralMessageText')
+    return this.telegram.editEphemeralMessageText(
+      this.chat.id,
+      receiverUserId,
+      ephemeral_message_id,
+      // the text/rich_message pairing was already enforced by this method's own signature
+      ...([
+        text,
+        rest,
+      ] as tt.TextOrRichMessageEdit<tt.ExtraEditEphemeralMessageText>)
+    )
+  }
+
+  /**
+   * Edits the ephemeral message in the current update, or the one given by `extra.ephemeral_message_id`.
+   * @see https://core.telegram.org/bots/api#editephemeralmessagecaption
+   */
+  editEphemeralMessageCaption(
+    receiverUserId: number,
+    caption: string | FmtString | undefined,
+    extra?: tt.ExtraEditEphemeralMessageCaption & EphemeralMessageTarget
+  ) {
+    const { ephemeral_message_id = this.ephemeralMessageId, ...rest } =
+      extra ?? {}
+    this.assert(this.chat, 'editEphemeralMessageCaption')
+    this.assert(ephemeral_message_id, 'editEphemeralMessageCaption')
+    return this.telegram.editEphemeralMessageCaption(
+      this.chat.id,
+      receiverUserId,
+      ephemeral_message_id,
+      caption,
+      rest
+    )
+  }
+
+  /**
+   * Edits the ephemeral message in the current update, or the one given by `extra.ephemeral_message_id`.
+   * @see https://core.telegram.org/bots/api#editephemeralmessagemedia
+   */
+  editEphemeralMessageMedia(
+    receiverUserId: number,
+    media: tt.WrapCaption<tg.InputMedia>,
+    extra?: tt.ExtraEditEphemeralMessageMedia & EphemeralMessageTarget
+  ) {
+    const { ephemeral_message_id = this.ephemeralMessageId, ...rest } =
+      extra ?? {}
+    this.assert(this.chat, 'editEphemeralMessageMedia')
+    this.assert(ephemeral_message_id, 'editEphemeralMessageMedia')
+    return this.telegram.editEphemeralMessageMedia(
+      this.chat.id,
+      receiverUserId,
+      ephemeral_message_id,
+      media,
+      rest
+    )
+  }
+
+  /**
+   * Edits the ephemeral message in the current update, or the one given by `extra.ephemeral_message_id`.
+   * @see https://core.telegram.org/bots/api#editephemeralmessagereplymarkup
+   */
+  editEphemeralMessageReplyMarkup(
+    receiverUserId: number,
+    markup: tg.InlineKeyboardMarkup | undefined,
+    extra?: EphemeralMessageTarget
+  ) {
+    const ephemeralMessageId =
+      extra?.ephemeral_message_id ?? this.ephemeralMessageId
+    this.assert(this.chat, 'editEphemeralMessageReplyMarkup')
+    this.assert(ephemeralMessageId, 'editEphemeralMessageReplyMarkup')
+    return this.telegram.editEphemeralMessageReplyMarkup(
+      this.chat.id,
+      receiverUserId,
+      ephemeralMessageId,
+      markup
+    )
+  }
+
+  /**
+   * Deletes the ephemeral message in the current update, or the one given by `ephemeralMessageId`.
+   * @see https://core.telegram.org/bots/api#deleteephemeralmessage
+   */
+  deleteEphemeralMessage(receiverUserId: number, ephemeralMessageId?: number) {
+    ephemeralMessageId ??= this.ephemeralMessageId
+    this.assert(this.chat, 'deleteEphemeralMessage')
+    this.assert(ephemeralMessageId, 'deleteEphemeralMessage')
+    return this.telegram.deleteEphemeralMessage(
+      this.chat.id,
+      receiverUserId,
+      ephemeralMessageId
+    )
+  }
+
+  /**
    * @see https://core.telegram.org/bots/api#sendmessage
    */
   sendMessage(text: string | FmtString, extra?: tt.ExtraReplyMessage) {
     this.assert(this.chat, 'sendMessage')
     return this.telegram.sendMessage(this.chat.id, text, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -438,6 +633,52 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   reply(...args: Shorthand<'sendMessage'>) {
     return this.sendMessage(...args)
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendrichmessage
+   */
+  sendRichMessage(
+    richMessage: tg.InputRichMessage,
+    extra?: tt.ExtraRichMessage
+  ) {
+    this.assert(this.chat, 'sendRichMessage')
+    return this.telegram.sendRichMessage({
+      chat_id: this.chat.id,
+      message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
+      ...extra,
+      rich_message: richMessage,
+    })
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendrichmessage
+   */
+  replyWithRichMessage(
+    richMessage: tg.InputRichMessage,
+    extra?: tt.ExtraRichMessage
+  ) {
+    return this.sendRichMessage(richMessage, extra)
+  }
+
+  /**
+   * Streams a partial rich message to the current chat; changes of drafts with the same `draftId` are animated.
+   * @see https://core.telegram.org/bots/api#sendrichmessagedraft
+   */
+  sendRichMessageDraft(
+    draftId: number,
+    richMessage: tg.InputRichMessageDraft,
+    extra?: tt.ExtraRichMessageDraft
+  ) {
+    this.assert(this.chat, 'sendRichMessageDraft')
+    return this.telegram.sendRichMessageDraft({
+      chat_id: this.chat.id,
+      message_thread_id: getThreadId(this),
+      ...extra,
+      draft_id: draftId,
+      rich_message: richMessage,
+    })
   }
 
   /**
@@ -641,6 +882,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendPhoto')
     return this.telegram.sendPhoto(this.chat.id, photo, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -653,12 +895,45 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * @param photo The still photo of the live photo
+   * @param livePhoto The live photo video, as a file_id or a new upload
+   * @see https://core.telegram.org/bots/api#sendlivephoto
+   */
+  sendLivePhoto(
+    photo: string | tg.InputFile,
+    livePhoto: string | tg.InputFile,
+    extra?: tt.ExtraLivePhoto
+  ) {
+    this.assert(this.chat, 'sendLivePhoto')
+    return this.telegram.sendLivePhoto({
+      chat_id: this.chat.id,
+      message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
+      ...extra,
+      photo,
+      live_photo: livePhoto,
+    })
+  }
+
+  /**
+   * @see https://core.telegram.org/bots/api#sendlivephoto
+   */
+  replyWithLivePhoto(
+    photo: string | tg.InputFile,
+    livePhoto: string | tg.InputFile,
+    extra?: tt.ExtraLivePhoto
+  ) {
+    return this.sendLivePhoto(photo, livePhoto, extra)
+  }
+
+  /**
    * @see https://core.telegram.org/bots/api#sendmediagroup
    */
   sendMediaGroup(media: tt.MediaGroup, extra?: tt.ExtraMediaGroup) {
     this.assert(this.chat, 'sendMediaGroup')
     return this.telegram.sendMediaGroup(this.chat.id, media, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -677,6 +952,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendAudio')
     return this.telegram.sendAudio(this.chat.id, audio, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -695,6 +971,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendDice')
     return this.telegram.sendDice(this.chat.id, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -713,6 +990,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendDocument')
     return this.telegram.sendDocument(this.chat.id, document, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -731,6 +1009,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendSticker')
     return this.telegram.sendSticker(this.chat.id, sticker, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -749,6 +1028,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendVideo')
     return this.telegram.sendVideo(this.chat.id, video, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -767,6 +1047,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendAnimation')
     return this.telegram.sendAnimation(this.chat.id, animation, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -788,6 +1069,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendVideoNote')
     return this.telegram.sendVideoNote(this.chat.id, videoNote, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -824,6 +1106,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendGame')
     return this.telegram.sendGame(this.chat.id, game, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -842,6 +1125,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendVoice')
     return this.telegram.sendVoice(this.chat.id, voice, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -856,10 +1140,15 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendpoll
    */
-  sendPoll(poll: string, options: readonly string[], extra?: tt.ExtraPoll) {
+  sendPoll(
+    poll: string,
+    options: readonly tt.PollOption[],
+    extra?: tt.ExtraPoll
+  ) {
     this.assert(this.chat, 'sendPoll')
     return this.telegram.sendPoll(this.chat.id, poll, options, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -874,10 +1163,15 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendpoll
    */
-  sendQuiz(quiz: string, options: readonly string[], extra?: tt.ExtraPoll) {
+  sendQuiz(
+    quiz: string,
+    options: readonly tt.PollOption[],
+    extra?: tt.ExtraPoll
+  ) {
     this.assert(this.chat, 'sendQuiz')
     return this.telegram.sendQuiz(this.chat.id, quiz, options, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -907,6 +1201,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendChatAction')
     return this.telegram.sendChatAction(this.chat.id, action, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -962,12 +1257,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    * @param reaction An emoji or custom_emoji_id to set as reaction to current message. Leave empty to remove reactions.
    * @param is_big Pass True to set the reaction with a big animation
    */
-  react(
-    reaction?: MaybeArray<
-      tg.TelegramEmoji | `${Digit}${string}` | tg.ReactionType
-    >,
-    is_big?: boolean
-  ) {
+  react(reaction?: MaybeArray<ReactionInput>, is_big?: boolean) {
     this.assert(this.chat, 'setMessageReaction')
     this.assert(this.msgId, 'setMessageReaction')
     const emojis = reaction
@@ -975,14 +1265,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
         ? reaction
         : [reaction]
       : undefined
-    const reactions = emojis?.map(
-      (emoji): tg.ReactionType =>
-        typeof emoji === 'string'
-          ? Digit.has(emoji[0] as string)
-            ? { type: 'custom_emoji', custom_emoji_id: emoji }
-            : { type: 'emoji', emoji: emoji as tg.TelegramEmoji }
-          : emoji
-    )
+    const reactions = emojis?.map(toReactionType)
     return this.telegram.setMessageReaction(
       this.chat.id,
       this.msgId,
@@ -998,6 +1281,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendLocation')
     return this.telegram.sendLocation(this.chat.id, latitude, longitude, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -1026,7 +1310,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
       longitude,
       title,
       address,
-      { message_thread_id: getThreadId(this), ...extra }
+      {
+        message_thread_id: getThreadId(this),
+        business_connection_id: getBizConnIdFromAnySource(this),
+        ...extra,
+      }
     )
   }
 
@@ -1044,6 +1332,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     this.assert(this.chat, 'sendContact')
     return this.telegram.sendContact(this.chat.id, phoneNumber, firstName, {
       message_thread_id: getThreadId(this),
+      business_connection_id: getBizConnIdFromAnySource(this),
       ...extra,
     })
   }
@@ -1336,6 +1625,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
     return this.telegram.getMyCommands()
   }
 
+  getBusinessConnection() {
+    this.assert(this.bizConnId, 'getBusinessConnection')
+    return this.telegram.getBusinessConnection(this.bizConnId)
+  }
+
   /**
    * @deprecated use {@link Telegram.setMyCommands}
    * @see https://core.telegram.org/bots/api#setmycommands
@@ -1385,6 +1679,38 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   deleteMessages(messageIds: number[]) {
     this.assert(this.chat, 'deleteMessages')
     return this.telegram.deleteMessages(this.chat.id, messageIds)
+  }
+
+  /**
+   * Removes a user's or chat's reaction from the current or specified message.
+   * @see https://core.telegram.org/bots/api#deletemessagereaction
+   */
+  deleteMessageReaction(
+    actor: Omit<tg.Opts<'deleteMessageReaction'>, 'chat_id' | 'message_id'>,
+    messageId?: number
+  ) {
+    this.assert(this.chat, 'deleteMessageReaction')
+    const message_id = messageId ?? this.msgId
+    this.assert(message_id, 'deleteMessageReaction')
+    return this.telegram.deleteMessageReaction({
+      chat_id: this.chat.id,
+      message_id,
+      ...actor,
+    })
+  }
+
+  /**
+   * Removes a user's or chat's recent reactions throughout the current chat.
+   * @see https://core.telegram.org/bots/api#deleteallmessagereactions
+   */
+  deleteAllMessageReactions(
+    actor: Omit<tg.Opts<'deleteAllMessageReactions'>, 'chat_id'>
+  ) {
+    this.assert(this.chat, 'deleteAllMessageReactions')
+    return this.telegram.deleteAllMessageReactions({
+      chat_id: this.chat.id,
+      ...actor,
+    })
   }
 
   /**
@@ -1457,6 +1783,34 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   }
 
   /**
+   * Answers the join request query of the `chat_join_request` update.
+   * @see https://core.telegram.org/bots/api#answerchatjoinrequestquery
+   */
+  answerChatJoinRequestQuery(
+    result: tg.Opts<'answerChatJoinRequestQuery'>['result']
+  ) {
+    const queryId = this.chatJoinRequest?.query_id
+    this.assert(queryId, 'answerChatJoinRequestQuery')
+    return this.telegram.answerChatJoinRequestQuery({
+      chat_join_request_query_id: queryId,
+      result,
+    })
+  }
+
+  /**
+   * Sends a Web App to review the join request query of the `chat_join_request` update.
+   * @see https://core.telegram.org/bots/api#sendchatjoinrequestwebapp
+   */
+  sendChatJoinRequestWebApp(webAppUrl: string) {
+    const queryId = this.chatJoinRequest?.query_id
+    this.assert(queryId, 'sendChatJoinRequestWebApp')
+    return this.telegram.sendChatJoinRequestWebApp({
+      chat_join_request_query_id: queryId,
+      web_app_url: webAppUrl,
+    })
+  }
+
+  /**
    * @see https://core.telegram.org/bots/api#banchatsenderchat
    */
   banChatSenderChat(senderChatId: number) {
@@ -1478,7 +1832,10 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
    */
   setChatMenuButton(menuButton?: tg.MenuButton) {
     this.assert(this.chat, 'setChatMenuButton')
-    return this.telegram.setChatMenuButton({ chatId: this.chat.id, menuButton })
+    return this.telegram.setChatMenuButton({
+      chatId: this.chat.id,
+      menuButton,
+    })
   }
 
   /**
@@ -1511,6 +1868,11 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
 
 export default Context
 
+/** Overrides which ephemeral message a Context helper targets; defaults to {@link Context.ephemeralMessageId} */
+interface EphemeralMessageTarget {
+  ephemeral_message_id?: number
+}
+
 type UpdateTypes<U extends Deunionize<tg.Update>> = Extract<
   UnionKeys<U>,
   tt.UpdateType
@@ -1526,25 +1888,35 @@ type Getter<U extends Deunionize<tg.Update>, P extends string> = PropOr<
   P
 >
 
+/** Guest messages belong to another bot's chat, so `ctx.chat` is never derived from them */
+type GetChat<U extends Deunionize<tg.Update>> =
+  U extends tg.Update.GuestQueryUpdate ? undefined : Getter<U, 'chat'>
+
 interface Msg {
-  isAccessible(): this is MaybeMessage<tg.Message>
+  isAccessible(
+    this: tg.MaybeInaccessibleMessage
+  ): this is MaybeMessage<tg.Message>
   has<Ks extends UnionKeys<tg.Message>[]>(
     ...keys: Ks
   ): this is MaybeMessage<Keyed<tg.Message, Ks[number]>>
 }
 
-const Msg: Msg = {
-  isAccessible() {
+class MsgPrototype implements Msg {
+  isAccessible(
+    this: tg.MaybeInaccessibleMessage
+  ): this is MaybeMessage<tg.Message> {
     return 'date' in this && this.date !== 0
-  },
-  has(...keys) {
-    return keys.some(
-      (key) =>
-        // @ts-expect-error TS doesn't understand key
-        this[key] != undefined
-    )
-  },
+  }
+
+  has<Ks extends UnionKeys<tg.Message>[]>(
+    this: tg.Message,
+    ...keys: Ks
+  ): this is MaybeMessage<Keyed<tg.Message, Ks[number]>> {
+    return keys.some((key) => hasProp(this, key) && this[key] != undefined)
+  }
 }
+
+const Msg: Msg = new MsgPrototype()
 
 export type MaybeMessage<
   M extends tg.MaybeInaccessibleMessage = tg.MaybeInaccessibleMessage,
@@ -1553,14 +1925,18 @@ export type MaybeMessage<
 type GetMsg<U extends tg.Update> = U extends tg.Update.MessageUpdate
   ? U['message']
   : U extends tg.Update.ChannelPostUpdate
-  ? U['channel_post']
-  : U extends tg.Update.EditedChannelPostUpdate
-  ? U['edited_channel_post']
-  : U extends tg.Update.EditedMessageUpdate
-  ? U['edited_message']
-  : U extends tg.Update.CallbackQueryUpdate
-  ? U['callback_query']['message']
-  : undefined
+    ? U['channel_post']
+    : U extends tg.Update.EditedChannelPostUpdate
+      ? U['edited_channel_post']
+      : U extends tg.Update.EditedMessageUpdate
+        ? U['edited_message']
+        : U extends tg.Update.BusinessMessageUpdate
+          ? U['business_message']
+          : U extends tg.Update.EditedBusinessMessageUpdate
+            ? U['edited_business_message']
+            : U extends tg.Update.CallbackQueryUpdate
+              ? U['callback_query']['message']
+              : undefined
 
 function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg =
@@ -1568,29 +1944,38 @@ function getMessageFromAnySource<U extends tg.Update>(ctx: Context<U>) {
     ctx.editedMessage ??
     ctx.callbackQuery?.message ??
     ctx.channelPost ??
-    ctx.editedChannelPost
+    ctx.editedChannelPost ??
+    ctx.businessMessage ??
+    ctx.editedBusinessMessage
   if (msg) return Object.assign(Object.create(Msg), msg)
 }
+
+/** Updates whose payload carries the acting user as `from` */
+type UpdateWithFrom =
+  | tg.Update.CallbackQueryUpdate
+  | tg.Update.InlineQueryUpdate
+  | tg.Update.ShippingQueryUpdate
+  | tg.Update.PreCheckoutQueryUpdate
+  | tg.Update.ChosenInlineResultUpdate
+  | tg.Update.ChatMemberUpdate
+  | tg.Update.MyChatMemberUpdate
+  | tg.Update.ChatJoinRequestUpdate
+
+/** Updates whose payload carries the acting user as `user` */
+type UpdateWithUser =
+  | tg.Update.MessageReactionUpdate
+  | tg.Update.PollAnswerUpdate
+  | tg.Update.ChatBoostUpdate
+  | tg.Update.BotSubscriptionUpdate
+  | tg.Update.ManagedBotUpdate
 
 type GetUserFromAnySource<U extends tg.Update> =
   // check if it's a message type with `from`
   GetMsg<U> extends { from: tg.User }
     ? tg.User
-    : U extends  // these updates have `from`
-        | tg.Update.CallbackQueryUpdate
-        | tg.Update.InlineQueryUpdate
-        | tg.Update.ShippingQueryUpdate
-        | tg.Update.PreCheckoutQueryUpdate
-        | tg.Update.ChosenInlineResultUpdate
-        | tg.Update.ChatMemberUpdate
-        | tg.Update.MyChatMemberUpdate
-        | tg.Update.ChatJoinRequestUpdate
-        // these updates have `user`
-        | tg.Update.MessageReactionUpdate
-        | tg.Update.PollAnswerUpdate
-        | tg.Update.ChatBoostUpdate
-    ? tg.User
-    : undefined
+    : U extends UpdateWithFrom | UpdateWithUser
+      ? tg.User
+      : undefined
 
 function getUserFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   if (ctx.callbackQuery) return ctx.callbackQuery.from
@@ -1608,17 +1993,24 @@ function getUserFromAnySource<U extends tg.Update>(ctx: Context<U>) {
       ctx.myChatMember ??
       ctx.chatJoinRequest
     )?.from ??
-    (ctx.messageReaction ?? ctx.pollAnswer ?? ctx.chatBoost?.boost.source)?.user
+    (
+      ctx.messageReaction ??
+      ctx.pollAnswer ??
+      ctx.subscription ??
+      ctx.managedBot ??
+      ctx.chatBoost?.boost.source
+    )?.user
   )
 }
 
-type GetMsgId<U extends tg.Update> = GetMsg<U> extends { message_id: number }
-  ? number
-  : U extends tg.Update.MessageReactionUpdate
-  ? number
-  : U extends tg.Update.MessageReactionCountUpdate
-  ? number
-  : undefined
+type GetMsgId<U extends tg.Update> =
+  GetMsg<U> extends { message_id: number }
+    ? number
+    : U extends tg.Update.MessageReactionUpdate
+      ? number
+      : U extends tg.Update.MessageReactionCountUpdate
+        ? number
+        : undefined
 
 function getMsgIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg = getMessageFromAnySource(ctx)
@@ -1626,13 +2018,31 @@ function getMsgIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
     ?.message_id as GetMsgId<U>
 }
 
-type GetText<U extends tg.Update> = GetMsg<U> extends tg.Message.TextMessage
+type GetBizConnId<U extends tg.Update> = U extends
+  | tg.Update.BusinessConnectionUpdate
+  | tg.Update.DeletedBusinessMessagesUpdate
   ? string
-  : GetMsg<U> extends tg.Message
-  ? string | undefined
-  : U extends tg.Update.PollUpdate
-  ? string | undefined
-  : undefined
+  : GetMsg<U> extends { business_connection_id: string }
+    ? string
+    : undefined
+
+function getBizConnIdFromAnySource<U extends tg.Update>(ctx: Context<U>) {
+  if (ctx.businessConnection) return ctx.businessConnection.id
+  if (ctx.businessMessage) return ctx.businessMessage.business_connection_id
+  if (ctx.editedBusinessMessage)
+    return ctx.editedBusinessMessage.business_connection_id
+  if (ctx.deletedBusinessMessages)
+    return ctx.deletedBusinessMessages.business_connection_id
+}
+
+type GetText<U extends tg.Update> =
+  GetMsg<U> extends tg.Message.TextMessage
+    ? string
+    : GetMsg<U> extends tg.Message
+      ? string | undefined
+      : U extends tg.Update.PollUpdate
+        ? string | undefined
+        : undefined
 
 function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   const msg = ctx.msg
@@ -1640,15 +2050,32 @@ function getTextAndEntitiesFromAnySource<U extends tg.Update>(ctx: Context<U>) {
   let text, entities
 
   if (msg) {
-    if ('text' in msg) (text = msg.text), (entities = msg.entities)
-    else if ('caption' in msg)
-      (text = msg.caption), (entities = msg.caption_entities)
-    else if ('game' in msg)
-      (text = msg.game.text), (entities = msg.game.text_entities)
-  } else if (ctx.poll)
-    (text = ctx.poll.explanation), (entities = ctx.poll.explanation_entities)
+    if ('text' in msg) {
+      text = msg.text
+      entities = msg.entities
+    } else if ('caption' in msg) {
+      text = msg.caption
+      entities = msg.caption_entities
+    } else if ('game' in msg) {
+      text = msg.game.text
+      entities = msg.game.text_entities
+    }
+  } else if (ctx.poll) {
+    text = ctx.poll.explanation
+    entities = ctx.poll.explanation_entities
+  }
 
   return [text, entities] as const
+}
+
+/** An emoji, a custom_emoji_id (starts with a digit) or a ReactionType */
+type ReactionInput = tg.TelegramEmoji | `${Digit}${string}` | tg.ReactionType
+
+function toReactionType(reaction: ReactionInput): tg.ReactionType {
+  if (typeof reaction !== 'string') return reaction
+  return Digit.has(reaction[0] as string)
+    ? { type: 'custom_emoji', custom_emoji_id: reaction }
+    : { type: 'emoji', emoji: reaction as tg.TelegramEmoji }
 }
 
 const getThreadId = <U extends tg.Update>(ctx: Context<U>) => {

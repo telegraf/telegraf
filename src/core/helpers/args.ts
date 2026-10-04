@@ -26,7 +26,10 @@ export function argsParser(
   let buf = ''
 
   function flush(to: number) {
-    if (done !== to) args.push(buf + str.slice(done, to)), (inside = undefined)
+    if (done !== to) {
+      args.push(buf + str.slice(done, to))
+      inside = undefined
+    }
     buf = ''
     done = to + 1
   }
@@ -47,14 +50,18 @@ export function argsParser(
       if (inside)
         if (inside === char) flush(i)
         else continue
-      else flush(i), (inside = char)
+      else {
+        flush(i)
+        inside = char
+      }
     else if (char === ' ')
       if (inside) continue
       else flush(i)
     else if (char === '\n') flush(i)
-    else if (char === '\\')
-      (buf += str.slice(done, i)), (done = ++i) // skip parsing the next char
-    else continue
+    else if (char === '\\') {
+      buf += str.slice(done, i)
+      done = ++i // skip parsing the next char
+    } else continue
   }
 
   if (done < str.length) flush(str.length)

@@ -7,7 +7,7 @@
 <p>Modern Telegram Bot API framework for Node.js</p>
 
 <a href="https://core.telegram.org/bots/api">
-	<img src="https://img.shields.io/badge/Bot%20API-v7.1-f36caf.svg?style=flat-square" alt="Bot API Version" />
+	<img src="https://img.shields.io/badge/Bot%20API-v10.3-f36caf.svg?style=flat-square" alt="Bot API Version" />
 </a>
 <a href="https://packagephobia.com/result?p=telegraf,node-telegram-bot-api">
 	<img src="https://flat.badgen.net/packagephobia/install/telegraf" alt="install size" />
@@ -22,10 +22,28 @@
 
 </header>
 
-## For 3.x users
+## About v6
 
-- [3.x docs](https://telegraf.js.org/v3)
-- [4.0 release notes](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
+This branch prepares Telegraf v6, a major release focused on coverage of the
+current Telegram Bot API while keeping the stable Telegraf programming model.
+It adds Bot API 10.3 support, runtime wrappers for all 185 Bot API methods,
+updated TypeScript declarations, and multipart upload handling for nested
+payloads used by newer API objects. This includes rich messages, live photos,
+guest queries, ephemeral messages, and expanded poll and chat management APIs.
+The v6 candidate is not yet an official npm release.
+
+Most existing v4 middleware, context, session, scene, webhook, and formatting
+patterns remain the intended migration path. Newer Bot API methods are exposed
+through raw object-style calls such as `ctx.telegram.sendChecklist({ ... })`;
+positional convenience helpers are kept where Telegraf already had an
+established pattern.
+
+> Maintainer note: [the companion types PR](https://github.com/telegraf/types/pull/14)
+> follows upstream's unified declarations and adds Bot API 10.3. Until it is
+> published, this branch pins `@telegraf/types` to the immutable HTTPS commit
+> [`88aa916`](https://github.com/Leask/types/commit/88aa916e2ef6efe851da244f23d5532ef1526738).
+> Installation requires Git, but no GitHub SSH credentials. Replace the pin
+> with the official `@telegraf/types` 10.3 release before publishing upstream.
 
 ## Introduction
 
@@ -37,8 +55,11 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 
 ### Features
 
-- Full [Telegram Bot API 7.1](https://core.telegram.org/bots/api) support
-- [Excellent TypeScript typings](https://github.com/telegraf/telegraf/releases/tag/v4.0.0)
+- [Telegram Bot API 10.3](https://core.telegram.org/bots/api) types and methods
+- Runtime wrappers for every typed official Bot API method
+- TypeScript declarations backed by `@telegraf/types`
+- Nested `InputFile` multipart uploads for modern media payloads
+- Native `fetch` by default on Node.js 22.20+
 - [Lightweight](https://packagephobia.com/result?p=telegraf,node-telegram-bot-api)
 - [AWS **λ**](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html)
   / [Firebase](https://firebase.google.com/products/functions/)
@@ -79,7 +100,7 @@ process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 ```
 
-For additional bot examples see the new [`docs repo`](https://github.com/feathers-studio/telegraf-docs/).
+For additional bot examples see the [`docs repo`](https://github.com/feathers-studio/telegraf-docs/).
 
 ### Resources
 
@@ -105,6 +126,9 @@ BotFather will give you a _token_, something like `123456789:AbCdefGhIJKlmNoPQRs
 
 ### Installation
 
+The v6 candidate requires Node.js 22.20 or later. Its current AVA 8 toolchain
+and upstream CI target Node 22, 24, and 26; Node 20 is no longer supported.
+
 ```shellscript
 $ npm install telegraf
 ```
@@ -121,6 +145,33 @@ or
 $ pnpm add telegraf
 ```
 
+### Runtime networking
+
+Telegraf uses the Node.js native `globalThis.fetch` implementation by default.
+It does not bundle `node-fetch` or expose `node-fetch`-specific `agent` options.
+
+If your bot needs a proxy, custom TLS handling, custom compression, or another
+special network path, install the fetch and agent packages you need and inject
+that behavior through a custom fetch:
+
+```js
+import { Telegraf } from 'telegraf'
+import fetch from 'node-fetch'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+
+const agent = new HttpsProxyAgent(process.env.HTTPS_PROXY)
+const fetchWithProxy = (url, init) => fetch(url, { ...init, agent })
+
+const bot = new Telegraf(process.env.BOT_TOKEN, {
+  telegram: { fetch: fetchWithProxy },
+})
+```
+
+The custom fetch is used for both Bot API calls and URL attachments.
+Multipart uploads use Node.js streams directly, without `sandwich-stream`.
+Failed and cancelled uploads close their file streams, including sources that
+have not yet been read.
+
 ### `Telegraf` class
 
 [`Telegraf`] instance represents your bot. It's responsible for obtaining updates and passing them to your handlers.
@@ -135,27 +186,6 @@ It contains the `update`, `botInfo`, and `telegram` for making arbitrary Bot API
 as well as shorthand methods and getters.
 
 This is probably the class you'll be using the most.
-
-<!--
-TODO: Verify and update list
-Here is a list of
-
-#### Known middleware
-
-- [Internationalization](https://github.com/telegraf/telegraf-i18n)—simplifies selecting the right translation to use when responding to a user.
-- [Redis powered session](https://github.com/telegraf/telegraf-session-redis)—store session data using Redis.
-- [Local powered session (via lowdb)](https://github.com/RealSpeaker/telegraf-session-local)—store session data in a local file.
-- [Rate-limiting](https://github.com/telegraf/telegraf-ratelimit)—apply rate limitting to chats or users.
-- [Bottleneck powered throttling](https://github.com/KnightNiwrem/telegraf-throttler)—apply throttling to both incoming updates and outgoing API calls.
-- [Menus via inline keyboards](https://github.com/EdJoPaTo/telegraf-inline-menu)—simplify creating interfaces based on menus.
-- [Stateless Questions](https://github.com/EdJoPaTo/telegraf-stateless-question)—create stateless questions to Telegram users working in privacy mode.
-- [Natural language processing via wit.ai](https://github.com/telegraf/telegraf-wit)
-- [Natural language processing via recast.ai](https://github.com/telegraf/telegraf-recast)
-- [Multivariate and A/B testing](https://github.com/telegraf/telegraf-experiments)—add experiments to see how different versions of a feature are used.
-- [Powerfull bot stats via Mixpanel](https://github.com/telegraf/telegraf-mixpanel)
-- [statsd integration](https://github.com/telegraf/telegraf-statsd)
-- [and more...](https://www.npmjs.com/search?q=telegraf-)
--->
 
 #### Shorthand methods
 
@@ -253,11 +283,7 @@ import { createServer } from "https";
 createServer(tlsOptions, await bot.createWebhook({ domain: "example.com" })).listen(8443);
 ```
 
-- [AWS Lambda example integration](https://github.com/feathers-studio/telegraf-docs/tree/master/examples/functions/aws-lambda)
-- [Google Cloud Functions example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/functions/google-cloud-function.ts)
-- [`express` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/express.ts)
-- [`fastify` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/fastify.ts)
-- [`koa` example integration](https://github.com/feathers-studio/telegraf-docs/blob/master/examples/webhook/koa.ts)
+- [Webhook and serverless examples](https://github.com/feathers-studio/telegraf-docs/)
 - [NestJS framework integration module](https://github.com/bukhalo/nestjs-telegraf)
 - [Cloudflare Workers integration module](https://github.com/Tsuk1ko/cfworker-middware-telegraf)
 - Use [`bot.handleUpdate`](https://telegraf.js.org/classes/Telegraf-1.html#handleupdate) to write new integrations
@@ -267,6 +293,18 @@ createServer(tlsOptions, await bot.createWebhook({ domain: "example.com" })).lis
 If middleware throws an error or times out, Telegraf calls `bot.handleError`. If it rethrows, update source closes, and then the error is printed to console and process terminates. If it does not rethrow, the error is swallowed.
 
 Default `bot.handleError` always rethrows. You can overwrite it using `bot.catch` if you need to.
+
+Bot API transport and response-body failures reject with `TelegrafNetworkError`,
+not the original fetch error. Its `cause` is a sanitized diagnostic copy; the
+original error is never mutated. Use `errorName` for the underlying error name,
+`code` for a transport code when available, and `transient` for retryability.
+Telegram API and HTTP failures remain `TelegramError`; both extend
+`TelegrafError`. Middleware errors are not converted into network errors.
+
+Polling retries transient transport failures and stops promptly during retry
+backoff. An abort caused by `bot.stop()` is normal shutdown; an unsolicited
+abort is surfaced. Request timeouts cover response-body consumption as well
+as response headers.
 
 ⚠️ Swallowing unknown errors might leave the process in invalid state!
 
@@ -361,8 +399,12 @@ With this simple ability, you can:
 ### Usage with TypeScript
 
 Telegraf is written in TypeScript and therefore ships with declaration files for the entire library.
-Moreover, it includes types for the complete Telegram API via the [`typegram`](https://github.com/KnorpelSenf/typegram) package.
-While most types of Telegraf's API surface are self-explanatory, there's some notable things to keep in mind.
+It includes types for the complete Telegram API via `@telegraf/types`.
+While most types of Telegraf's API surface are self-explanatory, there are some notable things to keep in mind.
+
+The temporary Bot API 10.3 types dependency is described in [About v6](#about-v6).
+Imports remain `telegraf/types` and `@telegraf/types`; applications do not need
+to use a fork-specific module name.
 
 #### Extending `Context`
 

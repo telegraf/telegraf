@@ -1,14 +1,13 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
 name: Node.js CI
 
 on:
   push:
-    branches:
-      - v4
-      - v5
+    branches: [v4, v5, bot-api-9.6-sync]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.sha }}
@@ -17,31 +16,17 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        node-version:
-          - 22
-          - 24
-          - 26
-
+        node-version: ['22.20', '24.12', 26]
     steps:
-    - uses: actions/checkout@v7
-      with:
-        persist-credentials: false
-    - name: Reconfigure git to use HTTP authentication
-      run: >
-        git config --global url."https://github.com/".insteadOf ssh://git@github.com/
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v7
-      with:
-        node-version: ${{ matrix.node-version }}
-    - uses: actions/cache@v6
-      id: cache
-      with:
-        path: node_modules/
-        key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('package*.json') }}
-    - run: npm ci --ignore-scripts
-      if: steps.cache.outputs.cache-hit != 'true'
-    - run: npm test
-    - run: npm run lint
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint

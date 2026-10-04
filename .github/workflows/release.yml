@@ -3,34 +3,41 @@ name: Release
 on:
   push:
     tags:
-      - v4.*
+      - v6.*
 
 jobs:
   release:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7
-    - run : npm ci --ignore-scripts
-    - run : npm run build:docs
-    - name: Make GitHub links absolute
-      run :
-        shopt -s globstar;
-        sed
-          --in-place
-          --expression='s:/develop/docs/:/${{ github.sha }}/docs/:g'
-          --expression='s:<img src="docs/assets/:<img src="media/:g'
-          docs/build/**/*.html;
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
+    - uses: actions/checkout@v7.0.1
+    - uses: actions/setup-node@v7.0.0
       with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/build
-          # for v3.html and perhaps CNAME
-          keep_files: true
+        node-version: 24
+        cache: npm
+    - run: npm ci
+    - run: npm test
+    - run: npm run build:docs
+    - name: Make GitHub links absolute
+      run: |
+        shopt -s globstar;
+        sed \
+          --in-place \
+          --expression='s:/develop/docs/:/${{ github.sha }}/docs/:g' \
+          --expression='s:<img src="docs/assets/:<img src="media/:g' \
+          docs/build/**/*.html
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4.0.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/build
+        # for v3.html and perhaps CNAME
+        keep_files: true
     - name: Publish to npm
-      run : |
+      run: |
         npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
         npm publish --ignore-scripts
-      env :
+      env:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

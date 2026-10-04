@@ -18,9 +18,9 @@ export interface FmtString<Brand extends string> {
   __to_nest: Brand
 }
 
-export class FmtString<Brand extends string = string>
-  implements FmtString<Brand>
-{
+export class FmtString<
+  Brand extends string = string,
+> implements FmtString<Brand> {
   constructor(
     public text: string,
     entities?: MessageEntity[]

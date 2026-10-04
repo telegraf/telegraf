@@ -1,4 +1,4 @@
-const test = require('ava')
+const test = require('ava').default
 const { compactOptions } = require('../lib/core/helpers/compact')
 
 test('compactOptions should remove undefined values from an object', (t) => {

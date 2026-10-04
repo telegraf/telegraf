@@ -41,11 +41,7 @@ test('must resist session racing (with sync store)', (t) =>
       bot.use(genericAsyncMiddleware)
 
       bot.on('message', async (ctx) => {
-        if (ctx.session === undefined) {
-          ctx.session = { count: 1 }
-        } else {
-          ctx.session.count++
-        }
+        ctx.session.count = (ctx.session.count ?? 0) + 1
 
         // pretend we make an API call, etc
         await randSleep(200)
@@ -92,11 +88,7 @@ test('must resist session racing (with async store)', (t) =>
       bot.use(session({ store }))
 
       bot.on('message', async (ctx) => {
-        if (ctx.session === undefined) {
-          ctx.session = { count: 1 }
-        } else {
-          ctx.session.count++
-        }
+        ctx.session.count = (ctx.session.count ?? 0) + 1
 
         // pretend we make an API call, etc
         await randSleep(200)
@@ -176,6 +168,23 @@ test('must write session back if session was touched after defaultSession is pas
       })
     })
   ))
+
+test('must default session to an empty object when no defaultSession is passed', async (t) => {
+  /** @type {import('..').Telegraf<MyCtx>} */
+  const bot = createBot()
+
+  const { store, map } = AsyncStore()
+  bot.use(session({ store }))
+
+  bot.on('message', (ctx) => {
+    t.deepEqual(ctx.session, {})
+    ctx.session.count = 1
+  })
+
+  await bot.handleUpdate(Fixtures.message.text())
+
+  t.deepEqual(map.get('1:1'), { count: 1 })
+})
 
 test('multiple sessions can be used independently without conflict', (t) =>
   t.notThrowsAsync(

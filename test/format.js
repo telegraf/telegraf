@@ -1,4 +1,4 @@
-const test = require('ava')
+const test = require('ava').default
 const { FmtString, fmt, bold, italic, join } = require('../format')
 
 test('Idiomatic FmtString usage', (t) =>

@@ -6,11 +6,11 @@ import Context from '../../context'
 import SceneContextScene from '../context'
 
 export class WizardScene<
-    C extends Context & {
-      scene: SceneContextScene<C, WizardSessionData>
-      wizard: WizardContextWizard<C>
-    },
-  >
+  C extends Context & {
+    scene: SceneContextScene<C, WizardSessionData>
+    wizard: WizardContextWizard<C>
+  },
+>
   extends BaseScene<C>
   implements MiddlewareObj<C>
 {

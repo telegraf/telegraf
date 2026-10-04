@@ -14,7 +14,8 @@ type ReactionCtx = { update: Partial<tg.Update.MessageReactionUpdate> }
 const inspectReaction = (reaction: tg.ReactionType) => {
   if (reaction.type === 'custom_emoji')
     return `Custom(${reaction.custom_emoji_id})`
-  else return reaction.emoji
+  if (reaction.type === 'paid') return 'Paid'
+  return reaction.emoji
 }
 
 export class ReactionList {
@@ -39,9 +40,9 @@ export class ReactionList {
           (r: Deunionize<tg.ReactionType>) => r.custom_emoji_id === reaction
         )
       else
-        return reactions.some(
-          (r: Deunionize<tg.ReactionType>) => r.emoji === reaction
-        )
+        return reactions.some((r: Deunionize<tg.ReactionType>) => {
+          return r.type === 'emoji' && r.emoji === reaction
+        })
 
     return reactions.some((r: Deunionize<tg.ReactionType>) => {
       if (r.type === 'custom_emoji')

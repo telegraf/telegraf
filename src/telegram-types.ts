@@ -10,6 +10,10 @@ import {
   InputMediaDocument,
   InputMediaPhoto,
   InputMediaVideo,
+  InputMediaLivePhoto,
+  InputPollOption,
+  InputRichMessage,
+  InputRichMessageContent,
 } from './core/types/typegram'
 
 import { UnionKeys } from './core/helpers/deunionize'
@@ -49,6 +53,7 @@ export type ExtraAnswerInlineQuery = MakeExtra<
   'answerInlineQuery',
   'inline_query_id' | 'results'
 >
+export type ExtraGetUserGifts = MakeExtra<'getUserGifts', 'user_id'>
 export type ExtraSetChatPermissions = MakeExtra<
   'setChatPermissions',
   'permissions'
@@ -78,6 +83,18 @@ export type ExtraEditChatInviteLink = MakeExtra<
   'editChatInviteLink',
   'invite_link'
 >
+export type ExtraEditEphemeralMessageCaption = MakeExtra<
+  'editEphemeralMessageCaption',
+  'receiver_user_id' | 'ephemeral_message_id' | 'caption'
+>
+export type ExtraEditEphemeralMessageMedia = MakeExtra<
+  'editEphemeralMessageMedia',
+  'receiver_user_id' | 'ephemeral_message_id' | 'media'
+>
+export type ExtraEditEphemeralMessageText = MakeExtra<
+  'editEphemeralMessageText',
+  'receiver_user_id' | 'ephemeral_message_id' | 'text'
+>
 export type ExtraEditMessageCaption = MakeExtra<
   'editMessageCaption',
   'message_id' | 'inline_message_id' | 'caption'
@@ -90,11 +107,34 @@ export type ExtraEditMessageMedia = MakeExtra<
   'editMessageMedia',
   'message_id' | 'inline_message_id' | 'media'
 >
-export type ExtraEditMessageText = MakeExtra<
-  'editMessageText',
-  'message_id' | 'inline_message_id' | 'text'
->
+export type ExtraEditMessageText = Omit<
+  MakeExtra<'editMessageText', 'message_id' | 'inline_message_id' | 'text'>,
+  'rich_message'
+> & { rich_message?: InputRichMessage }
+/** Uploads require a definitely non-inline target. String file IDs remain valid. */
+export type RichMessageForEdit<InlineId extends string | undefined> = [
+  InlineId,
+] extends [undefined]
+  ? InputRichMessage
+  : InputRichMessageContent['rich_message']
+/**
+ * Content arguments of a text edit: new `text` with optional extras, or `undefined` text with `extra.rich_message`.
+ * The Bot API accepts exactly one of the two.
+ */
+export type TextOrRichMessageEdit<
+  Extra extends { rich_message?: unknown },
+  Rich extends InputRichMessage = InputRichMessage,
+> = TextEdit<Extra> | RichMessageEdit<Extra, Rich>
+type TextEdit<Extra> = [
+  text: string | FmtString,
+  extra?: Expand<Omit<Extra, 'rich_message'> & { rich_message?: undefined }>,
+]
+type RichMessageEdit<Extra, Rich> = [
+  text: undefined,
+  extra: Expand<Omit<Extra, 'rich_message'> & { rich_message: Rich }>,
+]
 export type ExtraGame = MakeExtra<'sendGame', 'game_short_name'>
+export type ExtraGetChatAdministrators = MakeExtra<'getChatAdministrators'>
 export type NewInvoiceParameters = MakeExtra<
   'sendInvoice',
   | 'disable_notification'
@@ -111,9 +151,17 @@ export type ExtraKickChatMember = ExtraBanChatMember
 export type ExtraLocation = MakeExtra<'sendLocation', 'latitude' | 'longitude'>
 export type ExtraMediaGroup = MakeExtra<'sendMediaGroup', 'media'>
 export type ExtraPhoto = MakeExtra<'sendPhoto', 'photo'>
+export type ExtraLivePhoto = MakeExtra<'sendLivePhoto', 'photo' | 'live_photo'>
+/** A poll answer option: its text, or a full `InputPollOption` with formatting and media */
+export type PollOption = string | InputPollOption
 export type ExtraPoll = MakeExtra<'sendPoll', 'question' | 'options' | 'type'>
 export type ExtraPromoteChatMember = MakeExtra<'promoteChatMember', 'user_id'>
 export type ExtraReplyMessage = MakeExtra<'sendMessage', 'text'>
+export type ExtraRichMessage = MakeExtra<'sendRichMessage', 'rich_message'>
+export type ExtraRichMessageDraft = MakeExtra<
+  'sendRichMessageDraft',
+  'draft_id' | 'rich_message'
+>
 export type ExtraForwardMessage = MakeExtra<
   'forwardMessage',
   'from_chat_id' | 'message_id'
@@ -135,6 +183,7 @@ export type ExtraVenue = MakeExtra<
 export type ExtraVideo = MakeExtra<'sendVideo', 'video'>
 export type ExtraVideoNote = MakeExtra<'sendVideoNote', 'video_note'>
 export type ExtraVoice = MakeExtra<'sendVoice', 'voice'>
+export type ExtraPaidMedia = MakeExtra<'sendPaidMedia', 'media' | 'star_count'>
 export type ExtraBanChatSenderChat = MakeExtra<
   'banChatSenderChat',
   'sender_chat_id'
@@ -146,7 +195,7 @@ export type ExtraEditForumTopic = MakeExtra<
 >
 
 export type MediaGroup =
-  | readonly (InputMediaPhoto | InputMediaVideo)[]
+  | readonly (InputMediaPhoto | InputMediaVideo | InputMediaLivePhoto)[]
   | readonly InputMediaAudio[]
   | readonly InputMediaDocument[]
 

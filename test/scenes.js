@@ -1,6 +1,6 @@
 'use strict'
 
-const test = require('ava')
+const test = require('ava').default
 const { Telegraf, session, Scenes } = require('../')
 
 function createBot (...args) {

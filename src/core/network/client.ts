@@ -239,6 +239,18 @@ export async function attachFormValue(
   })
 }
 
+/**
+ * Escapes a value for use inside a quoted-string in a multipart header,
+ * so that a filename containing `"` or `\` cannot end the header value early.
+ * Line breaks are percent-encoded, which the Bot API server decodes.
+ */
+function escapeQuotedString(value: string) {
+  return value
+    .replace(/[\\"]/g, '\\$&')
+    .replace(/\r/g, '%0D')
+    .replace(/\n/g, '%0A')
+}
+
 async function attachFormMedia(
   form: MultipartStream,
   media: InputFile,
@@ -251,7 +263,9 @@ async function attachFormMedia(
     const res = await fetch(media.url, { agent, timeout })
     return form.addPart({
       headers: {
-        'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
+        'content-disposition': `form-data; name="${id}"; filename="${escapeQuotedString(
+          fileName
+        )}"`,
       },
       body: res.body,
     })
@@ -270,7 +284,9 @@ async function attachFormMedia(
     if (isStream(mediaSource) || Buffer.isBuffer(mediaSource)) {
       form.addPart({
         headers: {
-          'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
+          'content-disposition': `form-data; name="${id}"; filename="${escapeQuotedString(
+            fileName
+          )}"`,
         },
         body: mediaSource,
       })

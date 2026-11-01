@@ -41,6 +41,20 @@ test("an object with a source is uploaded as a file", async (t) => {
   t.is(part.body, source, "the buffer must be attached as-is, not serialised");
 });
 
+test("quotes and line breaks in a filename are escaped", async (t) => {
+  const form = formStub();
+  await attachFormValue(form, "document", {
+    source: Buffer.from("bytes"),
+    filename: 'file_"foo"_bar\\baz\r\n.docx',
+  });
+
+  const [part] = form.parts;
+  t.is(
+    part.headers["content-disposition"],
+    'form-data; name="document"; filename="file_\\"foo\\"_bar\\\\baz%0D%0A.docx"',
+  );
+});
+
 test("an object with a url is uploaded as a file, not serialised", async (t) => {
   const form = formStub();
   // Reaching the fetch would mean the value was classified as a file; that classification is

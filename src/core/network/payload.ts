@@ -169,9 +169,15 @@ function toSegment(source: FileSource): Segment {
   return source as Uint8Array | Blob;
 }
 
-/** Escape a field or file name for multipart/form-data. */
+/**
+ * Escape a field or file name for multipart/form-data.
+ * The Bot API server percent-decodes the value, and reads a backslash inside the quotes as an
+ * escape, so both are encoded along with the characters that would end the value.
+ */
 function escape(name: string) {
-  return name.replace(/\r/g, "%0D").replace(/\n/g, "%0A").replace(/"/g, "%22");
+  return name.replace(/[%\\"\r\n]/g, (char) => {
+    return `%${char.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")}`;
+  });
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

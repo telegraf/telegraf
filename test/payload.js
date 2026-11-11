@@ -174,6 +174,20 @@ test('multipart: names cannot break out of their header', async (t) => {
   t.notRegex(body, /\r\nx-injected/)
 })
 
+test('multipart: a name reaches the server as it was given', async (t) => {
+  // The Bot API server percent-decodes a file name, and reads a backslash inside the quotes
+  // as an escape. Sent as they are, '%2F' would become '/' and the backslash would vanish.
+  const name = 'отчёт 50%2Foff\\sale "final" 100%.txt'
+  const { payload, attachments } = extractFiles({
+    document: new InputFile(bytes('x'), name),
+  })
+  const body = await assemble(toMultipart(payload, attachments, 'B').segments)
+  const [, sent] = /filename="([^"]*)"/.exec(body)
+
+  t.is(sent, 'отчёт 50%252Foff%5Csale %22final%22 100%25.txt')
+  t.is(decodeURIComponent(sent), name, 'percent-decoding gives the name back')
+})
+
 test('a file made by another copy of the package is recognised', (t) => {
   const foreign = {
     [Symbol.for('telegraf.InputFile')]: true,

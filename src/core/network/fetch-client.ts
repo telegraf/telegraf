@@ -117,7 +117,7 @@ export function createClient(token: string, options: ClientOptions = {}) {
         contentType = multipart.contentType
         if (browser) {
           // Reading a stream into memory can take as long as the stream likes.
-          body = await mayAbortWith(controller.signal, toBlob(multipart.segments))
+          body = await toBlob(multipart.segments, { signal: controller.signal })
         } else {
           stream = toStream(multipart.segments)
           body = stream.stream
@@ -172,18 +172,6 @@ function isBrowserFetch(): boolean {
     // The cost is needing to buffer the request body instead of streaming.
     return true
   }
-}
-
-/** Settles as the promise does, or rejects as soon as the signal aborts. */
-function mayAbortWith<T>(signal: AbortSignal, promise: Promise<T>): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const abort = () => reject(signal.reason)
-    if (signal.aborted) abort()
-    else signal.addEventListener('abort', abort, { once: true })
-    promise.then(resolve, reject).finally(() => {
-      signal.removeEventListener('abort', abort)
-    })
-  })
 }
 
 /**

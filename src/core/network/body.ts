@@ -61,32 +61,60 @@ export function toStream(segments: readonly Segment[]): StreamBody {
   }
 }
 
+export interface BlobOptions {
+  type?: string
+  /** Stops the reading. The promise then rejects with the signal's reason, at once. */
+  signal?: AbortSignal
+}
+
 /**
  * A body of known size. A `Blob` segment is not read; a stream is read into memory, since
  * nothing else can be sent where requests cannot be streamed.
  */
 export async function toBlob(
   segments: readonly Segment[],
-  type?: string
+  { type, signal }: BlobOptions = {}
 ): Promise<Blob> {
+  if (signal?.aborted === true) throw signal.reason
   const parts: (Uint8Array | Blob)[] = []
-  for (const segment of segments) {
-    if (typeof segment !== 'function') {
-      parts.push(segment)
-      continue
-    }
-    const source = open(segment())
-    try {
+  // The stream that was opened last.
+  let source: Source | undefined
+  const read = async () => {
+    for (const segment of segments) {
+      if (typeof segment !== 'function') {
+        parts.push(segment)
+        continue
+      }
+      source = open(segment())
       for (;;) {
         const chunk = await source.read()
-        if (chunk === undefined) break
+        if (chunk === undefined || signal?.aborted === true) break
         parts.push(chunk)
       }
-    } finally {
-      await source.cancel().catch(ignore)
+      // No other stream is opened once the reading has been abandoned.
+      if (signal?.aborted === true) return
     }
   }
+  try {
+    await (signal === undefined ? read() : mayAbortWith(signal, read()))
+  } finally {
+    // It is released: it may have failed, or been abandoned. Nothing waits for that, since
+    // a generator stops only when it next yields, which it may never do.
+    source?.cancel().catch(ignore)
+  }
   return new Blob(parts, type === undefined ? undefined : { type })
+}
+
+/** Settles as the promise does, or rejects as soon as the signal aborts. */
+function mayAbortWith<T>(signal: AbortSignal, promise: Promise<T>): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const abort = () => reject(signal.reason)
+    if (signal.aborted) abort()
+    else signal.addEventListener('abort', abort, { once: true })
+    promise.then(resolve, reject).finally(() => {
+      signal.removeEventListener('abort', abort)
+    })
+  })
 }
 
 /** One stream being read. */

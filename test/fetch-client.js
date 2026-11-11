@@ -235,17 +235,22 @@ test.serial(
     asBrowser(t)
     const { calls, fetch } = recorder()
     const client = createClient(TOKEN, { fetch, timeout: 100 })
-    const call = client.call({
-      method: 'sendDocument',
-      payload: {
-        document: new InputFile(
-          () => new ReadableStream({ pull: () => new Promise(() => {}) })
-        ),
-      },
-    })
+    let cancelled = false
+    const document = new InputFile(
+      () =>
+        new ReadableStream({
+          pull: () => new Promise(() => {}),
+          cancel() {
+            cancelled = true
+          },
+        })
+    )
+    const call = client.call({ method: 'sendDocument', payload: { document } })
 
     await t.throwsAsync(call, { name: 'TimeoutError' })
     t.is(calls.length, 0, 'the request was never sent')
+    await soon(20)
+    t.true(cancelled, 'the stream is no longer read')
   }
 )
 

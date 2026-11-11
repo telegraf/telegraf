@@ -223,7 +223,7 @@ test('blob: segments are joined, and a stream is read into it', async (t) => {
         yield bytes('stream')
       },
     ],
-    'multipart/form-data; boundary=B'
+    { type: 'multipart/form-data; boundary=B' }
   )
 
   t.is(await blob.text(), 'bytes blob stream')
@@ -247,6 +247,161 @@ test('blob: a failing source rejects, and is released', async (t) => {
 
   await t.throwsAsync(failing, { is: error })
   t.true(released)
+})
+
+test('blob: aborting rejects with the reason and cancels a web stream', async (t) => {
+  let cancelled = false
+  const reason = new Error('enough')
+  const controller = new AbortController()
+  // One chunk, and then nothing more: it never ends.
+  const reading = toBlob(
+    [
+      () =>
+        new ReadableStream({
+          start: (stream) => stream.enqueue(bytes('x')),
+          cancel() {
+            cancelled = true
+          },
+        }),
+    ],
+    { signal: controller.signal }
+  )
+  await soon(20)
+  t.false(cancelled)
+  controller.abort(reason)
+
+  await t.throwsAsync(reading, { is: reason })
+  await soon(20)
+  t.true(cancelled)
+})
+
+test('blob: aborting does not wait for a generator, and reads no further', async (t) => {
+  const reached = []
+  let resume
+  const gate = new Promise((resolve) => (resume = resolve))
+  const controller = new AbortController()
+  const reading = toBlob(
+    [
+      async function* () {
+        try {
+          yield bytes('a')
+          await gate
+          reached.push('second chunk')
+          yield bytes('b')
+          reached.push('third chunk')
+          yield bytes('c')
+        } finally {
+          reached.push('released')
+        }
+      },
+      () => {
+        reached.push('next stream')
+        return new Blob(['d']).stream()
+      },
+    ],
+    { signal: controller.signal }
+  )
+  await soon(20)
+  controller.abort()
+
+  await t.throwsAsync(reading, { name: 'AbortError' })
+  t.deepEqual(
+    reached,
+    [],
+    'it is rejected while the generator is still waiting'
+  )
+
+  resume()
+  await soon(20)
+  t.deepEqual(
+    reached,
+    ['second chunk', 'released'],
+    'the generator is stopped where it next yields'
+  )
+})
+
+test('blob: a signal that has already aborted opens nothing', async (t) => {
+  let opened = false
+  const reason = new Error('enough')
+  const reading = toBlob(
+    [
+      () => {
+        opened = true
+        return new Blob(['x']).stream()
+      },
+    ],
+    { signal: AbortSignal.abort(reason) }
+  )
+
+  await t.throwsAsync(reading, { is: reason })
+  t.false(opened)
+})
+
+test('blob: a signal that never aborts changes nothing', async (t) => {
+  const { signal } = new AbortController()
+  const listeners = new Set()
+  const { addEventListener, removeEventListener } = signal
+  signal.addEventListener = (type, listener, options) => {
+    listeners.add(listener)
+    addEventListener.call(signal, type, listener, options)
+  }
+  signal.removeEventListener = (type, listener) => {
+    listeners.delete(listener)
+    removeEventListener.call(signal, type, listener)
+  }
+  const blob = await toBlob(
+    [
+      bytes('head '),
+      async function* () {
+        yield bytes('stream')
+      },
+    ],
+    { signal }
+  )
+
+  t.is(await blob.text(), 'head stream')
+  await soon(0)
+  t.is(listeners.size, 0, 'nothing is left on the signal')
+})
+
+test('blob: aborting while a stream is being opened rejects', async (t) => {
+  const reason = new Error('no such file')
+  const controller = new AbortController()
+  const reading = toBlob(
+    [
+      () => {
+        controller.abort(reason)
+        return new ReadableStream({ pull: () => new Promise(() => {}) })
+      },
+    ],
+    { signal: controller.signal }
+  )
+
+  await t.throwsAsync(reading, { is: reason })
+})
+
+test('blob: aborting stops the reading of a stream that cannot be stopped', async (t) => {
+  // An iterator with nothing but `next`: there is no way to tell it to stop.
+  let reads = 0
+  const endless = {
+    [Symbol.asyncIterator]: () => ({
+      async next() {
+        reads++
+        await soon(5)
+        return { done: false, value: bytes('x') }
+      },
+    }),
+  }
+  const controller = new AbortController()
+  const reading = toBlob([() => endless], { signal: controller.signal })
+  await soon(30)
+  controller.abort()
+
+  await t.throwsAsync(reading, { name: 'AbortError' })
+  await soon(30)
+  const readsAfterAbort = reads
+  await soon(60)
+  t.is(reads, readsAfterAbort, 'nothing more is read')
 })
 
 // --- through a real request ----------------------------------------------------------------

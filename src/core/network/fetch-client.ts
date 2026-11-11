@@ -63,6 +63,8 @@ export type Client = ReturnType<typeof createClient>
 const MAX_TIMER_DELAY = 2 ** 31 - 1
 
 export function createClient(token: string, options: ClientOptions = {}) {
+  // Whitespace is not part of a token. A newline often follows one read from a file.
+  token = token.trim()
   const apiRoot = options.apiRoot ?? 'https://api.telegram.org'
   const apiMode = options.apiMode ?? 'bot'
   const path = `./${apiMode}${token}${options.testEnv === true ? '/test' : ''}/`
@@ -73,7 +75,6 @@ export function createClient(token: string, options: ClientOptions = {}) {
   // The global is looked up on each call, and called as a function: a browser's `fetch`
   // throws when it is called as a method of anything but the global object.
   const send: FetchFn = options.fetch ?? ((url, init) => fetch(url, init))
-  const secrets = findSecrets(token)
 
   if (options.agent !== undefined || options.attachmentAgent !== undefined) {
     warnAgentIgnored()
@@ -137,10 +138,10 @@ export function createClient(token: string, options: ClientOptions = {}) {
       return await toApiResponse(response, method)
     } catch (error) {
       if (stream?.failure !== undefined) {
-        throw redact(stream.failure.error, secrets)
+        throw redact(stream.failure.error, token)
       }
       if (controller.signal.aborted) throw controller.signal.reason
-      throw redact(error, secrets)
+      throw redact(error, token)
     } finally {
       clearTimeout(timer)
       signal?.removeEventListener('abort', abort)
@@ -203,26 +204,11 @@ async function toApiResponse(
 }
 
 /**
- * The part of the token that must not appear in an error, as it was given and as it is in
- * the address: there, tabs and newlines are dropped and some characters are encoded.
- */
-function findSecrets(token: string): string[] {
-  const { pathname } = new URL(`./${token}/`, 'https://telegraf.invalid/')
-  const sent = pathname.slice(1).replace(/\/$/, '')
-  const secrets = [token, sent]
-    .map((text) => text.slice(text.indexOf(':') + 1))
-    .filter((secret) => secret !== '')
-  return [...new Set(secrets)]
-}
-
-/**
  * Redacts the token from the error's message, stack, or other properties.
  */
-function redact(error: unknown, secrets: readonly string[]): unknown {
-  const clean = (text: string) => {
-    for (const secret of secrets) text = text.split(secret).join('[REDACTED]')
-    return text
-  }
+export function redact(error: unknown, token: string): unknown {
+  if (token === '') return error
+  const clean = (text: string) => text.split(token).join('[REDACTED]')
   if (typeof error === 'string') return clean(error)
   if (!isObject(error)) return error
 

@@ -10,6 +10,7 @@ import { hasProp, hasPropType } from '../helpers/check'
 import { InputFile, Opts, Telegram } from '../types/typegram'
 import { AbortController, AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
+import { redact } from './fetch-client'
 import MultipartStream from './multipart-stream'
 import TelegramError from './error'
 import { URL } from 'url'
@@ -307,23 +308,19 @@ async function answerToWebhook(
   return true
 }
 
-function redactToken(error: Error): never {
-  error.message = error.message.replace(
-    /\/(bot|user)(\d+):[^/]+\//,
-    '/$1$2:[REDACTED]/'
-  )
-  throw error
-}
-
 type Response = http.ServerResponse
 class ApiClient {
+  readonly token: string
   readonly options: ApiClient.Options
 
   constructor(
-    readonly token: string,
+    token: string,
     options?: Partial<ApiClient.Options>,
     private readonly response?: Response
   ) {
+    // Whitespace is not part of a token. A newline often follows one read from a file.
+    // A missing token is left for `callApi` to report.
+    this.token = typeof token === 'string' ? token.trim() : token
     this.options = {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
@@ -407,9 +404,9 @@ class ApiClient {
     // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
     config.signal = aborter.signal
 
-    const res = await fetch(apiUrl, config).catch((error: Error) => {
+    const res = await fetch(apiUrl, config).catch((error: unknown) => {
       body?.destroy()
-      return redactToken(bodyError ?? error)
+      throw redact(bodyError ?? error, token)
     })
     if (res.status >= 500) {
       const errorPayload = {

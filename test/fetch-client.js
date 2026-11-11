@@ -587,9 +587,9 @@ test('the token is removed from an error, its stack, its properties and its caus
 
   t.is(error, thrown, 'the error itself is kept')
   t.false(strings(error).includes(SECRET))
-  t.regex(error.message, /\/bot123456:\[REDACTED\]\/getMe/)
-  t.regex(error.cause.message, /bot123456:\[REDACTED\]/)
-  t.is(error.path, 'https://api.telegram.org/bot123456:[REDACTED]/getMe')
+  t.regex(error.message, /\/bot\[REDACTED\]\/getMe/)
+  t.regex(error.cause.message, /bot\[REDACTED\]/)
+  t.is(error.path, 'https://api.telegram.org/bot[REDACTED]/getMe')
   t.is(error.input, error.path)
 })
 
@@ -611,53 +611,50 @@ test('the token is removed from aggregated errors and from a string', async (t) 
     (url) => new AggregateError([new Error(`connect to ${url}`)], 'no route')
   )
   t.false(strings(aggregate).includes(SECRET))
-  t.regex(aggregate.errors[0].message, /bot123456:\[REDACTED\]/)
+  t.regex(aggregate.errors[0].message, /bot\[REDACTED\]/)
 
   t.is(
     await failing((url) => `request to ${url} failed`),
-    'request to https://api.telegram.org/bot123456:[REDACTED]/getMe failed'
+    'request to https://api.telegram.org/bot[REDACTED]/getMe failed'
   )
 })
 
-test('a token given with a newline or a space is still removed', async (t) => {
-  // The address drops a newline and encodes a space, so the token is not there as given.
-  for (const token of [TOKEN + '\n', TOKEN + '\r\n', TOKEN + ' ']) {
+test('createClient trims the token', async (t) => {
+  // A newline often follows a token that was read from a file.
+  for (const token of [TOKEN + '\n', TOKEN + '\r\n', ` ${TOKEN} `]) {
+    const { calls, fetch } = recorder()
+    await createClient(token, { fetch }).call({ method: 'getMe' })
+    t.is(calls[0].url, `https://api.telegram.org/bot${TOKEN}/getMe`)
+
     const error = await failing(
       (url) => new Error(`request to ${url} failed`),
       token
     )
-
     t.is(
       error.message,
-      'request to https://api.telegram.org/bot123456:[REDACTED]/getMe failed',
+      'request to https://api.telegram.org/bot[REDACTED]/getMe failed',
       JSON.stringify(token)
     )
   }
 })
 
-test('a token with no secret part changes nothing', async (t) => {
+test('an empty token changes nothing', async (t) => {
   const error = await failing(
     (url) => new Error(`request to ${url} failed`),
-    '123456:'
+    ''
   )
 
-  t.is(
-    error.message,
-    'request to https://api.telegram.org/bot123456:/getMe failed'
-  )
+  t.is(error.message, 'request to https://api.telegram.org/bot/getMe failed')
 })
 
 test('the token is removed from the error of an address that cannot be built', async (t) => {
   const apiRoot = 'localhost:8081'
-  for (const secret of [SECRET, 'SEC RET']) {
-    const token = `123456:${secret}`
-    const raw = t.throws(() => new URL(`./bot${token}/getMe`, apiRoot))
-    t.true(strings(raw).includes(secret), 'the runtime reports the address')
+  const raw = t.throws(() => new URL(`./bot${TOKEN}/getMe`, apiRoot))
+  t.true(strings(raw).includes(SECRET), 'the runtime reports the address')
 
-    const client = createClient(token, { apiRoot })
-    const error = await t.throwsAsync(client.call({ method: 'getMe' }))
-    t.false(strings(error).includes(secret), secret)
-  }
+  const client = createClient(TOKEN, { apiRoot })
+  const error = await t.throwsAsync(client.call({ method: 'getMe' }))
+  t.false(strings(error).includes(SECRET))
 })
 
 test('the token is removed from the error of a file', async (t) => {
@@ -670,10 +667,7 @@ test('the token is removed from the error of a file', async (t) => {
     })
 
     await t.throwsAsync(call, { is: error })
-    t.is(
-      error.message,
-      'no https://api.telegram.org/file/bot123456:[REDACTED]/a.jpg'
-    )
+    t.is(error.message, 'no https://api.telegram.org/file/bot[REDACTED]/a.jpg')
   })
 })
 
@@ -693,7 +687,7 @@ test('a property that can only be assigned is cleaned in place', async (t) => {
 
   t.is(error, thrown)
   t.is(error.code, 'ECONNREFUSED')
-  t.is(error.path, 'https://api.telegram.org/bot123456:[REDACTED]/getMe')
+  t.is(error.path, 'https://api.telegram.org/bot[REDACTED]/getMe')
 })
 
 test('a message and a stack that are inherited getters are cleaned in place', async (t) => {
@@ -724,8 +718,8 @@ test('a message and a stack that are inherited getters are cleaned in place', as
 
   t.is(error, thrown)
   t.false(strings(error).includes(SECRET))
-  t.regex(error.message, /bot123456:\[REDACTED\]/)
-  t.regex(error.stack, /bot123456:\[REDACTED\]/)
+  t.regex(error.message, /bot\[REDACTED\]/)
+  t.regex(error.stack, /bot\[REDACTED\]/)
 })
 
 test('an error that cannot be changed is replaced', async (t) => {
@@ -736,8 +730,8 @@ test('an error that cannot be changed is replaced', async (t) => {
 
   t.false(strings(error).includes(SECRET))
   t.is(error.name, 'TypeError')
-  t.regex(error.message, /bot123456:\[REDACTED\]/)
-  t.regex(error.path, /bot123456:\[REDACTED\]/)
+  t.regex(error.message, /bot\[REDACTED\]/)
+  t.regex(error.path, /bot\[REDACTED\]/)
 })
 
 test('an error with a cause that cannot be changed is replaced as a whole', async (t) => {

@@ -6,7 +6,7 @@ const {
   toMultipart,
 } = require('../lib/core/network/payload')
 
-const bytes = (text) => new TextEncoder().encode(text)
+const encode = (text) => new TextEncoder().encode(text)
 
 // Joins the segments of a multipart body the way a client would send them.
 async function assemble(segments) {
@@ -23,7 +23,7 @@ async function assemble(segments) {
   return Buffer.concat(chunks).toString()
 }
 
-test('a payload without files is returned as it is', (t) => {
+test('extractFiles should return a payload without files unchanged', (t) => {
   const payload = { chat_id: 1, reply_markup: { inline_keyboard: [[]] } }
   const extracted = extractFiles(payload)
 
@@ -31,7 +31,7 @@ test('a payload without files is returned as it is', (t) => {
   t.deepEqual(extracted.attachments, [])
 })
 
-test('JSON leaves out null and undefined', (t) => {
+test('toJson should omit null and undefined', (t) => {
   t.is(
     toJson({
       chat_id: 1,
@@ -43,8 +43,8 @@ test('JSON leaves out null and undefined', (t) => {
   )
 })
 
-test('a file that is a parameter is taken out, and the payload is not changed', (t) => {
-  const file = new InputFile(bytes('DATA'), 'a.txt')
+test('extractFiles should extract a top-level file', (t) => {
+  const file = new InputFile(encode('DATA'), 'a.txt')
   const payload = { chat_id: 1, document: file }
   const extracted = extractFiles(payload)
 
@@ -56,12 +56,12 @@ test('a file that is a parameter is taken out, and the payload is not changed', 
   t.is(extracted.payload.chat_id, 1)
 })
 
-test('files are found at any depth', (t) => {
-  const thumbnail = new InputFile(bytes('thumb'))
-  const sticker = new InputFile(bytes('sticker'))
-  const second = new InputFile(bytes('second'))
+test('extractFiles should find nested files', (t) => {
+  const thumbnail = new InputFile(encode('thumb'))
+  const sticker = new InputFile(encode('sticker'))
+  const second = new InputFile(encode('second'))
   const payload = {
-    // the three shapes 776b0f could not reach
+    // three shapes the old upload code could not reach
     rich_message: { blocks: [{ type: 'animation', animation: { thumbnail } }] },
     stickers: [{ sticker, emoji_list: ['x'] }],
     media: [
@@ -89,17 +89,17 @@ test('files are found at any depth', (t) => {
   t.is(payload.media[1].media, second, 'the original is untouched')
 })
 
-test('multipart: parameters, then attachments, byte for byte', async (t) => {
+test('toMultipart should write fields before files', async (t) => {
   const { payload, attachments } = extractFiles({
     chat_id: 1,
     caption: 'hi',
     disable_notification: true,
-    document: new InputFile(bytes('DATA'), 'a.txt'),
+    document: new InputFile(encode('DATA'), 'a.txt'),
     reply_parameters: { message_id: 7, quote: null },
     message_thread_id: undefined,
-    // A caller may refer to a file that is a parameter by the parameter's name.
+    // A caller can reference a top-level file by its key: attach://<key>.
     media: [{ type: 'document', media: 'attach://document' }],
-    cover: { nested: new InputFile(bytes('NESTED'), 'b.txt') },
+    cover: { nested: new InputFile(encode('NESTED'), 'b.txt') },
   })
   const { contentType, segments } = toMultipart(payload, attachments, 'B')
   const [, { id }] = attachments
@@ -148,14 +148,14 @@ test('multipart: parameters, then attachments, byte for byte', async (t) => {
   )
 })
 
-test('multipart: known bytes are joined, sources stay as they are', (t) => {
+test('toMultipart should not read file sources', (t) => {
   const blob = new Blob(['blob'])
   const stream = () => (async function* () {})()
   const { payload, attachments } = extractFiles({
     chat_id: 1,
     photo: new InputFile(blob),
     thumbnail: new InputFile(stream),
-    document: new InputFile(bytes('x').buffer),
+    document: new InputFile(encode('x').buffer),
   })
   const { segments } = toMultipart(payload, attachments, 'B')
 
@@ -165,10 +165,10 @@ test('multipart: known bytes are joined, sources stay as they are', (t) => {
   t.true(segments[5] instanceof Uint8Array, 'an ArrayBuffer becomes bytes')
 })
 
-test('multipart: a file without a name is named after its parameter', async (t) => {
+test('toMultipart should use a default file name', async (t) => {
   const { payload, attachments } = extractFiles({
-    photo: new InputFile(bytes('p')),
-    media: [{ type: 'video', media: new InputFile(bytes('m')) }],
+    photo: new InputFile(encode('p')),
+    media: [{ type: 'video', media: new InputFile(encode('m')) }],
   })
   const body = await assemble(toMultipart(payload, attachments, 'B').segments)
 
@@ -176,9 +176,9 @@ test('multipart: a file without a name is named after its parameter', async (t) 
   t.regex(body, /filename="media\.dat"/)
 })
 
-test('multipart: names cannot break out of their header', async (t) => {
+test('toMultipart should escape header injection in a file name', async (t) => {
   const { payload, attachments } = extractFiles({
-    document: new InputFile(bytes('x'), 'a"\r\nx-injected: 1\r\n.txt'),
+    document: new InputFile(encode('x'), 'a"\r\nx-injected: 1\r\n.txt'),
   })
   const body = await assemble(toMultipart(payload, attachments, 'B').segments)
 
@@ -186,12 +186,12 @@ test('multipart: names cannot break out of their header', async (t) => {
   t.notRegex(body, /\r\nx-injected/)
 })
 
-test('multipart: a name reaches the server as it was given', async (t) => {
+test('toMultipart should percent-encode a file name', async (t) => {
   // The Bot API server percent-decodes a file name, and reads a backslash inside the quotes
   // as an escape. Sent as they are, '%2F' would become '/' and the backslash would vanish.
   const name = 'отчёт 50%2Foff\\sale "final" 100%.txt'
   const { payload, attachments } = extractFiles({
-    document: new InputFile(bytes('x'), name),
+    document: new InputFile(encode('x'), name),
   })
   const body = await assemble(toMultipart(payload, attachments, 'B').segments)
   const [, sent] = /filename="([^"]*)"/.exec(body)
@@ -200,21 +200,21 @@ test('multipart: a name reaches the server as it was given', async (t) => {
   t.is(decodeURIComponent(sent), name, 'percent-decoding gives the name back')
 })
 
-test('a file made by another copy of the package is recognised', (t) => {
+test('InputFile.is should accept an InputFile from another package copy', (t) => {
   const foreign = {
     [Symbol.for('telegraf.InputFile')]: true,
-    source: bytes('x'),
+    source: encode('x'),
   }
 
   t.true(InputFile.is(foreign))
   t.is(extractFiles({ photo: foreign }).attachments.length, 1)
-  t.false(InputFile.is({ source: bytes('x') }), 'a look-alike is not a file')
+  t.false(InputFile.is({ source: encode('x') }), 'a look-alike is not a file')
 })
 
-test('a file out of reach fails loudly instead of being sent as data', (t) => {
+test('toJson should throw on an InputFile', (t) => {
   class Wrapper {
     constructor() {
-      this.photo = new InputFile(bytes('x'))
+      this.photo = new InputFile(encode('x'))
     }
   }
   const { payload, attachments } = extractFiles({ extra: new Wrapper() })

@@ -41,11 +41,11 @@ export class InputFile {
   }
 }
 
-/** A file to be sent as a part of its own. */
+/** A file to send as its own multipart part. */
 export interface Attachment {
   /**
-   * The name of the part. For a file that is a parameter, the parameter; for any other, an
-   * id that the payload refers to as `attach://<id>`.
+   * The part's name: the key for a top-level file, otherwise a generated id that the
+   * payload references as `attach://<id>`.
    */
   id: string
   /** The parameter of the API method the file was found under. */
@@ -54,10 +54,10 @@ export interface Attachment {
 }
 
 /**
- * Takes every `InputFile` out of a payload. A file that is a parameter is removed, to be
- * sent as the part by that name; any other is replaced with a reference to an attachment.
- * The payload is not changed: objects and arrays that hold a file are copied, everything
- * else is shared.
+ * Extracts every `InputFile` from a payload. A top-level file is removed and sent as the
+ * part named after its key; a nested file is replaced with an `attach://<id>` reference.
+ * The payload is not mutated: objects and arrays that contain a file are copied,
+ * everything else is shared.
  */
 export function extractFiles(payload: Record<string, unknown>): {
   payload: Record<string, unknown>

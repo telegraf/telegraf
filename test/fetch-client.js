@@ -5,8 +5,8 @@ const { InputFile } = require('../lib/core/network/payload')
 
 const TOKEN = '123456:SECRET-abc_DEF'
 const SECRET = 'SECRET-abc_DEF'
-const bytes = (text) => new TextEncoder().encode(text)
-const soon = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+const encode = (text) => new TextEncoder().encode(text)
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function withServer(handler, run) {
   const server = http.createServer(handler)
@@ -19,7 +19,7 @@ async function withServer(handler, run) {
   }
 }
 
-// Answers with what it received.
+// Echoes the request back.
 const echo = (req, res) => {
   const chunks = []
   req.on('data', (chunk) => chunks.push(chunk))
@@ -36,8 +36,8 @@ const echo = (req, res) => {
   })
 }
 
-// A fetch that records what it was given and answers with a fixed response.
-function recorder(answer = { ok: true, result: true }) {
+// A fake fetch that records its calls and returns a fixed response.
+function createFakeFetch(answer = { ok: true, result: true }) {
   const calls = []
   const fetch = async (url, init) => {
     calls.push({ url, init })
@@ -46,17 +46,17 @@ function recorder(answer = { ok: true, result: true }) {
   return { calls, fetch }
 }
 
-// A fetch that never answers. When its signal aborts it rejects with an error of its own,
-// as some runtimes do.
-const hanging = (url, init) =>
+// A fake fetch that never responds. On abort it rejects with its own error rather than
+// the signal's reason, as some runtimes do.
+const hangingFetch = (url, init) =>
   new Promise((resolve, reject) => {
     const fail = () => reject(new TypeError('the request was cancelled'))
     if (init.signal.aborted) return fail()
     init.signal.addEventListener('abort', fail)
   })
 
-// Every string on an error, on its causes and on the errors it aggregates.
-const strings = (error, seen = new Set()) => {
+// Collects every string on an error, its causes and its aggregated errors.
+const collectStrings = (error, seen = new Set()) => {
   if (typeof error === 'string') return error
   if (!error || typeof error !== 'object' || seen.has(error)) return ''
   seen.add(error)
@@ -65,37 +65,34 @@ const strings = (error, seen = new Set()) => {
     found.push(String(error[key]))
   }
   for (const inner of [error.cause, ...(error.errors ?? [])]) {
-    found.push(strings(inner, seen))
+    found.push(collectStrings(inner, seen))
   }
   return found.join('\n')
 }
 
-// --- these replace a global, so they run one at a time, before the rest ---------------------
+// --- these stub a global, so they run serially, before the others ---------------------------
 
-test.serial(
-  'agent and attachmentAgent are ignored, with one warning',
-  async (t) => {
-    const warnings = []
-    const emitWarning = process.emitWarning
-    process.emitWarning = (...args) => warnings.push(args)
-    t.teardown(() => (process.emitWarning = emitWarning))
+test.serial('should warn once about agent and attachmentAgent', async (t) => {
+  const warnings = []
+  const emitWarning = process.emitWarning
+  process.emitWarning = (...args) => warnings.push(args)
+  t.teardown(() => (process.emitWarning = emitWarning))
 
-    const { calls, fetch } = recorder()
-    const options = { fetch, agent: {}, attachmentAgent: {} }
-    await createClient(TOKEN, options).call({ method: 'getMe' })
-    createClient(TOKEN, options)
+  const { calls, fetch } = createFakeFetch()
+  const options = { fetch, agent: {}, attachmentAgent: {} }
+  await createClient(TOKEN, options).call({ method: 'getMe' })
+  createClient(TOKEN, options)
 
-    t.is(warnings.length, 1)
-    t.regex(warnings[0][0], /`agent` and `attachmentAgent` are ignored/)
-    t.deepEqual(
-      Object.keys(calls[0].init).sort(),
-      ['body', 'duplex', 'headers', 'method', 'signal'],
-      'nothing but standard options reaches fetch'
-    )
-  }
-)
+  t.is(warnings.length, 1)
+  t.regex(warnings[0][0], /`agent` and `attachmentAgent` are ignored/)
+  t.deepEqual(
+    Object.keys(calls[0].init).sort(),
+    ['body', 'duplex', 'headers', 'method', 'signal'],
+    'only standard options reach fetch'
+  )
+})
 
-test.serial('a call leaves no timer and no listener behind', async (t) => {
+test.serial('should clear its timer and abort listener', async (t) => {
   const { setTimeout, clearTimeout } = globalThis
   const timers = new Set()
   let started = 0
@@ -142,44 +139,47 @@ test.serial('a call leaves no timer and no listener behind', async (t) => {
   t.is(listeners.size, 0)
 })
 
-test.serial('a timeout too long for a timer is no timeout', async (t) => {
-  const { setTimeout } = globalThis
-  const delays = []
-  globalThis.setTimeout = (callback, ms) => {
-    delays.push(ms)
-    return setTimeout(callback, ms)
-  }
-  t.teardown(() => (globalThis.setTimeout = setTimeout))
+test.serial(
+  'should not set a timer for a timeout over the setTimeout limit',
+  async (t) => {
+    const { setTimeout } = globalThis
+    const delays = []
+    globalThis.setTimeout = (callback, ms) => {
+      delays.push(ms)
+      return setTimeout(callback, ms)
+    }
+    t.teardown(() => (globalThis.setTimeout = setTimeout))
 
-  const { calls, fetch } = recorder()
-  for (const timeout of [Infinity, 2 ** 31, 2 ** 31 - 1]) {
-    await createClient(TOKEN, { fetch, timeout }).call({ method: 'getMe' })
-  }
+    const { calls, fetch } = createFakeFetch()
+    for (const timeout of [Infinity, 2 ** 31, 2 ** 31 - 1]) {
+      await createClient(TOKEN, { fetch, timeout }).call({ method: 'getMe' })
+    }
 
-  t.is(calls.length, 3)
-  t.deepEqual(
-    delays.filter((ms) => !(ms < 2 ** 30)),
-    [2 ** 31 - 1],
-    'only the longest delay a timer can hold was given to one'
-  )
-})
+    t.is(calls.length, 3)
+    t.deepEqual(
+      delays.filter((ms) => !(ms < 2 ** 30)),
+      [2 ** 31 - 1],
+      'only the longest delay a timer can hold was given to one'
+    )
+  }
+)
 
 test.serial(
-  'a runtime that cannot build a Request is taken for a browser',
+  'should use browser mode when Request is unavailable',
   async (t) => {
     const Request = globalThis.Request
     globalThis.Request = undefined
     t.teardown(() => (globalThis.Request = Request))
 
-    const { calls, fetch } = recorder()
+    const { calls, fetch } = createFakeFetch()
     await createClient(TOKEN, { fetch }).call({ method: 'getMe' })
 
     t.true(calls[0].init.body instanceof Blob)
   }
 )
 
-// A Request as a browser builds it: forbidden headers are dropped.
-function asBrowser(t) {
+// Stubs Request the way a browser builds it: forbidden headers are dropped.
+function stubBrowserRequest(t) {
   const Request = globalThis.Request
   globalThis.Request = class {
     constructor() {
@@ -190,9 +190,9 @@ function asBrowser(t) {
 }
 
 test.serial(
-  'browser: a call without files is multipart, not JSON',
+  'should send multipart instead of JSON in browser mode',
   async (t) => {
-    asBrowser(t)
+    stubBrowserRequest(t)
     await withServer(echo, async (apiRoot) => {
       const { result } = await createClient(TOKEN, { apiRoot }).call({
         method: 'sendMessage',
@@ -208,55 +208,49 @@ test.serial(
   }
 )
 
-test.serial(
-  'browser: an upload is a Blob, with streams read into it',
-  async (t) => {
-    asBrowser(t)
-    const { calls, fetch } = recorder()
-    await createClient(TOKEN, { fetch }).call({
-      method: 'sendDocument',
-      payload: {
-        chat_id: 1,
-        document: new InputFile(async function* () {
-          yield bytes('STREAMED')
-        }, 'a.txt'),
-      },
-    })
+test.serial('should upload a Blob in browser mode', async (t) => {
+  stubBrowserRequest(t)
+  const { calls, fetch } = createFakeFetch()
+  await createClient(TOKEN, { fetch }).call({
+    method: 'sendDocument',
+    payload: {
+      chat_id: 1,
+      document: new InputFile(async function* () {
+        yield encode('STREAMED')
+      }, 'a.txt'),
+    },
+  })
 
-    const { body } = calls[0].init
-    t.true(body instanceof Blob)
-    t.regex(await body.text(), /filename="a\.txt"[^]*STREAMED/)
-  }
-)
+  const { body } = calls[0].init
+  t.true(body instanceof Blob)
+  t.regex(await body.text(), /filename="a\.txt"[^]*STREAMED/)
+})
 
-test.serial(
-  'browser: a stream that never ends is cut off by the timeout',
-  async (t) => {
-    asBrowser(t)
-    const { calls, fetch } = recorder()
-    const client = createClient(TOKEN, { fetch, timeout: 100 })
-    let cancelled = false
-    const document = new InputFile(
-      () =>
-        new ReadableStream({
-          pull: () => new Promise(() => {}),
-          cancel() {
-            cancelled = true
-          },
-        })
-    )
-    const call = client.call({ method: 'sendDocument', payload: { document } })
+test.serial('should time out while buffering in browser mode', async (t) => {
+  stubBrowserRequest(t)
+  const { calls, fetch } = createFakeFetch()
+  const client = createClient(TOKEN, { fetch, timeout: 100 })
+  let cancelled = false
+  const document = new InputFile(
+    () =>
+      new ReadableStream({
+        pull: () => new Promise(() => {}),
+        cancel() {
+          cancelled = true
+        },
+      })
+  )
+  const call = client.call({ method: 'sendDocument', payload: { document } })
 
-    await t.throwsAsync(call, { name: 'TimeoutError' })
-    t.is(calls.length, 0, 'the request was never sent')
-    await soon(20)
-    t.true(cancelled, 'the stream is no longer read')
-  }
-)
+  await t.throwsAsync(call, { name: 'TimeoutError' })
+  t.is(calls.length, 0, 'the request was never sent')
+  await delay(20)
+  t.true(cancelled, 'the stream is no longer read')
+})
 
 // --- the request ----------------------------------------------------------------------------
 
-test('a call without files is sent as JSON', async (t) => {
+test('should send a call without files as JSON', async (t) => {
   await withServer(echo, async (apiRoot) => {
     const response = await createClient(TOKEN, { apiRoot }).call({
       method: 'sendMessage',
@@ -270,14 +264,14 @@ test('a call without files is sent as JSON', async (t) => {
   })
 })
 
-test('a call with a file is streamed as multipart', async (t) => {
+test('should stream a call with a file as multipart', async (t) => {
   await withServer(echo, async (apiRoot) => {
     const { result } = await createClient(TOKEN, { apiRoot }).call({
       method: 'sendDocument',
       payload: {
         chat_id: 1,
         document: new InputFile(async function* () {
-          yield bytes('FILE')
+          yield encode('FILE')
         }, 'a.txt'),
       },
     })
@@ -289,13 +283,13 @@ test('a call with a file is streamed as multipart', async (t) => {
   })
 })
 
-test('every request is a POST that declares duplex', async (t) => {
-  const { calls, fetch } = recorder()
+test('should send a POST with duplex half', async (t) => {
+  const { calls, fetch } = createFakeFetch()
   const client = createClient(TOKEN, { fetch })
   await client.call({ method: 'getMe' })
   await client.call({
     method: 'sendPhoto',
-    payload: { photo: new InputFile(bytes('x')) },
+    payload: { photo: new InputFile(encode('x')) },
   })
 
   t.is(calls[0].init.body, '{}', 'no payload is an empty object')
@@ -307,8 +301,8 @@ test('every request is a POST that declares duplex', async (t) => {
   }
 })
 
-test('the address is built from the root, the mode and the environment', async (t) => {
-  const { calls, fetch } = recorder()
+test('should build the URL from apiRoot, apiMode and testEnv', async (t) => {
+  const { calls, fetch } = createFakeFetch()
   await createClient(TOKEN, { fetch }).call({ method: 'getMe' })
   await createClient(TOKEN, {
     fetch,
@@ -321,7 +315,7 @@ test('the address is built from the root, the mode and the environment', async (
   t.is(calls[1].url, `http://localhost:8081/api/user${TOKEN}/test/getMe`)
 })
 
-test('a payload can be sent again, and is left as it was', async (t) => {
+test('should send the same payload twice', async (t) => {
   let opened = 0
   const document = new InputFile(() => {
     opened++
@@ -340,12 +334,12 @@ test('a payload can be sent again, and is left as it was', async (t) => {
   t.is(payload.document, document)
 })
 
-test('a fetch that cannot send a stream is refused', async (t) => {
+test('should reject a fetch without stream support', async (t) => {
   // node-fetch 2 would otherwise upload the text "[object ReadableStream]".
   const client = createClient(TOKEN, { fetch: require('node-fetch') })
   const call = client.call({
     method: 'sendPhoto',
-    payload: { photo: new InputFile(bytes('x')) },
+    payload: { photo: new InputFile(encode('x')) },
   })
 
   await t.throwsAsync(call, { message: /cannot send a ReadableStream/ })
@@ -353,9 +347,9 @@ test('a fetch that cannot send a stream is refused', async (t) => {
 
 // --- the response ---------------------------------------------------------------------------
 
-test('a response is returned whether or not the API accepted the call', async (t) => {
+test('should return an API error response', async (t) => {
   const refusal = { ok: false, error_code: 400, description: 'Bad Request' }
-  const { fetch } = recorder(refusal)
+  const { fetch } = createFakeFetch(refusal)
 
   t.deepEqual(
     await createClient(TOKEN, { fetch }).call({ method: 'getMe' }),
@@ -363,13 +357,13 @@ test('a response is returned whether or not the API accepted the call', async (t
   )
 })
 
-// A call that is answered with this status and body.
-const answered = (status, statusText, body) => {
+// Makes a call that is answered with the given status and body.
+const callWithResponse = (status, statusText, body) => {
   const fetch = async () => new Response(body, { status, statusText })
   return createClient(TOKEN, { fetch }).call({ method: 'getMe' })
 }
 
-test('an error from the API is returned whole, whatever its status', async (t) => {
+test('should return the API error body for a 5xx status', async (t) => {
   const answer = {
     ok: false,
     error_code: 502,
@@ -378,41 +372,44 @@ test('an error from the API is returned whole, whatever its status', async (t) =
   }
 
   t.deepEqual(
-    await answered(502, 'Bad Gateway', JSON.stringify(answer)),
+    await callWithResponse(502, 'Bad Gateway', JSON.stringify(answer)),
     answer
   )
 })
 
-test('an error that is not from the API is reported by its status', async (t) => {
-  t.deepEqual(await answered(413, 'Request Entity Too Large', '<html>'), {
-    ok: false,
-    error_code: 413,
-    description: 'Request Entity Too Large',
-  })
+test('should return an HTTP status error for a non-API response', async (t) => {
   t.deepEqual(
-    await answered(502, '', '<html>'),
-    { ok: false, error_code: 502, description: 'HTTP 502' },
-    'there is no status text over HTTP/2'
+    await callWithResponse(413, 'Request Entity Too Large', '<html>'),
+    {
+      ok: false,
+      error_code: 413,
+      description: 'Request Entity Too Large',
+    }
   )
   t.deepEqual(
-    await answered(403, 'Forbidden', '{"error":"blocked"}'),
+    await callWithResponse(502, '', '<html>'),
+    { ok: false, error_code: 502, description: 'HTTP 502' },
+    'HTTP/2 responses do not have a status text'
+  )
+  t.deepEqual(
+    await callWithResponse(403, 'Forbidden', '{"error":"blocked"}'),
     { ok: false, error_code: 403, description: 'Forbidden' },
     'JSON, but not the API'
   )
 })
 
-test('a successful response that is not from the API is an error', async (t) => {
+test('should reject a non-API 2xx response', async (t) => {
   for (const body of ['<html>', '', 'null', '{"error":"blocked"}']) {
     await t.throwsAsync(
-      answered(200, 'OK', body),
+      callWithResponse(200, 'OK', body),
       { message: 'getMe: HTTP 200 is not a Bot API response' },
       body
     )
   }
 })
 
-test('a response that cannot be read is the error of the call', async (t) => {
-  // The connection was lost, which is not a body that is not JSON.
+test('should reject with a response read error', async (t) => {
+  // A dropped connection, as opposed to a body that is not JSON.
   const lost = new TypeError('terminated')
   const fetch = async () => ({
     status: 200,
@@ -428,52 +425,52 @@ test('a response that cannot be read is the error of the call', async (t) => {
 
 // --- failures -------------------------------------------------------------------------------
 
-const failingFile = (error) =>
+const createFailingFile = (error) =>
   new InputFile(async function* () {
-    yield bytes('part')
+    yield encode('part')
     throw error
   })
 
-test('a file that fails is the error of the call', async (t) => {
+test('should reject with a file error', async (t) => {
   const error = new Error('disk on fire')
   await withServer(echo, async (apiRoot) => {
     const call = createClient(TOKEN, { apiRoot }).call({
       method: 'sendDocument',
-      payload: { document: failingFile(error) },
+      payload: { document: createFailingFile(error) },
     })
 
     await t.throwsAsync(call, { is: error })
   })
 })
 
-test('a file that fails is the error even when the request resolves', async (t) => {
-  // As on Cloudflare Workers: what was read is sent, and the request succeeds.
+test('should reject with a file error when the request resolves', async (t) => {
+  // Like Cloudflare Workers: the partial body is sent and the request still resolves.
   const error = new Error('disk on fire')
   const fetch = async (url, init) => {
     const reader = init.body.getReader()
     try {
       while (!(await reader.read()).done);
     } catch {
-      // the runtime carries on
+      // the runtime ignores the body error
     }
     return new Response(JSON.stringify({ ok: true, result: true }))
   }
   const call = createClient(TOKEN, { fetch }).call({
     method: 'sendDocument',
-    payload: { document: failingFile(error) },
+    payload: { document: createFailingFile(error) },
   })
 
   await t.throwsAsync(call, { is: error })
 })
 
-test('aborting rejects with an AbortError and releases the file', async (t) => {
-  // Node leaves the body of an aborted request open.
+test('should reject with an AbortError on abort', async (t) => {
+  // Node leaves the request body open after an abort.
   let released = false
   const document = new InputFile(async function* () {
     try {
       for (;;) {
         yield new Uint8Array(1024)
-        await soon(10)
+        await delay(10)
       }
     } finally {
       released = true
@@ -491,23 +488,23 @@ test('aborting rejects with an AbortError and releases the file', async (t) => {
       })
 
       await t.throwsAsync(call, { name: 'AbortError' })
-      await soon(100)
+      await delay(100)
       t.true(released)
     }
   )
 })
 
-test('aborting rejects with the reason the caller gave', async (t) => {
+test('should reject with the abort reason', async (t) => {
   const reason = new Error('shutting down')
   const controller = new AbortController()
-  const call = createClient(TOKEN, { fetch: hanging }).call({
+  const call = createClient(TOKEN, { fetch: hangingFetch }).call({
     method: 'getUpdates',
     signal: controller.signal,
   })
   controller.abort(reason)
   await t.throwsAsync(call, { is: reason })
 
-  const again = createClient(TOKEN, { fetch: hanging }).call({
+  const again = createClient(TOKEN, { fetch: hangingFetch }).call({
     method: 'getUpdates',
     signal: controller.signal,
   })
@@ -518,7 +515,7 @@ test('aborting rejects with the reason the caller gave', async (t) => {
   )
 })
 
-test('a call that takes too long is abandoned', async (t) => {
+test('should reject with a TimeoutError on timeout', async (t) => {
   await withServer(
     (req) => req.resume(),
     async (apiRoot) => {
@@ -532,7 +529,7 @@ test('a call that takes too long is abandoned', async (t) => {
   )
 })
 
-test('a timeout that is not a positive number is refused', (t) => {
+test('should throw a RangeError for an invalid timeout', (t) => {
   for (const timeout of [0, -1, NaN]) {
     t.throws(() => createClient(TOKEN, { timeout }), {
       instanceOf: RangeError,
@@ -540,12 +537,12 @@ test('a timeout that is not a positive number is refused', (t) => {
   }
 })
 
-test('a file that never stops does not hold the result back', async (t) => {
-  // Cancelling it never completes.
+test('should not wait for a pending file cancel', async (t) => {
+  // The file's cancel() never settles.
   const document = new InputFile(
     () =>
       new ReadableStream({
-        start: (controller) => controller.enqueue(bytes('x')),
+        start: (controller) => controller.enqueue(encode('x')),
         cancel: () => new Promise(() => {}),
       })
   )
@@ -563,21 +560,21 @@ test('a file that never stops does not hold the result back', async (t) => {
   )
 })
 
-test('the token is removed from an error, its stack, its properties and its cause', async (t) => {
-  // Runtimes report the address of a failed request in different places.
+test('should redact the token from an error', async (t) => {
+  // Runtimes put the URL of a failed request in different places.
   let thrown
   const fetch = async (url) => {
     thrown = new Error(`request to ${url} failed`, {
       cause: new Error(`error sending request for url (${url})`),
     })
     thrown.path = url
-    // One that is not enumerable.
+    // A non-enumerable property.
     Object.defineProperty(thrown, 'input', {
       value: url,
       writable: true,
       configurable: true,
     })
-    // A stack is written when it is first read, as by anything that logged the error.
+    // V8 builds the stack lazily on first read, e.g. when something logs the error.
     t.true(thrown.stack.includes(SECRET))
     throw thrown
   }
@@ -586,17 +583,17 @@ test('the token is removed from an error, its stack, its properties and its caus
   )
 
   t.is(error, thrown, 'the error itself is kept')
-  t.false(strings(error).includes(SECRET))
+  t.false(collectStrings(error).includes(SECRET))
   t.regex(error.message, /\/bot\[REDACTED\]\/getMe/)
   t.regex(error.cause.message, /bot\[REDACTED\]/)
   t.is(error.path, 'https://api.telegram.org/bot[REDACTED]/getMe')
   t.is(error.input, error.path)
 })
 
-// What a call rejects with when its fetch throws this.
-const failing = (make, token = TOKEN) => {
+// Returns what a call rejects with when its fetch throws the given value.
+const getRejection = (create, token = TOKEN) => {
   const fetch = async (url) => {
-    throw make(url)
+    throw create(url)
   }
   return createClient(token, { fetch })
     .call({ method: 'getMe' })
@@ -606,27 +603,27 @@ const failing = (make, token = TOKEN) => {
     )
 }
 
-test('the token is removed from aggregated errors and from a string', async (t) => {
-  const aggregate = await failing(
+test('should redact the token from an AggregateError and a string', async (t) => {
+  const aggregate = await getRejection(
     (url) => new AggregateError([new Error(`connect to ${url}`)], 'no route')
   )
-  t.false(strings(aggregate).includes(SECRET))
+  t.false(collectStrings(aggregate).includes(SECRET))
   t.regex(aggregate.errors[0].message, /bot\[REDACTED\]/)
 
   t.is(
-    await failing((url) => `request to ${url} failed`),
+    await getRejection((url) => `request to ${url} failed`),
     'request to https://api.telegram.org/bot[REDACTED]/getMe failed'
   )
 })
 
-test('createClient trims the token', async (t) => {
-  // A newline often follows a token that was read from a file.
+test('should trim the token', async (t) => {
+  // A token read from a file may end with a newline.
   for (const token of [TOKEN + '\n', TOKEN + '\r\n', ` ${TOKEN} `]) {
-    const { calls, fetch } = recorder()
+    const { calls, fetch } = createFakeFetch()
     await createClient(token, { fetch }).call({ method: 'getMe' })
     t.is(calls[0].url, `https://api.telegram.org/bot${TOKEN}/getMe`)
 
-    const error = await failing(
+    const error = await getRejection(
       (url) => new Error(`request to ${url} failed`),
       token
     )
@@ -638,8 +635,8 @@ test('createClient trims the token', async (t) => {
   }
 })
 
-test('an empty token changes nothing', async (t) => {
-  const error = await failing(
+test('should not redact an error for an empty token', async (t) => {
+  const error = await getRejection(
     (url) => new Error(`request to ${url} failed`),
     ''
   )
@@ -647,23 +644,26 @@ test('an empty token changes nothing', async (t) => {
   t.is(error.message, 'request to https://api.telegram.org/bot/getMe failed')
 })
 
-test('the token is removed from the error of an address that cannot be built', async (t) => {
+test('should redact the token from an invalid apiRoot error', async (t) => {
   const apiRoot = 'localhost:8081'
   const raw = t.throws(() => new URL(`./bot${TOKEN}/getMe`, apiRoot))
-  t.true(strings(raw).includes(SECRET), 'the runtime reports the address')
+  t.true(
+    collectStrings(raw).includes(SECRET),
+    'the runtime reports the address'
+  )
 
   const client = createClient(TOKEN, { apiRoot })
   const error = await t.throwsAsync(client.call({ method: 'getMe' }))
-  t.false(strings(error).includes(SECRET))
+  t.false(collectStrings(error).includes(SECRET))
 })
 
-test('the token is removed from the error of a file', async (t) => {
-  // A file may itself be downloaded from the API, at an address that holds the token.
+test('should redact the token from a file error', async (t) => {
+  // A file source may download from the Bot API, at a URL that contains the token.
   const error = new Error(`no https://api.telegram.org/file/bot${TOKEN}/a.jpg`)
   await withServer(echo, async (apiRoot) => {
     const call = createClient(TOKEN, { apiRoot }).call({
       method: 'sendDocument',
-      payload: { document: failingFile(error) },
+      payload: { document: createFailingFile(error) },
     })
 
     await t.throwsAsync(call, { is: error })
@@ -671,10 +671,10 @@ test('the token is removed from the error of a file', async (t) => {
   })
 })
 
-test('a property that can only be assigned is cleaned in place', async (t) => {
-  // As Bun reports the address: writable, but not configurable.
+test('should redact a non-configurable property', async (t) => {
+  // Bun reports the URL in a property that is writable but not configurable.
   let thrown
-  const error = await failing((url) => {
+  const error = await getRejection((url) => {
     thrown = Object.assign(new TypeError('fetch failed'), {
       code: 'ECONNREFUSED',
     })
@@ -690,8 +690,8 @@ test('a property that can only be assigned is cleaned in place', async (t) => {
   t.is(error.path, 'https://api.telegram.org/bot[REDACTED]/getMe')
 })
 
-test('a message and a stack that are inherited getters are cleaned in place', async (t) => {
-  // As a DOMException has its message, and some engines every stack.
+test('should redact an inherited getter', async (t) => {
+  // Like DOMException's message, and the stack in some engines.
   class Failure extends Error {
     #address
 
@@ -709,7 +709,7 @@ test('a message and a stack that are inherited getters are cleaned in place', as
     }
   }
   let thrown
-  const error = await failing((url) => {
+  const error = await getRejection((url) => {
     thrown = new Failure(url)
     delete thrown.stack
     t.true(thrown.stack.includes(SECRET))
@@ -717,31 +717,31 @@ test('a message and a stack that are inherited getters are cleaned in place', as
   })
 
   t.is(error, thrown)
-  t.false(strings(error).includes(SECRET))
+  t.false(collectStrings(error).includes(SECRET))
   t.regex(error.message, /bot\[REDACTED\]/)
   t.regex(error.stack, /bot\[REDACTED\]/)
 })
 
-test('an error that cannot be changed is replaced', async (t) => {
-  const error = await failing((url) => {
+test('should replace a frozen error', async (t) => {
+  const error = await getRejection((url) => {
     const error = new TypeError(`request to ${url} failed`)
     return Object.freeze(Object.assign(error, { path: url }))
   })
 
-  t.false(strings(error).includes(SECRET))
+  t.false(collectStrings(error).includes(SECRET))
   t.is(error.name, 'TypeError')
   t.regex(error.message, /bot\[REDACTED\]/)
   t.regex(error.path, /bot\[REDACTED\]/)
 })
 
-test('an error with a cause that cannot be changed is replaced as a whole', async (t) => {
-  const error = await failing((url) => {
+test('should replace an error with a frozen cause', async (t) => {
+  const error = await getRejection((url) => {
     const cause = Object.freeze(new Error(`connect failed for ${url}`))
     const error = new TypeError('fetch failed', { cause })
     return Object.assign(error, { code: 'UND_ERR', errno: 7 })
   })
 
-  t.false(strings(error).includes(SECRET))
+  t.false(collectStrings(error).includes(SECRET))
   t.like(error, {
     name: 'TypeError',
     message: 'fetch failed',

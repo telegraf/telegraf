@@ -1,24 +1,24 @@
 /**
- * Turns the segments of a multipart body into `ReadableStream` where streaming is
- * possible, or `Blob` that `fetch` can send. Web APIs only.
+ * Builds a request body from multipart segments: a `ReadableStream` where requests can
+ * stream, or a `Blob` where they cannot. Web APIs only.
  */
 import type { ByteStream, Segment } from './payload'
 
 export interface StreamBody {
   readonly stream: ReadableStream<Uint8Array>
   /**
-   * Set when a source failed while it was being read. Some runtimes resolve the request
-   * anyway, having sent a truncated body, so the caller must check.
+   * Set if a source threw while being read. Some runtimes send the truncated body and
+   * still resolve the request, so the caller must check this.
    */
   readonly failure?: { readonly error: unknown }
   /**
-   * Stops reading and releases the source that is open. Some runtimes never cancel the
-   * stream of a request that was aborted or that failed, so the caller must do it.
+   * Stops reading and releases the open source. Some runtimes never cancel the body of
+   * an aborted or failed request, so the caller must call this.
    */
   close(): Promise<void>
 }
 
-/** A body that is read segment by segment, as the request is sent. */
+/** A streaming body: segments are read one by one as the request is sent. */
 export function toStream(segments: readonly Segment[]): StreamBody {
   const reader = new SegmentReader(segments)
   let failure: { error: unknown } | undefined
@@ -29,7 +29,7 @@ export function toStream(segments: readonly Segment[]): StreamBody {
       try {
         chunk = await reader.read()
       } catch (error) {
-        // A read that `close` interrupted is not a failure of the source.
+        // A read interrupted by `close()` is not a source failure.
         if (reader.closed) return
         failure = { error }
         controller.error(error)
@@ -42,8 +42,8 @@ export function toStream(segments: readonly Segment[]): StreamBody {
     cancel: () => reader.close(),
   })
 
-  // Only an implementation that does not understand streams converts one to a string, and
-  // would then send the text "[object ReadableStream]" as the body.
+  // A fetch without stream support would stringify the body and upload the text
+  // "[object ReadableStream]".
   Object.defineProperty(stream, 'toString', {
     value() {
       throw new TypeError(
@@ -63,13 +63,13 @@ export function toStream(segments: readonly Segment[]): StreamBody {
 
 export interface BlobOptions {
   type?: string
-  /** Stops the reading. The promise then rejects with the signal's reason, at once. */
+  /** Aborts the read. The promise rejects with the signal's reason immediately. */
   signal?: AbortSignal
 }
 
 /**
- * A body of known size. A `Blob` segment is not read; a stream is read into memory, since
- * nothing else can be sent where requests cannot be streamed.
+ * A body of known size, for where requests cannot stream. `Blob` segments are used as
+ * they are; stream sources are buffered in memory.
  */
 export async function toBlob(
   segments: readonly Segment[],
@@ -77,30 +77,30 @@ export async function toBlob(
 ): Promise<Blob> {
   if (signal?.aborted === true) throw signal.reason
   const parts: (Uint8Array | Blob)[] = []
-  // The stream that was opened last.
-  let source: Source | undefined
-  const read = async () => {
+  // The most recently opened stream.
+  let source: SourceReader | undefined
+  const readAll = async () => {
     for (const segment of segments) {
       if (typeof segment !== 'function') {
         parts.push(segment)
         continue
       }
-      source = open(segment())
+      source = openSource(segment())
       for (;;) {
         const chunk = await source.read()
         if (chunk === undefined || signal?.aborted === true) break
         parts.push(chunk)
       }
-      // No other stream is opened once the reading has been abandoned.
+      // A stream opened after an abort would never be released.
       if (signal?.aborted === true) return
     }
   }
   try {
-    await (signal === undefined ? read() : mayAbortWith(signal, read()))
+    await (signal === undefined ? readAll() : mayAbortWith(signal, readAll()))
   } finally {
-    // It is released: it may have failed, or been abandoned. Nothing waits for that, since
-    // a generator stops only when it next yields, which it may never do.
-    source?.cancel().catch(ignore)
+    // A source that failed or was aborted is still open. Not awaited: a generator only
+    // stops at its next yield, which may never come.
+    source?.cancel().catch(noop)
   }
   return new Blob(parts, type === undefined ? undefined : { type })
 }
@@ -117,18 +117,17 @@ function mayAbortWith<T>(signal: AbortSignal, promise: Promise<T>): Promise<T> {
   })
 }
 
-/** One stream being read. */
-interface Source {
-  /** The next chunk, or `undefined` at the end. */
+/** Reads one source stream. */
+interface SourceReader {
+  /** Resolves with the next chunk, or `undefined` at the end. */
   read(): Promise<Uint8Array | undefined>
   cancel(): Promise<void>
-  /** Whether `cancel` ends a read that is waiting. */
+  /** Whether `cancel()` interrupts a pending read. */
   readonly interruptible: boolean
 }
 
-function open(stream: ByteStream): Source {
-  // A web stream is read through its reader, not by iteration: cancelling a reader ends a
-  // read that is waiting, and not every engine can iterate a stream.
+function openSource(stream: ByteStream): SourceReader {
+  // Cancelling a reader interrupts a pending read. Not every engine can iterate a web stream.
   if ('getReader' in stream && typeof stream.getReader === 'function') {
     const reader = stream.getReader()
     return {
@@ -142,7 +141,7 @@ function open(stream: ByteStream): Source {
   }
 
   const iterator = (stream as AsyncIterable<unknown>)[Symbol.asyncIterator]()
-  // A Node stream can be told to stop; a generator can only be asked once it yields.
+  // A Node stream can be destroyed at any time; a generator only stops at its next yield.
   const destroy = (stream as { destroy?: unknown }).destroy
   return {
     interruptible: typeof destroy === 'function',
@@ -157,11 +156,11 @@ function open(stream: ByteStream): Source {
   }
 }
 
-/** Reads the segments in order, opening each stream only when it is reached. */
+/** Reads segments in order, opening each stream lazily. */
 class SegmentReader {
   closed = false
   private index = 0
-  private source?: Source
+  private source?: SourceReader
   private reading = false
   private closing?: Promise<void>
 
@@ -173,7 +172,7 @@ class SegmentReader {
         if (this.index === this.segments.length) return undefined
         const segment = this.segments[this.index++] as Segment
         if (ArrayBuffer.isView(segment)) return segment
-        this.source = open(
+        this.source = openSource(
           typeof segment === 'function' ? segment() : segment.stream()
         )
       }
@@ -186,7 +185,7 @@ class SegmentReader {
         this.reading = false
       }
       if (chunk !== undefined) return chunk
-      // The source has ended. `close` may have taken it in the meantime.
+      // The source ended. `close()` may have cleared it in the meantime.
       if (this.source === source) this.source = undefined
     }
     return undefined
@@ -202,9 +201,9 @@ class SegmentReader {
     const source = this.source
     this.source = undefined
     if (source === undefined) return
-    const cancelled = source.cancel().catch(ignore)
-    // A generator that is waiting cannot be interrupted, and may wait for ever. It is asked
-    // to stop, and stops when it next yields; waiting for that here could hang the caller.
+    const cancelled = source.cancel().catch(noop)
+    // A generator awaiting something cannot be interrupted and may never yield again. It
+    // was asked to stop at its next yield; awaiting that could hang the caller.
     if (this.reading && !source.interruptible) return
     await cancelled
   }
@@ -225,6 +224,6 @@ function toBytes(chunk: unknown): Uint8Array {
   throw new TypeError(`A file stream produced ${kind}, not bytes.`)
 }
 
-function ignore() {
-  // an error from a source that is being abandoned
+function noop() {
+  // intentionally empty
 }

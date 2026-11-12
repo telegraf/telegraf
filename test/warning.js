@@ -1,8 +1,8 @@
 const test = require('ava')
 const { warnOnce } = require('../lib/core/network/warning')
 
-// Replaces where a warning can go, for one test, and records what arrives there.
-function record(t, { emitWarning = true, userAgent } = {}) {
+// Stubs both warning outputs for one test and records what they receive.
+function stubWarnings(t, { emitWarning = true, userAgent } = {}) {
   const emitted = []
   const printed = []
   const original = {
@@ -29,8 +29,8 @@ function record(t, { emitWarning = true, userAgent } = {}) {
   return { emitted, printed }
 }
 
-test.serial('a warning is a deprecation, issued once for each code', (t) => {
-  const { emitted, printed } = record(t)
+test.serial('warnOnce should emit a DeprecationWarning once per code', (t) => {
+  const { emitted, printed } = stubWarnings(t)
   warnOnce('TEST_FIRST', 'first')
   warnOnce('TEST_FIRST', 'first again')
   warnOnce('TEST_SECOND', 'second')
@@ -42,16 +42,22 @@ test.serial('a warning is a deprecation, issued once for each code', (t) => {
   t.deepEqual(printed, [])
 })
 
-test.serial('it is printed where there is nothing to emit it through', (t) => {
-  const { printed } = record(t, { emitWarning: false })
-  warnOnce('TEST_NO_PROCESS', 'printed')
+test.serial(
+  'warnOnce should use console.warn without process.emitWarning',
+  (t) => {
+    const { printed } = stubWarnings(t, { emitWarning: false })
+    warnOnce('TEST_NO_PROCESS', 'printed')
 
-  t.deepEqual(printed, [['printed']])
-})
+    t.deepEqual(printed, [['printed']])
+  }
+)
 
-test.serial('it is printed on Cloudflare Workers', (t) => {
-  // With `nodejs_compat` there is an `emitWarning` there, and nothing prints what it emits.
-  const { emitted, printed } = record(t, { userAgent: 'Cloudflare-Workers' })
+test.serial('warnOnce should use console.warn on Cloudflare Workers', (t) => {
+  // With `nodejs_compat`, Cloudflare Workers has `emitWarning`, but no builtin listener
+  // prints it.
+  const { emitted, printed } = stubWarnings(t, {
+    userAgent: 'Cloudflare-Workers',
+  })
   warnOnce('TEST_WORKERS', 'printed')
 
   t.deepEqual(printed, [['printed']])

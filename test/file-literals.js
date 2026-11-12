@@ -7,20 +7,20 @@ const { convertFileLiterals } = require('../lib/core/network/file-literals')
 const { InputFile, extractFiles } = require('../lib/core/network/payload')
 const Input = require('../lib/input')
 
-// Every warning issued in this file. A warning is issued once in a process, so the tests
-// that count them run one at a time, and first.
+// Records every warning emitted in this file. A warning is emitted once per process, so
+// the tests that count them run serially, and first.
 const warnings = []
 process.emitWarning = (message, type, code) =>
   warnings.push({ message, type, code })
 
-// A URL is given to the download as soon as its literal is converted. Nothing is fetched
-// in these tests.
-const noDownload = () => Readable.from([])
-const convert = (payload, download = noDownload) =>
+// download() is called as soon as a { url } literal is converted. These tests don't
+// fetch anything.
+const fakeDownload = () => Readable.from([])
+const convert = (payload, download = fakeDownload) =>
   convertFileLiterals(payload, download).payload
 
-// The contents of a file, as text.
-const read = async ({ source }) => {
+// Reads a file's contents as text.
+const readText = async ({ source }) => {
   if (source instanceof Uint8Array) return Buffer.from(source).toString()
   const chunks = []
   for await (const chunk of source()) chunks.push(Buffer.from(chunk))
@@ -44,26 +44,23 @@ const FILE_KEYS = [
   'voice',
 ]
 
-test.serial(
-  'a literal made by an Input helper is a file anywhere, without a warning',
-  (t) => {
-    const converted = convert({
-      photo: Input.fromBuffer(Buffer.from('a'), 'a.jpg'),
-      anything: { list: [{ at: { all: Input.fromURLStream('https://x/b') } }] },
-      also: Input.fromLocalFile('c.txt'),
-      and: Input.fromReadableStream(Readable.from(['d'])),
-    })
+test.serial('should convert an Input helper literal without a warning', (t) => {
+  const converted = convert({
+    photo: Input.fromBuffer(Buffer.from('a'), 'a.jpg'),
+    anything: { list: [{ at: { all: Input.fromURLStream('https://x/b') } }] },
+    also: Input.fromLocalFile('c.txt'),
+    and: Input.fromReadableStream(Readable.from(['d'])),
+  })
 
-    t.true(InputFile.is(converted.photo))
-    t.true(InputFile.is(converted.anything.list[0].at.all))
-    t.true(InputFile.is(converted.also))
-    t.true(InputFile.is(converted.and))
-    t.deepEqual(warnings, [])
-  }
-)
+  t.true(InputFile.is(converted.photo))
+  t.true(InputFile.is(converted.anything.list[0].at.all))
+  t.true(InputFile.is(converted.also))
+  t.true(InputFile.is(converted.and))
+  t.deepEqual(warnings, [])
+})
 
-test.serial('a { url } that is not held as a file is left alone', (t) => {
-  // These are objects of the Bot API, not files.
+test.serial('should not convert a { url } object outside a file key', (t) => {
+  // These are Bot API objects, not files.
   const payload = {
     link_preview_options: { url: 'https://example.com' },
     reply_markup: {
@@ -81,44 +78,41 @@ test.serial('a { url } that is not held as a file is left alone', (t) => {
   t.deepEqual(warnings, [])
 })
 
-test.serial(
-  'each kind of plain literal warns once, and names its helper',
-  (t) => {
-    const payload = () => ({
-      photo: { source: Buffer.from('a') },
-      document: { source: 'a.txt' },
-      video: { source: new Readable({ read() {} }) },
-      audio: { url: 'https://example.com/a.mp3' },
-    })
-    convert(payload())
-    convert(payload())
+test.serial('should warn once per plain literal type', (t) => {
+  const payload = () => ({
+    photo: { source: Buffer.from('a') },
+    document: { source: 'a.txt' },
+    video: { source: new Readable({ read() {} }) },
+    audio: { url: 'https://example.com/a.mp3' },
+  })
+  convert(payload())
+  convert(payload())
 
-    const helpers = {
-      TELEGRAF_FILE_BUFFER: /`\{ source \}`.*`Input\.fromBuffer\(buffer\)`/,
-      TELEGRAF_FILE_PATH: /`\{ source \}`.*`Input\.fromLocalFile\(path\)`/,
-      TELEGRAF_FILE_STREAM:
-        /`\{ source \}`.*`Input\.fromReadableStream\(stream\)`/,
-      TELEGRAF_FILE_URL: /`\{ url \}`.*`Input\.fromURLStream\(url\)`/,
-    }
-    t.deepEqual(
-      warnings.map((warning) => warning.code).sort(),
-      Object.keys(helpers)
-    )
-    for (const { message, type, code } of warnings) {
-      t.is(type, 'DeprecationWarning')
-      t.regex(message, helpers[code])
-    }
+  const helpers = {
+    TELEGRAF_FILE_BUFFER: /`\{ source \}`.*`Input\.fromBuffer\(buffer\)`/,
+    TELEGRAF_FILE_PATH: /`\{ source \}`.*`Input\.fromLocalFile\(path\)`/,
+    TELEGRAF_FILE_STREAM:
+      /`\{ source \}`.*`Input\.fromReadableStream\(stream\)`/,
+    TELEGRAF_FILE_URL: /`\{ url \}`.*`Input\.fromURLStream\(url\)`/,
   }
-)
+  t.deepEqual(
+    warnings.map((warning) => warning.code).sort(),
+    Object.keys(helpers)
+  )
+  for (const { message, type, code } of warnings) {
+    t.is(type, 'DeprecationWarning')
+    t.regex(message, helpers[code])
+  }
+})
 
-test('a plain { source } is a file anywhere', (t) => {
+test('should convert a nested { source } literal', (t) => {
   const literal = { source: Buffer.from('a') }
   const converted = convert({ anything: { list: [{ at: { all: literal } }] } })
 
   t.true(InputFile.is(converted.anything.list[0].at.all))
 })
 
-test('a plain { url } is a file under each name a file has', (t) => {
+test('should convert a { url } literal under every file key', (t) => {
   const literal = { url: 'https://example.com/a' }
   for (const key of FILE_KEYS) {
     t.true(InputFile.is(convert({ [key]: literal })[key]), key)
@@ -127,7 +121,7 @@ test('a plain { url } is a file under each name a file has', (t) => {
   }
 })
 
-test('only exactly a source or a URL, with or without a file name, is a file', (t) => {
+test('should convert only an exact literal shape', (t) => {
   const source = Buffer.from('a')
   const others = [
     { source, caption: 'a' },
@@ -145,7 +139,7 @@ test('only exactly a source or a URL, with or without a file name, is a file', (
     t.is(convert(payload), payload, JSON.stringify(other))
   }
 
-  // A key that is there with no value is as good as absent.
+  // A key set to undefined counts as absent.
   for (const file of [
     { source, filename: undefined },
     { source, caption: undefined },
@@ -155,8 +149,8 @@ test('only exactly a source or a URL, with or without a file name, is a file', (
   }
 })
 
-test('a name that is null is no name, and a URL may be a URL object', async (t) => {
-  // v4 took both.
+test('should accept a null filename and a URL object', async (t) => {
+  // v4 accepted a null filename and a URL object.
   const asked = []
   const download = (url) => {
     asked.push(url)
@@ -173,12 +167,12 @@ test('a name that is null is no name, and a URL may be a URL object', async (t) 
   t.true(InputFile.is(converted.photo))
   t.is(converted.photo.name, undefined)
   t.is(converted.document.name, undefined)
-  t.is(await read(converted.document), 'downloaded')
+  t.is(await readText(converted.document), 'downloaded')
   t.deepEqual(asked, ['https://example.com/a%20b'])
 })
 
-test('a stream that cannot be iterated is piped through one that can', async (t) => {
-  // Streams that predate async iteration have `pipe`, and little else.
+test('should support a stream without an async iterator', async (t) => {
+  // Streams from before async iteration only have pipe().
   const old = new Stream()
   const bare = {
     pipe(destination) {
@@ -187,19 +181,19 @@ test('a stream that cannot be iterated is piped through one that can', async (t)
   }
   const { payload, streams } = convertFileLiterals(
     { video: { source: old }, audio: Input.fromReadableStream(bare) },
-    noDownload
+    fakeDownload
   )
   t.deepEqual(streams, [old, bare])
 
-  const reading = read(payload.video)
+  const reading = readText(payload.video)
   old.emit('data', Buffer.from('an old '))
   old.emit('data', 'stream')
   old.emit('end')
   t.is(await reading, 'an old stream')
-  t.is(await read(payload.audio), 'bare')
+  t.is(await readText(payload.audio), 'bare')
 })
 
-test('a file is named by its literal, and a path by its last part', (t) => {
+test('should use the filename or the path basename', (t) => {
   const source = Buffer.from('a')
   const converted = convert({
     named: { source, filename: 'a.jpg' },
@@ -219,18 +213,18 @@ test('a file is named by its literal, and a path by its last part', (t) => {
   t.is(converted.photo.name, 'e.png')
 })
 
-test('bytes are the contents, and a stream is passed on', async (t) => {
+test('should use a Buffer or a stream as the source', async (t) => {
   const source = Buffer.from('bytes')
   const stream = Readable.from(['stream'])
   const converted = convert({ photo: { source }, video: { source: stream } })
 
   t.is(converted.photo.source, source)
   t.is(converted.video.source(), stream)
-  t.is(await read(converted.video), 'stream')
+  t.is(await readText(converted.video), 'stream')
 })
 
-test('the streams that were given are returned, to be released', (t) => {
-  // They are open already, unlike a path or a URL.
+test('should return the source streams', (t) => {
+  // Unlike a path or a URL, they are already open.
   const first = Readable.from(['a'])
   const second = Readable.from(['b'])
   const { streams } = convertFileLiterals(
@@ -241,36 +235,36 @@ test('the streams that were given are returned, to be released', (t) => {
       audio: { source: 'd.mp3' },
       voice: { url: 'https://example.com/e.ogg' },
     },
-    noDownload
+    fakeDownload
   )
 
   t.deepEqual(streams, [first, second])
 })
 
-test('a path is read when the file is sent, and must be a file', async (t) => {
+test('should read a file path lazily', async (t) => {
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'telegraf-'))
   t.teardown(() => fs.rmSync(folder, { recursive: true }))
   const file = path.join(folder, 'a.txt')
   fs.writeFileSync(file, 'contents')
   const missing = path.join(folder, 'missing.txt')
 
-  // Nothing is looked at yet.
+  // The paths aren't opened yet.
   const converted = convert({
     document: { source: file },
     photo: { source: folder },
     video: { source: missing },
   })
 
-  t.is(await read(converted.document), 'contents')
-  await t.throwsAsync(read(converted.photo), {
+  t.is(await readText(converted.document), 'contents')
+  await t.throwsAsync(readText(converted.photo), {
     instanceOf: TypeError,
     message: `Unable to upload '${folder}', not a file`,
   })
-  await t.throwsAsync(read(converted.video), { code: 'ENOENT' })
+  await t.throwsAsync(readText(converted.video), { code: 'ENOENT' })
 })
 
-test('a URL is given to the download when its literal is converted', async (t) => {
-  // So that every download of a call can begin at once, before anything is sent.
+test('should start a URL download on conversion', async (t) => {
+  // This lets all downloads of a call start before the request is sent.
   const asked = []
   const download = (url) => {
     asked.push(url)
@@ -285,12 +279,12 @@ test('a URL is given to the download when its literal is converted', async (t) =
   )
   t.deepEqual(asked, ['https://example.com/a', 'https://example.com/b'])
 
-  t.is(await read(converted.photo), 'from https://example.com/a')
-  t.is(await read(converted.media[0].media), 'from https://example.com/b')
+  t.is(await readText(converted.photo), 'from https://example.com/a')
+  t.is(await readText(converted.media[0].media), 'from https://example.com/b')
   t.is(asked.length, 2, 'what was opened is what is read')
 })
 
-test('the payload is left as it was', (t) => {
+test('should not mutate the payload', (t) => {
   const literal = { source: Buffer.from('a') }
   const file = new InputFile(Buffer.from('b'))
   const kept = { chat: { id: 1 } }
@@ -307,7 +301,7 @@ test('the payload is left as it was', (t) => {
   t.is(convert(plain), plain, 'a payload with no literal is returned as it is')
 })
 
-test('every position v4 uploads from is found', (t) => {
+test('should convert every v4 upload position', (t) => {
   const literals = [
     ['source', () => ({ source: Buffer.from('a') })],
     ['url', () => ({ url: 'https://example.com/a' })],
@@ -335,7 +329,7 @@ test('every position v4 uploads from is found', (t) => {
   }
 })
 
-test('an Input helper returns what it did before', (t) => {
+test('Input helpers should keep their return shape', (t) => {
   const buffer = Buffer.from('a')
   const stream = Readable.from(['a'])
   const cases = [
@@ -351,7 +345,7 @@ test('an Input helper returns what it did before', (t) => {
   for (const [made, literal] of cases) {
     t.deepEqual(Object.keys(made), Object.keys(literal))
     t.deepEqual({ ...made }, literal)
-    // What marks it is there, and does not show.
+    // The marker is present but not enumerable.
     const [mark] = Object.getOwnPropertySymbols(made)
     t.is(mark, Symbol.for('telegraf.Input'))
     t.false(Object.prototype.propertyIsEnumerable.call(made, mark))

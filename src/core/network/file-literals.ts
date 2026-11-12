@@ -1,6 +1,6 @@
 /**
- * The file literals of v4: a `{ source }` or a `{ url }` object, with an optional `filename`.
- * They are converted to `InputFile`, which is what a request is searched for.
+ * Converts v4's file literals, `{ source }` and `{ url }` objects with an optional
+ * `filename`, to `InputFile`, which is what the serializer looks for.
  */
 import { createReadStream } from 'fs'
 import { realpath, stat } from 'fs/promises'
@@ -13,16 +13,16 @@ import { warnOnce } from './warning'
 const stamp = Symbol.for('telegraf.Input')
 
 /**
- * Marks a literal as made by an `Input` helper. The mark is not enumerable, so the literal
- * has the same keys and the same JSON as before.
+ * Marks a literal as created by an `Input` helper. The marker is non-enumerable, so the
+ * literal's keys and JSON are unchanged.
  */
 export function stampInput<T extends object>(literal: T): T {
   return Object.defineProperty(literal, stamp, { value: true })
 }
 
 /**
- * Opens the contents of a URL. Each way of sending a request has its own. It is called
- * when the literal is converted, so that it can begin at once.
+ * Downloads a URL. Each transport supplies its own. Called as soon as the literal is
+ * converted, so the download can start right away.
  */
 export type Download = (url: string) => ByteStream
 
@@ -36,9 +36,9 @@ export interface SourceNodeStream {
 }
 
 /**
- * The names a file is held under in the Bot API, and `thumb`, which v4 still accepts.
- * A link preview, a web app and a login button are `{ url }` objects too, and are never
- * held under one of these.
+ * The keys that hold a file in the Bot API, plus `thumb`, which v4 still accepts.
+ * `LinkPreviewOptions`, `WebAppInfo` and `LoginUrl` are `{ url }` objects too, but never
+ * appear under one of these keys.
  */
 const FILE_KEYS = new Set([
   'animation',
@@ -57,7 +57,7 @@ const FILE_KEYS = new Set([
   'voice',
 ])
 
-/** What to write instead of each kind of literal. */
+/** The `Input` helper to suggest for each kind of literal. */
 const HELPERS = {
   path: 'Input.fromLocalFile(path)',
   buffer: 'Input.fromBuffer(buffer)',
@@ -66,18 +66,18 @@ const HELPERS = {
 }
 
 /**
- * Replaces every file literal in a payload with an `InputFile`. The payload is not changed:
- * objects and arrays that hold a literal are copied, everything else is shared.
+ * Replaces every file literal in a payload with an `InputFile`. The payload is not
+ * mutated: objects and arrays that contain a literal are copied, everything else is shared.
  *
- * | literal | is a file |
+ * | literal | treated as a file |
  * | --- | --- |
- * | made by an `Input` helper | anywhere |
+ * | created by an `Input` helper | anywhere |
  * | exactly `{ source, filename? }` | anywhere, with a warning |
- * | exactly `{ url, filename? }` | under one of the names a file has, with a warning |
+ * | exactly `{ url, filename? }` | under a file key, with a warning |
  *
- * A path is opened only when it is sent. A URL is given to `download` at once, which says
- * when the download begins. A stream is open already, so the streams are returned too:
- * they are the caller's to release if the request fails.
+ * A path is only opened when the file is sent. A URL is passed to `download` right away.
+ * A stream is already open, so the streams are also returned: the caller must destroy
+ * them if the request fails.
  */
 export function convertFileLiterals(
   payload: Record<string, unknown>,
@@ -89,7 +89,7 @@ export function convertFileLiterals(
     if (Array.isArray(value)) {
       let copy: unknown[] | undefined
       value.forEach((item, index) => {
-        // An item is held under the name of its array.
+        // An array item counts as being under its array's key.
         const converted = convert(item, key)
         if (converted === item) return
         copy ??= value.slice()
@@ -121,11 +121,11 @@ function toInputFile(
   download: Download,
   streams: SourceNodeStream[]
 ): InputFile | undefined {
-  // Exactly a source or a URL, with or without a file name. A key whose value is
-  // `undefined` is as good as absent: `Input.fromBuffer(buffer)` has such a `filename`.
+  // Must be exactly a source or a URL, with an optional filename. A key set to `undefined`
+  // counts as absent: `Input.fromBuffer(buffer)` produces `filename: undefined`.
   const { source, url, filename, ...rest } = literal
   if (Object.values(rest).some((value) => value !== undefined)) return undefined
-  // v4 took a `null` name for no name, and a `URL` for its address.
+  // v4 accepted a `null` filename and a `URL` object.
   const name = filename ?? undefined
   const address = url instanceof URL ? url.href : url
   if (name !== undefined && typeof name !== 'string') return undefined

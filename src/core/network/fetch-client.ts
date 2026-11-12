@@ -12,7 +12,7 @@ export interface FetchResponse {
   readonly status: number
   readonly statusText: string
   json(): Promise<unknown>
-  /** The contents as a stream. The client does not read it; a download does. */
+  /** The body stream. Unused by the client itself; read when downloading a file. */
   readonly body?: unknown
 }
 
@@ -62,11 +62,11 @@ export interface Invocation {
 
 export type Client = ReturnType<typeof createClient>
 
-/** The longest delay a timer can hold. Given a longer one, it fires at once. */
+/** The largest delay `setTimeout` supports. A larger one fires immediately. */
 const MAX_TIMER_DELAY = 2 ** 31 - 1
 
 export function createClient(token: string, options: ClientOptions = {}) {
-  // Whitespace is not part of a token. A newline often follows one read from a file.
+  // A token read from a file may end with a newline.
   token = token.trim()
   const apiRoot = options.apiRoot ?? 'https://api.telegram.org'
   const apiMode = options.apiMode ?? 'bot'
@@ -75,8 +75,7 @@ export function createClient(token: string, options: ClientOptions = {}) {
   if (!(timeout > 0)) {
     throw new RangeError('timeout must be a positive number, or Infinity')
   }
-  // The global is looked up on each call, and called as a function: a browser's `fetch`
-  // throws when it is called as a method of anything but the global object.
+  // A browser's `fetch` throws when called as a method of another object.
   const send: FetchFn = options.fetch ?? ((url, init) => fetch(url, init))
 
   if (options.agent !== undefined || options.attachmentAgent !== undefined) {
@@ -86,8 +85,9 @@ export function createClient(token: string, options: ClientOptions = {}) {
   let browser: boolean | undefined
 
   /**
-   * Resolves with the API's answer, successful or not. Rejects when there is none: the
-   * request failed, a file could not be read, or the call was aborted or timed out.
+   * Resolves with the API response, whether `ok` or not. Rejects when the call doesn't get
+   * a response: the request failed, a file could not be read, or the call was aborted or
+   * timed out.
    */
   const call = async ({
     method,
@@ -96,7 +96,7 @@ export function createClient(token: string, options: ClientOptions = {}) {
   }: Invocation): Promise<ApiResponse<unknown>> => {
     browser ??= isBrowserFetch()
 
-    // One signal for the caller's abort and for the timeout.
+    // One signal covers both the caller's abort and the timeout.
     const controller = new AbortController()
     const abort = () => controller.abort(signal?.reason)
     if (signal?.aborted === true) abort()
@@ -120,7 +120,7 @@ export function createClient(token: string, options: ClientOptions = {}) {
         const multipart = toMultipart(fields, attachments)
         contentType = multipart.contentType
         if (browser) {
-          // Reading a stream into memory can take as long as the stream likes.
+          // Buffering a stream can take arbitrarily long, so it must be abortable.
           body = await toBlob(multipart.segments, { signal: controller.signal })
         } else {
           stream = toStream(multipart.segments)
@@ -135,7 +135,7 @@ export function createClient(token: string, options: ClientOptions = {}) {
         signal: controller.signal,
         duplex: 'half',
       })
-      // Some runtimes send what was read of a failed file and resolve the request.
+      // Some runtimes send the truncated body of a failed file and still resolve.
       if (stream?.failure !== undefined) throw stream.failure.error
 
       return await toApiResponse(response, method)
@@ -148,9 +148,9 @@ export function createClient(token: string, options: ClientOptions = {}) {
     } finally {
       clearTimeout(timer)
       signal?.removeEventListener('abort', abort)
-      // A runtime may leave the body open when the request is aborted or fails. The result
-      // does not wait for it to close: a source can take as long as it likes to stop.
-      stream?.close().catch(ignore)
+      // A runtime may leave the body open after an aborted or failed request.
+      // Not awaited: a source can take arbitrarily long to stop.
+      stream?.close().catch(noop)
     }
   }
 
@@ -158,11 +158,11 @@ export function createClient(token: string, options: ClientOptions = {}) {
 }
 
 /**
- * Whether this is a browser's `fetch`, which can only send the Bot API a request that needs
- * no preflight: no JSON, and no stream.
+ * Detects a browser's `fetch`. A browser can only send the Bot API requests that don't
+ * need a CORS preflight, which rules out JSON and stream bodies.
  *
- * A browser removes forbidden headers from a request, under the same security model that
- * makes it preflight; no other runtime does. Building a `Request` sends nothing.
+ * Browsers strip forbidden headers from a `Request`; other runtimes keep them.
+ * Constructing a `Request` doesn't send it.
  */
 function isBrowserFetch(): boolean {
   try {
@@ -179,9 +179,8 @@ function isBrowserFetch(): boolean {
 }
 
 /**
- * The API's answer. Something else may answer in its place: a proxy, a gateway, a server
- * that is restarting. That is reported by its status when the status is an error, and is an
- * error otherwise.
+ * Parses the response. If it is not a Bot API response (e.g. it came from a proxy or a
+ * gateway), an error status becomes an API-style error object and any other status throws.
  */
 async function toApiResponse(
   response: FetchResponse,
@@ -191,7 +190,8 @@ async function toApiResponse(
   try {
     answer = await response.json()
   } catch (error) {
-    // Only a body that is not JSON is expected. The rest is the connection, or an abort.
+    // `json()` throws a SyntaxError for a non-JSON body. Any other error is a network error
+    // or an abort.
     if (!isObject(error) || error.name !== 'SyntaxError') throw error
   }
   if (isObject(answer) && typeof answer.ok === 'boolean') {
@@ -201,7 +201,7 @@ async function toApiResponse(
   if (status < 400) {
     throw new Error(`${method}: HTTP ${status} is not a Bot API response`)
   }
-  // There is no status text over HTTP/2.
+  // HTTP/2 responses don't have a status text.
   const description = response.statusText || `HTTP ${status}`
   return { ok: false, error_code: status, description }
 }
@@ -224,17 +224,17 @@ export function redact(error: unknown, token: string): unknown {
     seen.add(target)
     const keys = ['message', 'stack', ...Object.getOwnPropertyNames(target)]
     for (const key of new Set(keys)) {
-      const value = read(target, key)
+      const value = getProperty(target, key)
       if (typeof value !== 'string' || clean(value) === value) continue
-      if (!write(target, key, clean(value))) cleaned = false
+      if (!setProperty(target, key, clean(value))) cleaned = false
     }
-    const errors = read(target, 'errors')
+    const errors = getProperty(target, 'errors')
     if (Array.isArray(errors)) queue.push(...errors)
-    queue.push(read(target, 'cause'))
+    queue.push(getProperty(target, 'cause'))
   }
   if (cleaned) return error
 
-  // Part of it cannot be changed, so none of it can be thrown.
+  // Some property could not be redacted in place.
   const properties: Record<string, unknown> = { name: String(error.name) }
   for (const [key, value] of Object.entries(error)) {
     if (typeof value === 'string') properties[key] = clean(value)
@@ -243,7 +243,7 @@ export function redact(error: unknown, token: string): unknown {
   return Object.assign(new Error(clean(String(error.message))), properties)
 }
 
-function read(target: Record<string, unknown>, key: string): unknown {
+function getProperty(target: Record<string, unknown>, key: string): unknown {
   try {
     return target[key]
   } catch {
@@ -251,8 +251,8 @@ function read(target: Record<string, unknown>, key: string): unknown {
   }
 }
 
-/** Assigns a property, or redefines it where it cannot be assigned. */
-function write(
+/** Sets a property by assignment, falling back to `defineProperty`. */
+function setProperty(
   target: Record<string, unknown>,
   key: string,
   value: string
@@ -260,9 +260,9 @@ function write(
   try {
     target[key] = value
   } catch {
-    // a getter with no setter
+    // e.g. a getter without a setter
   }
-  if (read(target, key) === value) return true
+  if (getProperty(target, key) === value) return true
   try {
     Object.defineProperty(target, key, {
       value,
@@ -271,9 +271,9 @@ function write(
       enumerable: Object.prototype.propertyIsEnumerable.call(target, key),
     })
   } catch {
-    // not configurable, or frozen
+    // e.g. non-configurable, or frozen
   }
-  return read(target, key) === value
+  return getProperty(target, key) === value
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -290,6 +290,6 @@ function warnAgentIgnored() {
   )
 }
 
-function ignore() {
-  // an error from a body that is being abandoned
+function noop() {
+  // intentionally empty
 }

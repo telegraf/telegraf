@@ -2,37 +2,37 @@ const test = require('ava')
 const http = require('http')
 const { toStream, toBlob } = require('../lib/core/network/body')
 
-const bytes = (text) => new TextEncoder().encode(text)
-const text = async (stream) => await new Response(stream).text()
-const soon = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms))
+const encode = (text) => new TextEncoder().encode(text)
+const readText = async (stream) => await new Response(stream).text()
+const delay = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// Settles with 'pending' if the promise has not settled by then.
-const within = (promise, ms = 500) =>
-  Promise.race([promise.then(() => 'settled'), soon(ms).then(() => 'pending')])
+// Resolves with 'settled', or with 'pending' if the promise has not settled after `ms`.
+const getPromiseState = (promise, ms = 500) =>
+  Promise.race([promise.then(() => 'settled'), delay(ms).then(() => 'pending')])
 
-test('stream: every kind of segment, in order', async (t) => {
+test('toStream should emit segments in order', async (t) => {
   const body = toStream([
-    bytes('bytes '),
+    encode('bytes '),
     new Blob(['blob ']),
     async function* () {
-      yield bytes('gener')
-      yield bytes('ator ')
+      yield encode('gener')
+      yield encode('ator ')
     },
     () => new Blob(['web stream']).stream(),
-    bytes(''),
+    encode(''),
     new Blob([]),
   ])
 
-  t.is(await text(body.stream), 'bytes blob generator web stream')
+  t.is(await readText(body.stream), 'bytes blob generator web stream')
   t.is(body.failure, undefined)
 })
 
-test('stream: a source is opened only when it is reached', async (t) => {
+test('toStream should open sources lazily', async (t) => {
   const opened = []
   const source = (name) => () => {
     opened.push(name)
     return (async function* () {
-      yield bytes(name)
+      yield encode(name)
     })()
   }
   const body = toStream([source('a'), source('b'), source('c')])
@@ -45,58 +45,58 @@ test('stream: a source is opened only when it is reached', async (t) => {
   t.false(opened.includes('c'), 'a source that was not reached is never opened')
 })
 
-test('stream: chunks from a source are turned into bytes', async (t) => {
+test('toStream should convert chunks to bytes', async (t) => {
   const body = toStream([
     async function* () {
       yield 'text '
-      yield bytes('view ').buffer
-      yield new DataView(bytes('data').buffer)
+      yield encode('view ').buffer
+      yield new DataView(encode('data').buffer)
     },
   ])
 
-  t.is(await text(body.stream), 'text view data')
+  t.is(await readText(body.stream), 'text view data')
 })
 
-test('stream: a chunk that is not bytes fails the body', async (t) => {
+test('toStream should reject a non-byte chunk', async (t) => {
   const body = toStream([
     async function* () {
       yield { not: 'bytes' }
     },
   ])
 
-  await t.throwsAsync(text(body.stream), { instanceOf: TypeError })
+  await t.throwsAsync(readText(body.stream), { instanceOf: TypeError })
   t.true(body.failure.error instanceof TypeError)
 })
 
-test('stream: the caller keeps its buffer', async (t) => {
+test("toStream should not detach the caller's buffer", async (t) => {
   const owned = new Uint8Array(100_000).fill(120)
-  await text(toStream([owned]).stream)
+  await readText(toStream([owned]).stream)
 
   t.is(owned.byteLength, 100_000)
   t.is(owned[99_999], 120)
 })
 
-test('stream: a failing source is recorded', async (t) => {
+test('toStream should record a source error', async (t) => {
   const error = new Error('disk on fire')
   const body = toStream([
-    bytes('start'),
+    encode('start'),
     async function* () {
-      yield bytes('part')
+      yield encode('part')
       throw error
     },
   ])
 
-  await t.throwsAsync(text(body.stream), { is: error })
+  await t.throwsAsync(readText(body.stream), { is: error })
   t.is(body.failure.error, error)
 })
 
-test('close: a generator waiting at a yield is ended', async (t) => {
+test('close should end a paused generator', async (t) => {
   let released = false
   const body = toStream([
     async function* () {
       try {
-        yield bytes('one')
-        yield bytes('two')
+        yield encode('one')
+        yield encode('two')
       } finally {
         released = true
       }
@@ -111,7 +111,7 @@ test('close: a generator waiting at a yield is ended', async (t) => {
   t.is(body.failure, undefined, 'closing is not a failure')
 })
 
-test('close: a web stream that never answers is cancelled', async (t) => {
+test('close should cancel a pending web stream read', async (t) => {
   let cancelled = false
   const body = toStream([
     () =>
@@ -126,10 +126,10 @@ test('close: a web stream that never answers is cancelled', async (t) => {
     .getReader()
     .read()
     .catch(() => {})
-  await soon(50)
+  await delay(50)
 
   t.is(
-    await within(body.close()),
+    await getPromiseState(body.close()),
     'settled',
     'close does not wait for the read'
   )
@@ -137,7 +137,7 @@ test('close: a web stream that never answers is cancelled', async (t) => {
   t.is(body.failure, undefined)
 })
 
-test('close: a Node stream that never answers is destroyed', async (t) => {
+test('close should destroy a pending Node stream', async (t) => {
   const { Readable } = require('stream')
   const silent = new Readable({ read() {} })
   const body = toStream([() => silent])
@@ -145,9 +145,9 @@ test('close: a Node stream that never answers is destroyed', async (t) => {
     .getReader()
     .read()
     .catch(() => {})
-  await soon(50)
+  await delay(50)
 
-  t.is(await within(body.close()), 'settled')
+  t.is(await getPromiseState(body.close()), 'settled')
   t.true(silent.destroyed)
   t.is(
     body.failure,
@@ -156,16 +156,16 @@ test('close: a Node stream that never answers is destroyed', async (t) => {
   )
 })
 
-test('close: a generator that never yields cannot hold the caller', async (t) => {
+test('close should not wait for a stalled generator', async (t) => {
   let released = false
   let unblock
   const blocked = new Promise((resolve) => (unblock = resolve))
   const body = toStream([
     async function* () {
       try {
-        yield bytes('one')
+        yield encode('one')
         await blocked
-        yield bytes('two')
+        yield encode('two')
       } finally {
         released = true
       }
@@ -173,23 +173,23 @@ test('close: a generator that never yields cannot hold the caller', async (t) =>
   ])
   const reader = body.stream.getReader()
   await reader.read()
-  await soon(50)
+  await delay(50)
 
-  t.is(await within(body.close()), 'settled', 'close returns at once')
+  t.is(await getPromiseState(body.close()), 'settled', 'close returns at once')
   t.false(released, 'a generator cannot be interrupted while it waits')
 
   unblock()
-  await soon(50)
+  await delay(50)
   t.true(released, 'and is ended as soon as it yields')
 })
 
-test('close: the consumer cancelling has the same effect', async (t) => {
+test('toStream should release the source on consumer cancel', async (t) => {
   let released = false
   const body = toStream([
     async function* () {
       try {
-        yield bytes('one')
-        yield bytes('two')
+        yield encode('one')
+        yield encode('two')
       } finally {
         released = true
       }
@@ -202,8 +202,8 @@ test('close: the consumer cancelling has the same effect', async (t) => {
   t.true(released)
 })
 
-test('stream: an implementation that stringifies it is refused', async (t) => {
-  const { stream } = toStream([bytes('x')])
+test('toStream should throw when stringified', async (t) => {
+  const { stream } = toStream([encode('x')])
   t.throws(() => String(stream), { instanceOf: TypeError })
 
   // node-fetch 2 would otherwise upload the text "[object ReadableStream]".
@@ -214,13 +214,13 @@ test('stream: an implementation that stringifies it is refused', async (t) => {
   )
 })
 
-test('blob: segments are joined, and a stream is read into it', async (t) => {
+test('toBlob should concatenate segments', async (t) => {
   const blob = await toBlob(
     [
-      bytes('bytes '),
+      encode('bytes '),
       new Blob(['blob ']),
       async function* () {
-        yield bytes('stream')
+        yield encode('stream')
       },
     ],
     { type: 'multipart/form-data; boundary=B' }
@@ -231,13 +231,13 @@ test('blob: segments are joined, and a stream is read into it', async (t) => {
   t.is(blob.type, 'multipart/form-data; boundary=b')
 })
 
-test('blob: a failing source rejects, and is released', async (t) => {
+test('toBlob should reject with a source error', async (t) => {
   const error = new Error('disk on fire')
   let released = false
   const failing = toBlob([
     async function* () {
       try {
-        yield bytes('part')
+        yield encode('part')
         throw error
       } finally {
         released = true
@@ -249,16 +249,16 @@ test('blob: a failing source rejects, and is released', async (t) => {
   t.true(released)
 })
 
-test('blob: aborting rejects with the reason and cancels a web stream', async (t) => {
+test('toBlob should cancel a web stream on abort', async (t) => {
   let cancelled = false
   const reason = new Error('enough')
   const controller = new AbortController()
-  // One chunk, and then nothing more: it never ends.
+  // Emits one chunk and then stalls forever.
   const reading = toBlob(
     [
       () =>
         new ReadableStream({
-          start: (stream) => stream.enqueue(bytes('x')),
+          start: (stream) => stream.enqueue(encode('x')),
           cancel() {
             cancelled = true
           },
@@ -266,16 +266,16 @@ test('blob: aborting rejects with the reason and cancels a web stream', async (t
     ],
     { signal: controller.signal }
   )
-  await soon(20)
+  await delay(20)
   t.false(cancelled)
   controller.abort(reason)
 
   await t.throwsAsync(reading, { is: reason })
-  await soon(20)
+  await delay(20)
   t.true(cancelled)
 })
 
-test('blob: aborting does not wait for a generator, and reads no further', async (t) => {
+test('toBlob should not wait for a generator on abort', async (t) => {
   const reached = []
   let resume
   const gate = new Promise((resolve) => (resume = resolve))
@@ -284,12 +284,12 @@ test('blob: aborting does not wait for a generator, and reads no further', async
     [
       async function* () {
         try {
-          yield bytes('a')
+          yield encode('a')
           await gate
           reached.push('second chunk')
-          yield bytes('b')
+          yield encode('b')
           reached.push('third chunk')
-          yield bytes('c')
+          yield encode('c')
         } finally {
           reached.push('released')
         }
@@ -301,7 +301,7 @@ test('blob: aborting does not wait for a generator, and reads no further', async
     ],
     { signal: controller.signal }
   )
-  await soon(20)
+  await delay(20)
   controller.abort()
 
   await t.throwsAsync(reading, { name: 'AbortError' })
@@ -312,7 +312,7 @@ test('blob: aborting does not wait for a generator, and reads no further', async
   )
 
   resume()
-  await soon(20)
+  await delay(20)
   t.deepEqual(
     reached,
     ['second chunk', 'released'],
@@ -320,7 +320,7 @@ test('blob: aborting does not wait for a generator, and reads no further', async
   )
 })
 
-test('blob: a signal that has already aborted opens nothing', async (t) => {
+test('toBlob should not open a source for an aborted signal', async (t) => {
   let opened = false
   const reason = new Error('enough')
   const reading = toBlob(
@@ -337,7 +337,7 @@ test('blob: a signal that has already aborted opens nothing', async (t) => {
   t.false(opened)
 })
 
-test('blob: a signal that never aborts changes nothing', async (t) => {
+test('toBlob should remove its abort listener', async (t) => {
   const { signal } = new AbortController()
   const listeners = new Set()
   const { addEventListener, removeEventListener } = signal
@@ -351,20 +351,20 @@ test('blob: a signal that never aborts changes nothing', async (t) => {
   }
   const blob = await toBlob(
     [
-      bytes('head '),
+      encode('head '),
       async function* () {
-        yield bytes('stream')
+        yield encode('stream')
       },
     ],
     { signal }
   )
 
   t.is(await blob.text(), 'head stream')
-  await soon(0)
+  await delay(0)
   t.is(listeners.size, 0, 'nothing is left on the signal')
 })
 
-test('blob: aborting while a stream is being opened rejects', async (t) => {
+test('toBlob should reject on abort during source open', async (t) => {
   const reason = new Error('no such file')
   const controller = new AbortController()
   const reading = toBlob(
@@ -380,27 +380,27 @@ test('blob: aborting while a stream is being opened rejects', async (t) => {
   await t.throwsAsync(reading, { is: reason })
 })
 
-test('blob: aborting stops the reading of a stream that cannot be stopped', async (t) => {
-  // An iterator with nothing but `next`: there is no way to tell it to stop.
+test('toBlob should stop reading an iterator without return() on abort', async (t) => {
+  // An iterator with only next() can't be told to stop.
   let reads = 0
   const endless = {
     [Symbol.asyncIterator]: () => ({
       async next() {
         reads++
-        await soon(5)
-        return { done: false, value: bytes('x') }
+        await delay(5)
+        return { done: false, value: encode('x') }
       },
     }),
   }
   const controller = new AbortController()
   const reading = toBlob([() => endless], { signal: controller.signal })
-  await soon(30)
+  await delay(30)
   controller.abort()
 
   await t.throwsAsync(reading, { name: 'AbortError' })
-  await soon(30)
+  await delay(30)
   const readsAfterAbort = reads
-  await soon(60)
+  await delay(60)
   t.is(reads, readsAfterAbort, 'nothing more is read')
 })
 
@@ -431,14 +431,14 @@ const echo = (req, res) => {
   })
 }
 
-test('fetch: a stream body is sent chunked and arrives whole', async (t) => {
+test('fetch should send a stream body chunked', async (t) => {
   await withServer(echo, async (url) => {
     const body = toStream([
-      bytes('head '),
+      encode('head '),
       async function* () {
-        yield bytes('file')
+        yield encode('file')
       },
-      bytes(' tail'),
+      encode(' tail'),
     ])
     const res = await fetch(url, {
       method: 'POST',
@@ -454,17 +454,17 @@ test('fetch: a stream body is sent chunked and arrives whole', async (t) => {
   })
 })
 
-test('fetch: a blob body is sent with its length', async (t) => {
+test('fetch should send a blob body with a content-length', async (t) => {
   await withServer(echo, async (url) => {
-    const blob = await toBlob([bytes('head '), new Blob(['file'])])
+    const blob = await toBlob([encode('head '), new Blob(['file'])])
     const res = await fetch(url, { method: 'POST', body: blob, duplex: 'half' })
 
     t.deepEqual(await res.json(), { body: 'head file', length: '9' })
   })
 })
 
-test('fetch: closing after an abort releases the source', async (t) => {
-  // Node does not cancel the body of a request that was aborted.
+test('close should release the source after an aborted fetch', async (t) => {
+  // Node does not cancel the request body when a request is aborted.
   await withServer(
     (req) => req.resume(),
     async (url) => {
@@ -474,7 +474,7 @@ test('fetch: closing after an abort releases the source', async (t) => {
           try {
             for (;;) {
               yield new Uint8Array(1024)
-              await soon(10)
+              await delay(10)
             }
           } finally {
             released = true
@@ -493,12 +493,12 @@ test('fetch: closing after an abort releases the source', async (t) => {
         }),
         { name: 'AbortError' }
       )
-      await soon(100)
+      await delay(100)
       t.false(released, 'the runtime left the source open')
 
       await body.close()
-      // The generator may be between two yields; it is ended when it reaches the next.
-      await soon(100)
+      // The generator may be between yields; it ends at the next one.
+      await delay(100)
       t.true(released)
     }
   )

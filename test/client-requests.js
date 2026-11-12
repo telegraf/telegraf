@@ -8,14 +8,14 @@ const { default: ApiClient } = require('../lib/core/network/client')
 const { TelegramError } = require('../lib/core/network/error')
 const Input = require('../lib/input')
 
-// Plain literals are used here as well as the helpers, and each kind warns once.
+// Some tests pass plain literals, which warn once per kind.
 process.emitWarning = () => {}
 
 const TOKEN = '123456:SECRET-abc_DEF'
-const soon = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// The parts of a multipart body, by name: a string, or a file.
-function parse(body, contentType) {
+// Parses a multipart body into its parts by name: a string, or a file.
+function parseMultipart(body, contentType) {
   const boundary = /boundary=(.+)$/.exec(contentType)[1]
   const parts = {}
   for (const raw of body.split(`--${boundary}`).slice(1, -1)) {
@@ -29,14 +29,14 @@ function parse(body, contentType) {
   return parts
 }
 
-// A stand-in for the Bot API. It answers every call, and keeps what it was sent; it also
-// serves a file, and a page that is not there.
+// A local stand-in for the Bot API. It answers every call and records the request. It
+// also serves one file, and a 404 for another.
 async function withApi(run, answer = { ok: true, result: true }, status = 200) {
   const requests = []
   const server = http.createServer((req, res) => {
     if (req.url === '/files/a.txt') return res.end('downloaded')
     if (req.url === '/files/missing') return res.writeHead(404).end('nothing')
-    // A file of the bot's own: its address holds the token.
+    // A Bot API file link: its URL contains the token.
     if (req.url.startsWith('/file/')) return res.writeHead(404).end('nothing')
     const chunks = []
     req.on('data', (chunk) => chunks.push(chunk))
@@ -50,7 +50,7 @@ async function withApi(run, answer = { ok: true, result: true }, status = 200) {
         type,
         encoding: req.headers['transfer-encoding'],
         json: multipart ? undefined : JSON.parse(body),
-        parts: multipart ? parse(body, type) : undefined,
+        parts: multipart ? parseMultipart(body, type) : undefined,
       })
       res.writeHead(status, { 'content-type': 'application/json' })
       res.end(typeof answer === 'string' ? answer : JSON.stringify(answer))
@@ -70,20 +70,20 @@ async function withApi(run, answer = { ok: true, result: true }, status = 200) {
   }
 }
 
-// The file that a part is, or that it refers to.
-const fileOf = (parts, value) => {
+// Returns the file a part holds, or the one its attach:// reference points to.
+const resolveFile = (parts, value) => {
   if (typeof value === 'object') return value
   const id = /^attach:\/\/(.+)$/.exec(value)
   return id === null ? undefined : parts[id[1]]
 }
 
-test('a call without files is sent as JSON', async (t) => {
+test('should send a call without files as JSON', async (t) => {
   await withApi(async (client, requests) => {
     const result = await client.callApi('sendMessage', {
       chat_id: 1,
       text: 'a',
       reply_markup: null,
-      // Not a file: this is an object of the Bot API.
+      // A Bot API object, not a file.
       link_preview_options: { url: 'https://example.com' },
     })
 
@@ -98,13 +98,13 @@ test('a call without files is sent as JSON', async (t) => {
   })
 })
 
-test('a file that is a parameter is the part by that name', async (t) => {
+test('should send a top-level file as a part named after its key', async (t) => {
   await withApi(async (client, requests) => {
     await client.callApi('sendPhoto', {
       chat_id: 1,
       photo: Input.fromBuffer(Buffer.from('PHOTO')),
       caption: null,
-      // Issue 2094: an object beside a file was dropped.
+      // Issue 2094: an object next to a file used to be dropped.
       reply_parameters: { message_id: 5, allow_sending_without_reply: true },
     })
 
@@ -121,8 +121,8 @@ test('a file that is a parameter is the part by that name', async (t) => {
   })
 })
 
-test('a caller can refer to a file that is a parameter by its name', async (t) => {
-  // The way to upload where files were not looked for: a sticker of a new set.
+test('should support an attach:// reference to a top-level file', async (t) => {
+  // The workaround for positions v4 never searched for files, e.g. a new sticker.
   await withApi(async (client, requests) => {
     await client.callApi('createNewStickerSet', {
       name: 'set',
@@ -136,7 +136,7 @@ test('a caller can refer to a file that is a parameter by its name', async (t) =
   })
 })
 
-test('every kind of file arrives with its contents and its name', async (t) => {
+test('should upload every file source type', async (t) => {
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'telegraf-'))
   t.teardown(() => fs.rmSync(folder, { recursive: true }))
   const file = path.join(folder, 'on disk.txt')
@@ -152,7 +152,7 @@ test('every kind of file arrives with its contents and its name', async (t) => {
     })
 
     const [{ parts }] = requests
-    const sent = (name) => fileOf(parts, parts[name])
+    const sent = (name) => resolveFile(parts, parts[name])
     t.deepEqual(sent('document'), { file: 'on disk.txt', content: 'from disk' })
     t.deepEqual(sent('photo'), { file: 'a.png', content: 'bytes' })
     t.deepEqual(sent('video'), { file: 'video.mp4', content: 'a stream' })
@@ -161,7 +161,7 @@ test('every kind of file arrives with its contents and its name', async (t) => {
   })
 })
 
-test('a file is found wherever it is in the payload', async (t) => {
+test('should upload nested files', async (t) => {
   const file = (content) => Input.fromBuffer(Buffer.from(content))
   const positions = {
     'the thumbnail of a parameter': [
@@ -176,7 +176,7 @@ test('a file is found wherever it is in the payload', async (t) => {
       { media: { type: 'video', media: file('a'), thumbnail: file('b') } },
       (parts) => JSON.parse(parts.media).thumbnail,
     ],
-    // These were not reached before: the file was sent as JSON.
+    // v4 did not reach these: the file was sent as JSON.
     'a thumbnail beside a file that is not uploaded': [
       { media: [{ type: 'video', media: 'file_id', thumbnail: file('a') }] },
       (parts) => JSON.parse(parts.media)[0].thumbnail,
@@ -201,12 +201,16 @@ test('a file is found wherever it is in the payload', async (t) => {
       const [{ parts }] = requests
 
       t.truthy(parts, position)
-      t.is(typeof fileOf(parts, reference(parts))?.content, 'string', position)
+      t.is(
+        typeof resolveFile(parts, reference(parts))?.content,
+        'string',
+        position
+      )
     }
   })
 })
 
-test('the agent for attachments is used to download a URL', async (t) => {
+test('should download a { url } file with attachmentAgent', async (t) => {
   const asked = []
   await withApi(async (client, requests, origin) => {
     client.options.attachmentAgent = (url) => {
@@ -219,13 +223,13 @@ test('the agent for attachments is used to download a URL', async (t) => {
 
     t.deepEqual(asked, [`${origin}/files/a.txt`])
     t.is(
-      fileOf(requests[0].parts, requests[0].parts.document).content,
+      resolveFile(requests[0].parts, requests[0].parts.document).content,
       'downloaded'
     )
   })
 })
 
-test('a URL that does not answer with a file fails the call', async (t) => {
+test('should reject on a { url } download error status', async (t) => {
   await withApi(async (client, requests, origin) => {
     const url = `${origin}/files/missing`
     const call = client.callApi('sendDocument', {
@@ -239,8 +243,8 @@ test('a URL that does not answer with a file fails the call', async (t) => {
   })
 })
 
-test('the token is removed from the error of a download', async (t) => {
-  // A file of the bot's own is fetched from an address that holds the token.
+test('should redact the token from a download error', async (t) => {
+  // A Bot API file link contains the token.
   await withApi(async (client, requests, origin) => {
     const call = client.callApi('sendDocument', {
       document: Input.fromURLStream(`${origin}/file/bot${TOKEN}/a.jpg`),
@@ -252,9 +256,9 @@ test('the token is removed from the error of a download', async (t) => {
   })
 })
 
-test('the files given as a URL have all answered before the request is opened', async (t) => {
-  // They are fetched first, and all at once, so that a slow host cannot hold an upload
-  // up half way.
+test('should start the request after all { url } downloads respond', async (t) => {
+  // All downloads start up front, concurrently, so a slow file host cannot stall the
+  // upload half way.
   const events = []
   const files = http.createServer((req, res) => {
     events.push(`asked ${req.url}`)
@@ -300,8 +304,8 @@ test('the files given as a URL have all answered before the request is opened', 
   t.is(events.length, 7)
 })
 
-test('a call is aborted while it waits for a download', async (t) => {
-  // A host that accepts, and never answers.
+test('should abort during a pending download', async (t) => {
+  // A host that accepts the connection and never responds.
   let closed = false
   const files = http.createServer((req, res) => {
     res.on('close', () => (closed = true))
@@ -325,11 +329,11 @@ test('a call is aborted while it waits for a download', async (t) => {
     await t.throwsAsync(call, { name: 'AbortError' })
     t.is(requests.length, 0, 'the request was never opened')
   })
-  await soon(100)
+  await delay(100)
   t.true(closed, 'the download is closed')
 })
 
-test('a path that cannot be read fails the call', async (t) => {
+test('should reject on an unreadable file path', async (t) => {
   const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'telegraf-'))
   t.teardown(() => fs.rmSync(folder, { recursive: true }))
 
@@ -349,8 +353,8 @@ test('a path that cannot be read fails the call', async (t) => {
   })
 })
 
-// A stream that does not end by itself, and says when it is released.
-const endless = () => {
+// A stream that never ends on its own.
+const createEndlessStream = () => {
   let sent = false
   return new Readable({
     read() {
@@ -360,11 +364,11 @@ const endless = () => {
   })
 }
 
-test('the streams that were given are released when the request fails', async (t) => {
-  // Nothing listens here, so the second stream is never reached.
+test('should destroy source streams on a request error', async (t) => {
+  // Port 1 is closed, so the second stream is never reached.
   const client = new ApiClient(TOKEN, { apiRoot: 'http://127.0.0.1:1' })
-  const first = endless()
-  const second = endless()
+  const first = createEndlessStream()
+  const second = createEndlessStream()
   const call = client.callApi('sendMediaGroup', {
     media: [
       { type: 'photo', media: Input.fromReadableStream(first) },
@@ -374,12 +378,12 @@ test('the streams that were given are released when the request fails', async (t
 
   const error = await t.throwsAsync(call, { code: 'ECONNREFUSED' })
   t.false(error.message.includes('SECRET'))
-  await soon(50)
+  await delay(50)
   t.true(first.destroyed)
   t.true(second.destroyed)
 })
 
-test('the streams that were given are released when the call is aborted', async (t) => {
+test('should destroy source streams on abort', async (t) => {
   const server = http.createServer((req) => req.resume())
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
   t.teardown(() => {
@@ -387,8 +391,8 @@ test('the streams that were given are released when the call is aborted', async 
     server.close()
   })
   const apiRoot = `http://127.0.0.1:${server.address().port}`
-  const first = endless()
-  const second = endless()
+  const first = createEndlessStream()
+  const second = createEndlessStream()
   const controller = new AbortController()
   const call = new ApiClient(TOKEN, { apiRoot }).callApi(
     'sendMediaGroup',
@@ -403,13 +407,13 @@ test('the streams that were given are released when the call is aborted', async 
   setTimeout(() => controller.abort(), 100)
 
   await t.throwsAsync(call, { name: 'AbortError' })
-  await soon(50)
+  await delay(50)
   t.true(first.destroyed)
   t.true(second.destroyed)
 })
 
-test('a download that has begun is stopped when the request fails', async (t) => {
-  // A file that starts, and does not end.
+test('should abort a download on a request error', async (t) => {
+  // A download that starts and never ends.
   let closed = false
   const files = http.createServer((req, res) => {
     res.on('close', () => (closed = true))
@@ -428,12 +432,12 @@ test('a download that has begun is stopped when the request fails', async (t) =>
   })
 
   await t.throwsAsync(call, { code: 'ECONNREFUSED' })
-  await soon(200)
+  await delay(200)
   t.true(closed)
 })
 
-test('files are released when the answer comes before the upload has ended', async (t) => {
-  // As a server does that refuses a file: it answers, and does not wait for the rest.
+test('should release files on an early response', async (t) => {
+  // Like a server rejecting a file: it responds without reading the rest of the body.
   const api = http.createServer((req, res) => {
     req.resume()
     res.writeHead(413, { 'content-type': 'application/json' })
@@ -457,8 +461,8 @@ test('files are released when the answer comes before the upload has ended', asy
   })
   const url = `http://127.0.0.1:${files.address().port}/a`
 
-  const first = endless()
-  const second = endless()
+  const first = createEndlessStream()
+  const second = createEndlessStream()
   const streams = client.callApi('sendMediaGroup', {
     media: [
       { type: 'photo', media: Input.fromReadableStream(first) },
@@ -466,7 +470,7 @@ test('files are released when the answer comes before the upload has ended', asy
     ],
   })
   await t.throwsAsync(streams, { message: '413: Too Large' })
-  await soon(50)
+  await delay(50)
   t.true(first.destroyed, 'the stream that was being read')
   t.true(second.destroyed, 'the stream that was not reached')
 
@@ -474,12 +478,12 @@ test('files are released when the answer comes before the upload has ended', asy
     document: Input.fromURLStream(url),
   })
   await t.throwsAsync(download, { message: '413: Too Large' })
-  await soon(200)
+  await delay(200)
   t.true(closed, 'the download that had begun')
 })
 
-// A signal that counts the listeners it holds.
-const counted = () => {
+// Creates a signal that tracks its listeners.
+const createSignalSpy = () => {
   const controller = new AbortController()
   const { signal } = controller
   const listeners = new Set()
@@ -495,9 +499,9 @@ const counted = () => {
   return { controller, signal, listeners }
 }
 
-test('a call leaves nothing on the signal it was given', async (t) => {
-  // Polling gives the same signal to every call it makes, for as long as the bot runs.
-  const { signal, listeners } = counted()
+test('should remove its abort listener', async (t) => {
+  // Polling passes the same signal to every call for as long as the bot runs.
+  const { signal, listeners } = createSignalSpy()
   await withApi(async (client) => {
     await client.callApi('getUpdates', {}, { signal })
     await client.callApi('getUpdates', {}, { signal })
@@ -517,8 +521,8 @@ test('a call leaves nothing on the signal it was given', async (t) => {
   t.is(listeners.size, 0, 'after a request that failed')
 })
 
-test('a call is still aborted by the signal while it is under way', async (t) => {
-  const { controller, signal, listeners } = counted()
+test('should abort a pending call', async (t) => {
+  const { controller, signal, listeners } = createSignalSpy()
   const server = http.createServer((req) => req.resume())
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
   t.teardown(() => {
@@ -531,14 +535,14 @@ test('a call is still aborted by the signal while it is under way', async (t) =>
     {},
     { signal }
   )
-  await soon(50)
+  await delay(50)
   t.is(listeners.size, 1, 'it listens while the call is under way')
 
   controller.abort()
   await t.throwsAsync(call, { name: 'AbortError' })
   t.is(listeners.size, 0)
 
-  // A signal that has already aborted stops a call before it begins.
+  // An already-aborted signal rejects a call before it starts.
   const late = new ApiClient(TOKEN, { apiRoot }).callApi(
     'getUpdates',
     {},
@@ -548,7 +552,7 @@ test('a call is still aborted by the signal while it is under way', async (t) =>
   t.is(listeners.size, 0)
 })
 
-test('an error from the API is a TelegramError', async (t) => {
+test('should throw a TelegramError for an API error', async (t) => {
   const refusal = { ok: false, error_code: 400, description: 'Bad Request' }
   await withApi(
     async (client) => {
@@ -563,7 +567,7 @@ test('an error from the API is a TelegramError', async (t) => {
   )
 })
 
-test('a server error is a TelegramError made of its status', async (t) => {
+test('should throw a TelegramError for a 5xx response', async (t) => {
   await withApi(
     async (client) => {
       await t.throwsAsync(client.callApi('getMe', {}), {
@@ -576,8 +580,8 @@ test('a server error is a TelegramError made of its status', async (t) => {
   )
 })
 
-test('the token is removed from the error of an answer that is not JSON', async (t) => {
-  // A proxy's page, for one. node-fetch names the address it was read from.
+test('should redact the token from a non-JSON response error', async (t) => {
+  // e.g. a proxy's error page. node-fetch puts the request URL in its error.
   await withApi(
     async (client) => {
       const error = await t.throwsAsync(client.callApi('getMe', {}), {

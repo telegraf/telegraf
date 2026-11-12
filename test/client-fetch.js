@@ -12,7 +12,7 @@ process.emitWarning = (message, type, code) =>
   warnings.push({ message, type, code })
 
 const TOKEN = '123456:SECRET-abc_DEF'
-const soon = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // A custom fetch that wraps the global one and logs each request.
 function createFetchSpy() {
@@ -24,8 +24,8 @@ function createFetchSpy() {
   return { calls, fetch }
 }
 
-// The parts of a multipart body, by name: a string, or a file.
-function parse(body, contentType) {
+// Parses a multipart body into its parts by name: a string, or a file.
+function parseMultipart(body, contentType) {
   const boundary = /boundary=(.+)$/.exec(contentType)[1]
   const parts = {}
   for (const raw of body.split(`--${boundary}`).slice(1, -1)) {
@@ -57,7 +57,7 @@ async function withApi(run, answer = { ok: true, result: true }, status = 200) {
         url: req.url,
         type,
         json: multipart ? undefined : JSON.parse(body),
-        parts: multipart ? parse(body, type) : undefined,
+        parts: multipart ? parseMultipart(body, type) : undefined,
       })
       res.writeHead(status, { 'content-type': 'application/json' })
       res.end(typeof answer === 'string' ? answer : JSON.stringify(answer))
@@ -76,11 +76,11 @@ async function withApi(run, answer = { ok: true, result: true }, status = 200) {
 }
 
 test.serial(
-  'warns that a user-set agent is ignored, but not about the default agent',
+  'should warn about a custom agent, not the default agent',
   async (t) => {
     const agents = () =>
       warnings.filter((warning) => warning.code === 'TELEGRAF_AGENT')
-    // Nothing listens here. With this root there is an agent by default.
+    // Port 1 is closed, so the request fails. An https `apiRoot` gets the default agent.
     const apiRoot = 'https://127.0.0.1:1'
     const { fetch } = createFetchSpy()
 
@@ -97,7 +97,7 @@ test.serial(
   }
 )
 
-test('sends a call through the custom fetch', async (t) => {
+test('should send a call through the custom fetch', async (t) => {
   await withApi(async ({ client, requests, calls }) => {
     const result = await client.callApi('sendMessage', {
       chat_id: 1,
@@ -112,7 +112,7 @@ test('sends a call through the custom fetch', async (t) => {
   })
 })
 
-test('uploads files the same way as the default transport', async (t) => {
+test('should upload files like the default transport', async (t) => {
   await withApi(async ({ client, requests }) => {
     await client.callApi('sendMediaGroup', {
       chat_id: 1,
@@ -145,7 +145,7 @@ test('uploads files the same way as the default transport', async (t) => {
   })
 })
 
-test('downloads a { url } file with the custom fetch, before the request', async (t) => {
+test('should download a { url } file with the custom fetch', async (t) => {
   await withApi(async ({ client, requests, origin, calls }) => {
     await client.callApi('sendDocument', {
       document: Input.fromURLStream(`${origin}/files/a.txt`, 'a.txt'),
@@ -159,7 +159,7 @@ test('downloads a { url } file with the custom fetch, before the request', async
   })
 })
 
-test('waits for every { url } download to respond before opening the request', async (t) => {
+test('should start the request after all { url } downloads respond', async (t) => {
   const events = []
   const files = http.createServer((req, res) => {
     events.push(`asked ${req.url}`)
@@ -206,7 +206,7 @@ test('waits for every { url } download to respond before opening the request', a
   t.is(events.length, 7)
 })
 
-test('fails the call when a { url } download returns an error status', async (t) => {
+test('should reject on a { url } download error status', async (t) => {
   await withApi(async ({ client, requests, origin }) => {
     const url = `${origin}/files/missing`
     const call = client.callApi('sendDocument', {
@@ -220,7 +220,7 @@ test('fails the call when a { url } download returns an error status', async (t)
   })
 })
 
-test('throws a TelegramError for an API error', async (t) => {
+test('should throw a TelegramError for an API error', async (t) => {
   const refusal = { ok: false, error_code: 400, description: 'Bad Request' }
   await withApi(
     async ({ client }) => {
@@ -235,7 +235,7 @@ test('throws a TelegramError for an API error', async (t) => {
   )
 })
 
-test('throws a TelegramError with the HTTP status for a non-API error response', async (t) => {
+test('should throw a TelegramError for a non-API error response', async (t) => {
   await withApi(
     async ({ client }) => {
       await t.throwsAsync(client.callApi('getMe', {}), {
@@ -248,7 +248,7 @@ test('throws a TelegramError with the HTTP status for a non-API error response',
   )
 })
 
-test('throws 401 for a missing token without calling fetch', async (t) => {
+test('should throw 401 for a missing token', async (t) => {
   const { calls, fetch } = createFetchSpy()
   const client = new ApiClient(undefined, { fetch })
 
@@ -258,8 +258,8 @@ test('throws 401 for a missing token without calling fetch', async (t) => {
   t.deepEqual(calls, [])
 })
 
-// A stream that does not end by itself.
-const endless = () => {
+// A stream that never ends on its own.
+const createEndlessStream = () => {
   let sent = false
   return new Readable({
     read() {
@@ -269,12 +269,12 @@ const endless = () => {
   })
 }
 
-test('redacts the token and destroys the streams when the request fails', async (t) => {
-  // Nothing listens here.
+test('should destroy source streams on a request error', async (t) => {
+  // Port 1 is closed, so the request fails.
   const { fetch } = createFetchSpy()
   const client = new ApiClient(TOKEN, { apiRoot: 'http://127.0.0.1:1', fetch })
-  const first = endless()
-  const second = endless()
+  const first = createEndlessStream()
+  const second = createEndlessStream()
   const error = await t.throwsAsync(
     client.callApi('sendMediaGroup', {
       media: [
@@ -286,12 +286,12 @@ test('redacts the token and destroys the streams when the request fails', async 
 
   const text = [error.message, error.stack, String(error.cause?.message)]
   t.false(text.join('\n').includes('SECRET'))
-  await soon(50)
+  await delay(50)
   t.true(first.destroyed)
   t.true(second.destroyed)
 })
 
-test('aborts the call and removes its listener from the signal', async (t) => {
+test('should abort a pending call', async (t) => {
   const server = http.createServer((req) => req.resume())
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
   t.teardown(() => {
@@ -315,7 +315,7 @@ test('aborts the call and removes its listener from the signal', async (t) => {
     apiRoot: `http://127.0.0.1:${server.address().port}`,
     fetch,
   })
-  const stream = endless()
+  const stream = createEndlessStream()
   const call = client.callApi(
     'sendDocument',
     { document: Input.fromReadableStream(stream) },
@@ -324,12 +324,12 @@ test('aborts the call and removes its listener from the signal', async (t) => {
   setTimeout(() => controller.abort(), 100)
 
   await t.throwsAsync(call, { name: 'AbortError' })
-  await soon(50)
+  await delay(50)
   t.true(stream.destroyed)
   t.is(listeners.size, 0)
 })
 
-test('aborts an in-progress download when the request fails', async (t) => {
+test('should abort a download on a request error', async (t) => {
   // A file that starts, and does not end.
   let closed = false
   const files = http.createServer((req, res) => {
@@ -342,19 +342,19 @@ test('aborts an in-progress download when the request fails', async (t) => {
     files.close()
   })
   const url = `http://127.0.0.1:${files.address().port}/a`
-  // Nothing listens here.
+  // Port 1 is closed, so the request fails.
   const { fetch } = createFetchSpy()
   const client = new ApiClient(TOKEN, { apiRoot: 'http://127.0.0.1:1', fetch })
 
   await t.throwsAsync(
     client.callApi('sendDocument', { document: Input.fromURLStream(url) })
   )
-  await soon(200)
+  await delay(200)
   t.true(closed)
 })
 
-test('aborts while waiting for a download to respond', async (t) => {
-  // A host that accepts, and never answers.
+test('should abort during a pending download', async (t) => {
+  // A host that accepts the connection and never responds.
   let closed = false
   const files = http.createServer((req, res) => {
     res.on('close', () => (closed = true))
@@ -378,11 +378,11 @@ test('aborts while waiting for a download to respond', async (t) => {
     await t.throwsAsync(call, { name: 'AbortError' })
     t.is(requests.length, 0, 'the request was never opened')
   })
-  await soon(100)
+  await delay(100)
   t.true(closed, 'the download is closed')
 })
 
-test('polling retries after a network error from the custom fetch', async (t) => {
+test('polling should retry after a custom fetch error', async (t) => {
   // What a standard fetch rejects with. The wait before the next try is cut short.
   const failure = Object.assign(new TypeError('fetch failed'), {
     parameters: { retry_after: 0 },

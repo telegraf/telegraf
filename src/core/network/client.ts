@@ -163,7 +163,10 @@ function noop() {
   // intentionally empty
 }
 
-/** The methods that can be answered this way take no files, so the answer is JSON. */
+/**
+ * Webhook replies are always JSON, since methods in WEBHOOK_REPLY_METHOD_ALLOWLIST
+ * don't take files.
+ */
 function answerToWebhook(
   response: Response,
   payload: Opts<keyof Telegram>
@@ -179,7 +182,7 @@ type Response = http.ServerResponse
 class ApiClient {
   readonly token: string
   readonly options: ApiClient.Options
-  /** What sends through `options.fetch`. It is made when it is first needed. */
+  /** Client for `options.fetch`, created on first use. */
   private client?: Client
 
   constructor(
@@ -187,8 +190,8 @@ class ApiClient {
     options?: Partial<ApiClient.Options>,
     private readonly response?: Response
   ) {
-    // Whitespace is not part of a token. A newline often follows one read from a file.
-    // A missing token is left for `callApi` to report.
+    // A token read from a file may end with a newline.
+    // A missing token is reported by `callApi`, not by the constructor.
     this.token = typeof token === 'string' ? token.trim() : token
     this.options = {
       ...DEFAULT_OPTIONS,
@@ -257,7 +260,6 @@ class ApiClient {
       throw redact(error, token)
     }
 
-    // Files are found wherever they are in the payload, and sent as a multipart body.
     const downloader = nodeFetchDownloader(options.attachmentAgent)
     const downloads = startDownloads(downloader)
     const converted = convertFileLiterals(
@@ -276,7 +278,7 @@ class ApiClient {
       const multipart =
         attachments.length === 0 ? undefined : toMultipart(fields, attachments)
       const stream = multipart && toStream(multipart.segments).stream
-      // node-fetch takes a Node stream, not the web stream that the body is made as.
+      // node-fetch can't send a web stream.
       body = stream && Readable.fromWeb(stream as NodeReadableStream)
       const config: RequestInit = {
         method: 'POST',
@@ -316,7 +318,7 @@ class ApiClient {
         }
         throw new TelegramError(errorPayload, { method, payload })
       }
-      // node-fetch names the address in the error of an answer that is not JSON.
+      // node-fetch puts the request URL in its error for a non-JSON response.
       const data = await res.json().catch((error: unknown) => {
         throw redact(error, token)
       })
@@ -326,11 +328,11 @@ class ApiClient {
       }
       return data.result
     } finally {
-      // The signal can outlive the call: polling gives the same one to every call.
+      // The signal can outlive the call: polling reuses one for every call.
       signal?.removeEventListener('abort', abort)
-      // An upload that did not reach its end: the request failed, or it was answered
-      // early, as a server does that refuses a file. The file that was being read is
-      // released, and so are the streams and the downloads that were not reached.
+      // The upload did not finish: the request failed, or the server responded early
+      // (e.g. it rejected a file). The file being read is still open, and so are the
+      // streams and downloads that were never reached.
       if (body?.readableEnded !== true) {
         body?.destroy()
         for (const stream of converted.streams) stream.destroy?.()

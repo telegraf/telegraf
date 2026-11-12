@@ -1,3 +1,4 @@
+import { stampInput } from './core/network/file-literals'
 import { InputFile } from './core/types/typegram'
 
 /**
@@ -6,7 +7,7 @@ import { InputFile } from './core/types/typegram'
  * 10 MB max size for photos, 50 MB for other files.
  */
 // prettier-ignore
-export const fromLocalFile = (path: string, filename?: string): InputFile => ({ source: path, filename })
+export const fromLocalFile = (path: string, filename?: string): InputFile => stampInput({ source: path, filename })
 
 /**
  * The buffer will be uploaded as file to Telegram using multipart/form-data.
@@ -14,7 +15,7 @@ export const fromLocalFile = (path: string, filename?: string): InputFile => ({ 
  * 10 MB max size for photos, 50 MB for other files.
  */
 // prettier-ignore
-export const fromBuffer = (buffer: Buffer, filename?: string): InputFile => ({ source: buffer, filename })
+export const fromBuffer = (buffer: Buffer, filename?: string): InputFile => stampInput({ source: buffer, filename })
 
 /**
  * Contents of the stream will be uploaded as file to Telegram using multipart/form-data.
@@ -22,7 +23,7 @@ export const fromBuffer = (buffer: Buffer, filename?: string): InputFile => ({ s
  * 10 MB max size for photos, 50 MB for other files.
  */
 // prettier-ignore
-export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: string): InputFile => ({ source: stream, filename })
+export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: string): InputFile => stampInput({ source: stream, filename })
 
 /**
  * Contents of the URL will be streamed to Telegram.
@@ -30,7 +31,7 @@ export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: str
  * 10 MB max size for photos, 50 MB for other files.
  */
 // prettier-ignore
-export const fromURLStream = (url: string | URL, filename?: string): InputFile => ({ url: url.toString(), filename })
+export const fromURLStream = (url: string | URL, filename?: string): InputFile => stampInput({ url: url.toString(), filename })
 
 /**
  * Provide Telegram with an HTTP URL for the file to be sent.

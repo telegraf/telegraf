@@ -5,6 +5,7 @@
 import type { ApiResponse } from '@telegraf/types/api'
 import { toBlob, toStream, type StreamBody } from './body'
 import { extractFiles, toJson, toMultipart } from './payload'
+import { warnOnce } from './warning'
 
 /** The parts of a response the client reads. */
 export interface FetchResponse {
@@ -277,20 +278,14 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-let warned = false
-
 function warnAgentIgnored() {
-  if (warned) return
-  warned = true
-  const message =
-    'telegraf: `agent` and `attachmentAgent` are ignored. ' +
-    'Pass your own `fetch` and configure the connection there.'
-  const emitter = (globalThis as { process?: Partial<NodeJS.Process> }).process
-  if (typeof emitter?.emitWarning === 'function') {
-    emitter.emitWarning(message, 'DeprecationWarning', 'TELEGRAF_AGENT')
-  } else {
-    console.warn(message)
-  }
+  warnOnce(
+    'TELEGRAF_AGENT',
+    // TODO: link to docs when ready
+    // TODO: in v6, globalThis.fetch is used by default, and this message will need to be updated or removed.
+    'telegraf: `agent` and `attachmentAgent` are ignored when `fetch` is passed. ' +
+      'Remove these options and pass a fetch wrapper that handles proxies or other connection requirements.'
+  )
 }
 
 function ignore() {

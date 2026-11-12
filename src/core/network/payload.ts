@@ -183,7 +183,9 @@ function escape(name: string) {
   })
 }
 
-function isPlainObject(value: unknown): value is Record<string, unknown> {
+export function isPlainObject(
+  value: unknown
+): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null) return false
   const prototype: unknown = Object.getPrototypeOf(value)
   return prototype === null || Object.getPrototypeOf(prototype) === null

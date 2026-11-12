@@ -7,6 +7,7 @@ const { Readable } = require('stream')
 const { default: ApiClient } = require('../lib/core/network/client')
 const { TelegramError } = require('../lib/core/network/error')
 const Input = require('../lib/input')
+const { fixtures } = require('./_helpers')
 
 // Some tests pass plain literals, which warn once per kind.
 process.emitWarning = () => {}
@@ -353,22 +354,11 @@ test('should reject on an unreadable file path', async (t) => {
   })
 })
 
-// A stream that never ends on its own.
-const createEndlessStream = () => {
-  let sent = false
-  return new Readable({
-    read() {
-      if (!sent) this.push('start')
-      sent = true
-    },
-  })
-}
-
 test('should destroy source streams on a request error', async (t) => {
   // Port 1 is closed, so the second stream is never reached.
   const client = new ApiClient(TOKEN, { apiRoot: 'http://127.0.0.1:1' })
-  const first = createEndlessStream()
-  const second = createEndlessStream()
+  const first = fixtures.stream.infinite()
+  const second = fixtures.stream.infinite()
   const call = client.callApi('sendMediaGroup', {
     media: [
       { type: 'photo', media: Input.fromReadableStream(first) },
@@ -391,8 +381,8 @@ test('should destroy source streams on abort', async (t) => {
     server.close()
   })
   const apiRoot = `http://127.0.0.1:${server.address().port}`
-  const first = createEndlessStream()
-  const second = createEndlessStream()
+  const first = fixtures.stream.infinite()
+  const second = fixtures.stream.infinite()
   const controller = new AbortController()
   const call = new ApiClient(TOKEN, { apiRoot }).callApi(
     'sendMediaGroup',
@@ -461,8 +451,8 @@ test('should release files on an early response', async (t) => {
   })
   const url = `http://127.0.0.1:${files.address().port}/a`
 
-  const first = createEndlessStream()
-  const second = createEndlessStream()
+  const first = fixtures.stream.infinite()
+  const second = fixtures.stream.infinite()
   const streams = client.callApi('sendMediaGroup', {
     media: [
       { type: 'photo', media: Input.fromReadableStream(first) },
@@ -482,26 +472,9 @@ test('should release files on an early response', async (t) => {
   t.true(closed, 'the download that had begun')
 })
 
-// Creates a signal that tracks its listeners.
-const createSignalSpy = () => {
-  const controller = new AbortController()
-  const { signal } = controller
-  const listeners = new Set()
-  const { addEventListener, removeEventListener } = signal
-  signal.addEventListener = (type, listener, options) => {
-    listeners.add(listener)
-    addEventListener.call(signal, type, listener, options)
-  }
-  signal.removeEventListener = (type, listener) => {
-    listeners.delete(listener)
-    removeEventListener.call(signal, type, listener)
-  }
-  return { controller, signal, listeners }
-}
-
 test('should remove its abort listener', async (t) => {
   // Polling passes the same signal to every call for as long as the bot runs.
-  const { signal, listeners } = createSignalSpy()
+  const { signal, listeners } = fixtures.signal.recorder()
   await withApi(async (client) => {
     await client.callApi('getUpdates', {}, { signal })
     await client.callApi('getUpdates', {}, { signal })
@@ -522,7 +495,7 @@ test('should remove its abort listener', async (t) => {
 })
 
 test('should abort a pending call', async (t) => {
-  const { controller, signal, listeners } = createSignalSpy()
+  const { controller, signal, listeners } = fixtures.signal.recorder()
   const server = http.createServer((req) => req.resume())
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
   t.teardown(() => {

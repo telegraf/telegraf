@@ -2,10 +2,11 @@ const test = require('ava')
 const http = require('http')
 const { createClient } = require('../lib/core/network/fetch-client')
 const { InputFile } = require('../lib/core/network/payload')
+const { fixtures } = require('./_helpers')
 
 const TOKEN = '123456:SECRET-abc_DEF'
 const SECRET = 'SECRET-abc_DEF'
-const encode = (text) => new TextEncoder().encode(text)
+const bytes = (text) => new TextEncoder().encode(text)
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function withServer(handler, run) {
@@ -36,25 +37,6 @@ const echo = (req, res) => {
   })
 }
 
-// A fake fetch that records its calls and returns a fixed response.
-function createFakeFetch(answer = { ok: true, result: true }) {
-  const calls = []
-  const fetch = async (url, init) => {
-    calls.push({ url, init })
-    return new Response(JSON.stringify(answer))
-  }
-  return { calls, fetch }
-}
-
-// A fake fetch that never responds. On abort it rejects with its own error rather than
-// the signal's reason, as some runtimes do.
-const hangingFetch = (url, init) =>
-  new Promise((resolve, reject) => {
-    const fail = () => reject(new TypeError('the request was cancelled'))
-    if (init.signal.aborted) return fail()
-    init.signal.addEventListener('abort', fail)
-  })
-
 // Collects every string on an error, its causes and its aggregated errors.
 const collectStrings = (error, seen = new Set()) => {
   if (typeof error === 'string') return error
@@ -78,7 +60,7 @@ test.serial('should warn once about agent and attachmentAgent', async (t) => {
   process.emitWarning = (...args) => warnings.push(args)
   t.teardown(() => (process.emitWarning = emitWarning))
 
-  const { calls, fetch } = createFakeFetch()
+  const { calls, fetch } = fixtures.fetch.recorder()
   const options = { fetch, agent: {}, attachmentAgent: {} }
   await createClient(TOKEN, options).call({ method: 'getMe' })
   createClient(TOKEN, options)
@@ -150,7 +132,7 @@ test.serial(
     }
     t.teardown(() => (globalThis.setTimeout = setTimeout))
 
-    const { calls, fetch } = createFakeFetch()
+    const { calls, fetch } = fixtures.fetch.recorder()
     for (const timeout of [Infinity, 2 ** 31, 2 ** 31 - 1]) {
       await createClient(TOKEN, { fetch, timeout }).call({ method: 'getMe' })
     }
@@ -171,7 +153,7 @@ test.serial(
     globalThis.Request = undefined
     t.teardown(() => (globalThis.Request = Request))
 
-    const { calls, fetch } = createFakeFetch()
+    const { calls, fetch } = fixtures.fetch.recorder()
     await createClient(TOKEN, { fetch }).call({ method: 'getMe' })
 
     t.true(calls[0].init.body instanceof Blob)
@@ -210,13 +192,13 @@ test.serial(
 
 test.serial('should upload a Blob in browser mode', async (t) => {
   stubBrowserRequest(t)
-  const { calls, fetch } = createFakeFetch()
+  const { calls, fetch } = fixtures.fetch.recorder()
   await createClient(TOKEN, { fetch }).call({
     method: 'sendDocument',
     payload: {
       chat_id: 1,
       document: new InputFile(async function* () {
-        yield encode('STREAMED')
+        yield bytes('STREAMED')
       }, 'a.txt'),
     },
   })
@@ -228,7 +210,7 @@ test.serial('should upload a Blob in browser mode', async (t) => {
 
 test.serial('should time out while buffering in browser mode', async (t) => {
   stubBrowserRequest(t)
-  const { calls, fetch } = createFakeFetch()
+  const { calls, fetch } = fixtures.fetch.recorder()
   const client = createClient(TOKEN, { fetch, timeout: 100 })
   let cancelled = false
   const document = new InputFile(
@@ -271,7 +253,7 @@ test('should stream a call with a file as multipart', async (t) => {
       payload: {
         chat_id: 1,
         document: new InputFile(async function* () {
-          yield encode('FILE')
+          yield bytes('FILE')
         }, 'a.txt'),
       },
     })
@@ -284,12 +266,12 @@ test('should stream a call with a file as multipart', async (t) => {
 })
 
 test('should send a POST with duplex half', async (t) => {
-  const { calls, fetch } = createFakeFetch()
+  const { calls, fetch } = fixtures.fetch.recorder()
   const client = createClient(TOKEN, { fetch })
   await client.call({ method: 'getMe' })
   await client.call({
     method: 'sendPhoto',
-    payload: { photo: new InputFile(encode('x')) },
+    payload: { photo: new InputFile(bytes('x')) },
   })
 
   t.is(calls[0].init.body, '{}', 'no payload is an empty object')
@@ -302,7 +284,7 @@ test('should send a POST with duplex half', async (t) => {
 })
 
 test('should build the URL from apiRoot, apiMode and testEnv', async (t) => {
-  const { calls, fetch } = createFakeFetch()
+  const { calls, fetch } = fixtures.fetch.recorder()
   await createClient(TOKEN, { fetch }).call({ method: 'getMe' })
   await createClient(TOKEN, {
     fetch,
@@ -339,7 +321,7 @@ test('should reject a fetch without stream support', async (t) => {
   const client = createClient(TOKEN, { fetch: require('node-fetch') })
   const call = client.call({
     method: 'sendPhoto',
-    payload: { photo: new InputFile(encode('x')) },
+    payload: { photo: new InputFile(bytes('x')) },
   })
 
   await t.throwsAsync(call, { message: /cannot send a ReadableStream/ })
@@ -349,7 +331,7 @@ test('should reject a fetch without stream support', async (t) => {
 
 test('should return an API error response', async (t) => {
   const refusal = { ok: false, error_code: 400, description: 'Bad Request' }
-  const { fetch } = createFakeFetch(refusal)
+  const fetch = async () => new Response(JSON.stringify(refusal))
 
   t.deepEqual(
     await createClient(TOKEN, { fetch }).call({ method: 'getMe' }),
@@ -425,18 +407,12 @@ test('should reject with a response read error', async (t) => {
 
 // --- failures -------------------------------------------------------------------------------
 
-const createFailingFile = (error) =>
-  new InputFile(async function* () {
-    yield encode('part')
-    throw error
-  })
-
 test('should reject with a file error', async (t) => {
   const error = new Error('disk on fire')
   await withServer(echo, async (apiRoot) => {
     const call = createClient(TOKEN, { apiRoot }).call({
       method: 'sendDocument',
-      payload: { document: createFailingFile(error) },
+      payload: { document: fixtures.file.failing(error) },
     })
 
     await t.throwsAsync(call, { is: error })
@@ -457,7 +433,7 @@ test('should reject with a file error when the request resolves', async (t) => {
   }
   const call = createClient(TOKEN, { fetch }).call({
     method: 'sendDocument',
-    payload: { document: createFailingFile(error) },
+    payload: { document: fixtures.file.failing(error) },
   })
 
   await t.throwsAsync(call, { is: error })
@@ -497,14 +473,14 @@ test('should reject with an AbortError on abort', async (t) => {
 test('should reject with the abort reason', async (t) => {
   const reason = new Error('shutting down')
   const controller = new AbortController()
-  const call = createClient(TOKEN, { fetch: hangingFetch }).call({
+  const call = createClient(TOKEN, { fetch: fixtures.fetch.hanging() }).call({
     method: 'getUpdates',
     signal: controller.signal,
   })
   controller.abort(reason)
   await t.throwsAsync(call, { is: reason })
 
-  const again = createClient(TOKEN, { fetch: hangingFetch }).call({
+  const again = createClient(TOKEN, { fetch: fixtures.fetch.hanging() }).call({
     method: 'getUpdates',
     signal: controller.signal,
   })
@@ -542,7 +518,7 @@ test('should not wait for a pending file cancel', async (t) => {
   const document = new InputFile(
     () =>
       new ReadableStream({
-        start: (controller) => controller.enqueue(encode('x')),
+        start: (controller) => controller.enqueue(bytes('x')),
         cancel: () => new Promise(() => {}),
       })
   )
@@ -619,7 +595,7 @@ test('should redact the token from an AggregateError and a string', async (t) =>
 test('should trim the token', async (t) => {
   // A token read from a file may end with a newline.
   for (const token of [TOKEN + '\n', TOKEN + '\r\n', ` ${TOKEN} `]) {
-    const { calls, fetch } = createFakeFetch()
+    const { calls, fetch } = fixtures.fetch.recorder()
     await createClient(token, { fetch }).call({ method: 'getMe' })
     t.is(calls[0].url, `https://api.telegram.org/bot${TOKEN}/getMe`)
 
@@ -663,7 +639,7 @@ test('should redact the token from a file error', async (t) => {
   await withServer(echo, async (apiRoot) => {
     const call = createClient(TOKEN, { apiRoot }).call({
       method: 'sendDocument',
-      payload: { document: createFailingFile(error) },
+      payload: { document: fixtures.file.failing(error) },
     })
 
     await t.throwsAsync(call, { is: error })

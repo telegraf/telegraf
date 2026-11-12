@@ -20,7 +20,7 @@ const convert = (payload, download = fakeDownload) =>
   convertFileLiterals(payload, download).payload
 
 // Reads a file's contents as text.
-const readText = async ({ source }) => {
+const text = async ({ source }) => {
   if (source instanceof Uint8Array) return Buffer.from(source).toString()
   const chunks = []
   for await (const chunk of source()) chunks.push(Buffer.from(chunk))
@@ -167,7 +167,7 @@ test('should accept a null filename and a URL object', async (t) => {
   t.true(InputFile.is(converted.photo))
   t.is(converted.photo.name, undefined)
   t.is(converted.document.name, undefined)
-  t.is(await readText(converted.document), 'downloaded')
+  t.is(await text(converted.document), 'downloaded')
   t.deepEqual(asked, ['https://example.com/a%20b'])
 })
 
@@ -185,12 +185,12 @@ test('should support a stream without an async iterator', async (t) => {
   )
   t.deepEqual(streams, [old, bare])
 
-  const reading = readText(payload.video)
+  const reading = text(payload.video)
   old.emit('data', Buffer.from('an old '))
   old.emit('data', 'stream')
   old.emit('end')
   t.is(await reading, 'an old stream')
-  t.is(await readText(payload.audio), 'bare')
+  t.is(await text(payload.audio), 'bare')
 })
 
 test('should use the filename or the path basename', (t) => {
@@ -220,7 +220,7 @@ test('should use a Buffer or a stream as the source', async (t) => {
 
   t.is(converted.photo.source, source)
   t.is(converted.video.source(), stream)
-  t.is(await readText(converted.video), 'stream')
+  t.is(await text(converted.video), 'stream')
 })
 
 test('should return the source streams', (t) => {
@@ -255,12 +255,12 @@ test('should read a file path lazily', async (t) => {
     video: { source: missing },
   })
 
-  t.is(await readText(converted.document), 'contents')
-  await t.throwsAsync(readText(converted.photo), {
+  t.is(await text(converted.document), 'contents')
+  await t.throwsAsync(text(converted.photo), {
     instanceOf: TypeError,
     message: `Unable to upload '${folder}', not a file`,
   })
-  await t.throwsAsync(readText(converted.video), { code: 'ENOENT' })
+  await t.throwsAsync(text(converted.video), { code: 'ENOENT' })
 })
 
 test('should start a URL download on conversion', async (t) => {
@@ -279,8 +279,8 @@ test('should start a URL download on conversion', async (t) => {
   )
   t.deepEqual(asked, ['https://example.com/a', 'https://example.com/b'])
 
-  t.is(await readText(converted.photo), 'from https://example.com/a')
-  t.is(await readText(converted.media[0].media), 'from https://example.com/b')
+  t.is(await text(converted.photo), 'from https://example.com/a')
+  t.is(await text(converted.media[0].media), 'from https://example.com/b')
   t.is(asked.length, 2, 'what was opened is what is read')
 })
 

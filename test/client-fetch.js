@@ -5,6 +5,7 @@ const { default: ApiClient } = require('../lib/core/network/client')
 const { TelegramError } = require('../lib/core/network/error')
 const { Polling } = require('../lib/core/network/polling')
 const Input = require('../lib/input')
+const { fixtures } = require('./_helpers')
 
 // Every warning issued in this file.
 const warnings = []
@@ -14,15 +15,7 @@ process.emitWarning = (message, type, code) =>
 const TOKEN = '123456:SECRET-abc_DEF'
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// A custom fetch that wraps the global one and logs each request.
-function createFetchSpy() {
-  const calls = []
-  const fetch = (url, init) => {
-    calls.push(`${init.method} ${new URL(url).pathname}`)
-    return globalThis.fetch(url, init)
-  }
-  return { calls, fetch }
-}
+const requestLine = ({ url, init }) => `${init.method} ${new URL(url).pathname}`
 
 // Parses a multipart body into its parts by name: a string, or a file.
 function parseMultipart(body, contentType) {
@@ -65,7 +58,7 @@ async function withApi(run, answer = { ok: true, result: true }, status = 200) {
   })
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
   const origin = `http://127.0.0.1:${server.address().port}`
-  const { calls, fetch } = createFetchSpy()
+  const { calls, fetch } = fixtures.fetch.recorder(globalThis.fetch)
   const client = new ApiClient(TOKEN, { apiRoot: origin, fetch })
   try {
     return await run({ client, requests, origin, calls })
@@ -82,7 +75,7 @@ test.serial(
       warnings.filter((warning) => warning.code === 'TELEGRAF_AGENT')
     // Port 1 is closed, so the request fails. An https `apiRoot` gets the default agent.
     const apiRoot = 'https://127.0.0.1:1'
-    const { fetch } = createFetchSpy()
+    const { fetch } = fixtures.fetch.recorder(globalThis.fetch)
 
     const plain = new ApiClient(TOKEN, { apiRoot, fetch })
     t.truthy(plain.options.agent, 'there is an agent by default')
@@ -106,7 +99,7 @@ test('should send a call through the custom fetch', async (t) => {
     })
 
     t.true(result)
-    t.deepEqual(calls, [`POST /bot${TOKEN}/sendMessage`])
+    t.deepEqual(calls.map(requestLine), [`POST /bot${TOKEN}/sendMessage`])
     t.is(requests[0].type, 'application/json')
     t.deepEqual(requests[0].json, { chat_id: 1, text: 'a' })
   })
@@ -151,7 +144,10 @@ test('should download a { url } file with the custom fetch', async (t) => {
       document: Input.fromURLStream(`${origin}/files/a.txt`, 'a.txt'),
     })
 
-    t.deepEqual(calls, ['GET /files/a.txt', `POST /bot${TOKEN}/sendDocument`])
+    t.deepEqual(calls.map(requestLine), [
+      'GET /files/a.txt',
+      `POST /bot${TOKEN}/sendDocument`,
+    ])
     t.deepEqual(requests[0].parts.document, {
       file: 'a.txt',
       content: 'downloaded',
@@ -186,7 +182,7 @@ test('should start the request after all { url } downloads respond', async (t) =
   })
   const client = new ApiClient(TOKEN, {
     apiRoot: `http://127.0.0.1:${api.address().port}`,
-    fetch: createFetchSpy().fetch,
+    fetch: fixtures.fetch.recorder(globalThis.fetch).fetch,
   })
   const url = (name) => `http://127.0.0.1:${files.address().port}/${name}`
 
@@ -249,7 +245,7 @@ test('should throw a TelegramError for a non-API error response', async (t) => {
 })
 
 test('should throw 401 for a missing token', async (t) => {
-  const { calls, fetch } = createFetchSpy()
+  const { calls, fetch } = fixtures.fetch.recorder(globalThis.fetch)
   const client = new ApiClient(undefined, { fetch })
 
   await t.throwsAsync(client.callApi('getMe', {}), {
@@ -258,23 +254,12 @@ test('should throw 401 for a missing token', async (t) => {
   t.deepEqual(calls, [])
 })
 
-// A stream that never ends on its own.
-const createEndlessStream = () => {
-  let sent = false
-  return new Readable({
-    read() {
-      if (!sent) this.push('start')
-      sent = true
-    },
-  })
-}
-
 test('should destroy source streams on a request error', async (t) => {
   // Port 1 is closed, so the request fails.
-  const { fetch } = createFetchSpy()
+  const { fetch } = fixtures.fetch.recorder(globalThis.fetch)
   const client = new ApiClient(TOKEN, { apiRoot: 'http://127.0.0.1:1', fetch })
-  const first = createEndlessStream()
-  const second = createEndlessStream()
+  const first = fixtures.stream.infinite()
+  const second = fixtures.stream.infinite()
   const error = await t.throwsAsync(
     client.callApi('sendMediaGroup', {
       media: [
@@ -310,12 +295,12 @@ test('should abort a pending call', async (t) => {
     listeners.delete(listener)
     removeEventListener.call(signal, type, listener)
   }
-  const { fetch } = createFetchSpy()
+  const { fetch } = fixtures.fetch.recorder(globalThis.fetch)
   const client = new ApiClient(TOKEN, {
     apiRoot: `http://127.0.0.1:${server.address().port}`,
     fetch,
   })
-  const stream = createEndlessStream()
+  const stream = fixtures.stream.infinite()
   const call = client.callApi(
     'sendDocument',
     { document: Input.fromReadableStream(stream) },
@@ -343,7 +328,7 @@ test('should abort a download on a request error', async (t) => {
   })
   const url = `http://127.0.0.1:${files.address().port}/a`
   // Port 1 is closed, so the request fails.
-  const { fetch } = createFetchSpy()
+  const { fetch } = fixtures.fetch.recorder(globalThis.fetch)
   const client = new ApiClient(TOKEN, { apiRoot: 'http://127.0.0.1:1', fetch })
 
   await t.throwsAsync(

@@ -339,6 +339,52 @@ test('a download that has begun is stopped when the request fails', async (t) =>
   t.true(closed)
 })
 
+test('files are released when the answer comes before the upload has ended', async (t) => {
+  // As a server does that refuses a file: it answers, and does not wait for the rest.
+  const api = http.createServer((req, res) => {
+    req.resume()
+    res.writeHead(413, { 'content-type': 'application/json' })
+    res.end('{"ok":false,"error_code":413,"description":"Too Large"}')
+  })
+  let closed = false
+  const files = http.createServer((req, res) => {
+    res.on('close', () => (closed = true))
+    res.write('start')
+  })
+  await new Promise((resolve) => api.listen(0, '127.0.0.1', resolve))
+  await new Promise((resolve) => files.listen(0, '127.0.0.1', resolve))
+  t.teardown(() => {
+    for (const server of [api, files]) {
+      server.closeAllConnections()
+      server.close()
+    }
+  })
+  const client = new ApiClient(TOKEN, {
+    apiRoot: `http://127.0.0.1:${api.address().port}`,
+  })
+  const url = `http://127.0.0.1:${files.address().port}/a`
+
+  const first = endless()
+  const second = endless()
+  const streams = client.callApi('sendMediaGroup', {
+    media: [
+      { type: 'photo', media: Input.fromReadableStream(first) },
+      { type: 'photo', media: Input.fromReadableStream(second) },
+    ],
+  })
+  await t.throwsAsync(streams, { message: '413: Too Large' })
+  await soon(50)
+  t.true(first.destroyed, 'the stream that was being read')
+  t.true(second.destroyed, 'the stream that was not reached')
+
+  const download = client.callApi('sendDocument', {
+    document: Input.fromURLStream(url),
+  })
+  await t.throwsAsync(download, { message: '413: Too Large' })
+  await soon(200)
+  t.true(closed, 'the download that had begun')
+})
+
 // A signal that counts the listeners it holds.
 const counted = () => {
   const controller = new AbortController()

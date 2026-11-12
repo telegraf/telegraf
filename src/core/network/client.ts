@@ -217,9 +217,6 @@ class ApiClient {
 
     try {
       const res = await fetch(apiUrl, config).catch((error: unknown) => {
-        // The file that was being read, and the streams that were not reached.
-        body?.destroy()
-        for (const stream of converted.streams) stream.destroy?.()
         throw redact(bodyError ?? error, token)
       })
       if (res.status >= 500) {
@@ -238,6 +235,13 @@ class ApiClient {
     } finally {
       // The signal can outlive the call: polling gives the same one to every call.
       signal?.removeEventListener('abort', abort)
+      // An upload that did not reach its end: the request failed, or it was answered
+      // early, as a server does that refuses a file. The file that was being read is
+      // released, and so are the streams that were not reached.
+      if (body !== undefined && !body.readableEnded) {
+        body.destroy()
+        for (const stream of converted.streams) stream.destroy?.()
+      }
     }
   }
 }

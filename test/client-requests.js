@@ -482,3 +482,21 @@ test('a server error is a TelegramError made of its status', async (t) => {
     502
   )
 })
+
+test('the token is removed from the error of an answer that is not JSON', async (t) => {
+  // A proxy's page, for one. node-fetch names the address it was read from.
+  await withApi(
+    async (client) => {
+      const error = await t.throwsAsync(client.callApi('getMe', {}), {
+        name: 'FetchError',
+      })
+
+      t.is(error.type, 'invalid-json')
+      t.regex(error.message, /\/bot\[REDACTED\]\/getMe/)
+      t.false(error.message.includes('SECRET'))
+      t.false(String(error.stack).includes('SECRET'))
+    },
+    '<html>',
+    404
+  )
+})

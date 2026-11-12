@@ -226,7 +226,10 @@ class ApiClient {
         }
         throw new TelegramError(errorPayload, { method, payload })
       }
-      const data = await res.json()
+      // node-fetch names the address in the error of an answer that is not JSON.
+      const data = await res.json().catch((error: unknown) => {
+        throw redact(error, token)
+      })
       if (!data.ok) {
         debug('API call failed', data)
         throw new TelegramError(data, { method, payload })

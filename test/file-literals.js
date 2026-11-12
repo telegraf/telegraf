@@ -2,7 +2,7 @@ const test = require('ava')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
-const { Readable } = require('stream')
+const { Readable, Stream } = require('stream')
 const { convertFileLiterals } = require('../lib/core/network/file-literals')
 const { InputFile, extractFiles } = require('../lib/core/network/payload')
 const Input = require('../lib/input')
@@ -153,6 +153,50 @@ test('only exactly a source or a URL, with or without a file name, is a file', (
   ]) {
     t.true(InputFile.is(convert({ photo: file }).photo), JSON.stringify(file))
   }
+})
+
+test('a name that is null is no name, and a URL may be a URL object', async (t) => {
+  // v4 took both.
+  const asked = []
+  const download = (url) => {
+    asked.push(url)
+    return Readable.from(['downloaded'])
+  }
+  const converted = convert(
+    {
+      photo: { source: Buffer.from('a'), filename: null },
+      document: { url: new URL('https://example.com/a b'), filename: null },
+    },
+    download
+  )
+
+  t.true(InputFile.is(converted.photo))
+  t.is(converted.photo.name, undefined)
+  t.is(converted.document.name, undefined)
+  t.is(await read(converted.document), 'downloaded')
+  t.deepEqual(asked, ['https://example.com/a%20b'])
+})
+
+test('a stream that cannot be iterated is piped through one that can', async (t) => {
+  // Streams that predate async iteration have `pipe`, and little else.
+  const old = new Stream()
+  const bare = {
+    pipe(destination) {
+      destination.end('bare')
+    },
+  }
+  const { payload, streams } = convertFileLiterals(
+    { video: { source: old }, audio: Input.fromReadableStream(bare) },
+    noDownload
+  )
+  t.deepEqual(streams, [old, bare])
+
+  const reading = read(payload.video)
+  old.emit('data', Buffer.from('an old '))
+  old.emit('data', 'stream')
+  old.emit('end')
+  t.is(await reading, 'an old stream')
+  t.is(await read(payload.audio), 'bare')
 })
 
 test('a file is named by its literal, and a path by its last part', (t) => {

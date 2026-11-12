@@ -95,3 +95,17 @@ test.serial('a missing token is reported by the call', async (t) => {
     message: '401: Bot Token is required',
   })
 })
+
+test.serial(
+  'the token is removed from the error of an address that cannot be built',
+  async (t) => {
+    const apiRoot = 'localhost:8081'
+    const raw = t.throws(() => new URL(`./bot${TOKEN}/getMe`, apiRoot))
+    t.true(raw.input.includes(SECRET), 'the runtime reports the address')
+
+    const client = new ApiClient(TOKEN, { apiRoot })
+    const error = await t.throwsAsync(client.callApi('getMe', {}))
+    t.is(error.input, './bot[REDACTED]/getMe')
+    t.false(String(error.stack).includes(SECRET))
+  }
+)

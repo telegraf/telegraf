@@ -1,22 +1,20 @@
 /* eslint @typescript-eslint/restrict-template-expressions: [ "error", { "allowNumber": true, "allowBoolean": true } ] */
-import * as crypto from 'crypto'
-import * as fs from 'fs'
-import { stat, realpath } from 'fs/promises'
 import * as http from 'http'
 import * as https from 'https'
-import * as path from 'path'
+import { Readable } from 'stream'
+import type { ReadableStream as NodeReadableStream } from 'stream/web'
 import fetch, { RequestInit } from 'node-fetch'
-import { hasProp, hasPropType } from '../helpers/check'
-import { InputFile, Opts, Telegram } from '../types/typegram'
+import { Opts, Telegram } from '../types/typegram'
 import { AbortController, AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
+import { toStream } from './body'
 import { redact } from './fetch-client'
-import MultipartStream from './multipart-stream'
+import { convertFileLiterals, type Download } from './file-literals'
+import { extractFiles, toJson, toMultipart } from './payload'
 import TelegramError from './error'
 import { URL } from 'url'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const debug = require('debug')('telegraf:client')
-const { isStream } = MultipartStream
 
 const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
   'answerCallbackQuery',
@@ -55,16 +53,6 @@ namespace ApiClient {
   }
 }
 
-const DEFAULT_EXTENSIONS: Record<string, string | undefined> = {
-  audio: 'mp3',
-  photo: 'jpg',
-  sticker: 'webp',
-  video: 'mp4',
-  animation: 'mp4',
-  video_note: 'mp4',
-  voice: 'ogg',
-}
-
 const DEFAULT_OPTIONS: ApiClient.Options = {
   apiRoot: 'https://api.telegram.org',
   apiMode: 'bot',
@@ -77,234 +65,41 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
   testEnv: false,
 }
 
-function includesMedia(payload: Record<string, unknown>) {
-  return Object.entries(payload).some(([key, value]) => {
-    if (key === 'link_preview_options') return false
+const TIMEOUT = 500_000 // ms
 
-    if (Array.isArray(value)) {
-      return value.some(
-        ({ media }) =>
-          media && typeof media === 'object' && (media.source || media.url)
-      )
-    }
-    return (
-      value &&
-      typeof value === 'object' &&
-      ((hasProp(value, 'source') && value.source) ||
-        (hasProp(value, 'url') && value.url) ||
-        (hasPropType(value, 'media', 'object') &&
-          ((hasProp(value.media, 'source') && value.media.source) ||
-            (hasProp(value.media, 'url') && value.media.url))))
-    )
-  })
-}
-
-function replacer(_: unknown, value: unknown) {
-  if (value == null) return undefined
-  return value
-}
-
-function buildJSONConfig(payload: unknown): Promise<RequestInit> {
-  return Promise.resolve({
-    method: 'POST',
-    compress: true,
-    headers: { 'content-type': 'application/json', connection: 'keep-alive' },
-    body: JSON.stringify(payload, replacer),
-  })
-}
-
-const FORM_DATA_JSON_FIELDS = [
-  'results',
-  'reply_markup',
-  'mask_position',
-  'shipping_options',
-  'errors',
-] as const
-
-async function buildFormDataConfig(
-  payload: Opts<keyof Telegram>,
-  agent: ApiClient.Agent
-) {
-  for (const field of FORM_DATA_JSON_FIELDS) {
-    if (hasProp(payload, field) && typeof payload[field] !== 'string') {
-      payload[field] = JSON.stringify(payload[field])
-    }
-  }
-  const boundary = crypto.randomBytes(32).toString('hex')
-  const formData = new MultipartStream(boundary)
-  await Promise.all(
-    Object.keys(payload).map((key) =>
-      // @ts-expect-error payload[key] can obviously index payload, but TS doesn't trust us
-      attachFormValue(formData, key, payload[key], agent)
-    )
-  )
-  return {
-    method: 'POST',
-    compress: true,
-    headers: {
-      'content-type': `multipart/form-data; boundary=${boundary}`,
-      connection: 'keep-alive',
-    },
-    body: formData,
-  }
-}
-
-/**
- * Turns one payload entry into form parts.
- * Exported for tests
- * @internal
- */
-export async function attachFormValue(
-  form: MultipartStream,
-  id: string,
-  value: unknown,
-  agent: ApiClient.Agent
-) {
-  if (value == null) {
-    return
-  }
-  if (
-    typeof value === 'string' ||
-    typeof value === 'boolean' ||
-    typeof value === 'number'
-  ) {
-    form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: `${value}`,
-    })
-    return
-  }
-  if (id === 'thumb' || id === 'thumbnail') {
-    const attachmentId = crypto.randomBytes(16).toString('hex')
-    await attachFormMedia(form, value as InputFile, attachmentId, agent)
-    return form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: `attach://${attachmentId}`,
-    })
-  }
-  if (Array.isArray(value)) {
-    const items = await Promise.all(
-      value.map(async (item) => {
-        if (typeof item.media !== 'object') {
-          return await Promise.resolve(item)
-        }
-        const attachmentId = crypto.randomBytes(16).toString('hex')
-        await attachFormMedia(form, item.media, attachmentId, agent)
-        const thumb = item.thumb ?? item.thumbnail
-        if (typeof thumb === 'object') {
-          const thumbAttachmentId = crypto.randomBytes(16).toString('hex')
-          await attachFormMedia(form, thumb, thumbAttachmentId, agent)
-          return {
-            ...item,
-            media: `attach://${attachmentId}`,
-            thumbnail: `attach://${thumbAttachmentId}`,
-          }
-        }
-        return { ...item, media: `attach://${attachmentId}` }
-      })
-    )
-    return form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: JSON.stringify(items),
-    })
-  }
-  if (
-    value &&
-    typeof value === 'object' &&
-    hasProp(value, 'media') &&
-    hasProp(value, 'type') &&
-    typeof value.media !== 'undefined' &&
-    typeof value.type !== 'undefined'
-  ) {
-    const attachmentId = crypto.randomBytes(16).toString('hex')
-    await attachFormMedia(form, value.media as InputFile, attachmentId, agent)
-    return form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: JSON.stringify({
-        ...value,
-        media: `attach://${attachmentId}`,
-      }),
-    })
-  }
-  if (
-    value &&
-    typeof value === 'object' &&
-    ((hasProp(value, 'source') && typeof value.source !== 'undefined') ||
-      (hasProp(value, 'url') && typeof value.url !== 'undefined'))
-  ) {
-    return await attachFormMedia(form, value as InputFile, id, agent)
-  }
-  return form.addPart({
-    headers: { 'content-disposition': `form-data; name="${id}"` },
-    body: JSON.stringify(value),
-  })
-}
-
-async function attachFormMedia(
-  form: MultipartStream,
-  media: InputFile,
-  id: string,
-  agent: ApiClient.Agent
-) {
-  let fileName = media.filename ?? `${id}.${DEFAULT_EXTENSIONS[id] ?? 'dat'}`
-  if ('url' in media && media.url !== undefined) {
-    const timeout = 500_000 // ms
-    const res = await fetch(media.url, { agent, timeout })
-    return form.addPart({
-      headers: {
-        'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
-      },
-      body: res.body,
-    })
-  }
-  if ('source' in media && media.source) {
-    let mediaSource = media.source
-    if (typeof media.source === 'string') {
-      const source = await realpath(media.source)
-      if ((await stat(source)).isFile()) {
-        fileName = media.filename ?? path.basename(media.source)
-        mediaSource = await fs.createReadStream(media.source)
-      } else {
-        throw new TypeError(`Unable to upload '${media.source}', not a file`)
+/** Opens the contents of a URL, for a file that was given as one. */
+function downloadWith(agent: ApiClient.Agent): Download {
+  return async function* (url) {
+    // A download that is not read to its end is aborted, which closes its connection.
+    // Destroying the body that node-fetch gives does not.
+    const aborter = new AbortController()
+    let finished = false
+    try {
+      // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
+      const signal: RequestInit['signal'] = aborter.signal
+      const res = await fetch(url, { agent, timeout: TIMEOUT, signal })
+      if (!res.ok) {
+        throw new Error(
+          `Unable to download '${url}': ${res.status} ${res.statusText}`
+        )
       }
-    }
-    if (isStream(mediaSource) || Buffer.isBuffer(mediaSource)) {
-      form.addPart({
-        headers: {
-          'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
-        },
-        body: mediaSource,
-      })
+      yield* res.body as AsyncIterable<Uint8Array>
+      finished = true
+    } finally {
+      if (!finished) aborter.abort()
     }
   }
 }
 
-async function answerToWebhook(
+/** The methods that can be answered this way take no files, so the answer is JSON. */
+function answerToWebhook(
   response: Response,
-  payload: Opts<keyof Telegram>,
-  options: ApiClient.Options
-): Promise<true> {
-  if (!includesMedia(payload)) {
-    if (!response.headersSent) {
-      response.setHeader('content-type', 'application/json')
-    }
-    response.end(JSON.stringify(payload), 'utf-8')
-    return true
-  }
-
-  const { headers, body } = await buildFormDataConfig(
-    payload,
-    options.attachmentAgent
-  )
+  payload: Opts<keyof Telegram>
+): true {
   if (!response.headersSent) {
-    for (const [key, value] of Object.entries(headers)) {
-      response.setHeader(key, value)
-    }
+    response.setHeader('content-type', 'application/json')
   }
-  await new Promise((resolve) => {
-    response.on('finish', resolve)
-    body.pipe(response)
-  })
+  response.end(JSON.stringify(payload), 'utf-8')
   return true
 }
 
@@ -363,7 +158,7 @@ class ApiClient {
       debug('Call via webhook', method, payload)
       // @ts-expect-error using webhookReply is an optimisation that doesn't respond with normal result
       // up to the user to deal with this
-      return await answerToWebhook(response, { method, ...payload }, options)
+      return answerToWebhook(response, { method, ...payload })
     }
 
     if (!token) {
@@ -375,29 +170,46 @@ class ApiClient {
 
     debug('HTTP call', method, payload)
 
-    const config: RequestInit = includesMedia(payload)
-      ? await buildFormDataConfig(
-          { method, ...payload },
-          options.attachmentAgent
-        )
-      : await buildJSONConfig(payload)
-    const apiUrl = new URL(
-      `./${options.apiMode}${token}${options.testEnv ? '/test' : ''}/${method}`,
-      options.apiRoot
+    const environment = options.testEnv ? '/test' : ''
+    const path = `./${options.apiMode}${token}${environment}/${method}`
+    let apiUrl: URL
+    try {
+      apiUrl = new URL(path, options.apiRoot)
+    } catch (error) {
+      throw redact(error, token)
+    }
+
+    // Files are found wherever they are in the payload, and sent as a multipart body.
+    const converted = convertFileLiterals(
+      payload as Record<string, unknown>,
+      downloadWith(options.attachmentAgent)
     )
-    config.agent = options.agent
-    config.timeout = 500_000 // ms
+    const { payload: fields, attachments } = extractFiles(converted.payload)
+    const multipart =
+      attachments.length === 0 ? undefined : toMultipart(fields, attachments)
+    const stream = multipart && toStream(multipart.segments).stream
+    // node-fetch takes a Node stream, not the web stream that the body is made as.
+    const body = stream && Readable.fromWeb(stream as NodeReadableStream)
+    const config: RequestInit = {
+      method: 'POST',
+      compress: true,
+      headers: {
+        'content-type': multipart?.contentType ?? 'application/json',
+        connection: 'keep-alive',
+      },
+      body: body ?? toJson(fields),
+      agent: options.agent,
+      timeout: TIMEOUT,
+    }
 
     // Prevent leaking file-handles when a request fails during upload
-    const body =
-      config.body instanceof MultipartStream ? config.body : undefined
     const aborter = new AbortController()
-    let bodyError: Error | undefined
+    let bodyError: unknown
     if (signal !== undefined) {
       if (signal.aborted) aborter.abort()
       else signal.addEventListener('abort', () => aborter.abort())
     }
-    body?.once('error', (error: Error) => {
+    body?.once('error', (error: unknown) => {
       bodyError = error
       aborter.abort()
     })
@@ -405,7 +217,9 @@ class ApiClient {
     config.signal = aborter.signal
 
     const res = await fetch(apiUrl, config).catch((error: unknown) => {
+      // The file that was being read, and the streams that were not reached.
       body?.destroy()
+      for (const stream of converted.streams) stream.destroy?.()
       throw redact(bodyError ?? error, token)
     })
     if (res.status >= 500) {

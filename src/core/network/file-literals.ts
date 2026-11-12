@@ -22,6 +22,9 @@ export function stampInput<T extends object>(literal: T): T {
 /** Opens the contents of a URL. Each way of sending a request has its own. */
 export type Download = (url: string) => ByteStream
 
+/** A Node stream that was given as a file. */
+export type GivenStream = AsyncIterable<Uint8Array> & { destroy?: () => void }
+
 /**
  * The names a file is held under in the Bot API, and `thumb`, which v4 still accepts.
  * A link preview, a web app and a login button are `{ url }` objects too, and are never
@@ -61,11 +64,16 @@ const HELPERS = {
  * | made by an `Input` helper | anywhere |
  * | exactly `{ source, filename? }` | anywhere, with a warning |
  * | exactly `{ url, filename? }` | under one of the names a file has, with a warning |
+ *
+ * A path and a URL are opened only when they are sent. A stream is open already, so the
+ * streams are returned too: they are the caller's to release if the request fails.
  */
 export function convertFileLiterals(
   payload: Record<string, unknown>,
   download: Download
-): Record<string, unknown> {
+): { payload: Record<string, unknown>; streams: GivenStream[] } {
+  const streams: GivenStream[] = []
+
   const convert = (value: unknown, key: string): unknown => {
     if (Array.isArray(value)) {
       let copy: unknown[] | undefined
@@ -79,7 +87,7 @@ export function convertFileLiterals(
       return copy ?? value
     }
     if (!isPlainObject(value)) return value
-    return toInputFile(value, key, download) ?? convertObject(value)
+    return toInputFile(value, key, download, streams) ?? convertObject(value)
   }
 
   const convertObject = (object: Record<string, unknown>) => {
@@ -93,13 +101,14 @@ export function convertFileLiterals(
     return copy ?? object
   }
 
-  return convertObject(payload)
+  return { payload: convertObject(payload), streams }
 }
 
 function toInputFile(
   literal: Record<string, unknown>,
   key: string,
-  download: Download
+  download: Download,
+  streams: GivenStream[]
 ): InputFile | undefined {
   // Exactly a source or a URL, with or without a file name. A key whose value is
   // `undefined` is as good as absent: `Input.fromBuffer(buffer)` has such a `filename`.
@@ -125,6 +134,7 @@ function toInputFile(
   }
   if (isNodeStream(source)) {
     if (!stamped) warn('stream', 'source')
+    streams.push(source)
     return new InputFile(() => source, filename)
   }
   return undefined
@@ -145,7 +155,7 @@ async function* readFile(path: string): AsyncGenerator<Uint8Array> {
   yield* createReadStream(path)
 }
 
-function isNodeStream(value: unknown): value is AsyncIterable<Uint8Array> {
+function isNodeStream(value: unknown): value is GivenStream {
   return (
     typeof value === 'object' &&
     value !== null &&

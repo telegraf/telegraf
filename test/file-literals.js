@@ -17,7 +17,7 @@ const noDownload = () => {
   throw new Error('nothing is to be downloaded here')
 }
 const convert = (payload, download = noDownload) =>
-  convertFileLiterals(payload, download)
+  convertFileLiterals(payload, download).payload
 
 // The contents of a file, as text.
 const read = async ({ source }) => {
@@ -183,6 +183,24 @@ test('bytes are the contents, and a stream is passed on', async (t) => {
   t.is(converted.photo.source, source)
   t.is(converted.video.source(), stream)
   t.is(await read(converted.video), 'stream')
+})
+
+test('the streams that were given are returned, to be released', (t) => {
+  // They are open already, unlike a path or a URL.
+  const first = Readable.from(['a'])
+  const second = Readable.from(['b'])
+  const { streams } = convertFileLiterals(
+    {
+      photo: Input.fromReadableStream(first),
+      media: [{ type: 'video', media: { source: second } }],
+      document: { source: Buffer.from('c') },
+      audio: { source: 'd.mp3' },
+      voice: { url: 'https://example.com/e.ogg' },
+    },
+    noDownload
+  )
+
+  t.deepEqual(streams, [first, second])
 })
 
 test('a path is read when the file is sent, and must be a file', async (t) => {

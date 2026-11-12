@@ -45,8 +45,12 @@ export class Polling {
         }
 
         if (err.name === 'AbortError') return
+        // node-fetch rejects a failed request with a `FetchError`. A custom fetch rejects
+        // with its own error type, so treat anything that is not an API error as one.
+        const customFetch = this.telegram.options.fetch !== undefined
         if (
           err.name === 'FetchError' ||
+          (customFetch && !(err instanceof TelegramError)) ||
           (err instanceof TelegramError && err.code === 429) ||
           (err instanceof TelegramError && err.code >= 500)
         ) {

@@ -12,6 +12,8 @@ export interface FetchResponse {
   readonly status: number
   readonly statusText: string
   json(): Promise<unknown>
+  /** The contents as a stream. The client does not read it; a download does. */
+  readonly body?: unknown
 }
 
 /** The minimal request options the client uses. */

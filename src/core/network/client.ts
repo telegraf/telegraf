@@ -8,9 +8,9 @@ import { Opts, Telegram } from '../types/typegram'
 import { AbortController, AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
 import { toStream } from './body'
-import { redact } from './fetch-client'
+import { createClient, redact, type Client, type FetchFn } from './fetch-client'
 import { convertFileLiterals, type Download } from './file-literals'
-import { extractFiles, toJson, toMultipart } from './payload'
+import { extractFiles, toJson, toMultipart, type ByteStream } from './payload'
 import TelegramError from './error'
 import { URL } from 'url'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -38,6 +38,17 @@ namespace ApiClient {
      *    Creating new agent every request probably breaks `keepAlive`.
      */
     attachmentAgent?: Agent
+    /**
+     * Sends every request through this `fetch` instead of `node-fetch`.
+     *
+     * It is recommended to pass the runtime's own `fetch` function, unless you
+     * have a specific reason to use a custom implementation or wrapper.
+     * It must be a standard `fetch` implementation.
+     *
+     * `agent` and `attachmentAgent` are then ignored. Configure the connection in the
+     * `fetch` you pass.
+     */
+    fetch?: FetchFn
     apiRoot: string
     /**
      * @default 'bot'
@@ -67,47 +78,89 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
 
 const TIMEOUT = 500_000 // ms
 
+/** Downloads the `{ url }` files of one API call. */
+interface Downloader {
+  /** Resolves with the response body once the server has answered with a 2xx. */
+  download(url: string): Promise<ByteStream>
+  /** Aborts every download of this call. */
+  abort(reason?: unknown): void
+}
+
+function downloadError(url: string, status: number, statusText: string) {
+  return new Error(`Unable to download '${url}': ${status} ${statusText}`)
+}
+
+/** Downloads with node-fetch, using `attachmentAgent`. */
+function nodeFetchDownloader(agent: ApiClient.Agent): Downloader {
+  const controller = new AbortController()
+  return {
+    abort: () => controller.abort(),
+    async download(url) {
+      // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
+      const signal: RequestInit['signal'] = controller.signal
+      const res = await fetch(url, { agent, timeout: TIMEOUT, signal })
+      if (!res.ok) throw downloadError(url, res.status, res.statusText)
+      return res.body as AsyncIterable<Uint8Array>
+    },
+  }
+}
+
+/** Downloads with the user's custom `fetch`. */
+function customFetchDownloader(customFetch: FetchFn): Downloader {
+  // A standard `fetch` needs a native AbortSignal, not the `abort-controller` polyfill.
+  const controller = new globalThis.AbortController()
+  return {
+    abort: (reason) => controller.abort(reason),
+    async download(url) {
+      const res = await customFetch(url, {
+        method: 'GET',
+        headers: {},
+        body: undefined,
+        signal: controller.signal,
+        duplex: 'half',
+      })
+      const ok = res.status >= 200 && res.status <= 299
+      if (!ok || res.body == null) {
+        throw downloadError(url, res.status, res.statusText)
+      }
+      return res.body as ByteStream
+    },
+  }
+}
+
 /**
- * The files of one call that were given as a URL. They are all fetched at once, when the
- * call begins, and each is read when the body reaches it.
+ * Starts every `{ url }` download of one call up front. Each body is read later, when the
+ * upload reaches that file.
  */
-function startDownloads(agent: ApiClient.Agent) {
-  const aborter = new AbortController()
-  const responses: Promise<unknown>[] = []
+function startDownloads(downloader: Downloader) {
+  const pending: Promise<ByteStream>[] = []
 
   const download: Download = (url) => {
-    // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
-    const signal: RequestInit['signal'] = aborter.signal
-    const options = { agent, timeout: TIMEOUT, signal }
-    const response = fetch(url, options).then((res) => {
-      if (res.ok) return res
-      const status = `${res.status} ${res.statusText}`
-      throw new Error(`Unable to download '${url}': ${status}`)
-    })
-    responses.push(response)
-    // It is reported by `answered`, or by the body. It is not left unhandled.
-    response.catch(ignore)
+    const body = downloader.download(url)
+    pending.push(body)
+    // A failure surfaces through `ready()` or while the body is read.
+    body.catch(noop)
     return (async function* () {
-      yield* (await response).body as AsyncIterable<Uint8Array>
+      yield* (await body) as AsyncIterable<Uint8Array>
     })()
   }
 
   return {
     download,
-    /** Settles when every download has answered, or as soon as one has failed. */
-    answered: () => Promise.all(responses),
+    /** Resolves once every download has responded; rejects as soon as one fails. */
+    ready: () => Promise.all(pending),
     /**
-     * Closes the downloads that were not read to their end. Destroying the body that
-     * node-fetch gives does not close its connection.
+     * Aborts the downloads that were not fully read. Destroying a node-fetch response
+     * body does not close its connection; aborting does.
      */
-    abort: () => {
-      if (responses.length > 0) aborter.abort()
+    abort: (reason?: unknown) => {
+      if (pending.length > 0) downloader.abort(reason)
     },
   }
 }
 
-function ignore() {
-  // the failure of a download, which is reported elsewhere
+function noop() {
+  // intentionally empty
 }
 
 /** The methods that can be answered this way take no files, so the answer is JSON. */
@@ -126,6 +179,8 @@ type Response = http.ServerResponse
 class ApiClient {
   readonly token: string
   readonly options: ApiClient.Options
+  /** What sends through `options.fetch`. It is made when it is first needed. */
+  private client?: Client
 
   constructor(
     token: string,
@@ -189,6 +244,10 @@ class ApiClient {
 
     debug('HTTP call', method, payload)
 
+    if (options.fetch !== undefined) {
+      return await this.callWithCustomFetch(method, payload, signal)
+    }
+
     const environment = options.testEnv ? '/test' : ''
     const path = `./${options.apiMode}${token}${environment}/${method}`
     let apiUrl: URL
@@ -199,7 +258,8 @@ class ApiClient {
     }
 
     // Files are found wherever they are in the payload, and sent as a multipart body.
-    const downloads = startDownloads(options.attachmentAgent)
+    const downloader = nodeFetchDownloader(options.attachmentAgent)
+    const downloads = startDownloads(downloader)
     const converted = convertFileLiterals(
       payload as Record<string, unknown>,
       downloads.download
@@ -241,9 +301,9 @@ class ApiClient {
       // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
       config.signal = aborter.signal
 
-      // Every file given as a URL has answered before the request is opened, so that
-      // the upload does not wait for a slow host half way.
-      await downloads.answered().catch((error: unknown) => {
+      // Wait for every `{ url }` download to respond before opening the request, so a
+      // slow file host cannot stall the upload half way.
+      await downloads.ready().catch((error: unknown) => {
         throw redact(error, token)
       })
       const res = await fetch(apiUrl, config).catch((error: unknown) => {
@@ -276,6 +336,67 @@ class ApiClient {
         for (const stream of converted.streams) stream.destroy?.()
         downloads.abort()
       }
+    }
+  }
+
+  /** Sends the call with the user's custom `fetch` (`options.fetch`). */
+  private async callWithCustomFetch<M extends keyof Telegram>(
+    method: M,
+    payload: Opts<M>,
+    signal: AbortSignal | undefined
+  ): Promise<ReturnType<Telegram[M]>> {
+    const { token, options } = this
+    const { agent, attachmentAgent, fetch: customFetch } = options
+    this.client ??= createClient(token, {
+      apiRoot: options.apiRoot,
+      apiMode: options.apiMode,
+      testEnv: options.testEnv,
+      fetch: customFetch,
+      // Agents are ignored with a custom fetch. Warn only about ones the user set,
+      // not about the built-in default.
+      agent: agent === DEFAULT_OPTIONS.agent ? undefined : agent,
+      attachmentAgent,
+    })
+
+    const downloader = customFetchDownloader(customFetch as FetchFn)
+    const downloads = startDownloads(downloader)
+    const converted = convertFileLiterals(
+      payload as Record<string, unknown>,
+      downloads.download
+    )
+    const abort = () => downloads.abort()
+    const timer = setTimeout(() => {
+      const message = `Downloading a file for ${method} timed out`
+      downloads.abort(new DOMException(message, 'TimeoutError'))
+    }, TIMEOUT)
+
+    try {
+      if (signal?.aborted === true) abort()
+      else signal?.addEventListener('abort', abort)
+      // Same as the default path: downloads respond before the request is opened.
+      await downloads.ready().catch((error: unknown) => {
+        throw redact(error, token)
+      })
+      clearTimeout(timer)
+
+      const data = await this.client.call({
+        method,
+        payload: converted.payload,
+        // The client only uses what the `abort-controller` polyfill also provides.
+        signal: signal as unknown as globalThis.AbortSignal | undefined,
+      })
+      if (!data.ok) {
+        debug('API call failed', data)
+        throw new TelegramError(data, { method, payload })
+      }
+      return data.result as ReturnType<Telegram[M]>
+    } finally {
+      clearTimeout(timer)
+      signal?.removeEventListener('abort', abort)
+      // The client closes the file it was reading. Close what it never reached:
+      // unread streams and downloads. Destroying a finished stream is a no-op.
+      for (const stream of converted.streams) stream.destroy?.()
+      downloads.abort()
     }
   }
 }

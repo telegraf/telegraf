@@ -5,7 +5,7 @@
 import { createReadStream } from 'fs'
 import { realpath, stat } from 'fs/promises'
 import { basename } from 'path'
-import { PassThrough } from 'stream'
+import { finished, PassThrough } from 'stream'
 import { InputFile, isPlainObject, type ByteStream } from './payload'
 import { warnOnce } from './warning'
 
@@ -76,8 +76,8 @@ const HELPERS = {
  * | exactly `{ url, filename? }` | under a file key, with a warning |
  *
  * A path is only opened when the file is sent. A URL is passed to `download` right away.
- * A stream is already open, so the streams are also returned: the caller must destroy
- * them if the request fails.
+ * A stream is already open and may already be emitting, so it is piped right away too.
+ * The streams are also returned: the caller must destroy them if the request fails.
  */
 export function convertFileLiterals(
   payload: Record<string, unknown>,
@@ -150,22 +150,42 @@ function toInputFile(
   if (isNodeStream(source)) {
     if (!stamped) warn('stream', 'source')
     streams.push(source)
-    return new InputFile(() => toIterable(source), name)
+    const contents = pipeSource(source)
+    return new InputFile(() => contents, name)
   }
   return undefined
 }
 
-/** Pre-async-iteration streams are made iterable */
-function toIterable(stream: SourceNodeStream): AsyncIterable<Uint8Array> {
-  const iterable = stream as Partial<AsyncIterable<Uint8Array>>
-  if (typeof iterable[Symbol.asyncIterator] === 'function') {
-    return stream as unknown as AsyncIterable<Uint8Array>
-  }
-  // Some custom implementations do not return the stream
-  // So `stream.pipe(new PassThrough())` may not work
+/**
+ * Pipes a stream into a `PassThrough` and returns the `PassThrough`.
+ *
+ * The upload may reach the stream much later. Until then a stream in flowing mode, or a
+ * pre-streams2 stream, emits its data to nobody, and its `error` event is unhandled.
+ */
+function pipeSource(stream: SourceNodeStream): PassThrough {
   const through = new PassThrough()
+  // Some custom implementations of `pipe` don't return the destination.
   stream.pipe(through)
+  // The `error` of a destroyed `PassThrough` is unhandled until the upload reads it.
+  through.on('error', noop)
+  // An object with nothing but `pipe` can't report an error.
+  if (typeof (stream as Partial<NodeJS.ReadableStream>).on !== 'function') {
+    return through
+  }
+  // `pipe` doesn't forward an error or a premature close.
+  const removeListeners = finished(
+    stream as NodeJS.ReadableStream,
+    { writable: false },
+    (error) => {
+      removeListeners()
+      if (error != null) through.destroy(error)
+    }
+  )
   return through
+}
+
+function noop() {
+  // intentionally empty
 }
 
 function warn(kind: keyof typeof HELPERS, shape: 'source' | 'url') {

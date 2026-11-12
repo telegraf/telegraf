@@ -162,6 +162,29 @@ test('should upload every file source type', async (t) => {
   })
 })
 
+test('should upload a stream that is already flowing', async (t) => {
+  await withApi(async (client, requests, origin) => {
+    // The request waits for the download; a flowing stream doesn't wait.
+    const stream = Readable.from(['flow', 'ing'])
+    stream.on('data', () => {})
+    await client.callApi('sendMediaGroup', {
+      chat_id: 1,
+      media: [
+        {
+          type: 'document',
+          media: Input.fromURLStream(`${origin}/files/a.txt`),
+        },
+        { type: 'document', media: Input.fromReadableStream(stream) },
+      ],
+    })
+
+    const [{ parts }] = requests
+    const [first, second] = JSON.parse(parts.media)
+    t.is(resolveFile(parts, first.media).content, 'downloaded')
+    t.is(resolveFile(parts, second.media).content, 'flowing')
+  })
+})
+
 test('should upload nested files', async (t) => {
   const file = (content) => Input.fromBuffer(Buffer.from(content))
   const positions = {

@@ -185,11 +185,11 @@ test('should support a stream without an async iterator', async (t) => {
   )
   t.deepEqual(streams, [old, bare])
 
-  const reading = text(payload.video)
+  // Such a stream emits whether or not it is being read.
   old.emit('data', Buffer.from('an old '))
   old.emit('data', 'stream')
   old.emit('end')
-  t.is(await reading, 'an old stream')
+  t.is(await text(payload.video), 'an old stream')
   t.is(await text(payload.audio), 'bare')
 })
 
@@ -219,8 +219,41 @@ test('should use a Buffer or a stream as the source', async (t) => {
   const converted = convert({ photo: { source }, video: { source: stream } })
 
   t.is(converted.photo.source, source)
-  t.is(converted.video.source(), stream)
   t.is(await text(converted.video), 'stream')
+})
+
+test('should keep what a flowing stream emits before it is read', async (t) => {
+  // e.g. the caller's own `data` listener for progress.
+  const stream = Readable.from(['flow', 'ing'])
+  let seen = ''
+  stream.on('data', (chunk) => (seen += chunk))
+  const converted = convert({ video: Input.fromReadableStream(stream) })
+
+  await new Promise((resolve) => stream.once('end', resolve))
+  t.is(seen, 'flowing')
+  t.is(await text(converted.video), 'flowing')
+})
+
+test('should give a stream under two keys to both files', async (t) => {
+  const stream = Readable.from(['twice'])
+  const converted = convert({
+    document: Input.fromReadableStream(stream),
+    thumbnail: Input.fromReadableStream(stream),
+  })
+
+  t.is(await text(converted.document), 'twice')
+  t.is(await text(converted.thumbnail), 'twice')
+})
+
+test('should reject with an early stream error', async (t) => {
+  // A stream error without a listener is an uncaught exception.
+  const error = new Error('disk gone')
+  const stream = new Readable({ read() {} })
+  const converted = convert({ document: Input.fromReadableStream(stream) })
+
+  stream.destroy(error)
+  await new Promise((resolve) => stream.once('close', resolve))
+  await t.throwsAsync(text(converted.document), { is: error })
 })
 
 test('should return the source streams', (t) => {

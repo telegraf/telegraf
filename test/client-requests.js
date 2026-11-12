@@ -36,6 +36,8 @@ async function withApi(run, answer = { ok: true, result: true }, status = 200) {
   const server = http.createServer((req, res) => {
     if (req.url === '/files/a.txt') return res.end('downloaded')
     if (req.url === '/files/missing') return res.writeHead(404).end('nothing')
+    // A file of the bot's own: its address holds the token.
+    if (req.url.startsWith('/file/')) return res.writeHead(404).end('nothing')
     const chunks = []
     req.on('data', (chunk) => chunks.push(chunk))
     req.on('error', () => {})
@@ -233,7 +235,98 @@ test('a URL that does not answer with a file fails the call', async (t) => {
     await t.throwsAsync(call, {
       message: `Unable to download '${url}': 404 Not Found`,
     })
+    t.is(requests.length, 0, 'the request was never opened')
   })
+})
+
+test('the token is removed from the error of a download', async (t) => {
+  // A file of the bot's own is fetched from an address that holds the token.
+  await withApi(async (client, requests, origin) => {
+    const call = client.callApi('sendDocument', {
+      document: Input.fromURLStream(`${origin}/file/bot${TOKEN}/a.jpg`),
+    })
+
+    await t.throwsAsync(call, {
+      message: `Unable to download '${origin}/file/bot[REDACTED]/a.jpg': 404 Not Found`,
+    })
+  })
+})
+
+test('the files given as a URL have all answered before the request is opened', async (t) => {
+  // They are fetched first, and all at once, so that a slow host cannot hold an upload
+  // up half way.
+  const events = []
+  const files = http.createServer((req, res) => {
+    events.push(`asked ${req.url}`)
+    setTimeout(() => {
+      events.push(`answered ${req.url}`)
+      res.end(`contents of ${req.url}`)
+    }, 150)
+  })
+  const api = http.createServer((req, res) => {
+    events.push('request opened')
+    req.resume()
+    req.on('end', () => {
+      res.setHeader('content-type', 'application/json')
+      res.end('{"ok":true,"result":true}')
+    })
+  })
+  await new Promise((resolve) => files.listen(0, '127.0.0.1', resolve))
+  await new Promise((resolve) => api.listen(0, '127.0.0.1', resolve))
+  t.teardown(() => {
+    for (const server of [files, api]) {
+      server.closeAllConnections()
+      server.close()
+    }
+  })
+  const client = new ApiClient(TOKEN, {
+    apiRoot: `http://127.0.0.1:${api.address().port}`,
+  })
+  const url = (name) => `http://127.0.0.1:${files.address().port}/${name}`
+
+  await client.callApi('sendMediaGroup', {
+    media: ['a', 'b', 'c'].map((name) => ({
+      type: 'document',
+      media: Input.fromURLStream(url(name)),
+    })),
+  })
+
+  t.deepEqual(
+    events.slice(0, 3).sort(),
+    ['asked /a', 'asked /b', 'asked /c'],
+    'all are asked for before any has answered'
+  )
+  t.is(events[6], 'request opened', 'after the last has answered')
+  t.is(events.length, 7)
+})
+
+test('a call is aborted while it waits for a download', async (t) => {
+  // A host that accepts, and never answers.
+  let closed = false
+  const files = http.createServer((req, res) => {
+    res.on('close', () => (closed = true))
+  })
+  await new Promise((resolve) => files.listen(0, '127.0.0.1', resolve))
+  t.teardown(() => {
+    files.closeAllConnections()
+    files.close()
+  })
+  const url = `http://127.0.0.1:${files.address().port}/a`
+  const controller = new AbortController()
+
+  await withApi(async (client, requests) => {
+    const call = client.callApi(
+      'sendDocument',
+      { document: Input.fromURLStream(url) },
+      { signal: controller.signal }
+    )
+    setTimeout(() => controller.abort(), 100)
+
+    await t.throwsAsync(call, { name: 'AbortError' })
+    t.is(requests.length, 0, 'the request was never opened')
+  })
+  await soon(100)
+  t.true(closed, 'the download is closed')
 })
 
 test('a path that cannot be read fails the call', async (t) => {

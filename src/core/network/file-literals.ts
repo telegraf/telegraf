@@ -20,7 +20,10 @@ export function stampInput<T extends object>(literal: T): T {
   return Object.defineProperty(literal, stamp, { value: true })
 }
 
-/** Opens the contents of a URL. Each way of sending a request has its own. */
+/**
+ * Opens the contents of a URL. Each way of sending a request has its own. It is called
+ * when the literal is converted, so that it can begin at once.
+ */
 export type Download = (url: string) => ByteStream
 
 /**
@@ -72,8 +75,9 @@ const HELPERS = {
  * | exactly `{ source, filename? }` | anywhere, with a warning |
  * | exactly `{ url, filename? }` | under one of the names a file has, with a warning |
  *
- * A path and a URL are opened only when they are sent. A stream is open already, so the
- * streams are returned too: they are the caller's to release if the request fails.
+ * A path is opened only when it is sent. A URL is given to `download` at once, which says
+ * when the download begins. A stream is open already, so the streams are returned too:
+ * they are the caller's to release if the request fails.
  */
 export function convertFileLiterals(
   payload: Record<string, unknown>,
@@ -132,7 +136,8 @@ function toInputFile(
     if (typeof address !== 'string') return undefined
     if (!stamped && !FILE_KEYS.has(key)) return undefined
     if (!stamped) warn('url', 'url')
-    return new InputFile(() => download(address), name)
+    const contents = download(address)
+    return new InputFile(() => contents, name)
   }
   if (typeof source === 'string') {
     if (!stamped) warn('path', 'source')

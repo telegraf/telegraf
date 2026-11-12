@@ -13,9 +13,9 @@ const warnings = []
 process.emitWarning = (message, type, code) =>
   warnings.push({ message, type, code })
 
-const noDownload = () => {
-  throw new Error('nothing is to be downloaded here')
-}
+// A URL is given to the download as soon as its literal is converted. Nothing is fetched
+// in these tests.
+const noDownload = () => Readable.from([])
 const convert = (payload, download = noDownload) =>
   convertFileLiterals(payload, download).payload
 
@@ -269,20 +269,25 @@ test('a path is read when the file is sent, and must be a file', async (t) => {
   await t.throwsAsync(read(converted.video), { code: 'ENOENT' })
 })
 
-test('a URL is downloaded when the file is sent', async (t) => {
+test('a URL is given to the download when its literal is converted', async (t) => {
+  // So that every download of a call can begin at once, before anything is sent.
   const asked = []
   const download = (url) => {
     asked.push(url)
-    return Readable.from(['downloaded'])
+    return Readable.from([`from ${url}`])
   }
   const converted = convert(
-    { photo: { url: 'https://example.com/a' } },
+    {
+      photo: { url: 'https://example.com/a' },
+      media: [{ type: 'photo', media: { url: 'https://example.com/b' } }],
+    },
     download
   )
-  t.deepEqual(asked, [], 'nothing is downloaded yet')
+  t.deepEqual(asked, ['https://example.com/a', 'https://example.com/b'])
 
-  t.is(await read(converted.photo), 'downloaded')
-  t.deepEqual(asked, ['https://example.com/a'])
+  t.is(await read(converted.photo), 'from https://example.com/a')
+  t.is(await read(converted.media[0].media), 'from https://example.com/b')
+  t.is(asked.length, 2, 'what was opened is what is read')
 })
 
 test('the payload is left as it was', (t) => {

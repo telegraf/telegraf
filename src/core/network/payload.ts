@@ -94,8 +94,8 @@ export function extractFiles(payload: Record<string, unknown>): {
 
   let fields: Record<string, unknown> | undefined
   for (const [key, value] of Object.entries(payload)) {
-    // A top-level key with a file as value is attached with the key as its part name.
-    // A caller may refer to it as `attach://<key>` from elsewhere in the payload.
+    // A file provided as the value to a top-level key is attached as `attach://<key>`.
+    // A caller may refer to it directly from elsewhere in the payload.
     // This is for backward compatibility with abuse of top-level file keys to
     // work around Telegraf's bug that disallowed files in some nested objects.
     const file = InputFile.is(value)

@@ -67,28 +67,47 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
 
 const TIMEOUT = 500_000 // ms
 
-/** Opens the contents of a URL, for a file that was given as one. */
-function downloadWith(agent: ApiClient.Agent): Download {
-  return async function* (url) {
-    // A download that is not read to its end is aborted, which closes its connection.
-    // Destroying the body that node-fetch gives does not.
-    const aborter = new AbortController()
-    let finished = false
-    try {
-      // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
-      const signal: RequestInit['signal'] = aborter.signal
-      const res = await fetch(url, { agent, timeout: TIMEOUT, signal })
-      if (!res.ok) {
-        throw new Error(
-          `Unable to download '${url}': ${res.status} ${res.statusText}`
-        )
-      }
-      yield* res.body as AsyncIterable<Uint8Array>
-      finished = true
-    } finally {
-      if (!finished) aborter.abort()
-    }
+/**
+ * The files of one call that were given as a URL. They are all fetched at once, when the
+ * call begins, and each is read when the body reaches it.
+ */
+function startDownloads(agent: ApiClient.Agent) {
+  const aborter = new AbortController()
+  const responses: Promise<unknown>[] = []
+
+  const download: Download = (url) => {
+    // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
+    const signal: RequestInit['signal'] = aborter.signal
+    const options = { agent, timeout: TIMEOUT, signal }
+    const response = fetch(url, options).then((res) => {
+      if (res.ok) return res
+      const status = `${res.status} ${res.statusText}`
+      throw new Error(`Unable to download '${url}': ${status}`)
+    })
+    responses.push(response)
+    // It is reported by `answered`, or by the body. It is not left unhandled.
+    response.catch(ignore)
+    return (async function* () {
+      yield* (await response).body as AsyncIterable<Uint8Array>
+    })()
   }
+
+  return {
+    download,
+    /** Settles when every download has answered, or as soon as one has failed. */
+    answered: () => Promise.all(responses),
+    /**
+     * Closes the downloads that were not read to their end. Destroying the body that
+     * node-fetch gives does not close its connection.
+     */
+    abort: () => {
+      if (responses.length > 0) aborter.abort()
+    },
+  }
+}
+
+function ignore() {
+  // the failure of a download, which is reported elsewhere
 }
 
 /** The methods that can be answered this way take no files, so the answer is JSON. */
@@ -180,42 +199,53 @@ class ApiClient {
     }
 
     // Files are found wherever they are in the payload, and sent as a multipart body.
+    const downloads = startDownloads(options.attachmentAgent)
     const converted = convertFileLiterals(
       payload as Record<string, unknown>,
-      downloadWith(options.attachmentAgent)
+      downloads.download
     )
-    const { payload: fields, attachments } = extractFiles(converted.payload)
-    const multipart =
-      attachments.length === 0 ? undefined : toMultipart(fields, attachments)
-    const stream = multipart && toStream(multipart.segments).stream
-    // node-fetch takes a Node stream, not the web stream that the body is made as.
-    const body = stream && Readable.fromWeb(stream as NodeReadableStream)
-    const config: RequestInit = {
-      method: 'POST',
-      compress: true,
-      headers: {
-        'content-type': multipart?.contentType ?? 'application/json',
-        connection: 'keep-alive',
-      },
-      body: body ?? toJson(fields),
-      agent: options.agent,
-      timeout: TIMEOUT,
-    }
-
-    // Prevent leaking file-handles when a request fails during upload
     const aborter = new AbortController()
-    let bodyError: unknown
-    const abort = () => aborter.abort()
-    if (signal?.aborted === true) abort()
-    else signal?.addEventListener('abort', abort)
-    body?.once('error', (error: unknown) => {
-      bodyError = error
+    const abort = () => {
       aborter.abort()
-    })
-    // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
-    config.signal = aborter.signal
+      downloads.abort()
+    }
+    let body: Readable | undefined
 
     try {
+      const { payload: fields, attachments } = extractFiles(converted.payload)
+      const multipart =
+        attachments.length === 0 ? undefined : toMultipart(fields, attachments)
+      const stream = multipart && toStream(multipart.segments).stream
+      // node-fetch takes a Node stream, not the web stream that the body is made as.
+      body = stream && Readable.fromWeb(stream as NodeReadableStream)
+      const config: RequestInit = {
+        method: 'POST',
+        compress: true,
+        headers: {
+          'content-type': multipart?.contentType ?? 'application/json',
+          connection: 'keep-alive',
+        },
+        body: body ?? toJson(fields),
+        agent: options.agent,
+        timeout: TIMEOUT,
+      }
+
+      // Prevent leaking file-handles when a request fails during upload
+      let bodyError: unknown
+      if (signal?.aborted === true) abort()
+      else signal?.addEventListener('abort', abort)
+      body?.once('error', (error: unknown) => {
+        bodyError = error
+        aborter.abort()
+      })
+      // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
+      config.signal = aborter.signal
+
+      // Every file given as a URL has answered before the request is opened, so that
+      // the upload does not wait for a slow host half way.
+      await downloads.answered().catch((error: unknown) => {
+        throw redact(error, token)
+      })
       const res = await fetch(apiUrl, config).catch((error: unknown) => {
         throw redact(bodyError ?? error, token)
       })
@@ -240,10 +270,11 @@ class ApiClient {
       signal?.removeEventListener('abort', abort)
       // An upload that did not reach its end: the request failed, or it was answered
       // early, as a server does that refuses a file. The file that was being read is
-      // released, and so are the streams that were not reached.
-      if (body !== undefined && !body.readableEnded) {
-        body.destroy()
+      // released, and so are the streams and the downloads that were not reached.
+      if (body?.readableEnded !== true) {
+        body?.destroy()
         for (const stream of converted.streams) stream.destroy?.()
+        downloads.abort()
       }
     }
   }

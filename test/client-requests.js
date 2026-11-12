@@ -68,9 +68,10 @@ async function withApi(run, answer = { ok: true, result: true }, status = 200) {
   }
 }
 
-// The file a field refers to.
-const fileOf = (parts, reference) => {
-  const id = /^attach:\/\/(.+)$/.exec(reference)
+// The file that a part is, or that it refers to.
+const fileOf = (parts, value) => {
+  if (typeof value === 'object') return value
+  const id = /^attach:\/\/(.+)$/.exec(value)
   return id === null ? undefined : parts[id[1]]
 }
 
@@ -95,7 +96,7 @@ test('a call without files is sent as JSON', async (t) => {
   })
 })
 
-test('a file is a part of its own, and its parameter refers to it', async (t) => {
+test('a file that is a parameter is the part by that name', async (t) => {
   await withApi(async (client, requests) => {
     await client.callApi('sendPhoto', {
       chat_id: 1,
@@ -114,10 +115,22 @@ test('a file is a part of its own, and its parameter refers to it', async (t) =>
       message_id: 5,
       allow_sending_without_reply: true,
     })
-    t.deepEqual(fileOf(parts, parts.photo), {
-      file: 'photo.jpg',
-      content: 'PHOTO',
+    t.deepEqual(parts.photo, { file: 'photo.jpg', content: 'PHOTO' })
+  })
+})
+
+test('a caller can refer to a file that is a parameter by its name', async (t) => {
+  // The way to upload where files were not looked for: a sticker of a new set.
+  await withApi(async (client, requests) => {
+    await client.callApi('createNewStickerSet', {
+      name: 'set',
+      stickers: [{ sticker: 'attach://s0', format: 'static', emoji_list: [] }],
+      s0: Input.fromBuffer(Buffer.from('STICKER')),
     })
+
+    const [{ parts }] = requests
+    t.is(JSON.parse(parts.stickers)[0].sticker, 'attach://s0')
+    t.deepEqual(parts.s0, { file: 's0.dat', content: 'STICKER' })
   })
 })
 

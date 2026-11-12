@@ -41,8 +41,12 @@ export class InputFile {
   }
 }
 
-/** A file to be attached, referenced from it as `attach://<id>`. */
+/** A file to be sent as a part of its own. */
 export interface Attachment {
+  /**
+   * The name of the part. For a file that is a parameter, the parameter; for any other, an
+   * id that the payload refers to as `attach://<id>`.
+   */
   id: string
   /** The parameter of the API method the file was found under. */
   parameter: string
@@ -50,7 +54,8 @@ export interface Attachment {
 }
 
 /**
- * Replaces every `InputFile` in a payload with a reference to an attachment.
+ * Takes every `InputFile` out of a payload. A file that is a parameter is removed, to be
+ * sent as the part by that name; any other is replaced with a reference to an attachment.
  * The payload is not changed: objects and arrays that hold a file are copied, everything
  * else is shared.
  */
@@ -76,25 +81,31 @@ export function extractFiles(payload: Record<string, unknown>): {
       })
       return copy ?? value
     }
-    if (isPlainObject(value)) return visitObject(value, () => parameter)
-    return value
-  }
-
-  const visitObject = (
-    object: Record<string, unknown>,
-    parameterOf: (key: string) => string
-  ) => {
+    if (!isPlainObject(value)) return value
     let copy: Record<string, unknown> | undefined
-    for (const [key, value] of Object.entries(object)) {
-      const visited = visit(value, parameterOf(key))
-      if (visited === value) continue
-      copy ??= { ...object }
+    for (const [key, item] of Object.entries(value)) {
+      const visited = visit(item, parameter)
+      if (visited === item) continue
+      copy ??= { ...value }
       copy[key] = visited
     }
-    return copy ?? object
+    return copy ?? value
   }
 
-  return { payload: visitObject(payload, (key) => key), attachments }
+  let fields: Record<string, unknown> | undefined
+  for (const [key, value] of Object.entries(payload)) {
+    // A top-level key with a file as value is attached with the key as its part name.
+    // A caller may refer to it as `attach://<key>` from elsewhere in the payload.
+    // This is for backward compatibility with abuse of top-level file keys to
+    // work around Telegraf's bug that disallowed files in some nested objects.
+    const file = InputFile.is(value)
+    if (file) attachments.push({ id: key, parameter: key, file: value })
+    const visited = file ? undefined : visit(value, key)
+    if (visited === value) continue
+    fields ??= { ...payload }
+    fields[key] = visited
+  }
+  return { payload: fields ?? payload, attachments }
 }
 
 /** `JSON.stringify` that removes `null` and `undefined` values */
@@ -140,7 +151,7 @@ export function toMultipart(
   for (const { id, parameter, file } of attachments) {
     const name = file.name ?? `${parameter}.${extensions[parameter] ?? 'dat'}`
     open()
-    text += `content-disposition: form-data; name="${id}"; `
+    text += `content-disposition: form-data; name="${escape(id)}"; `
     text += `filename="${escape(name)}"\r\n`
     text += 'content-type: application/octet-stream\r\n\r\n'
     flush()

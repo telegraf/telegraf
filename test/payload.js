@@ -43,16 +43,16 @@ test('JSON leaves out null and undefined', (t) => {
   )
 })
 
-test('a file is replaced by a reference, and the payload is not changed', (t) => {
+test('a file that is a parameter is taken out, and the payload is not changed', (t) => {
   const file = new InputFile(bytes('DATA'), 'a.txt')
   const payload = { chat_id: 1, document: file }
   const extracted = extractFiles(payload)
 
   t.is(payload.document, file, 'the caller still holds its file')
-  t.is(extracted.attachments.length, 1)
-  const [{ id, parameter }] = extracted.attachments
-  t.is(parameter, 'document')
-  t.is(extracted.payload.document, `attach://${id}`)
+  t.deepEqual(extracted.attachments, [
+    { id: 'document', parameter: 'document', file },
+  ])
+  t.is(extracted.payload.document, undefined)
   t.is(extracted.payload.chat_id, 1)
 })
 
@@ -97,9 +97,12 @@ test('multipart: parameters, then attachments, byte for byte', async (t) => {
     document: new InputFile(bytes('DATA'), 'a.txt'),
     reply_parameters: { message_id: 7, quote: null },
     message_thread_id: undefined,
+    // A caller may refer to a file that is a parameter by the parameter's name.
+    media: [{ type: 'document', media: 'attach://document' }],
+    cover: { nested: new InputFile(bytes('NESTED'), 'b.txt') },
   })
   const { contentType, segments } = toMultipart(payload, attachments, 'B')
-  const [{ id }] = attachments
+  const [, { id }] = attachments
 
   t.is(contentType, 'multipart/form-data; boundary=B')
   t.is(
@@ -118,18 +121,27 @@ test('multipart: parameters, then attachments, byte for byte', async (t) => {
       '',
       'true',
       '--B',
-      'content-disposition: form-data; name="document"',
-      '',
-      `attach://${id}`,
-      '--B',
       'content-disposition: form-data; name="reply_parameters"',
       '',
       '{"message_id":7}',
       '--B',
-      `content-disposition: form-data; name="${id}"; filename="a.txt"`,
+      'content-disposition: form-data; name="media"',
+      '',
+      '[{"type":"document","media":"attach://document"}]',
+      '--B',
+      'content-disposition: form-data; name="cover"',
+      '',
+      `{"nested":"attach://${id}"}`,
+      '--B',
+      'content-disposition: form-data; name="document"; filename="a.txt"',
       'content-type: application/octet-stream',
       '',
       'DATA',
+      '--B',
+      `content-disposition: form-data; name="${id}"; filename="b.txt"`,
+      'content-type: application/octet-stream',
+      '',
+      'NESTED',
       '--B--',
       '',
     ].join('\r\n')

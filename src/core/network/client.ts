@@ -205,10 +205,9 @@ class ApiClient {
     // Prevent leaking file-handles when a request fails during upload
     const aborter = new AbortController()
     let bodyError: unknown
-    if (signal !== undefined) {
-      if (signal.aborted) aborter.abort()
-      else signal.addEventListener('abort', () => aborter.abort())
-    }
+    const abort = () => aborter.abort()
+    if (signal?.aborted === true) abort()
+    else signal?.addEventListener('abort', abort)
     body?.once('error', (error: unknown) => {
       bodyError = error
       aborter.abort()
@@ -216,25 +215,30 @@ class ApiClient {
     // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
     config.signal = aborter.signal
 
-    const res = await fetch(apiUrl, config).catch((error: unknown) => {
-      // The file that was being read, and the streams that were not reached.
-      body?.destroy()
-      for (const stream of converted.streams) stream.destroy?.()
-      throw redact(bodyError ?? error, token)
-    })
-    if (res.status >= 500) {
-      const errorPayload = {
-        error_code: res.status,
-        description: res.statusText,
+    try {
+      const res = await fetch(apiUrl, config).catch((error: unknown) => {
+        // The file that was being read, and the streams that were not reached.
+        body?.destroy()
+        for (const stream of converted.streams) stream.destroy?.()
+        throw redact(bodyError ?? error, token)
+      })
+      if (res.status >= 500) {
+        const errorPayload = {
+          error_code: res.status,
+          description: res.statusText,
+        }
+        throw new TelegramError(errorPayload, { method, payload })
       }
-      throw new TelegramError(errorPayload, { method, payload })
+      const data = await res.json()
+      if (!data.ok) {
+        debug('API call failed', data)
+        throw new TelegramError(data, { method, payload })
+      }
+      return data.result
+    } finally {
+      // The signal can outlive the call: polling gives the same one to every call.
+      signal?.removeEventListener('abort', abort)
     }
-    const data = await res.json()
-    if (!data.ok) {
-      debug('API call failed', data)
-      throw new TelegramError(data, { method, payload })
-    }
-    return data.result
   }
 }
 

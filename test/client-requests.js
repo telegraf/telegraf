@@ -339,6 +339,76 @@ test('a download that has begun is stopped when the request fails', async (t) =>
   t.true(closed)
 })
 
+// A signal that counts the listeners it holds.
+const counted = () => {
+  const controller = new AbortController()
+  const { signal } = controller
+  const listeners = new Set()
+  const { addEventListener, removeEventListener } = signal
+  signal.addEventListener = (type, listener, options) => {
+    listeners.add(listener)
+    addEventListener.call(signal, type, listener, options)
+  }
+  signal.removeEventListener = (type, listener) => {
+    listeners.delete(listener)
+    removeEventListener.call(signal, type, listener)
+  }
+  return { controller, signal, listeners }
+}
+
+test('a call leaves nothing on the signal it was given', async (t) => {
+  // Polling gives the same signal to every call it makes, for as long as the bot runs.
+  const { signal, listeners } = counted()
+  await withApi(async (client) => {
+    await client.callApi('getUpdates', {}, { signal })
+    await client.callApi('getUpdates', {}, { signal })
+    t.is(listeners.size, 0, 'after a call that was answered')
+  })
+  await withApi(
+    async (client) => {
+      const refused = client.callApi('getUpdates', {}, { signal })
+      await t.throwsAsync(refused, { instanceOf: TelegramError })
+      t.is(listeners.size, 0, 'after a call that the API refused')
+    },
+    { ok: false, error_code: 409, description: 'Conflict' },
+    409
+  )
+  const client = new ApiClient(TOKEN, { apiRoot: 'http://127.0.0.1:1' })
+  await t.throwsAsync(client.callApi('getUpdates', {}, { signal }))
+  t.is(listeners.size, 0, 'after a request that failed')
+})
+
+test('a call is still aborted by the signal while it is under way', async (t) => {
+  const { controller, signal, listeners } = counted()
+  const server = http.createServer((req) => req.resume())
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+  t.teardown(() => {
+    server.closeAllConnections()
+    server.close()
+  })
+  const apiRoot = `http://127.0.0.1:${server.address().port}`
+  const call = new ApiClient(TOKEN, { apiRoot }).callApi(
+    'getUpdates',
+    {},
+    { signal }
+  )
+  await soon(50)
+  t.is(listeners.size, 1, 'it listens while the call is under way')
+
+  controller.abort()
+  await t.throwsAsync(call, { name: 'AbortError' })
+  t.is(listeners.size, 0)
+
+  // A signal that has already aborted stops a call before it begins.
+  const late = new ApiClient(TOKEN, { apiRoot }).callApi(
+    'getUpdates',
+    {},
+    { signal }
+  )
+  await t.throwsAsync(late, { name: 'AbortError' })
+  t.is(listeners.size, 0)
+})
+
 test('an error from the API is a TelegramError', async (t) => {
   const refusal = { ok: false, error_code: 400, description: 'Bad Request' }
   await withApi(

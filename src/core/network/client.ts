@@ -10,7 +10,7 @@ import { compactOptions } from '../helpers/compact'
 import { toStream } from './body'
 import { createClient, redact, type Client, type FetchFn } from './fetch-client'
 import { convertFileLiterals, type Download } from './file-literals'
-import { extractFiles, toJson, toMultipart, type ByteStream } from './payload'
+import { extractFiles, toJson, toMultipart } from './payload'
 import TelegramError from './error'
 import { URL } from 'url'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -80,8 +80,8 @@ const TIMEOUT = 500_000 // ms
 
 /** Downloads the `{ url }` files of one API call. */
 interface Downloader {
-  /** Resolves with the response body once the server has answered with a 2xx. */
-  download(url: string): Promise<ByteStream>
+  /** The response body. The URL is requested when the body is first read. */
+  download: Download
   /** Aborts every download of this call. */
   abort(reason?: unknown): void
 }
@@ -94,13 +94,14 @@ function downloadError(url: string, status: number, statusText: string) {
 function nodeFetchDownloader(agent: ApiClient.Agent): Downloader {
   const controller = new AbortController()
   return {
+    // Destroying a node-fetch response body doesn't close its connection.
     abort: () => controller.abort(),
-    async download(url) {
+    async *download(url) {
       // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
       const signal: RequestInit['signal'] = controller.signal
       const res = await fetch(url, { agent, timeout: TIMEOUT, signal })
       if (!res.ok) throw downloadError(url, res.status, res.statusText)
-      return res.body as AsyncIterable<Uint8Array>
+      yield* res.body as AsyncIterable<Uint8Array>
     },
   }
 }
@@ -111,7 +112,7 @@ function customFetchDownloader(customFetch: FetchFn): Downloader {
   const controller = new globalThis.AbortController()
   return {
     abort: (reason) => controller.abort(reason),
-    async download(url) {
+    async *download(url) {
       const res = await customFetch(url, {
         method: 'GET',
         headers: {},
@@ -123,44 +124,9 @@ function customFetchDownloader(customFetch: FetchFn): Downloader {
       if (!ok || res.body == null) {
         throw downloadError(url, res.status, res.statusText)
       }
-      return res.body as ByteStream
+      yield* res.body as AsyncIterable<Uint8Array>
     },
   }
-}
-
-/**
- * Starts every `{ url }` download of one call up front. Each body is read later, when the
- * upload reaches that file.
- */
-function startDownloads(downloader: Downloader) {
-  const pending: Promise<ByteStream>[] = []
-
-  const download: Download = (url) => {
-    const body = downloader.download(url)
-    pending.push(body)
-    // A failure surfaces through `ready()` or while the body is read.
-    body.catch(noop)
-    return (async function* () {
-      yield* (await body) as AsyncIterable<Uint8Array>
-    })()
-  }
-
-  return {
-    download,
-    /** Resolves once every download has responded; rejects as soon as one fails. */
-    ready: () => Promise.all(pending),
-    /**
-     * Aborts the downloads that were not fully read. Destroying a node-fetch response
-     * body does not close its connection; aborting does.
-     */
-    abort: (reason?: unknown) => {
-      if (pending.length > 0) downloader.abort(reason)
-    },
-  }
-}
-
-function noop() {
-  // intentionally empty
 }
 
 /**
@@ -261,16 +227,12 @@ class ApiClient {
     }
 
     const downloader = nodeFetchDownloader(options.attachmentAgent)
-    const downloads = startDownloads(downloader)
     const converted = convertFileLiterals(
       payload as Record<string, unknown>,
-      downloads.download
+      downloader.download
     )
     const aborter = new AbortController()
-    const abort = () => {
-      aborter.abort()
-      downloads.abort()
-    }
+    const abort = () => aborter.abort()
     let body: Readable | undefined
 
     try {
@@ -303,11 +265,6 @@ class ApiClient {
       // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
       config.signal = aborter.signal
 
-      // Wait for every `{ url }` download to respond before opening the request, so a
-      // slow file host cannot stall the upload half way.
-      await downloads.ready().catch((error: unknown) => {
-        throw redact(error, token)
-      })
       const res = await fetch(apiUrl, config).catch((error: unknown) => {
         throw redact(bodyError ?? error, token)
       })
@@ -332,11 +289,11 @@ class ApiClient {
       signal?.removeEventListener('abort', abort)
       // The upload did not finish: the request failed, or the server responded early
       // (e.g. it rejected a file). The file being read is still open, and so are the
-      // streams and downloads that were never reached.
+      // streams that were never reached.
       if (body?.readableEnded !== true) {
         body?.destroy()
         for (const stream of converted.streams) stream.destroy?.()
-        downloads.abort()
+        downloader.abort()
       }
     }
   }
@@ -361,26 +318,12 @@ class ApiClient {
     })
 
     const downloader = customFetchDownloader(customFetch as FetchFn)
-    const downloads = startDownloads(downloader)
     const converted = convertFileLiterals(
       payload as Record<string, unknown>,
-      downloads.download
+      downloader.download
     )
-    const abort = () => downloads.abort()
-    const timer = setTimeout(() => {
-      const message = `Downloading a file for ${method} timed out`
-      downloads.abort(new DOMException(message, 'TimeoutError'))
-    }, TIMEOUT)
 
     try {
-      if (signal?.aborted === true) abort()
-      else signal?.addEventListener('abort', abort)
-      // Same as the default path: downloads respond before the request is opened.
-      await downloads.ready().catch((error: unknown) => {
-        throw redact(error, token)
-      })
-      clearTimeout(timer)
-
       const data = await this.client.call({
         method,
         payload: converted.payload,
@@ -393,12 +336,11 @@ class ApiClient {
       }
       return data.result as ReturnType<Telegram[M]>
     } finally {
-      clearTimeout(timer)
-      signal?.removeEventListener('abort', abort)
       // The client closes the file it was reading. Close what it never reached:
-      // unread streams and downloads. Destroying a finished stream is a no-op.
+      // unread streams. Destroying a finished stream is a no-op.
       for (const stream of converted.streams) stream.destroy?.()
-      downloads.abort()
+      // A download that was being requested when the call ended is still in flight.
+      downloader.abort()
     }
   }
 }

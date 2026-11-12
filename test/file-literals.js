@@ -13,8 +13,7 @@ const warnings = []
 process.emitWarning = (message, type, code) =>
   warnings.push({ message, type, code })
 
-// download() is called as soon as a { url } literal is converted. These tests don't
-// fetch anything.
+// These tests don't fetch anything.
 const fakeDownload = () => Readable.from([])
 const convert = (payload, download = fakeDownload) =>
   convertFileLiterals(payload, download).payload
@@ -296,8 +295,8 @@ test('should read a file path lazily', async (t) => {
   await t.throwsAsync(text(converted.video), { code: 'ENOENT' })
 })
 
-test('should start a URL download on conversion', async (t) => {
-  // This lets all downloads of a call start before the request is sent.
+test('should download a URL when its file is read', async (t) => {
+  // A download that waits for its turn can be dropped by its host.
   const asked = []
   const download = (url) => {
     asked.push(url)
@@ -310,11 +309,12 @@ test('should start a URL download on conversion', async (t) => {
     },
     download
   )
-  t.deepEqual(asked, ['https://example.com/a', 'https://example.com/b'])
+  t.deepEqual(asked, [])
 
   t.is(await text(converted.photo), 'from https://example.com/a')
+  t.deepEqual(asked, ['https://example.com/a'])
   t.is(await text(converted.media[0].media), 'from https://example.com/b')
-  t.is(asked.length, 2, 'what was opened is what is read')
+  t.deepEqual(asked, ['https://example.com/a', 'https://example.com/b'])
 })
 
 test('should not mutate the payload', (t) => {

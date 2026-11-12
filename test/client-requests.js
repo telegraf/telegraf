@@ -263,7 +263,7 @@ test('should reject on a { url } download error status', async (t) => {
     await t.throwsAsync(call, {
       message: `Unable to download '${url}': 404 Not Found`,
     })
-    t.is(requests.length, 0, 'the request was never opened')
+    t.is(requests.length, 0, 'the request was not completed')
   })
 })
 
@@ -280,15 +280,15 @@ test('should redact the token from a download error', async (t) => {
   })
 })
 
-test('should start the request after all { url } downloads respond', async (t) => {
-  // All downloads start up front, concurrently, so a slow file host cannot stall the
-  // upload half way.
+test('should download a { url } file when the upload reaches it', async (t) => {
+  // A download that waits for its turn can be dropped by its host.
   const events = []
   const files = http.createServer((req, res) => {
     events.push(`asked ${req.url}`)
+    res.write('contents ')
     setTimeout(() => {
-      events.push(`answered ${req.url}`)
-      res.end(`contents of ${req.url}`)
+      events.push(`sent ${req.url}`)
+      res.end(`of ${req.url}`)
     }, 150)
   })
   const api = http.createServer((req, res) => {
@@ -313,19 +313,14 @@ test('should start the request after all { url } downloads respond', async (t) =
   const url = (name) => `http://127.0.0.1:${files.address().port}/${name}`
 
   await client.callApi('sendMediaGroup', {
-    media: ['a', 'b', 'c'].map((name) => ({
+    media: ['a', 'b'].map((name) => ({
       type: 'document',
       media: Input.fromURLStream(url(name)),
     })),
   })
 
-  t.deepEqual(
-    events.slice(0, 3).sort(),
-    ['asked /a', 'asked /b', 'asked /c'],
-    'all are asked for before any has answered'
-  )
-  t.is(events[6], 'request opened', 'after the last has answered')
-  t.is(events.length, 7)
+  t.deepEqual(events.slice(0, 2).sort(), ['asked /a', 'request opened'])
+  t.deepEqual(events.slice(2), ['sent /a', 'asked /b', 'sent /b'])
 })
 
 test('should abort during a pending download', async (t) => {
@@ -351,7 +346,7 @@ test('should abort during a pending download', async (t) => {
     setTimeout(() => controller.abort(), 100)
 
     await t.throwsAsync(call, { name: 'AbortError' })
-    t.is(requests.length, 0, 'the request was never opened')
+    t.is(requests.length, 0, 'the request was not completed')
   })
   await delay(100)
   t.true(closed, 'the download is closed')
@@ -426,25 +421,42 @@ test('should destroy source streams on abort', async (t) => {
 })
 
 test('should abort a download on a request error', async (t) => {
-  // A download that starts and never ends.
+  // A download that starts and never ends. The API then drops its connection.
   let closed = false
+  let started = false
+  let socket
+  const drop = () => {
+    if (started) socket?.destroy()
+  }
   const files = http.createServer((req, res) => {
     res.on('close', () => (closed = true))
     res.write('start')
+    started = true
+    drop()
+  })
+  const api = http.createServer((req) => {
+    req.resume()
+    socket = req.socket
+    drop()
   })
   await new Promise((resolve) => files.listen(0, '127.0.0.1', resolve))
+  await new Promise((resolve) => api.listen(0, '127.0.0.1', resolve))
   t.teardown(() => {
-    files.closeAllConnections()
-    files.close()
+    for (const server of [files, api]) {
+      server.closeAllConnections()
+      server.close()
+    }
   })
   const url = `http://127.0.0.1:${files.address().port}/a`
 
-  const client = new ApiClient(TOKEN, { apiRoot: 'http://127.0.0.1:1' })
+  const client = new ApiClient(TOKEN, {
+    apiRoot: `http://127.0.0.1:${api.address().port}`,
+  })
   const call = client.callApi('sendDocument', {
     document: Input.fromURLStream(url),
   })
 
-  await t.throwsAsync(call, { code: 'ECONNREFUSED' })
+  await t.throwsAsync(call, { name: 'FetchError' })
   await delay(200)
   t.true(closed)
 })

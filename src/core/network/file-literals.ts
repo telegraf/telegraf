@@ -21,8 +21,8 @@ export function stampInput<T extends object>(literal: T): T {
 }
 
 /**
- * Downloads a URL. Each transport supplies its own. Called as soon as the literal is
- * converted, so the download can start right away.
+ * Downloads a URL. Each transport supplies its own. Called when the upload reaches the
+ * file: a download that waits for its turn can be dropped by its host.
  */
 export type Download = (url: string) => ByteStream
 
@@ -75,8 +75,8 @@ const HELPERS = {
  * | exactly `{ source, filename? }` | anywhere, with a warning |
  * | exactly `{ url, filename? }` | under a file key, with a warning |
  *
- * A path is only opened when the file is sent. A URL is passed to `download` right away.
- * A stream is already open and may already be emitting, so it is piped right away too.
+ * A path is opened and a URL is downloaded only when the upload reaches the file.
+ * A stream is already open and may already be emitting, so it is piped right away.
  * The streams are also returned: the caller must destroy them if the request fails.
  */
 export function convertFileLiterals(
@@ -136,8 +136,7 @@ function toInputFile(
     if (typeof address !== 'string') return undefined
     if (!stamped && !FILE_KEYS.has(key)) return undefined
     if (!stamped) warn('url', 'url')
-    const contents = download(address)
-    return new InputFile(() => contents, name)
+    return new InputFile(() => download(address), name)
   }
   if (typeof source === 'string') {
     if (!stamped) warn('path', 'source')

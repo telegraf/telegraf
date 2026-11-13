@@ -217,6 +217,26 @@ test('should reject on a { url } download error status', async (t) => {
   })
 })
 
+test('should reject on a { url } response that has no body', async (t) => {
+  await withApi(async ({ requests, origin }) => {
+    const url = `${origin}/files/a.txt`
+    // A custom fetch may return only what the client reads of a response.
+    const fetch = async (address, init) =>
+      address === url
+        ? { status: 200, statusText: 'OK', json: async () => ({}) }
+        : globalThis.fetch(address, init)
+    const client = new ApiClient(TOKEN, { apiRoot: origin, fetch })
+    const call = client.callApi('sendDocument', {
+      document: Input.fromURLStream(url),
+    })
+
+    await t.throwsAsync(call, {
+      message: `Unable to download '${url}': the response has no body`,
+    })
+    t.is(requests.length, 0, 'the request was not completed')
+  })
+})
+
 test('should reject a payload that contains itself', async (t) => {
   await withApi(async ({ client, calls }) => {
     const message = { chat_id: 1, text: 'a' }

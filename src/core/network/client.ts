@@ -121,8 +121,10 @@ function customFetchDownloader(customFetch: FetchFn): Downloader {
         duplex: 'half',
       })
       const ok = res.status >= 200 && res.status <= 299
-      if (!ok || res.body == null) {
-        throw downloadError(url, res.status, res.statusText)
+      if (!ok) throw downloadError(url, res.status, res.statusText)
+      // e.g. a 204, or a custom fetch that returns only what the client reads.
+      if (res.body == null) {
+        throw new Error(`Unable to download '${url}': the response has no body`)
       }
       yield* res.body as AsyncIterable<Uint8Array>
     },

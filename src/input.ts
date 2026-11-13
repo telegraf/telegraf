@@ -51,6 +51,9 @@ export const fromLazyStream = (open: InputFile.ByLazyStream['source'], filename?
 /**
  * Contents of the URL will be streamed to Telegram.
  *
+ * Only `http:` and `https:` URLs are accepted.
+ * For anything else that `fetch` can read, use `fromLazyStream(() => fetch(url))`.
+ *
  * 10 MB max size for photos, 50 MB for other files.
  */
 // prettier-ignore

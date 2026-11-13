@@ -288,6 +288,24 @@ test('should reject on a { url } download error status', async (t) => {
   })
 })
 
+test('should reject a { url } file that is not an HTTP URL', async (t) => {
+  await withApi(async (client, requests) => {
+    // A Bot API file link without its scheme holds the token.
+    const url = `api.telegram.org/file/bot${TOKEN}/a.jpg`
+    const stream = fixtures.stream.infinite()
+    const call = client.callApi('sendDocument', {
+      document: Input.fromReadableStream(stream),
+      thumbnail: Input.fromURLStream(url),
+    })
+
+    const error = await t.throwsAsync(call, { instanceOf: TypeError })
+    t.regex(error.message, /only http: and https: URLs are supported/)
+    t.false(`${error.message}\n${error.stack}`.includes('SECRET'))
+    t.true(stream.destroyed)
+    t.is(requests.length, 0, 'the request was not opened')
+  })
+})
+
 test('should redact the token from a download error', async (t) => {
   // A Bot API file link contains the token.
   await withApi(async (client, requests, origin) => {

@@ -129,6 +129,15 @@ function customFetchDownloader(customFetch: FetchFn): Downloader {
   }
 }
 
+/** The error for a `{ url }` that can't be downloaded quotes the URL, which may hold the token. */
+function convertPayload(payload: unknown, download: Download, token: string) {
+  try {
+    return convertFileLiterals(payload as Record<string, unknown>, download)
+  } catch (error) {
+    throw redact(error, token)
+  }
+}
+
 /**
  * Webhook replies are always JSON, since methods in WEBHOOK_REPLY_METHOD_ALLOWLIST
  * don't take files.
@@ -227,10 +236,7 @@ class ApiClient {
     }
 
     const downloader = nodeFetchDownloader(options.attachmentAgent)
-    const converted = convertFileLiterals(
-      payload as Record<string, unknown>,
-      downloader.download
-    )
+    const converted = convertPayload(payload, downloader.download, token)
     const aborter = new AbortController()
     const abort = () => aborter.abort()
     let body: Readable | undefined
@@ -318,10 +324,7 @@ class ApiClient {
     })
 
     const downloader = customFetchDownloader(customFetch as FetchFn)
-    const converted = convertFileLiterals(
-      payload as Record<string, unknown>,
-      downloader.download
-    )
+    const converted = convertPayload(payload, downloader.download, token)
 
     try {
       const data = await this.client.call({

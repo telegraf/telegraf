@@ -80,6 +80,8 @@ const HELPERS = {
  * reaches the file.
  * A stream is already open and may already be emitting, so it is piped right away.
  * The streams are also returned: the caller must destroy them if the request fails.
+ *
+ * Throws for a `{ url }` file that is not an `http:` or `https:` URL.
  */
 export function convertFileLiterals(
   payload: Record<string, unknown>,
@@ -114,7 +116,30 @@ export function convertFileLiterals(
     return copy ?? object
   }
 
-  return { payload: convertObject(payload), streams }
+  try {
+    return { payload: convertObject(payload), streams }
+  } catch (error) {
+    // The caller never gets the streams found so far, so it can't destroy them.
+    for (const stream of streams) stream.destroy?.()
+    throw error
+  }
+}
+
+/**
+ * What else a `fetch` can read differs by runtime and includes local files, so a URL
+ * taken from a user could upload one.
+ */
+function assertHttpUrl(url: string) {
+  let protocol: string | undefined
+  try {
+    protocol = new URL(url).protocol
+  } catch {
+    // not a URL
+  }
+  if (protocol === 'http:' || protocol === 'https:') return
+  throw new TypeError(
+    `Unable to download '${url}': only http: and https: URLs are supported`
+  )
 }
 
 function toInputFile(
@@ -137,6 +162,7 @@ function toInputFile(
   if (address !== undefined) {
     if (typeof address !== 'string') return undefined
     if (!stamped && !FILE_KEYS.has(key)) return undefined
+    assertHttpUrl(address)
     if (!stamped) warn('url', 'url')
     return new InputFile(() => download(address), name)
   }

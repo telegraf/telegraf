@@ -73,6 +73,8 @@ test.serial('should not convert a { url } object outside a file key', (t) => {
       ],
     },
     results: [{ url: 'https://example.com/result' }],
+    // Only the URL of a file has to be an HTTP URL.
+    start_parameter: { url: 'tg://resolve?domain=telegraf' },
   }
 
   t.is(convert(payload), payload)
@@ -276,6 +278,43 @@ test('should return the source streams', (t) => {
   )
 
   t.deepEqual(streams, [first, second])
+})
+
+test('should reject a { url } file that is not an HTTP URL', (t) => {
+  const expected = {
+    instanceOf: TypeError,
+    message: /only http: and https: URLs are supported/,
+  }
+  const refused = [
+    'file:///etc/passwd',
+    'data:text/plain,a',
+    'ftp://example.com/a.jpg',
+    'example.com/a.jpg',
+    '',
+  ]
+  for (const url of refused) {
+    t.throws(() => convert({ photo: { url } }), expected, url)
+    t.throws(() => convert({ any: Input.fromURLStream(url) }), expected, url)
+  }
+
+  t.notThrows(() =>
+    convert({
+      photo: Input.fromURLStream('HTTP://example.com/a.jpg'),
+      audio: Input.fromURLStream(new URL('https://example.com/a.mp3')),
+    })
+  )
+})
+
+test('should destroy the streams it found when it throws', (t) => {
+  // The caller gets no list of streams to destroy.
+  const stream = new Readable({ read() {} })
+  const payload = {
+    document: Input.fromReadableStream(stream),
+    thumbnail: Input.fromURLStream('file:///a.jpg'),
+  }
+
+  t.throws(() => convert(payload), { instanceOf: TypeError })
+  t.true(stream.destroyed)
 })
 
 test('should read a file path lazily', async (t) => {

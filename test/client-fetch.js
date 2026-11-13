@@ -217,6 +217,19 @@ test('should reject on a { url } download error status', async (t) => {
   })
 })
 
+test('should reject a { url } file that is not an HTTP URL', async (t) => {
+  await withApi(async ({ client, calls }) => {
+    // A standard fetch can read more than HTTP: a `data:` URL, and on some runtimes a file.
+    const call = client.callApi('sendDocument', {
+      document: Input.fromURLStream('data:text/plain,a'),
+    })
+
+    const error = await t.throwsAsync(call, { instanceOf: TypeError })
+    t.regex(error.message, /only http: and https: URLs are supported/)
+    t.deepEqual(calls, [], 'nothing was fetched')
+  })
+})
+
 test('should throw a TelegramError for an API error', async (t) => {
   const refusal = { ok: false, error_code: 400, description: 'Bad Request' }
   await withApi(

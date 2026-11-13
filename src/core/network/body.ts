@@ -12,8 +12,8 @@ export interface StreamBody {
    */
   readonly failure?: { readonly error: unknown }
   /**
-   * Stops reading and releases the open source. Some runtimes never cancel the body of
-   * an aborted or failed request, so the caller must call this.
+   * Stops reading, releases the open source and errors `stream`. Some runtimes never
+   * cancel the body of an aborted or failed request, so the caller must call this.
    */
   close(): Promise<void>
 }
@@ -22,8 +22,12 @@ export interface StreamBody {
 export function toStream(segments: readonly Segment[]): StreamBody {
   const reader = new SegmentReader(segments)
   let failure: { error: unknown } | undefined
+  let streamController: ReadableStreamDefaultController<Uint8Array> | undefined
 
   const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      streamController = controller
+    },
     async pull(controller) {
       let chunk: Uint8Array | undefined
       try {
@@ -57,7 +61,16 @@ export function toStream(segments: readonly Segment[]): StreamBody {
     get failure() {
       return failure
     },
-    close: () => reader.close(),
+    close() {
+      const closing = reader.close()
+      // After `reader.close()`, `stream` doesn't produce another chunk.
+      // Deno goes on sending the body after an early response, so it
+      // would wait on `stream` until the server closes the connection.
+      streamController?.error(
+        new DOMException('The request body was closed.', 'AbortError')
+      )
+      return closing
+    },
   }
 }
 

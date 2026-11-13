@@ -156,6 +156,27 @@ test('close should destroy a pending Node stream', async (t) => {
   )
 })
 
+test('close should error the stream', async (t) => {
+  // Deno keeps reading the stream after an early response.
+  const body = toStream([
+    async function* () {
+      yield bytes('one')
+      await new Promise(() => {})
+    },
+  ])
+  const reader = body.stream.getReader()
+  await reader.read()
+  const waiting = reader.read().then(
+    () => 'resolved',
+    (error) => error.name
+  )
+  await body.close()
+
+  t.is(await getPromiseState(waiting), 'settled')
+  t.is(await waiting, 'AbortError')
+  t.is(body.failure, undefined, 'a close is not a source failure')
+})
+
 test('close should not wait for a stalled generator', async (t) => {
   let released = false
   let unblock

@@ -78,6 +78,20 @@ const resolveFile = (parts, value) => {
   return id === null ? undefined : parts[id[1]]
 }
 
+test('should read its options on every call', async (t) => {
+  await withApi(async (client, requests) => {
+    await client.callApi('getMe', {})
+    client.options.apiMode = 'user'
+    client.options.testEnv = true
+    await client.callApi('getMe', {})
+
+    t.deepEqual(
+      requests.map(({ url }) => url),
+      [`/bot${TOKEN}/getMe`, `/user${TOKEN}/test/getMe`]
+    )
+  })
+})
+
 test('should send a call without files as JSON', async (t) => {
   await withApi(async (client, requests) => {
     const result = await client.callApi('sendMessage', {

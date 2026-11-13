@@ -90,6 +90,28 @@ test.serial(
   }
 )
 
+test('should read its options on every call', async (t) => {
+  await withApi(async ({ client, requests }) => {
+    await client.callApi('getMe', {})
+    client.options.apiMode = 'user'
+    client.options.testEnv = true
+    await client.callApi('getMe', {})
+    const other = fixtures.fetch.recorder(globalThis.fetch)
+    client.options.fetch = other.fetch
+    await client.callApi('getMe', {})
+
+    t.deepEqual(
+      requests.map(({ url }) => url),
+      [
+        `/bot${TOKEN}/getMe`,
+        `/user${TOKEN}/test/getMe`,
+        `/user${TOKEN}/test/getMe`,
+      ]
+    )
+    t.is(other.calls.length, 1)
+  })
+})
+
 test('should send a call through the custom fetch', async (t) => {
   await withApi(async ({ client, requests, calls }) => {
     const result = await client.callApi('sendMessage', {

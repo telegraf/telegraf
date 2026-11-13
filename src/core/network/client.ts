@@ -8,7 +8,7 @@ import { Opts, Telegram } from '../types/typegram'
 import { AbortController, AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
 import { toStream } from './body'
-import { createClient, redact, type Client, type FetchFn } from './fetch-client'
+import { createClient, redact, type FetchFn } from './fetch-client'
 import {
   convertFileLiterals,
   destroyUnread,
@@ -160,8 +160,6 @@ type Response = http.ServerResponse
 class ApiClient {
   readonly token: string
   readonly options: ApiClient.Options
-  /** Client for `options.fetch`, created on first use. */
-  private client?: Client
 
   constructor(
     token: string,
@@ -321,7 +319,9 @@ class ApiClient {
   ): Promise<ReturnType<Telegram[M]>> {
     const { token, options } = this
     const { agent, attachmentAgent, fetch: customFetch } = options
-    this.client ??= createClient(token, {
+    // `options` can be changed between calls, and the default transport reads it on
+    // every call, so the client is not kept.
+    const client = createClient(token, {
       apiRoot: options.apiRoot,
       apiMode: options.apiMode,
       testEnv: options.testEnv,
@@ -336,7 +336,7 @@ class ApiClient {
     const converted = convertPayload(payload, downloader.download, token)
 
     try {
-      const data = await this.client.call({
+      const data = await client.call({
         method,
         payload: converted.payload,
         // The client only uses what the `abort-controller` polyfill also provides.

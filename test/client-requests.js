@@ -321,6 +321,21 @@ test('should reject on a { url } download error status', async (t) => {
   })
 })
 
+test('should reject an invalid file literal', async (t) => {
+  await withApi(async (client, requests) => {
+    const call = client.callApi('sendDocument', {
+      chat_id: 1,
+      document: { source: Buffer.from('a'), caption: 'a' },
+    })
+
+    await t.throwsAsync(call, {
+      instanceOf: TypeError,
+      message: 'Invalid file under `document`: unexpected key `caption`.',
+    })
+    t.is(requests.length, 0, 'no request was opened')
+  })
+})
+
 test('should reject a payload that contains itself', async (t) => {
   await withApi(async (client, requests) => {
     const message = { chat_id: 1, text: 'a' }

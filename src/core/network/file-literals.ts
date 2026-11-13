@@ -98,7 +98,8 @@ const HELPERS = {
  * A stream is already open and may already be emitting, so it is piped right away.
  * The streams are also returned: the caller must destroy them if the request fails.
  *
- * Throws for a `{ url }` file that is not an `http:` or `https:` URL.
+ * Throws for a `{ url }` file that is not an `http:` or `https:` URL, and for an object
+ * that holds a Buffer, a stream or a function under `source` and is not a file literal.
  */
 export function convertFileLiterals(
   payload: Record<string, unknown>,
@@ -110,7 +111,13 @@ export function convertFileLiterals(
 
   const convert = (value: unknown, key: string): unknown => {
     const isArray = Array.isArray(value)
-    if (!isArray && !isPlainObject(value)) return value
+    if (!isArray && !isPlainObject(value)) {
+      const source = (value as { source?: unknown } | null)?.source
+      if (!InputFile.is(value) && isFileContent(source)) {
+        throw invalidFile(source, key, 'a file must be a plain object')
+      }
+      return value
+    }
     // A value that contains itself can't be sent. `JSON.stringify` throws for it when
     // the payload is serialized, so it is left as it is.
     if (ancestors.has(value)) return value
@@ -179,15 +186,33 @@ function toInputFile(
   download: Download,
   streams: SourceNodeStream[]
 ): InputFile | undefined {
-  // Must be exactly a source or a URL, with an optional filename. A key set to `undefined`
-  // counts as absent: `Input.fromBuffer(buffer)` produces `filename: undefined`.
-  const { source, url, filename, ...rest } = literal
-  if (Object.values(rest).some((value) => value !== undefined)) return undefined
-  // v4 accepted a `null` filename and a `URL` object.
-  const name = filename ?? undefined
-  const address = url instanceof URL ? url.href : url
-  if (name !== undefined && typeof name !== 'string') return undefined
-  if ((source === undefined) === (address === undefined)) return undefined
+  // Must be exactly a source or a URL, with an optional filename.
+  // `source`, `url` and `filename` are not set when they are `null` or `undefined`: a
+  // literal may be built as `{ source: maybeSource, url: maybeUrl, filename }`, and v4
+  // accepted a `null` filename. Any other key is not set only when it is `undefined`.
+  const { source: maybeSource, url, filename, ...rest } = literal
+  const source = maybeSource ?? undefined
+  // v4 accepted a `URL` object.
+  const address = (url instanceof URL ? url.href : url) ?? undefined
+  const name = typeof filename === 'string' ? filename : undefined
+  const extraKey = Object.keys(rest).find((key) => rest[key] !== undefined)
+
+  let problem: string | undefined
+  if (extraKey !== undefined) problem = `unexpected key \`${extraKey}\``
+  else if (source !== undefined && address !== undefined) {
+    problem = 'both `source` and `url` are set'
+  } else if (filename != null && typeof filename !== 'string') {
+    problem = '`filename` must be a string'
+  } else if (isWebStream(source)) {
+    problem =
+      "a web stream can't be a `source`; " +
+      'use `Input.fromLazyStream(() => stream)`'
+  }
+  if (problem !== undefined) {
+    if (isFileContent(source)) throw invalidFile(source, key, problem)
+    return undefined
+  }
+  if (source === undefined && address === undefined) return undefined
   const stamped = Object.prototype.hasOwnProperty.call(literal, stamp)
 
   if (address !== undefined) {
@@ -314,4 +339,35 @@ function isNodeStream(value: unknown): value is SourceNodeStream {
     value !== null &&
     typeof (value as { pipe?: unknown }).pipe === 'function'
   )
+}
+
+function isWebStream(value: unknown): value is ReadableStream<unknown> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as { getReader?: unknown }).getReader === 'function'
+  )
+}
+
+/** A `source` that can only be meant as the contents of a file. A string may not be. */
+function isFileContent(source: unknown): boolean {
+  return (
+    source instanceof Uint8Array ||
+    typeof source === 'function' ||
+    isNodeStream(source) ||
+    isWebStream(source)
+  )
+}
+
+/**
+ * The error for an object that holds the contents of a file and can't be sent as one.
+ *
+ * Left alone it is sent as JSON: a Buffer as one number per byte, a file stream as its
+ * internal state, which includes its path.
+ */
+function invalidFile(source: unknown, key: string, problem: string) {
+  // The stream was given to be consumed, and this call will not read it.
+  if (isNodeStream(source)) source.destroy?.()
+  else if (isWebStream(source)) source.cancel().catch(noop)
+  return new TypeError(`Invalid file under \`${key}\`: ${problem}.`)
 }

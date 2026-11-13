@@ -131,13 +131,14 @@ test('should convert a { url } literal under every file key', (t) => {
 })
 
 test('should convert only an exact literal shape', (t) => {
-  const source = Buffer.from('a')
+  // None of these holds the contents of a file.
   const others = [
-    { source, caption: 'a' },
-    { source, filename: 5 },
     { source: 5 },
     { source: {} },
-    { source, url: 'https://example.com/a' },
+    { source: 'a.txt', caption: 'a' },
+    { source: 'a.txt', filename: 5 },
+    { source: 'a.txt', url: 'https://example.com/a' },
+    { source: null, url: null },
     { url: 5 },
     { url: 'https://example.com/a', type: 'photo' },
     { filename: 'a.jpg' },
@@ -148,14 +149,67 @@ test('should convert only an exact literal shape', (t) => {
     t.is(convert(payload), payload, JSON.stringify(other))
   }
 
-  // A key set to undefined counts as absent.
+  // e.g. `{ source: maybeSource, url: maybeUrl, filename }`: null and undefined both
+  // mean that `source`, `url` or `filename` is not set. Another key may only be undefined.
+  const source = Buffer.from('a')
   for (const file of [
     { source, filename: undefined },
     { source, caption: undefined },
-    { url: 'https://example.com/a', filename: undefined },
+    { source, url: null },
+    { source, url: undefined, filename: null },
+    { source: null, url: 'https://example.com/a' },
+    { source: undefined, url: 'https://example.com/a', filename: undefined },
   ]) {
     t.true(InputFile.is(convert({ photo: file }).photo), JSON.stringify(file))
   }
+})
+
+test('should throw for an invalid file literal', (t) => {
+  // Left alone it is sent as JSON, a Buffer as one number per byte.
+  const source = Buffer.from('a')
+  class Upload {
+    constructor() {
+      this.source = source
+    }
+  }
+  const invalid = [
+    [{ source, caption: 'a' }, 'unexpected key `caption`.'],
+    [{ source, thumb: null }, 'unexpected key `thumb`.'],
+    [{ source, filename: 5 }, '`filename` must be a string.'],
+    [Input.fromBuffer(source, 5), '`filename` must be a string.'],
+    [
+      { source, url: 'https://example.com/a' },
+      'both `source` and `url` are set.',
+    ],
+    [
+      { source: () => Readable.from(['a']), caption: 'a' },
+      'unexpected key `caption`.',
+    ],
+    [
+      { source: new ReadableStream() },
+      "a web stream can't be a `source`; use `Input.fromLazyStream(() => stream)`.",
+    ],
+    [new Upload(), 'a file must be a plain object.'],
+  ]
+  for (const [value, problem] of invalid) {
+    t.throws(
+      () => convert({ document: [value] }),
+      {
+        instanceOf: TypeError,
+        message: `Invalid file under \`document\`: ${problem}`,
+      },
+      problem
+    )
+  }
+})
+
+test('should destroy the stream of an invalid file literal', (t) => {
+  const stream = new Readable({ read() {} })
+
+  t.throws(() => convert({ document: { source: stream, caption: 'a' } }), {
+    instanceOf: TypeError,
+  })
+  t.true(stream.destroyed)
 })
 
 test('should accept a null filename and a URL object', async (t) => {

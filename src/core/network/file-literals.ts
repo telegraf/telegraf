@@ -49,7 +49,8 @@ export function destroyUnread(streams: readonly SourceNodeStream[]) {
 }
 
 /**
- * The keys that hold a file in the Bot API, plus `thumb`, which v4 still accepts.
+ * The keys that hold a file in the Bot API, plus the ones it no longer documents and
+ * the Bot API server still reads: `thumb` and the three sticker keys of before 6.6.
  * `LinkPreviewOptions`, `WebAppInfo` and `LoginUrl` are `{ url }` objects too, but never
  * appear under one of these keys.
  */
@@ -62,12 +63,15 @@ const FILE_KEYS = new Set([
   'live_photo',
   'media',
   'photo',
+  'png_sticker',
   'sticker',
+  'tgs_sticker',
   'thumb',
   'thumbnail',
   'video',
   'video_note',
   'voice',
+  'webm_sticker',
 ])
 
 /** The `Input` helper to suggest for each kind of literal. */

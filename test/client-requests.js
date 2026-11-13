@@ -288,6 +288,25 @@ test('should download a { url } file with attachmentAgent', async (t) => {
   })
 })
 
+test('should upload a { url } literal under a legacy sticker key', async (t) => {
+  // The Bot API server still reads the sticker keys of before Bot API 6.6.
+  await withApi(async (client, requests, origin) => {
+    await client.callApi('createNewStickerSet', {
+      user_id: 1,
+      name: 'set',
+      title: 'title',
+      png_sticker: { url: `${origin}/files/a.txt` },
+      emojis: 'a',
+    })
+
+    const [{ parts }] = requests
+    t.deepEqual(parts.png_sticker, {
+      file: 'png_sticker.dat',
+      content: 'downloaded',
+    })
+  })
+})
+
 test('should reject on a { url } download error status', async (t) => {
   await withApi(async (client, requests, origin) => {
     const url = `${origin}/files/missing`

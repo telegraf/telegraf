@@ -35,12 +35,15 @@ const FILE_KEYS = [
   'live_photo',
   'media',
   'photo',
+  'png_sticker',
   'sticker',
+  'tgs_sticker',
   'thumb',
   'thumbnail',
   'video',
   'video_note',
   'voice',
+  'webm_sticker',
 ]
 
 test.serial('should convert an Input helper literal without a warning', (t) => {

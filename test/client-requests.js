@@ -7,7 +7,7 @@ const { Readable } = require('stream')
 const { default: ApiClient } = require('../lib/core/network/client')
 const { TelegramError } = require('../lib/core/network/error')
 const Input = require('../lib/input')
-const { fixtures } = require('./_helpers')
+const { fixtures, withResolvers } = require('./_helpers')
 
 // Some tests pass plain literals, which warn once per kind.
 process.emitWarning = () => {}
@@ -345,10 +345,13 @@ test('should download a { url } file when the upload reaches it', async (t) => {
 })
 
 test('should abort during a pending download', async (t) => {
+  const controller = new AbortController()
+  const closed = withResolvers()
   // A host that accepts the connection and never responds.
-  let closed = false
   const files = http.createServer((req, res) => {
-    res.on('close', () => (closed = true))
+    res.on('close', closed.resolve)
+    // The download is pending once its request has arrived.
+    controller.abort()
   })
   await new Promise((resolve) => files.listen(0, '127.0.0.1', resolve))
   t.teardown(() => {
@@ -356,7 +359,6 @@ test('should abort during a pending download', async (t) => {
     files.close()
   })
   const url = `http://127.0.0.1:${files.address().port}/a`
-  const controller = new AbortController()
 
   await withApi(async (client, requests) => {
     const call = client.callApi(
@@ -364,13 +366,11 @@ test('should abort during a pending download', async (t) => {
       { document: Input.fromURLStream(url) },
       { signal: controller.signal }
     )
-    setTimeout(() => controller.abort(), 100)
 
     await t.throwsAsync(call, { name: 'AbortError' })
     t.is(requests.length, 0, 'the request was not completed')
   })
-  await delay(100)
-  t.true(closed, 'the download is closed')
+  await t.notThrowsAsync(closed.promise, 'the download is closed')
 })
 
 test('should reject on an unreadable file path', async (t) => {
@@ -443,14 +443,14 @@ test('should destroy source streams on abort', async (t) => {
 
 test('should abort a download on a request error', async (t) => {
   // A download that starts and never ends. The API then drops its connection.
-  let closed = false
+  const closed = withResolvers()
   let started = false
   let socket
   const drop = () => {
     if (started) socket?.destroy()
   }
   const files = http.createServer((req, res) => {
-    res.on('close', () => (closed = true))
+    res.on('close', closed.resolve)
     res.write('start')
     started = true
     drop()
@@ -478,21 +478,24 @@ test('should abort a download on a request error', async (t) => {
   })
 
   await t.throwsAsync(call, { name: 'FetchError' })
-  await delay(200)
-  t.true(closed)
+  await t.notThrowsAsync(closed.promise, 'the download is closed')
 })
 
 test('should release files on an early response', async (t) => {
+  const begun = withResolvers()
+  const closed = withResolvers()
   // Like a server rejecting a file: it responds without reading the rest of the body.
-  const api = http.createServer((req, res) => {
+  const api = http.createServer(async (req, res) => {
     req.resume()
+    // A download can only be released once it has begun.
+    if (req.url.endsWith('/sendDocument')) await begun.promise
     res.writeHead(413, { 'content-type': 'application/json' })
     res.end('{"ok":false,"error_code":413,"description":"Too Large"}')
   })
-  let closed = false
   const files = http.createServer((req, res) => {
-    res.on('close', () => (closed = true))
+    res.on('close', closed.resolve)
     res.write('start')
+    begun.resolve()
   })
   await new Promise((resolve) => api.listen(0, '127.0.0.1', resolve))
   await new Promise((resolve) => files.listen(0, '127.0.0.1', resolve))
@@ -524,8 +527,7 @@ test('should release files on an early response', async (t) => {
     document: Input.fromURLStream(url),
   })
   await t.throwsAsync(download, { message: '413: Too Large' })
-  await delay(200)
-  t.true(closed, 'the download that had begun')
+  await t.notThrowsAsync(closed.promise, 'the download that had begun')
 })
 
 test('should remove its abort listener', async (t) => {

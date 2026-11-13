@@ -5,7 +5,7 @@ const { default: ApiClient } = require('../lib/core/network/client')
 const { TelegramError } = require('../lib/core/network/error')
 const { Polling } = require('../lib/core/network/polling')
 const Input = require('../lib/input')
-const { fixtures } = require('./_helpers')
+const { fixtures, withResolvers } = require('./_helpers')
 
 // Every warning issued in this file.
 const warnings = []
@@ -317,14 +317,14 @@ test('should abort a pending call', async (t) => {
 
 test('should abort a download on a request error', async (t) => {
   // A download that starts and never ends. The API then drops its connection.
-  let closed = false
+  const closed = withResolvers()
   let started = false
   let socket
   const drop = () => {
     if (started) socket?.destroy()
   }
   const files = http.createServer((req, res) => {
-    res.on('close', () => (closed = true))
+    res.on('close', closed.resolve)
     res.write('start')
     started = true
     drop()
@@ -352,15 +352,17 @@ test('should abort a download on a request error', async (t) => {
   await t.throwsAsync(
     client.callApi('sendDocument', { document: Input.fromURLStream(url) })
   )
-  await delay(200)
-  t.true(closed)
+  await t.notThrowsAsync(closed.promise, 'the download is closed')
 })
 
 test('should abort during a pending download', async (t) => {
+  const controller = new AbortController()
+  const closed = withResolvers()
   // A host that accepts the connection and never responds.
-  let closed = false
   const files = http.createServer((req, res) => {
-    res.on('close', () => (closed = true))
+    res.on('close', closed.resolve)
+    // The download is pending once its request has arrived.
+    controller.abort()
   })
   await new Promise((resolve) => files.listen(0, '127.0.0.1', resolve))
   t.teardown(() => {
@@ -368,7 +370,6 @@ test('should abort during a pending download', async (t) => {
     files.close()
   })
   const url = `http://127.0.0.1:${files.address().port}/a`
-  const controller = new AbortController()
 
   await withApi(async ({ client, requests }) => {
     const call = client.callApi(
@@ -376,13 +377,11 @@ test('should abort during a pending download', async (t) => {
       { document: Input.fromURLStream(url) },
       { signal: controller.signal }
     )
-    setTimeout(() => controller.abort(), 100)
 
     await t.throwsAsync(call, { name: 'AbortError' })
     t.is(requests.length, 0, 'the request was not completed')
   })
-  await delay(100)
-  t.true(closed, 'the download is closed')
+  await t.notThrowsAsync(closed.promise, 'the download is closed')
 })
 
 // Polls with a `callApi` that rejects once with `failure`, then stops the loop.

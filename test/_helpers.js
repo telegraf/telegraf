@@ -102,6 +102,16 @@ const fixtures = {
   },
 }
 
+/** `Promise.withResolvers()`, which Node 20 doesn't have. */
+function withResolvers() {
+  let resolve, reject
+  const promise = new Promise((res, rej) => {
+    resolve = res
+    reject = rej
+  })
+  return { promise, resolve, reject }
+}
+
 const SyncStore = () => {
   const map = new Map()
 
@@ -173,6 +183,7 @@ module.exports = {
   SyncStore,
   AsyncStore,
   fixtures,
+  withResolvers,
   rand,
   sleep,
   createBot,

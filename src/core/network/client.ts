@@ -9,7 +9,11 @@ import { AbortController, AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
 import { toStream } from './body'
 import { createClient, redact, type Client, type FetchFn } from './fetch-client'
-import { convertFileLiterals, type Download } from './file-literals'
+import {
+  convertFileLiterals,
+  downloadError,
+  type Download,
+} from './file-literals'
 import { extractFiles, toJson, toMultipart } from './payload'
 import TelegramError from './error'
 import { URL } from 'url'
@@ -84,10 +88,6 @@ interface Downloader {
   download: Download
   /** Aborts every download of this call. */
   abort(reason?: unknown): void
-}
-
-function downloadError(url: string, status: number, statusText: string) {
-  return new Error(`Unable to download '${url}': ${status} ${statusText}`)
 }
 
 /** Downloads with node-fetch, using `attachmentAgent`. */

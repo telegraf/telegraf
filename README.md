@@ -301,6 +301,14 @@ bot.on('message', async (ctx) => {
     Input.fromReadableStream(fs.createReadStream('/path/to/video.mp4'))
   )
 
+  // send a stream that is opened when the upload reaches it
+  await ctx.replyWithDocument(
+    Input.fromLazyStream(
+      () => fetch('https://example.com/report.pdf'),
+      'report.pdf'
+    )
+  )
+
   // send buffer
   await ctx.replyWithVoice(Input.fromBuffer(Buffer.alloc()))
 

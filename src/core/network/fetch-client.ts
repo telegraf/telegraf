@@ -16,6 +16,17 @@ export interface FetchResponse {
   readonly body?: unknown
 }
 
+/**
+ * A web `ReadableStream`, by the method that is called on it.
+ * The `ReadableStream` types of the DOM lib and of Node are not assignable to each other.
+ */
+export interface WebReadableStream {
+  getReader(): {
+    read(): Promise<{ done: boolean; value?: Uint8Array }>
+    cancel(reason?: unknown): Promise<void>
+  }
+}
+
 /** The minimal request options the client uses. */
 export interface FetchInit {
   method: string

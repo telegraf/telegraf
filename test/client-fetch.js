@@ -116,6 +116,10 @@ test('should upload files like the default transport', async (t) => {
           media: Input.fromReadableStream(Readable.from(['a ', 'stream'])),
           thumbnail: { source: Buffer.from('plain literal') },
         },
+        {
+          type: 'document',
+          media: Input.fromLazyStream(async () => Readable.from(['lazy'])),
+        },
       ],
       reply_parameters: { message_id: 5 },
     })
@@ -125,8 +129,9 @@ test('should upload files like the default transport', async (t) => {
     t.is(parts.chat_id, '1')
     t.deepEqual(JSON.parse(parts.reply_parameters), { message_id: 5 })
     t.deepEqual(parts.photo, { file: 'a.png', content: 'top level' })
-    const [item] = JSON.parse(parts.media)
+    const [item, lazy] = JSON.parse(parts.media)
     const referred = (reference) => parts[reference.replace('attach://', '')]
+    t.deepEqual(referred(lazy.media), { file: 'media.dat', content: 'lazy' })
     t.deepEqual(referred(item.media), {
       file: 'media.dat',
       content: 'a stream',

@@ -1,4 +1,5 @@
 import * as Typegram from '@telegraf/types'
+import type { WebReadableStream } from '../network/fetch-client'
 
 // internal type provisions
 export * from '@telegraf/types/api'
@@ -12,28 +13,38 @@ export * from '@telegraf/types/payment'
 export * from '@telegraf/types/settings'
 export * from '@telegraf/types/update'
 
+type ByteStream = AsyncIterable<Uint8Array | string> | WebReadableStream
+/** A stream, or a fetch `Response`, whose `body` is one. */
+type LazyStream = ByteStream | { readonly body: ByteStream | null }
 // telegraf input file definition
-interface InputFileByPath {
-  source: string
-  filename?: string
-}
-interface InputFileByReadableStream {
-  source: NodeJS.ReadableStream
-  filename?: string
-}
-interface InputFileByBuffer {
-  source: Buffer
-  filename?: string
-}
-interface InputFileByURL {
-  url: string
-  filename?: string
+export declare namespace InputFile {
+  interface ByPath {
+    source: string
+    filename?: string
+  }
+  interface ByReadableStream {
+    source: NodeJS.ReadableStream
+    filename?: string
+  }
+  interface ByBuffer {
+    source: Buffer
+    filename?: string
+  }
+  interface ByURL {
+    url: string
+    filename?: string
+  }
+  interface ByLazyStream {
+    source: () => LazyStream | Promise<LazyStream>
+    filename?: string
+  }
 }
 export type InputFile =
-  | InputFileByPath
-  | InputFileByReadableStream
-  | InputFileByBuffer
-  | InputFileByURL
+  | InputFile.ByPath
+  | InputFile.ByReadableStream
+  | InputFile.ByBuffer
+  | InputFile.ByURL
+  | InputFile.ByLazyStream
 
 export type Telegram = Typegram.ApiMethods<InputFile>
 
@@ -51,4 +62,4 @@ export type ChatAction = Opts<'sendChatAction'>['action']
 /**
  * Sending video notes by a URL is currently unsupported
  */
-export type InputFileVideoNote = Exclude<InputFile, InputFileByURL>
+export type InputFileVideoNote = Exclude<InputFile, InputFile.ByURL>

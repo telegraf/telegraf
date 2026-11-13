@@ -1,5 +1,5 @@
 import { stampInput } from './core/network/file-literals'
-import { InputFile } from './core/types/typegram'
+import type { InputFile } from './core/types/typegram'
 
 /**
  * The local file specified by path will be uploaded to Telegram using multipart/form-data.
@@ -20,10 +20,33 @@ export const fromBuffer = (buffer: Buffer, filename?: string): InputFile => stam
 /**
  * Contents of the stream will be uploaded as file to Telegram using multipart/form-data.
  *
+ * The stream is read when the upload reaches it, after the files before it in the same call.
+ * A stream that can't wait, such as a network response, may be closed by its host by then:
+ * use `fromLazyStream` instead.
+ *
  * 10 MB max size for photos, 50 MB for other files.
  */
 // prettier-ignore
 export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: string): InputFile => stampInput({ source: stream, filename })
+
+/**
+ * Contents of the stream that the function returns will be uploaded as file to Telegram
+ * using multipart/form-data.
+ *
+ * The function is called when the upload reaches the file, and once for every call the
+ * file is sent in. It returns a Node stream, a web stream, an async iterable of bytes or
+ * a `Response`, or a promise for one:
+ *
+ * ```ts
+ * Input.fromLazyStream(() => fetch(url, { headers }), 'report.pdf')
+ * ```
+ *
+ * A `Response` with an error status fails the call.
+ *
+ * 10 MB max size for photos, 50 MB for other files.
+ */
+// prettier-ignore
+export const fromLazyStream = (open: InputFile.ByLazyStream['source'], filename?: string): InputFile => stampInput({ source: open, filename })
 
 /**
  * Contents of the URL will be streamed to Telegram.

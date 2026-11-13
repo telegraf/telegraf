@@ -162,6 +162,27 @@ test('should upload every file source type', async (t) => {
   })
 })
 
+test('should upload a lazy stream in every call', async (t) => {
+  await withApi(async (client, requests, origin) => {
+    let opened = 0
+    const payload = {
+      chat_id: 1,
+      document: Input.fromLazyStream(() => {
+        opened++
+        return fetch(`${origin}/files/a.txt`)
+      }, 'a.txt'),
+    }
+    await client.callApi('sendDocument', payload)
+    await client.callApi('sendDocument', payload)
+
+    t.is(opened, 2)
+    t.is(requests.length, 2)
+    for (const { parts } of requests) {
+      t.deepEqual(parts.document, { file: 'a.txt', content: 'downloaded' })
+    }
+  })
+})
+
 test('should upload a stream that is already flowing', async (t) => {
   await withApi(async (client, requests, origin) => {
     // The request waits for the download; a flowing stream doesn't wait.

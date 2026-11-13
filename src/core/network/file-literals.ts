@@ -62,6 +62,7 @@ const HELPERS = {
   path: 'Input.fromLocalFile(path)',
   buffer: 'Input.fromBuffer(buffer)',
   stream: 'Input.fromReadableStream(stream)',
+  function: 'Input.fromLazyStream(() => stream)',
   url: 'Input.fromURLStream(url)',
 }
 
@@ -75,7 +76,8 @@ const HELPERS = {
  * | exactly `{ source, filename? }` | anywhere, with a warning |
  * | exactly `{ url, filename? }` | under a file key, with a warning |
  *
- * A path is opened and a URL is downloaded only when the upload reaches the file.
+ * A path is opened, a URL is downloaded and a function is called only when the upload
+ * reaches the file.
  * A stream is already open and may already be emitting, so it is piped right away.
  * The streams are also returned: the caller must destroy them if the request fails.
  */
@@ -152,7 +154,54 @@ function toInputFile(
     const contents = pipeSource(source)
     return new InputFile(() => contents, name)
   }
+  if (typeof source === 'function') {
+    if (!stamped) warn('function', 'source')
+    const open = source as () => unknown
+    return new InputFile(() => openLazyStream(open), name)
+  }
   return undefined
+}
+
+/** Calls the function of a lazy stream and returns the stream it gives. */
+function openLazyStream(open: () => unknown): ByteStream {
+  const stream = open()
+  if (!isThenable(stream)) return toByteStream(stream)
+  return (async function* () {
+    yield* toByteStream(await stream) as AsyncIterable<Uint8Array>
+  })()
+}
+
+/** The stream a lazy stream function gave: the value itself, or the `body` of a `Response`. */
+function toByteStream(value: unknown): ByteStream {
+  if (isAsyncIterable(value)) return value
+  const response = value as Partial<Response> | null | undefined
+  const body: unknown = response?.body
+  if (isAsyncIterable(body)) {
+    // The body of an error status is an error page, not the file.
+    if (response?.ok === false) {
+      const { url, status, statusText } = response
+      throw downloadError(String(url), Number(status), String(statusText))
+    }
+    return body
+  }
+  throw new TypeError(
+    'The function given to `Input.fromLazyStream` must return a stream, ' +
+      'an async iterable or a `Response` that has a body.'
+  )
+}
+
+// A web stream is an async iterable too, on Node, Bun and Deno.
+function isAsyncIterable(value: unknown): value is AsyncIterable<Uint8Array> {
+  const iterable = value as Partial<AsyncIterable<unknown>> | null | undefined
+  return typeof iterable?.[Symbol.asyncIterator] === 'function'
+}
+
+export function downloadError(url: string, status: number, statusText: string) {
+  return new Error(`Unable to download '${url}': ${status} ${statusText}`)
+}
+
+function isThenable(value: unknown): value is PromiseLike<unknown> {
+  return typeof (value as { then?: unknown } | null)?.then === 'function'
 }
 
 /**

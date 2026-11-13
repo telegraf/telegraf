@@ -49,12 +49,14 @@ test.serial('should convert an Input helper literal without a warning', (t) => {
     anything: { list: [{ at: { all: Input.fromURLStream('https://x/b') } }] },
     also: Input.fromLocalFile('c.txt'),
     and: Input.fromReadableStream(Readable.from(['d'])),
+    last: Input.fromLazyStream(() => Readable.from(['e'])),
   })
 
   t.true(InputFile.is(converted.photo))
   t.true(InputFile.is(converted.anything.list[0].at.all))
   t.true(InputFile.is(converted.also))
   t.true(InputFile.is(converted.and))
+  t.true(InputFile.is(converted.last))
   t.deepEqual(warnings, [])
 })
 
@@ -83,12 +85,15 @@ test.serial('should warn once per plain literal type', (t) => {
     document: { source: 'a.txt' },
     video: { source: new Readable({ read() {} }) },
     audio: { url: 'https://example.com/a.mp3' },
+    voice: { source: () => Readable.from(['a']) },
   })
   convert(payload())
   convert(payload())
 
   const helpers = {
     TELEGRAF_FILE_BUFFER: /`\{ source \}`.*`Input\.fromBuffer\(buffer\)`/,
+    TELEGRAF_FILE_FUNCTION:
+      /`\{ source \}`.*`Input\.fromLazyStream\(\(\) => stream\)`/,
     TELEGRAF_FILE_PATH: /`\{ source \}`.*`Input\.fromLocalFile\(path\)`/,
     TELEGRAF_FILE_STREAM:
       /`\{ source \}`.*`Input\.fromReadableStream\(stream\)`/,
@@ -317,6 +322,80 @@ test('should download a URL when its file is read', async (t) => {
   t.deepEqual(asked, ['https://example.com/a', 'https://example.com/b'])
 })
 
+test('should call a lazy stream function when its file is read', async (t) => {
+  let calls = 0
+  const converted = convert({
+    document: Input.fromLazyStream(() => {
+      calls++
+      return Readable.from(['la', 'zy'])
+    }),
+  })
+  t.is(calls, 0)
+
+  t.is(await text(converted.document), 'lazy')
+  t.is(calls, 1)
+  // A stream can be read once, so each read needs its own.
+  t.is(await text(converted.document), 'lazy')
+  t.is(calls, 2)
+})
+
+test('should accept every stream type from a lazy stream function', async (t) => {
+  const web = () =>
+    new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('web'))
+        controller.close()
+      },
+    })
+  const converted = convert({
+    document: Input.fromLazyStream(web),
+    photo: Input.fromLazyStream(async () => web()),
+    video: Input.fromLazyStream(async function* () {
+      yield Buffer.from('generator')
+    }),
+    audio: Input.fromLazyStream(async () => Readable.from(['node'])),
+    // e.g. `() => fetch(url)`
+    voice: Input.fromLazyStream(async () => new Response('response')),
+    sticker: Input.fromLazyStream(() => new Response('response')),
+  })
+
+  t.is(await text(converted.document), 'web')
+  t.is(await text(converted.photo), 'web')
+  t.is(await text(converted.video), 'generator')
+  t.is(await text(converted.audio), 'node')
+  t.is(await text(converted.voice), 'response')
+  t.is(await text(converted.sticker), 'response')
+})
+
+test('should reject a lazy stream function that returns no stream', async (t) => {
+  const converted = convert({
+    document: Input.fromLazyStream(() => Buffer.from('a')),
+    photo: Input.fromLazyStream(async () => undefined),
+    video: Input.fromLazyStream(async () => new Response(null)),
+  })
+  const expected = {
+    instanceOf: TypeError,
+    message: /`Input\.fromLazyStream` must return a stream/,
+  }
+
+  await t.throwsAsync(text(converted.document), expected)
+  await t.throwsAsync(text(converted.photo), expected)
+  await t.throwsAsync(text(converted.video), expected)
+})
+
+test('should reject a lazy stream response with an error status', async (t) => {
+  // Its body is an error page, not the file.
+  const converted = convert({
+    document: Input.fromLazyStream(
+      async () => new Response('gone', { status: 404, statusText: 'Not Found' })
+    ),
+  })
+
+  await t.throwsAsync(text(converted.document), {
+    message: /^Unable to download '.*': 404 Not Found$/,
+  })
+})
+
 test('should not mutate the payload', (t) => {
   const literal = { source: Buffer.from('a') }
   const file = new InputFile(Buffer.from('b'))
@@ -365,7 +444,9 @@ test('should convert every v4 upload position', (t) => {
 test('Input helpers should keep their return shape', (t) => {
   const buffer = Buffer.from('a')
   const stream = Readable.from(['a'])
+  const open = () => stream
   const cases = [
+    [Input.fromLazyStream(open, 'a.txt'), { source: open, filename: 'a.txt' }],
     [Input.fromBuffer(buffer, 'a.jpg'), { source: buffer, filename: 'a.jpg' }],
     [Input.fromBuffer(buffer), { source: buffer, filename: undefined }],
     [Input.fromLocalFile('a.txt'), { source: 'a.txt', filename: undefined }],

@@ -172,6 +172,10 @@ class ApiClient {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
     }
+    const { fetch: customFetch } = this.options
+    if (customFetch !== undefined && typeof customFetch !== 'function') {
+      throw new TypeError('The `fetch` option must be a function.')
+    }
     if (this.options.apiRoot.startsWith('http://')) {
       this.options.agent = undefined
     }

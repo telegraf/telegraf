@@ -271,6 +271,22 @@ test('should throw a TelegramError for a non-API error response', async (t) => {
   )
 })
 
+test('should throw for a fetch option that is not a function', (t) => {
+  // e.g. `fetch: condition && customFetch`
+  for (const fetch of [null, false, 0, '', 'fetch', {}]) {
+    t.throws(
+      () => new ApiClient(TOKEN, { fetch }),
+      {
+        instanceOf: TypeError,
+        message: 'The `fetch` option must be a function.',
+      },
+      String(fetch)
+    )
+  }
+  t.notThrows(() => new ApiClient(TOKEN, { fetch: undefined }))
+  t.notThrows(() => new ApiClient(TOKEN, { fetch: globalThis.fetch }))
+})
+
 test('should throw 401 for a missing token', async (t) => {
   const { calls, fetch } = fixtures.fetch.recorder(globalThis.fetch)
   const client = new ApiClient(undefined, { fetch })

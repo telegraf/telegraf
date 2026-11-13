@@ -12,6 +12,22 @@ function always<T>(x: T) {
 }
 const noop = always(Promise.resolve())
 
+function getErrorName(error: unknown): unknown {
+  if (typeof error !== 'object' || error === null) return undefined
+  return 'name' in error ? error.name : undefined
+}
+
+/** The `parameters.retry_after` of an API error, in seconds. */
+function getRetryAfter(error: unknown): number | undefined {
+  if (typeof error !== 'object' || error === null) return undefined
+  if (!('parameters' in error)) return undefined
+  const { parameters } = error
+  if (typeof parameters !== 'object' || parameters === null) return undefined
+  if (!('retry_after' in parameters)) return undefined
+  const { retry_after: seconds } = parameters
+  return typeof seconds === 'number' ? seconds : undefined
+}
+
 export class Polling {
   private readonly abortController = new AbortController()
   private skipOffsetSync = false
@@ -40,34 +56,30 @@ export class Polling {
         }
         yield updates
       } catch (error) {
-        const err = error as Error & {
-          parameters?: { retry_after: number }
-        }
-
-        if (err.name === 'AbortError') return
-        // node-fetch rejects a failed request with a `FetchError`. A custom fetch rejects
-        // with its own error type, so treat anything that is not an API error as one.
-        const customFetch = this.telegram.options.fetch !== undefined
+        const stopped = this.abortController.signal.aborted
+        if (stopped && getErrorName(error) === 'AbortError') return
+        // A failed request rejects with the transport's own error: a `FetchError` from
+        // node-fetch, a `TypeError` from a standard fetch and from Bun, where `node-fetch`
+        // is Bun's `fetch`. So anything that is not an API error is a failed request.
         if (
-          err.name === 'FetchError' ||
-          (customFetch && !(err instanceof TelegramError)) ||
-          (err instanceof TelegramError && err.code === 429) ||
-          (err instanceof TelegramError && err.code >= 500)
+          !(error instanceof TelegramError) ||
+          error.code === 429 ||
+          error.code >= 500
         ) {
-          const retryAfter: number = err.parameters?.retry_after ?? 5
-          debug('Failed to fetch updates, retrying after %ds.', retryAfter, err)
+          const retryAfter = getRetryAfter(error) ?? 5
+          debug(
+            'Failed to fetch updates, retrying after %ds.',
+            retryAfter,
+            error
+          )
           await wait(retryAfter * 1000)
           continue
         }
-        if (
-          err instanceof TelegramError &&
-          // Unauthorized      Conflict
-          (err.code === 401 || err.code === 409)
-        ) {
+        // Unauthorized      Conflict
+        if (error.code === 401 || error.code === 409) {
           this.skipOffsetSync = true
-          throw err
         }
-        throw err
+        throw error
       }
     } while (!this.abortController.signal.aborted)
   }

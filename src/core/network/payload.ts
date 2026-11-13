@@ -64,6 +64,8 @@ export function extractFiles(payload: Record<string, unknown>): {
   attachments: Attachment[]
 } {
   const attachments: Attachment[] = []
+  // The arrays and objects that the value being visited is inside of.
+  const ancestors = new Set<unknown>([payload])
 
   const visit = (value: unknown, parameter: string): unknown => {
     if (InputFile.is(value)) {
@@ -71,25 +73,39 @@ export function extractFiles(payload: Record<string, unknown>): {
       attachments.push({ id, parameter, file: value })
       return `attach://${id}`
     }
-    if (Array.isArray(value)) {
-      let copy: unknown[] | undefined
-      value.forEach((item, index) => {
-        const visited = visit(item, parameter)
-        if (visited === item) return
-        copy ??= value.slice()
-        copy[index] = visited
-      })
-      return copy ?? value
-    }
-    if (!isPlainObject(value)) return value
+    const isArray = Array.isArray(value)
+    if (!isArray && !isPlainObject(value)) return value
+    // A value that contains itself can't be sent. `JSON.stringify` throws for it when
+    // the payload is serialized, so it is left as it is.
+    if (ancestors.has(value)) return value
+    ancestors.add(value)
+    const visited = isArray
+      ? visitArray(value, parameter)
+      : visitObject(value, parameter)
+    ancestors.delete(value)
+    return visited
+  }
+
+  const visitArray = (array: unknown[], parameter: string) => {
+    let copy: unknown[] | undefined
+    array.forEach((item, index) => {
+      const visited = visit(item, parameter)
+      if (visited === item) return
+      copy ??= array.slice()
+      copy[index] = visited
+    })
+    return copy ?? array
+  }
+
+  const visitObject = (object: Record<string, unknown>, parameter: string) => {
     let copy: Record<string, unknown> | undefined
-    for (const [key, item] of Object.entries(value)) {
+    for (const [key, item] of Object.entries(object)) {
       const visited = visit(item, parameter)
       if (visited === item) continue
-      copy ??= { ...value }
+      copy ??= { ...object }
       copy[key] = visited
     }
-    return copy ?? value
+    return copy ?? object
   }
 
   let fields: Record<string, unknown> | undefined

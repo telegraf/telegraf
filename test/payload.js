@@ -89,6 +89,30 @@ test('extractFiles should find nested files', (t) => {
   t.is(payload.media[1].media, second, 'the original is untouched')
 })
 
+test('extractFiles should not follow a value that contains itself', (t) => {
+  const payload = { chat_id: 1, photo: new InputFile(bytes('a')), list: [] }
+  payload.self = payload
+  payload.list.push(payload.list)
+  const { payload: fields, attachments } = extractFiles(payload)
+
+  t.is(attachments.length, 1)
+  t.is(fields.self, payload)
+  // `JSON.stringify` is what refuses it.
+  t.throws(() => toJson(fields), { instanceOf: TypeError })
+})
+
+test('extractFiles should extract a file from a value that appears twice', (t) => {
+  const item = { thumbnail: new InputFile(bytes('a')) }
+  const { payload: fields, attachments } = extractFiles({
+    media: [item, item],
+    cover: item,
+  })
+
+  t.is(attachments.length, 3)
+  t.regex(fields.media[1].thumbnail, /^attach:\/\//)
+  t.regex(fields.cover.thumbnail, /^attach:\/\//)
+})
+
 test('toMultipart should write fields before files', async (t) => {
   const { payload, attachments } = extractFiles({
     chat_id: 1,

@@ -217,6 +217,19 @@ test('should reject on a { url } download error status', async (t) => {
   })
 })
 
+test('should reject a payload that contains itself', async (t) => {
+  await withApi(async ({ client, calls }) => {
+    const message = { chat_id: 1, text: 'a' }
+    message.self = message
+
+    await t.throwsAsync(client.callApi('sendMessage', message), {
+      instanceOf: TypeError,
+      message: /circular/,
+    })
+    t.deepEqual(calls, [], 'nothing was fetched')
+  })
+})
+
 test('should reject a { url } file that is not an HTTP URL', async (t) => {
   await withApi(async ({ client, calls }) => {
     // A standard fetch can read more than HTTP: a `data:` URL, and on some runtimes a file.

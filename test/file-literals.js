@@ -435,6 +435,29 @@ test('should reject a lazy stream response with an error status', async (t) => {
   })
 })
 
+test('should not follow a value that contains itself', (t) => {
+  // `JSON.stringify` throws for it when the payload is serialized.
+  const payload = { chat_id: 1, list: [] }
+  payload.self = payload
+  payload.list.push(payload.list)
+  t.is(convert(payload), payload)
+
+  const upload = { photo: Input.fromBuffer(Buffer.from('a')) }
+  upload.self = upload
+  const converted = convert(upload)
+  t.true(InputFile.is(converted.photo))
+  t.is(converted.self, upload)
+})
+
+test('should convert a value that appears twice', (t) => {
+  const item = { thumbnail: Input.fromBuffer(Buffer.from('a')) }
+  const converted = convert({ media: [item, item], cover: item })
+
+  t.true(InputFile.is(converted.media[0].thumbnail))
+  t.true(InputFile.is(converted.media[1].thumbnail))
+  t.true(InputFile.is(converted.cover.thumbnail))
+})
+
 test('should not mutate the payload', (t) => {
   const literal = { source: Buffer.from('a') }
   const file = new InputFile(Buffer.from('b'))

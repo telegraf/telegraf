@@ -88,21 +88,35 @@ export function convertFileLiterals(
   download: Download
 ): { payload: Record<string, unknown>; streams: SourceNodeStream[] } {
   const streams: SourceNodeStream[] = []
+  // The arrays and objects that the value being converted is inside of.
+  const ancestors = new Set<unknown>([payload])
 
   const convert = (value: unknown, key: string): unknown => {
-    if (Array.isArray(value)) {
-      let copy: unknown[] | undefined
-      value.forEach((item, index) => {
-        // An array item counts as being under its array's key.
-        const converted = convert(item, key)
-        if (converted === item) return
-        copy ??= value.slice()
-        copy[index] = converted
-      })
-      return copy ?? value
+    const isArray = Array.isArray(value)
+    if (!isArray && !isPlainObject(value)) return value
+    // A value that contains itself can't be sent. `JSON.stringify` throws for it when
+    // the payload is serialized, so it is left as it is.
+    if (ancestors.has(value)) return value
+    if (!isArray) {
+      const file = toInputFile(value, key, download, streams)
+      if (file !== undefined) return file
     }
-    if (!isPlainObject(value)) return value
-    return toInputFile(value, key, download, streams) ?? convertObject(value)
+    ancestors.add(value)
+    const converted = isArray ? convertArray(value, key) : convertObject(value)
+    ancestors.delete(value)
+    return converted
+  }
+
+  const convertArray = (array: unknown[], key: string) => {
+    let copy: unknown[] | undefined
+    array.forEach((item, index) => {
+      // An array item counts as being under its array's key.
+      const converted = convert(item, key)
+      if (converted === item) return
+      copy ??= array.slice()
+      copy[index] = converted
+    })
+    return copy ?? array
   }
 
   const convertObject = (object: Record<string, unknown>) => {

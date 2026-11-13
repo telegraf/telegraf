@@ -288,6 +288,31 @@ test('should reject on a { url } download error status', async (t) => {
   })
 })
 
+test('should reject a payload that contains itself', async (t) => {
+  await withApi(async (client, requests) => {
+    const message = { chat_id: 1, text: 'a' }
+    message.self = message
+    const expected = t.throws(() => JSON.stringify(message))
+    const error = await t.throwsAsync(client.callApi('sendMessage', message))
+    t.is(error.message, expected.message, 'what JSON.stringify throws')
+
+    // 4.16.3 dropped `reply_parameters` beside a file, so it sent this one.
+    const stream = fixtures.stream.infinite()
+    const upload = {
+      chat_id: 1,
+      document: Input.fromReadableStream(stream),
+      reply_parameters: { message_id: 5 },
+    }
+    upload.reply_parameters.self = upload.reply_parameters
+    await t.throwsAsync(client.callApi('sendDocument', upload), {
+      instanceOf: TypeError,
+      message: /circular/,
+    })
+    t.true(stream.destroyed)
+    t.is(requests.length, 0, 'no request was opened')
+  })
+})
+
 test('should reject a { url } file that is not an HTTP URL', async (t) => {
   await withApi(async (client, requests) => {
     // A Bot API file link without its scheme holds the token.

@@ -282,8 +282,10 @@ class ApiClient {
         throw new TelegramError(errorPayload, { method, payload })
       }
       // node-fetch puts the request URL in its error for a non-JSON response.
+      // A source that fails while the answer is arriving aborts the request, and the
+      // error is then an `AbortError` that says nothing about the source.
       const data = await res.json().catch((error: unknown) => {
-        throw redact(error, token)
+        throw redact(bodyError ?? error, token)
       })
       if (!data.ok) {
         debug('API call failed', data)

@@ -341,6 +341,33 @@ test('should abort a pending call', async (t) => {
   t.is(listeners.size, 0)
 })
 
+test('should reject with a source error during an early response', async (t) => {
+  const failure = new Error('disk gone')
+  const stream = fixtures.stream.infinite()
+  // The answer begins before the upload has ended and is never completed, so only the
+  // failure of the source can end the call.
+  const api = http.createServer((req, res) => {
+    req.resume()
+    res.writeHead(413, { 'content-type': 'application/json' })
+    res.write('{"ok":false,')
+    setTimeout(() => stream.destroy(failure), 100)
+  })
+  await new Promise((resolve) => api.listen(0, '127.0.0.1', resolve))
+  t.teardown(() => {
+    api.closeAllConnections()
+    api.close()
+  })
+  const client = new ApiClient(TOKEN, {
+    apiRoot: `http://127.0.0.1:${api.address().port}`,
+    fetch: globalThis.fetch,
+  })
+
+  const call = client.callApi('sendDocument', {
+    document: Input.fromReadableStream(stream),
+  })
+  await t.throwsAsync(call, { is: failure })
+})
+
 test('should abort a download on a request error', async (t) => {
   // A download that starts and never ends. The API then drops its connection.
   const closed = withResolvers()

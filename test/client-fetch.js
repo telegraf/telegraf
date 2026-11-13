@@ -446,6 +446,63 @@ test('polling should rethrow an API error', async (t) => {
   t.is(calls, 1, 'the offset is not synced after a 409')
 })
 
+test('polling should end the wait before a retry on stop()', async (t) => {
+  let calls = 0
+  const telegram = {
+    async callApi(method, payload) {
+      calls++
+      if (payload.timeout === undefined) return []
+      setTimeout(() => polling.stop(), 50)
+      // The wait before the next try is 5 s.
+      throw new TypeError('fetch failed')
+    },
+  }
+  const polling = new Polling(telegram, [])
+  const started = Date.now()
+  await polling.loop(async () => {})
+
+  t.is(calls, 2, 'failed, synced')
+  t.true(Date.now() - started < 2000)
+})
+
+test('polling should not wait for a retry after stop()', async (t) => {
+  let calls = 0
+  const telegram = {
+    async callApi(method, payload) {
+      calls++
+      if (payload.timeout === undefined) return []
+      polling.stop()
+      // A custom fetch can reject with any value.
+      throw undefined
+    },
+  }
+  const polling = new Polling(telegram, [])
+  const started = Date.now()
+  await polling.loop(async () => {})
+
+  t.is(calls, 2, 'failed, synced')
+  t.true(Date.now() - started < 2000)
+})
+
+test('polling should rethrow an API error after stop()', async (t) => {
+  const conflict = new TelegramError({
+    error_code: 409,
+    description: 'Conflict',
+  })
+  const telegram = {
+    async callApi() {
+      polling.stop()
+      throw conflict
+    },
+  }
+  const polling = new Polling(telegram, [])
+
+  await t.throwsAsync(
+    polling.loop(async () => {}),
+    { is: conflict }
+  )
+})
+
 test('polling should retry after an AbortError that stop() did not cause', async (t) => {
   // e.g. a custom fetch with a request timeout aborts its own request.
   const failure = Object.assign(

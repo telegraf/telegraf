@@ -1,12 +1,28 @@
 import * as tg from '../types/typegram'
 import * as tt from '../../telegram-types'
-import AbortController from 'abort-controller'
+import AbortController, { type AbortSignal } from 'abort-controller'
 import ApiClient from './client'
 import d from 'debug'
-import { promisify } from 'util'
 import { TelegramError } from './error'
 const debug = d('telegraf:polling')
-const wait = promisify(setTimeout)
+
+/** Resolves after `ms`, or as soon as the signal is aborted. */
+function wait(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    if (signal.aborted) {
+      resolve()
+      return
+    }
+    const end = () => {
+      clearTimeout(timer)
+      signal.removeEventListener('abort', end)
+      resolve()
+    }
+    const timer = setTimeout(end, ms)
+    signal.addEventListener('abort', end)
+  })
+}
+
 function always<T>(x: T) {
   return () => x
 }
@@ -72,7 +88,8 @@ export class Polling {
             retryAfter,
             error
           )
-          await wait(retryAfter * 1000)
+          // `stop()` must not have to wait for a retry that will not happen.
+          await wait(retryAfter * 1000, this.abortController.signal)
           continue
         }
         // Unauthorized      Conflict

@@ -33,6 +33,19 @@ export type Download = (url: string) => ByteStream
 export interface SourceNodeStream {
   pipe(destination: PassThrough): unknown
   destroy?: () => void
+  readonly readableEnded?: boolean
+}
+
+/**
+ * Destroys the streams that were not read to their end.
+ *
+ * A stream that was read to its end holds nothing open, and it may be a duplex whose
+ * other side is still in use, such as a socket.
+ */
+export function destroyUnread(streams: readonly SourceNodeStream[]) {
+  for (const stream of streams) {
+    if (stream.readableEnded !== true) stream.destroy?.()
+  }
 }
 
 /**
@@ -134,7 +147,7 @@ export function convertFileLiterals(
     return { payload: convertObject(payload), streams }
   } catch (error) {
     // The caller never gets the streams found so far, so it can't destroy them.
-    for (const stream of streams) stream.destroy?.()
+    destroyUnread(streams)
     throw error
   }
 }

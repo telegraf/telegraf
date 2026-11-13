@@ -317,6 +317,34 @@ test('should throw 401 for a missing token', async (t) => {
   t.deepEqual(calls, [])
 })
 
+test('should not destroy a source stream that was read to its end', async (t) => {
+  await withApi(async ({ client }) => {
+    const sent = fixtures.stream.duplex()
+    await client.callApi('sendDocument', {
+      document: Input.fromReadableStream(sent.stream),
+    })
+    t.false(sent.stream.destroyed, 'after a call that succeeded')
+    sent.stream.write('receipt')
+    t.deepEqual(sent.written, ['receipt'])
+
+    const read = fixtures.stream.duplex()
+    const failure = new Error('disk gone')
+    const failing = new Readable({
+      read() {
+        this.destroy(failure)
+      },
+    })
+    const call = client.callApi('sendMediaGroup', {
+      media: [
+        { type: 'document', media: Input.fromReadableStream(read.stream) },
+        { type: 'document', media: Input.fromReadableStream(failing) },
+      ],
+    })
+    await t.throwsAsync(call, { is: failure })
+    t.false(read.stream.destroyed, 'after a later file of the call failed')
+  })
+})
+
 test('should destroy source streams on a request error', async (t) => {
   // Port 1 is closed, so the request fails.
   const { fetch } = fixtures.fetch.recorder(globalThis.fetch)

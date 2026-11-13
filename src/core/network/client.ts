@@ -11,6 +11,7 @@ import { toStream } from './body'
 import { createClient, redact, type Client, type FetchFn } from './fetch-client'
 import {
   convertFileLiterals,
+  destroyUnread,
   downloadError,
   type Download,
 } from './file-literals'
@@ -306,7 +307,7 @@ class ApiClient {
       // streams that were never reached.
       if (body?.readableEnded !== true) {
         body?.destroy()
-        for (const stream of converted.streams) stream.destroy?.()
+        destroyUnread(converted.streams)
         downloader.abort()
       }
     }
@@ -347,9 +348,9 @@ class ApiClient {
       }
       return data.result as ReturnType<Telegram[M]>
     } finally {
-      // The client closes the file it was reading. Close what it never reached:
-      // unread streams. Destroying a finished stream is a no-op.
-      for (const stream of converted.streams) stream.destroy?.()
+      // The client closes the file it was reading.
+      // The streams it never reached are still open and need to be destroyed.
+      destroyUnread(converted.streams)
       // A download that was being requested when the call ended is still in flight.
       downloader.abort()
     }

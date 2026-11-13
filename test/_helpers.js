@@ -1,6 +1,6 @@
 // @ts-check
 
-const { Readable } = require('stream')
+const { Duplex, Readable } = require('stream')
 const { Telegraf } = require('..')
 const { InputFile } = require('../lib/core/network/payload')
 
@@ -72,6 +72,22 @@ const fixtures = {
           sent = true
         },
       })
+    },
+    // A stream that is read to its end and can still be written to, like a socket.
+    duplex() {
+      /** @type {string[]} */
+      const written = []
+      const stream = new Duplex({
+        read() {
+          this.push('DATA')
+          this.push(null)
+        },
+        write(chunk, encoding, done) {
+          written.push(String(chunk))
+          done()
+        },
+      })
+      return { stream, written }
     },
   },
   signal: {

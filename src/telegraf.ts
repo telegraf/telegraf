@@ -268,6 +268,10 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
     onLaunch?: () => void
   ): Promise<void>
   /**
+   * Starts the bot. Without `webhook` options, `launch()` deletes any
+   * webhook registered for the bot via `deleteWebhook()` and starts long
+   * polling. Do not call `launch()` if your bot is served through a
+   * webhook set up separately — use `webhookCallback()` instead.
    * @see https://github.com/telegraf/telegraf/discussions/1344#discussioncomment-335700
    */
   async launch(

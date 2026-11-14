@@ -7,7 +7,7 @@
   "homepage": "https://telegraf.js.org",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/telegraf/telegraf.git"
+    "url": "git+https://github.com/telegraf/telegraf.git"
   },
   "bugs": {
     "url": "https://github.com/telegraf/telegraf/issues"

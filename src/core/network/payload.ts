@@ -7,7 +7,7 @@
  */
 
 /** Using Symbol.for so two copies of Telegraf recognise each other's files. */
-const brand: unique symbol = Symbol.for('telegraf.InputFile')
+const brand: unique symbol = Symbol.for('telegraf.MultipartFile')
 
 export type ByteStream = AsyncIterable<Uint8Array> | ReadableStream<Uint8Array>
 
@@ -17,7 +17,7 @@ export type ByteStream = AsyncIterable<Uint8Array> | ReadableStream<Uint8Array>
  */
 export type FileSource = Blob | Uint8Array | ArrayBuffer | (() => ByteStream)
 
-export class InputFile {
+export class MultipartFile {
   readonly [brand] = true
 
   constructor(
@@ -26,7 +26,7 @@ export class InputFile {
     readonly name?: string
   ) {}
 
-  static is(value: unknown): value is InputFile {
+  static is(value: unknown): value is MultipartFile {
     return (
       typeof value === 'object' &&
       value !== null &&
@@ -36,7 +36,7 @@ export class InputFile {
 
   toJSON(): never {
     throw new TypeError(
-      'An InputFile cannot be serialized. It must sit in a plain object or an array.'
+      'A MultipartFile cannot be serialized. It must sit in a plain object or an array.'
     )
   }
 }
@@ -50,11 +50,11 @@ export interface Attachment {
   id: string
   /** The parameter of the API method the file was found under. */
   parameter: string
-  file: InputFile
+  file: MultipartFile
 }
 
 /**
- * Extracts every `InputFile` from a payload. A top-level file is removed and sent as the
+ * Extracts every `MultipartFile` from a payload. A top-level file is removed and sent as the
  * part named after its key; a nested file is replaced with an `attach://<id>` reference.
  * The payload is not mutated: objects and arrays that contain a file are copied,
  * everything else is shared.
@@ -68,7 +68,7 @@ export function extractFiles(payload: Record<string, unknown>): {
   const ancestors = new Set<unknown>([payload])
 
   const visit = (value: unknown, parameter: string): unknown => {
-    if (InputFile.is(value)) {
+    if (MultipartFile.is(value)) {
       const id = randomId()
       attachments.push({ id, parameter, file: value })
       return `attach://${id}`
@@ -114,7 +114,7 @@ export function extractFiles(payload: Record<string, unknown>): {
     // A caller may refer to it directly from elsewhere in the payload.
     // This is for backward compatibility with abuse of top-level file keys to
     // work around Telegraf's bug that disallowed files in some nested objects.
-    const file = InputFile.is(value)
+    const file = MultipartFile.is(value)
     if (file) attachments.push({ id: key, parameter: key, file: value })
     const visited = file ? undefined : visit(value, key)
     if (visited === value) continue

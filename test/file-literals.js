@@ -4,7 +4,7 @@ const os = require('os')
 const path = require('path')
 const { Readable, Stream } = require('stream')
 const { convertFileLiterals } = require('../lib/core/network/file-literals')
-const { InputFile, extractFiles } = require('../lib/core/network/payload')
+const { MultipartFile, extractFiles } = require('../lib/core/network/payload')
 const Input = require('../lib/input')
 
 // Records every warning emitted in this file. A warning is emitted once per process, so
@@ -55,11 +55,11 @@ test.serial('should convert an Input helper literal without a warning', (t) => {
     last: Input.fromLazyStream(() => Readable.from(['e'])),
   })
 
-  t.true(InputFile.is(converted.photo))
-  t.true(InputFile.is(converted.anything.list[0].at.all))
-  t.true(InputFile.is(converted.also))
-  t.true(InputFile.is(converted.and))
-  t.true(InputFile.is(converted.last))
+  t.true(MultipartFile.is(converted.photo))
+  t.true(MultipartFile.is(converted.anything.list[0].at.all))
+  t.true(MultipartFile.is(converted.also))
+  t.true(MultipartFile.is(converted.and))
+  t.true(MultipartFile.is(converted.last))
   t.deepEqual(warnings, [])
 })
 
@@ -118,15 +118,18 @@ test('should convert a nested { source } literal', (t) => {
   const literal = { source: Buffer.from('a') }
   const converted = convert({ anything: { list: [{ at: { all: literal } }] } })
 
-  t.true(InputFile.is(converted.anything.list[0].at.all))
+  t.true(MultipartFile.is(converted.anything.list[0].at.all))
 })
 
 test('should convert a { url } literal under every file key', (t) => {
   const literal = { url: 'https://example.com/a' }
   for (const key of FILE_KEYS) {
-    t.true(InputFile.is(convert({ [key]: literal })[key]), key)
-    t.true(InputFile.is(convert({ a: [{ [key]: literal }] }).a[0][key]), key)
-    t.true(InputFile.is(convert({ [key]: [literal] })[key][0]), `${key}[]`)
+    t.true(MultipartFile.is(convert({ [key]: literal })[key]), key)
+    t.true(
+      MultipartFile.is(convert({ a: [{ [key]: literal }] }).a[0][key]),
+      key
+    )
+    t.true(MultipartFile.is(convert({ [key]: [literal] })[key][0]), `${key}[]`)
   }
 })
 
@@ -160,7 +163,10 @@ test('should convert only an exact literal shape', (t) => {
     { source: null, url: 'https://example.com/a' },
     { source: undefined, url: 'https://example.com/a', filename: undefined },
   ]) {
-    t.true(InputFile.is(convert({ photo: file }).photo), JSON.stringify(file))
+    t.true(
+      MultipartFile.is(convert({ photo: file }).photo),
+      JSON.stringify(file)
+    )
   }
 })
 
@@ -227,7 +233,7 @@ test('should accept a null filename and a URL object', async (t) => {
     download
   )
 
-  t.true(InputFile.is(converted.photo))
+  t.true(MultipartFile.is(converted.photo))
   t.is(converted.photo.name, undefined)
   t.is(converted.document.name, undefined)
   t.is(await text(converted.document), 'downloaded')
@@ -502,7 +508,7 @@ test('should not follow a value that contains itself', (t) => {
   const upload = { photo: Input.fromBuffer(Buffer.from('a')) }
   upload.self = upload
   const converted = convert(upload)
-  t.true(InputFile.is(converted.photo))
+  t.true(MultipartFile.is(converted.photo))
   t.is(converted.self, upload)
 })
 
@@ -510,22 +516,22 @@ test('should convert a value that appears twice', (t) => {
   const item = { thumbnail: Input.fromBuffer(Buffer.from('a')) }
   const converted = convert({ media: [item, item], cover: item })
 
-  t.true(InputFile.is(converted.media[0].thumbnail))
-  t.true(InputFile.is(converted.media[1].thumbnail))
-  t.true(InputFile.is(converted.cover.thumbnail))
+  t.true(MultipartFile.is(converted.media[0].thumbnail))
+  t.true(MultipartFile.is(converted.media[1].thumbnail))
+  t.true(MultipartFile.is(converted.cover.thumbnail))
 })
 
 test('should not mutate the payload', (t) => {
   const literal = { source: Buffer.from('a') }
-  const file = new InputFile(Buffer.from('b'))
+  const file = new MultipartFile(Buffer.from('b'))
   const kept = { chat: { id: 1 } }
   const payload = { media: [{ type: 'photo', media: literal }], file, kept }
   const converted = convert(payload)
 
   t.not(converted, payload)
   t.is(payload.media[0].media, literal, 'the literal is still where it was')
-  t.true(InputFile.is(converted.media[0].media))
-  t.is(converted.file, file, 'an InputFile is not touched')
+  t.true(MultipartFile.is(converted.media[0].media))
+  t.is(converted.file, file, 'a MultipartFile is not touched')
   t.is(converted.kept, kept, 'what holds no literal is shared')
 
   const plain = { chat_id: 1, text: 'a', entities: [{ type: 'bold' }] }

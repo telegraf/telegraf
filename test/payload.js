@@ -1,6 +1,6 @@
 const test = require('ava')
 const {
-  InputFile,
+  MultipartFile,
   extractFiles,
   toJson,
   toMultipart,
@@ -44,7 +44,7 @@ test('toJson should omit null and undefined', (t) => {
 })
 
 test('extractFiles should extract a top-level file', (t) => {
-  const file = new InputFile(bytes('DATA'), 'a.txt')
+  const file = new MultipartFile(bytes('DATA'), 'a.txt')
   const payload = { chat_id: 1, document: file }
   const extracted = extractFiles(payload)
 
@@ -57,9 +57,9 @@ test('extractFiles should extract a top-level file', (t) => {
 })
 
 test('extractFiles should find nested files', (t) => {
-  const thumbnail = new InputFile(bytes('thumb'))
-  const sticker = new InputFile(bytes('sticker'))
-  const second = new InputFile(bytes('second'))
+  const thumbnail = new MultipartFile(bytes('thumb'))
+  const sticker = new MultipartFile(bytes('sticker'))
+  const second = new MultipartFile(bytes('second'))
   const payload = {
     // three shapes the old upload code could not reach
     rich_message: { blocks: [{ type: 'animation', animation: { thumbnail } }] },
@@ -90,7 +90,7 @@ test('extractFiles should find nested files', (t) => {
 })
 
 test('extractFiles should not follow a value that contains itself', (t) => {
-  const payload = { chat_id: 1, photo: new InputFile(bytes('a')), list: [] }
+  const payload = { chat_id: 1, photo: new MultipartFile(bytes('a')), list: [] }
   payload.self = payload
   payload.list.push(payload.list)
   const { payload: fields, attachments } = extractFiles(payload)
@@ -102,7 +102,7 @@ test('extractFiles should not follow a value that contains itself', (t) => {
 })
 
 test('extractFiles should extract a file from a value that appears twice', (t) => {
-  const item = { thumbnail: new InputFile(bytes('a')) }
+  const item = { thumbnail: new MultipartFile(bytes('a')) }
   const { payload: fields, attachments } = extractFiles({
     media: [item, item],
     cover: item,
@@ -118,12 +118,12 @@ test('toMultipart should write fields before files', async (t) => {
     chat_id: 1,
     caption: 'hi',
     disable_notification: true,
-    document: new InputFile(bytes('DATA'), 'a.txt'),
+    document: new MultipartFile(bytes('DATA'), 'a.txt'),
     reply_parameters: { message_id: 7, quote: null },
     message_thread_id: undefined,
     // A caller can reference a top-level file by its key: attach://<key>.
     media: [{ type: 'document', media: 'attach://document' }],
-    cover: { nested: new InputFile(bytes('NESTED'), 'b.txt') },
+    cover: { nested: new MultipartFile(bytes('NESTED'), 'b.txt') },
   })
   const { contentType, segments } = toMultipart(payload, attachments, 'B')
   const [, { id }] = attachments
@@ -177,9 +177,9 @@ test('toMultipart should not read file sources', (t) => {
   const stream = () => (async function* () {})()
   const { payload, attachments } = extractFiles({
     chat_id: 1,
-    photo: new InputFile(blob),
-    thumbnail: new InputFile(stream),
-    document: new InputFile(bytes('x').buffer),
+    photo: new MultipartFile(blob),
+    thumbnail: new MultipartFile(stream),
+    document: new MultipartFile(bytes('x').buffer),
   })
   const { segments } = toMultipart(payload, attachments, 'B')
 
@@ -191,8 +191,8 @@ test('toMultipart should not read file sources', (t) => {
 
 test('toMultipart should use a default file name', async (t) => {
   const { payload, attachments } = extractFiles({
-    photo: new InputFile(bytes('p')),
-    media: [{ type: 'video', media: new InputFile(bytes('m')) }],
+    photo: new MultipartFile(bytes('p')),
+    media: [{ type: 'video', media: new MultipartFile(bytes('m')) }],
   })
   const body = await assemble(toMultipart(payload, attachments, 'B').segments)
 
@@ -202,7 +202,7 @@ test('toMultipart should use a default file name', async (t) => {
 
 test('toMultipart should escape header injection in a file name', async (t) => {
   const { payload, attachments } = extractFiles({
-    document: new InputFile(bytes('x'), 'a"\r\nx-injected: 1\r\n.txt'),
+    document: new MultipartFile(bytes('x'), 'a"\r\nx-injected: 1\r\n.txt'),
   })
   const body = await assemble(toMultipart(payload, attachments, 'B').segments)
 
@@ -215,7 +215,7 @@ test('toMultipart should percent-encode a file name', async (t) => {
   // as an escape. Sent as they are, '%2F' would become '/' and the backslash would vanish.
   const name = 'отчёт 50%2Foff\\sale "final" 100%.txt'
   const { payload, attachments } = extractFiles({
-    document: new InputFile(bytes('x'), name),
+    document: new MultipartFile(bytes('x'), name),
   })
   const body = await assemble(toMultipart(payload, attachments, 'B').segments)
   const [, sent] = /filename="([^"]*)"/.exec(body)
@@ -224,21 +224,24 @@ test('toMultipart should percent-encode a file name', async (t) => {
   t.is(decodeURIComponent(sent), name, 'percent-decoding gives the name back')
 })
 
-test('InputFile.is should accept an InputFile from another package copy', (t) => {
+test('MultipartFile.is should accept a MultipartFile from another package copy', (t) => {
   const foreign = {
-    [Symbol.for('telegraf.InputFile')]: true,
+    [Symbol.for('telegraf.MultipartFile')]: true,
     source: bytes('x'),
   }
 
-  t.true(InputFile.is(foreign))
+  t.true(MultipartFile.is(foreign))
   t.is(extractFiles({ photo: foreign }).attachments.length, 1)
-  t.false(InputFile.is({ source: bytes('x') }), 'a look-alike is not a file')
+  t.false(
+    MultipartFile.is({ source: bytes('x') }),
+    'a look-alike is not a file'
+  )
 })
 
-test('toJson should throw on an InputFile', (t) => {
+test('toJson should throw on a MultipartFile', (t) => {
   class Wrapper {
     constructor() {
-      this.photo = new InputFile(bytes('x'))
+      this.photo = new MultipartFile(bytes('x'))
     }
   }
   const { payload, attachments } = extractFiles({ extra: new Wrapper() })

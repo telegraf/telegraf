@@ -1,12 +1,12 @@
 /**
  * Converts v4's file literals, `{ source }` and `{ url }` objects with an optional
- * `filename`, to `InputFile`, which is what the serializer looks for.
+ * `filename`, to `MultipartFile`, which is what the serializer looks for.
  */
 import { createReadStream } from 'fs'
 import { realpath, stat } from 'fs/promises'
 import { basename } from 'path'
 import { finished, PassThrough } from 'stream'
-import { InputFile, isPlainObject, type ByteStream } from './payload'
+import { MultipartFile, isPlainObject, type ByteStream } from './payload'
 import { warnOnce } from './warning'
 
 /** Using Symbol.for so two copies of Telegraf recognise each other's literals. */
@@ -84,7 +84,7 @@ const HELPERS = {
 }
 
 /**
- * Replaces every file literal in a payload with an `InputFile`. The payload is not
+ * Replaces every file literal in a payload with an `MultipartFile`. The payload is not
  * mutated: objects and arrays that contain a literal are copied, everything else is shared.
  *
  * | literal | treated as a file |
@@ -113,7 +113,7 @@ export function convertFileLiterals(
     const isArray = Array.isArray(value)
     if (!isArray && !isPlainObject(value)) {
       const source = (value as { source?: unknown } | null)?.source
-      if (!InputFile.is(value) && isFileContent(source)) {
+      if (!MultipartFile.is(value) && isFileContent(source)) {
         throw invalidFile(source, key, 'a file must be a plain object')
       }
       return value
@@ -122,7 +122,7 @@ export function convertFileLiterals(
     // the payload is serialized, so it is left as it is.
     if (ancestors.has(value)) return value
     if (!isArray) {
-      const file = toInputFile(value, key, download, streams)
+      const file = toMultipartFile(value, key, download, streams)
       if (file !== undefined) return file
     }
     ancestors.add(value)
@@ -180,12 +180,12 @@ function assertHttpUrl(url: string) {
   )
 }
 
-function toInputFile(
+function toMultipartFile(
   literal: Record<string, unknown>,
   key: string,
   download: Download,
   streams: SourceNodeStream[]
-): InputFile | undefined {
+): MultipartFile | undefined {
   // Must be exactly a source or a URL, with an optional filename.
   // `source`, `url` and `filename` are not set when they are `null` or `undefined`: a
   // literal may be built as `{ source: maybeSource, url: maybeUrl, filename }`, and v4
@@ -220,26 +220,26 @@ function toInputFile(
     if (!stamped && !FILE_KEYS.has(key)) return undefined
     assertHttpUrl(address)
     if (!stamped) warn('url', 'url')
-    return new InputFile(() => download(address), name)
+    return new MultipartFile(() => download(address), name)
   }
   if (typeof source === 'string') {
     if (!stamped) warn('path', 'source')
-    return new InputFile(() => readFile(source), name ?? basename(source))
+    return new MultipartFile(() => readFile(source), name ?? basename(source))
   }
   if (source instanceof Uint8Array) {
     if (!stamped) warn('buffer', 'source')
-    return new InputFile(source, name)
+    return new MultipartFile(source, name)
   }
   if (isNodeStream(source)) {
     if (!stamped) warn('stream', 'source')
     streams.push(source)
     const contents = pipeSource(source)
-    return new InputFile(() => contents, name)
+    return new MultipartFile(() => contents, name)
   }
   if (typeof source === 'function') {
     if (!stamped) warn('function', 'source')
     const open = source as () => unknown
-    return new InputFile(() => openLazyStream(open), name)
+    return new MultipartFile(() => openLazyStream(open), name)
   }
   return undefined
 }

@@ -2,7 +2,7 @@
 
 const { Duplex, Readable } = require('stream')
 const { Telegraf } = require('..')
-const { InputFile } = require('../lib/core/network/payload')
+const { MultipartFile } = require('../lib/core/network/payload')
 
 /** @type {import("../types").Message['from']} */
 const from = {
@@ -110,7 +110,7 @@ const fixtures = {
   },
   file: {
     failing(error) {
-      return new InputFile(async function* () {
+      return new MultipartFile(async function* () {
         yield new TextEncoder().encode('part')
         throw error
       })

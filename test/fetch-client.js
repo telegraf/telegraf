@@ -1,7 +1,7 @@
 const test = require('ava')
 const http = require('http')
 const { createClient } = require('../lib/core/network/fetch-client')
-const { InputFile } = require('../lib/core/network/payload')
+const { MultipartFile } = require('../lib/core/network/payload')
 const { fixtures } = require('./_helpers')
 
 const TOKEN = '123456:SECRET-abc_DEF'
@@ -197,7 +197,7 @@ test.serial('should upload a Blob in browser mode', async (t) => {
     method: 'sendDocument',
     payload: {
       chat_id: 1,
-      document: new InputFile(async function* () {
+      document: new MultipartFile(async function* () {
         yield bytes('STREAMED')
       }, 'a.txt'),
     },
@@ -213,7 +213,7 @@ test.serial('should time out while buffering in browser mode', async (t) => {
   const { calls, fetch } = fixtures.fetch.recorder()
   const client = createClient(TOKEN, { fetch, timeout: 100 })
   let cancelled = false
-  const document = new InputFile(
+  const document = new MultipartFile(
     () =>
       new ReadableStream({
         pull: () => new Promise(() => {}),
@@ -252,7 +252,7 @@ test('should stream a call with a file as multipart', async (t) => {
       method: 'sendDocument',
       payload: {
         chat_id: 1,
-        document: new InputFile(async function* () {
+        document: new MultipartFile(async function* () {
           yield bytes('FILE')
         }, 'a.txt'),
       },
@@ -271,7 +271,7 @@ test('should send a POST with duplex half', async (t) => {
   await client.call({ method: 'getMe' })
   await client.call({
     method: 'sendPhoto',
-    payload: { photo: new InputFile(bytes('x')) },
+    payload: { photo: new MultipartFile(bytes('x')) },
   })
 
   t.is(calls[0].init.body, '{}', 'no payload is an empty object')
@@ -299,7 +299,7 @@ test('should build the URL from apiRoot, apiMode and testEnv', async (t) => {
 
 test('should send the same payload twice', async (t) => {
   let opened = 0
-  const document = new InputFile(() => {
+  const document = new MultipartFile(() => {
     opened++
     return new Blob(['FILE']).stream()
   })
@@ -321,7 +321,7 @@ test('should reject a fetch without stream support', async (t) => {
   const client = createClient(TOKEN, { fetch: require('node-fetch') })
   const call = client.call({
     method: 'sendPhoto',
-    payload: { photo: new InputFile(bytes('x')) },
+    payload: { photo: new MultipartFile(bytes('x')) },
   })
 
   await t.throwsAsync(call, { message: /cannot send a ReadableStream/ })
@@ -442,7 +442,7 @@ test('should reject with a file error when the request resolves', async (t) => {
 test('should reject with an AbortError on abort', async (t) => {
   // Node leaves the request body open after an abort.
   let released = false
-  const document = new InputFile(async function* () {
+  const document = new MultipartFile(async function* () {
     try {
       for (;;) {
         yield new Uint8Array(1024)
@@ -515,7 +515,7 @@ test('should throw a RangeError for an invalid timeout', (t) => {
 
 test('should not wait for a pending file cancel', async (t) => {
   // The file's cancel() never settles.
-  const document = new InputFile(
+  const document = new MultipartFile(
     () =>
       new ReadableStream({
         start: (controller) => controller.enqueue(bytes('x')),

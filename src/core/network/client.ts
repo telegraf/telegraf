@@ -33,35 +33,77 @@ namespace ApiClient {
   export type Agent = http.Agent | ((parsedUrl: URL) => http.Agent) | undefined
   export interface Options {
     /**
-     * Agent for communicating with the bot API.
-     */
-    agent?: http.Agent
-    /**
-     * Agent for attaching files via URL.
-     * 1. Not all agents support both `http:` and `https:`.
-     * 2. When passing a function, create the agents once, outside of the function.
-     *    Creating new agent every request probably breaks `keepAlive`.
-     */
-    attachmentAgent?: Agent
-    /**
      * Sends every request through this `fetch` instead of `node-fetch`.
      *
      * It is recommended to pass the runtime's own `fetch` function, unless you
      * have a specific reason to use a custom implementation or wrapper.
      * It must be a standard `fetch` implementation.
-     *
-     * `agent` and `attachmentAgent` are then ignored. Configure the connection in the
-     * `fetch` you pass.
      */
     fetch?: FetchFn
-    apiRoot: string
+    /** The Bot API server that calls are sent to. */
+    api?: {
+      /**
+       * The URL of the server. Set it for a self-hosted Bot API server.
+       * @default 'https://api.telegram.org'
+       */
+      root?: string
+      /**
+       * `user` for a Bot API server that supports user accounts.
+       * @default 'bot'
+       * @see https://github.com/tdlight-team/tdlight-telegram-bot-api#user-mode
+       */
+      mode?: 'bot' | 'user'
+      /**
+       * `test` sends calls to Telegram's test environment.
+       * @default 'prod'
+       */
+      environment?: 'prod' | 'test'
+    }
     /**
-     * @default 'bot'
-     * @see https://github.com/tdlight-team/tdlight-telegram-bot-api#user-mode
+     * Whether the first eligible call of a webhook update is sent as the response
+     * to the webhook request, instead of a request of its own.
+     * Such a call resolves with `true` and can't report an error.
+     * @default true
+     * @see https://core.telegram.org/bots/faq#how-can-i-make-requests-in-response-to-updates
      */
+    webhookReply?: boolean
+  }
+
+  /** The options of `ApiClient` before 4.100. They will not be accepted in v6. */
+  export interface LegacyOptions {
+    /** @deprecated Use `api.root`. */
+    apiRoot?: string
+    /** @deprecated Use `api.mode`. */
+    apiMode?: 'bot' | 'user'
+    /** @deprecated Use `api.environment`. */
+    testEnv?: boolean
+    /**
+     * Agent for communicating with the bot API. Ignored when `fetch` is set.
+     * @deprecated Configure the connection in `fetch`.
+     */
+    agent?: http.Agent
+    /**
+     * Agent for attaching files via URL. Ignored when `fetch` is set.
+     * 1. Not all agents support both `http:` and `https:`.
+     * 2. When passing a function, create the agents once, outside of the function.
+     *    Creating new agent every request probably breaks `keepAlive`.
+     * @deprecated Configure the connection in `fetch`.
+     */
+    attachmentAgent?: Agent
+  }
+
+  /**
+   * The options an `ApiClient` holds: those it was given, with the defaults applied.
+   * It reads them on every call, so they can be changed between calls.
+   */
+  export interface ResolvedOptions {
+    apiRoot: string
     apiMode: 'bot' | 'user'
-    webhookReply: boolean
     testEnv: boolean
+    webhookReply: boolean
+    agent?: http.Agent
+    attachmentAgent?: Agent
+    fetch?: FetchFn
   }
 
   export interface CallApiOptions {
@@ -69,7 +111,7 @@ namespace ApiClient {
   }
 }
 
-const DEFAULT_OPTIONS: ApiClient.Options = {
+const DEFAULT_OPTIONS: ApiClient.ResolvedOptions = {
   apiRoot: 'https://api.telegram.org',
   apiMode: 'bot',
   webhookReply: true,
@@ -79,6 +121,25 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
   }),
   attachmentAgent: undefined,
   testEnv: false,
+}
+
+/** An option of `api` takes precedence over the same option in `ApiClient.LegacyOptions`. */
+function resolveOptions(
+  options: (ApiClient.Options & ApiClient.LegacyOptions) | undefined
+): ApiClient.ResolvedOptions {
+  const { api, ...rest } = options ?? {}
+  const environment = api?.environment
+  const server: Partial<ApiClient.LegacyOptions> = {
+    apiRoot: api?.root,
+    apiMode: api?.mode,
+    testEnv: environment === undefined ? undefined : environment === 'test',
+  }
+  return {
+    ...DEFAULT_OPTIONS,
+    ...compactOptions(rest),
+    // An option of `api` that is not set must not replace the one in `rest`.
+    ...compactOptions(server),
+  }
 }
 
 const TIMEOUT = 500_000 // ms
@@ -159,20 +220,17 @@ function answerToWebhook(
 type Response = http.ServerResponse
 class ApiClient {
   readonly token: string
-  readonly options: ApiClient.Options
+  readonly options: ApiClient.ResolvedOptions
 
   constructor(
     token: string,
-    options?: Partial<ApiClient.Options>,
+    options?: ApiClient.Options & ApiClient.LegacyOptions,
     private readonly response?: Response
   ) {
     // A token read from a file may end with a newline.
     // A missing token is reported by `callApi`, not by the constructor.
     this.token = typeof token === 'string' ? token.trim() : token
-    this.options = {
-      ...DEFAULT_OPTIONS,
-      ...compactOptions(options),
-    }
+    this.options = resolveOptions(options)
     const { fetch: customFetch } = this.options
     if (customFetch !== undefined && typeof customFetch !== 'function') {
       throw new TypeError('The `fetch` option must be a function.')

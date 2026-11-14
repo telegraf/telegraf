@@ -1,5 +1,13 @@
 const test = require('ava')
 const { Telegraf, session } = require('../')
+const { fixtures } = require('./_helpers')
+
+// Every warning issued in this file.
+const warnings = []
+process.emitWarning = (message, type, code) =>
+  warnings.push({ message, type, code })
+
+const TOKEN = '123456:SECRET-abc_DEF'
 
 function createBot(...args) {
   const bot = new Telegraf(...args)
@@ -186,7 +194,7 @@ test('should handle webhook response', async (t) => {
 })
 
 test('should respect webhookReply option', async (t) => {
-  const bot = createBot(null, { telegram: { webhookReply: false } })
+  const bot = createBot(null, { webhookReply: false })
   bot.catch((err) => {
     throw err
   }) // Disable log
@@ -195,6 +203,87 @@ test('should respect webhookReply option', async (t) => {
   await t.throwsAsync(bot.handleUpdate({ message: BaseTextMessage }, res))
   t.true(res.writableEnded)
   t.is(res.body, undefined)
+})
+
+test('should send calls through the fetch option', async (t) => {
+  const { calls, fetch } = fixtures.fetch.recorder()
+  const bot = createBot(TOKEN, { fetch })
+  bot.on('message', (ctx) => ctx.reply('bar'))
+
+  t.true(await bot.telegram.getMe())
+  await bot.handleUpdate({ message: BaseTextMessage })
+
+  t.deepEqual(
+    calls.map(({ url }) => url),
+    [
+      `https://api.telegram.org/bot${TOKEN}/getMe`,
+      `https://api.telegram.org/bot${TOKEN}/sendMessage`,
+    ]
+  )
+})
+
+test('should send calls to the server in the api option', async (t) => {
+  const { calls, fetch } = fixtures.fetch.recorder()
+  const api = {
+    root: 'http://localhost:8081',
+    mode: 'user',
+    environment: 'test',
+  }
+  const bot = createBot(TOKEN, { fetch, api })
+
+  await bot.telegram.getMe()
+
+  t.is(calls[0].url, `http://localhost:8081/user${TOKEN}/test/getMe`)
+})
+
+// Serial, and before any other test that passes `telegram`: the warning is issued
+// once in a process.
+test.serial('should warn once about the telegram option', (t) => {
+  const deprecations = () =>
+    warnings.filter(({ code }) => code === 'TELEGRAF_TELEGRAM_OPTION')
+
+  createBot(TOKEN, { api: { root: 'http://localhost:8081' } })
+  t.deepEqual(deprecations(), [])
+
+  createBot(TOKEN, { telegram: { apiRoot: 'http://localhost:8081' } })
+  createBot(TOKEN, { telegram: {} })
+  t.is(deprecations().length, 1)
+  t.is(deprecations()[0].type, 'DeprecationWarning')
+  t.regex(deprecations()[0].message, /the `telegram` option is deprecated/)
+})
+
+test('should prefer api and webhookReply to the telegram option', (t) => {
+  const bot = createBot(TOKEN, {
+    api: { root: 'http://localhost:1', mode: 'bot', environment: 'prod' },
+    webhookReply: false,
+    telegram: {
+      apiRoot: 'http://localhost:2',
+      apiMode: 'user',
+      testEnv: true,
+      webhookReply: true,
+    },
+  })
+
+  t.like(bot.telegram.options, {
+    apiRoot: 'http://localhost:1',
+    apiMode: 'bot',
+    testEnv: false,
+    webhookReply: false,
+  })
+})
+
+test('should keep the telegram options that are not set outside it', (t) => {
+  const bot = createBot(TOKEN, {
+    api: { root: 'http://localhost:1' },
+    telegram: { apiMode: 'user', testEnv: true, webhookReply: false },
+  })
+
+  t.like(bot.telegram.options, {
+    apiRoot: 'http://localhost:1',
+    apiMode: 'user',
+    testEnv: true,
+    webhookReply: false,
+  })
 })
 
 test('should respect webhookReply runtime change', async (t) => {

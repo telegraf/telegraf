@@ -78,6 +78,64 @@ const resolveFile = (parts, value) => {
   return id === null ? undefined : parts[id[1]]
 }
 
+test('should accept the api option', (t) => {
+  const api = {
+    root: 'http://localhost:8081',
+    mode: 'user',
+    environment: 'test',
+  }
+
+  const { options } = new ApiClient(TOKEN, { api })
+
+  t.like(options, {
+    apiRoot: 'http://localhost:8081',
+    apiMode: 'user',
+    testEnv: true,
+  })
+  t.false('api' in options, 'a client holds the options of api by one name')
+})
+
+test('should prefer the api option to apiRoot, apiMode and testEnv', (t) => {
+  const client = new ApiClient(TOKEN, {
+    api: { root: 'http://localhost:1', mode: 'bot', environment: 'prod' },
+    apiRoot: 'http://localhost:2',
+    apiMode: 'user',
+    testEnv: true,
+  })
+
+  t.like(client.options, {
+    apiRoot: 'http://localhost:1',
+    apiMode: 'bot',
+    testEnv: false,
+  })
+})
+
+test('should keep apiRoot, apiMode and testEnv that api does not set', (t) => {
+  const client = new ApiClient(TOKEN, {
+    api: {},
+    apiRoot: 'http://localhost:2',
+    apiMode: 'user',
+    testEnv: true,
+  })
+
+  t.like(client.options, {
+    apiRoot: 'http://localhost:2',
+    apiMode: 'user',
+    testEnv: true,
+  })
+})
+
+test('should accept the options of another client', (t) => {
+  const { fetch } = fixtures.fetch.recorder()
+  const api = { root: 'http://localhost:8081', environment: 'test' }
+  const { options } = new ApiClient(TOKEN, { fetch, api, webhookReply: false })
+
+  const copy = new ApiClient(TOKEN, options).options
+
+  t.deepEqual(copy, options)
+  t.not(copy, options)
+})
+
 test('should read its options on every call', async (t) => {
   await withApi(async (client, requests) => {
     await client.callApi('getMe', {})

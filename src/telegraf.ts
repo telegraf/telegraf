@@ -11,6 +11,7 @@ import Context from './context'
 import d from 'debug'
 import generateCallback from './core/network/webhook'
 import { Polling } from './core/network/polling'
+import { warnOnce } from './core/network/warning'
 import pTimeout from 'p-timeout'
 import Telegram from './telegram'
 import { TlsOptions } from 'tls'
@@ -19,7 +20,6 @@ import safeCompare = require('safe-compare')
 const debug = d('telegraf:main')
 
 const DEFAULT_OPTIONS: Telegraf.Options<Context> = {
-  telegram: {},
   handlerTimeout: 90_000, // 90s in ms
   contextType: Context,
 }
@@ -30,13 +30,28 @@ function always<T>(x: T) {
 
 const anoop = always(Promise.resolve())
 
+function warnTelegramOption() {
+  warnOnce(
+    'TELEGRAF_TELEGRAM_OPTION',
+    // TODO: link to docs when ready
+    'telegraf: the `telegram` option is deprecated and will not be accepted in v6. ' +
+      'Pass `api: { root, mode, environment }` and `webhookReply` directly in the `Telegraf` options, ' +
+      'and configure the connection in `fetch`, not in `agent` or `attachmentAgent`.'
+  )
+}
+
 export namespace Telegraf {
-  export interface Options<TContext extends Context> {
+  export interface Options<TContext extends Context> extends ApiClient.Options {
     contextType: new (
       ...args: ConstructorParameters<typeof Context>
     ) => TContext
     handlerTimeout: number
-    telegram?: Partial<ApiClient.Options>
+    /**
+     * @deprecated Pass `api` and `webhookReply` instead, and configure the
+     * connection in `fetch`, not in `telegram.agent` or `telegram.attachmentAgent`.
+     * `telegram` will not be accepted in v6.
+     */
+    telegram?: ApiClient.LegacyOptions & Pick<ApiClient.Options, 'webhookReply'>
   }
 
   export interface LaunchOptions {
@@ -149,7 +164,13 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
       ...DEFAULT_OPTIONS,
       ...compactOptions(options),
     }
-    this.telegram = new Telegram(token, this.options.telegram)
+    const { telegram, fetch, api, webhookReply } = this.options
+    if (telegram !== undefined) warnTelegramOption()
+    this.telegram = new Telegram(token, {
+      ...telegram,
+      // An option that is not set must not replace the one in `telegram`.
+      ...compactOptions({ fetch, api, webhookReply }),
+    })
     debug('Created a `Telegraf` instance')
   }
 

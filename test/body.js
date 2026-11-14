@@ -1,6 +1,7 @@
 const test = require('ava')
 const http = require('http')
 const { toStream, toBlob } = require('../lib/core/network/body')
+const { withResolvers } = require('./_helpers')
 
 const bytes = (text) => new TextEncoder().encode(text)
 const text = async (stream) => await new Response(stream).text()
@@ -485,11 +486,12 @@ test('fetch should send a blob body with a content-length', async (t) => {
 })
 
 test('close should release the source after an aborted fetch', async (t) => {
-  // Node does not cancel the request body when a request is aborted.
+  // Node doesn't cancel the body of a request that it has begun to send.
+  const received = withResolvers()
+  const released = withResolvers()
   await withServer(
-    (req) => req.resume(),
+    (req) => req.once('data', received.resolve).resume(),
     async (url) => {
-      let released = false
       const body = toStream([
         async function* () {
           try {
@@ -498,14 +500,12 @@ test('close should release the source after an aborted fetch', async (t) => {
               await delay(10)
             }
           } finally {
-            released = true
+            released.resolve()
           }
         },
       ])
       const controller = new AbortController()
-      setTimeout(() => controller.abort(), 100)
-
-      await t.throwsAsync(
+      const rejection = t.throwsAsync(
         fetch(url, {
           method: 'POST',
           body: body.stream,
@@ -514,13 +514,21 @@ test('close should release the source after an aborted fetch', async (t) => {
         }),
         { name: 'AbortError' }
       )
-      await delay(100)
-      t.false(released, 'the runtime left the source open')
+      // Node 26 does cancel the body of a request that is aborted before it is sent,
+      // which a slow first `fetch` of a process can be when the abort is on a timer.
+      await received.promise
+      controller.abort()
+      await rejection
+
+      t.is(
+        await getPromiseState(released.promise, 100),
+        'pending',
+        'the runtime left the source open'
+      )
 
       await body.close()
       // The generator may be between yields; it ends at the next one.
-      await delay(100)
-      t.true(released)
+      t.is(await getPromiseState(released.promise), 'settled')
     }
   )
 })

@@ -1,5 +1,5 @@
 /**
- * Converts the files of a payload to `MultipartFile`, which is what the serializer looks
+ * Converts the files of a payload to `MultipartFile`, which is what the serialiser looks
  * for: `InputFile`s, and v4's file literals, `{ source }` and `{ url }` objects with an
  * optional `filename`.
  */
@@ -136,7 +136,7 @@ export function convertFiles(
       return value
     }
     // A value that contains itself can't be sent. `JSON.stringify` throws for it when
-    // the payload is serialized, so it is left as it is.
+    // the payload is serialised, so it is left as it is.
     if (ancestors.has(value)) return value
     if (!isArray) {
       const file = toMultipartFile(value, key, download, streams)
@@ -230,7 +230,7 @@ function fromInputFile(
  *
  * Returns the stream, and the `filename` of the outermost nested `InputFile` that has one,
  * or else the name that `toContents` finds. The `filename` of `file` itself takes
- * precedence; the serializer applies it.
+ * precedence; the serialiser applies it.
  */
 async function openNested(file: InputFile, key: string, download: Download) {
   let value: unknown = file.source
@@ -262,7 +262,7 @@ async function openNested(file: InputFile, key: string, download: Download) {
   return { stream: toByteStream(contents.source), name: name ?? contents.name }
 }
 
-/** The contents of a file, converted for the serializer. */
+/** The contents of a file, converted for the serialiser. */
 interface Contents {
   source: Exclude<FileSource, DeferredFile>
   /** The file name of a path, the last segment of a URL, or the name of a `File`. */

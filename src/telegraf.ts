@@ -149,7 +149,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   }
 
   private handleError = (err: unknown, ctx: C): MaybePromise<void> => {
-    // set exit code to emulate `warn-with-error-code` behavior of
+    // set exit code to emulate `warn-with-error-code` behaviour of
     // https://nodejs.org/api/cli.html#cli_unhandled_rejections_mode
     // to prevent a clean exit despite an error being thrown
     process.exitCode = 1

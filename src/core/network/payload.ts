@@ -88,7 +88,7 @@ export function extractFiles(payload: Record<string, unknown>): {
     const isArray = Array.isArray(value)
     if (!isArray && !isPlainObject(value)) return value
     // A value that contains itself can't be sent. `JSON.stringify` throws for it when
-    // the payload is serialized, so it is left as it is.
+    // the payload is serialised, so it is left as it is.
     if (ancestors.has(value)) return value
     ancestors.add(value)
     const visited = isArray

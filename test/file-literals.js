@@ -431,7 +431,7 @@ test('should download a URL when its file is read', async (t) => {
 })
 
 test('should not follow a value that contains itself', (t) => {
-  // `JSON.stringify` throws for it when the payload is serialized.
+  // `JSON.stringify` throws for it when the payload is serialised.
   const payload = { chat_id: 1, list: [] }
   payload.self = payload
   payload.list.push(payload.list)

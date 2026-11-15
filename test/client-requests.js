@@ -7,6 +7,7 @@ const { Readable } = require('stream')
 const { default: ApiClient } = require('../lib/core/network/client')
 const { TelegramError } = require('../lib/core/network/error')
 const Input = require('../lib/input')
+const { InputFile } = require('../lib/input-file')
 const { fixtures, withResolvers } = require('./_helpers')
 
 // Some tests pass plain literals, which warn once per kind.
@@ -234,15 +235,16 @@ test('should upload every file source type', async (t) => {
   })
 })
 
-test('should upload a lazy stream in every call', async (t) => {
+test('should upload the file of an InputFile function in every call', async (t) => {
   await withApi(async (client, requests, origin) => {
     let opened = 0
     const payload = {
       chat_id: 1,
-      document: Input.fromLazyStream(() => {
+      // Named after the URL of the response.
+      document: new InputFile(() => {
         opened++
         return fetch(`${origin}/files/a.txt`)
-      }, 'a.txt'),
+      }),
     }
     await client.callApi('sendDocument', payload)
     await client.callApi('sendDocument', payload)

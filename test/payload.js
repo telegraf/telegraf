@@ -200,6 +200,63 @@ test('toMultipart should use a default file name', async (t) => {
   t.regex(body, /filename="media\.dat"/)
 })
 
+test('toMultipart should name a deferred file when it is opened', async (t) => {
+  let opened = 0
+  const deferred = (name) => ({
+    open: async () => {
+      opened++
+      const stream = (async function* () {
+        yield bytes('contents')
+      })()
+      return { stream, name }
+    },
+  })
+  const { payload, attachments } = extractFiles({
+    document: new MultipartFile(deferred('opened.txt')),
+    photo: new MultipartFile(deferred('opened.jpg'), 'given.jpg'),
+    video: new MultipartFile(deferred(undefined)),
+  })
+  const { segments } = toMultipart(payload, attachments, 'B')
+  t.is(opened, 0, 'a deferred file is opened when the upload reaches it')
+  const body = await assemble(segments)
+
+  t.is(opened, 3)
+  t.regex(
+    body,
+    /name="document"; filename="opened\.txt"\r\n[^]*\r\n\r\ncontents/
+  )
+  t.regex(body, /name="photo"; filename="given\.jpg"/, 'a given name wins')
+  t.regex(body, /name="video"; filename="video\.mp4"/)
+})
+
+test('toMultipart should release a deferred stream when the upload ends', async (t) => {
+  // e.g. the request failed, or the server answered before the upload was done.
+  const cancelled = []
+  const web = (name) =>
+    new ReadableStream({
+      pull: (controller) => controller.enqueue(bytes(name)),
+      cancel: () => void cancelled.push(name),
+    })
+  const part = (stream) => {
+    const { payload, attachments } = extractFiles({
+      document: new MultipartFile({ open: async () => ({ stream }) }),
+    })
+    const { segments } = toMultipart(payload, attachments, 'B')
+    return segments.find((segment) => typeof segment === 'function')()
+  }
+
+  const atHeader = part(web('at header'))
+  t.regex(Buffer.from((await atHeader.next()).value).toString(), /filename=/)
+  await atHeader.return()
+
+  const inContents = part(web('in contents'))
+  await inContents.next()
+  t.is(Buffer.from((await inContents.next()).value).toString(), 'in contents')
+  await inContents.return()
+
+  t.deepEqual(cancelled, ['at header', 'in contents'])
+})
+
 test('toMultipart should escape header injection in a file name', async (t) => {
   const { payload, attachments } = extractFiles({
     document: new MultipartFile(bytes('x'), 'a"\r\nx-injected: 1\r\n.txt'),

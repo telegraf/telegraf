@@ -1,10 +1,7 @@
+import type { Globals } from '../types/platform'
+
 /** The codes of the warnings that have been issued. */
 const issued = new Set<string>()
-
-interface Globals {
-  process?: Partial<NodeJS.Process>
-  navigator?: { userAgent?: string }
-}
 
 /**
  * Issues a deprecation warning, once in a process for each code.

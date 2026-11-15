@@ -2,7 +2,8 @@
  * Builds a request body from multipart segments: a `ReadableStream` where requests can
  * stream, or a `Blob` where they cannot. Web APIs only.
  */
-import type { ByteStream, Segment } from './payload'
+import type { ByteStream } from '../types/platform'
+import type { Segment } from './payload'
 
 export interface StreamBody {
   readonly stream: ReadableStream<Uint8Array>

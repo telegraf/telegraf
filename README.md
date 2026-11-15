@@ -276,15 +276,16 @@ Default `bot.handleError` always rethrows. You can overwrite it using `bot.catch
 
 ### Working with files
 
-Supported file sources:
+A `file_id`, or a URL for Telegram to download, is passed as a string.
+Anything to upload is passed as an `InputFile`, made from one of:
 
-- `Existing file_id`
-- `File path`
-- `Url`
-- `Buffer`
-- `ReadStream`
+- a local path
+- an `http://` or `https://` URL, which Telegraf downloads
+- a `Buffer`, a `Uint8Array`, an `ArrayBuffer`, a `Blob` or a `File`
+- a stream or a `Response`, which can be sent once
+- a function that returns any of these, called when the upload reaches the file
 
-Also, you can provide an optional name of a file as `filename` when you send the file.
+An optional second argument names the file.
 
 <!-- global bot, fs -->
 
@@ -293,31 +294,28 @@ bot.on('message', async (ctx) => {
   // resend existing file by file_id
   await ctx.replyWithSticker('123123jkbhj6b')
 
+  // send url via Telegram server
+  await ctx.replyWithPhoto('https://picsum.photos/200/300/')
+
   // send file
-  await ctx.replyWithVideo(Input.fromLocalFile('/path/to/video.mp4'))
+  await ctx.replyWithVideo(new InputFile('/path/to/video.mp4'))
 
   // send stream
   await ctx.replyWithVideo(
-    Input.fromReadableStream(fs.createReadStream('/path/to/video.mp4'))
-  )
-
-  // send a stream that is opened when the upload reaches it
-  await ctx.replyWithDocument(
-    Input.fromLazyStream(
-      () => fetch('https://example.com/report.pdf'),
-      'report.pdf'
-    )
+    new InputFile(fs.createReadStream('/path/to/video.mp4'))
   )
 
   // send buffer
-  await ctx.replyWithVoice(Input.fromBuffer(Buffer.alloc()))
+  await ctx.replyWithVoice(new InputFile(Buffer.alloc(0)))
 
-  // send url via Telegram server
-  await ctx.replyWithPhoto(Input.fromURL('https://picsum.photos/200/300/'))
-
-  // pipe url content
+  // download a URL and upload it
   await ctx.replyWithPhoto(
-    Input.fromURLStream('https://picsum.photos/200/300/?random', 'kitten.jpg')
+    new InputFile('https://picsum.photos/200/300/?random', 'kitten.jpg')
+  )
+
+  // download when the upload reaches the file
+  await ctx.replyWithDocument(
+    new InputFile(() => fetch('https://example.com/report.pdf'))
   )
 })
 ```

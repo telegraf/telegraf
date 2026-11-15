@@ -5,17 +5,29 @@
  *
  * Web APIs only, so it runs on Node, Deno, Bun, Cloudflare Workers and in a browser.
  */
+import type { ByteStream } from '../types/platform'
 
 /** Using Symbol.for so two copies of Telegraf recognise each other's files. */
 const brand: unique symbol = Symbol.for('telegraf.MultipartFile')
 
-export type ByteStream = AsyncIterable<Uint8Array> | ReadableStream<Uint8Array>
+/**
+ * A file that is opened when the upload reaches it. Its name may only be known once it is
+ * opened.
+ */
+export interface DeferredFile {
+  open(): Promise<{ stream: ByteStream; name?: string }>
+}
 
 /**
  * The contents of a file.
- * A stream is given as a function so an upload can be repeated.
+ * A stream is a function that opens it, so that an upload can be repeated.
  */
-export type FileSource = Blob | Uint8Array | ArrayBuffer | (() => ByteStream)
+export type FileSource =
+  | Blob
+  | Uint8Array
+  | ArrayBuffer
+  | (() => ByteStream)
+  | DeferredFile
 
 export class MultipartFile {
   readonly [brand] = true
@@ -36,7 +48,7 @@ export class MultipartFile {
 
   toJSON(): never {
     throw new TypeError(
-      'A MultipartFile cannot be serialized. It must sit in a plain object or an array.'
+      'A MultipartFile cannot be serialised. It must sit in a plain object or an array.'
     )
   }
 }
@@ -165,13 +177,22 @@ export function toMultipart(
   }
 
   for (const { id, parameter, file } of attachments) {
-    const name = file.name ?? `${parameter}.${extensions[parameter] ?? 'dat'}`
+    const fallback = `${parameter}.${extensions[parameter] ?? 'dat'}`
+    const { source } = file
     open()
-    text += `content-disposition: form-data; name="${escape(id)}"; `
-    text += `filename="${escape(name)}"\r\n`
-    text += 'content-type: application/octet-stream\r\n\r\n'
+    if (isDeferredFile(source)) {
+      // The name in the part's header is known once the file is opened.
+      flush()
+      segments.push(() =>
+        openDeferred(source, (name) =>
+          fileHeader(id, file.name ?? name ?? fallback)
+        )
+      )
+      continue
+    }
+    text += fileHeader(id, file.name ?? fallback)
     flush()
-    segments.push(toSegment(file.source))
+    segments.push(toSegment(source))
   }
 
   text += `${opened ? '\r\n' : ''}--${boundary}--\r\n`
@@ -191,12 +212,82 @@ const extensions: Record<string, string | undefined> = {
   voice: 'ogg',
 }
 
-function toSegment(source: FileSource): Segment {
+/** The header of a file's part, up to its contents. */
+function fileHeader(id: string, name: string) {
+  return (
+    `content-disposition: form-data; name="${escape(id)}"; ` +
+    `filename="${escape(name)}"\r\n` +
+    'content-type: application/octet-stream\r\n\r\n'
+  )
+}
+
+function isDeferredFile(source: FileSource): source is DeferredFile {
+  return typeof (source as Partial<DeferredFile>).open === 'function'
+}
+
+/** The header and the contents of a `DeferredFile`'s part. */
+async function* openDeferred(
+  file: DeferredFile,
+  header: (name: string | undefined) => string
+): AsyncGenerator<Uint8Array | string, void, undefined> {
+  const { stream, name } = await file.open()
+  let reading = false
+  try {
+    yield encoder.encode(header(name))
+    reading = true
+    yield* chunks(stream)
+  } finally {
+    // The upload ended at the header, before `chunks` could start and release `stream`.
+    if (!reading) release(stream)
+  }
+}
+
+/** The chunks of a stream. A web stream is read through a reader: not every engine can iterate one. */
+async function* chunks(
+  stream: ByteStream
+): AsyncGenerator<Uint8Array | string, void, undefined> {
+  if (!('getReader' in stream)) {
+    yield* stream
+    return
+  }
+  const reader = stream.getReader()
+  let done = false
+  try {
+    for (;;) {
+      const chunk = await reader.read()
+      if (chunk.done) {
+        done = true
+        return
+      }
+      // A read that isn't done has a value.
+      yield chunk.value as Uint8Array
+    }
+  } finally {
+    // Not awaited: the `cancel` of a stream's source may never settle.
+    if (!done) reader.cancel().catch(noop)
+  }
+}
+
+/** Releases a stream that was opened and won't be read. */
+function release(stream: ByteStream) {
+  const { destroy, cancel } = stream as { destroy?: unknown; cancel?: unknown }
+  if (typeof destroy === 'function') destroy.call(stream)
+  else if (typeof cancel === 'function') {
+    const cancelled = cancel.call(stream) as Promise<void>
+    cancelled.catch(noop)
+  }
+}
+
+function toSegment(source: Exclude<FileSource, DeferredFile>): Segment {
   if (typeof source === 'function') return source
   if (Object.prototype.toString.call(source) === '[object ArrayBuffer]') {
     return new Uint8Array(source as ArrayBuffer)
   }
   return source as Uint8Array | Blob
+}
+
+function noop() {
+  // intentionally empty
 }
 
 /**

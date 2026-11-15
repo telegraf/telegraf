@@ -3,46 +3,10 @@
  * Cloudflare Workers and in browsers.
  */
 import type { ApiResponse } from '@telegraf/types/api'
+import type { FetchFn, FetchResponse } from '../types/platform'
 import { toBlob, toStream, type StreamBody } from './body'
 import { extractFiles, toJson, toMultipart } from './payload'
 import { warnOnce } from './warning'
-
-/** The parts of a response the client reads. */
-export interface FetchResponse {
-  readonly status: number
-  readonly statusText: string
-  json(): Promise<unknown>
-  /** The body stream. Unused by the client itself; read when downloading a file. */
-  readonly body?: unknown
-}
-
-/**
- * A web `ReadableStream`, by the method that is called on it.
- * The `ReadableStream` types of the DOM lib and of Node are not assignable to each other.
- */
-export interface WebReadableStream {
-  getReader(): {
-    read(): Promise<{ done: boolean; value?: Uint8Array }>
-    cancel(reason?: unknown): Promise<void>
-  }
-}
-
-/** The minimal request options the client uses. */
-export interface FetchInit {
-  method: string
-  headers: Record<string, string>
-  /**
-   * A string, a `Blob` or a `ReadableStream` of bytes. DOM, Node, and undici each declare
-   * incompatible types, so we leave it as any.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  body: any
-  signal: AbortSignal
-  /** Required for a stream body. */
-  duplex: 'half'
-}
-
-export type FetchFn = (url: string, init: FetchInit) => Promise<FetchResponse>
 
 export interface ClientOptions {
   /** `https://api.telegram.org` by default. Set it for a self-hosted Bot API server. */

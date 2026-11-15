@@ -8,9 +8,10 @@ import { Opts, Telegram } from '../types/typegram'
 import { AbortController, AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
 import { toStream } from './body'
-import { createClient, redact, type FetchFn } from './fetch-client'
+import type { FetchFn } from '../types/platform'
+import { createClient, redact } from './fetch-client'
 import {
-  convertFileLiterals,
+  convertFiles,
   destroyUnread,
   downloadError,
   type Download,
@@ -93,7 +94,7 @@ namespace ApiClient {
   }
 
   /**
-   * The options an `ApiClient` holds: those it was given, with the defaults applied.
+   * The options of an `ApiClient`: those passed to it, with the defaults applied.
    * It reads them on every call, so they can be changed between calls.
    */
   export interface ResolvedOptions {
@@ -196,7 +197,7 @@ function customFetchDownloader(customFetch: FetchFn): Downloader {
 /** The error for a `{ url }` that can't be downloaded quotes the URL, which may hold the token. */
 function convertPayload(payload: unknown, download: Download, token: string) {
   try {
-    return convertFileLiterals(payload as Record<string, unknown>, download)
+    return convertFiles(payload as Record<string, unknown>, download)
   } catch (error) {
     throw redact(error, token)
   }

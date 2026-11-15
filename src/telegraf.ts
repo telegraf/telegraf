@@ -349,7 +349,7 @@ export class Telegraf<C extends Context = Context> extends Composer<C> {
   async handleUpdate(update: tg.Update, webhookResponse?: http.ServerResponse) {
     this.botInfo ??=
       (debug(
-        'Update %d is waiting for `botInfo` to be initialized',
+        'Update %d is waiting for `botInfo` to be initialised',
         update.update_id
       ),
       await (this.botInfoCall ??= this.telegram.getMe()))

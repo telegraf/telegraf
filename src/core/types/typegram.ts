@@ -1,5 +1,6 @@
 import * as Typegram from '@telegraf/types'
-import type { WebReadableStream } from '../network/fetch-client'
+import type { InputFile as InputFileClass } from '../../input-file'
+import type { ByteStream, Web } from './platform'
 
 // internal type provisions
 export * from '@telegraf/types/api'
@@ -13,38 +14,49 @@ export * from '@telegraf/types/payment'
 export * from '@telegraf/types/settings'
 export * from '@telegraf/types/update'
 
-type ByteStream = AsyncIterable<Uint8Array | string> | WebReadableStream
-/** A stream, or a fetch `Response`, whose `body` is one. */
-type LazyStream = ByteStream | { readonly body: ByteStream | null }
 // telegraf input file definition
 export declare namespace InputFile {
+  /** The contents of a file that `new InputFile()` accepts. */
+  type Contents =
+    | string
+    | Web.URL
+    | Uint8Array
+    | ArrayBuffer
+    | Web.Blob
+    | ByteStream
+    | Web.Response
+  /** The `source` that `new InputFile()` accepts. */
+  type Source =
+    | Contents
+    | (() => Contents | InputFileClass | Promise<Contents | InputFileClass>)
+  /** @deprecated Use `new InputFile(path)`. */
   interface ByPath {
     source: string
     filename?: string
   }
+  /** @deprecated Use `new InputFile(stream)`. */
   interface ByReadableStream {
     source: NodeJS.ReadableStream
     filename?: string
   }
+  /** @deprecated Use `new InputFile(buffer)`. */
   interface ByBuffer {
     source: Buffer
     filename?: string
   }
+  /** @deprecated Use `new InputFile(url)`. */
   interface ByURL {
     url: string
     filename?: string
   }
-  interface ByLazyStream {
-    source: () => LazyStream | Promise<LazyStream>
-    filename?: string
-  }
 }
+/** An `InputFile`, or a file passed as a plain object, which is deprecated. */
 export type InputFile =
+  | InputFileClass
   | InputFile.ByPath
   | InputFile.ByReadableStream
   | InputFile.ByBuffer
   | InputFile.ByURL
-  | InputFile.ByLazyStream
 
 export type Telegram = Typegram.ApiMethods<InputFile>
 

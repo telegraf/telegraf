@@ -1,12 +1,20 @@
 /**
- * Converts v4's file literals, `{ source }` and `{ url }` objects with an optional
- * `filename`, to `MultipartFile`, which is what the serializer looks for.
+ * Converts the files of a payload to `MultipartFile`, which is what the serializer looks
+ * for: `InputFile`s, and v4's file literals, `{ source }` and `{ url }` objects with an
+ * optional `filename`.
  */
 import { createReadStream } from 'fs'
 import { realpath, stat } from 'fs/promises'
 import { basename } from 'path'
 import { finished, PassThrough } from 'stream'
-import { MultipartFile, isPlainObject, type ByteStream } from './payload'
+import { InputFile } from '../../input-file'
+import type { ByteStream, Node, Web } from '../types/platform'
+import {
+  MultipartFile,
+  isPlainObject,
+  type DeferredFile,
+  type FileSource,
+} from './payload'
 import { warnOnce } from './warning'
 
 /** Using Symbol.for so two copies of Telegraf recognise each other's literals. */
@@ -27,24 +35,18 @@ export function stampInput<T extends object>(literal: T): T {
 export type Download = (url: string) => ByteStream
 
 /**
- * The Node stream of a `{ source }` literal.
- * We assume it may not have anything but `pipe`.
- */
-export interface SourceNodeStream {
-  pipe(destination: PassThrough): unknown
-  destroy?: () => void
-  readonly readableEnded?: boolean
-}
-
-/**
- * Destroys the streams that were not read to their end.
+ * Destroys the Node streams that were not read to their end, and cancels the web streams.
  *
- * A stream that was read to its end holds nothing open, and it may be a duplex whose
- * other side is still in use, such as a socket.
+ * A Node stream that was read to its end holds nothing open, and it may be a duplex whose
+ * other side is still in use, such as a socket. A web stream that the upload read is
+ * locked by its reader, so cancelling it fails, and the reader's owner releases it.
  */
-export function destroyUnread(streams: readonly SourceNodeStream[]) {
+export function destroyUnread(
+  streams: readonly (Node.Readable | Web.ReadableStream)[]
+) {
   for (const stream of streams) {
-    if (stream.readableEnded !== true) stream.destroy?.()
+    if (isWebStream(stream)) stream.cancel().catch(noop)
+    else if (stream.readableEnded !== true) stream.destroy?.()
   }
 }
 
@@ -74,42 +76,57 @@ const FILE_KEYS = new Set([
   'webm_sticker',
 ])
 
-/** The `Input` helper to suggest for each kind of literal. */
-const HELPERS = {
-  path: 'Input.fromLocalFile(path)',
-  buffer: 'Input.fromBuffer(buffer)',
-  stream: 'Input.fromReadableStream(stream)',
-  function: 'Input.fromLazyStream(() => stream)',
-  url: 'Input.fromURLStream(url)',
+/** What to use in place of each kind of literal. */
+const REPLACEMENTS = {
+  path: 'new InputFile(path)',
+  buffer: 'new InputFile(buffer)',
+  stream: 'new InputFile(stream)',
+  url: 'new InputFile(url)',
 }
 
 /**
- * Replaces every file literal in a payload with an `MultipartFile`. The payload is not
- * mutated: objects and arrays that contain a literal are copied, everything else is shared.
+ * The most `InputFile`s that one file can be nested in. A function that returns its own
+ * `InputFile`, or a new `InputFile` with the same function, would otherwise be called forever.
+ */
+const MAX_DEPTH = 10
+
+/** The `InputFile`s made from a stream that were already sent. A stream can be read once. */
+const sent = new WeakSet<InputFile>()
+
+/**
+ * Replaces every file in a payload with a `MultipartFile`. The payload is not mutated:
+ * objects and arrays that contain a file are copied, everything else is shared.
  *
- * | literal | treated as a file |
+ * | value | treated as a file |
  * | --- | --- |
- * | created by an `Input` helper | anywhere |
+ * | an `InputFile` | anywhere |
+ * | a literal created by an `Input` helper | anywhere |
  * | exactly `{ source, filename? }` | anywhere, with a warning |
  * | exactly `{ url, filename? }` | under a file key, with a warning |
  *
  * A path is opened, a URL is downloaded and a function is called only when the upload
  * reaches the file.
- * A stream is already open and may already be emitting, so it is piped right away.
- * The streams are also returned: the caller must destroy them if the request fails.
+ * A stream passed as a file is already open and may already be emitting, so it is piped
+ * right away. These streams are also returned: the caller must destroy them if the request
+ * fails.
  *
- * Throws for a `{ url }` file that is not an `http:` or `https:` URL, and for an object
- * that holds a Buffer, a stream or a function under `source` and is not a file literal.
+ * Throws for a file that can't be sent: a URL that is not an `http:` or `https:` URL, an
+ * `InputFile` made from a stream that was already sent, a `Response` with an error status,
+ * and an object that holds the contents of a file under `source` and is not a file literal.
  */
-export function convertFileLiterals(
+export function convertFiles(
   payload: Record<string, unknown>,
   download: Download
-): { payload: Record<string, unknown>; streams: SourceNodeStream[] } {
-  const streams: SourceNodeStream[] = []
+): {
+  payload: Record<string, unknown>
+  streams: (Node.Readable | Web.ReadableStream)[]
+} {
+  const streams: (Node.Readable | Web.ReadableStream)[] = []
   // The arrays and objects that the value being converted is inside of.
   const ancestors = new Set<unknown>([payload])
 
   const convert = (value: unknown, key: string): unknown => {
+    if (InputFile.is(value)) return fromInputFile(value, key, download, streams)
     const isArray = Array.isArray(value)
     if (!isArray && !isPlainObject(value)) {
       const source = (value as { source?: unknown } | null)?.source
@@ -180,11 +197,205 @@ function assertHttpUrl(url: string) {
   )
 }
 
+function fromInputFile(
+  file: InputFile,
+  key: string,
+  download: Download,
+  streams: (Node.Readable | Web.ReadableStream)[]
+): MultipartFile {
+  const { source, filename } = file
+  if (typeof source === 'function' || InputFile.is(source)) {
+    const deferred: DeferredFile = {
+      open: () => openNested(file, key, download),
+    }
+    return new MultipartFile(deferred, filename)
+  }
+  if (sent.has(file)) {
+    throw invalidFile(
+      source,
+      key,
+      'an InputFile made from a stream can be sent once; ' +
+        'make it from a function that returns the stream to send it again'
+    )
+  }
+  const contents = toContents(source, key, download)
+  if (contents.once === true) sent.add(file)
+  if (contents.stream !== undefined) streams.push(contents.stream)
+  return new MultipartFile(contents.source, filename ?? contents.name)
+}
+
+/**
+ * Opens an `InputFile` whose source is a function or another `InputFile`. Called when the
+ * upload reaches the file.
+ *
+ * Returns the stream, and the `filename` of the outermost nested `InputFile` that has one,
+ * or else the name that `toContents` finds. The `filename` of `file` itself takes
+ * precedence; the serializer applies it.
+ */
+async function openNested(file: InputFile, key: string, download: Download) {
+  let value: unknown = file.source
+  let name: string | undefined
+  let depth = 1
+  for (;;) {
+    if (typeof value === 'function') {
+      value = await (value as () => unknown)()
+      if (typeof value === 'function') {
+        throw invalidFile(
+          value,
+          key,
+          'the function of an InputFile returned a function'
+        )
+      }
+    }
+    if (!InputFile.is(value)) break
+    if (++depth > MAX_DEPTH) {
+      throw invalidFile(
+        value,
+        key,
+        `InputFiles are nested more than ${MAX_DEPTH} deep`
+      )
+    }
+    name ??= value.filename
+    value = value.source
+  }
+  const contents = toContents(value, key, download)
+  return { stream: toByteStream(contents.source), name: name ?? contents.name }
+}
+
+/** The contents of a file, converted for the serializer. */
+interface Contents {
+  source: Exclude<FileSource, DeferredFile>
+  /** The file name of a path, the last segment of a URL, or the name of a `File`. */
+  name?: string
+  /** The stream passed as the contents. The call releases it if it doesn't read it to the end. */
+  stream?: Node.Readable | Web.ReadableStream
+  /** Whether the contents can only be read once. */
+  once?: boolean
+}
+
+function toContents(value: unknown, key: string, download: Download): Contents {
+  if (typeof value === 'string') {
+    // A file_id, or a URL for Telegram to download, is passed as a string, not as an `InputFile`.
+    if (/^https?:\/\//i.test(value)) return fromUrl(value, download)
+    return { source: () => readFile(value), name: basename(value) }
+  }
+  if (isUrl(value)) return fromUrl(value.href, download)
+  if (value instanceof Uint8Array || isArrayBuffer(value))
+    return { source: value }
+  if (isBlob(value)) {
+    const name = blobName(value)
+    // A request that can't stream is sent as a `Blob` of its parts, and the `Blob`
+    // constructor only takes the runtime's own `Blob`s as parts.
+    if (typeof Blob === 'function' && value instanceof Blob) {
+      return { source: value, name }
+    }
+    return { source: () => value.stream(), name }
+  }
+  if (isNodeStream(value)) {
+    const contents = pipeSource(value)
+    return { source: () => contents, stream: value, once: true }
+  }
+  // Checked before `isAsyncIterable`, which a web stream also passes on Node, Bun and
+  // Deno: an unread web stream must be cancelled.
+  if (isWebStream(value)) {
+    return { source: () => value, stream: value, once: true }
+  }
+  if (isResponse(value)) return fromResponse(value)
+  if (isAsyncIterable(value)) return { source: () => value, once: true }
+  const kind = Object.prototype.toString.call(value)
+  throw invalidFile(value, key, `${kind} is not the contents of a file`)
+}
+
+function fromUrl(url: string, download: Download): Contents {
+  assertHttpUrl(url)
+  return { source: () => download(url), name: urlName(url) }
+}
+
+function isResponse(value: unknown): value is Web.Response {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'body' in value &&
+    typeof (value as { status?: unknown }).status === 'number'
+  )
+}
+
+/** The body of a `Response`. The body of an error status is an error page, not the file. */
+function fromResponse(response: Web.Response): Contents {
+  const { ok, status, statusText = '', url = '', body } = response
+  if (ok === false || !(status >= 200 && status <= 299)) {
+    if (isWebStream(body)) body.cancel().catch(noop)
+    throw downloadError(String(url), status, String(statusText))
+  }
+  const name = urlName(url)
+  if (isWebStream(body)) {
+    return { source: () => body, name, stream: body, once: true }
+  }
+  if (isAsyncIterable(body)) return { source: () => body, name, once: true }
+  throw new Error(
+    `Unable to download '${String(url)}': the response has no body`
+  )
+}
+
+/** The contents as a stream, for a file that is opened when the upload reaches it. */
+function toByteStream(source: Exclude<FileSource, DeferredFile>): ByteStream {
+  if (typeof source === 'function') return source()
+  if (source instanceof Blob) return source.stream() as ByteStream
+  const bytes = source instanceof Uint8Array ? source : new Uint8Array(source)
+  return (async function* () {
+    yield bytes
+  })()
+}
+
+/** The last segment of a URL's path, or `undefined` for none. */
+function urlName(url: unknown): string | undefined {
+  let path: string
+  try {
+    path = new URL(String(url)).pathname
+  } catch {
+    return undefined
+  }
+  const segment = path.slice(path.lastIndexOf('/') + 1)
+  if (segment === '') return undefined
+  try {
+    return decodeURIComponent(segment)
+  } catch {
+    return segment
+  }
+}
+
+function isUrl(value: unknown): value is Web.URL {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as { href?: unknown }).href === 'string'
+  )
+}
+
+function isBlob(value: unknown): value is Web.Blob {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as { size?: unknown }).size === 'number' &&
+    typeof (value as { type?: unknown }).type === 'string' &&
+    typeof (value as { stream?: unknown }).stream === 'function'
+  )
+}
+
+function blobName(blob: Web.Blob): string | undefined {
+  const { name } = blob as { name?: unknown }
+  return typeof name === 'string' && name !== '' ? name : undefined
+}
+
+function isArrayBuffer(value: unknown): value is ArrayBuffer {
+  return Object.prototype.toString.call(value) === '[object ArrayBuffer]'
+}
+
 function toMultipartFile(
   literal: Record<string, unknown>,
   key: string,
   download: Download,
-  streams: SourceNodeStream[]
+  streams: (Node.Readable | Web.ReadableStream)[]
 ): MultipartFile | undefined {
   // Must be exactly a source or a URL, with an optional filename.
   // `source`, `url` and `filename` are not set when they are `null` or `undefined`: a
@@ -204,9 +415,13 @@ function toMultipartFile(
   } else if (filename != null && typeof filename !== 'string') {
     problem = '`filename` must be a string'
   } else if (isWebStream(source)) {
-    problem =
-      "a web stream can't be a `source`; " +
-      'use `Input.fromLazyStream(() => stream)`'
+    problem = "a web stream can't be a `source`; use `new InputFile(stream)`"
+  } else if (typeof source === 'function') {
+    problem = "a function can't be a `source`; use `new InputFile(() => file)`"
+  } else if (isBlob(source)) {
+    problem = "a Blob can't be a `source`; use `new InputFile(blob)`"
+  } else if (isArrayBuffer(source)) {
+    problem = "an ArrayBuffer can't be a `source`; use `new InputFile(buffer)`"
   }
   if (problem !== undefined) {
     if (isFileContent(source)) throw invalidFile(source, key, problem)
@@ -236,43 +451,9 @@ function toMultipartFile(
     const contents = pipeSource(source)
     return new MultipartFile(() => contents, name)
   }
-  if (typeof source === 'function') {
-    if (!stamped) warn('function', 'source')
-    const open = source as () => unknown
-    return new MultipartFile(() => openLazyStream(open), name)
-  }
   return undefined
 }
 
-/** Calls the function of a lazy stream and returns the stream it gives. */
-function openLazyStream(open: () => unknown): ByteStream {
-  const stream = open()
-  if (!isThenable(stream)) return toByteStream(stream)
-  return (async function* () {
-    yield* toByteStream(await stream) as AsyncIterable<Uint8Array>
-  })()
-}
-
-/** The stream a lazy stream function gave: the value itself, or the `body` of a `Response`. */
-function toByteStream(value: unknown): ByteStream {
-  if (isAsyncIterable(value)) return value
-  const response = value as Partial<Response> | null | undefined
-  const body: unknown = response?.body
-  if (isAsyncIterable(body)) {
-    // The body of an error status is an error page, not the file.
-    if (response?.ok === false) {
-      const { url, status, statusText } = response
-      throw downloadError(String(url), Number(status), String(statusText))
-    }
-    return body
-  }
-  throw new TypeError(
-    'The function given to `Input.fromLazyStream` must return a stream, ' +
-      'an async iterable or a `Response` that has a body.'
-  )
-}
-
-// A web stream is an async iterable too, on Node, Bun and Deno.
 function isAsyncIterable(value: unknown): value is AsyncIterable<Uint8Array> {
   const iterable = value as Partial<AsyncIterable<unknown>> | null | undefined
   return typeof iterable?.[Symbol.asyncIterator] === 'function'
@@ -282,29 +463,28 @@ export function downloadError(url: string, status: number, statusText: string) {
   return new Error(`Unable to download '${url}': ${status} ${statusText}`)
 }
 
-function isThenable(value: unknown): value is PromiseLike<unknown> {
-  return typeof (value as { then?: unknown } | null)?.then === 'function'
-}
-
 /**
  * Pipes a stream into a `PassThrough` and returns the `PassThrough`.
  *
  * The upload may reach the stream much later. Until then a stream in flowing mode, or a
  * pre-streams2 stream, emits its data to nobody, and its `error` event is unhandled.
  */
-function pipeSource(stream: SourceNodeStream): PassThrough {
+function pipeSource(stream: Node.Readable): PassThrough {
   const through = new PassThrough()
   // Some custom implementations of `pipe` don't return the destination.
   stream.pipe(through)
   // The `error` of a destroyed `PassThrough` is unhandled until the upload reads it.
   through.on('error', noop)
+  // Destroying the `PassThrough` doesn't destroy `stream`: a stream that a function
+  // returned is destroyed this way when its upload ends early.
+  through.once('close', () => destroyUnread([stream]))
   // An object with nothing but `pipe` can't report an error.
-  if (typeof (stream as Partial<NodeJS.ReadableStream>).on !== 'function') {
+  if (typeof (stream as { on?: unknown }).on !== 'function') {
     return through
   }
   // `pipe` doesn't forward an error or a premature close.
   const removeListeners = finished(
-    stream as NodeJS.ReadableStream,
+    stream as Parameters<typeof finished>[0],
     { writable: false },
     (error) => {
       removeListeners()
@@ -318,11 +498,11 @@ function noop() {
   // intentionally empty
 }
 
-function warn(kind: keyof typeof HELPERS, shape: 'source' | 'url') {
+function warn(kind: keyof typeof REPLACEMENTS, shape: 'source' | 'url') {
   warnOnce(
     `TELEGRAF_FILE_${kind.toUpperCase()}`,
-    `telegraf: a file was given as a plain \`{ ${shape} }\` object. ` +
-      `Use \`${HELPERS[kind]}\` instead: plain objects will not be accepted in v6.`
+    `telegraf: a file was passed as a plain \`{ ${shape} }\` object. ` +
+      `Use \`${REPLACEMENTS[kind]}\` instead: plain objects will not be accepted in v6.`
   )
 }
 
@@ -333,7 +513,7 @@ async function* readFile(path: string): AsyncGenerator<Uint8Array> {
   yield* createReadStream(path)
 }
 
-function isNodeStream(value: unknown): value is SourceNodeStream {
+function isNodeStream(value: unknown): value is Node.Readable {
   return (
     typeof value === 'object' &&
     value !== null &&
@@ -341,7 +521,7 @@ function isNodeStream(value: unknown): value is SourceNodeStream {
   )
 }
 
-function isWebStream(value: unknown): value is ReadableStream<unknown> {
+function isWebStream(value: unknown): value is Web.ReadableStream {
   return (
     typeof value === 'object' &&
     value !== null &&
@@ -355,7 +535,9 @@ function isFileContent(source: unknown): boolean {
     source instanceof Uint8Array ||
     typeof source === 'function' ||
     isNodeStream(source) ||
-    isWebStream(source)
+    isWebStream(source) ||
+    isBlob(source) ||
+    isArrayBuffer(source)
   )
 }
 
@@ -366,7 +548,7 @@ function isFileContent(source: unknown): boolean {
  * internal state, which includes its path.
  */
 function invalidFile(source: unknown, key: string, problem: string) {
-  // The stream was given to be consumed, and this call will not read it.
+  // The stream was passed to be read, and this call won't read it.
   if (isNodeStream(source)) source.destroy?.()
   else if (isWebStream(source)) source.cancel().catch(noop)
   return new TypeError(`Invalid file under \`${key}\`: ${problem}.`)

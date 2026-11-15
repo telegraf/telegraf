@@ -3,7 +3,7 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const { Readable, Stream } = require('stream')
-const { convertFileLiterals } = require('../lib/core/network/file-literals')
+const { convertFiles } = require('../lib/core/network/file-literals')
 const { MultipartFile, extractFiles } = require('../lib/core/network/payload')
 const Input = require('../lib/input')
 
@@ -16,7 +16,7 @@ process.emitWarning = (message, type, code) =>
 // These tests don't fetch anything.
 const fakeDownload = () => Readable.from([])
 const convert = (payload, download = fakeDownload) =>
-  convertFileLiterals(payload, download).payload
+  convertFiles(payload, download).payload
 
 // Reads a file's contents as text.
 const text = async ({ source }) => {
@@ -52,14 +52,12 @@ test.serial('should convert an Input helper literal without a warning', (t) => {
     anything: { list: [{ at: { all: Input.fromURLStream('https://x/b') } }] },
     also: Input.fromLocalFile('c.txt'),
     and: Input.fromReadableStream(Readable.from(['d'])),
-    last: Input.fromLazyStream(() => Readable.from(['e'])),
   })
 
   t.true(MultipartFile.is(converted.photo))
   t.true(MultipartFile.is(converted.anything.list[0].at.all))
   t.true(MultipartFile.is(converted.also))
   t.true(MultipartFile.is(converted.and))
-  t.true(MultipartFile.is(converted.last))
   t.deepEqual(warnings, [])
 })
 
@@ -90,27 +88,23 @@ test.serial('should warn once per plain literal type', (t) => {
     document: { source: 'a.txt' },
     video: { source: new Readable({ read() {} }) },
     audio: { url: 'https://example.com/a.mp3' },
-    voice: { source: () => Readable.from(['a']) },
   })
   convert(payload())
   convert(payload())
 
-  const helpers = {
-    TELEGRAF_FILE_BUFFER: /`\{ source \}`.*`Input\.fromBuffer\(buffer\)`/,
-    TELEGRAF_FILE_FUNCTION:
-      /`\{ source \}`.*`Input\.fromLazyStream\(\(\) => stream\)`/,
-    TELEGRAF_FILE_PATH: /`\{ source \}`.*`Input\.fromLocalFile\(path\)`/,
-    TELEGRAF_FILE_STREAM:
-      /`\{ source \}`.*`Input\.fromReadableStream\(stream\)`/,
-    TELEGRAF_FILE_URL: /`\{ url \}`.*`Input\.fromURLStream\(url\)`/,
+  const replacements = {
+    TELEGRAF_FILE_BUFFER: /`\{ source \}`.*`new InputFile\(buffer\)`/,
+    TELEGRAF_FILE_PATH: /`\{ source \}`.*`new InputFile\(path\)`/,
+    TELEGRAF_FILE_STREAM: /`\{ source \}`.*`new InputFile\(stream\)`/,
+    TELEGRAF_FILE_URL: /`\{ url \}`.*`new InputFile\(url\)`/,
   }
   t.deepEqual(
     warnings.map((warning) => warning.code).sort(),
-    Object.keys(helpers)
+    Object.keys(replacements)
   )
   for (const { message, type, code } of warnings) {
     t.is(type, 'DeprecationWarning')
-    t.regex(message, helpers[code])
+    t.regex(message, replacements[code])
   }
 })
 
@@ -193,7 +187,19 @@ test('should throw for an invalid file literal', (t) => {
     ],
     [
       { source: new ReadableStream() },
-      "a web stream can't be a `source`; use `Input.fromLazyStream(() => stream)`.",
+      "a web stream can't be a `source`; use `new InputFile(stream)`.",
+    ],
+    [
+      { source: () => Readable.from(['a']) },
+      "a function can't be a `source`; use `new InputFile(() => file)`.",
+    ],
+    [
+      { source: new Blob(['a']) },
+      "a Blob can't be a `source`; use `new InputFile(blob)`.",
+    ],
+    [
+      { source: new ArrayBuffer(1) },
+      "an ArrayBuffer can't be a `source`; use `new InputFile(buffer)`.",
     ],
     [new Upload(), 'a file must be a plain object.'],
   ]
@@ -248,7 +254,7 @@ test('should support a stream without an async iterator', async (t) => {
       destination.end('bare')
     },
   }
-  const { payload, streams } = convertFileLiterals(
+  const { payload, streams } = convertFiles(
     { video: { source: old }, audio: Input.fromReadableStream(bare) },
     fakeDownload
   )
@@ -329,7 +335,7 @@ test('should return the source streams', (t) => {
   // Unlike a path or a URL, they are already open.
   const first = Readable.from(['a'])
   const second = Readable.from(['b'])
-  const { streams } = convertFileLiterals(
+  const { streams } = convertFiles(
     {
       photo: Input.fromReadableStream(first),
       media: [{ type: 'video', media: { source: second } }],
@@ -424,80 +430,6 @@ test('should download a URL when its file is read', async (t) => {
   t.deepEqual(asked, ['https://example.com/a', 'https://example.com/b'])
 })
 
-test('should call a lazy stream function when its file is read', async (t) => {
-  let calls = 0
-  const converted = convert({
-    document: Input.fromLazyStream(() => {
-      calls++
-      return Readable.from(['la', 'zy'])
-    }),
-  })
-  t.is(calls, 0)
-
-  t.is(await text(converted.document), 'lazy')
-  t.is(calls, 1)
-  // A stream can be read once, so each read needs its own.
-  t.is(await text(converted.document), 'lazy')
-  t.is(calls, 2)
-})
-
-test('should accept every stream type from a lazy stream function', async (t) => {
-  const web = () =>
-    new ReadableStream({
-      start(controller) {
-        controller.enqueue(new TextEncoder().encode('web'))
-        controller.close()
-      },
-    })
-  const converted = convert({
-    document: Input.fromLazyStream(web),
-    photo: Input.fromLazyStream(async () => web()),
-    video: Input.fromLazyStream(async function* () {
-      yield Buffer.from('generator')
-    }),
-    audio: Input.fromLazyStream(async () => Readable.from(['node'])),
-    // e.g. `() => fetch(url)`
-    voice: Input.fromLazyStream(async () => new Response('response')),
-    sticker: Input.fromLazyStream(() => new Response('response')),
-  })
-
-  t.is(await text(converted.document), 'web')
-  t.is(await text(converted.photo), 'web')
-  t.is(await text(converted.video), 'generator')
-  t.is(await text(converted.audio), 'node')
-  t.is(await text(converted.voice), 'response')
-  t.is(await text(converted.sticker), 'response')
-})
-
-test('should reject a lazy stream function that returns no stream', async (t) => {
-  const converted = convert({
-    document: Input.fromLazyStream(() => Buffer.from('a')),
-    photo: Input.fromLazyStream(async () => undefined),
-    video: Input.fromLazyStream(async () => new Response(null)),
-  })
-  const expected = {
-    instanceOf: TypeError,
-    message: /`Input\.fromLazyStream` must return a stream/,
-  }
-
-  await t.throwsAsync(text(converted.document), expected)
-  await t.throwsAsync(text(converted.photo), expected)
-  await t.throwsAsync(text(converted.video), expected)
-})
-
-test('should reject a lazy stream response with an error status', async (t) => {
-  // Its body is an error page, not the file.
-  const converted = convert({
-    document: Input.fromLazyStream(
-      async () => new Response('gone', { status: 404, statusText: 'Not Found' })
-    ),
-  })
-
-  await t.throwsAsync(text(converted.document), {
-    message: /^Unable to download '.*': 404 Not Found$/,
-  })
-})
-
 test('should not follow a value that contains itself', (t) => {
   // `JSON.stringify` throws for it when the payload is serialized.
   const payload = { chat_id: 1, list: [] }
@@ -569,9 +501,7 @@ test('should convert every v4 upload position', (t) => {
 test('Input helpers should keep their return shape', (t) => {
   const buffer = Buffer.from('a')
   const stream = Readable.from(['a'])
-  const open = () => stream
   const cases = [
-    [Input.fromLazyStream(open, 'a.txt'), { source: open, filename: 'a.txt' }],
     [Input.fromBuffer(buffer, 'a.jpg'), { source: buffer, filename: 'a.jpg' }],
     [Input.fromBuffer(buffer), { source: buffer, filename: undefined }],
     [Input.fromLocalFile('a.txt'), { source: 'a.txt', filename: undefined }],

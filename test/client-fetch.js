@@ -5,6 +5,7 @@ const { default: ApiClient } = require('../lib/core/network/client')
 const { TelegramError } = require('../lib/core/network/error')
 const { Polling } = require('../lib/core/network/polling')
 const Input = require('../lib/input')
+const { InputFile } = require('../lib/input-file')
 const { fixtures, withResolvers } = require('./_helpers')
 
 // Every warning issued in this file.
@@ -140,7 +141,7 @@ test('should upload files like the default transport', async (t) => {
         },
         {
           type: 'document',
-          media: Input.fromLazyStream(async () => Readable.from(['lazy'])),
+          media: new InputFile(async () => Readable.from(['lazy'])),
         },
       ],
       reply_parameters: { message_id: 5 },

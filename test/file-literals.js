@@ -201,6 +201,22 @@ test('should throw for an invalid file literal', (t) => {
       { source: new ArrayBuffer(1) },
       "an ArrayBuffer can't be a `source`; use `new InputFile(buffer)`.",
     ],
+    [
+      { source: new Response('a') },
+      "a Response can't be a `source`; use `new InputFile(response)`.",
+    ],
+    [
+      { source: new URL('https://example.com/a') },
+      "a URL can't be a `source`; use `new InputFile(url)`.",
+    ],
+    [
+      {
+        source: (async function* () {
+          yield 'a'
+        })(),
+      },
+      "an async iterable can't be a `source`; use `new InputFile(iterable)`.",
+    ],
     [new Upload(), 'a file must be a plain object.'],
   ]
   for (const [value, problem] of invalid) {

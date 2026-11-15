@@ -462,6 +462,14 @@ function toMultipartFile(
     problem = "a Blob can't be a `source`; use `new InputFile(blob)`"
   } else if (isArrayBuffer(source)) {
     problem = "an ArrayBuffer can't be a `source`; use `new InputFile(buffer)`"
+  } else if (isResponse(source)) {
+    problem = "a Response can't be a `source`; use `new InputFile(response)`"
+  } else if (isUrl(source)) {
+    problem = "a URL can't be a `source`; use `new InputFile(url)`"
+  } else if (isAsyncIterable(source) && !isNodeStream(source)) {
+    // A Node stream is an async iterable too, and a `source` that v4 accepted.
+    problem =
+      "an async iterable can't be a `source`; use `new InputFile(iterable)`"
   }
   if (problem !== undefined) {
     if (isFileContent(source)) throw invalidFile(source, key, problem)
@@ -587,7 +595,10 @@ function isFileContent(source: unknown): boolean {
     isNodeStream(source) ||
     isWebStream(source) ||
     isBlob(source) ||
-    isArrayBuffer(source)
+    isArrayBuffer(source) ||
+    isResponse(source) ||
+    isUrl(source) ||
+    isAsyncIterable(source)
   )
 }
 

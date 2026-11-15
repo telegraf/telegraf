@@ -10,6 +10,7 @@ import { InputFile } from '../../input-file'
 import type { ByteStream, Node, Web } from '../types/platform'
 import {
   MultipartFile,
+  extension,
   isPlainObject,
   type DeferredFile,
   type FileSource,
@@ -296,10 +297,10 @@ interface Contents {
 function toContents(value: unknown, key: string, download: Download): Contents {
   if (typeof value === 'string') {
     // A file_id, or a URL for Telegram to download, is passed as a string, not as an `InputFile`.
-    if (/^https?:\/\//i.test(value)) return fromUrl(value, download)
+    if (/^https?:\/\//i.test(value)) return fromUrl(value, key, download)
     return { source: () => readFile(value), name: basename(value) }
   }
-  if (isUrl(value)) return fromUrl(value.href, download)
+  if (isUrl(value)) return fromUrl(value.href, key, download)
   if (value instanceof Uint8Array || isArrayBuffer(value))
     return { source: value }
   if (isBlob(value)) {
@@ -328,9 +329,9 @@ function toContents(value: unknown, key: string, download: Download): Contents {
   throw invalidFile(value, key, `${kind} is not the contents of a file`)
 }
 
-function fromUrl(url: string, download: Download): Contents {
+function fromUrl(url: string, key: string, download: Download): Contents {
   assertHttpUrl(url)
-  return { source: () => download(url), name: urlName(url) }
+  return { source: () => download(url), name: urlName(url, key) }
 }
 
 function isResponse(value: unknown): value is Web.Response {
@@ -349,7 +350,7 @@ function fromResponse(response: Web.Response, key: string): Contents {
     if (isNodeStream(body) || isWebStream(body)) destroyUnread([body])
     throw downloadError(String(url), status, String(statusText))
   }
-  const name = urlName(url)
+  const name = urlName(url, key)
   // e.g. the response of node-fetch 2. Its body is open, so it is piped as any other
   // Node stream is.
   if (isNodeStream(body)) {
@@ -377,8 +378,11 @@ function toByteStream(source: Exclude<FileSource, DeferredFile>): ByteStream {
   })()
 }
 
-/** The last segment of a URL's path, or `undefined` for none. */
-function urlName(url: unknown): string | undefined {
+/**
+ * The last segment of a URL's path, or `undefined` for none. A segment without an
+ * extension, such as `render` in `/render?id=7`, gets the one of a file sent as `key`.
+ */
+function urlName(url: unknown, key: string): string | undefined {
   let path: string
   try {
     path = new URL(String(url)).pathname
@@ -387,11 +391,13 @@ function urlName(url: unknown): string | undefined {
   }
   const segment = path.slice(path.lastIndexOf('/') + 1)
   if (segment === '') return undefined
+  let name = segment
   try {
-    return decodeURIComponent(segment)
+    name = decodeURIComponent(segment)
   } catch {
-    return segment
+    // not percent-encoded as a whole: the segment is the name as it is
   }
+  return /[^.]\.[^.]+$/.test(name) ? name : `${name}.${extension(key)}`
 }
 
 function isUrl(value: unknown): value is Web.URL {

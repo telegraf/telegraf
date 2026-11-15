@@ -177,7 +177,7 @@ export function toMultipart(
   }
 
   for (const { id, parameter, file } of attachments) {
-    const fallback = `${parameter}.${extensions[parameter] ?? 'dat'}`
+    const fallback = `${parameter}.${extension(parameter)}`
     const { source } = file
     open()
     if (isDeferredFile(source)) {
@@ -210,6 +210,14 @@ const extensions: Record<string, string | undefined> = {
   video: 'mp4',
   video_note: 'mp4',
   voice: 'ogg',
+}
+
+/**
+ * The extension of a file sent as `parameter`, for a name that has none. The Bot API
+ * server reads it: it sends an animation whose name doesn't end in `.mp4` as a document.
+ */
+export function extension(parameter: string) {
+  return extensions[parameter] ?? 'dat'
 }
 
 /** The header of a file's part, up to its contents. */

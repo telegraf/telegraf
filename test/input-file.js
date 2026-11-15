@@ -198,6 +198,26 @@ test('InputFile should use its filename over the name of its contents', async (t
   t.is(parts.photo.file, 'photo.jpg')
 })
 
+test('InputFile should add the extension of its parameter to a URL name without one', async (t) => {
+  // The Bot API server sends an animation whose name doesn't end in `.mp4` as a document.
+  const parts = await upload({
+    animation: new InputFile('https://example.com/render?id=7'),
+    photo: new InputFile(new URL('https://files.example.com/s/9f2c1e7a')),
+    document: new InputFile(async () =>
+      response('https://example.com/export', 'r')
+    ),
+    video: new InputFile('https://example.com/v1.2/clip.webm'),
+    // A leading dot doesn't make an extension.
+    audio: new InputFile('https://example.com/.hidden'),
+  })
+
+  t.is(parts.animation.file, 'render.mp4')
+  t.is(parts.photo.file, '9f2c1e7a.jpg')
+  t.is(parts.document.file, 'export.dat')
+  t.is(parts.video.file, 'clip.webm', 'a name with an extension keeps it')
+  t.is(parts.audio.file, '.hidden.mp3')
+})
+
 test('InputFile should name a File by the last segment of its name', async (t) => {
   // e.g. `Bun.file(path)`, whose name is the path as it was given
   const bunFile = (name) => ({

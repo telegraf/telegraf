@@ -657,6 +657,28 @@ test('InputFile should destroy the stream of its function when the upload ends',
   t.true(inContents.destroyed)
 })
 
+test('InputFile should throw for a filename that is not a string', (t) => {
+  // e.g. from JavaScript, or a value typed `any`
+  for (const filename of [123, {}, true]) {
+    t.throws(
+      () => new InputFile(Buffer.from('a'), filename),
+      {
+        instanceOf: TypeError,
+        message: 'The filename of an InputFile must be a string.',
+      },
+      String(filename)
+    )
+  }
+})
+
+test('InputFile should take a null filename as no name', async (t) => {
+  // v4's plain file objects took `filename: null` as no name.
+  const file = new InputFile(Buffer.from('a'), null)
+
+  t.is(file.filename, undefined)
+  t.is((await upload({ document: file })).document.file, 'document.dat')
+})
+
 test('InputFile should throw when it is serialised', (t) => {
   t.throws(() => JSON.stringify({ photo: new InputFile('a.jpg') }), {
     instanceOf: TypeError,

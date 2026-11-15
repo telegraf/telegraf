@@ -313,9 +313,11 @@ bot.on('message', async (ctx) => {
     new InputFile('https://picsum.photos/200/300/?random', 'kitten.jpg')
   )
 
-  // download when the upload reaches the file
+  // download when the upload reaches the file, and stop when the call ends
   await ctx.replyWithDocument(
-    new InputFile(() => fetch('https://example.com/report.pdf'))
+    new InputFile((signal) =>
+      fetch('https://example.com/report.pdf', { signal })
+    )
   )
 })
 ```

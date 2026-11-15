@@ -195,9 +195,14 @@ function customFetchDownloader(customFetch: FetchFn): Downloader {
 }
 
 /** The error for a `{ url }` that can't be downloaded quotes the URL, which may hold the token. */
-function convertPayload(payload: unknown, download: Download, token: string) {
+function convertPayload(
+  payload: unknown,
+  download: Download,
+  signal: globalThis.AbortSignal,
+  token: string
+) {
   try {
-    return convertFiles(payload as Record<string, unknown>, download)
+    return convertFiles(payload as Record<string, unknown>, download, signal)
   } catch (error) {
     throw redact(error, token)
   }
@@ -300,7 +305,15 @@ class ApiClient {
     }
 
     const downloader = nodeFetchDownloader(options.attachmentAgent)
-    const converted = convertPayload(payload, downloader.download, token)
+    // The runtime's own: the function of an `InputFile` passes the signal on to a
+    // standard `fetch`, which refuses the signal of `abort-controller`.
+    const inputFileController = new globalThis.AbortController()
+    const converted = convertPayload(
+      payload,
+      downloader.download,
+      inputFileController.signal,
+      token
+    )
     const aborter = new AbortController()
     const abort = () => aborter.abort()
     let body: Readable | undefined
@@ -367,6 +380,8 @@ class ApiClient {
         destroyUnread(converted.streams)
         downloader.abort()
       }
+      // The function of an `InputFile` that is still opening its file stops.
+      inputFileController.abort()
     }
   }
 
@@ -392,7 +407,13 @@ class ApiClient {
     })
 
     const downloader = customFetchDownloader(customFetch as FetchFn)
-    const converted = convertPayload(payload, downloader.download, token)
+    const inputFileController = new globalThis.AbortController()
+    const converted = convertPayload(
+      payload,
+      downloader.download,
+      inputFileController.signal,
+      token
+    )
 
     try {
       const data = await client.call({
@@ -412,6 +433,8 @@ class ApiClient {
       destroyUnread(converted.streams)
       // A download that was being requested when the call ended is still in flight.
       downloader.abort()
+      // The function of an `InputFile` that is still opening its file stops.
+      inputFileController.abort()
     }
   }
 }

@@ -13,7 +13,8 @@ const brand: unique symbol = Symbol.for('telegraf.InputFile')
  * - a Node stream, a web stream, an async iterable of bytes, or a `Response`, such as
  *   the one `fetch` returns: read once, so the file can be sent once
  * - a function that returns any of these, an `InputFile`, or a promise for one: called
- *   when the upload reaches the file, in every call the file is sent in
+ *   when the upload reaches the file, in every call the file is sent in. It is passed an
+ *   `AbortSignal` that aborts when the call ends, to pass on to `fetch`.
  *
  * A `file_id`, or a URL for Telegram to download, is not an `InputFile`: pass it as a
  * string.
@@ -26,7 +27,7 @@ const brand: unique symbol = Symbol.for('telegraf.InputFile')
  * ```ts
  * await ctx.replyWithDocument(new InputFile('report.pdf'))
  * await ctx.replyWithPhoto(new InputFile('https://example.com/cat.jpg'))
- * await ctx.replyWithDocument(new InputFile(() => fetch(url, { headers })))
+ * await ctx.replyWithDocument(new InputFile((signal) => fetch(url, { signal })))
  * ```
  */
 export class InputFile {

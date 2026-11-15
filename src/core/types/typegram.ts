@@ -25,10 +25,15 @@ export declare namespace InputFile {
     | Web.Blob
     | ByteStream
     | Web.Response
-  /** The `source` that `new InputFile()` accepts. */
+  /**
+   * The `source` that `new InputFile()` accepts. A function is passed the runtime's own
+   * `AbortSignal`, to pass on to `fetch`, which aborts when the call ends.
+   */
   type Source =
     | Contents
-    | (() => Contents | InputFileClass | Promise<Contents | InputFileClass>)
+    | ((
+        signal: AbortSignal
+      ) => Contents | InputFileClass | Promise<Contents | InputFileClass>)
   /** @deprecated Use `new InputFile(path)`. */
   interface ByPath {
     source: string

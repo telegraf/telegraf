@@ -1,15 +1,19 @@
 const test = require('ava')
 const fs = require('fs')
+const http = require('http')
 const os = require('os')
 const path = require('path')
 const { Readable } = require('stream')
+const { default: ApiClient } = require('../lib/core/network/client')
 const { InputFile } = require('../lib/input-file')
 const {
   convertFiles,
   destroyUnread,
 } = require('../lib/core/network/file-literals')
 const { extractFiles, toMultipart } = require('../lib/core/network/payload')
-const { fixtures } = require('./_helpers')
+const { fixtures, withResolvers } = require('./_helpers')
+
+const TOKEN = '123456:SECRET-abc_DEF'
 
 // Records every warning emitted in this file.
 const warnings = []
@@ -209,6 +213,95 @@ test('InputFile should call its function when the upload reaches the file', asyn
   t.is((await upload(payload)).document.content, 'lazy')
   t.is((await upload(payload)).document.content, 'lazy')
   t.is(calls, 2)
+})
+
+test('InputFile should pass the signal of the call to its functions', async (t) => {
+  const controller = new AbortController()
+  const signals = []
+  const payload = {
+    document: new InputFile((outer) => {
+      signals.push(outer)
+      return new InputFile(async (inner) => {
+        signals.push(inner)
+        return Buffer.from('a')
+      })
+    }),
+  }
+  const { payload: converted } = convertFiles(
+    payload,
+    download,
+    controller.signal
+  )
+  const { payload: fields, attachments } = extractFiles(converted)
+  await assemble(toMultipart(fields, attachments).segments)
+
+  t.deepEqual(signals, [controller.signal, controller.signal])
+})
+
+test('InputFile should end the download of its function when the call is aborted', async (t) => {
+  // A download that stalls after its headers ends when its part is destroyed. One that
+  // stalls before them ends when the signal of the call aborts.
+  let received
+  const host = http.createServer((req, res) => {
+    const closed = new Promise((resolve) => req.socket.once('close', resolve))
+    if (req.url === '/after-headers') {
+      res.writeHead(200)
+      res.write('first chunk')
+    }
+    // In an object: a promise resolved with a promise waits for it.
+    received.resolve({ closed })
+  })
+  // Never answers: the upload stalls with the download.
+  const api = http.createServer((req) => req.resume())
+  const listen = (server) =>
+    new Promise((resolve) => {
+      server.listen(0, '127.0.0.1', () =>
+        resolve(`http://127.0.0.1:${server.address().port}`)
+      )
+    })
+  const hostOrigin = await listen(host)
+  const apiOrigin = await listen(api)
+  t.teardown(() => {
+    for (const server of [host, api]) {
+      server.closeAllConnections()
+      server.close()
+    }
+  })
+
+  const files = {
+    'after its headers': () =>
+      new InputFile(() => fetch(`${hostOrigin}/after-headers`)),
+    'before its headers': () =>
+      new InputFile((signal) => fetch(`${hostOrigin}/before`, { signal })),
+  }
+  const transports = {
+    default: {},
+    fetch: { fetch: (url, init) => fetch(url, init) },
+  }
+  for (const [stall, file] of Object.entries(files)) {
+    for (const [transport, options] of Object.entries(transports)) {
+      received = withResolvers()
+      const client = new ApiClient(TOKEN, {
+        api: { root: apiOrigin },
+        ...options,
+      })
+      const controller = new AbortController()
+      const call = client.callApi(
+        'sendDocument',
+        { chat_id: 1, document: file() },
+        { signal: controller.signal }
+      )
+      const { closed } = await received.promise
+      controller.abort()
+      await t.throwsAsync(call, { name: 'AbortError' }, transport)
+
+      const state = await Promise.race([
+        closed.then(() => 'closed'),
+        new Promise((resolve) => setTimeout(resolve, 2000, 'still open')),
+      ])
+      t.is(state, 'closed', `${stall}, ${transport} transport`)
+    }
+  }
 })
 
 test('InputFile should accept each kind of contents from its function', async (t) => {
@@ -514,7 +607,8 @@ test('InputFile should destroy the stream of its function when the upload ends',
     )
     const { payload, attachments } = extractFiles(converted.payload)
     const { segments } = toMultipart(payload, attachments)
-    return segments.find((segment) => typeof segment === 'function')()
+    const part = segments.find((segment) => typeof segment === 'function')()
+    return part[Symbol.asyncIterator]()
   }
   const endless = () =>
     new Readable({

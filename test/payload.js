@@ -5,6 +5,7 @@ const {
   toJson,
   toMultipart,
 } = require('../lib/core/network/payload')
+const { withResolvers } = require('./_helpers')
 
 const bytes = (text) => new TextEncoder().encode(text)
 
@@ -242,7 +243,8 @@ test('toMultipart should release a deferred stream when the upload ends', async 
       document: new MultipartFile({ open: async () => ({ stream }) }),
     })
     const { segments } = toMultipart(payload, attachments, 'B')
-    return segments.find((segment) => typeof segment === 'function')()
+    const part = segments.find((segment) => typeof segment === 'function')()
+    return part[Symbol.asyncIterator]()
   }
 
   const atHeader = part(web('at header'))
@@ -255,6 +257,58 @@ test('toMultipart should release a deferred stream when the upload ends', async 
   await inContents.return()
 
   t.deepEqual(cancelled, ['at header', 'in contents'])
+})
+
+test('toMultipart should end a deferred part when it is destroyed', async (t) => {
+  // An async generator that waits on a stalled download can't be stopped otherwise.
+  const deferred = (open) => {
+    const { payload, attachments } = extractFiles({
+      document: new MultipartFile({ open }),
+    })
+    const { segments } = toMultipart(payload, attachments, 'B')
+    return segments.find((segment) => typeof segment === 'function')()
+  }
+  const ended = { done: true, value: undefined }
+  const never = () => new Promise(() => {})
+
+  // While the file is still opening. The stream it opens later is released.
+  let lateCancelled = false
+  const late = withResolvers()
+  const opening = deferred(() => late.promise)
+  const waiting = opening[Symbol.asyncIterator]().next()
+  opening.destroy()
+  t.deepEqual(await waiting, ended)
+  late.resolve({
+    stream: new ReadableStream({ cancel: () => void (lateCancelled = true) }),
+  })
+  await new Promise((resolve) => setImmediate(resolve))
+  t.true(lateCancelled, 'a file that opens after the end is released')
+
+  // While a read of a web stream is pending.
+  let stalledCancelled = false
+  const stalled = new ReadableStream({
+    pull: never,
+    cancel: () => void (stalledCancelled = true),
+  })
+  const web = deferred(async () => ({ stream: stalled }))
+  const reading = web[Symbol.asyncIterator]()
+  await reading.next()
+  const pending = reading.next()
+  web.destroy()
+  t.deepEqual(await pending, ended)
+  t.true(stalledCancelled)
+
+  // While an async generator waits; it has nothing to cancel.
+  const generator = deferred(async () => ({
+    stream: (async function* () {
+      await never()
+    })(),
+  }))
+  const iterating = generator[Symbol.asyncIterator]()
+  await iterating.next()
+  const next = iterating.next()
+  generator.destroy()
+  t.deepEqual(await next, ended)
 })
 
 test('toMultipart should escape header injection in a file name', async (t) => {

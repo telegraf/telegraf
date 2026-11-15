@@ -115,7 +115,8 @@ const USED_STREAM =
  * | exactly `{ url, filename? }` | under a file key, with a warning |
  *
  * A path is opened, a URL is downloaded and a function is called only when the upload
- * reaches the file.
+ * reaches the file. The function of an `InputFile` is passed `signal`, which the caller
+ * aborts when the call ends.
  * A stream passed as a file is already open and may already be emitting, so it is piped
  * right away. These streams are also returned: the caller must destroy them if the request
  * fails.
@@ -126,7 +127,8 @@ const USED_STREAM =
  */
 export function convertFiles(
   payload: Record<string, unknown>,
-  download: Download
+  download: Download,
+  signal: AbortSignal = new AbortController().signal
 ): {
   payload: Record<string, unknown>
   streams: (Node.Readable | Web.ReadableStream)[]
@@ -136,7 +138,9 @@ export function convertFiles(
   const ancestors = new Set<unknown>([payload])
 
   const convert = (value: unknown, key: string): unknown => {
-    if (InputFile.is(value)) return fromInputFile(value, key, download, streams)
+    if (InputFile.is(value)) {
+      return fromInputFile(value, key, download, signal, streams)
+    }
     const isArray = Array.isArray(value)
     if (!isArray && !isPlainObject(value)) {
       const source = (value as { source?: unknown } | null)?.source
@@ -211,12 +215,13 @@ function fromInputFile(
   file: InputFile,
   key: string,
   download: Download,
+  signal: AbortSignal,
   streams: (Node.Readable | Web.ReadableStream)[]
 ): MultipartFile {
   const { source, filename } = file
   if (typeof source === 'function' || InputFile.is(source)) {
     const deferred: DeferredFile = {
-      open: () => openNested(file, key, download),
+      open: () => openNested(file, key, download, signal),
     }
     return new MultipartFile(deferred, filename)
   }
@@ -236,7 +241,12 @@ function fromInputFile(
  * or else the name that `toContents` finds. The `filename` of `file` itself takes
  * precedence; the serialiser applies it.
  */
-async function openNested(file: InputFile, key: string, download: Download) {
+async function openNested(
+  file: InputFile,
+  key: string,
+  download: Download,
+  signal: AbortSignal
+) {
   let value: unknown = file.source
   let name: string | undefined
   let depth = 1
@@ -244,7 +254,7 @@ async function openNested(file: InputFile, key: string, download: Download) {
   let innermost: InputFile | undefined
   for (;;) {
     if (typeof value === 'function') {
-      value = await (value as () => unknown)()
+      value = await (value as (signal: AbortSignal) => unknown)(signal)
       if (typeof value === 'function') {
         throw invalidFile(
           value,

@@ -225,46 +225,83 @@ function isDeferredFile(source: FileSource): source is DeferredFile {
   return typeof (source as Partial<DeferredFile>).open === 'function'
 }
 
-/** The header and the contents of a `DeferredFile`'s part. */
-async function* openDeferred(
+/**
+ * The header and the contents of a `DeferredFile`'s part.
+ *
+ * `destroy()` ends the part at once, and releases what it has open. `body.ts` calls it when
+ * the upload ends, as it does for a Node stream: an async generator alone stops only at its
+ * next `yield`, which a stalled download never reaches.
+ */
+function openDeferred(
   file: DeferredFile,
   header: (name: string | undefined) => string
-): AsyncGenerator<Uint8Array | string, void, undefined> {
-  const { stream, name } = await file.open()
-  let reading = false
-  try {
-    yield encoder.encode(header(name))
-    reading = true
-    yield* chunks(stream)
-  } finally {
-    // The upload ended at the header, before `chunks` could start and release `stream`.
-    if (!reading) release(stream)
+): AsyncIterable<Uint8Array | string> & { destroy(): void } {
+  let destroyed = false
+  let end = noop
+  const ended = new Promise<undefined>((resolve) => {
+    end = () => resolve(undefined)
+  })
+  const opening = file.open()
+  // A file that opens after the upload ended is released.
+  opening.then(({ stream }) => {
+    if (destroyed) release(stream)
+  }, noop)
+
+  const parts = (async function* () {
+    const opened = await Promise.race([opening, ended])
+    if (opened === undefined) return
+    const reader = openReader(opened.stream)
+    let done = false
+    try {
+      yield encoder.encode(header(opened.name))
+      for (;;) {
+        const chunk = await Promise.race([reader.read(), ended])
+        if (chunk === undefined) return
+        if (chunk.done === true) {
+          done = true
+          return
+        }
+        yield chunk.value
+      }
+    } finally {
+      if (!done) reader.release()
+    }
+  })()
+
+  return {
+    [Symbol.asyncIterator]: () => parts,
+    destroy() {
+      destroyed = true
+      end()
+    },
   }
 }
 
-/** The chunks of a stream. A web stream is read through a reader: not every engine can iterate one. */
-async function* chunks(
-  stream: ByteStream
-): AsyncGenerator<Uint8Array | string, void, undefined> {
-  if (!('getReader' in stream)) {
-    yield* stream
-    return
-  }
-  const reader = stream.getReader()
-  let done = false
-  try {
-    for (;;) {
-      const chunk = await reader.read()
-      if (chunk.done) {
-        done = true
-        return
-      }
-      // A read that isn't done has a value.
-      yield chunk.value as Uint8Array
+/** Reads a stream. A web stream is read through a reader: not every engine can iterate one. */
+function openReader(stream: ByteStream): {
+  read(): Promise<IteratorResult<Uint8Array | string, unknown>>
+  release(): void
+} {
+  if ('getReader' in stream) {
+    const reader = stream.getReader()
+    return {
+      async read() {
+        const { done, value } = await reader.read()
+        // A read that isn't done has a value.
+        return done ? { done, value } : { done, value: value as Uint8Array }
+      },
+      // Not awaited: the `cancel` of a stream's source may never settle.
+      release: () => void reader.cancel().catch(noop),
     }
-  } finally {
-    // Not awaited: the `cancel` of a stream's source may never settle.
-    if (!done) reader.cancel().catch(noop)
+  }
+  const iterator = stream[Symbol.asyncIterator]()
+  return {
+    read: () => iterator.next(),
+    release() {
+      // A generator has nothing to destroy, and stops at its next `yield`.
+      release(stream)
+      iterator.return?.().catch(noop)
+    },
   }
 }
 

@@ -55,7 +55,6 @@ export interface InputFileConstructor {
     url: string | Web.URL,
     filename?: string | null
   ): tg.InputFile.ByURL
-  is(value: unknown): value is tg.InputFile
 }
 
 /** The keys of an `InputFile`: those of the plain object it matches. */
@@ -138,14 +137,6 @@ export const InputFile = class InputFile {
     )
   }
 
-  static is(value: unknown) {
-    return (
-      typeof value === 'object' &&
-      value !== null &&
-      (value as { [brand]?: unknown })[brand] === true
-    )
-  }
-
   /** Names the file, without its path or contents. */
   toJSON(): string {
     // A logger may serialise a `TelegramError`, whose `on` holds the payload of the call.
@@ -173,6 +164,18 @@ function init<T extends Fields>(
   // and an `InputFile` of one copy wouldn't be assignable to another copy's.
   Object.defineProperty(file, brand, { value: true })
   return file
+}
+
+/**
+ * @internal Whether a value was made by `InputFile`, of any installed copy of Telegraf. A
+ * plain object of the same shape wasn't.
+ */
+export function isBrandedInputFile(value: unknown): value is InputFile {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    (value as { [brand]?: unknown })[brand] === true
+  )
 }
 
 /** @internal A `URL`: an object with a string `href`. */

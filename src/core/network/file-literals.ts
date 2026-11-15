@@ -6,7 +6,7 @@
 import { createReadStream } from 'fs'
 import { realpath, stat } from 'fs/promises'
 import { finished, PassThrough } from 'stream'
-import { InputFile, isUrl } from '../../input-file'
+import { isBrandedInputFile, isUrl, type InputFile } from '../../input-file'
 import type { ByteStream, Node, Web } from '../types/platform'
 import {
   MultipartFile,
@@ -138,7 +138,7 @@ export function convertFiles(
   const ancestors = new Set<unknown>([payload])
 
   const convert = (value: unknown, key: string): unknown => {
-    if (InputFile.is(value)) {
+    if (isBrandedInputFile(value)) {
       return fromInputFile(value, key, download, signal, streams)
     }
     const isArray = Array.isArray(value)
@@ -230,7 +230,7 @@ function fromInputFile(
     const contents = fromUrl(url, key, download)
     return new MultipartFile(contents.source, filename ?? contents.name)
   }
-  if (typeof source === 'function' || InputFile.is(source)) {
+  if (typeof source === 'function' || isBrandedInputFile(source)) {
     const deferred: DeferredFile = {
       open: () => openNested(file, key, download, signal),
     }
@@ -303,7 +303,7 @@ async function openNested(
         return { stream, name: name ?? literal.name }
       }
     }
-    if (!InputFile.is(value)) break
+    if (!isBrandedInputFile(value)) break
     if (++depth > MAX_DEPTH) {
       throw invalidFile(
         value,

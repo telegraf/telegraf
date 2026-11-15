@@ -5,7 +5,7 @@ const os = require('os')
 const path = require('path')
 const { Readable } = require('stream')
 const { default: ApiClient } = require('../lib/core/network/client')
-const { InputFile } = require('../lib/input-file')
+const { InputFile, isBrandedInputFile } = require('../lib/input-file')
 const {
   convertFiles,
   destroyUnread,
@@ -833,10 +833,13 @@ test('InputFile should leave a TelegramError of a refused upload serialisable', 
   )
 })
 
-test('InputFile.is should accept an InputFile from another package copy', (t) => {
-  t.true(InputFile.is(InputFile.fromLocalFile('a.jpg')))
+test('isBrandedInputFile should accept an InputFile from another package copy', (t) => {
+  t.true(isBrandedInputFile(InputFile.fromLocalFile('a.jpg')))
   t.true(
-    InputFile.is({ [Symbol.for('telegraf.InputFile')]: true, source: 'a' })
+    isBrandedInputFile({
+      [Symbol.for('telegraf.InputFile')]: true,
+      source: 'a',
+    })
   )
-  t.false(InputFile.is({ source: 'a.jpg' }), 'a look-alike is not a file')
+  t.false(isBrandedInputFile({ source: 'a.jpg' }), 'a look-alike is not a file')
 })

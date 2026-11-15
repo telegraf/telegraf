@@ -5,7 +5,6 @@
  */
 import { createReadStream } from 'fs'
 import { realpath, stat } from 'fs/promises'
-import { basename } from 'path'
 import { finished, PassThrough } from 'stream'
 import { InputFile } from '../../input-file'
 import type { ByteStream, Node, Web } from '../types/platform'
@@ -415,7 +414,17 @@ function isBlob(value: unknown): value is Web.Blob {
 
 function blobName(blob: Web.Blob): string | undefined {
   const { name } = blob as { name?: unknown }
-  return typeof name === 'string' && name !== '' ? name : undefined
+  if (typeof name !== 'string') return undefined
+  // `Bun.file(path).name` is the path as it was given.
+  const base = basename(name)
+  return base === '' ? undefined : base
+}
+
+/**
+ * The last segment of a path, after its last `/` or `\`.
+ */
+function basename(path: string) {
+  return path.slice(Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\')) + 1)
 }
 
 function isArrayBuffer(value: unknown): value is ArrayBuffer {

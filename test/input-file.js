@@ -198,6 +198,28 @@ test('InputFile should use its filename over the name of its contents', async (t
   t.is(parts.photo.file, 'photo.jpg')
 })
 
+test('InputFile should name a File by the last segment of its name', async (t) => {
+  // e.g. `Bun.file(path)`, whose name is the path as it was given
+  const bunFile = (name) => ({
+    size: 1,
+    type: '',
+    name,
+    stream: () => webStream('a'),
+  })
+  const parts = await upload({
+    document: new InputFile(new File(['a'], 'dir/sub/a.txt')),
+    photo: new InputFile(bunFile('/home/bot/secret-project/b.jpg')),
+    video: new InputFile(bunFile('C:\\Users\\bot\\secret-project\\c.mp4')),
+    // A name that ends with a separator has no last segment.
+    audio: new InputFile(bunFile('dir/')),
+  })
+
+  t.is(parts.document.file, 'a.txt')
+  t.is(parts.photo.file, 'b.jpg')
+  t.is(parts.video.file, 'c.mp4')
+  t.is(parts.audio.file, 'audio.mp3')
+})
+
 test('InputFile should call its function when the upload reaches the file', async (t) => {
   let calls = 0
   const payload = {

@@ -366,6 +366,19 @@ test('InputFile should reject a response with an error status', async (t) => {
     message: "Unable to download '': 404 Not Found",
   })
   t.true(cancelled, 'the error page is not read')
+  // e.g. the response of node-fetch 2
+  const nodeBody = new Readable({ read() {} })
+  const failedNode = {
+    ok: false,
+    status: 500,
+    statusText: 'Error',
+    body: nodeBody,
+  }
+  t.throws(
+    () => convertFiles({ document: new InputFile(failedNode) }, download),
+    { message: "Unable to download '': 500 Error" }
+  )
+  t.true(nodeBody.destroyed, 'an error page from node-fetch is not read')
   const gone = new Response('gone', { status: 410, statusText: 'Gone' })
   await t.throwsAsync(upload({ document: new InputFile(async () => gone) }), {
     message: "Unable to download '': 410 Gone",
@@ -384,26 +397,45 @@ test('InputFile should return the streams it was given', (t) => {
       cancelled = true
     },
   })
+  const nodeBody = new Readable({ read() {} })
   const { streams } = convertFiles(
     {
       document: new InputFile(node),
       photo: new InputFile(web),
+      // e.g. the response of node-fetch 2
+      voice: new InputFile({ ok: true, status: 200, body: nodeBody }),
       audio: new InputFile(Buffer.from('a')),
       video: new InputFile(() => Readable.from(['a'])),
     },
     download
   )
-  t.is(
-    streams.length,
-    2,
+  t.deepEqual(
+    streams,
+    [node, web, nodeBody],
     'a function opens its stream when the upload reaches it'
   )
-  t.is(streams[0], node)
-  t.is(streams[1], web)
 
   destroyUnread(streams)
   t.true(node.destroyed)
   t.true(cancelled)
+  t.true(nodeBody.destroyed)
+})
+
+test('InputFile should reject with the error of a response body that fails before it is read', async (t) => {
+  // A Node stream that fails without an `error` listener ends the process.
+  const error = new Error('connection reset')
+  const body = new Readable({ read() {} })
+  const payload = {
+    document: new InputFile(Buffer.from('first')),
+    voice: new InputFile({ ok: true, status: 200, body }),
+  }
+  const { payload: converted } = convertFiles(payload, download)
+  body.destroy(error)
+  await new Promise((resolve) => body.once('close', resolve))
+
+  const { payload: fields, attachments } = extractFiles(converted)
+  const { segments } = toMultipart(fields, attachments)
+  await t.throwsAsync(assemble(segments), { is: error })
 })
 
 test('InputFile should destroy the stream of its function when the upload ends', async (t) => {

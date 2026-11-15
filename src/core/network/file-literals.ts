@@ -324,10 +324,16 @@ function isResponse(value: unknown): value is Web.Response {
 function fromResponse(response: Web.Response): Contents {
   const { ok, status, statusText = '', url = '', body } = response
   if (ok === false || !(status >= 200 && status <= 299)) {
-    if (isWebStream(body)) body.cancel().catch(noop)
+    if (isNodeStream(body) || isWebStream(body)) destroyUnread([body])
     throw downloadError(String(url), status, String(statusText))
   }
   const name = urlName(url)
+  // e.g. the response of node-fetch 2. Its body is open, so it is piped as any other
+  // Node stream is.
+  if (isNodeStream(body)) {
+    const contents = pipeSource(body)
+    return { source: () => contents, name, stream: body, once: true }
+  }
   if (isWebStream(body)) {
     return { source: () => body, name, stream: body, once: true }
   }

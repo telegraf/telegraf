@@ -699,10 +699,34 @@ test('InputFile should take a null filename as no name', async (t) => {
   t.is((await upload({ document: file })).document.file, 'document.dat')
 })
 
-test('InputFile should throw when it is serialised', (t) => {
-  t.throws(() => JSON.stringify({ photo: new InputFile('a.jpg') }), {
-    instanceOf: TypeError,
-  })
+test('InputFile should serialise as its filename', (t) => {
+  // Not its path or its contents.
+  t.is(
+    JSON.stringify({ photo: new InputFile('secret/a.jpg') }),
+    '{"photo":"[InputFile]"}'
+  )
+  t.is(
+    JSON.stringify(new InputFile(Buffer.from('a'), 'b.txt')),
+    '"[InputFile b.txt]"'
+  )
+})
+
+test('InputFile should leave a TelegramError of a refused upload serialisable', async (t) => {
+  // e.g. a logger that serialises an error with its properties
+  const refused = { ok: false, error_code: 400, description: 'Bad Request' }
+  const { fetch } = fixtures.fetch.recorder(
+    async () => new Response(JSON.stringify(refused))
+  )
+  const client = new ApiClient(TOKEN, { fetch })
+  const document = new InputFile(Buffer.from('a'), 'a.txt')
+  const error = await t.throwsAsync(
+    client.callApi('sendDocument', { chat_id: 1, document })
+  )
+
+  t.is(
+    JSON.parse(JSON.stringify(error)).on.payload.document,
+    '[InputFile a.txt]'
+  )
 })
 
 test('InputFile.is should accept an InputFile from another package copy', (t) => {

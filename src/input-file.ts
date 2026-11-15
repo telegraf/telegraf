@@ -59,7 +59,11 @@ export class InputFile {
     )
   }
 
-  toJSON(): never {
-    throw new TypeError('An InputFile must not be serialised.')
+  /** Names the file, without its path or contents. */
+  toJSON(): string {
+    // A logger may serialise a `TelegramError`, whose `on` holds the payload of the call.
+    return this.filename === undefined
+      ? '[InputFile]'
+      : `[InputFile ${this.filename}]`
   }
 }

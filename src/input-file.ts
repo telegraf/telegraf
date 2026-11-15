@@ -34,12 +34,14 @@ const brand: unique symbol = Symbol.for('telegraf.InputFile')
  * ```
  */
 export class InputFile {
-  readonly [brand] = true
-
   constructor(
     readonly source: tg.InputFile.Source,
     readonly filename?: string
-  ) {}
+  ) {
+    // Not a declared member: each installed copy would declare its own `unique symbol`,
+    // and an `InputFile` of one copy wouldn't be assignable to another copy's.
+    Object.defineProperty(this, brand, { value: true })
+  }
 
   static is(value: unknown): value is InputFile {
     return (

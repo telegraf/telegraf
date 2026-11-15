@@ -116,8 +116,8 @@ test('InputFile should upload each kind of contents', async (t) => {
     yield 'generator'
   })()
   const parts = await upload({
-    document: new InputFile(file),
-    photo: new InputFile('https://example.com/a/cat.jpg'),
+    document: InputFile.fromLocalFile(file),
+    photo: InputFile.fromURLStream('https://example.com/a/cat.jpg'),
     video: new InputFile(new URL('https://example.com/b/clip%20one.mp4')),
     audio: new InputFile(Buffer.from('buffer')),
     voice: new InputFile(bytes('array buffer')),
@@ -162,35 +162,89 @@ test('InputFile should upload each kind of contents', async (t) => {
   })
 })
 
-test('InputFile should download a string only if it starts with http:// or https://', async (t) => {
+test('InputFile should take a string only from fromLocalFile or fromURLStream', async (t) => {
+  // A string could be a path or a URL.
+  for (const text of ['a.txt', 'https://example.com/a.jpg']) {
+    t.throws(
+      () => new InputFile(text),
+      {
+        instanceOf: TypeError,
+        message:
+          'A string is not the source of an InputFile: use `InputFile.fromLocalFile(path)` ' +
+          'for a local file, or `InputFile.fromURLStream(url)` to download a URL.',
+      },
+      text
+    )
+  }
+
+  // A path that looks like a URL is a path, and a URL is never read as a path.
   const file = localFile(t, 'https', 'a local file')
   const parts = await upload({
-    photo: new InputFile('HTTPS://example.com/a.jpg'),
-    video: new InputFile('http://example.com/b.mp4'),
-    // A path that starts with `https`, not `https://`.
-    document: new InputFile(file),
+    document: InputFile.fromLocalFile(file),
+    photo: InputFile.fromURLStream('HTTPS://example.com/a.jpg'),
   })
-
-  t.is(parts.photo.content, 'from HTTPS://example.com/a.jpg')
-  t.is(parts.video.content, 'from http://example.com/b.mp4')
   t.is(parts.document.content, 'a local file')
+  t.is(parts.photo.content, 'from HTTPS://example.com/a.jpg')
+  t.throws(
+    () => convertFiles({ photo: InputFile.fromURLStream(file) }, download),
+    { message: /only http: and https: URLs are supported/ }
+  )
+})
+
+test('InputFile should have the keys of the plain object it matches', (t) => {
+  // Code that reads a file checks `'url' in file` and `file.source`.
+  const keys = (file) => Object.keys(file).sort()
+
+  t.deepEqual(keys(InputFile.fromLocalFile('a.txt')), ['filename', 'source'])
+  t.deepEqual(keys(new InputFile(Buffer.from('a'), 'b.txt')), [
+    'filename',
+    'source',
+  ])
+  const url = 'https://example.com/a.jpg'
+  for (const file of [
+    InputFile.fromURLStream(url),
+    InputFile.fromURLStream(new URL(url)),
+    new InputFile(new URL(url)),
+  ]) {
+    t.deepEqual(keys(file), ['filename', 'url'])
+    t.is(file.url, url)
+  }
 })
 
 test('InputFile should refuse a URL that is not http: or https:', (t) => {
   for (const url of ['file:///etc/passwd', 'ftp://example.com/a.jpg']) {
-    t.throws(() => convertFiles({ photo: new InputFile(new URL(url)) }), {
-      instanceOf: TypeError,
-      message: /only http: and https: URLs are supported/,
-    })
+    for (const file of [
+      new InputFile(new URL(url)),
+      InputFile.fromURLStream(url),
+    ]) {
+      t.throws(() => convertFiles({ photo: file }), {
+        instanceOf: TypeError,
+        message: /only http: and https: URLs are supported/,
+      })
+    }
   }
+})
+
+test('InputFile should throw for a path or a URL that is not a string', (t) => {
+  t.throws(() => InputFile.fromLocalFile(5), {
+    instanceOf: TypeError,
+    message: 'The path of an InputFile must be a string.',
+  })
+  t.throws(() => InputFile.fromURLStream({}), {
+    instanceOf: TypeError,
+    message: 'The URL of an InputFile must be a string or a URL.',
+  })
 })
 
 test('InputFile should use its filename over the name of its contents', async (t) => {
   const parts = await upload({
-    document: new InputFile('https://example.com/a.txt', 'renamed.txt'),
+    document: InputFile.fromURLStream(
+      'https://example.com/a.txt',
+      'renamed.txt'
+    ),
     animation: new InputFile(new File(['a'], 'named.gif'), 'renamed.gif'),
     // A URL without a last segment carries no name.
-    photo: new InputFile('https://example.com/'),
+    photo: InputFile.fromURLStream('https://example.com/'),
   })
 
   t.is(parts.document.file, 'renamed.txt')
@@ -201,14 +255,14 @@ test('InputFile should use its filename over the name of its contents', async (t
 test('InputFile should add the extension of its parameter to a URL name without one', async (t) => {
   // The Bot API server sends an animation whose name doesn't end in `.mp4` as a document.
   const parts = await upload({
-    animation: new InputFile('https://example.com/render?id=7'),
+    animation: InputFile.fromURLStream('https://example.com/render?id=7'),
     photo: new InputFile(new URL('https://files.example.com/s/9f2c1e7a')),
     document: new InputFile(async () =>
       response('https://example.com/export', 'r')
     ),
-    video: new InputFile('https://example.com/v1.2/clip.webm'),
+    video: InputFile.fromURLStream('https://example.com/v1.2/clip.webm'),
     // A leading dot doesn't make an extension.
-    audio: new InputFile('https://example.com/.hidden'),
+    audio: InputFile.fromURLStream('https://example.com/.hidden'),
   })
 
   t.is(parts.animation.file, 'render.mp4')
@@ -349,8 +403,10 @@ test('InputFile should end the download of its function when the call is aborted
 test('InputFile should accept each kind of contents from its function', async (t) => {
   const file = localFile(t, 'returned.txt', 'from disk')
   const parts = await upload({
-    document: new InputFile(() => file),
-    photo: new InputFile(async () => 'https://example.com/a/cat.jpg'),
+    document: new InputFile(() => InputFile.fromLocalFile(file)),
+    photo: new InputFile(async () =>
+      InputFile.fromURLStream('https://example.com/a/cat.jpg')
+    ),
     video: new InputFile(() => new URL('https://example.com/b/clip.mp4')),
     audio: new InputFile(async () => Buffer.from('buffer')),
     voice: new InputFile(() => bytes('array buffer')),
@@ -386,7 +442,7 @@ test('InputFile should accept each kind of contents from its function', async (t
 
 test('InputFile should take the outermost filename', async (t) => {
   const innermost = (name) =>
-    new InputFile('https://example.com/c/derived.txt', name)
+    InputFile.fromURLStream('https://example.com/c/derived.txt', name)
   const nest = (outer, inner, last) =>
     new InputFile(() => new InputFile(() => innermost(last), inner), outer)
   const parts = await upload({
@@ -413,6 +469,51 @@ test('InputFile should reject a function that returns a function', async (t) => 
   )
 })
 
+test('InputFile should reject a function that returns a string', async (t) => {
+  // A string could be a path or a URL.
+  await t.throwsAsync(
+    upload({ document: new InputFile(async () => 'a.txt') }),
+    {
+      instanceOf: TypeError,
+      message:
+        'Invalid file under `document`: the function of an InputFile returned a string; ' +
+        'return `InputFile.fromLocalFile(path)` or `InputFile.fromURLStream(url)`.',
+    }
+  )
+})
+
+test('InputFile should accept a plain object from its function', async (t) => {
+  // A plain `{ source }` or `{ url }` is typed as an `InputFile`.
+  const file = localFile(t, 'plain.txt', 'from disk')
+  const parts = await upload({
+    document: new InputFile(() => ({ source: file })),
+    photo: new InputFile(async () => ({
+      url: 'https://example.com/a.jpg',
+      filename: 'b.jpg',
+    })),
+  })
+
+  t.deepEqual(parts.document, { file: 'plain.txt', content: 'from disk' })
+  t.deepEqual(parts.photo, {
+    file: 'b.jpg',
+    content: 'from https://example.com/a.jpg',
+  })
+  await t.throwsAsync(
+    upload({
+      document: new InputFile(() => ({ source: Buffer.from('a'), extra: 1 })),
+    }),
+    { message: /unexpected key `extra`/ }
+  )
+  await t.throwsAsync(
+    upload({ document: new InputFile(() => ({ source: file, extra: 1 })) }),
+    {
+      message:
+        'Invalid file under `document`: the function of an InputFile returned an object ' +
+        'that is not exactly `{ source, filename? }` or `{ url, filename? }`.',
+    }
+  )
+})
+
 test('InputFile should stop at 10 nested InputFiles', async (t) => {
   const expected = {
     instanceOf: TypeError,
@@ -424,7 +525,10 @@ test('InputFile should stop at 10 nested InputFiles', async (t) => {
 
   await t.throwsAsync(upload({ document: self }), expected)
   await t.throwsAsync(upload({ document: endless() }), expected)
-  await t.throwsAsync(upload({ document: chain(11, 'a') }), expected)
+  await t.throwsAsync(
+    upload({ document: chain(11, Buffer.from('a')) }),
+    expected
+  )
   const parts = await upload({ document: chain(10, Buffer.from('deep')) })
   t.is(parts.document.content, 'deep')
 })
@@ -459,7 +563,7 @@ test('InputFile should be sent once if it is made from a stream', async (t) => {
   // Contents that can be read again can be sent again.
   const again = [
     new InputFile(Buffer.from('a')),
-    new InputFile('https://example.com/a'),
+    InputFile.fromURLStream('https://example.com/a'),
     new InputFile(() => Readable.from(['a'])),
   ]
   for (const file of again) {
@@ -702,7 +806,7 @@ test('InputFile should take a null filename as no name', async (t) => {
 test('InputFile should serialise as its filename', (t) => {
   // Not its path or its contents.
   t.is(
-    JSON.stringify({ photo: new InputFile('secret/a.jpg') }),
+    JSON.stringify({ photo: InputFile.fromLocalFile('secret/a.jpg') }),
     '{"photo":"[InputFile]"}'
   )
   t.is(
@@ -730,7 +834,7 @@ test('InputFile should leave a TelegramError of a refused upload serialisable', 
 })
 
 test('InputFile.is should accept an InputFile from another package copy', (t) => {
-  t.true(InputFile.is(new InputFile('a.jpg')))
+  t.true(InputFile.is(InputFile.fromLocalFile('a.jpg')))
   t.true(
     InputFile.is({ [Symbol.for('telegraf.InputFile')]: true, source: 'a' })
   )

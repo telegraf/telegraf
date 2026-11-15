@@ -94,9 +94,9 @@ test.serial('should warn once per plain literal type', (t) => {
 
   const replacements = {
     TELEGRAF_FILE_BUFFER: /`\{ source \}`.*`new InputFile\(buffer\)`/,
-    TELEGRAF_FILE_PATH: /`\{ source \}`.*`new InputFile\(path\)`/,
+    TELEGRAF_FILE_PATH: /`\{ source \}`.*`InputFile\.fromLocalFile\(path\)`/,
     TELEGRAF_FILE_STREAM: /`\{ source \}`.*`new InputFile\(stream\)`/,
-    TELEGRAF_FILE_URL: /`\{ url \}`.*`new InputFile\(new URL\(url\)\)`/,
+    TELEGRAF_FILE_URL: /`\{ url \}`.*`InputFile\.fromURLStream\(url\)`/,
   }
   t.deepEqual(
     warnings.map((warning) => warning.code).sort(),

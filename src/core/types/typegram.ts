@@ -1,5 +1,4 @@
 import * as Typegram from '@telegraf/types'
-import type { InputFile as InputFileClass } from '../../input-file'
 import type { ByteStream, Web } from './platform'
 
 // internal type provisions
@@ -15,53 +14,89 @@ export * from '@telegraf/types/settings'
 export * from '@telegraf/types/update'
 
 // telegraf input file definition
+/**
+ * The plain objects that an `InputFile` matches, one for each kind of file. Passing one
+ * yourself, such as `{ source: 'report.pdf' }`, is deprecated: use `InputFile`.
+ */
 export declare namespace InputFile {
-  /** The contents of a file that `new InputFile()` accepts. */
+  /** The contents of a file that the function of an `InputFile` may return. */
   type Contents =
-    | string
     | Web.URL
     | Uint8Array
     | ArrayBuffer
     | Web.Blob
     | ByteStream
     | Web.Response
-  /**
-   * The `source` that `new InputFile()` accepts. A function is passed the runtime's own
-   * `AbortSignal`, to pass on to `fetch`, which aborts when the call ends.
-   */
-  type Source =
-    | Contents
-    | ((
-        signal: AbortSignal
-      ) => Contents | InputFileClass | Promise<Contents | InputFileClass>)
-  /** @deprecated Use `new InputFile(path)`. */
+  /** The `source` that `new InputFile()` accepts. */
+  type Source = Contents | ByFunction['source']
+  /** `InputFile.fromLocalFile(path)` */
   interface ByPath {
     source: string
     filename?: string
   }
-  /** @deprecated Use `new InputFile(stream)`. */
+  /** `new InputFile(stream)` for a Node stream */
   interface ByReadableStream {
     source: NodeJS.ReadableStream
     filename?: string
   }
-  /** @deprecated Use `new InputFile(buffer)`. */
+  /** `new InputFile(buffer)` */
   interface ByBuffer {
     source: Buffer
     filename?: string
   }
-  /** @deprecated Use `new InputFile(new URL(url))`. */
+  /** `InputFile.fromURLStream(url)`, or `new InputFile(url)` for a `URL` */
   interface ByURL {
     url: string
+    filename?: string
+  }
+  /** `new InputFile(bytes)` for a `Uint8Array` that is not a `Buffer`, or an `ArrayBuffer` */
+  interface ByBytes {
+    source: Uint8Array | ArrayBuffer
+    filename?: string
+  }
+  /** `new InputFile(blob)` for a `Blob` or a `File` */
+  interface ByBlob {
+    source: Web.Blob
+    filename?: string
+  }
+  /** `new InputFile(stream)` for a web stream */
+  interface ByWebStream {
+    source: Web.ReadableStream
+    filename?: string
+  }
+  /** `new InputFile(iterable)` for an async iterable of bytes */
+  interface ByAsyncIterable {
+    source: AsyncIterable<Uint8Array | string>
+    filename?: string
+  }
+  /** `new InputFile(response)` */
+  interface ByResponse {
+    source: Web.Response
+    filename?: string
+  }
+  /**
+   * `new InputFile(open)`. The function is passed the runtime's own `AbortSignal`, to pass
+   * on to `fetch`, which aborts when the call ends.
+   */
+  interface ByFunction {
+    source: (
+      signal: AbortSignal
+    ) => Contents | InputFile | Promise<Contents | InputFile>
     filename?: string
   }
 }
 /** An `InputFile`, or a file passed as a plain object, which is deprecated. */
 export type InputFile =
-  | InputFileClass
   | InputFile.ByPath
   | InputFile.ByReadableStream
   | InputFile.ByBuffer
   | InputFile.ByURL
+  | InputFile.ByBytes
+  | InputFile.ByBlob
+  | InputFile.ByWebStream
+  | InputFile.ByAsyncIterable
+  | InputFile.ByResponse
+  | InputFile.ByFunction
 
 export type Telegram = Typegram.ApiMethods<InputFile>
 

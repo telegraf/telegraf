@@ -277,17 +277,15 @@ Default `bot.handleError` always rethrows. You can overwrite it using `bot.catch
 ### Working with files
 
 A `file_id`, or a URL for Telegram to download, is passed as a string.
-Anything to upload is passed as an `InputFile`, made from one of:
+Anything to upload is passed as an `InputFile`:
 
-- a local path
-- an `http://` or `https://` URL, which Telegraf downloads
-- a `Buffer`, a `Uint8Array`, an `ArrayBuffer`, a `Blob` or a `File`
-- a stream or a `Response`, which can be sent once
-- a function that returns any of these, called when the upload reaches the file
+- `InputFile.fromLocalFile(path)` for a local file
+- `InputFile.fromURLStream(url)` for an `http://` or `https://` URL, which Telegraf downloads
+- `new InputFile(source)` for a `Buffer`, a `Uint8Array`, an `ArrayBuffer`, a `Blob` or a `File`
+- `new InputFile(source)` for a stream or a `Response`, which can be sent once
+- `new InputFile(source)` for a function that returns any of these, called when the upload reaches the file
 
 An optional second argument names the file.
-
-A string that doesn't start with `http://` or `https://` is read as a local path, so wrap a URL from outside the bot in `new URL()`: `new InputFile(new URL(text))`.
 
 <!-- global bot, fs -->
 
@@ -300,7 +298,7 @@ bot.on('message', async (ctx) => {
   await ctx.replyWithPhoto('https://picsum.photos/200/300/')
 
   // send file
-  await ctx.replyWithVideo(new InputFile('/path/to/video.mp4'))
+  await ctx.replyWithVideo(InputFile.fromLocalFile('/path/to/video.mp4'))
 
   // send stream
   await ctx.replyWithVideo(
@@ -312,7 +310,10 @@ bot.on('message', async (ctx) => {
 
   // download a URL and upload it
   await ctx.replyWithPhoto(
-    new InputFile('https://picsum.photos/200/300/?random', 'kitten.jpg')
+    InputFile.fromURLStream(
+      'https://picsum.photos/200/300/?random',
+      'kitten.jpg'
+    )
   )
 
   // download when the upload reaches the file, and stop when the call ends

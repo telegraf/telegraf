@@ -6,7 +6,7 @@ import type { InputFile } from './core/types/typegram'
  *
  * 10 MB max size for photos, 50 MB for other files.
  *
- * @deprecated Use `new InputFile(path)`.
+ * @deprecated Use `InputFile.fromLocalFile(path)`.
  */
 // prettier-ignore
 export const fromLocalFile = (path: string, filename?: string): InputFile.ByPath => stampInput({ source: path, filename })
@@ -42,7 +42,7 @@ export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: str
  *
  * 10 MB max size for photos, 50 MB for other files.
  *
- * @deprecated Use `new InputFile(new URL(url))`.
+ * @deprecated Use `InputFile.fromURLStream(url)`.
  */
 // prettier-ignore
 export const fromURLStream = (url: string | URL, filename?: string): InputFile.ByURL => stampInput({ url: url.toString(), filename })

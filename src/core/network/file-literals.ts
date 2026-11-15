@@ -6,7 +6,7 @@
 import { createReadStream } from 'fs'
 import { realpath, stat } from 'fs/promises'
 import { finished, PassThrough } from 'stream'
-import { InputFile } from '../../input-file'
+import { InputFile, isUrl } from '../../input-file'
 import type { ByteStream, Node, Web } from '../types/platform'
 import {
   MultipartFile,
@@ -78,11 +78,10 @@ const FILE_KEYS = new Set([
 
 /** What to use in place of each kind of literal. */
 const REPLACEMENTS = {
-  path: 'new InputFile(path)',
+  path: 'InputFile.fromLocalFile(path)',
   buffer: 'new InputFile(buffer)',
   stream: 'new InputFile(stream)',
-  // `new InputFile(url)` would read a string that is not an http(s) URL as a local path.
-  url: 'new InputFile(new URL(url))',
+  url: 'InputFile.fromURLStream(url)',
 }
 
 /**
@@ -212,6 +211,13 @@ function assertHttpUrl(url: string) {
   )
 }
 
+/** The keys of an `InputFile`: its source, or the URL it downloads. */
+interface InputFileKeys {
+  source?: unknown
+  url?: string
+  filename?: string
+}
+
 function fromInputFile(
   file: InputFile,
   key: string,
@@ -219,7 +225,11 @@ function fromInputFile(
   signal: AbortSignal,
   streams: (Node.Readable | Web.ReadableStream)[]
 ): MultipartFile {
-  const { source, filename } = file
+  const { source, url, filename } = file as InputFileKeys
+  if (url !== undefined) {
+    const contents = fromUrl(url, key, download)
+    return new MultipartFile(contents.source, filename ?? contents.name)
+  }
   if (typeof source === 'function' || InputFile.is(source)) {
     const deferred: DeferredFile = {
       open: () => openNested(file, key, download, signal),
@@ -248,7 +258,7 @@ async function openNested(
   download: Download,
   signal: AbortSignal
 ) {
-  let value: unknown = file.source
+  let value: unknown = (file as InputFileKeys).source
   let name: string | undefined
   let depth = 1
   // The nested `InputFile` that `value` is the source of.
@@ -263,6 +273,35 @@ async function openNested(
           'the function of an InputFile returned a function'
         )
       }
+      // A string could be a path or a URL; an `InputFile` says which.
+      if (typeof value === 'string') {
+        throw fileError(
+          key,
+          'the function of an InputFile returned a string; return ' +
+            '`InputFile.fromLocalFile(path)` or `InputFile.fromURLStream(url)`'
+        )
+      }
+      // A plain `{ source }` or `{ url }`, which is typed as an `InputFile`. Other plain
+      // objects can be contents, such as a `Response` by its members, which has a `url`.
+      if (
+        isPlainObject(value) &&
+        !isResponse(value) &&
+        ('source' in value || 'url' in value)
+      ) {
+        const literal = toMultipartFile(value, key, download, [])
+        if (literal === undefined) {
+          throw invalidFile(
+            value,
+            key,
+            'the function of an InputFile returned an object that is not exactly ' +
+              '`{ source, filename? }` or `{ url, filename? }`'
+          )
+        }
+        const stream = toByteStream(
+          literal.source as Exclude<FileSource, DeferredFile>
+        )
+        return { stream, name: name ?? literal.name }
+      }
     }
     if (!InputFile.is(value)) break
     if (++depth > MAX_DEPTH) {
@@ -273,9 +312,17 @@ async function openNested(
       )
     }
     if (sent.has(value)) throw fileError(key, SENT_STREAM)
-    name ??= value.filename
+    const keys = value as InputFileKeys
+    name ??= keys.filename
+    if (keys.url !== undefined) {
+      const contents = fromUrl(keys.url, key, download)
+      return {
+        stream: toByteStream(contents.source),
+        name: name ?? contents.name,
+      }
+    }
     innermost = value
-    value = value.source
+    value = keys.source
   }
   const contents = toContents(value, key, download)
   // `file` is not added: its function is called again in every call.
@@ -295,9 +342,8 @@ interface Contents {
 }
 
 function toContents(value: unknown, key: string, download: Download): Contents {
+  // The source of `InputFile.fromLocalFile(path)`, the only `InputFile` with a string.
   if (typeof value === 'string') {
-    // A file_id, or a URL for Telegram to download, is passed as a string, not as an `InputFile`.
-    if (/^https?:\/\//i.test(value)) return fromUrl(value, key, download)
     return { source: () => readFile(value), name: basename(value) }
   }
   if (isUrl(value)) return fromUrl(value.href, key, download)
@@ -398,14 +444,6 @@ function urlName(url: unknown, key: string): string | undefined {
     // not percent-encoded as a whole: the segment is the name as it is
   }
   return /[^.]\.[^.]+$/.test(name) ? name : `${name}.${extension(key)}`
-}
-
-function isUrl(value: unknown): value is Web.URL {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as { href?: unknown }).href === 'string'
-  )
 }
 
 function isBlob(value: unknown): value is Web.Blob {

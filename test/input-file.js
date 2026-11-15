@@ -9,6 +9,7 @@ const {
   destroyUnread,
 } = require('../lib/core/network/file-literals')
 const { extractFiles, toMultipart } = require('../lib/core/network/payload')
+const { fixtures } = require('./_helpers')
 
 // Records every warning emitted in this file.
 const warnings = []
@@ -330,6 +331,72 @@ test('InputFile should be sent once if it is made from a stream', async (t) => {
     await upload({ document: file })
     await t.notThrowsAsync(upload({ document: file }))
   }
+})
+
+test('InputFile should be sent once if a function returns it', async (t) => {
+  const expected = { instanceOf: TypeError, message: /can be sent once/ }
+  const file = new InputFile(Readable.from(['once']))
+  const lazy = new InputFile(() => file)
+
+  t.is((await upload({ document: lazy })).document.content, 'once')
+  await t.throwsAsync(upload({ document: lazy }), expected)
+  t.throws(() => convertFiles({ document: file }, download), expected)
+
+  const web = new InputFile(webStream('once'))
+  const lazyWeb = new InputFile(async () => web)
+  t.is((await upload({ document: lazyWeb })).document.content, 'once')
+  await t.throwsAsync(upload({ document: lazyWeb }), expected)
+})
+
+test('InputFile should reject a stream that was already read', async (t) => {
+  const expected = {
+    instanceOf: TypeError,
+    message:
+      'Invalid file under `document`: the stream was already read or destroyed; ' +
+      'pass a new stream to send the file again.',
+  }
+  // Each function returns the same stream in every call.
+  const node = Readable.from(['once'])
+  const web = webStream('once')
+  const response = new Response('once')
+  for (const stream of [node, web, response]) {
+    const same = new InputFile(() => stream)
+    t.is((await upload({ document: same })).document.content, 'once')
+    await t.throwsAsync(upload({ document: same }), expected)
+  }
+
+  const destroyed = new Readable({ read() {} })
+  destroyed.destroy()
+  t.throws(
+    () => convertFiles({ document: new InputFile(destroyed) }, download),
+    expected
+  )
+})
+
+test('InputFile should leave a stream open when it refuses to send it again', async (t) => {
+  // e.g. a socket, read to its end and still written to
+  const { stream, written } = fixtures.stream.duplex()
+  const same = new InputFile(() => stream)
+  await upload({ document: same })
+  await t.throwsAsync(upload({ document: same }), { message: /already read/ })
+  t.false(stream.destroyed)
+  stream.write('reply')
+  t.deepEqual(written, ['reply'])
+
+  // Another call is still reading the stream of an `InputFile` sent twice at once.
+  const pending = new Readable({ read() {} })
+  const file = new InputFile(pending)
+  const first = convertFiles({ document: file }, download)
+  t.throws(() => convertFiles({ document: file }, download), {
+    message: /can be sent once/,
+  })
+  t.false(pending.destroyed)
+  pending.push('still read')
+  pending.push(null)
+  const { payload, attachments } = extractFiles(first.payload)
+  const { contentType, segments } = toMultipart(payload, attachments)
+  const parts = parseMultipart(await assemble(segments), contentType)
+  t.is(parts.document.content, 'still read')
 })
 
 test('InputFile should reject what is not the contents of a file', async (t) => {

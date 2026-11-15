@@ -14,6 +14,7 @@ export declare namespace Web {
       cancel(reason?: unknown): Promise<void>
     }
     cancel(reason?: unknown): Promise<void>
+    readonly locked?: boolean
   }
 
   interface URL {
@@ -43,6 +44,7 @@ export declare namespace Node {
   interface Readable {
     pipe(destination: unknown): unknown
     destroy?: () => void
+    readonly destroyed?: boolean
     readonly readableEnded?: boolean
   }
 }

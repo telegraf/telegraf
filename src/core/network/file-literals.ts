@@ -93,6 +93,16 @@ const MAX_DEPTH = 10
 /** The `InputFile`s made from a stream that were already sent. A stream can be read once. */
 const sent = new WeakSet<InputFile>()
 
+/** The problem with sending an `InputFile` made from a stream a second time. */
+const SENT_STREAM =
+  'an InputFile made from a stream can be sent once; ' +
+  'make it from a function that returns the stream to send it again'
+
+/** The problem with sending a stream that was already read. */
+const USED_STREAM =
+  'the stream was already read or destroyed; ' +
+  'pass a new stream to send the file again'
+
 /**
  * Replaces every file in a payload with a `MultipartFile`. The payload is not mutated:
  * objects and arrays that contain a file are copied, everything else is shared.
@@ -210,14 +220,8 @@ function fromInputFile(
     }
     return new MultipartFile(deferred, filename)
   }
-  if (sent.has(file)) {
-    throw invalidFile(
-      source,
-      key,
-      'an InputFile made from a stream can be sent once; ' +
-        'make it from a function that returns the stream to send it again'
-    )
-  }
+  // The stream is not destroyed: another call may still be reading it.
+  if (sent.has(file)) throw fileError(key, SENT_STREAM)
   const contents = toContents(source, key, download)
   if (contents.once === true) sent.add(file)
   if (contents.stream !== undefined) streams.push(contents.stream)
@@ -236,6 +240,8 @@ async function openNested(file: InputFile, key: string, download: Download) {
   let value: unknown = file.source
   let name: string | undefined
   let depth = 1
+  // The nested `InputFile` that `value` is the source of.
+  let innermost: InputFile | undefined
   for (;;) {
     if (typeof value === 'function') {
       value = await (value as () => unknown)()
@@ -255,10 +261,14 @@ async function openNested(file: InputFile, key: string, download: Download) {
         `InputFiles are nested more than ${MAX_DEPTH} deep`
       )
     }
+    if (sent.has(value)) throw fileError(key, SENT_STREAM)
     name ??= value.filename
+    innermost = value
     value = value.source
   }
   const contents = toContents(value, key, download)
+  // `file` is not added: its function is called again in every call.
+  if (contents.once === true && innermost !== undefined) sent.add(innermost)
   return { stream: toByteStream(contents.source), name: name ?? contents.name }
 }
 
@@ -292,15 +302,17 @@ function toContents(value: unknown, key: string, download: Download): Contents {
     return { source: () => value.stream(), name }
   }
   if (isNodeStream(value)) {
+    if (isUsed(value)) throw fileError(key, USED_STREAM)
     const contents = pipeSource(value)
     return { source: () => contents, stream: value, once: true }
   }
   // Checked before `isAsyncIterable`, which a web stream also passes on Node, Bun and
   // Deno: an unread web stream must be cancelled.
   if (isWebStream(value)) {
+    if (isUsed(value)) throw fileError(key, USED_STREAM)
     return { source: () => value, stream: value, once: true }
   }
-  if (isResponse(value)) return fromResponse(value)
+  if (isResponse(value)) return fromResponse(value, key)
   if (isAsyncIterable(value)) return { source: () => value, once: true }
   const kind = Object.prototype.toString.call(value)
   throw invalidFile(value, key, `${kind} is not the contents of a file`)
@@ -321,7 +333,7 @@ function isResponse(value: unknown): value is Web.Response {
 }
 
 /** The body of a `Response`. The body of an error status is an error page, not the file. */
-function fromResponse(response: Web.Response): Contents {
+function fromResponse(response: Web.Response, key: string): Contents {
   const { ok, status, statusText = '', url = '', body } = response
   if (ok === false || !(status >= 200 && status <= 299)) {
     if (isNodeStream(body) || isWebStream(body)) destroyUnread([body])
@@ -331,10 +343,12 @@ function fromResponse(response: Web.Response): Contents {
   // e.g. the response of node-fetch 2. Its body is open, so it is piped as any other
   // Node stream is.
   if (isNodeStream(body)) {
+    if (isUsed(body)) throw fileError(key, USED_STREAM)
     const contents = pipeSource(body)
     return { source: () => contents, name, stream: body, once: true }
   }
   if (isWebStream(body)) {
+    if (isUsed(body)) throw fileError(key, USED_STREAM)
     return { source: () => body, name, stream: body, once: true }
   }
   if (isAsyncIterable(body)) return { source: () => body, name, once: true }
@@ -452,6 +466,7 @@ function toMultipartFile(
     return new MultipartFile(source, name)
   }
   if (isNodeStream(source)) {
+    if (isUsed(source)) throw fileError(key, USED_STREAM)
     if (!stamped) warn('stream', 'source')
     streams.push(source)
     const contents = pipeSource(source)
@@ -535,6 +550,15 @@ function isWebStream(value: unknown): value is Web.ReadableStream {
   )
 }
 
+/**
+ * Whether a stream has nothing left to upload: a Node stream that was read to its end or
+ * destroyed, or a web stream that a reader holds.
+ */
+function isUsed(stream: Node.Readable | Web.ReadableStream) {
+  if (isWebStream(stream)) return stream.locked === true
+  return stream.readableEnded === true || stream.destroyed === true
+}
+
 /** A `source` that can only be meant as the contents of a file. A string may not be. */
 function isFileContent(source: unknown): boolean {
   return (
@@ -557,5 +581,14 @@ function invalidFile(source: unknown, key: string, problem: string) {
   // The stream was passed to be read, and this call won't read it.
   if (isNodeStream(source)) source.destroy?.()
   else if (isWebStream(source)) source.cancel().catch(noop)
+  return fileError(key, problem)
+}
+
+/**
+ * The error for a file that can't be sent, which leaves its stream as it is. A stream that
+ * was already read may be a duplex whose other side is still in use, and one that another
+ * call is reading must not be destroyed under it.
+ */
+function fileError(key: string, problem: string) {
   return new TypeError(`Invalid file under \`${key}\`: ${problem}.`)
 }

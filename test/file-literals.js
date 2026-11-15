@@ -297,6 +297,17 @@ test('should use a Buffer or a stream as the source', async (t) => {
   t.is(await text(converted.video), 'stream')
 })
 
+test('should reject a { source } stream that was already read', async (t) => {
+  // 4.16.3 waited for the stream to end, or sent an empty file.
+  const stream = Readable.from(['once'])
+  t.is(await text(convert({ video: { source: stream } }).video), 'once')
+
+  t.throws(() => convert({ video: { source: stream } }), {
+    instanceOf: TypeError,
+    message: /^Invalid file under `video`: the stream was already read/,
+  })
+})
+
 test('should keep what a flowing stream emits before it is read', async (t) => {
   // e.g. the caller's own `data` listener for progress.
   const stream = Readable.from(['flow', 'ing'])

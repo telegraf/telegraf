@@ -781,10 +781,7 @@ export class Context<U extends Deunionize<tg.Update> = tg.Update> {
   /**
    * @see https://core.telegram.org/bots/api#sendvideonote
    */
-  sendVideoNote(
-    videoNote: string | tg.InputFileVideoNote,
-    extra?: tt.ExtraVideoNote
-  ) {
+  sendVideoNote(videoNote: string | tg.InputFile, extra?: tt.ExtraVideoNote) {
     this.assert(this.chat, 'sendVideoNote')
     return this.telegram.sendVideoNote(this.chat.id, videoNote, {
       message_thread_id: getThreadId(this),

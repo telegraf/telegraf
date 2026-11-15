@@ -112,6 +112,7 @@ export type InputMediaDocument = Typegram.InputMediaDocument<InputFile>
 export type ChatAction = Opts<'sendChatAction'>['action']
 
 /**
- * Sending video notes by a URL is currently unsupported
+ * @deprecated The same as `InputFile`. What Telegram doesn't take as a video note is a URL
+ * passed as a string; a file that Telegraf downloads from a URL is uploaded as any other.
  */
-export type InputFileVideoNote = Exclude<InputFile, InputFile.ByURL>
+export type InputFileVideoNote = InputFile

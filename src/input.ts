@@ -42,7 +42,7 @@ export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: str
  *
  * 10 MB max size for photos, 50 MB for other files.
  *
- * @deprecated Use `new InputFile(url)`.
+ * @deprecated Use `new InputFile(new URL(url))`.
  */
 // prettier-ignore
 export const fromURLStream = (url: string | URL, filename?: string): InputFile.ByURL => stampInput({ url: url.toString(), filename })

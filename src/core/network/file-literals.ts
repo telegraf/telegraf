@@ -81,7 +81,8 @@ const REPLACEMENTS = {
   path: 'new InputFile(path)',
   buffer: 'new InputFile(buffer)',
   stream: 'new InputFile(stream)',
-  url: 'new InputFile(url)',
+  // `new InputFile(url)` would read a string that is not an http(s) URL as a local path.
+  url: 'new InputFile(new URL(url))',
 }
 
 /**

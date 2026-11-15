@@ -287,6 +287,8 @@ Anything to upload is passed as an `InputFile`, made from one of:
 
 An optional second argument names the file.
 
+A string that doesn't start with `http://` or `https://` is read as a local path, so wrap a URL from outside the bot in `new URL()`: `new InputFile(new URL(text))`.
+
 <!-- global bot, fs -->
 
 ```js

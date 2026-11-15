@@ -19,6 +19,9 @@ const brand: unique symbol = Symbol.for('telegraf.InputFile')
  * A `file_id`, or a URL for Telegram to download, is not an `InputFile`: pass it as a
  * string.
  *
+ * A string that doesn't start with `http://` or `https://` is read as a local path, so
+ * wrap a URL from outside the bot in `new URL()`.
+ *
  * `filename` defaults to the file name of a path, the last segment of a URL, or the name
  * of a `File`. Without one, the file is named after the parameter it is sent in, such as
  * `photo.jpg`. When a function returns an `InputFile`, the `filename` of the outer one

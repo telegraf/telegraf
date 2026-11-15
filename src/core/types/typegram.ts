@@ -49,7 +49,7 @@ export declare namespace InputFile {
     source: Buffer
     filename?: string
   }
-  /** @deprecated Use `new InputFile(url)`. */
+  /** @deprecated Use `new InputFile(new URL(url))`. */
   interface ByURL {
     url: string
     filename?: string

@@ -560,9 +560,9 @@ test('should redact the token from an error', async (t) => {
 
   t.is(error, thrown, 'the error itself is kept')
   t.false(collectStrings(error).includes(SECRET))
-  t.regex(error.message, /\/bot\[REDACTED\]\/getMe/)
-  t.regex(error.cause.message, /bot\[REDACTED\]/)
-  t.is(error.path, 'https://api.telegram.org/bot[REDACTED]/getMe')
+  t.regex(error.message, /\/bot123456:\[REDACTED\]\/getMe/)
+  t.regex(error.cause.message, /bot123456:\[REDACTED\]/)
+  t.is(error.path, 'https://api.telegram.org/bot123456:[REDACTED]/getMe')
   t.is(error.input, error.path)
 })
 
@@ -584,11 +584,11 @@ test('should redact the token from an AggregateError and a string', async (t) =>
     (url) => new AggregateError([new Error(`connect to ${url}`)], 'no route')
   )
   t.false(collectStrings(aggregate).includes(SECRET))
-  t.regex(aggregate.errors[0].message, /bot\[REDACTED\]/)
+  t.regex(aggregate.errors[0].message, /bot123456:\[REDACTED\]/)
 
   t.is(
     await getRejection((url) => `request to ${url} failed`),
-    'request to https://api.telegram.org/bot[REDACTED]/getMe failed'
+    'request to https://api.telegram.org/bot123456:[REDACTED]/getMe failed'
   )
 })
 
@@ -605,10 +605,31 @@ test('should trim the token', async (t) => {
     )
     t.is(
       error.message,
-      'request to https://api.telegram.org/bot[REDACTED]/getMe failed',
+      'request to https://api.telegram.org/bot123456:[REDACTED]/getMe failed',
       JSON.stringify(token)
     )
   }
+})
+
+test('should redact only the secret part of the token', async (t) => {
+  // The bot id is kept, and the secret is redacted wherever it appears.
+  const error = await getRejection(
+    (url) => new Error(`${url} for ${encodeURIComponent(TOKEN)}`)
+  )
+  t.is(
+    error.message,
+    'https://api.telegram.org/bot123456:[REDACTED]/getMe for 123456%3A[REDACTED]'
+  )
+
+  // A token without a `:` is all secret.
+  const whole = await getRejection(
+    (url) => new Error(`request to ${url} failed`),
+    'SECRET-abc_DEF'
+  )
+  t.is(
+    whole.message,
+    'request to https://api.telegram.org/bot[REDACTED]/getMe failed'
+  )
 })
 
 test('should not redact an error for an empty token', async (t) => {
@@ -643,7 +664,10 @@ test('should redact the token from a file error', async (t) => {
     })
 
     await t.throwsAsync(call, { is: error })
-    t.is(error.message, 'no https://api.telegram.org/file/bot[REDACTED]/a.jpg')
+    t.is(
+      error.message,
+      'no https://api.telegram.org/file/bot123456:[REDACTED]/a.jpg'
+    )
   })
 })
 
@@ -663,7 +687,7 @@ test('should redact a non-configurable property', async (t) => {
 
   t.is(error, thrown)
   t.is(error.code, 'ECONNREFUSED')
-  t.is(error.path, 'https://api.telegram.org/bot[REDACTED]/getMe')
+  t.is(error.path, 'https://api.telegram.org/bot123456:[REDACTED]/getMe')
 })
 
 test('should redact an inherited getter', async (t) => {
@@ -694,8 +718,8 @@ test('should redact an inherited getter', async (t) => {
 
   t.is(error, thrown)
   t.false(collectStrings(error).includes(SECRET))
-  t.regex(error.message, /bot\[REDACTED\]/)
-  t.regex(error.stack, /bot\[REDACTED\]/)
+  t.regex(error.message, /bot123456:\[REDACTED\]/)
+  t.regex(error.stack, /bot123456:\[REDACTED\]/)
 })
 
 test('should replace a frozen error', async (t) => {
@@ -706,8 +730,8 @@ test('should replace a frozen error', async (t) => {
 
   t.false(collectStrings(error).includes(SECRET))
   t.is(error.name, 'TypeError')
-  t.regex(error.message, /bot\[REDACTED\]/)
-  t.regex(error.path, /bot\[REDACTED\]/)
+  t.regex(error.message, /bot123456:\[REDACTED\]/)
+  t.regex(error.path, /bot123456:\[REDACTED\]/)
 })
 
 test('should replace an error with a frozen cause', async (t) => {

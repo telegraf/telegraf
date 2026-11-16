@@ -182,11 +182,15 @@ async function toApiResponse(
 }
 
 /**
- * Redacts the token from the error's message, stack, or other properties.
+ * Redacts the secret part of the token from the error's message, stack, or other
+ * properties.
  */
 export function redact(error: unknown, token: string): unknown {
-  if (token === '') return error
-  const clean = (text: string) => text.split(token).join('[REDACTED]')
+  // A token is `<bot id>:<secret>`. The bot id is kept: it isn't a secret, and it says
+  // which bot an error came from.
+  const secret = token.slice(token.indexOf(':') + 1)
+  if (secret === '') return error
+  const clean = (text: string) => text.split(secret).join('[REDACTED]')
   if (typeof error === 'string') return clean(error)
   if (!isObject(error)) return error
 

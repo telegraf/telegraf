@@ -447,7 +447,7 @@ test('should redact the token from a download error', async (t) => {
     })
 
     await t.throwsAsync(call, {
-      message: `Unable to download '${origin}/file/bot[REDACTED]/a.jpg': 404 Not Found`,
+      message: `Unable to download '${origin}/file/bot123456:[REDACTED]/a.jpg': 404 Not Found`,
     })
   })
 })
@@ -825,7 +825,7 @@ test('should redact the token from a non-JSON response error', async (t) => {
       })
 
       t.is(error.type, 'invalid-json')
-      t.regex(error.message, /\/bot\[REDACTED\]\/getMe/)
+      t.regex(error.message, /\/bot123456:\[REDACTED\]\/getMe/)
       t.false(error.message.includes('SECRET'))
       t.false(String(error.stack).includes('SECRET'))
     },

@@ -15,7 +15,7 @@ const { default: ApiClient } = require('../lib/core/network/client')
 
 const TOKEN = '123456:SECRET-abc_DEF'
 const SECRET = 'SECRET-abc_DEF'
-const ADDRESS = 'https://api.telegram.org/bot[REDACTED]/getMe'
+const ADDRESS = 'https://api.telegram.org/bot123456:[REDACTED]/getMe'
 
 // Returns what a call rejects with when the request rejects with the given value.
 const getRejection = (create, token = TOKEN) => {
@@ -99,7 +99,7 @@ test.serial(
 
     const client = new ApiClient(TOKEN, { apiRoot })
     const error = await t.throwsAsync(client.callApi('getMe', {}))
-    t.is(error.input, './bot[REDACTED]/getMe')
+    t.is(error.input, './bot123456:[REDACTED]/getMe')
     t.false(String(error.stack).includes(SECRET))
   }
 )

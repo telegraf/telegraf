@@ -9,7 +9,7 @@ import type { InputFile } from './core/types/typegram'
  * @deprecated Use `InputFile.fromLocalFile(path)`.
  */
 // prettier-ignore
-export const fromLocalFile = (path: string, filename?: string): InputFile.ByPath => stampInput({ source: path, filename })
+export const fromLocalFile = (path: string, filename?: string): InputFile => stampInput({ source: path, filename })
 
 /**
  * The buffer will be uploaded as file to Telegram using multipart/form-data.
@@ -19,7 +19,7 @@ export const fromLocalFile = (path: string, filename?: string): InputFile.ByPath
  * @deprecated Use `new InputFile(buffer)`.
  */
 // prettier-ignore
-export const fromBuffer = (buffer: Buffer, filename?: string): InputFile.ByBuffer => stampInput({ source: buffer, filename })
+export const fromBuffer = (buffer: Buffer, filename?: string): InputFile => stampInput({ source: buffer, filename })
 
 /**
  * Contents of the stream will be uploaded as file to Telegram using multipart/form-data.
@@ -33,7 +33,7 @@ export const fromBuffer = (buffer: Buffer, filename?: string): InputFile.ByBuffe
  * that is opened when the upload reaches it.
  */
 // prettier-ignore
-export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: string): InputFile.ByReadableStream => stampInput({ source: stream, filename })
+export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: string): InputFile => stampInput({ source: stream, filename })
 
 /**
  * Contents of the URL will be streamed to Telegram.
@@ -45,7 +45,7 @@ export const fromReadableStream = (stream: NodeJS.ReadableStream, filename?: str
  * @deprecated Use `InputFile.fromURLStream(url)`.
  */
 // prettier-ignore
-export const fromURLStream = (url: string | URL, filename?: string): InputFile.ByURL => stampInput({ url: url.toString(), filename })
+export const fromURLStream = (url: string | URL, filename?: string): InputFile => stampInput({ url: url.toString(), filename })
 
 /**
  * Provide Telegram with an HTTP URL for the file to be sent.

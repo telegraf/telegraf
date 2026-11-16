@@ -230,7 +230,7 @@ function fromInputFile(
     const contents = fromUrl(url, key, download)
     return new MultipartFile(contents.source, filename ?? contents.name)
   }
-  if (typeof source === 'function' || isBrandedInputFile(source)) {
+  if (typeof source === 'function') {
     const deferred: DeferredFile = {
       open: () => openNested(file, key, download, signal),
     }
@@ -245,8 +245,8 @@ function fromInputFile(
 }
 
 /**
- * Opens an `InputFile` whose source is a function or another `InputFile`. Called when the
- * upload reaches the file.
+ * Opens an `InputFile` whose source is a function. Called when the upload reaches the
+ * file.
  *
  * Returns the stream, and the `filename` of the outermost nested `InputFile` that has one,
  * or else the name that `toContents` finds. The `filename` of `file` itself takes

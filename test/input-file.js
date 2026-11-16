@@ -191,6 +191,19 @@ test('InputFile should take a string only from fromLocalFile or fromURLStream', 
   )
 })
 
+test('InputFile should take another InputFile only from a function', async (t) => {
+  // e.g. from JavaScript, or a value typed `any`
+  const inner = new InputFile(Buffer.from('inner'), 'inner.txt')
+  t.throws(() => new InputFile(inner, 'outer.txt'), {
+    instanceOf: TypeError,
+    message:
+      'An InputFile is not the source of an InputFile: use `new InputFile(() => file)`.',
+  })
+
+  const parts = await upload({ document: new InputFile(() => inner) })
+  t.is(parts.document.content, 'inner')
+})
+
 test('InputFile should have the keys of the plain object it matches', (t) => {
   // Code that reads a file checks `'url' in file` and `file.source`.
   const keys = (file) => Object.keys(file).sort()

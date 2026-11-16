@@ -110,6 +110,12 @@ export const InputFile = class InputFile {
           'for a local file, or `InputFile.fromURLStream(url)` to download a URL.'
       )
     }
+    // The types refuse it too; a function that returns the `InputFile` is accepted.
+    if (isBrandedInputFile(source)) {
+      throw new TypeError(
+        'An InputFile is not the source of an InputFile: use `new InputFile(() => file)`.'
+      )
+    }
     init(this, isUrl(source) ? { url: source.href } : { source }, filename)
   }
 

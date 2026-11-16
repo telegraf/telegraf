@@ -38,6 +38,9 @@ export function toStream(segments: readonly Segment[]): StreamBody {
         if (reader.closed) return
         failure = { error }
         controller.error(error)
+        // Erroring `stream` doesn't call its `cancel`, and the default transport only holds
+        // `stream`, so the source is released here.
+        reader.close().catch(noop)
         return
       }
       if (reader.closed) return

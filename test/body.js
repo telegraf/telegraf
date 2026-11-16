@@ -69,6 +69,25 @@ test('toStream should reject a non-byte chunk', async (t) => {
   t.true(body.failure.error instanceof TypeError)
 })
 
+test('toStream should release a source that produced a non-byte chunk', async (t) => {
+  // The default transport holds only `stream`, and doesn't call `close()`.
+  let released = false
+  const body = toStream([
+    async function* () {
+      try {
+        yield { not: 'bytes' }
+        yield bytes('never read')
+      } finally {
+        released = true
+      }
+    },
+  ])
+
+  await t.throwsAsync(text(body.stream), { instanceOf: TypeError })
+  await delay(0)
+  t.true(released)
+})
+
 test("toStream should not detach the caller's buffer", async (t) => {
   const owned = new Uint8Array(100_000).fill(120)
   await text(toStream([owned]).stream)

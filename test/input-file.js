@@ -851,6 +851,17 @@ test('InputFile should throw for a filename that is not a string', (t) => {
   }
 })
 
+test('InputFile should make a file from fromLocalFile or fromURLStream called unbound', (t) => {
+  // As the `Input` helpers allowed.
+  const { fromLocalFile, fromURLStream } = InputFile
+  const files = [fromLocalFile('a.jpg'), fromURLStream('https://example.com/a')]
+
+  for (const file of files) {
+    t.true(file instanceof InputFile)
+    t.true(isBrandedInputFile(file))
+  }
+})
+
 test('InputFile should take a null filename as no name', async (t) => {
   // v4's plain file objects took `filename: null` as no name.
   const file = new InputFile(Buffer.from('a'), null)

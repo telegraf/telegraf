@@ -119,12 +119,14 @@ export const InputFile = class InputFile {
     init(this, isUrl(source) ? { url: source.href } : { source }, filename)
   }
 
+  // Not `this.prototype`: like the `Input` helpers, these work when called unbound, as in
+  // `const { fromLocalFile } = InputFile`.
   static fromLocalFile(path: unknown, filename?: unknown) {
     if (typeof path !== 'string') {
       throw new TypeError('The path of an InputFile must be a string.')
     }
     return init(
-      Object.create(this.prototype) as Fields,
+      Object.create(InputFile.prototype) as Fields,
       { source: path },
       filename
     )
@@ -137,7 +139,7 @@ export const InputFile = class InputFile {
       throw new TypeError('The URL of an InputFile must be a string or a URL.')
     }
     return init(
-      Object.create(this.prototype) as Fields,
+      Object.create(InputFile.prototype) as Fields,
       { url: href },
       filename
     )

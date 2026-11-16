@@ -222,12 +222,16 @@ export function redact(error: unknown, token: string): unknown {
   if (cleaned) return error
 
   // Some property could not be redacted in place.
-  const properties: Record<string, unknown> = { name: String(error.name) }
-  for (const [key, value] of Object.entries(error)) {
+  // A getter may throw, which would hide the error being reported.
+  const name = String(getProperty(error, 'name'))
+  const properties: Record<string, unknown> = { name }
+  for (const key of Object.keys(error)) {
+    const value = getProperty(error, key)
     if (typeof value === 'string') properties[key] = clean(value)
     else if (typeof value === 'number') properties[key] = value
   }
-  return Object.assign(new Error(clean(String(error.message))), properties)
+  const message = clean(String(getProperty(error, 'message')))
+  return Object.assign(new Error(message), properties)
 }
 
 function getProperty(target: Record<string, unknown>, key: string): unknown {

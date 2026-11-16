@@ -757,3 +757,23 @@ test('should replace an error with a frozen cause', async (t) => {
     errno: 7,
   })
 })
+
+test('should replace a frozen error whose getter throws', async (t) => {
+  const error = await getRejection((url) => {
+    const error = new TypeError(`request to ${url} failed`)
+    Object.defineProperty(error, 'details', {
+      enumerable: true,
+      get() {
+        throw new Error('the getter threw')
+      },
+    })
+    return Object.freeze(Object.assign(error, { code: 'ECONNRESET' }))
+  })
+
+  t.like(error, {
+    name: 'TypeError',
+    message:
+      'request to https://api.telegram.org/bot123456:[REDACTED]/getMe failed',
+    code: 'ECONNRESET',
+  })
+})

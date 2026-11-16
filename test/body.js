@@ -88,6 +88,22 @@ test('toStream should release a source that produced a non-byte chunk', async (t
   t.true(released)
 })
 
+test('toStream and toBlob should copy a chunk before the next one is read', async (t) => {
+  // e.g. a generator around `fs.read` into one buffer
+  const source = async function* () {
+    const buffer = Buffer.alloc(1)
+    for (const letter of 'ABC') {
+      buffer.write(letter)
+      yield buffer
+    }
+  }
+  const chunks = []
+  for await (const chunk of toStream([source]).stream) chunks.push(chunk)
+
+  t.is(Buffer.concat(chunks).toString(), 'ABC')
+  t.is(await (await toBlob([source])).text(), 'ABC')
+})
+
 test("toStream should not detach the caller's buffer", async (t) => {
   const owned = new Uint8Array(100_000).fill(120)
   await text(toStream([owned]).stream)

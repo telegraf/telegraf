@@ -228,14 +228,22 @@ class SegmentReader {
 
 const encoder = new TextEncoder()
 
+/**
+ * A copy of the chunk as bytes. A source may refill the same buffer for its next chunk,
+ * while the request still holds this one until it is sent or the whole body is buffered.
+ */
 function toBytes(chunk: unknown): Uint8Array {
-  if (chunk instanceof Uint8Array) return chunk
   if (typeof chunk === 'string') return encoder.encode(chunk)
   if (ArrayBuffer.isView(chunk)) {
-    return new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength)
+    // Not `chunk.slice()`: a Buffer's `slice` doesn't copy.
+    return new Uint8Array(
+      chunk.buffer,
+      chunk.byteOffset,
+      chunk.byteLength
+    ).slice()
   }
   if (Object.prototype.toString.call(chunk) === '[object ArrayBuffer]') {
-    return new Uint8Array(chunk as ArrayBuffer)
+    return new Uint8Array((chunk as ArrayBuffer).slice(0))
   }
   const kind = Object.prototype.toString.call(chunk)
   throw new TypeError(`A file stream produced ${kind}, not bytes.`)

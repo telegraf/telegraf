@@ -157,6 +157,22 @@ export const InputFile = class InputFile {
 /** An `InputFile`, or a file passed as a plain object, which is deprecated. */
 export type InputFile = tg.InputFile
 
+/** The plain object that each kind of `InputFile` matches, such as `InputFile.ByPath`. */
+export declare namespace InputFile {
+  type Contents = tg.InputFile.Contents
+  type Source = tg.InputFile.Source
+  type ByPath = tg.InputFile.ByPath
+  type ByReadableStream = tg.InputFile.ByReadableStream
+  type ByBuffer = tg.InputFile.ByBuffer
+  type ByURL = tg.InputFile.ByURL
+  type ByBytes = tg.InputFile.ByBytes
+  type ByBlob = tg.InputFile.ByBlob
+  type ByWebStream = tg.InputFile.ByWebStream
+  type ByAsyncIterable = tg.InputFile.ByAsyncIterable
+  type ByResponse = tg.InputFile.ByResponse
+  type ByFunction = tg.InputFile.ByFunction
+}
+
 /** Sets the keys and the brand of an `InputFile`. */
 function init<T extends Fields>(
   file: T,

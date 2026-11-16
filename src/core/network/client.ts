@@ -8,7 +8,7 @@ import { Opts, Telegram } from '../types/typegram'
 import { AbortController, AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
 import { toStream } from './body'
-import type { FetchFn } from '../types/platform'
+import type { ByteStream, FetchFn } from '../types/platform'
 import { createClient, redact } from './fetch-client'
 import {
   convertFiles,
@@ -16,7 +16,7 @@ import {
   downloadError,
   type Download,
 } from './file-literals'
-import { extractFiles, toJson, toMultipart } from './payload'
+import { extractFiles, readBytes, toJson, toMultipart } from './payload'
 import TelegramError from './error'
 import { URL } from 'url'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -189,7 +189,7 @@ function customFetchDownloader(customFetch: FetchFn): Downloader {
       if (res.body == null) {
         throw new Error(`Unable to download '${url}': the response has no body`)
       }
-      yield* res.body as AsyncIterable<Uint8Array>
+      yield* readBytes(res.body as ByteStream)
     },
   }
 }

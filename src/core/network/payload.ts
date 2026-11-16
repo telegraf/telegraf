@@ -313,6 +313,28 @@ function openReader(stream: ByteStream): {
   }
 }
 
+/**
+ * The chunks of a stream.
+ * A web stream is read through a reader: Safari <27 can't iterate a stream.
+ * The stream is released when the reading stops early.
+ */
+export async function* readBytes(stream: ByteStream) {
+  const reader = openReader(stream)
+  let done = false
+  try {
+    while (true) {
+      const result = await reader.read()
+      if (result.done === true) {
+        done = true
+        return
+      }
+      yield result.value
+    }
+  } finally {
+    if (!done) reader.release()
+  }
+}
+
 /** Releases a stream that was opened and won't be read. */
 function release(stream: ByteStream) {
   const { destroy, cancel } = stream as { destroy?: unknown; cancel?: unknown }

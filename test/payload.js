@@ -2,6 +2,7 @@ const test = require('ava')
 const {
   MultipartFile,
   extractFiles,
+  readBytes,
   toJson,
   toMultipart,
 } = require('../lib/core/network/payload')
@@ -333,6 +334,25 @@ test('toMultipart should percent-encode a file name', async (t) => {
 
   t.is(sent, 'отчёт 50%252Foff%5Csale %22final%22 100%25.txt')
   t.is(decodeURIComponent(sent), name, 'percent-decoding gives the name back')
+})
+
+test('readBytes should cancel a web stream when the reading stops early', async (t) => {
+  // As `yield*` on a web stream does, where the stream can be iterated.
+  let cancelled = false
+  const stream = new ReadableStream({
+    pull(controller) {
+      controller.enqueue(new TextEncoder().encode('a'))
+    },
+    cancel() {
+      cancelled = true
+    },
+  })
+  Object.defineProperty(stream, Symbol.asyncIterator, { value: undefined })
+  const chunks = readBytes(stream)
+
+  t.is(Buffer.from((await chunks.next()).value).toString(), 'a')
+  await chunks.return()
+  t.true(cancelled)
 })
 
 test('MultipartFile.is should accept a MultipartFile from another package copy', (t) => {

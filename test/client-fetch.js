@@ -260,6 +260,31 @@ test('should reject on a { url } response that has no body', async (t) => {
   })
 })
 
+test('should download a { url } file whose body can only be read through a reader', async (t) => {
+  // e.g. a fetch in Safari before 27, whose web streams can't be iterated
+  await withApi(async ({ requests, origin }) => {
+    const url = `${origin}/files/a.txt`
+    const fetch = async (address, init) => {
+      const response = await globalThis.fetch(address, init)
+      if (address === url) {
+        Object.defineProperty(response.body, Symbol.asyncIterator, {
+          value: undefined,
+        })
+      }
+      return response
+    }
+    const client = new ApiClient(TOKEN, { apiRoot: origin, fetch })
+    await client.callApi('sendDocument', {
+      document: InputFile.fromURLStream(url, 'a.txt'),
+    })
+
+    t.deepEqual(requests[0].parts.document, {
+      file: 'a.txt',
+      content: 'downloaded',
+    })
+  })
+})
+
 test('should reject a payload that contains itself', async (t) => {
   await withApi(async ({ client, calls }) => {
     const message = { chat_id: 1, text: 'a' }

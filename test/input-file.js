@@ -110,6 +110,18 @@ test.serial('InputFile should not print a warning', async (t) => {
   t.deepEqual(warnings, [])
 })
 
+test.serial(
+  'InputFile should warn for a plain object that its function returns',
+  async (t) => {
+    await upload({ photo: new InputFile(() => ({ source: new Blob(['a']) })) })
+
+    t.deepEqual(
+      warnings.map((warning) => warning.code),
+      ['TELEGRAF_FILE_BLOB']
+    )
+  }
+)
+
 test('InputFile should upload each kind of contents', async (t) => {
   const file = localFile(t, 'on disk.txt', 'from disk')
   const generator = (async function* () {
@@ -527,6 +539,37 @@ test('InputFile should accept a plain object from its function', async (t) => {
   )
 })
 
+test('InputFile should send a plain object of its kinds as it sends an InputFile', async (t) => {
+  // A plain object of these kinds is typed as an `InputFile`. 4.16.3 didn't accept them.
+  const iterable = {
+    source: (async function* () {
+      yield 'iterable'
+    })(),
+  }
+  const parts = await upload({
+    document: { source: new Blob(['blob']) },
+    photo: { source: bytes('bytes'), filename: 'a.jpg' },
+    video: { source: webStream('web stream') },
+    audio: { source: response('https://example.com/a.mp3', 'response') },
+    voice: iterable,
+    animation: { source: () => ({ source: () => Readable.from(['nested']) }) },
+  })
+
+  t.is(parts.document.content, 'blob')
+  t.deepEqual(parts.photo, { file: 'a.jpg', content: 'bytes' })
+  t.is(parts.video.content, 'web stream')
+  t.deepEqual(parts.audio, { file: 'a.mp3', content: 'response' })
+  t.is(parts.voice.content, 'iterable')
+  t.is(parts.animation.content, 'nested')
+  t.throws(() => convertFiles({ voice: iterable }, download), {
+    message: /can be sent once/,
+  })
+  const self = { source: () => self }
+  await t.throwsAsync(upload({ document: self }), {
+    message: /nested more than 10 deep/,
+  })
+})
+
 test('InputFile should stop at 10 nested InputFiles', async (t) => {
   const expected = {
     instanceOf: TypeError,
@@ -553,7 +596,7 @@ test('InputFile should be sent once if it is made from a stream', async (t) => {
   t.throws(() => convertFiles({ document: stream }, download), {
     instanceOf: TypeError,
     message:
-      'Invalid file under `document`: an InputFile made from a stream can be sent once; ' +
+      'Invalid file under `document`: a file made from a stream can be sent once; ' +
       'make it from a function that returns the stream to send it again.',
   })
   const twice = new InputFile(Readable.from(['twice']))

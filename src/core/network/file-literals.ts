@@ -6,7 +6,7 @@
 import { createReadStream } from 'fs'
 import { realpath, stat } from 'fs/promises'
 import { finished, PassThrough } from 'stream'
-import { isBrandedInputFile, isUrl, type InputFile } from '../../input-file'
+import { isBrandedInputFile, isUrl } from '../../input-file'
 import type { ByteStream, Node, Web } from '../types/platform'
 import {
   MultipartFile,
@@ -82,6 +82,10 @@ const REPLACEMENTS = {
   buffer: 'new InputFile(buffer)',
   stream: 'new InputFile(stream)',
   url: 'InputFile.fromURLStream(url)',
+  blob: 'new InputFile(blob)',
+  response: 'new InputFile(response)',
+  iterable: 'new InputFile(iterable)',
+  function: 'new InputFile(() => file)',
 }
 
 /**
@@ -90,12 +94,12 @@ const REPLACEMENTS = {
  */
 const MAX_DEPTH = 10
 
-/** The `InputFile`s made from a stream that were already sent. A stream can be read once. */
-const sent = new WeakSet<InputFile>()
+/** The files made from a stream that were already sent. A stream can be read once. */
+const sent = new WeakSet<object>()
 
-/** The problem with sending an `InputFile` made from a stream a second time. */
+/** The problem with sending a file made from a stream a second time. */
 const SENT_STREAM =
-  'an InputFile made from a stream can be sent once; ' +
+  'a file made from a stream can be sent once; ' +
   'make it from a function that returns the stream to send it again'
 
 /** The problem with sending a stream that was already read. */
@@ -139,7 +143,8 @@ export function convertFiles(
 
   const convert = (value: unknown, key: string): unknown => {
     if (isBrandedInputFile(value)) {
-      return fromInputFile(value, key, download, signal, streams)
+      const keys = value as InputFileKeys
+      return fromInputFile(value, keys, key, download, signal, streams)
     }
     const isArray = Array.isArray(value)
     if (!isArray && !isPlainObject(value)) {
@@ -153,7 +158,7 @@ export function convertFiles(
     // the payload is serialised, so it is left as it is.
     if (ancestors.has(value)) return value
     if (!isArray) {
-      const file = toMultipartFile(value, key, download, streams)
+      const file = toMultipartFile(value, key, download, signal, streams)
       if (file !== undefined) return file
     }
     ancestors.add(value)
@@ -218,21 +223,33 @@ interface InputFileKeys {
   filename?: string
 }
 
+/**
+ * Converts an `InputFile`, or a plain object with a source that 4.16.3 didn't accept, such
+ * as a `Blob`. `keys` are the keys of `file`, without `null`. `file` is marked as sent
+ * when its contents can be read once.
+ */
 function fromInputFile(
-  file: InputFile,
+  file: object,
+  keys: InputFileKeys,
   key: string,
   download: Download,
   signal: AbortSignal,
   streams: (Node.Readable | Web.ReadableStream)[]
 ): MultipartFile {
-  const { source, url, filename } = file as InputFileKeys
+  const { source, url, filename } = keys
   if (url !== undefined) {
     const contents = fromUrl(url, key, download)
     return new MultipartFile(contents.source, filename ?? contents.name)
   }
   if (typeof source === 'function') {
     const deferred: DeferredFile = {
-      open: () => openNested(file, key, download, signal),
+      open: () =>
+        openNested(
+          source as (signal: AbortSignal) => unknown,
+          key,
+          download,
+          signal
+        ),
     }
     return new MultipartFile(deferred, filename)
   }
@@ -245,25 +262,25 @@ function fromInputFile(
 }
 
 /**
- * Opens an `InputFile` whose source is a function. Called when the upload reaches the
- * file.
+ * Opens a file whose source is a function. Called when the upload reaches the file.
  *
- * Returns the stream, and the `filename` of the outermost nested `InputFile` that has one,
- * or else the name that `toContents` finds. The `filename` of `file` itself takes
+ * Returns the stream, and the `filename` of the outermost nested file that has one, or
+ * else the name that `toContents` finds. The `filename` of the file itself takes
  * precedence; the serialiser applies it.
  */
 async function openNested(
-  file: InputFile,
+  source: (signal: AbortSignal) => unknown,
   key: string,
   download: Download,
   signal: AbortSignal
 ) {
-  let value: unknown = (file as InputFileKeys).source
+  let value: unknown = source
   let name: string | undefined
   let depth = 1
-  // The nested `InputFile` that `value` is the source of.
-  let innermost: InputFile | undefined
+  // The nested file that `value` is the source of.
+  let innermost: object | undefined
   for (;;) {
+    let keys: InputFileKeys | undefined
     if (typeof value === 'function') {
       value = await (value as (signal: AbortSignal) => unknown)(signal)
       if (typeof value === 'function') {
@@ -288,7 +305,7 @@ async function openNested(
         !isResponse(value) &&
         ('source' in value || 'url' in value)
       ) {
-        const literal = toMultipartFile(value, key, download, [])
+        const literal = literalKeys(value, key)
         if (literal === undefined) {
           throw invalidFile(
             value,
@@ -297,13 +314,14 @@ async function openNested(
               '`{ source, filename? }` or `{ url, filename? }`'
           )
         }
-        const stream = toByteStream(
-          literal.source as Exclude<FileSource, DeferredFile>
-        )
-        return { stream, name: name ?? literal.name }
+        if (!literal.stamped) warn(literal)
+        keys = literal
       }
     }
-    if (!isBrandedInputFile(value)) break
+    if (keys === undefined) {
+      if (!isBrandedInputFile(value)) break
+      keys = value as InputFileKeys
+    }
     if (++depth > MAX_DEPTH) {
       throw invalidFile(
         value,
@@ -311,8 +329,7 @@ async function openNested(
         `InputFiles are nested more than ${MAX_DEPTH} deep`
       )
     }
-    if (sent.has(value)) throw fileError(key, SENT_STREAM)
-    const keys = value as InputFileKeys
+    if (sent.has(value as object)) throw fileError(key, SENT_STREAM)
     name ??= keys.filename
     if (keys.url !== undefined) {
       const contents = fromUrl(keys.url, key, download)
@@ -321,7 +338,7 @@ async function openNested(
         name: name ?? contents.name,
       }
     }
-    innermost = value
+    innermost = value as object
     value = keys.source
   }
   const contents = toContents(value, key, download)
@@ -475,13 +492,21 @@ function isArrayBuffer(value: unknown): value is ArrayBuffer {
   return Object.prototype.toString.call(value) === '[object ArrayBuffer]'
 }
 
-function toMultipartFile(
+/** The keys of a file literal, and whether an `Input` helper created it. */
+interface LiteralKeys extends InputFileKeys {
+  stamped: boolean
+}
+
+/**
+ * Reads a file literal: exactly a source or a URL, with an optional filename.
+ *
+ * Returns `undefined` for an object that is not a file literal. Throws for one that holds
+ * the contents of a file and can't be sent.
+ */
+function literalKeys(
   literal: Record<string, unknown>,
-  key: string,
-  download: Download,
-  streams: (Node.Readable | Web.ReadableStream)[]
-): MultipartFile | undefined {
-  // Must be exactly a source or a URL, with an optional filename.
+  key: string
+): LiteralKeys | undefined {
   // `source`, `url` and `filename` are not set when they are `null` or `undefined`: a
   // literal may be built as `{ source: maybeSource, url: maybeUrl, filename }`, and v4
   // accepted a `null` filename. Any other key is not set only when it is `undefined`.
@@ -489,7 +514,6 @@ function toMultipartFile(
   const source = maybeSource ?? undefined
   // v4 accepted a `URL` object.
   const address = (url instanceof URL ? url.href : url) ?? undefined
-  const name = typeof filename === 'string' ? filename : undefined
   const extraKey = Object.keys(rest).find((key) => rest[key] !== undefined)
 
   let problem: string | undefined
@@ -498,53 +522,61 @@ function toMultipartFile(
     problem = 'both `source` and `url` are set'
   } else if (filename != null && typeof filename !== 'string') {
     problem = '`filename` must be a string'
-  } else if (isWebStream(source)) {
-    problem = "a web stream can't be a `source`; use `new InputFile(stream)`"
-  } else if (typeof source === 'function') {
-    problem = "a function can't be a `source`; use `new InputFile(() => file)`"
-  } else if (isBlob(source)) {
-    problem = "a Blob can't be a `source`; use `new InputFile(blob)`"
-  } else if (isArrayBuffer(source)) {
-    problem = "an ArrayBuffer can't be a `source`; use `new InputFile(buffer)`"
-  } else if (isResponse(source)) {
-    problem = "a Response can't be a `source`; use `new InputFile(response)`"
   } else if (isUrl(source)) {
+    // `new InputFile(url)` is a `{ url }`: no kind of file has a `URL` as its source.
     problem = "a URL can't be a `source`; use `new InputFile(url)`"
-  } else if (isAsyncIterable(source) && !isNodeStream(source)) {
-    // A Node stream is an async iterable too, and a `source` that v4 accepted.
-    problem =
-      "an async iterable can't be a `source`; use `new InputFile(iterable)`"
   }
   if (problem !== undefined) {
     if (isFileContent(source)) throw invalidFile(source, key, problem)
     return undefined
   }
-  if (source === undefined && address === undefined) return undefined
   const stamped = Object.prototype.hasOwnProperty.call(literal, stamp)
-
+  const name = typeof filename === 'string' ? filename : undefined
   if (address !== undefined) {
     if (typeof address !== 'string') return undefined
     if (!stamped && !FILE_KEYS.has(key)) return undefined
-    assertHttpUrl(address)
-    if (!stamped) warn('url', 'url')
-    return new MultipartFile(() => download(address), name)
+    return { url: address, filename: name, stamped }
+  }
+  if (typeof source !== 'string' && !isFileContent(source)) return undefined
+  return { source, filename: name, stamped }
+}
+
+function toMultipartFile(
+  literal: Record<string, unknown>,
+  key: string,
+  download: Download,
+  signal: AbortSignal,
+  streams: (Node.Readable | Web.ReadableStream)[]
+): MultipartFile | undefined {
+  const keys = literalKeys(literal, key)
+  if (keys === undefined) return undefined
+  const { source, url, filename, stamped } = keys
+  if (url !== undefined) {
+    assertHttpUrl(url)
+    if (!stamped) warn(keys)
+    return new MultipartFile(() => download(url), filename)
   }
   if (typeof source === 'string') {
-    if (!stamped) warn('path', 'source')
-    return new MultipartFile(() => readFile(source), name ?? basename(source))
+    if (!stamped) warn(keys)
+    return new MultipartFile(
+      () => readFile(source),
+      filename ?? basename(source)
+    )
   }
   if (source instanceof Uint8Array) {
-    if (!stamped) warn('buffer', 'source')
-    return new MultipartFile(source, name)
+    if (!stamped) warn(keys)
+    return new MultipartFile(source, filename)
   }
   if (isNodeStream(source)) {
     if (isUsed(source)) throw fileError(key, USED_STREAM)
-    if (!stamped) warn('stream', 'source')
+    if (!stamped) warn(keys)
     streams.push(source)
     const contents = pipeSource(source)
-    return new MultipartFile(() => contents, name)
+    return new MultipartFile(() => contents, filename)
   }
-  return undefined
+  // A kind that 4.16.3 didn't accept, such as a `Blob`: sent as `new InputFile(source)` is.
+  if (!stamped) warn(keys)
+  return fromInputFile(literal, keys, key, download, signal, streams)
 }
 
 function isAsyncIterable(value: unknown): value is AsyncIterable<Uint8Array> {
@@ -591,12 +623,26 @@ function noop() {
   // intentionally empty
 }
 
-function warn(kind: keyof typeof REPLACEMENTS, shape: 'source' | 'url') {
+function warn(keys: InputFileKeys) {
+  const kind = kindOf(keys)
+  const shape = kind === 'url' ? 'url' : 'source'
   warnOnce(
     `TELEGRAF_FILE_${kind.toUpperCase()}`,
     `telegraf: a file was passed as a plain \`{ ${shape} }\` object. ` +
       `Use \`${REPLACEMENTS[kind]}\` instead: plain objects will not be accepted in v6.`
   )
+}
+
+/** The kind of a file literal, which says what to use in its place. */
+function kindOf({ source, url }: InputFileKeys): keyof typeof REPLACEMENTS {
+  if (url !== undefined) return 'url'
+  if (typeof source === 'string') return 'path'
+  if (source instanceof Uint8Array || isArrayBuffer(source)) return 'buffer'
+  if (isNodeStream(source) || isWebStream(source)) return 'stream'
+  if (isBlob(source)) return 'blob'
+  if (isResponse(source)) return 'response'
+  if (typeof source === 'function') return 'function'
+  return 'iterable'
 }
 
 async function* readFile(path: string): AsyncGenerator<Uint8Array> {

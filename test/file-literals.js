@@ -88,13 +88,29 @@ test.serial('should warn once per plain literal type', (t) => {
     document: { source: 'a.txt' },
     video: { source: new Readable({ read() {} }) },
     audio: { url: 'https://example.com/a.mp3' },
+    // The kinds that 4.16.3 didn't accept. An ArrayBuffer is a buffer, and a web
+    // stream is a stream.
+    thumbnail: { source: new ArrayBuffer(1) },
+    cover: { source: new ReadableStream() },
+    sticker: { source: new Blob(['a']) },
+    voice: { source: new Response('a') },
+    animation: {
+      source: (async function* () {
+        yield 'a'
+      })(),
+    },
+    media: { source: () => Readable.from(['a']) },
   })
   convert(payload())
   convert(payload())
 
   const replacements = {
+    TELEGRAF_FILE_BLOB: /`\{ source \}`.*`new InputFile\(blob\)`/,
     TELEGRAF_FILE_BUFFER: /`\{ source \}`.*`new InputFile\(buffer\)`/,
+    TELEGRAF_FILE_FUNCTION: /`\{ source \}`.*`new InputFile\(\(\) => file\)`/,
+    TELEGRAF_FILE_ITERABLE: /`\{ source \}`.*`new InputFile\(iterable\)`/,
     TELEGRAF_FILE_PATH: /`\{ source \}`.*`InputFile\.fromLocalFile\(path\)`/,
+    TELEGRAF_FILE_RESPONSE: /`\{ source \}`.*`new InputFile\(response\)`/,
     TELEGRAF_FILE_STREAM: /`\{ source \}`.*`new InputFile\(stream\)`/,
     TELEGRAF_FILE_URL: /`\{ url \}`.*`InputFile\.fromURLStream\(url\)`/,
   }
@@ -186,36 +202,8 @@ test('should throw for an invalid file literal', (t) => {
       'unexpected key `caption`.',
     ],
     [
-      { source: new ReadableStream() },
-      "a web stream can't be a `source`; use `new InputFile(stream)`.",
-    ],
-    [
-      { source: () => Readable.from(['a']) },
-      "a function can't be a `source`; use `new InputFile(() => file)`.",
-    ],
-    [
-      { source: new Blob(['a']) },
-      "a Blob can't be a `source`; use `new InputFile(blob)`.",
-    ],
-    [
-      { source: new ArrayBuffer(1) },
-      "an ArrayBuffer can't be a `source`; use `new InputFile(buffer)`.",
-    ],
-    [
-      { source: new Response('a') },
-      "a Response can't be a `source`; use `new InputFile(response)`.",
-    ],
-    [
       { source: new URL('https://example.com/a') },
       "a URL can't be a `source`; use `new InputFile(url)`.",
-    ],
-    [
-      {
-        source: (async function* () {
-          yield 'a'
-        })(),
-      },
-      "an async iterable can't be a `source`; use `new InputFile(iterable)`.",
     ],
     [new Upload(), 'a file must be a plain object.'],
   ]

@@ -6,6 +6,7 @@ const { Readable, Stream } = require('stream')
 const { convertFiles } = require('../lib/core/network/file-literals')
 const { MultipartFile, extractFiles } = require('../lib/core/network/payload')
 const Input = require('../lib/input')
+const { InputFile } = require('../lib/input-file')
 
 // Records every warning emitted in this file. A warning is emitted once per process, so
 // the tests that count them run serially, and first.
@@ -180,12 +181,52 @@ test('should convert only an exact literal shape', (t) => {
   }
 })
 
+test('should convert a class instance with the keys of a file literal', async (t) => {
+  // 4.16.3 took any object with a `source` or a `url` as a file.
+  class LocalFile {
+    constructor(path) {
+      this.source = path
+    }
+  }
+  class RemoteFile {
+    constructor(url) {
+      this.url = url
+    }
+  }
+  // A copy that keeps the prototype and loses the brand, as lodash's `cloneDeep` makes.
+  const copy = Object.assign(Object.create(InputFile.prototype), {
+    source: Buffer.from('copied'),
+    filename: 'a.mp4',
+  })
+  const response = new Response('a')
+  const converted = convert({
+    document: new LocalFile('a.txt'),
+    photo: new RemoteFile('https://example.com/a.jpg'),
+    video: copy,
+    audio: response,
+  })
+
+  t.true(MultipartFile.is(converted.document))
+  t.is(converted.document.name, 'a.txt')
+  t.true(MultipartFile.is(converted.photo))
+  t.is(await text(converted.video), 'copied')
+  t.is(converted.video.name, 'a.mp4')
+  t.is(converted.audio, response, 'a `url` on the prototype is not a file')
+})
+
 test('should throw for an invalid file literal', (t) => {
   // Left alone it is sent as JSON, a Buffer as one number per byte.
   const source = Buffer.from('a')
   class Upload {
     constructor() {
       this.source = source
+      this.caption = 'a'
+    }
+  }
+  // Only own keys make a file, as a `Response` has a `url` on its prototype.
+  class Inherited {
+    get source() {
+      return source
     }
   }
   const invalid = [
@@ -205,7 +246,8 @@ test('should throw for an invalid file literal', (t) => {
       { source: new URL('https://example.com/a') },
       "a URL can't be a `source`; use `new InputFile(url)`.",
     ],
-    [new Upload(), 'a file must be a plain object.'],
+    [new Upload(), 'unexpected key `caption`.'],
+    [new Inherited(), 'a file must be a plain object.'],
   ]
   for (const [value, problem] of invalid) {
     t.throws(

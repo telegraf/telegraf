@@ -148,8 +148,17 @@ export function convertFiles(
     }
     const isArray = Array.isArray(value)
     if (!isArray && !isPlainObject(value)) {
+      if (MultipartFile.is(value)) return value
+      // e.g. an instance of the user's own class, or a copy of an `InputFile` that lost its
+      // brand, which 4.16.3 also took as a file. Only own keys are read, as a `Response`
+      // has a `url` on its prototype, and are checked first so that a `Buffer` isn't copied.
+      if (hasOwn(value, 'source') || hasOwn(value, 'url')) {
+        const own = { ...(value as Record<string, unknown>) }
+        const file = toMultipartFile(own, key, download, signal, streams)
+        if (file !== undefined) return file
+      }
       const source = (value as { source?: unknown } | null)?.source
-      if (!MultipartFile.is(value) && isFileContent(source)) {
+      if (isFileContent(source)) {
         throw invalidFile(source, key, 'a file must be a plain object')
       }
       return value
@@ -530,7 +539,7 @@ function literalKeys(
     if (isFileContent(source)) throw invalidFile(source, key, problem)
     return undefined
   }
-  const stamped = Object.prototype.hasOwnProperty.call(literal, stamp)
+  const stamped = hasOwn(literal, stamp)
   const name = typeof filename === 'string' ? filename : undefined
   if (address !== undefined) {
     if (typeof address !== 'string') return undefined
@@ -621,6 +630,14 @@ function pipeSource(stream: Node.Readable): PassThrough {
 
 function noop() {
   // intentionally empty
+}
+
+function hasOwn(value: unknown, key: PropertyKey): boolean {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Object.prototype.hasOwnProperty.call(value, key)
+  )
 }
 
 function warn(keys: InputFileKeys) {

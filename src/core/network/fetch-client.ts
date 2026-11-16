@@ -208,7 +208,15 @@ export function redact(error: unknown, token: string): unknown {
       if (!setProperty(target, key, clean(value))) cleaned = false
     }
     const errors = getProperty(target, 'errors')
-    if (Array.isArray(errors)) queue.push(...errors)
+    if (Array.isArray(errors)) {
+      // The queue only visits objects, and an entry may be a string.
+      const entries = errors as unknown as Record<string, unknown>
+      errors.forEach((entry: unknown, index) => {
+        if (typeof entry !== 'string' || clean(entry) === entry) return
+        if (!setProperty(entries, String(index), clean(entry))) cleaned = false
+      })
+      queue.push(...errors)
+    }
     queue.push(getProperty(target, 'cause'))
   }
   if (cleaned) return error

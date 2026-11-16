@@ -581,10 +581,18 @@ const getRejection = (create, token = TOKEN) => {
 
 test('should redact the token from an AggregateError and a string', async (t) => {
   const aggregate = await getRejection(
-    (url) => new AggregateError([new Error(`connect to ${url}`)], 'no route')
+    (url) =>
+      new AggregateError(
+        [new Error(`connect to ${url}`), `connect to ${url}`],
+        'no route'
+      )
   )
   t.false(collectStrings(aggregate).includes(SECRET))
   t.regex(aggregate.errors[0].message, /bot123456:\[REDACTED\]/)
+  t.is(
+    aggregate.errors[1],
+    'connect to https://api.telegram.org/bot123456:[REDACTED]/getMe'
+  )
 
   t.is(
     await getRejection((url) => `request to ${url} failed`),

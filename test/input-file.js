@@ -647,7 +647,7 @@ test('InputFile should reject a stream that was already read', async (t) => {
   const expected = {
     instanceOf: TypeError,
     message:
-      'Invalid file under `document`: the stream was already read or destroyed; ' +
+      'Invalid file under `document`: the stream was already sent, read or destroyed; ' +
       'pass a new stream to send the file again.',
   }
   // Each function returns the same stream in every call.
@@ -668,12 +668,48 @@ test('InputFile should reject a stream that was already read', async (t) => {
   )
 })
 
+test('InputFile should reject a stream or an iterable that another file took', async (t) => {
+  // e.g. a retry that makes a new InputFile of the same generator
+  const expected = {
+    instanceOf: TypeError,
+    message: /the stream was already sent, read or destroyed/,
+  }
+  const generator = (async function* () {
+    yield 'once'
+  })()
+  t.is(
+    (await upload({ document: new InputFile(generator) })).document.content,
+    'once'
+  )
+  t.throws(
+    () => convertFiles({ document: new InputFile(generator) }, download),
+    expected
+  )
+  t.throws(
+    () => convertFiles({ document: { source: generator } }, download),
+    expected
+  )
+
+  // Two files of one call, over the same stream.
+  const node = new Readable({ read() {} })
+  const web = webStream('once')
+  for (const stream of [node, web]) {
+    const twice = {
+      document: new InputFile(stream),
+      photo: new InputFile(stream),
+    }
+    t.throws(() => convertFiles(twice, download), expected)
+  }
+})
+
 test('InputFile should leave a stream open when it refuses to send it again', async (t) => {
   // e.g. a socket, read to its end and still written to
   const { stream, written } = fixtures.stream.duplex()
   const same = new InputFile(() => stream)
   await upload({ document: same })
-  await t.throwsAsync(upload({ document: same }), { message: /already read/ })
+  await t.throwsAsync(upload({ document: same }), {
+    message: /already sent, read or destroyed/,
+  })
   t.false(stream.destroyed)
   stream.write('reply')
   t.deepEqual(written, ['reply'])

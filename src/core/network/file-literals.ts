@@ -104,8 +104,21 @@ const SENT_STREAM =
 
 /** The problem with sending a stream that was already read. */
 const USED_STREAM =
-  'the stream was already read or destroyed; ' +
+  'the stream was already sent, read or destroyed; ' +
   'pass a new stream to send the file again'
+
+/**
+ * The streams and async iterables that a file took. Another file over the same one would
+ * read what is left of it, or nothing, as an async iterable can't say that it was read.
+ */
+const taken = new WeakSet<object>()
+
+/** Takes a stream or an async iterable for a file, or throws if it can't be read. */
+function take(stream: object, key: string) {
+  const used = (isNodeStream(stream) || isWebStream(stream)) && isUsed(stream)
+  if (used || taken.has(stream)) throw fileError(key, USED_STREAM)
+  taken.add(stream)
+}
 
 /**
  * Replaces every file in a payload with a `MultipartFile`. The payload is not mutated:
@@ -385,18 +398,21 @@ function toContents(value: unknown, key: string, download: Download): Contents {
     return { source: () => value.stream(), name }
   }
   if (isNodeStream(value)) {
-    if (isUsed(value)) throw fileError(key, USED_STREAM)
+    take(value, key)
     const contents = pipeSource(value)
     return { source: () => contents, stream: value, once: true }
   }
   // Checked before `isAsyncIterable`, which a web stream also passes on Node, Bun and
   // Deno: an unread web stream must be cancelled.
   if (isWebStream(value)) {
-    if (isUsed(value)) throw fileError(key, USED_STREAM)
+    take(value, key)
     return { source: () => value, stream: value, once: true }
   }
   if (isResponse(value)) return fromResponse(value, key)
-  if (isAsyncIterable(value)) return { source: () => value, once: true }
+  if (isAsyncIterable(value)) {
+    take(value, key)
+    return { source: () => value, once: true }
+  }
   const kind = Object.prototype.toString.call(value)
   throw invalidFile(value, key, `${kind} is not the contents of a file`)
 }
@@ -426,15 +442,18 @@ function fromResponse(response: Web.Response, key: string): Contents {
   // e.g. the response of node-fetch 2. Its body is open, so it is piped as any other
   // Node stream is.
   if (isNodeStream(body)) {
-    if (isUsed(body)) throw fileError(key, USED_STREAM)
+    take(body, key)
     const contents = pipeSource(body)
     return { source: () => contents, name, stream: body, once: true }
   }
   if (isWebStream(body)) {
-    if (isUsed(body)) throw fileError(key, USED_STREAM)
+    take(body, key)
     return { source: () => body, name, stream: body, once: true }
   }
-  if (isAsyncIterable(body)) return { source: () => body, name, once: true }
+  if (isAsyncIterable(body)) {
+    take(body, key)
+    return { source: () => body, name, once: true }
+  }
   throw new Error(
     `Unable to download '${String(url)}': the response has no body`
   )

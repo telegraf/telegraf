@@ -371,7 +371,8 @@ test('should reject a { source } stream that was already read', async (t) => {
 
   t.throws(() => convert({ video: { source: stream } }), {
     instanceOf: TypeError,
-    message: /^Invalid file under `video`: the stream was already read/,
+    message:
+      /^Invalid file under `video`: the stream was already sent, read or destroyed/,
   })
 })
 

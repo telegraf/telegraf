@@ -86,12 +86,16 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     return this.use(Composer.guard<C, U>(guardFn, ...fns))
   }
 
+  // NoInfer: Filter is inferred from filters only. Inferring it from a middleware
+  // with a custom context type is very slow (#2016).
   /**
    * Registers middleware for handling updates narrowed by update types or filter queries.
    */
   on<Filter extends tt.UpdateType | Guard<C['update']>>(
     filters: MaybeArray<Filter>,
-    ...fns: NonemptyReadonlyArray<Middleware<FilteredContext<C, Filter>>>
+    ...fns: NonemptyReadonlyArray<
+      NoInfer<Middleware<FilteredContext<C, Filter>>>
+    >
   ): this
 
   /**
@@ -101,7 +105,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   on<Filter extends tt.UpdateType | tt.MessageSubType>(
     filters: MaybeArray<Filter>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<C, tt.MountMap[Filter]>, tt.MountMap[Filter]>
+      NoInfer<
+        Middleware<NarrowedContext<C, tt.MountMap[Filter]>, tt.MountMap[Filter]>
+      >
     >
   ): this
 
@@ -464,7 +470,9 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
     Filter extends tt.UpdateType | Guard<Ctx['update']>,
   >(
     filters: MaybeArray<Filter>,
-    ...fns: NonemptyReadonlyArray<Middleware<FilteredContext<Ctx, Filter>>>
+    ...fns: NonemptyReadonlyArray<
+      NoInfer<Middleware<FilteredContext<Ctx, Filter>>>
+    >
   ): MiddlewareFn<Ctx>
 
   /**
@@ -477,7 +485,12 @@ export class Composer<C extends Context> implements MiddlewareObj<C> {
   >(
     filters: MaybeArray<Filter>,
     ...fns: NonemptyReadonlyArray<
-      Middleware<NarrowedContext<Ctx, tt.MountMap[Filter]>, tt.MountMap[Filter]>
+      NoInfer<
+        Middleware<
+          NarrowedContext<Ctx, tt.MountMap[Filter]>,
+          tt.MountMap[Filter]
+        >
+      >
     >
   ): MiddlewareFn<Ctx>
 

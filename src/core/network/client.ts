@@ -1,21 +1,26 @@
 /* eslint @typescript-eslint/restrict-template-expressions: [ "error", { "allowNumber": true, "allowBoolean": true } ] */
-import * as crypto from 'crypto'
-import * as fs from 'fs'
-import { stat, realpath } from 'fs/promises'
 import * as http from 'http'
 import * as https from 'https'
-import * as path from 'path'
+import { Readable } from 'stream'
+import type { ReadableStream as NodeReadableStream } from 'stream/web'
 import fetch, { RequestInit } from 'node-fetch'
-import { hasProp, hasPropType } from '../helpers/check'
-import { InputFile, Opts, Telegram } from '../types/typegram'
+import { Opts, Telegram } from '../types/typegram'
 import { AbortController, AbortSignal } from 'abort-controller'
 import { compactOptions } from '../helpers/compact'
-import MultipartStream from './multipart-stream'
+import { toStream } from './body'
+import type { ByteStream, FetchFn } from '../types/platform'
+import { createClient, redact } from './fetch-client'
+import {
+  convertFiles,
+  destroyUnread,
+  downloadError,
+  type Download,
+} from './file-literals'
+import { extractFiles, readBytes, toJson, toMultipart } from './payload'
 import TelegramError from './error'
 import { URL } from 'url'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const debug = require('debug')('telegraf:client')
-const { isStream } = MultipartStream
 
 const WEBHOOK_REPLY_METHOD_ALLOWLIST = new Set<keyof Telegram>([
   'answerCallbackQuery',
@@ -29,24 +34,77 @@ namespace ApiClient {
   export type Agent = http.Agent | ((parsedUrl: URL) => http.Agent) | undefined
   export interface Options {
     /**
-     * Agent for communicating with the bot API.
+     * Sends every request through this `fetch` instead of `node-fetch`.
+     *
+     * It is recommended to pass the runtime's own `fetch` function, unless you
+     * have a specific reason to use a custom implementation or wrapper.
+     * It must be a standard `fetch` implementation.
+     */
+    fetch?: FetchFn
+    /** The Bot API server that calls are sent to. */
+    api?: {
+      /**
+       * The URL of the server. Set it for a self-hosted Bot API server.
+       * @default 'https://api.telegram.org'
+       */
+      root?: string
+      /**
+       * `user` for a Bot API server that supports user accounts.
+       * @default 'bot'
+       * @see https://github.com/tdlight-team/tdlight-telegram-bot-api#user-mode
+       */
+      mode?: 'bot' | 'user'
+      /**
+       * `test` sends calls to Telegram's test environment.
+       * @default 'prod'
+       */
+      environment?: 'prod' | 'test'
+    }
+    /**
+     * Whether the first eligible call of a webhook update is sent as the response
+     * to the webhook request, instead of a request of its own.
+     * Such a call resolves with `true` and can't report an error.
+     * @default true
+     * @see https://core.telegram.org/bots/faq#how-can-i-make-requests-in-response-to-updates
+     */
+    webhookReply?: boolean
+  }
+
+  /** The options of `ApiClient` before 4.100. They will not be accepted in v6. */
+  export interface LegacyOptions {
+    /** @deprecated Use `api.root`. */
+    apiRoot?: string
+    /** @deprecated Use `api.mode`. */
+    apiMode?: 'bot' | 'user'
+    /** @deprecated Use `api.environment`. */
+    testEnv?: boolean
+    /**
+     * Agent for communicating with the bot API. Ignored when `fetch` is set.
+     * @deprecated Configure the connection in `fetch`.
      */
     agent?: http.Agent
     /**
-     * Agent for attaching files via URL.
+     * Agent for attaching files via URL. Ignored when `fetch` is set.
      * 1. Not all agents support both `http:` and `https:`.
      * 2. When passing a function, create the agents once, outside of the function.
      *    Creating new agent every request probably breaks `keepAlive`.
+     * @deprecated Configure the connection in `fetch`.
      */
     attachmentAgent?: Agent
+  }
+
+  /**
+   * The options of an `ApiClient`: those passed to it, with the defaults applied.
+   * It reads them on every call, so they can be changed between calls.
+   */
+  export interface ResolvedOptions {
     apiRoot: string
-    /**
-     * @default 'bot'
-     * @see https://github.com/tdlight-team/tdlight-telegram-bot-api#user-mode
-     */
     apiMode: 'bot' | 'user'
-    webhookReply: boolean
     testEnv: boolean
+    webhookReply: boolean
+    agent?: http.Agent
+    attachmentAgent?: Agent
+    fetch?: FetchFn
   }
 
   export interface CallApiOptions {
@@ -54,17 +112,7 @@ namespace ApiClient {
   }
 }
 
-const DEFAULT_EXTENSIONS: Record<string, string | undefined> = {
-  audio: 'mp3',
-  photo: 'jpg',
-  sticker: 'webp',
-  video: 'mp4',
-  animation: 'mp4',
-  video_note: 'mp4',
-  voice: 'ogg',
-}
-
-const DEFAULT_OPTIONS: ApiClient.Options = {
+const DEFAULT_OPTIONS: ApiClient.ResolvedOptions = {
   apiRoot: 'https://api.telegram.org',
   apiMode: 'bot',
   webhookReply: true,
@@ -76,257 +124,122 @@ const DEFAULT_OPTIONS: ApiClient.Options = {
   testEnv: false,
 }
 
-function includesMedia(payload: Record<string, unknown>) {
-  return Object.entries(payload).some(([key, value]) => {
-    if (key === 'link_preview_options') return false
-
-    if (Array.isArray(value)) {
-      return value.some(
-        ({ media }) =>
-          media && typeof media === 'object' && (media.source || media.url)
-      )
-    }
-    return (
-      value &&
-      typeof value === 'object' &&
-      ((hasProp(value, 'source') && value.source) ||
-        (hasProp(value, 'url') && value.url) ||
-        (hasPropType(value, 'media', 'object') &&
-          ((hasProp(value.media, 'source') && value.media.source) ||
-            (hasProp(value.media, 'url') && value.media.url))))
-    )
-  })
-}
-
-function replacer(_: unknown, value: unknown) {
-  if (value == null) return undefined
-  return value
-}
-
-function buildJSONConfig(payload: unknown): Promise<RequestInit> {
-  return Promise.resolve({
-    method: 'POST',
-    compress: true,
-    headers: { 'content-type': 'application/json', connection: 'keep-alive' },
-    body: JSON.stringify(payload, replacer),
-  })
-}
-
-const FORM_DATA_JSON_FIELDS = [
-  'results',
-  'reply_markup',
-  'mask_position',
-  'shipping_options',
-  'errors',
-] as const
-
-async function buildFormDataConfig(
-  payload: Opts<keyof Telegram>,
-  agent: ApiClient.Agent
-) {
-  for (const field of FORM_DATA_JSON_FIELDS) {
-    if (hasProp(payload, field) && typeof payload[field] !== 'string') {
-      payload[field] = JSON.stringify(payload[field])
-    }
+/** An option of `api` takes precedence over the same option in `ApiClient.LegacyOptions`. */
+function resolveOptions(
+  options: (ApiClient.Options & ApiClient.LegacyOptions) | undefined
+): ApiClient.ResolvedOptions {
+  const { api, ...rest } = options ?? {}
+  const environment = api?.environment
+  const server: Partial<ApiClient.LegacyOptions> = {
+    apiRoot: api?.root,
+    apiMode: api?.mode,
+    testEnv: environment === undefined ? undefined : environment === 'test',
   }
-  const boundary = crypto.randomBytes(32).toString('hex')
-  const formData = new MultipartStream(boundary)
-  await Promise.all(
-    Object.keys(payload).map((key) =>
-      // @ts-expect-error payload[key] can obviously index payload, but TS doesn't trust us
-      attachFormValue(formData, key, payload[key], agent)
-    )
-  )
   return {
-    method: 'POST',
-    compress: true,
-    headers: {
-      'content-type': `multipart/form-data; boundary=${boundary}`,
-      connection: 'keep-alive',
+    ...DEFAULT_OPTIONS,
+    ...compactOptions(rest),
+    // An option of `api` that is not set must not replace the one in `rest`.
+    ...compactOptions(server),
+  }
+}
+
+const TIMEOUT = 500_000 // ms
+
+/** Downloads the `{ url }` files of one API call. */
+interface Downloader {
+  /** The response body. The URL is requested when the body is first read. */
+  download: Download
+  /** Aborts every download of this call. */
+  abort(reason?: unknown): void
+}
+
+/** Downloads with node-fetch, using `attachmentAgent`. */
+function nodeFetchDownloader(agent: ApiClient.Agent): Downloader {
+  const controller = new AbortController()
+  return {
+    // Destroying a node-fetch response body doesn't close its connection.
+    abort: () => controller.abort(),
+    async *download(url) {
+      // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
+      const signal: RequestInit['signal'] = controller.signal
+      const res = await fetch(url, { agent, timeout: TIMEOUT, signal })
+      if (!res.ok) throw downloadError(url, res.status, res.statusText)
+      yield* res.body as AsyncIterable<Uint8Array>
     },
-    body: formData,
+  }
+}
+
+/** Downloads with the user's custom `fetch`. */
+function customFetchDownloader(customFetch: FetchFn): Downloader {
+  // A standard `fetch` needs a native AbortSignal, not the `abort-controller` polyfill.
+  const controller = new globalThis.AbortController()
+  return {
+    abort: (reason) => controller.abort(reason),
+    async *download(url) {
+      const res = await customFetch(url, {
+        method: 'GET',
+        headers: {},
+        body: undefined,
+        signal: controller.signal,
+        duplex: 'half',
+      })
+      const ok = res.status >= 200 && res.status <= 299
+      if (!ok) throw downloadError(url, res.status, res.statusText)
+      // e.g. a 204, or a custom fetch that returns only what the client reads.
+      if (res.body == null) {
+        throw new Error(`Unable to download '${url}': the response has no body`)
+      }
+      yield* readBytes(res.body as ByteStream)
+    },
+  }
+}
+
+/** The error for a `{ url }` that can't be downloaded quotes the URL, which may hold the token. */
+function convertPayload(
+  payload: unknown,
+  download: Download,
+  signal: globalThis.AbortSignal,
+  token: string
+) {
+  try {
+    return convertFiles(payload as Record<string, unknown>, download, signal)
+  } catch (error) {
+    throw redact(error, token)
   }
 }
 
 /**
- * Turns one payload entry into form parts.
- * Exported for tests
- * @internal
+ * Webhook replies are always JSON, since methods in WEBHOOK_REPLY_METHOD_ALLOWLIST
+ * don't take files.
  */
-export async function attachFormValue(
-  form: MultipartStream,
-  id: string,
-  value: unknown,
-  agent: ApiClient.Agent
-) {
-  if (value == null) {
-    return
-  }
-  if (
-    typeof value === 'string' ||
-    typeof value === 'boolean' ||
-    typeof value === 'number'
-  ) {
-    form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: `${value}`,
-    })
-    return
-  }
-  if (id === 'thumb' || id === 'thumbnail') {
-    const attachmentId = crypto.randomBytes(16).toString('hex')
-    await attachFormMedia(form, value as InputFile, attachmentId, agent)
-    return form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: `attach://${attachmentId}`,
-    })
-  }
-  if (Array.isArray(value)) {
-    const items = await Promise.all(
-      value.map(async (item) => {
-        if (typeof item.media !== 'object') {
-          return await Promise.resolve(item)
-        }
-        const attachmentId = crypto.randomBytes(16).toString('hex')
-        await attachFormMedia(form, item.media, attachmentId, agent)
-        const thumb = item.thumb ?? item.thumbnail
-        if (typeof thumb === 'object') {
-          const thumbAttachmentId = crypto.randomBytes(16).toString('hex')
-          await attachFormMedia(form, thumb, thumbAttachmentId, agent)
-          return {
-            ...item,
-            media: `attach://${attachmentId}`,
-            thumbnail: `attach://${thumbAttachmentId}`,
-          }
-        }
-        return { ...item, media: `attach://${attachmentId}` }
-      })
-    )
-    return form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: JSON.stringify(items),
-    })
-  }
-  if (
-    value &&
-    typeof value === 'object' &&
-    hasProp(value, 'media') &&
-    hasProp(value, 'type') &&
-    typeof value.media !== 'undefined' &&
-    typeof value.type !== 'undefined'
-  ) {
-    const attachmentId = crypto.randomBytes(16).toString('hex')
-    await attachFormMedia(form, value.media as InputFile, attachmentId, agent)
-    return form.addPart({
-      headers: { 'content-disposition': `form-data; name="${id}"` },
-      body: JSON.stringify({
-        ...value,
-        media: `attach://${attachmentId}`,
-      }),
-    })
-  }
-  if (
-    value &&
-    typeof value === 'object' &&
-    ((hasProp(value, 'source') && typeof value.source !== 'undefined') ||
-      (hasProp(value, 'url') && typeof value.url !== 'undefined'))
-  ) {
-    return await attachFormMedia(form, value as InputFile, id, agent)
-  }
-  return form.addPart({
-    headers: { 'content-disposition': `form-data; name="${id}"` },
-    body: JSON.stringify(value),
-  })
-}
-
-async function attachFormMedia(
-  form: MultipartStream,
-  media: InputFile,
-  id: string,
-  agent: ApiClient.Agent
-) {
-  let fileName = media.filename ?? `${id}.${DEFAULT_EXTENSIONS[id] ?? 'dat'}`
-  if ('url' in media && media.url !== undefined) {
-    const timeout = 500_000 // ms
-    const res = await fetch(media.url, { agent, timeout })
-    return form.addPart({
-      headers: {
-        'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
-      },
-      body: res.body,
-    })
-  }
-  if ('source' in media && media.source) {
-    let mediaSource = media.source
-    if (typeof media.source === 'string') {
-      const source = await realpath(media.source)
-      if ((await stat(source)).isFile()) {
-        fileName = media.filename ?? path.basename(media.source)
-        mediaSource = await fs.createReadStream(media.source)
-      } else {
-        throw new TypeError(`Unable to upload '${media.source}', not a file`)
-      }
-    }
-    if (isStream(mediaSource) || Buffer.isBuffer(mediaSource)) {
-      form.addPart({
-        headers: {
-          'content-disposition': `form-data; name="${id}"; filename="${fileName}"`,
-        },
-        body: mediaSource,
-      })
-    }
-  }
-}
-
-async function answerToWebhook(
+function answerToWebhook(
   response: Response,
-  payload: Opts<keyof Telegram>,
-  options: ApiClient.Options
-): Promise<true> {
-  if (!includesMedia(payload)) {
-    if (!response.headersSent) {
-      response.setHeader('content-type', 'application/json')
-    }
-    response.end(JSON.stringify(payload), 'utf-8')
-    return true
-  }
-
-  const { headers, body } = await buildFormDataConfig(
-    payload,
-    options.attachmentAgent
-  )
+  payload: Opts<keyof Telegram>
+): true {
   if (!response.headersSent) {
-    for (const [key, value] of Object.entries(headers)) {
-      response.setHeader(key, value)
-    }
+    response.setHeader('content-type', 'application/json')
   }
-  await new Promise((resolve) => {
-    response.on('finish', resolve)
-    body.pipe(response)
-  })
+  response.end(JSON.stringify(payload), 'utf-8')
   return true
-}
-
-function redactToken(error: Error): never {
-  error.message = error.message.replace(
-    /\/(bot|user)(\d+):[^/]+\//,
-    '/$1$2:[REDACTED]/'
-  )
-  throw error
 }
 
 type Response = http.ServerResponse
 class ApiClient {
-  readonly options: ApiClient.Options
+  readonly token: string
+  readonly options: ApiClient.ResolvedOptions
 
   constructor(
-    readonly token: string,
-    options?: Partial<ApiClient.Options>,
+    token: string,
+    options?: ApiClient.Options & ApiClient.LegacyOptions,
     private readonly response?: Response
   ) {
-    this.options = {
-      ...DEFAULT_OPTIONS,
-      ...compactOptions(options),
+    // A token read from a file may end with a newline.
+    // A missing token is reported by `callApi`, not by the constructor.
+    this.token = typeof token === 'string' ? token.trim() : token
+    this.options = resolveOptions(options)
+    const { fetch: customFetch } = this.options
+    if (customFetch !== undefined && typeof customFetch !== 'function') {
+      throw new TypeError('The `fetch` option must be a function.')
     }
     if (this.options.apiRoot.startsWith('http://')) {
       this.options.agent = undefined
@@ -366,7 +279,7 @@ class ApiClient {
       debug('Call via webhook', method, payload)
       // @ts-expect-error using webhookReply is an optimisation that doesn't respond with normal result
       // up to the user to deal with this
-      return await answerToWebhook(response, { method, ...payload }, options)
+      return answerToWebhook(response, { method, ...payload })
     }
 
     if (!token) {
@@ -378,52 +291,151 @@ class ApiClient {
 
     debug('HTTP call', method, payload)
 
-    const config: RequestInit = includesMedia(payload)
-      ? await buildFormDataConfig(
-          { method, ...payload },
-          options.attachmentAgent
-        )
-      : await buildJSONConfig(payload)
-    const apiUrl = new URL(
-      `./${options.apiMode}${token}${options.testEnv ? '/test' : ''}/${method}`,
-      options.apiRoot
+    if (options.fetch !== undefined) {
+      return await this.callWithCustomFetch(method, payload, signal)
+    }
+
+    const environment = options.testEnv ? '/test' : ''
+    const path = `./${options.apiMode}${token}${environment}/${method}`
+    let apiUrl: URL
+    try {
+      apiUrl = new URL(path, options.apiRoot)
+    } catch (error) {
+      throw redact(error, token)
+    }
+
+    const downloader = nodeFetchDownloader(options.attachmentAgent)
+    // The runtime's own: the function of an `InputFile` passes the signal on to a
+    // standard `fetch`, which refuses the signal of `abort-controller`.
+    const inputFileController = new globalThis.AbortController()
+    const converted = convertPayload(
+      payload,
+      downloader.download,
+      inputFileController.signal,
+      token
     )
-    config.agent = options.agent
-    config.timeout = 500_000 // ms
-
-    // Prevent leaking file-handles when a request fails during upload
-    const body =
-      config.body instanceof MultipartStream ? config.body : undefined
     const aborter = new AbortController()
-    let bodyError: Error | undefined
-    if (signal !== undefined) {
-      if (signal.aborted) aborter.abort()
-      else signal.addEventListener('abort', () => aborter.abort())
-    }
-    body?.once('error', (error: Error) => {
-      bodyError = error
-      aborter.abort()
-    })
-    // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
-    config.signal = aborter.signal
+    const abort = () => aborter.abort()
+    let body: Readable | undefined
 
-    const res = await fetch(apiUrl, config).catch((error: Error) => {
-      body?.destroy()
-      return redactToken(bodyError ?? error)
-    })
-    if (res.status >= 500) {
-      const errorPayload = {
-        error_code: res.status,
-        description: res.statusText,
+    try {
+      const { payload: fields, attachments } = extractFiles(converted.payload)
+      const multipart =
+        attachments.length === 0 ? undefined : toMultipart(fields, attachments)
+      const stream = multipart && toStream(multipart.segments).stream
+      // node-fetch can't send a web stream.
+      body = stream && Readable.fromWeb(stream as NodeReadableStream)
+      const config: RequestInit = {
+        method: 'POST',
+        compress: true,
+        headers: {
+          'content-type': multipart?.contentType ?? 'application/json',
+          connection: 'keep-alive',
+        },
+        body: body ?? toJson(fields),
+        agent: options.agent,
+        timeout: TIMEOUT,
       }
-      throw new TelegramError(errorPayload, { method, payload })
+
+      // Prevent leaking file-handles when a request fails during upload
+      let bodyError: unknown
+      if (signal?.aborted === true) abort()
+      else signal?.addEventListener('abort', abort)
+      body?.once('error', (error: unknown) => {
+        bodyError = error
+        aborter.abort()
+      })
+      // @ts-expect-error AbortSignal shim is missing some props from Request.AbortSignal
+      config.signal = aborter.signal
+
+      const res = await fetch(apiUrl, config).catch((error: unknown) => {
+        throw redact(bodyError ?? error, token)
+      })
+      if (res.status >= 500) {
+        const errorPayload = {
+          error_code: res.status,
+          description: res.statusText,
+        }
+        throw new TelegramError(errorPayload, { method, payload })
+      }
+      // node-fetch puts the request URL in its error for a non-JSON response.
+      // A source that fails while the answer is arriving aborts the request, and the
+      // error is then an `AbortError` that says nothing about the source.
+      const data = await res.json().catch((error: unknown) => {
+        throw redact(bodyError ?? error, token)
+      })
+      if (!data.ok) {
+        debug('API call failed', data)
+        throw new TelegramError(data, { method, payload })
+      }
+      return data.result
+    } finally {
+      // The signal can outlive the call: polling reuses one for every call.
+      signal?.removeEventListener('abort', abort)
+      // The upload did not finish: the request failed, or the server responded early
+      // (e.g. it rejected a file). The file being read is still open, and so are the
+      // streams that were never reached.
+      if (body?.readableEnded !== true) {
+        body?.destroy()
+        destroyUnread(converted.streams)
+        downloader.abort()
+      }
+      // The function of an `InputFile` that is still opening its file stops.
+      inputFileController.abort()
     }
-    const data = await res.json()
-    if (!data.ok) {
-      debug('API call failed', data)
-      throw new TelegramError(data, { method, payload })
+  }
+
+  /** Sends the call with the user's custom `fetch` (`options.fetch`). */
+  private async callWithCustomFetch<M extends keyof Telegram>(
+    method: M,
+    payload: Opts<M>,
+    signal: AbortSignal | undefined
+  ): Promise<ReturnType<Telegram[M]>> {
+    const { token, options } = this
+    const { agent, attachmentAgent, fetch: customFetch } = options
+    // `options` can be changed between calls, and the default transport reads it on
+    // every call, so the client is not kept.
+    const client = createClient(token, {
+      apiRoot: options.apiRoot,
+      apiMode: options.apiMode,
+      testEnv: options.testEnv,
+      fetch: customFetch,
+      // Agents are ignored with a custom fetch. Warn only about ones the user set,
+      // not about the built-in default.
+      agent: agent === DEFAULT_OPTIONS.agent ? undefined : agent,
+      attachmentAgent,
+    })
+
+    const downloader = customFetchDownloader(customFetch as FetchFn)
+    const inputFileController = new globalThis.AbortController()
+    const converted = convertPayload(
+      payload,
+      downloader.download,
+      inputFileController.signal,
+      token
+    )
+
+    try {
+      const data = await client.call({
+        method,
+        payload: converted.payload,
+        // The client only uses what the `abort-controller` polyfill also provides.
+        signal: signal as unknown as globalThis.AbortSignal | undefined,
+      })
+      if (!data.ok) {
+        debug('API call failed', data)
+        throw new TelegramError(data, { method, payload })
+      }
+      return data.result as ReturnType<Telegram[M]>
+    } finally {
+      // The client closes the file it was reading.
+      // The streams it never reached are still open and need to be destroyed.
+      destroyUnread(converted.streams)
+      // A download that was being requested when the call ended is still in flight.
+      downloader.abort()
+      // The function of an `InputFile` that is still opening its file stops.
+      inputFileController.abort()
     }
-    return data.result
   }
 }
 

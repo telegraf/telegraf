@@ -400,7 +400,7 @@ export class Telegram extends ApiClient {
    */
   sendVideoNote(
     chatId: number | string,
-    videoNote: string | tg.InputFileVideoNote,
+    videoNote: string | tg.InputFile,
     extra?: tt.ExtraVideoNote
   ) {
     return this.callApi('sendVideoNote', {

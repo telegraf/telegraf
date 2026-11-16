@@ -1,16 +1,48 @@
 import * as tg from '../types/typegram'
 import * as tt from '../../telegram-types'
-import AbortController from 'abort-controller'
+import AbortController, { type AbortSignal } from 'abort-controller'
 import ApiClient from './client'
 import d from 'debug'
-import { promisify } from 'util'
 import { TelegramError } from './error'
 const debug = d('telegraf:polling')
-const wait = promisify(setTimeout)
+
+/** Resolves after `ms`, or as soon as the signal is aborted. */
+function wait(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    if (signal.aborted) {
+      resolve()
+      return
+    }
+    const end = () => {
+      clearTimeout(timer)
+      signal.removeEventListener('abort', end)
+      resolve()
+    }
+    const timer = setTimeout(end, ms)
+    signal.addEventListener('abort', end)
+  })
+}
+
 function always<T>(x: T) {
   return () => x
 }
 const noop = always(Promise.resolve())
+
+function getErrorName(error: unknown): unknown {
+  if (typeof error !== 'object' || error === null) return undefined
+  return 'name' in error ? error.name : undefined
+}
+
+/** The `parameters.retry_after` of an API error, in seconds. */
+function getRetryAfter(error: unknown): number | undefined {
+  if (typeof error !== 'object' || error === null) return undefined
+  if (!('parameters' in error)) return undefined
+  const { parameters } = error
+  if (typeof parameters !== 'object' || parameters === null) return undefined
+  if (!('retry_after' in parameters)) return undefined
+  const { retry_after: seconds } = parameters
+  return typeof seconds === 'number' ? seconds : undefined
+}
 
 export class Polling {
   private readonly abortController = new AbortController()
@@ -40,30 +72,31 @@ export class Polling {
         }
         yield updates
       } catch (error) {
-        const err = error as Error & {
-          parameters?: { retry_after: number }
-        }
-
-        if (err.name === 'AbortError') return
+        const stopped = this.abortController.signal.aborted
+        if (stopped && getErrorName(error) === 'AbortError') return
+        // A failed request rejects with the transport's own error: a `FetchError` from
+        // node-fetch, a `TypeError` from a standard fetch and from Bun, where `node-fetch`
+        // is Bun's `fetch`. So anything that is not an API error is a failed request.
         if (
-          err.name === 'FetchError' ||
-          (err instanceof TelegramError && err.code === 429) ||
-          (err instanceof TelegramError && err.code >= 500)
+          !(error instanceof TelegramError) ||
+          error.code === 429 ||
+          error.code >= 500
         ) {
-          const retryAfter: number = err.parameters?.retry_after ?? 5
-          debug('Failed to fetch updates, retrying after %ds.', retryAfter, err)
-          await wait(retryAfter * 1000)
+          const retryAfter = getRetryAfter(error) ?? 5
+          debug(
+            'Failed to fetch updates, retrying after %ds.',
+            retryAfter,
+            error
+          )
+          // `stop()` must not have to wait for a retry that will not happen.
+          await wait(retryAfter * 1000, this.abortController.signal)
           continue
         }
-        if (
-          err instanceof TelegramError &&
-          // Unauthorized      Conflict
-          (err.code === 401 || err.code === 409)
-        ) {
+        // Unauthorized      Conflict
+        if (error.code === 401 || error.code === 409) {
           this.skipOffsetSync = true
-          throw err
         }
-        throw err
+        throw error
       }
     } while (!this.abortController.signal.aborted)
   }

@@ -5,13 +5,30 @@ on:
     tags:
       - v4.*
 
+permissions:
+  # The docs are pushed to the gh-pages branch.
+  contents: write
+  # npm takes the OIDC token of the run in place of a stored token: trusted publishing.
+  id-token: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v7
+    # Trusted publishing needs npm 11.5.1 or later, which Node 24 bundles and Node 22 does not.
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 24
+        registry-url: https://registry.npmjs.org
+        package-manager-cache: false
+    # --ignore-scripts so `prepare` does not run here; the build is an explicit step
+    # below, which keeps a build failure distinguishable from an install failure.
     - run : npm ci --ignore-scripts
+    # `lib/`, `typings/` and the subpath shims are not in git, so a package that is
+    # published without this step has no code.
+    - run : npm run build
     - run : npm run build:docs
     - name: Make GitHub links absolute
       run :
@@ -29,8 +46,4 @@ jobs:
           # for v3.html and perhaps CNAME
           keep_files: true
     - name: Publish to npm
-      run : |
-        npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
-        npm publish --ignore-scripts
-      env :
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      run : npm publish --ignore-scripts

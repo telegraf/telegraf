@@ -6,7 +6,7 @@ const { session } = require('..')
 const {
   SyncStore,
   AsyncStore,
-  Fixtures,
+  fixtures,
   createBot,
   randSleep,
   genericAsyncMiddleware,
@@ -57,7 +57,7 @@ test('must resist session racing (with sync store)', (t) =>
       return Promise.all(
         Array
           // create 100 text updates and fire them all at once
-          .from({ length: 100 }, Fixtures.message.text)
+          .from({ length: 100 }, fixtures.update.message.text)
           .map((fixture) => bot.handleUpdate(fixture))
       )
         .then(() => {
@@ -108,7 +108,7 @@ test('must resist session racing (with async store)', (t) =>
       return Promise.all(
         Array
           // create 100 text updates and fire them all at once
-          .from({ length: 100 }, Fixtures.message.text)
+          .from({ length: 100 }, fixtures.update.message.text)
           .map((fixture) => bot.handleUpdate(fixture))
       )
         .then(() => {
@@ -138,7 +138,7 @@ test('must not write session back if session not touched after defaultSession wa
       return Promise.all(
         Array
           // create 100 text message updates and fire them all at once
-          .from({ length: 100 }, Fixtures.message.text)
+          .from({ length: 100 }, fixtures.update.message.text)
           .map((fixture) => bot.handleUpdate(fixture))
       )
         .then(() => t.deepEqual(map.size, 0))
@@ -164,7 +164,7 @@ test('must write session back if session was touched after defaultSession is pas
       return Promise.all(
         Array
           // create 100 text message updates and fire them all at once
-          .from({ length: 100 }, Fixtures.message.text)
+          .from({ length: 100 }, fixtures.update.message.text)
           .map((fixture) => bot.handleUpdate(fixture))
       ).then(() => {
         const entries = [...map.entries()]
@@ -215,7 +215,7 @@ test('multiple sessions can be used independently without conflict', (t) =>
       return Promise.all(
         Array
           // create 100 text message updates and fire them all at once
-          .from({ length: 100 }, Fixtures.message.text)
+          .from({ length: 100 }, fixtures.update.message.text)
           // get different chatIds
           .map((fixture, id) => ((fixture.message.chat.id = id), fixture))
           .map((fixture) => bot.handleUpdate(fixture))

@@ -9,6 +9,7 @@ export { InputFile } from './input-file'
 
 export * as Types from './telegram-types'
 export * as Markup from './markup'
+/** @deprecated Use `InputFile` instead. */
 export * as Input from './input'
 export * as Format from './format'
 

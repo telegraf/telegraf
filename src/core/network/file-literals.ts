@@ -521,8 +521,8 @@ function literalKeys(
   // accepted a `null` filename. Any other key is not set only when it is `undefined`.
   const { source: maybeSource, url, filename, ...rest } = literal
   const source = maybeSource ?? undefined
-  // v4 accepted a `URL` object.
-  const address = (url instanceof URL ? url.href : url) ?? undefined
+  // v4 accepted a `URL` object, of any implementation, such as `whatwg-url`'s.
+  const address = (isUrl(url) ? url.href : url) ?? undefined
   const extraKey = Object.keys(rest).find((key) => rest[key] !== undefined)
 
   let problem: string | undefined

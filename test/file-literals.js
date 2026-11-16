@@ -292,6 +292,27 @@ test('should accept a null filename and a URL object', async (t) => {
   t.deepEqual(asked, ['https://example.com/a%20b'])
 })
 
+test('should accept a URL object of another implementation', async (t) => {
+  // e.g. `whatwg-url`'s, which is not an instance of the runtime's `URL`
+  class OtherURL {
+    constructor(href) {
+      this.href = href
+    }
+  }
+  const asked = []
+  const download = (url) => {
+    asked.push(url)
+    return Readable.from(['downloaded'])
+  }
+  const converted = convert(
+    { photo: { url: new OtherURL('https://example.com/a.jpg') } },
+    download
+  )
+
+  t.is(await text(converted.photo), 'downloaded')
+  t.deepEqual(asked, ['https://example.com/a.jpg'])
+})
+
 test('should support a stream without an async iterator', async (t) => {
   // Streams from before async iteration only have pipe().
   const old = new Stream()

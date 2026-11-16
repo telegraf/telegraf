@@ -270,6 +270,24 @@ test('should destroy the stream of an invalid file literal', (t) => {
   t.true(stream.destroyed)
 })
 
+test('should cancel the body of a Response in an invalid file literal', async (t) => {
+  // A `Response` keeps its connection open until its body is read or cancelled.
+  let cancelled = false
+  const body = new ReadableStream({
+    cancel() {
+      cancelled = true
+    },
+  })
+  const response = new Response(body)
+
+  t.throws(() => convert({ document: { source: response, caption: 'a' } }), {
+    instanceOf: TypeError,
+    message: /unexpected key `caption`/,
+  })
+  await new Promise(setImmediate)
+  t.true(cancelled)
+})
+
 test('should accept a null filename and a URL object', async (t) => {
   // v4 accepted a null filename and a URL object.
   const asked = []

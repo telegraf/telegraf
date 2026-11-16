@@ -735,9 +735,11 @@ function isFileContent(source: unknown): boolean {
  * internal state, which includes its path.
  */
 function invalidFile(source: unknown, key: string, problem: string) {
-  // The stream was passed to be read, and this call won't read it.
-  if (isNodeStream(source)) source.destroy?.()
-  else if (isWebStream(source)) source.cancel().catch(noop)
+  // The stream was passed to be read, and this call won't read it. A `Response` keeps its
+  // connection open until its body is read or cancelled.
+  const stream: unknown = isResponse(source) ? source.body : source
+  if (isNodeStream(stream)) stream.destroy?.()
+  else if (isWebStream(stream)) stream.cancel().catch(noop)
   return fileError(key, problem)
 }
 

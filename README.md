@@ -48,6 +48,20 @@ Telegraf is a library that makes it simple for you to develop your own Telegram 
 - `http/https/fastify/Connect.js/express.js` compatible webhooks
 - Extensible
 
+### What's new in v4.100.0
+
+- File uploads are streamed and work on Node.js, Bun, and Deno. Use [`InputFile`](#working-with-files) for files, streams, buffers, and URLs.
+- You can provide a `fetch` implementation to configure API requests, including custom connection settings.
+- Node.js 20 or later is required. The release also deprecates the old `Input` helpers and `telegram` constructor option.
+
+On Node.js 20+, Bun, or Deno, opt into the runtime's `fetch` implementation with:
+
+```js
+const bot = new Telegraf(token, { fetch })
+```
+
+See the [v4.100.0 release notes](release-notes/4.100.0.md) for migration details and all changes.
+
 ### Example
 
 ```js
@@ -120,6 +134,36 @@ or
 ```shellscript
 $ pnpm add telegraf
 ```
+
+### Run a bot
+
+Save this as `bot.js`. Keep the token out of source control; set `BOT_TOKEN` in your shell or deployment environment using the token from BotFather.
+
+```js
+const { Telegraf } = require('telegraf')
+const { message } = require('telegraf/filters')
+
+const token = process.env.BOT_TOKEN
+if (!token) throw new Error('Set BOT_TOKEN before starting the bot')
+
+const bot = new Telegraf(token)
+
+bot.start((ctx) => ctx.reply('Welcome! Send /echo followed by some text.'))
+bot.command('echo', (ctx) =>
+  ctx.reply(ctx.payload || 'Usage: /echo <text>')
+)
+bot.on(message('text'), (ctx) => ctx.reply('Try /echo <text>.'))
+
+bot.launch().catch((error) => {
+  console.error('Failed to launch bot:', error)
+  process.exitCode = 1
+})
+
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
+```
+
+For example, set the token and start the bot with `export BOT_TOKEN='<your-token>'` followed by `node bot.js`. `bot.launch()` uses long polling; see [Webhooks](#webhooks) to receive updates over HTTPS instead.
 
 ### `Telegraf` class
 

@@ -114,6 +114,8 @@ export const linkOrMention = (
     | { type: 'text_mention'; user: User }
 ) => {
   const { text, entities = [] } = FmtString.normalise(content)
-  entities.unshift(Object.assign(data, { offset: 0, length: text.length }))
-  return new FmtString(text, entities)
+  return new FmtString(text, [
+    { ...data, offset: 0, length: text.length },
+    ...entities,
+  ])
 }
